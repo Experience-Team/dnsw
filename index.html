@@ -5,6 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tools</title>
   <style>
+    /* ─────────────────────────────────────────────
+       Colour tokens
+       Blues  → Sydney use only
+       Greens → NSW use only
+    ───────────────────────────────────────────── */
+    :root {
+      /* Blues — Sydney */
+      --blue-100: #07172D;
+      --blue-90:  #062E66;
+      --blue-80:  #0D479A;
+      --blue-70:  #115AC1;
+      --blue-60:  #2273E3;
+      --blue-50:  #4E95FA;
+      --blue-40:  #83B6FF;
+      --blue-30:  #B3D4FF;
+      --blue-20:  #D8E7FF;
+      --blue-10:  #F0F6FF;
+
+      /* Greens — NSW */
+      --green-100: #002E17;
+      --green-90:  #014533;
+      --green-80:  #00563C;
+      --green-70:  #05684A;
+      --green-60:  #16835B;
+      --green-50:  #04A069;
+      --green-40:  #52C290;
+      --green-30:  #A8DEBD;
+      --green-20:  #CFEDD9;
+      --green-10:  #F0FAF2;
+
+      /* Greys */
+      --grey-100: #0D0D0D;
+      --grey-90:  #1B1B1B;
+      --grey-80:  #363636;
+      --grey-70:  #515151;
+      --grey-60:  #757575;
+      --grey-50:  #969696;
+      --grey-40:  #AFAFAF;
+      --grey-30:  #D1D0D0;
+      --grey-20:  #EBEBEB;
+      --grey-10:  #FAFAFA;
+
+      /* Secondary — Purple */
+      --purple-100: #200833;
+      --purple-90:  #3D006B;
+      --purple-80:  #590096;
+      --purple-70:  #7D00D1;
+      --purple-60:  #A126FF;
+      --purple-50:  #C26EFF;
+      --purple-40:  #D69CFF;
+      --purple-30:  #E8C4FF;
+      --purple-20:  #F2DEFF;
+      --purple-10:  #FAF5FF;
+
+      /* Secondary — Yellow */
+      --yellow-100: #332600;
+      --yellow-90:  #524000;
+      --yellow-80:  #7A5E00;
+      --yellow-70:  #AD8700;
+      --yellow-60:  #E5B200;
+      --yellow-50:  #FFD400;
+      --yellow-40:  #FFE56F;
+      --yellow-30:  #FFEFB3;
+      --yellow-20:  #FFF8DD;
+      --yellow-10:  #FFFCF5;
+
+      /* Secondary — Orange */
+      --orange-100: #401A00;
+      --orange-90:  #6B2900;
+      --orange-80:  #993B00;
+      --orange-70:  #BF4D00;
+      --orange-60:  #ED5E00;
+      --orange-50:  #FF6D0C;
+      --orange-40:  #FF8A30;
+      --orange-30:  #FFB277;
+      --orange-20:  #FFD9BC;
+      --orange-10:  #FFF3ED;
+
+      /* Secondary — Red */
+      --red-100: #470012;
+      --red-90:  #700024;
+      --red-80:  #A10036;
+      --red-70:  #D10047;
+      --red-60:  #FA0057;
+      --red-50:  #FF4269;
+      --red-40:  #FF6B7D;
+      --red-30:  #FFA1A6;
+      --red-20:  #FFCFCF;
+      --red-10:  #FCEDED;
+    }
+
+    /* ─────────────────────────────────────────────
+       Reset & base
+    ───────────────────────────────────────────── */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -13,29 +107,37 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #f5f5f7;
-      color: #1d1d1f;
+      background: var(--grey-10);
+      color: var(--grey-90);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
+    /* ─────────────────────────────────────────────
+       Header — NSW green brand bar
+    ───────────────────────────────────────────── */
     header {
-      background: #fff;
-      border-bottom: 1px solid #e0e0e5;
-      padding: 20px 40px;
+      background: var(--green-80);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     header h1 {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 600;
       letter-spacing: -0.01em;
-      color: #1d1d1f;
+      color: #fff;
     }
 
+    /* ─────────────────────────────────────────────
+       Main content
+    ───────────────────────────────────────────── */
     main {
       flex: 1;
-      padding: 60px 40px;
+      padding: 64px 40px;
       max-width: 960px;
       margin: 0 auto;
       width: 100%;
@@ -49,17 +151,20 @@
       font-size: 2.25rem;
       font-weight: 700;
       letter-spacing: -0.03em;
-      color: #1d1d1f;
+      color: var(--grey-100);
       margin-bottom: 12px;
     }
 
     .hero p {
       font-size: 1.05rem;
-      color: #6e6e73;
+      color: var(--grey-60);
       max-width: 520px;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
+    /* ─────────────────────────────────────────────
+       Tool cards
+    ───────────────────────────────────────────── */
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -68,7 +173,7 @@
 
     .tool-card {
       background: #fff;
-      border: 1px solid #e0e0e5;
+      border: 1px solid var(--grey-20);
       border-radius: 14px;
       padding: 32px;
       text-decoration: none;
@@ -76,14 +181,30 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      position: relative;
+      overflow: hidden;
       transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
 
+    /* Coloured top accent strip */
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .tool-card.sydney::before { background: var(--blue-70); }
+    .tool-card.nsw::before    { background: var(--green-80); }
+
     .tool-card:hover {
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.09);
       transform: translateY(-2px);
     }
 
+    /* Icon pill */
     .tool-icon {
       width: 52px;
       height: 52px;
@@ -94,46 +215,47 @@
       font-size: 1.5rem;
     }
 
-    .tool-icon.blue {
-      background: #e8f0fe;
-    }
-
-    .tool-icon.purple {
-      background: #f0e8fe;
-    }
+    .tool-card.sydney .tool-icon { background: var(--blue-10); }
+    .tool-card.nsw    .tool-icon { background: var(--green-10); }
 
     .tool-card h3 {
       font-size: 1.1rem;
       font-weight: 600;
       letter-spacing: -0.01em;
+      color: var(--grey-100);
     }
 
     .tool-card p {
       font-size: 0.9rem;
-      color: #6e6e73;
-      line-height: 1.55;
+      color: var(--grey-60);
+      line-height: 1.6;
     }
 
     .tool-card .arrow {
       margin-top: auto;
       font-size: 0.85rem;
-      font-weight: 500;
-      color: #0071e3;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 4px;
     }
 
+    .tool-card.sydney .arrow { color: var(--blue-70); }
+    .tool-card.nsw    .arrow { color: var(--green-70); }
+
     .tool-card .arrow::after {
       content: "→";
     }
 
+    /* ─────────────────────────────────────────────
+       Footer
+    ───────────────────────────────────────────── */
     footer {
       text-align: center;
       padding: 28px 40px;
       font-size: 0.8rem;
-      color: #aeaeb2;
-      border-top: 1px solid #e0e0e5;
+      color: var(--grey-40);
+      border-top: 1px solid var(--grey-20);
     }
   </style>
 </head>
@@ -151,15 +273,15 @@
 
     <div class="tools-grid">
 
-      <a href="customer-journey-map.html" class="tool-card">
-        <div class="tool-icon blue">🗺️</div>
+      <a href="customer-journey-map.html" class="tool-card sydney">
+        <div class="tool-icon">🗺️</div>
         <h3>Customer Journey Map</h3>
         <p>Visualise the end-to-end experience of your customers, identify pain points, and uncover opportunities to improve every touchpoint.</p>
         <span class="arrow">Open tool</span>
       </a>
 
-      <a href="personas.html" class="tool-card">
-        <div class="tool-icon purple">👤</div>
+      <a href="personas.html" class="tool-card nsw">
+        <div class="tool-icon">👤</div>
         <h3>Personas</h3>
         <p>Build rich, research-backed personas to align your team around a shared understanding of who your users are and what they need.</p>
         <span class="arrow">Open tool</span>
