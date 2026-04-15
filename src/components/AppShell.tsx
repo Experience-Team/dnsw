@@ -40,7 +40,7 @@ export default function AppShell() {
     <div className="min-h-screen bg-grey-10 flex flex-col">
       {/* ── Header ── */}
       <header className="bg-grey-90 text-white sticky top-0 z-40">
-        <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center gap-6">
+        <div className="px-10 h-14 flex items-center gap-6">
           {/* Back to hub */}
           <button
             onClick={() => navigate('/')}
@@ -93,7 +93,7 @@ export default function AppShell() {
 
       {/* ── Tab nav ── */}
       <nav className="bg-white border-b border-grey-20 sticky top-14 z-30">
-        <div className="max-w-screen-xl mx-auto px-6 flex gap-0">
+        <div className="px-10 flex gap-0">
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}
@@ -114,7 +114,7 @@ export default function AppShell() {
       </nav>
 
       {/* ── Content ── */}
-      <main className="flex-1 max-w-screen-xl mx-auto w-full px-6 py-6">
+      <main className="flex-1 w-full px-10 py-6">
         {!data && loading && <LoadingState />}
         {!data && !loading && error && <ErrorState message={error} />}
         {data && (
