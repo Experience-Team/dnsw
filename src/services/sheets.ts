@@ -10,12 +10,12 @@ const CSV_BASE_URL =
   '/pub?output=csv&single=true';
 
 const TABS = {
-  personas:        'Personas',
-  stages:          'Journey Stages',
-  touchpoints:     'Touchpoints',
-  journeys:        'Journeys',
-  adaptiveContent: 'Adaptive Content',
-  gaps:            'Gaps',
+  personas:        1829750647,
+  stages:          167369858,
+  touchpoints:     1659333997,
+  journeys:        956844268,
+  adaptiveContent: 1130418870,
+  gaps:            1133768074,
 } as const;
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
@@ -69,8 +69,11 @@ function parseCsv(text: string): string[][] {
 
 // ── Fetch a single tab ────────────────────────────────────────────────────────
 
-async function fetchTab(tabName: string): Promise<string[][]> {
-  const url = `${CSV_BASE_URL}&sheet=${encodeURIComponent(tabName)}`;
+async function fetchTab(gid: number): Promise<string[][]> {
+  const url = `${CSV_BASE_URL}&gid=${gid}`;
+
+  // TEMP DEBUG — remove before shipping
+  console.log(`[sheets] fetching gid=${gid} from:\n${url}`);
 
   let res: Response;
   try {
@@ -82,12 +85,18 @@ async function fetchTab(tabName: string): Promise<string[][]> {
   }
 
   if (!res.ok) {
+    // TEMP DEBUG
+    console.error(`[sheets] HTTP ${res.status} for gid=${gid}`);
     throw new Error(
       'Could not load data from Google Sheet. Check the sheet is published and the URL is correct.'
     );
   }
 
   const text = await res.text();
+
+  // TEMP DEBUG — log first 500 chars of raw CSV so headers + a few rows are visible
+  console.log(`[sheets] raw CSV for gid=${gid} (first 500 chars):\n${text.slice(0, 500)}`);
+
   return parseCsv(text);
 }
 
