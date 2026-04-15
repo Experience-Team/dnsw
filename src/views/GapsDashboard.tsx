@@ -234,7 +234,10 @@ export default function GapsDashboard() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-4">
-        <h1 className="text-2xl font-bold text-grey-90">Gaps Dashboard</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-grey-90">Gaps Dashboard</h1>
+          <p className="text-sm text-grey-50 mt-0.5">Content, experience, and data gaps that need addressing, ranked by severity.</p>
+        </div>
 
         <label className="flex items-center gap-2 text-sm ml-auto">
           <span className="text-grey-50">Severity:</span>

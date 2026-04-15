@@ -112,7 +112,10 @@ export default function AdaptiveContentView() {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-grey-90">Adaptive Content</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-grey-90">Adaptive Content</h1>
+          <p className="text-sm text-grey-50 mt-0.5">Content rules mapped by page type and audience segment. Each cell defines what changes for a given context.</p>
+        </div>
 
         <label className="flex items-center gap-2 text-sm">
           <span className="text-grey-50">Stage:</span>

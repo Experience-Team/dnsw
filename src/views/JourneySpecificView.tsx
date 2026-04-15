@@ -62,7 +62,10 @@ export default function JourneySpecificView() {
   return (
     <div>
       <div className="flex flex-wrap items-start gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-grey-90 w-full sm:w-auto">Journey View</h1>
+        <div className="w-full sm:w-auto">
+          <h1 className="text-2xl font-bold text-grey-90">Journey View</h1>
+          <p className="text-sm text-grey-50 mt-0.5">All touchpoints scoped to a single customer journey, from first awareness through to post-trip.</p>
+        </div>
 
         {/* Journey picker */}
         <label className="flex items-center gap-2 text-sm">
