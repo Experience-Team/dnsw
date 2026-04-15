@@ -173,7 +173,7 @@ function SwimLane({
               {stage.stage_name}
             </p>
             {stage.description && (
-              <p className="text-xs text-grey-40 mt-0.5 leading-snug line-clamp-2">
+              <p className="text-xs text-grey-40 mt-0.5 leading-snug line-clamp-4">
                 {stage.description}
               </p>
             )}
