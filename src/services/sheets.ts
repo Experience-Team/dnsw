@@ -4,10 +4,10 @@ import type {
   ContentPriority, GapSeverity,
 } from '../types';
 
-const SHEET_ID = import.meta.env.VITE_SHEET_ID as string | undefined;
-const API_KEY  = import.meta.env.VITE_SHEETS_API_KEY as string | undefined;
-
-const BASE_URL = 'https://sheets.googleapis.com/v4/spreadsheets';
+const CSV_BASE_URL =
+  'https://docs.google.com/spreadsheets/d/e/' +
+  '2PACX-1vRCmy7LngYdLDf4L_v1zDGH0eSYJHgd73PZn1uWVombvSnSFgCeyKq8RVev1cox4XBh1RjSlVCR_jlC' +
+  '/pub?output=csv&single=true';
 
 const TABS = {
   personas:        'Personas',
@@ -18,16 +18,59 @@ const TABS = {
   gaps:            'Gaps',
 } as const;
 
+// ── CSV parser ────────────────────────────────────────────────────────────────
+
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let row: string[] = [];
+  let cell = '';
+  let inQuotes = false;
+  let i = 0;
+
+  while (i < lines.length) {
+    const ch = lines[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (lines[i + 1] === '"') {
+          // escaped double-quote inside quoted field
+          cell += '"';
+          i += 2;
+          continue;
+        }
+        inQuotes = false;
+      } else {
+        cell += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        row.push(cell);
+        cell = '';
+      } else if (ch === '\n') {
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = '';
+      } else {
+        cell += ch;
+      }
+    }
+    i++;
+  }
+
+  // flush last cell / row
+  row.push(cell);
+  if (row.some(c => c !== '')) rows.push(row);
+
+  return rows;
+}
+
 // ── Fetch a single tab ────────────────────────────────────────────────────────
 
 async function fetchTab(tabName: string): Promise<string[][]> {
-  if (!SHEET_ID || !API_KEY) {
-    throw new Error(
-      'Missing configuration: VITE_SHEET_ID and VITE_SHEETS_API_KEY must be set in .env'
-    );
-  }
-
-  const url = `${BASE_URL}/${SHEET_ID}/values/${encodeURIComponent(tabName)}?key=${API_KEY}`;
+  const url = `${CSV_BASE_URL}&sheet=${encodeURIComponent(tabName)}`;
 
   let res: Response;
   try {
@@ -44,8 +87,8 @@ async function fetchTab(tabName: string): Promise<string[][]> {
     );
   }
 
-  const json = (await res.json()) as { values?: string[][] };
-  return json.values ?? [];
+  const text = await res.text();
+  return parseCsv(text);
 }
 
 // ── Row-to-object parser ──────────────────────────────────────────────────────
