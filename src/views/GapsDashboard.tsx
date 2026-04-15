@@ -184,10 +184,10 @@ function GapsTable({
                 <td className="px-4 py-3 text-grey-60 text-xs">{personaNames.get(gap.persona_id) ?? gap.persona_id}</td>
                 <td className="px-4 py-3 text-grey-60 text-xs">{stageNames.get(gap.stage_id) ?? gap.stage_id}</td>
                 <td className="px-4 py-3 text-grey-70 max-w-xs">
-                  <p className="line-clamp-2 leading-relaxed">{gap.description}</p>
+                  <p className="line-clamp-4 leading-relaxed">{gap.description}</p>
                 </td>
                 <td className="px-4 py-3 text-grey-50 text-xs max-w-xs">
-                  <p className="line-clamp-2 leading-relaxed">{gap.recommended_action}</p>
+                  <p className="line-clamp-4 leading-relaxed">{gap.recommended_action}</p>
                 </td>
               </tr>
             ))}

@@ -183,14 +183,22 @@ export default function AdaptiveContentView() {
                         <button
                           onClick={() => setSelectedRule(rule)}
                           className={`
-                            w-full text-left rounded-lg px-2.5 py-2
+                            relative w-full text-left rounded-lg px-2.5 py-2
                             hover:ring-2 hover:ring-accent/30 transition-all
                             ${PRIORITY_COLORS[rule.priority]}
                           `}
                         >
-                          <p className="text-xs font-medium leading-snug">{rule.content_element}</p>
+                          <span className="absolute top-1.5 right-1.5 opacity-30 pointer-events-none">
+                            <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="5.5,1 9,1 9,4.5" />
+                              <line x1="5.5" y1="4.5" x2="9" y2="1" />
+                              <polyline points="4.5,9 1,9 1,5.5" />
+                              <line x1="4.5" y1="5.5" x2="1" y2="9" />
+                            </svg>
+                          </span>
+                          <p className="text-xs font-medium leading-snug pr-3">{rule.content_element}</p>
                           {rule.adapted_variant && (
-                            <p className="text-xs opacity-70 mt-0.5 line-clamp-1">
+                            <p className="text-xs opacity-70 mt-0.5 line-clamp-2">
                               {rule.adapted_variant}
                             </p>
                           )}
