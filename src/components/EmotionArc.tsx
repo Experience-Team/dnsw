@@ -45,10 +45,7 @@ function generateSmoothPath(points: Array<{ x: number; y: number }>): string {
 interface Point {
   x: number;
   y: number;
-  emotion: Emotion | null;
   hasData: boolean;
-  stageId: string;
-  touchpoints: Touchpoint[];
 }
 
 export default function EmotionArc({ stages, touchpointsByStage }: Props) {
@@ -60,18 +57,14 @@ export default function EmotionArc({ stages, touchpointsByStage }: Props) {
     const x = PAD_X + (i + 0.5) * ((VB_W - 2 * PAD_X) / stages.length);
 
     if (tps.length === 0) {
-      return { x, y: VB_H / 2, emotion: null, hasData: false, stageId: stage.stage_id, touchpoints: [] };
+      return { x, y: VB_H / 2, hasData: false };
     }
 
     const avg = tps.reduce((sum, tp) => sum + emotionScore(tp.user_emotion), 0) / tps.length;
     // avg 0-3, invert so positive = top of SVG
     const y = PAD_Y + (1 - avg / 3) * (VB_H - 2 * PAD_Y);
-    const dominantEmotion = tps.reduce((acc, tp) => {
-      const existing = emotionScore(acc.user_emotion);
-      return emotionScore(tp.user_emotion) < existing ? tp : acc;
-    }).user_emotion;
 
-    return { x, y, emotion: dominantEmotion, hasData: true, stageId: stage.stage_id, touchpoints: tps };
+    return { x, y, hasData: true };
   });
 
   // Build smooth curve from points that have data
@@ -115,25 +108,6 @@ export default function EmotionArc({ stages, touchpointsByStage }: Props) {
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-
-        {/* Data points with tooltips */}
-        {curvePoints.map((p) => {
-          const touchpointNames = p.touchpoints.map(tp => tp.touchpoint_name).join(', ');
-          return (
-            <g key={p.stageId}>
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r="1.8"
-                fill="white"
-                stroke="#FF4D25"
-                strokeWidth="1.2"
-                style={{ cursor: 'pointer' }}
-              />
-              <title>{touchpointNames}</title>
-            </g>
-          );
-        })}
       </svg>
     </div>
   );
