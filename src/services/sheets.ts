@@ -72,6 +72,9 @@ function parseCsv(text: string): string[][] {
 async function fetchTab(tabName: string): Promise<string[][]> {
   const url = `${CSV_BASE_URL}&sheet=${encodeURIComponent(tabName)}`;
 
+  // TEMP DEBUG — remove before shipping
+  console.log(`[sheets] fetching tab "${tabName}" from:\n${url}`);
+
   let res: Response;
   try {
     res = await fetch(url);
@@ -82,12 +85,18 @@ async function fetchTab(tabName: string): Promise<string[][]> {
   }
 
   if (!res.ok) {
+    // TEMP DEBUG
+    console.error(`[sheets] HTTP ${res.status} for tab "${tabName}"`);
     throw new Error(
       'Could not load data from Google Sheet. Check the sheet is published and the URL is correct.'
     );
   }
 
   const text = await res.text();
+
+  // TEMP DEBUG — log first 500 chars of raw CSV so headers + a few rows are visible
+  console.log(`[sheets] raw CSV for "${tabName}" (first 500 chars):\n${text.slice(0, 500)}`);
+
   return parseCsv(text);
 }
 
