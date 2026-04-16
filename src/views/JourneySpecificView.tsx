@@ -3,6 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import TouchpointCard from '../components/TouchpointCard';
 import TouchpointModal from '../components/TouchpointModal';
 import EmotionArc from '../components/EmotionArc';
+import PillSelect from '../components/PillSelect';
 import type { Touchpoint, Journey } from '../types';
 
 export default function JourneySpecificView() {
@@ -68,19 +69,12 @@ export default function JourneySpecificView() {
         </div>
 
         {/* Journey picker */}
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-grey-50">Journey:</span>
-          <select
-            value={journeyId}
-            onChange={e => setSelectedJourneyId(e.target.value)}
-            className="border border-grey-20 rounded-lg px-3 py-1.5 text-sm text-grey-80 bg-white
-                       focus:outline-none focus:ring-2 focus:ring-accent/30"
-          >
-            {availableJourneys.map(j => (
-              <option key={j.journey_id} value={j.journey_id}>{j.journey_name}</option>
-            ))}
-          </select>
-        </label>
+        <PillSelect
+          label="Journey"
+          value={journeyId}
+          onChange={setSelectedJourneyId}
+          options={availableJourneys.map(j => ({ label: j.journey_name, value: j.journey_id }))}
+        />
       </div>
 
       {/* Journey meta panel */}

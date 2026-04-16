@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { SEVERITY_COLORS } from '../constants/colors';
+import PillSelect from '../components/PillSelect';
 import type { Gap, GapSeverity } from '../types';
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
@@ -239,20 +240,19 @@ export default function GapsDashboard() {
           <p className="text-sm text-grey-50 mt-0.5">Content, experience, and data gaps that need addressing, ranked by severity.</p>
         </div>
 
-        <label className="flex items-center gap-2 text-sm ml-auto">
-          <span className="text-grey-50">Severity:</span>
-          <select
+        <div className="ml-auto">
+          <PillSelect
+            label="Severity"
             value={severityFilter}
-            onChange={e => setSeverityFilter(e.target.value as GapSeverity | '')}
-            className="border border-grey-20 rounded-lg px-3 py-1.5 text-sm text-grey-80 bg-white
-                       focus:outline-none focus:ring-2 focus:ring-accent/30"
-          >
-            <option value="">All</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-        </label>
+            onChange={v => setSeverityFilter(v as GapSeverity | '')}
+            options={[
+              { label: 'All', value: '' },
+              { label: 'High', value: 'High' },
+              { label: 'Medium', value: 'Medium' },
+              { label: 'Low', value: 'Low' },
+            ]}
+          />
+        </div>
       </div>
 
       {/* Stat cards */}

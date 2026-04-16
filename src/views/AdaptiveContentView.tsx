@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { PRIORITY_COLORS } from '../constants/colors';
+import PillSelect from '../components/PillSelect';
 import type { AdaptiveContent, ContentPriority } from '../types';
 
 const SEGMENTS = [
@@ -117,19 +118,12 @@ export default function AdaptiveContentView() {
           <p className="text-sm text-grey-50 mt-0.5">Content rules mapped by page type and audience segment. Each cell defines what changes for a given context.</p>
         </div>
 
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-grey-50">Stage:</span>
-          <select
-            value={stageFilter}
-            onChange={e => setStageFilter(e.target.value)}
-            className="border border-grey-20 rounded-lg px-3 py-1.5 text-sm text-grey-80 bg-white
-                       focus:outline-none focus:ring-2 focus:ring-accent/30"
-          >
-            {stageOptions.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </label>
+        <PillSelect
+          label="Stage"
+          value={stageFilter}
+          onChange={setStageFilter}
+          options={stageOptions}
+        />
 
         {/* Priority legend */}
         <div className="flex items-center gap-3 ml-auto">
