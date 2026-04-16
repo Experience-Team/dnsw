@@ -3,35 +3,9 @@ import { useAppContext } from '../context/AppContext';
 import TouchpointCard from '../components/TouchpointCard';
 import TouchpointModal from '../components/TouchpointModal';
 import EmotionArc from '../components/EmotionArc';
+import PillSelect from '../components/PillSelect';
 import type { Touchpoint, JourneyStage } from '../types';
 
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: { label: string; value: string }[];
-}) {
-  return (
-    <label className="flex items-center gap-2 text-sm">
-      <span className="text-grey-50 shrink-0">{label}</span>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="border border-grey-20 rounded-lg px-3 py-1.5 text-sm text-grey-80 bg-white
-                   focus:outline-none focus:ring-2 focus:ring-accent/30"
-      >
-        {options.map(o => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
-    </label>
-  );
-}
 
 export default function JourneyMapView() {
   const { data, siteFilter } = useAppContext();
@@ -101,14 +75,14 @@ export default function JourneyMapView() {
           <h1 className="text-2xl font-bold text-grey-90">Journey Map</h1>
           <p className="text-sm text-grey-50 mt-0.5">Each column is a journey stage. Cards show touchpoints colour-coded by traveller emotion.</p>
         </div>
-        <FilterSelect
-          label="Persona:"
+        <PillSelect
+          label="Persona"
           value={personaFilter}
           onChange={setPersonaFilter}
           options={personaOptions}
         />
-        <FilterSelect
-          label="Segment:"
+        <PillSelect
+          label="Segment"
           value={segmentFilter}
           onChange={setSegmentFilter}
           options={segmentOptions}
