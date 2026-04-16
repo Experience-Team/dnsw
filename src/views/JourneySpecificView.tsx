@@ -90,7 +90,11 @@ export default function JourneySpecificView() {
           >
             {/* Stage headers */}
             {stages.map(stage => (
-              <div key={stage.stage_id} className="bg-grey-90 px-4 py-3">
+              <div
+                key={stage.stage_id}
+                className="bg-grey-90 px-4 py-3 cursor-default"
+                title={stage.description || undefined}
+              >
                 <p className="text-xs font-semibold text-white uppercase tracking-wider">
                   {stage.stage_name}
                 </p>

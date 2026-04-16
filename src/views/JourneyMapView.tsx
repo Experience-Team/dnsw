@@ -126,15 +126,14 @@ function SwimLane({
       >
         {/* Stage headers */}
         {stages.map(stage => (
-          <div key={stage.stage_id} className="bg-grey-90 px-4 py-3">
+          <div
+            key={stage.stage_id}
+            className="bg-grey-90 px-4 py-3 cursor-default"
+            title={stage.description || undefined}
+          >
             <p className="text-xs font-semibold text-white uppercase tracking-wider">
               {stage.stage_name}
             </p>
-            {stage.description && (
-              <p className="text-xs text-grey-40 mt-0.5 leading-snug line-clamp-4">
-                {stage.description}
-              </p>
-            )}
           </div>
         ))}
 
