@@ -95,6 +95,9 @@ export interface Gap {
   recommended_action: string;
 }
 
+// ── Audience Segments ─────────────────────────────────────────────────────────
+export type Segment = Record<string, string>;
+
 // ── Full data bundle ──────────────────────────────────────────────────────────
 export interface SheetData {
   personas: Persona[];
@@ -103,4 +106,5 @@ export interface SheetData {
   journeys: Journey[];
   adaptiveContent: AdaptiveContent[];
   gaps: Gap[];
+  segments: Segment[];
 }
