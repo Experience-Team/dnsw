@@ -73,9 +73,6 @@ function parseCsv(text: string): string[][] {
 async function fetchTab(gid: number): Promise<string[][]> {
   const url = `${CSV_BASE_URL}&gid=${gid}`;
 
-  // TEMP DEBUG — remove before shipping
-  console.log(`[sheets] fetching gid=${gid} from:\n${url}`);
-
   let res: Response;
   try {
     res = await fetch(url);
@@ -86,18 +83,12 @@ async function fetchTab(gid: number): Promise<string[][]> {
   }
 
   if (!res.ok) {
-    // TEMP DEBUG
-    console.error(`[sheets] HTTP ${res.status} for gid=${gid}`);
     throw new Error(
       'Could not load data from Google Sheet. Check the sheet is published and the URL is correct.'
     );
   }
 
   const text = await res.text();
-
-  // TEMP DEBUG — log first 500 chars of raw CSV so headers + a few rows are visible
-  console.log(`[sheets] raw CSV for gid=${gid} (first 500 chars):\n${text.slice(0, 500)}`);
-
   return parseCsv(text);
 }
 
@@ -111,7 +102,8 @@ function rowsToObjects(rows: string[][]): Record<string, string>[] {
     .map(row => {
       const obj: Record<string, string> = {};
       headers.forEach((h, i) => {
-        obj[h.trim()] = (row[i] ?? '').trim();
+        // Normalise header to lowercase so column names are case-insensitive
+        obj[h.trim().toLowerCase()] = (row[i] ?? '').trim();
       });
       return obj;
     });
@@ -123,31 +115,44 @@ function parseList(val: string | undefined): string[] {
 }
 
 function parseSite(val: string): Site {
-  return val === 'sydney' ? 'sydney' : 'visitnsw';
+  return val.trim().toLowerCase() === 'sydney' ? 'sydney' : 'visitnsw';
 }
 
 function parseEmotion(val: string): Emotion {
-  if (val === 'Positive' || val === 'Neutral' || val === 'Negative' || val === 'Frustrated') return val;
+  const v = val.trim().toLowerCase();
+  if (v === 'positive')   return 'Positive';
+  if (v === 'negative')   return 'Negative';
+  if (v === 'frustrated') return 'Frustrated';
   return 'Neutral';
 }
 
 function parseGeoReadiness(val: string): GeoReadiness {
-  if (val === 'Yes' || val === 'Partial' || val === 'No') return val;
+  const v = val.trim().toLowerCase();
+  if (v === 'yes')     return 'Yes';
+  if (v === 'partial') return 'Partial';
   return 'No';
 }
 
 function parseAtdwCoverage(val: string): AtdwCoverage {
-  if (val === 'Strong' || val === 'Partial' || val === 'Weak' || val === 'None') return val;
+  const v = val.trim().toLowerCase();
+  if (v === 'strong')  return 'Strong';
+  if (v === 'partial') return 'Partial';
+  if (v === 'weak')    return 'Weak';
   return 'None';
 }
 
 function parsePriority(val: string): ContentPriority {
-  if (val === 'MVP' || val === 'Phase 2' || val === 'Phase 3') return val;
+  const v = val.trim().toLowerCase().replace(/\s+/g, ' ');
+  if (v === 'mvp')     return 'MVP';
+  if (v === 'phase 2') return 'Phase 2';
+  if (v === 'phase 3') return 'Phase 3';
   return 'Phase 2';
 }
 
 function parseGapSeverity(val: string): GapSeverity {
-  if (val === 'High' || val === 'Medium' || val === 'Low') return val;
+  const v = val.trim().toLowerCase();
+  if (v === 'high')   return 'High';
+  if (v === 'medium') return 'Medium';
   return 'Low';
 }
 
@@ -204,16 +209,20 @@ function parseTouchpoints(rows: string[][]): Touchpoint[] {
 }
 
 function parseJourneys(rows: string[][]): Journey[] {
-  return rowsToObjects(rows).map(r => ({
-    journey_id:       r.journey_id       ?? '',
-    site:             (r.site === 'sydney' || r.site === 'visitnsw' ? r.site : 'both') as Site | 'both',
-    journey_name:     r.journey_name     ?? '',
-    description:      r.description      ?? '',
-    typical_personas: parseList(r.typical_personas),
-    typical_duration: r.typical_duration ?? '',
-    key_stages:       parseList(r.key_stages),
-    source_evidence:  r.source_evidence  ?? '',
-  }));
+  return rowsToObjects(rows).map(r => {
+    const siteVal = r.site?.trim().toLowerCase();
+    const site: Site | 'both' = siteVal === 'sydney' ? 'sydney' : siteVal === 'visitnsw' ? 'visitnsw' : 'both';
+    return {
+      journey_id:       r.journey_id       ?? '',
+      site,
+      journey_name:     r.journey_name     ?? '',
+      description:      r.description      ?? '',
+      typical_personas: parseList(r.typical_personas),
+      typical_duration: r.typical_duration ?? '',
+      key_stages:       parseList(r.key_stages),
+      source_evidence:  r.source_evidence  ?? '',
+    };
+  });
 }
 
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
