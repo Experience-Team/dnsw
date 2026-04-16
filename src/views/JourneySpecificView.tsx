@@ -50,14 +50,6 @@ export default function JourneySpecificView() {
     return map;
   }, [filtered, stages]);
 
-  // Typical personas for selected journey
-  const typicalPersonas = useMemo(() => {
-    if (!selectedJourney) return [];
-    return personas.filter(p =>
-      selectedJourney.typical_personas.includes(p.persona_id)
-    );
-  }, [selectedJourney, personas]);
-
   const colWidth = Math.max(200, Math.floor(900 / Math.max(stages.length, 1)));
 
   return (
@@ -79,7 +71,7 @@ export default function JourneySpecificView() {
 
       {/* Journey meta panel */}
       {selectedJourney && (
-        <JourneyMeta journey={selectedJourney} typicalPersonaNames={typicalPersonas.map(p => p.name)} />
+        <JourneyMeta journey={selectedJourney} />
       )}
 
       {!journeyId || availableJourneys.length === 0 ? (
@@ -145,13 +137,7 @@ export default function JourneySpecificView() {
   );
 }
 
-function JourneyMeta({
-  journey,
-  typicalPersonaNames,
-}: {
-  journey: Journey;
-  typicalPersonaNames: string[];
-}) {
+function JourneyMeta({ journey }: { journey: Journey }) {
   return (
     <div className="mb-6 p-4 bg-white border border-grey-20 rounded-xl">
       <div className="flex flex-wrap gap-x-8 gap-y-2">
@@ -159,18 +145,6 @@ function JourneyMeta({
           <p className="text-xs text-grey-40 uppercase tracking-wide mb-0.5">Duration</p>
           <p className="text-sm text-grey-70">{journey.typical_duration || '—'}</p>
         </div>
-        {typicalPersonaNames.length > 0 && (
-          <div>
-            <p className="text-xs text-grey-40 uppercase tracking-wide mb-0.5">Typical personas</p>
-            <div className="flex flex-wrap gap-1.5">
-              {typicalPersonaNames.map(name => (
-                <span key={name} className="text-xs bg-grey-10 text-grey-60 px-2 py-0.5 rounded-full">
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
         {journey.description && (
           <div className="w-full">
             <p className="text-xs text-grey-40 uppercase tracking-wide mb-0.5">About</p>

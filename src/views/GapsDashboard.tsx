@@ -94,11 +94,9 @@ const SEVERITY_ORDER: Record<GapSeverity, number> = { High: 0, Medium: 1, Low: 2
 function GapsTable({
   gaps,
   personaNames,
-  stageNames,
 }: {
   gaps: Gap[];
   personaNames: Map<string, string>;
-  stageNames: Map<string, string>;
 }) {
   const [sortKey, setSortKey]     = useState<SortKey>('severity');
   const [sortDir, setSortDir]     = useState<'asc' | 'desc'>('asc');
@@ -160,8 +158,6 @@ function GapsTable({
             <tr className="bg-grey-90 text-grey-40">
               <SortTh col="severity" label="Severity" />
               <SortTh col="gap_type" label="Type" />
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider">Persona</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider">Stage</th>
               <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider">Description</th>
               <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider">Action</th>
             </tr>
@@ -169,7 +165,7 @@ function GapsTable({
           <tbody>
             {displayed.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-grey-30 text-xs">
+                <td colSpan={4} className="py-12 text-center text-grey-30 text-xs">
                   No gaps match your search.
                 </td>
               </tr>
@@ -182,8 +178,6 @@ function GapsTable({
                   </span>
                 </td>
                 <td className="px-4 py-3 text-grey-60 text-xs">{gap.gap_type}</td>
-                <td className="px-4 py-3 text-grey-60 text-xs">{personaNames.get(gap.persona_id) ?? gap.persona_id}</td>
-                <td className="px-4 py-3 text-grey-60 text-xs">{stageNames.get(gap.stage_id) ?? gap.stage_id}</td>
                 <td className="px-4 py-3 text-grey-70 max-w-xs">
                   <p className="line-clamp-4 leading-relaxed">{gap.description}</p>
                 </td>
@@ -269,7 +263,7 @@ export default function GapsDashboard() {
       {displayed.length === 0 ? (
         <div className="py-16 text-center text-grey-40">No gaps for the current filter.</div>
       ) : (
-        <GapsTable gaps={displayed} personaNames={personaNames} stageNames={stageNames} />
+        <GapsTable gaps={displayed} personaNames={personaNames} />
       )}
     </div>
   );
