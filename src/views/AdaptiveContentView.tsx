@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { PRIORITY_COLORS } from '../constants/colors';
-import PillSelect from '../components/PillSelect';
 import type { AdaptiveContent, ContentPriority } from '../types';
 
 const SEGMENTS = [
@@ -71,24 +70,17 @@ function DetailRow({ label, value, accent = false }: { label: string; value: str
 
 export default function AdaptiveContentView() {
   const { data, siteFilter } = useAppContext();
-  const [stageFilter, setStageFilter]   = useState('');
   const [selectedRule, setSelectedRule] = useState<AdaptiveContent | null>(null);
 
   if (!data) return null;
 
-  const { adaptiveContent, stages } = data;
-
-  const stageOptions = [
-    { label: 'All stages', value: '' },
-    ...stages.map(s => ({ label: s.stage_name, value: s.stage_id })),
-  ];
+  const { adaptiveContent } = data;
 
   const filtered = useMemo(() =>
     adaptiveContent.filter(r => {
       if (siteFilter !== 'both' && r.site !== siteFilter) return false;
-      if (stageFilter && r.stage_id !== stageFilter) return false;
       return true;
-    }), [adaptiveContent, siteFilter, stageFilter]);
+    }), [adaptiveContent, siteFilter]);
 
   // Derive unique page_types (rows)
   const pageTypes = useMemo(() =>
@@ -117,13 +109,6 @@ export default function AdaptiveContentView() {
           <h1 className="text-2xl font-bold text-grey-90">Adaptive Content</h1>
           <p className="text-sm text-grey-50 mt-0.5">Content rules mapped by page type and audience segment. Each cell defines what changes for a given context.</p>
         </div>
-
-        <PillSelect
-          label="Stage"
-          value={stageFilter}
-          onChange={setStageFilter}
-          options={stageOptions}
-        />
 
         {/* Priority legend */}
         <div className="flex items-center gap-3 ml-auto">
