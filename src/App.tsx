@@ -7,6 +7,7 @@ import JourneySpecificView from './views/JourneySpecificView';
 import AdaptiveContentView from './views/AdaptiveContentView';
 import GapsDashboard from './views/GapsDashboard';
 import PersonaGallery from './views/PersonaGallery';
+import AudienceSegmentsView from './views/AudienceSegmentsView';
 
 function JourneyMapLayout() {
   return (
@@ -26,7 +27,8 @@ export default function App() {
           <Route path="journeys" element={<JourneySpecificView />} />
           <Route path="content"  element={<AdaptiveContentView />} />
           <Route path="gaps"     element={<GapsDashboard />} />
-          <Route path="personas" element={<PersonaGallery />} />
+          <Route path="personas"  element={<PersonaGallery />} />
+          <Route path="segments" element={<AudienceSegmentsView />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

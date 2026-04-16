@@ -1,6 +1,6 @@
 import type {
   SheetData, Persona, JourneyStage, Touchpoint, Journey,
-  AdaptiveContent, Gap, Site, Emotion, GeoReadiness, AtdwCoverage,
+  AdaptiveContent, Gap, Segment, Site, Emotion, GeoReadiness, AtdwCoverage,
   ContentPriority, GapSeverity,
 } from '../types';
 
@@ -16,6 +16,7 @@ const TABS = {
   journeys:        956844268,
   adaptiveContent: 1130418870,
   gaps:            1133768074,
+  segments:        869617616,
 } as const;
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
@@ -245,6 +246,10 @@ function parseGaps(rows: string[][]): Gap[] {
   }));
 }
 
+function parseSegments(rows: string[][]): Segment[] {
+  return rowsToObjects(rows);
+}
+
 // ── Orchestrator ──────────────────────────────────────────────────────────────
 
 export async function fetchAllSheetData(): Promise<SheetData> {
@@ -255,6 +260,7 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     journeyRows,
     adaptiveRows,
     gapRows,
+    segmentRows,
   ] = await Promise.all([
     fetchTab(TABS.personas),
     fetchTab(TABS.stages),
@@ -262,6 +268,7 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     fetchTab(TABS.journeys),
     fetchTab(TABS.adaptiveContent),
     fetchTab(TABS.gaps),
+    fetchTab(TABS.segments),
   ]);
 
   return {
@@ -271,5 +278,6 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     journeys:        parseJourneys(journeyRows),
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
     gaps:            parseGaps(gapRows),
+    segments:        parseSegments(segmentRows),
   };
 }
