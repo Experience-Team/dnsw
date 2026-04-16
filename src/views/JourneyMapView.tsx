@@ -9,22 +9,12 @@ import type { Touchpoint, JourneyStage } from '../types';
 
 export default function JourneyMapView() {
   const { data, siteFilter } = useAppContext();
-  const [personaFilter, setPersonaFilter]   = useState('');
   const [segmentFilter, setSegmentFilter]   = useState('');
   const [selectedTp, setSelectedTp]         = useState<Touchpoint | null>(null);
 
   if (!data) return null;
 
   const { stages, touchpoints, personas } = data;
-
-  // Build persona & segment options
-  const personaOptions = useMemo(() => {
-    const opts = [{ label: 'All personas', value: '' }];
-    personas
-      .filter(p => siteFilter === 'both' || p.site === siteFilter)
-      .forEach(p => opts.push({ label: p.name, value: p.persona_id }));
-    return opts;
-  }, [personas, siteFilter]);
 
   const segmentOptions = useMemo(() => {
     const segs = [...new Set(personas.map(p => p.segment).filter(Boolean))].sort();
@@ -38,7 +28,6 @@ export default function JourneyMapView() {
   const filtered = useMemo(() => {
     return touchpoints.filter(tp => {
       if (siteFilter !== 'both' && tp.site !== siteFilter) return false;
-      if (personaFilter && !tp.persona_ids.includes(personaFilter)) return false;
       if (segmentFilter) {
         const matchedPersonas = personas.filter(
           p => tp.persona_ids.includes(p.persona_id) && p.segment === segmentFilter
@@ -47,7 +36,7 @@ export default function JourneyMapView() {
       }
       return true;
     });
-  }, [touchpoints, siteFilter, personaFilter, segmentFilter, personas]);
+  }, [touchpoints, siteFilter, segmentFilter, personas]);
 
   // Group by stage
   const touchpointsByStage = useMemo(() => {
@@ -86,20 +75,12 @@ export default function JourneyMapView() {
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <PillSelect
-            label="Segment"
-            value={segmentFilter}
-            onChange={setSegmentFilter}
-            options={segmentOptions}
-          />
-          <PillSelect
-            label="Persona"
-            value={personaFilter}
-            onChange={setPersonaFilter}
-            options={personaOptions}
-          />
-        </div>
+        <PillSelect
+          label="Segment"
+          value={segmentFilter}
+          onChange={setSegmentFilter}
+          options={segmentOptions}
+        />
       </div>
 
       {filtered.length === 0 ? (
