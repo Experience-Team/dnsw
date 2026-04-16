@@ -70,32 +70,35 @@ export default function JourneyMapView() {
   return (
     <div>
       {/* Title + filters */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
-        <div className="mr-2">
-          <h1 className="text-2xl font-bold text-grey-90">Journey Map</h1>
-          <p className="text-sm text-grey-50 mt-0.5">Each column is a journey stage. Cards show touchpoints colour-coded by traveller emotion.</p>
+      <div className="mb-6">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <h1 className="text-2xl font-bold text-grey-90">Journey Map</h1>
+            <p className="text-sm text-grey-50 mt-0.5">Each column is a journey stage. Cards show touchpoints colour-coded by traveller emotion.</p>
+          </div>
+          {/* Legend */}
+          <div className="flex items-center gap-3 shrink-0 ml-6 mt-1">
+            {emotionLegend.map(e => (
+              <span key={e.label} className="flex items-center gap-1.5 text-xs text-grey-50">
+                <span className={`w-2.5 h-2.5 rounded-full ${e.bg}`} />
+                {e.label}
+              </span>
+            ))}
+          </div>
         </div>
-        <PillSelect
-          label="Persona"
-          value={personaFilter}
-          onChange={setPersonaFilter}
-          options={personaOptions}
-        />
-        <PillSelect
-          label="Segment"
-          value={segmentFilter}
-          onChange={setSegmentFilter}
-          options={segmentOptions}
-        />
-
-        {/* Legend */}
-        <div className="flex items-center gap-3 ml-auto">
-          {emotionLegend.map(e => (
-            <span key={e.label} className="flex items-center gap-1.5 text-xs text-grey-50">
-              <span className={`w-2.5 h-2.5 rounded-full ${e.bg}`} />
-              {e.label}
-            </span>
-          ))}
+        <div className="flex flex-col gap-2">
+          <PillSelect
+            label="Segment"
+            value={segmentFilter}
+            onChange={setSegmentFilter}
+            options={segmentOptions}
+          />
+          <PillSelect
+            label="Persona"
+            value={personaFilter}
+            onChange={setPersonaFilter}
+            options={personaOptions}
+          />
         </div>
       </div>
 
