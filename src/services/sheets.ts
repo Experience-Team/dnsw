@@ -106,20 +106,20 @@ function rowsToObjects(rows: string[][]): Record<string, string>[] {
     });
 }
 
-function parseSite(val: string): Site {
-  return val.trim().toLowerCase() === 'sydney' ? 'sydney' : 'visitnsw';
+function parseSite(val: string | undefined): Site {
+  return (val ?? '').trim().toLowerCase() === 'sydney' ? 'sydney' : 'visitnsw';
 }
 
-function parsePriority(val: string): ContentPriority {
-  const v = val.trim().toLowerCase().replace(/\s+/g, ' ');
+function parsePriority(val: string | undefined): ContentPriority {
+  const v = (val ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
   if (v === 'mvp')     return 'MVP';
   if (v === 'phase 2') return 'Phase 2';
   if (v === 'phase 3') return 'Phase 3';
   return 'Phase 2';
 }
 
-function parseGapSeverity(val: string): GapSeverity {
-  const v = val.trim().toLowerCase();
+function parseGapSeverity(val: string | undefined): GapSeverity {
+  const v = (val ?? '').trim().toLowerCase();
   if (v === 'high')   return 'High';
   if (v === 'medium') return 'Medium';
   return 'Low';
