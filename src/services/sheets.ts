@@ -135,7 +135,10 @@ function parseGapSeverity(val: string | undefined): GapSeverity {
 
 function parseCjmRowType(val: string | undefined): CjmRowType {
   const v = (val ?? '').trim();
-  if (v === 'Pain Point' || v === 'Delight' || v === 'Touchpoint' || v === 'Opportunity') return v;
+  if (v === 'Pain Point'  || v === 'Pain Points')   return 'Pain Point';
+  if (v === 'Delight'     || v === 'Delights')      return 'Delight';
+  if (v === 'Touchpoint'  || v === 'Touchpoints')   return 'Touchpoint';
+  if (v === 'Opportunity' || v === 'Opportunities') return 'Opportunity';
   return 'Pain Point';
 }
 
