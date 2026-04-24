@@ -153,27 +153,26 @@ function parsePersonas(rows: string[][]): Persona[] {
 
 function parseStages(rows: string[][]): JourneyStage[] {
   const seen = new Set<string>();
-  return rowsToObjects(rows)
-    .filter(r => {
-      const id = r.stage_id ?? '';
-      if (!id || seen.has(id)) return false;
-      seen.add(id);
-      return true;
-    })
-    .map(r => ({
-      stage_id:    r.stage_id    ?? '',
-      stage_name:  r.stage_name  ?? '',
-      stage_order: parseInt(r.stage_order ?? '0', 10) || 0,
-      description: r.stage_description ?? r.description ?? '',
-    }))
-    .sort((a, b) => a.stage_order - b.stage_order);
+  const result: JourneyStage[] = [];
+  rowsToObjects(rows).forEach(r => {
+    const name = (r.stage ?? '').trim();
+    if (!name || seen.has(name)) return;
+    seen.add(name);
+    result.push({
+      stage_id:    name,
+      stage_name:  name,
+      stage_order: result.length,
+      description: (r.stage_description ?? '').trim(),
+    });
+  });
+  return result;
 }
 
 function parseCjmEntries(rows: string[][]): CjmEntry[] {
   return rowsToObjects(rows)
     .filter(r => (r.row_type ?? '').trim() && (r.content ?? '').trim())
     .map(r => ({
-      stage_id: r.stage_id ?? '',
+      stage_id: (r.stage ?? '').trim(),
       row_type: parseCjmRowType(r.row_type),
       site:     parseSite(r.site),
       segment:  r.segment ?? '',
