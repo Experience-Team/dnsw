@@ -1,22 +1,21 @@
 import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { SEVERITY_COLORS } from '../constants/colors';
 import PillSelect from '../components/PillSelect';
 import type { Gap, GapSeverity } from '../types';
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
 function StatCard({ label, value, className }: { label: string; value: number; className?: string }) {
   return (
-    <div className={`rounded-xl p-5 ${className ?? 'bg-white border border-grey-20'}`}>
-      <p className="text-3xl font-bold text-grey-90">{value}</p>
-      <p className="text-sm text-grey-50 mt-1">{label}</p>
+    <div className={`rounded-xl p-5 ${className ?? 'bg-blue-20'}`}>
+      <p className="text-3xl font-bold text-blue-90">{value}</p>
+      <p className="text-sm text-blue-80 mt-1">{label}</p>
     </div>
   );
 }
 
 // ── Heatmap ───────────────────────────────────────────────────────────────────
 function heatColor(count: number) {
-  if (count === 0) return 'bg-white text-grey-30';
+  if (count === 0) return 'bg-blue-10 text-blue-30';
   if (count <= 2)  return 'bg-yellow-20 text-yellow-80';
   if (count <= 4)  return 'bg-orange-20 text-orange-80';
   return 'bg-red-20 text-red-70';
@@ -36,7 +35,6 @@ function GapsHeatmap({
 
   if (personas.length === 0 || stages.length === 0) return null;
 
-  // count[personaId][stageId]
   const count = useMemo(() => {
     const map: Record<string, Record<string, number>> = {};
     gaps.forEach(g => {
@@ -49,14 +47,14 @@ function GapsHeatmap({
 
   return (
     <div>
-      <h2 className="text-base font-semibold text-grey-80 mb-3">Gap heatmap</h2>
+      <h2 className="text-base font-semibold text-blue-90 mb-3">Gap heatmap</h2>
       <div className="overflow-x-auto">
         <table className="text-xs border-collapse">
           <thead>
             <tr>
-              <th className="text-left px-3 py-2 text-grey-40 font-normal" />
+              <th className="text-left px-3 py-2 text-blue-80 font-normal" />
               {stages.map(sid => (
-                <th key={sid} className="text-center px-3 py-2 text-grey-50 font-medium whitespace-nowrap">
+                <th key={sid} className="text-center px-3 py-2 text-blue-90 font-medium whitespace-nowrap">
                   {stageNames.get(sid) ?? sid}
                 </th>
               ))}
@@ -65,7 +63,7 @@ function GapsHeatmap({
           <tbody>
             {personas.map(pid => (
               <tr key={pid}>
-                <td className="px-3 py-2 text-grey-60 whitespace-nowrap font-medium">
+                <td className="px-3 py-2 text-blue-90 whitespace-nowrap font-medium">
                   {personaNames.get(pid) ?? pid}
                 </td>
                 {stages.map(sid => {
@@ -90,6 +88,12 @@ function GapsHeatmap({
 // ── Gaps table ────────────────────────────────────────────────────────────────
 type SortKey = keyof Pick<Gap, 'severity' | 'gap_type' | 'site'>;
 const SEVERITY_ORDER: Record<GapSeverity, number> = { High: 0, Medium: 1, Low: 2 };
+
+const SEVERITY_COLORS: Record<GapSeverity, string> = {
+  High:   'bg-red-20 text-red-70',
+  Medium: 'bg-yellow-20 text-yellow-80',
+  Low:    'bg-blue-20 text-blue-80',
+};
 
 function GapsTable({
   gaps,
@@ -131,7 +135,7 @@ function GapsTable({
 
   const SortTh = ({ col, label }: { col: SortKey; label: string }) => (
     <th
-      className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-white"
+      className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-blue-80"
       onClick={() => toggleSort(col)}
     >
       {label} {sortKey === col ? (sortDir === 'asc' ? '↑' : '↓') : ''}
@@ -141,21 +145,21 @@ function GapsTable({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-semibold text-grey-80">All gaps</h2>
+        <h2 className="text-base font-semibold text-blue-90">All gaps</h2>
         <input
           type="search"
           placeholder="Search gaps…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="border border-grey-20 rounded-lg px-3 py-1.5 text-sm text-grey-80 bg-white
-                     focus:outline-none focus:ring-2 focus:ring-accent/30 w-56"
+          className="border border-blue-20 rounded-lg px-3 py-1.5 text-sm text-blue-90 bg-white
+                     focus:outline-none focus:ring-2 focus:ring-blue-80/30 w-56"
         />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-grey-20">
+      <div className="overflow-x-auto rounded-xl border border-blue-20">
         <table className="w-full text-sm border-collapse">
           <thead>
-            <tr className="bg-grey-90 text-grey-40">
+            <tr className="bg-blue-20 text-blue-90">
               <SortTh col="severity" label="Severity" />
               <SortTh col="gap_type" label="Type" />
               <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider">Description</th>
@@ -165,23 +169,23 @@ function GapsTable({
           <tbody>
             {displayed.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-12 text-center text-grey-30 text-xs">
+                <td colSpan={4} className="py-12 text-center text-blue-90/40 text-xs">
                   No gaps match your search.
                 </td>
               </tr>
             )}
             {displayed.map((gap, i) => (
-              <tr key={gap.gap_id} className={i % 2 === 0 ? 'bg-white' : 'bg-grey-10'}>
+              <tr key={gap.gap_id} className={i % 2 === 0 ? 'bg-white' : 'bg-blue-10'}>
                 <td className="px-4 py-3">
                   <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${SEVERITY_COLORS[gap.severity]}`}>
                     {gap.severity}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-grey-60 text-xs">{gap.gap_type}</td>
-                <td className="px-4 py-3 text-grey-70 max-w-xs">
+                <td className="px-4 py-3 text-blue-90 text-xs">{gap.gap_type}</td>
+                <td className="px-4 py-3 text-blue-90 max-w-xs">
                   <p className="line-clamp-4 leading-relaxed">{gap.description}</p>
                 </td>
-                <td className="px-4 py-3 text-grey-50 text-xs max-w-xs">
+                <td className="px-4 py-3 text-blue-80 text-xs max-w-xs">
                   <p className="line-clamp-4 leading-relaxed">{gap.recommended_action}</p>
                 </td>
               </tr>
@@ -229,8 +233,8 @@ export default function GapsDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-grey-90">Quote Bank</h1>
-        <p className="text-sm text-grey-50 mt-0.5">Content, experience, and data gaps that need addressing, ranked by severity.</p>
+        <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
+        <p className="text-sm text-blue-90/60 mt-0.5">Content, experience, and data gaps that need addressing, ranked by severity.</p>
         <div className="mt-3">
           <PillSelect
             label="Severity"
@@ -251,17 +255,17 @@ export default function GapsDashboard() {
         <StatCard label="Total gaps" value={siteFiltered.length} />
         <StatCard label="High severity" value={highCount} className="bg-red-10 border border-red-30" />
         <StatCard label="Medium severity" value={mediumCount} className="bg-yellow-20 border border-yellow-40" />
-        <StatCard label="Low severity" value={lowCount} className="bg-grey-10 border border-grey-20" />
+        <StatCard label="Low severity" value={lowCount} className="bg-blue-20" />
       </div>
 
       {/* Heatmap */}
-      <div className="bg-white border border-grey-20 rounded-xl p-5">
+      <div className="bg-blue-10 border border-blue-20 rounded-xl p-5">
         <GapsHeatmap gaps={siteFiltered} personaNames={personaNames} stageNames={stageNames} />
       </div>
 
       {/* Table */}
       {displayed.length === 0 ? (
-        <div className="py-16 text-center text-grey-40">No gaps for the current filter.</div>
+        <div className="py-16 text-center text-blue-90/40">No gaps for the current filter.</div>
       ) : (
         <GapsTable gaps={displayed} personaNames={personaNames} />
       )}

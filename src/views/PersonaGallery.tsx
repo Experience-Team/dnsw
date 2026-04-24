@@ -6,7 +6,7 @@ function SiteSection({ title, personas }: { title: string; personas: Persona[] }
   if (personas.length === 0) return null;
   return (
     <section className="mb-10">
-      <h2 className="text-sm font-semibold text-grey-40 uppercase tracking-widest mb-4">
+      <h2 className="text-sm font-semibold text-blue-90 uppercase tracking-widest mb-4">
         {title}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -32,7 +32,7 @@ export default function PersonaGallery() {
 
   if (filtered.length === 0) {
     return (
-      <div className="py-16 text-center text-grey-40">
+      <div className="py-16 text-center text-blue-90/40">
         No personas found for the current filter.
       </div>
     );
@@ -41,8 +41,8 @@ export default function PersonaGallery() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-grey-90">User Story Map</h1>
-        <p className="text-sm text-grey-50 mt-0.5">Archetypal travellers based on research, segmented by site and travel behaviour.</p>
+        <h1 className="text-2xl font-bold text-blue-90">User Story Map</h1>
+        <p className="text-sm text-blue-90/60 mt-0.5">Archetypal travellers based on research, segmented by site and travel behaviour.</p>
       </div>
       <SiteSection title="visitnsw.com" personas={visitnswPersonas} />
       <SiteSection title="sydney.com"   personas={sydneyPersonas} />

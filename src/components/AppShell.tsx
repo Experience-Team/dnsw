@@ -36,7 +36,7 @@ export default function AppShell() {
     : '';
 
   return (
-    <div className="min-h-screen bg-grey-10 flex flex-col">
+    <div className="min-h-screen bg-blue-10 flex flex-col">
       {/* ── Header ── */}
       <header className="bg-grey-90 text-white sticky top-0 z-40">
         <div className="px-10 h-14 flex items-center gap-6">
@@ -91,18 +91,18 @@ export default function AppShell() {
       </header>
 
       {/* ── Tab nav ── */}
-      <nav className="bg-white border-b border-grey-20 sticky top-14 z-30">
-        <div className="px-10 flex gap-0">
+      <nav className="bg-white border-b border-blue-20 sticky top-14 z-30">
+        <div className="px-10 flex gap-10">
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `text-sm px-4 py-3 border-b-2 transition-colors ${
+                `text-2xl px-0 pb-4 pt-4 border-b-[3px] transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'border-accent text-grey-90 font-medium'
-                    : 'border-transparent text-grey-50 hover:text-grey-80'
+                    ? 'border-blue-80 text-blue-90 font-medium'
+                    : 'border-transparent text-blue-90/60 hover:text-blue-90'
                 }`
               }
             >
