@@ -26,43 +26,6 @@ export interface JourneyStage {
   description: string;
 }
 
-// ── Touchpoints ───────────────────────────────────────────────────────────────
-export type Emotion = 'Positive' | 'Neutral' | 'Negative' | 'Frustrated';
-export type GeoReadiness = 'Yes' | 'Partial' | 'No';
-export type AtdwCoverage = 'Strong' | 'Partial' | 'Weak' | 'None';
-
-export interface Touchpoint {
-  touchpoint_id: string;
-  site: Site;
-  stage_id: string;
-  persona_ids: string[];
-  journey_ids: string[];
-  channel: string;
-  touchpoint_name: string;
-  description: string;
-  user_emotion: Emotion;
-  pain_points: string;
-  opportunities: string;
-  current_content: string;
-  content_gap: string;
-  geo_readiness: GeoReadiness;
-  experiment_id: string;
-  atdw_coverage: AtdwCoverage;
-  source_evidence: string;
-}
-
-// ── Journeys ──────────────────────────────────────────────────────────────────
-export interface Journey {
-  journey_id: string;
-  site: Site | 'both';
-  journey_name: string;
-  description: string;
-  typical_personas: string[];
-  typical_duration: string;
-  key_stages: string[];
-  source_evidence: string;
-}
-
 // ── Adaptive Content ──────────────────────────────────────────────────────────
 export type ContentPriority = 'MVP' | 'Phase 2' | 'Phase 3';
 
@@ -95,16 +58,10 @@ export interface Gap {
   recommended_action: string;
 }
 
-// ── Audience Segments ─────────────────────────────────────────────────────────
-export type Segment = Record<string, string>;
-
 // ── Full data bundle ──────────────────────────────────────────────────────────
 export interface SheetData {
   personas: Persona[];
   stages: JourneyStage[];
-  touchpoints: Touchpoint[];
-  journeys: Journey[];
   adaptiveContent: AdaptiveContent[];
   gaps: Gap[];
-  segments: Segment[];
 }

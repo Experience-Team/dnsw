@@ -41,7 +41,7 @@ export default function PersonaGallery() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-grey-90">Personas</h1>
+        <h1 className="text-2xl font-bold text-grey-90">User Story Map</h1>
         <p className="text-sm text-grey-50 mt-0.5">Archetypal travellers based on research, segmented by site and travel behaviour.</p>
       </div>
       <SiteSection title="visitnsw.com" personas={visitnswPersonas} />

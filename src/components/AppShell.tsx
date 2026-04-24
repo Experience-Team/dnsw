@@ -5,12 +5,10 @@ import ErrorState from './ErrorState';
 import type { SiteFilter } from '../types';
 
 const NAV_ITEMS = [
-  { label: 'Journey Map', to: '/journey-map',           end: true  },
-  { label: 'Journeys',   to: '/journey-map/journeys',  end: false },
-  { label: 'Content',    to: '/journey-map/content',   end: false },
-  { label: 'Gaps',       to: '/journey-map/gaps',      end: false },
-  { label: 'Personas',   to: '/journey-map/personas',  end: false },
-  { label: 'Segments',   to: '/journey-map/segments',  end: false },
+  { label: 'Customer Journey Map', to: '/journey-map/cjm',      end: false },
+  { label: 'User Story Map',       to: '/journey-map/personas',  end: false },
+  { label: 'Adaptive Content',     to: '/journey-map/content',   end: false },
+  { label: 'Quote Bank',           to: '/journey-map/gaps',      end: false },
 ] as const;
 
 const SITE_OPTIONS: { label: string; value: SiteFilter }[] = [
