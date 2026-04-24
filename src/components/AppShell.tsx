@@ -5,9 +5,10 @@ import ErrorState from './ErrorState';
 import type { SiteFilter } from '../types';
 
 const NAV_ITEMS = [
-  { label: 'USM',         to: '/journey-map/personas', end: false },
-  { label: 'Content',     to: '/journey-map/content',  end: false },
-  { label: 'Quote Bank',  to: '/journey-map/gaps',     end: false },
+  { label: 'Customer Journey Map', to: '/journey-map/cjm',      end: false },
+  { label: 'User Story Map',       to: '/journey-map/personas',  end: false },
+  { label: 'Adaptive Content',     to: '/journey-map/content',   end: false },
+  { label: 'Quote Bank',           to: '/journey-map/gaps',      end: false },
 ] as const;
 
 const SITE_OPTIONS: { label: string; value: SiteFilter }[] = [
