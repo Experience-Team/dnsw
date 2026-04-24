@@ -51,10 +51,17 @@ export default function CustomerJourneyMapView() {
   const { stages, cjmEntries } = data;
 
   const filtered = useMemo(() =>
-    cjmEntries.filter(e =>
-      (siteFilter === 'both' || e.site === siteFilter) &&
-      (audienceFilter === '' || e.segment === audienceFilter)
-    ),
+    cjmEntries.filter(e => {
+      const siteMatch =
+        siteFilter === 'both' ||
+        e.site === siteFilter ||
+        e.site === 'both';
+      const segmentMatch =
+        audienceFilter === '' ||
+        e.segment.trim().toLowerCase() === 'all' ||
+        e.segment.split(',').map(s => s.trim().toLowerCase()).includes(audienceFilter.toLowerCase());
+      return siteMatch && segmentMatch;
+    }),
     [cjmEntries, siteFilter, audienceFilter]
   );
 

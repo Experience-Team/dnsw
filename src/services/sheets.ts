@@ -1,6 +1,6 @@
 import type {
   SheetData, Persona, JourneyStage,
-  AdaptiveContent, Gap, Site,
+  AdaptiveContent, Gap, Site, CjmSite,
   ContentPriority, GapSeverity,
   CjmEntry, CjmRowType,
 } from '../types';
@@ -111,6 +111,13 @@ function parseSite(val: string | undefined): Site {
   return (val ?? '').trim().toLowerCase() === 'sydney' ? 'sydney' : 'visitnsw';
 }
 
+function parseCjmSite(val: string | undefined): CjmSite {
+  const v = (val ?? '').trim().toLowerCase();
+  if (v === 'sydney') return 'sydney';
+  if (v === 'both')   return 'both';
+  return 'visitnsw';
+}
+
 function parsePriority(val: string | undefined): ContentPriority {
   const v = (val ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
   if (v === 'mvp')     return 'MVP';
@@ -174,7 +181,7 @@ function parseCjmEntries(rows: string[][]): CjmEntry[] {
     .map(r => ({
       stage_id: (r.stage ?? '').trim(),
       row_type: parseCjmRowType(r.row_type),
-      site:     parseSite(r.site),
+      site:     parseCjmSite(r.site),
       segment:  r.segment ?? '',
       content:  r.content ?? '',
     }));
