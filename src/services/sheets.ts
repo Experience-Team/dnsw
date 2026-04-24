@@ -2,6 +2,7 @@ import type {
   SheetData, Persona, JourneyStage,
   AdaptiveContent, Gap, Site,
   ContentPriority, GapSeverity,
+  CjmEntry, CjmRowType,
 } from '../types';
 
 const CSV_BASE_URL =
@@ -125,6 +126,12 @@ function parseGapSeverity(val: string | undefined): GapSeverity {
   return 'Low';
 }
 
+function parseCjmRowType(val: string | undefined): CjmRowType {
+  const v = (val ?? '').trim();
+  if (v === 'Pain Point' || v === 'Delight' || v === 'Touchpoint' || v === 'Opportunity') return v;
+  return 'Pain Point';
+}
+
 // ── Per-tab parsers ───────────────────────────────────────────────────────────
 
 function parsePersonas(rows: string[][]): Persona[] {
@@ -145,14 +152,32 @@ function parsePersonas(rows: string[][]): Persona[] {
 }
 
 function parseStages(rows: string[][]): JourneyStage[] {
+  const seen = new Set<string>();
+  const result: JourneyStage[] = [];
+  rowsToObjects(rows).forEach(r => {
+    const name = (r.stage ?? '').trim();
+    if (!name || seen.has(name)) return;
+    seen.add(name);
+    result.push({
+      stage_id:    name,
+      stage_name:  name,
+      stage_order: result.length,
+      description: (r.stage_description ?? '').trim(),
+    });
+  });
+  return result;
+}
+
+function parseCjmEntries(rows: string[][]): CjmEntry[] {
   return rowsToObjects(rows)
+    .filter(r => (r.row_type ?? '').trim() && (r.content ?? '').trim())
     .map(r => ({
-      stage_id:    r.stage_id    ?? '',
-      stage_name:  r.stage_name  ?? '',
-      stage_order: parseInt(r.stage_order ?? '0', 10) || 0,
-      description: r.description ?? '',
-    }))
-    .sort((a, b) => a.stage_order - b.stage_order);
+      stage_id: (r.stage ?? '').trim(),
+      row_type: parseCjmRowType(r.row_type),
+      site:     parseSite(r.site),
+      segment:  r.segment ?? '',
+      content:  r.content ?? '',
+    }));
 }
 
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
@@ -203,6 +228,7 @@ export async function fetchAllSheetData(): Promise<SheetData> {
   return {
     personas:        parsePersonas(personaRows),
     stages:          parseStages(stageRows),
+    cjmEntries:      parseCjmEntries(stageRows),
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
     gaps:            parseGaps(gapRows),
   };
