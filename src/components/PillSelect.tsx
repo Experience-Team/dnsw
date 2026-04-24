@@ -8,7 +8,7 @@ interface Props {
 export default function PillSelect({ label, value, onChange, options }: Props) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      {label && <span className="text-sm text-grey-50 shrink-0">{label}</span>}
+      {label && <span className="text-sm text-blue-90/60 shrink-0">{label}</span>}
       <div className="flex items-center gap-1 flex-wrap">
         {options.map(opt => (
           <button
@@ -16,10 +16,10 @@ export default function PillSelect({ label, value, onChange, options }: Props) {
             type="button"
             onClick={() => onChange(opt.value)}
             className={`
-              text-xs font-medium px-3 py-1.5 rounded-full border transition-all
+              text-xs font-medium px-4 py-2.5 rounded-full border transition-all
               ${value === opt.value
-                ? 'bg-grey-90 border-grey-90 text-white'
-                : 'bg-white border-grey-20 text-grey-60 hover:border-grey-50 hover:text-grey-80'
+                ? 'bg-blue-30 border-blue-30 text-blue-90'
+                : 'bg-white border-blue-20 text-blue-90/60 hover:border-blue-40 hover:text-blue-90'
               }
             `}
           >
