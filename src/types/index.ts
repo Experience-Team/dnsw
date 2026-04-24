@@ -26,6 +26,17 @@ export interface JourneyStage {
   description: string;
 }
 
+// ── CJM grid entries ──────────────────────────────────────────────────────────
+export type CjmRowType = 'Pain Point' | 'Delight' | 'Touchpoint' | 'Opportunity';
+
+export interface CjmEntry {
+  stage_id: string;
+  row_type: CjmRowType;
+  site: Site;
+  segment: string;
+  content: string;
+}
+
 // ── Adaptive Content ──────────────────────────────────────────────────────────
 export type ContentPriority = 'MVP' | 'Phase 2' | 'Phase 3';
 
@@ -60,8 +71,9 @@ export interface Gap {
 
 // ── Full data bundle ──────────────────────────────────────────────────────────
 export interface SheetData {
-  personas: Persona[];
-  stages: JourneyStage[];
+  personas:        Persona[];
+  stages:          JourneyStage[];
+  cjmEntries:      CjmEntry[];
   adaptiveContent: AdaptiveContent[];
-  gaps: Gap[];
+  gaps:            Gap[];
 }
