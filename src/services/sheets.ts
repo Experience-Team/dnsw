@@ -1,6 +1,6 @@
 import type {
-  SheetData, Persona, JourneyStage, Touchpoint, Journey,
-  AdaptiveContent, Gap, Segment, Site, Emotion, GeoReadiness, AtdwCoverage,
+  SheetData, Persona, JourneyStage,
+  AdaptiveContent, Gap, Site,
   ContentPriority, GapSeverity,
 } from '../types';
 
@@ -10,13 +10,10 @@ const CSV_BASE_URL =
   '/pub?output=csv&single=true';
 
 const TABS = {
-  personas:        1829750647,
-  stages:          167369858,
-  touchpoints:     1659333997,
-  journeys:        956844268,
+  cjm:             167369858,
+  usm:             1829750647,
   adaptiveContent: 1130418870,
-  gaps:            1133768074,
-  segments:        869617616,
+  quoteBank:       1133768074,
 } as const;
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
@@ -109,36 +106,8 @@ function rowsToObjects(rows: string[][]): Record<string, string>[] {
     });
 }
 
-function parseList(val: string | undefined): string[] {
-  if (!val) return [];
-  return val.split(',').map(s => s.trim()).filter(Boolean);
-}
-
 function parseSite(val: string): Site {
   return val.trim().toLowerCase() === 'sydney' ? 'sydney' : 'visitnsw';
-}
-
-function parseEmotion(val: string): Emotion {
-  const v = val.trim().toLowerCase();
-  if (v === 'positive')   return 'Positive';
-  if (v === 'negative')   return 'Negative';
-  if (v === 'frustrated') return 'Frustrated';
-  return 'Neutral';
-}
-
-function parseGeoReadiness(val: string): GeoReadiness {
-  const v = val.trim().toLowerCase();
-  if (v === 'yes')     return 'Yes';
-  if (v === 'partial') return 'Partial';
-  return 'No';
-}
-
-function parseAtdwCoverage(val: string): AtdwCoverage {
-  const v = val.trim().toLowerCase();
-  if (v === 'strong')  return 'Strong';
-  if (v === 'partial') return 'Partial';
-  if (v === 'weak')    return 'Weak';
-  return 'None';
 }
 
 function parsePriority(val: string): ContentPriority {
@@ -186,45 +155,6 @@ function parseStages(rows: string[][]): JourneyStage[] {
     .sort((a, b) => a.stage_order - b.stage_order);
 }
 
-function parseTouchpoints(rows: string[][]): Touchpoint[] {
-  return rowsToObjects(rows).map(r => ({
-    touchpoint_id:   r.touchpoint_id   ?? '',
-    site:            parseSite(r.site),
-    stage_id:        r.stage_id        ?? '',
-    persona_ids:     parseList(r.persona_id),
-    journey_ids:     parseList(r.journey_id),
-    channel:         r.channel         ?? '',
-    touchpoint_name: r.touchpoint_name ?? '',
-    description:     r.description     ?? '',
-    user_emotion:    parseEmotion(r.user_emotion),
-    pain_points:     r.pain_points      ?? '',
-    opportunities:   r.opportunities    ?? '',
-    current_content: r.current_content  ?? '',
-    content_gap:     r.content_gap      ?? '',
-    geo_readiness:   parseGeoReadiness(r.geo_readiness),
-    experiment_id:   r.experiment_id    ?? '',
-    atdw_coverage:   parseAtdwCoverage(r.atdw_coverage),
-    source_evidence: r.source_evidence  ?? '',
-  }));
-}
-
-function parseJourneys(rows: string[][]): Journey[] {
-  return rowsToObjects(rows).map(r => {
-    const siteVal = r.site?.trim().toLowerCase();
-    const site: Site | 'both' = siteVal === 'sydney' ? 'sydney' : siteVal === 'visitnsw' ? 'visitnsw' : 'both';
-    return {
-      journey_id:       r.journey_id       ?? '',
-      site,
-      journey_name:     r.journey_name     ?? '',
-      description:      r.description      ?? '',
-      typical_personas: parseList(r.typical_personas),
-      typical_duration: r.typical_duration ?? '',
-      key_stages:       parseList(r.key_stages),
-      source_evidence:  r.source_evidence  ?? '',
-    };
-  });
-}
-
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
   return rowsToObjects(rows).map(r => ({
     content_rule_id: r.content_rule_id  ?? '',
@@ -255,38 +185,25 @@ function parseGaps(rows: string[][]): Gap[] {
   }));
 }
 
-function parseSegments(rows: string[][]): Segment[] {
-  return rowsToObjects(rows);
-}
-
 // ── Orchestrator ──────────────────────────────────────────────────────────────
 
 export async function fetchAllSheetData(): Promise<SheetData> {
   const [
-    personaRows,
     stageRows,
-    touchpointRows,
-    journeyRows,
+    personaRows,
     adaptiveRows,
     gapRows,
-    segmentRows,
   ] = await Promise.all([
-    fetchTab(TABS.personas),
-    fetchTab(TABS.stages),
-    fetchTab(TABS.touchpoints),
-    fetchTab(TABS.journeys),
+    fetchTab(TABS.cjm),
+    fetchTab(TABS.usm),
     fetchTab(TABS.adaptiveContent),
-    fetchTab(TABS.gaps),
-    fetchTab(TABS.segments),
+    fetchTab(TABS.quoteBank),
   ]);
 
   return {
     personas:        parsePersonas(personaRows),
     stages:          parseStages(stageRows),
-    touchpoints:     parseTouchpoints(touchpointRows),
-    journeys:        parseJourneys(journeyRows),
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
     gaps:            parseGaps(gapRows),
-    segments:        parseSegments(segmentRows),
   };
 }

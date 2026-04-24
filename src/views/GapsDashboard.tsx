@@ -229,7 +229,7 @@ export default function GapsDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-grey-90">Gaps Dashboard</h1>
+        <h1 className="text-2xl font-bold text-grey-90">Quote Bank</h1>
         <p className="text-sm text-grey-50 mt-0.5">Content, experience, and data gaps that need addressing, ranked by severity.</p>
         <div className="mt-3">
           <PillSelect

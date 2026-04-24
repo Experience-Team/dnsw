@@ -2,12 +2,9 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import AppShell from './components/AppShell';
 import HomePage from './views/HomePage';
-import JourneyMapView from './views/JourneyMapView';
-import JourneySpecificView from './views/JourneySpecificView';
 import AdaptiveContentView from './views/AdaptiveContentView';
 import GapsDashboard from './views/GapsDashboard';
 import PersonaGallery from './views/PersonaGallery';
-import AudienceSegmentsView from './views/AudienceSegmentsView';
 
 function JourneyMapLayout() {
   return (
@@ -23,12 +20,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/journey-map" element={<JourneyMapLayout />}>
-          <Route index element={<JourneyMapView />} />
-          <Route path="journeys" element={<JourneySpecificView />} />
+          <Route index element={<Navigate to="personas" replace />} />
+          <Route path="personas" element={<PersonaGallery />} />
           <Route path="content"  element={<AdaptiveContentView />} />
           <Route path="gaps"     element={<GapsDashboard />} />
-          <Route path="personas"  element={<PersonaGallery />} />
-          <Route path="segments" element={<AudienceSegmentsView />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
