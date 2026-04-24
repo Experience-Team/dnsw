@@ -1,5 +1,6 @@
 // ── Site / filter ─────────────────────────────────────────────────────────────
 export type Site = 'visitnsw' | 'sydney';
+export type CjmSite = Site | 'both';
 export type SiteFilter = 'visitnsw' | 'sydney' | 'both';
 
 // ── Personas ──────────────────────────────────────────────────────────────────
@@ -32,7 +33,7 @@ export type CjmRowType = 'Pain Point' | 'Delight' | 'Touchpoint' | 'Opportunity'
 export interface CjmEntry {
   stage_id: string;
   row_type: CjmRowType;
-  site: Site;
+  site: CjmSite;
   segment: string;
   content: string;
 }
