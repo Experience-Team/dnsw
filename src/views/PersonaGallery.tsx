@@ -120,6 +120,11 @@ export default function PersonaGallery() {
         <div className="flex items-center gap-4">
           <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Audience</span>
           <div className="flex gap-4 flex-wrap">
+            <PillButton
+              label="All"
+              active={audienceFilter === ''}
+              onClick={() => setAudienceFilter('')}
+            />
             {SEGMENTS.map(seg => (
               <PillButton
                 key={seg}
