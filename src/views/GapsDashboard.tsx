@@ -1,273 +1,240 @@
-import { useState, useMemo } from 'react';
-import { useAppContext } from '../context/AppContext';
-import PillSelect from '../components/PillSelect';
-import type { Gap, GapSeverity } from '../types';
+import { useState, useEffect, useMemo } from 'react';
+import { fetchQuotes } from '../services/sheets';
+import type { QuoteEntry } from '../services/sheets';
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, className }: { label: string; value: number; className?: string }) {
-  return (
-    <div className={`rounded-xl p-5 ${className ?? 'bg-blue-20'}`}>
-      <p className="text-3xl font-bold text-blue-90">{value}</p>
-      <p className="text-sm text-blue-80 mt-1">{label}</p>
-    </div>
-  );
-}
+const SEGMENTS = [
+  'Local',
+  'Intrastate',
+  'Interstate',
+  'Short-haul International',
+  'Long-haul International',
+];
 
-// ── Heatmap ───────────────────────────────────────────────────────────────────
-function heatColor(count: number) {
-  if (count === 0) return 'bg-blue-10 text-blue-30';
-  if (count <= 2)  return 'bg-yellow-20 text-yellow-80';
-  if (count <= 4)  return 'bg-orange-20 text-orange-80';
-  return 'bg-red-20 text-red-70';
-}
+const SENTIMENTS = ['All', 'Positive', 'Neutral', 'Negative'] as const;
 
-function GapsHeatmap({
-  gaps,
-  personaNames,
-  stageNames,
-}: {
-  gaps: Gap[];
-  personaNames: Map<string, string>;
-  stageNames: Map<string, string>;
-}) {
-  const personas = [...new Set(gaps.map(g => g.persona_id).filter(Boolean))];
-  const stages   = [...new Set(gaps.map(g => g.stage_id).filter(Boolean))];
-
-  if (personas.length === 0 || stages.length === 0) return null;
-
-  const count = useMemo(() => {
-    const map: Record<string, Record<string, number>> = {};
-    gaps.forEach(g => {
-      if (!g.persona_id || !g.stage_id) return;
-      if (!map[g.persona_id]) map[g.persona_id] = {};
-      map[g.persona_id][g.stage_id] = (map[g.persona_id][g.stage_id] ?? 0) + 1;
-    });
-    return map;
-  }, [gaps]);
-
-  return (
-    <div>
-      <h2 className="text-base font-semibold text-blue-90 mb-3">Gap heatmap</h2>
-      <div className="overflow-x-auto">
-        <table className="text-xs border-collapse">
-          <thead>
-            <tr>
-              <th className="text-left px-3 py-2 text-blue-80 font-normal" />
-              {stages.map(sid => (
-                <th key={sid} className="text-center px-3 py-2 text-blue-90 font-medium whitespace-nowrap">
-                  {stageNames.get(sid) ?? sid}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {personas.map(pid => (
-              <tr key={pid}>
-                <td className="px-3 py-2 text-blue-90 whitespace-nowrap font-medium">
-                  {personaNames.get(pid) ?? pid}
-                </td>
-                {stages.map(sid => {
-                  const n = count[pid]?.[sid] ?? 0;
-                  return (
-                    <td key={sid} className="px-1 py-1">
-                      <div className={`w-10 h-8 rounded flex items-center justify-center font-semibold ${heatColor(n)}`}>
-                        {n > 0 ? n : ''}
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-// ── Gaps table ────────────────────────────────────────────────────────────────
-type SortKey = keyof Pick<Gap, 'severity' | 'gap_type' | 'site'>;
-const SEVERITY_ORDER: Record<GapSeverity, number> = { High: 0, Medium: 1, Low: 2 };
-
-const SEVERITY_COLORS: Record<GapSeverity, string> = {
-  High:   'bg-red-20 text-red-70',
-  Medium: 'bg-yellow-20 text-yellow-80',
-  Low:    'bg-blue-20 text-blue-80',
+const SENTIMENT_BADGE: Record<string, string> = {
+  Positive: 'bg-green-20 text-green-80',
+  Neutral:  'bg-grey-20 text-grey-70',
+  Negative: 'bg-red-20 text-red-70',
 };
 
-function GapsTable({
-  gaps,
-  personaNames,
+function PillButton({
+  label,
+  active,
+  onClick,
 }: {
-  gaps: Gap[];
-  personaNames: Map<string, string>;
+  label: string;
+  active: boolean;
+  onClick: () => void;
 }) {
-  const [sortKey, setSortKey]     = useState<SortKey>('severity');
-  const [sortDir, setSortDir]     = useState<'asc' | 'desc'>('asc');
-  const [search, setSearch]       = useState('');
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    else { setSortKey(key); setSortDir('asc'); }
-  };
-
-  const displayed = useMemo(() => {
-    const q = search.toLowerCase();
-    let rows = gaps.filter(g =>
-      !q ||
-      g.description.toLowerCase().includes(q) ||
-      g.gap_type.toLowerCase().includes(q) ||
-      (personaNames.get(g.persona_id) ?? '').toLowerCase().includes(q)
-    );
-
-    rows = [...rows].sort((a, b) => {
-      let cmp = 0;
-      if (sortKey === 'severity') {
-        cmp = SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
-      } else {
-        cmp = (a[sortKey] ?? '').localeCompare(b[sortKey] ?? '');
-      }
-      return sortDir === 'asc' ? cmp : -cmp;
-    });
-
-    return rows;
-  }, [gaps, search, sortKey, sortDir, personaNames]);
-
-  const SortTh = ({ col, label }: { col: SortKey; label: string }) => (
-    <th
-      className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-blue-80"
-      onClick={() => toggleSort(col)}
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`
+        text-sm text-blue-90 px-4 py-2.5 rounded-full transition-all
+        ${active ? 'bg-blue-30' : 'bg-white'}
+      `}
     >
-      {label} {sortKey === col ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-    </th>
+      {label}
+    </button>
   );
+}
+
+function QuoteCard({
+  quote,
+  activeTheme,
+  onThemeClick,
+}: {
+  quote: QuoteEntry;
+  activeTheme: string;
+  onThemeClick: (theme: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const themes = quote.themes
+    .split(',')
+    .map(t => t.trim())
+    .filter(Boolean);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-semibold text-blue-90">All gaps</h2>
-        <input
-          type="search"
-          placeholder="Search gaps…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="border border-blue-20 rounded-lg px-3 py-1.5 text-sm text-blue-90 bg-white
-                     focus:outline-none focus:ring-2 focus:ring-blue-80/30 w-56"
-        />
-      </div>
+    <div className="bg-blue-20 rounded-xl p-5 relative flex flex-col gap-3">
+      <button
+        type="button"
+        onClick={() => setExpanded(v => !v)}
+        className="absolute top-4 right-4 text-blue-80 text-xs leading-none select-none"
+        aria-label={expanded ? 'Collapse' : 'Expand'}
+      >
+        {expanded ? '▲' : '▼'}
+      </button>
 
-      <div className="overflow-x-auto rounded-xl border border-blue-20">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="bg-blue-20 text-blue-90">
-              <SortTh col="severity" label="Severity" />
-              <SortTh col="gap_type" label="Type" />
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider">Description</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayed.length === 0 && (
-              <tr>
-                <td colSpan={4} className="py-12 text-center text-blue-90/40 text-xs">
-                  No gaps match your search.
-                </td>
-              </tr>
-            )}
-            {displayed.map((gap, i) => (
-              <tr key={gap.gap_id} className={i % 2 === 0 ? 'bg-white' : 'bg-blue-10'}>
-                <td className="px-4 py-3">
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${SEVERITY_COLORS[gap.severity]}`}>
-                    {gap.severity}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-blue-90 text-xs">{gap.gap_type}</td>
-                <td className="px-4 py-3 text-blue-90 max-w-xs">
-                  <p className="line-clamp-4 leading-relaxed">{gap.description}</p>
-                </td>
-                <td className="px-4 py-3 text-blue-80 text-xs max-w-xs">
-                  <p className="line-clamp-4 leading-relaxed">{gap.recommended_action}</p>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Quote */}
+      <blockquote className="text-blue-90 text-base leading-relaxed pr-6 italic">
+        "{quote.quote}"
+      </blockquote>
+
+      {/* Sentiment badge */}
+      {quote.sentiment && (
+        <span
+          className={`self-start text-xs font-medium px-2.5 py-1 rounded-full ${
+            SENTIMENT_BADGE[quote.sentiment] ?? 'bg-blue-10 text-blue-90'
+          }`}
+        >
+          {quote.sentiment}
+        </span>
+      )}
+
+      {/* Theme tags */}
+      {themes.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {themes.map(theme => (
+            <button
+              key={theme}
+              type="button"
+              onClick={() => onThemeClick(theme)}
+              className={`text-xs px-2.5 py-1 rounded-full transition-all ${
+                activeTheme === theme
+                  ? 'bg-blue-80 text-white'
+                  : 'bg-white text-blue-90 hover:bg-blue-30'
+              }`}
+            >
+              {theme}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Expanded details */}
+      {expanded && (
+        <div className="border-t border-blue-30 pt-3 flex flex-col gap-1.5 text-sm text-blue-90">
+          {quote.segment     && <div><span className="font-semibold">Segment: </span>{quote.segment}</div>}
+          {quote.stage       && <div><span className="font-semibold">Stage: </span>{quote.stage}</div>}
+          {quote.travel_party && <div><span className="font-semibold">Travel party: </span>{quote.travel_party}</div>}
+          {quote.trip_context && <div><span className="font-semibold">Trip context: </span>{quote.trip_context}</div>}
+        </div>
+      )}
     </div>
   );
 }
 
-// ── Main view ─────────────────────────────────────────────────────────────────
 export default function GapsDashboard() {
-  const { data, siteFilter } = useAppContext();
-  const [severityFilter, setSeverityFilter] = useState<GapSeverity | ''>('');
+  const [quotes, setQuotes]               = useState<QuoteEntry[]>([]);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState<string | null>(null);
+  const [segmentFilter, setSegmentFilter] = useState('');
+  const [sentimentFilter, setSentiment]   = useState('All');
+  const [themeFilter, setThemeFilter]     = useState('');
 
-  if (!data) return null;
+  useEffect(() => {
+    fetchQuotes()
+      .then(setQuotes)
+      .catch(e => setError(e instanceof Error ? e.message : 'Failed to load quotes.'))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const { gaps, personas, stages } = data;
+  const filtered = useMemo(() =>
+    quotes.filter(q => {
+      const segmentMatch =
+        segmentFilter === '' ||
+        q.segment.trim().toLowerCase() === 'all' ||
+        q.segment.split(',').map(s => s.trim().toLowerCase()).includes(segmentFilter.toLowerCase());
+      const sentimentMatch =
+        sentimentFilter === 'All' || q.sentiment === sentimentFilter;
+      const themeMatch =
+        themeFilter === '' ||
+        q.themes.split(',').map(t => t.trim()).includes(themeFilter);
+      return segmentMatch && sentimentMatch && themeMatch;
+    }),
+    [quotes, segmentFilter, sentimentFilter, themeFilter]
+  );
 
-  const personaNames = useMemo(() => {
-    const m = new Map<string, string>();
-    personas.forEach(p => m.set(p.persona_id, p.name));
-    return m;
-  }, [personas]);
+  const handleThemeClick = (theme: string) =>
+    setThemeFilter(v => v === theme ? '' : theme);
 
-  const stageNames = useMemo(() => {
-    const m = new Map<string, string>();
-    stages.forEach(s => m.set(s.stage_id, s.stage_name));
-    return m;
-  }, [stages]);
+  if (loading) return (
+    <div className="py-16 text-center text-blue-90/40">Loading quotes…</div>
+  );
 
-  const siteFiltered = useMemo(() =>
-    gaps.filter(g => siteFilter === 'both' || g.site === siteFilter),
-    [gaps, siteFilter]);
-
-  const displayed = useMemo(() =>
-    siteFiltered.filter(g => !severityFilter || g.severity === severityFilter),
-    [siteFiltered, severityFilter]);
-
-  const highCount   = siteFiltered.filter(g => g.severity === 'High').length;
-  const mediumCount = siteFiltered.filter(g => g.severity === 'Medium').length;
-  const lowCount    = siteFiltered.filter(g => g.severity === 'Low').length;
+  if (error) return (
+    <div className="py-16 text-center text-red-60">{error}</div>
+  );
 
   return (
-    <div className="space-y-8">
-      <div>
+    <div>
+      {/* Header */}
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
-        <p className="text-sm text-blue-90/60 mt-0.5">Content, experience, and data gaps that need addressing, ranked by severity.</p>
-        <div className="mt-3">
-          <PillSelect
-            label="Severity"
-            value={severityFilter}
-            onChange={v => setSeverityFilter(v as GapSeverity | '')}
-            options={[
-              { label: 'All', value: '' },
-              { label: 'High', value: 'High' },
-              { label: 'Medium', value: 'Medium' },
-              { label: 'Low', value: 'Low' },
-            ]}
-          />
+        <p className="text-sm text-blue-90/60 mt-0.5">Participant quotes from user research.</p>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col gap-3 mb-8">
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Segment</span>
+          <div className="flex gap-4 flex-wrap">
+            <PillButton
+              label="All"
+              active={segmentFilter === ''}
+              onClick={() => setSegmentFilter('')}
+            />
+            {SEGMENTS.map(seg => (
+              <PillButton
+                key={seg}
+                label={seg}
+                active={segmentFilter === seg}
+                onClick={() => setSegmentFilter(v => v === seg ? '' : seg)}
+              />
+            ))}
+          </div>
         </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Sentiment</span>
+          <div className="flex gap-4 flex-wrap">
+            {SENTIMENTS.map(s => (
+              <PillButton
+                key={s}
+                label={s}
+                active={sentimentFilter === s}
+                onClick={() => setSentiment(s)}
+              />
+            ))}
+          </div>
+        </div>
+        {themeFilter && (
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-blue-90 w-20 shrink-0">Theme</span>
+            <div className="flex items-center gap-2">
+              <span className="bg-blue-80 text-white text-xs px-2.5 py-1 rounded-full">
+                {themeFilter}
+              </span>
+              <button
+                type="button"
+                onClick={() => setThemeFilter('')}
+                className="text-xs text-blue-80 hover:text-blue-90 underline"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label="Total gaps" value={siteFiltered.length} />
-        <StatCard label="High severity" value={highCount} className="bg-red-10 border border-red-30" />
-        <StatCard label="Medium severity" value={mediumCount} className="bg-yellow-20 border border-yellow-40" />
-        <StatCard label="Low severity" value={lowCount} className="bg-blue-20" />
-      </div>
-
-      {/* Heatmap */}
-      <div className="bg-blue-10 border border-blue-20 rounded-xl p-5">
-        <GapsHeatmap gaps={siteFiltered} personaNames={personaNames} stageNames={stageNames} />
-      </div>
-
-      {/* Table */}
-      {displayed.length === 0 ? (
-        <div className="py-16 text-center text-blue-90/40">No gaps for the current filter.</div>
+      {/* Cards */}
+      {filtered.length === 0 ? (
+        <div className="py-16 text-center text-blue-90/40">
+          No quotes match the current filters.
+        </div>
       ) : (
-        <GapsTable gaps={displayed} personaNames={personaNames} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map(q => (
+            <QuoteCard
+              key={q.quote_id || q.quote}
+              quote={q}
+              activeTheme={themeFilter}
+              onThemeClick={handleThemeClick}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
