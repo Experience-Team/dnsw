@@ -23,9 +23,9 @@ export default function App() {
         <Route path="/journey-map" element={<JourneyMapLayout />}>
           <Route index element={<Navigate to="cjm" replace />} />
           <Route path="cjm"      element={<CustomerJourneyMapView />} />
-          <Route path="personas" element={<PersonaGallery />} />
+          <Route path="usm"      element={<PersonaGallery />} />
           <Route path="content"  element={<AdaptiveContentView />} />
-          <Route path="gaps"     element={<GapsDashboard />} />
+          <Route path="quotes"   element={<GapsDashboard />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -6,9 +6,9 @@ import type { SiteFilter } from '../types';
 
 const NAV_ITEMS = [
   { label: 'Customer Journey Map', to: '/journey-map/cjm',      end: false },
-  { label: 'User Story Map',       to: '/journey-map/personas',  end: false },
+  { label: 'User Story Map',       to: '/journey-map/usm',       end: false },
   { label: 'Adaptive Content',     to: '/journey-map/content',   end: false },
-  { label: 'Quote Bank',           to: '/journey-map/gaps',      end: false },
+  { label: 'Quote Bank',           to: '/journey-map/quotes',    end: false },
 ] as const;
 
 const SITE_OPTIONS: { label: string; value: SiteFilter }[] = [
