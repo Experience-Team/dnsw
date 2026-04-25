@@ -38,6 +38,17 @@ export interface CjmEntry {
   content: string;
 }
 
+// ── USM grid entries ──────────────────────────────────────────────────────────
+export interface UsmEntry {
+  stage:             string;
+  stage_description: string;
+  row_type:          CjmRowType;
+  activity:          string;
+  site:              CjmSite;
+  segment:           string;
+  step:              string;
+}
+
 // ── Adaptive Content ──────────────────────────────────────────────────────────
 export type ContentPriority = 'MVP' | 'Phase 2' | 'Phase 3';
 
@@ -75,6 +86,7 @@ export interface SheetData {
   personas:        Persona[];
   stages:          JourneyStage[];
   cjmEntries:      CjmEntry[];
+  usmEntries:      UsmEntry[];
   adaptiveContent: AdaptiveContent[];
   gaps:            Gap[];
 }

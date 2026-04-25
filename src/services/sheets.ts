@@ -2,7 +2,7 @@ import type {
   SheetData, Persona, JourneyStage,
   AdaptiveContent, Gap, Site, CjmSite,
   ContentPriority, GapSeverity,
-  CjmEntry, CjmRowType,
+  CjmEntry, CjmRowType, UsmEntry,
 } from '../types';
 
 const CSV_BASE_URL =
@@ -190,6 +190,20 @@ function parseCjmEntries(rows: string[][]): CjmEntry[] {
     }));
 }
 
+function parseUsmEntries(rows: string[][]): UsmEntry[] {
+  return rowsToObjects(rows)
+    .filter(r => (r.stage ?? '').trim() && (r.step ?? '').trim())
+    .map(r => ({
+      stage:             (r.stage ?? '').trim(),
+      stage_description: (r.stage_description ?? '').trim(),
+      row_type:          parseCjmRowType(r.row_type),
+      activity:          (r.activity ?? '').trim(),
+      site:              parseCjmSite(r.site),
+      segment:           (r.segment ?? '').trim(),
+      step:              (r.step ?? '').trim(),
+    }));
+}
+
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
   return rowsToObjects(rows).map(r => ({
     content_rule_id: r.content_rule_id  ?? '',
@@ -239,6 +253,7 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     personas:        parsePersonas(personaRows),
     stages:          parseStages(stageRows),
     cjmEntries:      parseCjmEntries(stageRows),
+    usmEntries:      parseUsmEntries(personaRows),
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
     gaps:            parseGaps(gapRows),
   };
