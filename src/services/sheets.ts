@@ -234,6 +234,41 @@ function parseGaps(rows: string[][]): Gap[] {
   }));
 }
 
+// ── Quote Bank ────────────────────────────────────────────────────────────────
+
+export interface QuoteEntry {
+  quote_id:     string;
+  quote:        string;
+  segment:      string;
+  sentiment:    string;
+  themes:       string;
+  stage:        string;
+  site:         string;
+  travel_party: string;
+  trip_context: string;
+}
+
+function parseQuotes(rows: string[][]): QuoteEntry[] {
+  return rowsToObjects(rows)
+    .filter(r => (r.quote ?? '').trim())
+    .map(r => ({
+      quote_id:     r.quote_id     ?? '',
+      quote:        r.quote        ?? '',
+      segment:      r.segment      ?? '',
+      sentiment:    r.sentiment    ?? '',
+      themes:       r.themes       ?? '',
+      stage:        r.stage        ?? '',
+      site:         r.site         ?? '',
+      travel_party: r.travel_party ?? '',
+      trip_context: r.trip_context ?? '',
+    }));
+}
+
+export async function fetchQuotes(): Promise<QuoteEntry[]> {
+  const rows = await fetchTab(TABS.quoteBank);
+  return parseQuotes(rows);
+}
+
 // ── Orchestrator ──────────────────────────────────────────────────────────────
 
 export async function fetchAllSheetData(): Promise<SheetData> {
