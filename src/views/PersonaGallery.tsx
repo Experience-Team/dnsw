@@ -1,14 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import type { CjmRowType, UsmEntry } from '../types';
+import type { UsmEntry } from '../types';
 
-const ROW_TYPES: CjmRowType[] = ['Pain Point', 'Delight', 'Touchpoint', 'Opportunity'];
-const ROW_LABELS: Record<CjmRowType, string> = {
-  'Pain Point':  'Pain Points',
-  'Delight':     'Delights',
-  'Touchpoint':  'Touchpoints',
-  'Opportunity': 'Opportunities',
-};
 const SEGMENTS = [
   'Local',
   'Intrastate',
@@ -40,17 +33,26 @@ function PillButton({
   );
 }
 
-function getActivityGroups(entries: UsmEntry[]): { activity: string; steps: string[] }[] {
+function getActivities(entries: UsmEntry[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  entries.forEach(e => {
+    if (e.activity && !seen.has(e.activity)) {
+      seen.add(e.activity);
+      result.push(e.activity);
+    }
+  });
+  return result;
+}
+
+function getSteps(entries: UsmEntry[]): string[] {
   const map = new Map<string, string[]>();
   const order: string[] = [];
   entries.forEach(e => {
-    if (!map.has(e.activity)) {
-      map.set(e.activity, []);
-      order.push(e.activity);
-    }
+    if (!map.has(e.activity)) { map.set(e.activity, []); order.push(e.activity); }
     if (e.step) map.get(e.activity)!.push(e.step);
   });
-  return order.map(a => ({ activity: a, steps: map.get(a)! }));
+  return order.flatMap(a => map.get(a)!);
 }
 
 export default function PersonaGallery() {
@@ -87,15 +89,13 @@ export default function PersonaGallery() {
     [usmEntries, siteFilter, audienceFilter]
   );
 
-  const grid = useMemo(() => {
-    const g: Record<CjmRowType, Record<string, UsmEntry[]>> = {
-      'Pain Point': {}, 'Delight': {}, 'Touchpoint': {}, 'Opportunity': {},
-    };
+  const stageMap = useMemo(() => {
+    const m: Record<string, UsmEntry[]> = {};
     filtered.forEach(e => {
-      if (!g[e.row_type][e.stage]) g[e.row_type][e.stage] = [];
-      g[e.row_type][e.stage].push(e);
+      if (!m[e.stage]) m[e.stage] = [];
+      m[e.stage].push(e);
     });
-    return g;
+    return m;
   }, [filtered]);
 
   return (
@@ -156,55 +156,61 @@ export default function PersonaGallery() {
             </tr>
           </thead>
           <tbody>
-            {ROW_TYPES.map((rt, rtIdx) => (
-              <tr key={rt}>
-                <td
-                  className={`sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28 ${
-                    rtIdx > 0 ? 'pt-16' : ''
-                  }`}
-                >
-                  <span className="text-base text-blue-90 whitespace-nowrap">
-                    {ROW_LABELS[rt]}
-                  </span>
-                </td>
-                {stages.map(s => {
-                  const entries = grid[rt][s.stage] ?? [];
-                  const groups = getActivityGroups(entries);
-                  return (
-                    <td
-                      key={s.stage}
-                      className={`align-top px-[3px] ${rtIdx > 0 ? 'pt-16' : ''}`}
-                    >
-                      {groups.length > 0 ? (
-                        <div className="flex flex-col gap-2">
-                          {groups.map(g => (
-                            <div key={g.activity}>
-                              {g.activity && (
-                                <div className="bg-blue-20 px-2 py-1 text-sm font-semibold text-blue-90 rounded-t">
-                                  {g.activity}
-                                </div>
-                              )}
-                              <div className="flex flex-col gap-1">
-                                {g.steps.map((step, i) => (
-                                  <div
-                                    key={i}
-                                    className="bg-white px-2 py-2 text-sm text-blue-90 leading-snug rounded"
-                                  >
-                                    {step}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="bg-white rounded px-2 py-3 min-h-[48px]" />
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+            {/* Activity row */}
+            <tr>
+              <td className="sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28">
+                <span className="text-base text-blue-90 whitespace-nowrap">Activity</span>
+              </td>
+              {stages.map(s => {
+                const activities = getActivities(stageMap[s.stage] ?? []);
+                return (
+                  <td key={s.stage} className="align-top px-[3px]">
+                    {activities.length > 0 ? (
+                      <div className="flex flex-col gap-2">
+                        {activities.map(activity => (
+                          <div
+                            key={activity}
+                            className="bg-blue-20 px-2 py-2 text-sm font-semibold text-blue-90 rounded"
+                          >
+                            {activity}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded px-2 py-3 min-h-[48px]" />
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+
+            {/* Steps row */}
+            <tr>
+              <td className="sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28 pt-16">
+                <span className="text-base text-blue-90 whitespace-nowrap">Steps</span>
+              </td>
+              {stages.map(s => {
+                const steps = getSteps(stageMap[s.stage] ?? []);
+                return (
+                  <td key={s.stage} className="align-top px-[3px] pt-16">
+                    {steps.length > 0 ? (
+                      <div className="flex flex-col gap-1">
+                        {steps.map((step, i) => (
+                          <div
+                            key={i}
+                            className="bg-white px-2 py-2 text-sm text-blue-90 leading-snug rounded"
+                          >
+                            {step}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded px-2 py-3 min-h-[48px]" />
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
           </tbody>
         </table>
       </div>
