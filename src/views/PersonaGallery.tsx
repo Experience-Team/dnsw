@@ -62,14 +62,14 @@ export default function PersonaGallery() {
 
   const stages = useMemo(() => {
     const seen = new Set<string>();
-    const result: { stage: string; description: string }[] = [];
+    const descriptions = new Map<string, string>();
+    const order: string[] = [];
     usmEntries.forEach(e => {
-      if (!seen.has(e.stage)) {
-        seen.add(e.stage);
-        result.push({ stage: e.stage, description: e.stage_description });
-      }
+      if (!seen.has(e.stage)) { seen.add(e.stage); order.push(e.stage); }
+      if (!descriptions.get(e.stage) && e.stage_description)
+        descriptions.set(e.stage, e.stage_description);
     });
-    return result;
+    return order.map(s => ({ stage: s, description: descriptions.get(s) ?? '' }));
   }, [usmEntries]);
 
   const filtered = useMemo(() =>
