@@ -25,13 +25,13 @@ function CellPopover({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <p className="text-xs text-blue-80 uppercase tracking-wide mb-0.5">{rule.page_type}</p>
+            <p className="text-base text-blue-80 uppercase tracking-wide mb-0.5">{rule.page_type}</p>
             <h3 className="font-semibold text-blue-90">{rule.content_element}</h3>
-            <p className="text-xs text-blue-80 mt-0.5">{rule.segment}</p>
+            <p className="text-base text-blue-80 mt-0.5">{rule.segment}</p>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-blue-10 hover:bg-blue-20 flex items-center justify-center text-blue-80 text-xs shrink-0"
+            className="w-7 h-7 rounded-full bg-blue-10 hover:bg-blue-20 flex items-center justify-center text-blue-80 text-base shrink-0"
           >
             ✕
           </button>
@@ -54,8 +54,8 @@ function DetailRow({ label, value, accent = false }: { label: string; value: str
   if (!value) return null;
   return (
     <div>
-      <p className="text-xs font-semibold text-blue-80 uppercase tracking-wide mb-0.5">{label}</p>
-      <p className={`text-sm leading-relaxed ${accent ? 'text-blue-90 font-medium' : 'text-blue-90'}`}>
+      <p className="text-base font-semibold text-blue-80 uppercase tracking-wide mb-0.5">{label}</p>
+      <p className={`text-base leading-relaxed ${accent ? 'text-blue-90 font-medium' : 'text-blue-90'}`}>
         {value}
       </p>
     </div>
@@ -92,7 +92,7 @@ export default function AdaptiveContentView() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
-        <p className="text-sm text-blue-90/60 mt-0.5">Content rules mapped by page type and audience segment. Each cell defines what changes for a given context.</p>
+        <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by page type and audience segment. Each cell defines what changes for a given context.</p>
       </div>
 
       {pageTypes.length === 0 ? (
@@ -101,14 +101,14 @@ export default function AdaptiveContentView() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-base">
             <thead>
               <tr className="bg-blue-20 text-blue-90">
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider rounded-tl-xl sticky left-0 bg-blue-20 z-10">
+                <th className="text-left px-4 py-3 text-base font-semibold uppercase tracking-wider rounded-tl-xl sticky left-0 bg-blue-20 z-10">
                   Page type
                 </th>
                 {SEGMENTS.map(seg => (
-                  <th key={seg} className="text-center px-3 py-3 text-xs font-semibold whitespace-nowrap">
+                  <th key={seg} className="text-center px-3 py-3 text-base font-semibold whitespace-nowrap">
                     {seg}
                   </th>
                 ))}
@@ -124,7 +124,7 @@ export default function AdaptiveContentView() {
                     const rule = ruleMap[`${pageType}||${seg}`];
                     if (!rule) {
                       return (
-                        <td key={seg} className="px-3 py-3 text-center text-blue-30 text-xs">
+                        <td key={seg} className="px-3 py-3 text-center text-blue-30 text-base">
                           —
                         </td>
                       );
@@ -143,9 +143,9 @@ export default function AdaptiveContentView() {
                               <line x1="4.5" y1="5.5" x2="1" y2="9" />
                             </svg>
                           </span>
-                          <p className="text-xs font-medium leading-snug pr-3">{rule.content_element}</p>
+                          <p className="text-base font-medium leading-snug pr-3">{rule.content_element}</p>
                           {rule.adapted_variant && (
-                            <p className="text-xs opacity-70 mt-0.5 line-clamp-2">
+                            <p className="text-base opacity-70 mt-0.5 line-clamp-2">
                               {rule.adapted_variant}
                             </p>
                           )}
