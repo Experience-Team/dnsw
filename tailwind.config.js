@@ -99,15 +99,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"Segoe UI"',
-          'Roboto',
-          'Helvetica',
-          'Arial',
-          'sans-serif',
-        ],
+        sans: ['"PT Sans"', 'sans-serif'],
       },
     },
   },
