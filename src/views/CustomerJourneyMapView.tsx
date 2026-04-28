@@ -33,7 +33,7 @@ function PillButton({
       type="button"
       onClick={onClick}
       className={`
-        text-sm text-blue-90 px-4 py-2.5 rounded-full transition-all
+        text-base text-blue-90 px-4 py-2.5 rounded-full transition-all
         ${active ? 'bg-blue-30' : 'bg-white'}
       `}
     >
@@ -97,7 +97,7 @@ export default function CustomerJourneyMapView() {
       {/* Filters */}
       <div className="flex flex-col gap-3 mb-8">
         <div className="flex items-center gap-4">
-          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Site</span>
+          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Site</span>
           <div className="flex gap-4">
             <PillButton
               label="Visit"
@@ -112,7 +112,7 @@ export default function CustomerJourneyMapView() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Audience</span>
+          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Audience</span>
           <div className="flex gap-4 flex-wrap">
             {SEGMENTS.map(seg => (
               <PillButton
@@ -142,7 +142,7 @@ export default function CustomerJourneyMapView() {
                     {s.stage_name}
                   </div>
                   {s.description && (
-                    <p className="text-xs italic font-light text-blue-90 leading-relaxed mt-1 text-left">
+                    <p className="text-base italic font-light text-blue-90 leading-relaxed mt-1 text-left">
                       {s.description}
                     </p>
                   )}

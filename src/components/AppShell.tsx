@@ -43,13 +43,13 @@ export default function AppShell() {
           {/* Back to hub */}
           <button
             onClick={() => navigate('/')}
-            className="text-grey-40 hover:text-white text-sm transition-colors shrink-0"
+            className="text-grey-40 hover:text-white text-base transition-colors shrink-0"
             title="Back to tools hub"
           >
             ← Hub
           </button>
 
-          <span className="text-white font-semibold text-sm shrink-0">Journey Map</span>
+          <span className="text-white font-semibold text-base shrink-0">Journey Map</span>
 
           <div className="flex-1" />
 
@@ -60,7 +60,7 @@ export default function AppShell() {
                 key={opt.value}
                 onClick={() => setSiteFilter(opt.value)}
                 className={`
-                  text-xs font-medium px-3 py-1.5 rounded-md transition-all
+                  text-base font-medium px-3 py-1.5 rounded-md transition-all
                   ${siteButtonClass(siteFilter === opt.value, opt.value)}
                 `}
               >
@@ -72,12 +72,12 @@ export default function AppShell() {
           {/* Refresh */}
           <div className="flex items-center gap-3 shrink-0">
             {refreshLabel && (
-              <span className="text-xs text-grey-40 hidden sm:block">{refreshLabel}</span>
+              <span className="text-base text-grey-40 hidden sm:block">{refreshLabel}</span>
             )}
             <button
               onClick={refresh}
               disabled={loading}
-              className="text-xs font-medium px-3 py-1.5 rounded-md border border-grey-70
+              className="text-base font-medium px-3 py-1.5 rounded-md border border-grey-70
                          text-grey-30 hover:text-white hover:border-grey-50 transition-all
                          disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
@@ -120,7 +120,7 @@ export default function AppShell() {
           <>
             {/* Refresh error banner (data exists but refresh failed) */}
             {error && (
-              <div className="mb-4 px-4 py-2.5 bg-yellow-20 border border-yellow-40 rounded-lg text-sm text-yellow-80">
+              <div className="mb-4 px-4 py-2.5 bg-yellow-20 border border-yellow-40 rounded-lg text-base text-yellow-80">
                 ⚠ Refresh failed: {error}
               </div>
             )}

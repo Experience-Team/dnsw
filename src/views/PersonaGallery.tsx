@@ -24,7 +24,7 @@ function PillButton({
       type="button"
       onClick={onClick}
       className={`
-        text-sm text-blue-90 px-4 py-2.5 rounded-full transition-all
+        text-base text-blue-90 px-4 py-2.5 rounded-full transition-all
         ${active ? 'bg-blue-30' : 'bg-white'}
       `}
     >
@@ -103,7 +103,7 @@ export default function PersonaGallery() {
       {/* Filters */}
       <div className="flex flex-col gap-3 mb-8">
         <div className="flex items-center gap-4">
-          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Site</span>
+          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Site</span>
           <div className="flex gap-4">
             <PillButton
               label="Visit"
@@ -118,7 +118,7 @@ export default function PersonaGallery() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Audience</span>
+          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Audience</span>
           <div className="flex gap-4 flex-wrap">
             <PillButton
               label="All"
@@ -152,7 +152,7 @@ export default function PersonaGallery() {
                     {s.stage}
                   </div>
                   {s.description && (
-                    <p className="text-xs italic font-light text-blue-90 leading-relaxed mt-1 text-left">
+                    <p className="text-base italic font-light text-blue-90 leading-relaxed mt-1 text-left">
                       {s.description}
                     </p>
                   )}
@@ -175,7 +175,7 @@ export default function PersonaGallery() {
                         {activities.map(activity => (
                           <div
                             key={activity}
-                            className="bg-blue-20 px-2 py-2 text-sm font-semibold text-blue-90 rounded"
+                            className="bg-blue-20 px-2 py-2 text-base font-semibold text-blue-90 rounded"
                           >
                             {activity}
                           </div>
@@ -203,7 +203,7 @@ export default function PersonaGallery() {
                         {steps.map((step, i) => (
                           <div
                             key={i}
-                            className="bg-white px-2 py-2 text-sm text-blue-90 leading-snug rounded"
+                            className="bg-white px-2 py-2 text-base text-blue-90 leading-snug rounded"
                           >
                             {step}
                           </div>

@@ -32,7 +32,7 @@ function PillButton({
       type="button"
       onClick={onClick}
       className={`
-        text-sm text-blue-90 px-4 py-2.5 rounded-full transition-all
+        text-base text-blue-90 px-4 py-2.5 rounded-full transition-all
         ${active ? 'bg-blue-30' : 'bg-white'}
       `}
     >
@@ -62,7 +62,7 @@ function QuoteCard({
       <button
         type="button"
         onClick={() => setExpanded(v => !v)}
-        className="absolute top-4 right-4 text-blue-80 text-xs leading-none select-none"
+        className="absolute top-4 right-4 text-blue-80 text-base leading-none select-none"
         aria-label={expanded ? 'Collapse' : 'Expand'}
       >
         {expanded ? '▲' : '▼'}
@@ -76,7 +76,7 @@ function QuoteCard({
       {/* Sentiment badge */}
       {quote.sentiment && (
         <span
-          className={`self-start text-xs font-medium px-2.5 py-1 rounded-full ${
+          className={`self-start text-base font-medium px-2.5 py-1 rounded-full ${
             SENTIMENT_BADGE[quote.sentiment] ?? 'bg-blue-10 text-blue-90'
           }`}
         >
@@ -92,7 +92,7 @@ function QuoteCard({
               key={theme}
               type="button"
               onClick={() => onThemeClick(theme)}
-              className={`text-xs px-2.5 py-1 rounded-full transition-all ${
+              className={`text-base px-2.5 py-1 rounded-full transition-all ${
                 activeTheme === theme
                   ? 'bg-blue-80 text-white'
                   : 'bg-white text-blue-90 hover:bg-blue-30'
@@ -106,7 +106,7 @@ function QuoteCard({
 
       {/* Expanded details */}
       {expanded && (
-        <div className="border-t border-blue-30 pt-3 flex flex-col gap-1.5 text-sm text-blue-90">
+        <div className="border-t border-blue-30 pt-3 flex flex-col gap-1.5 text-base text-blue-90">
           {quote.segment     && <div><span className="font-semibold">Segment: </span>{quote.segment}</div>}
           {quote.stage       && <div><span className="font-semibold">Stage: </span>{quote.stage}</div>}
           {quote.travel_party && <div><span className="font-semibold">Travel party: </span>{quote.travel_party}</div>}
@@ -164,13 +164,13 @@ export default function GapsDashboard() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
-        <p className="text-sm text-blue-90/60 mt-0.5">Participant quotes from user research.</p>
+        <p className="text-base text-blue-90/60 mt-0.5">Participant quotes from user research.</p>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col gap-3 mb-8">
         <div className="flex items-center gap-4">
-          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Segment</span>
+          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Segment</span>
           <div className="flex gap-4 flex-wrap">
             <PillButton
               label="All"
@@ -188,7 +188,7 @@ export default function GapsDashboard() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-blue-90 w-20 shrink-0 leading-10">Sentiment</span>
+          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Sentiment</span>
           <div className="flex gap-4 flex-wrap">
             {SENTIMENTS.map(s => (
               <PillButton
@@ -202,15 +202,15 @@ export default function GapsDashboard() {
         </div>
         {themeFilter && (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-blue-90 w-20 shrink-0">Theme</span>
+            <span className="text-base text-blue-90 w-20 shrink-0">Theme</span>
             <div className="flex items-center gap-2">
-              <span className="bg-blue-80 text-white text-xs px-2.5 py-1 rounded-full">
+              <span className="bg-blue-80 text-white text-base px-2.5 py-1 rounded-full">
                 {themeFilter}
               </span>
               <button
                 type="button"
                 onClick={() => setThemeFilter('')}
-                className="text-xs text-blue-80 hover:text-blue-90 underline"
+                className="text-base text-blue-80 hover:text-blue-90 underline"
               >
                 Clear
               </button>
