@@ -91,17 +91,17 @@ export default function AppShell() {
       </header>
 
       {/* ── Tab nav ── */}
-      <nav className="bg-white border-b border-blue-20 sticky top-14 z-30">
-        <div className="px-10 flex gap-10">
+      <nav className="bg-blue-10 border-b border-blue-20 sticky top-14 z-30">
+        <div className="px-10 flex gap-8">
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `text-2xl px-0 pb-4 pt-4 border-b-[3px] transition-colors whitespace-nowrap ${
+                `text-xl px-0 pb-[19px] pt-8 border-b-[3px] transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'border-blue-80 text-blue-90 font-medium'
+                    ? 'border-blue-80 text-blue-80 font-bold'
                     : 'border-transparent text-blue-90/60 hover:text-blue-90'
                 }`
               }
