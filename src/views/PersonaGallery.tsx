@@ -103,7 +103,7 @@ export default function PersonaGallery() {
       {/* Filters */}
       <div className="flex flex-col gap-3 mb-8">
         <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Site</span>
+          <span className="text-base text-blue-90 w-24 shrink-0 leading-10">Site</span>
           <div className="flex gap-4">
             <PillButton
               label="Visit"
@@ -118,7 +118,7 @@ export default function PersonaGallery() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Audience</span>
+          <span className="text-base text-blue-90 w-24 shrink-0 leading-10">Audience</span>
           <div className="flex gap-4 flex-wrap">
             <PillButton
               label="All"
@@ -139,14 +139,14 @@ export default function PersonaGallery() {
 
       {/* Grid */}
       <div className="overflow-x-auto pb-4">
-        <table className="border-collapse">
+        <table className="border-collapse table-fixed w-full">
           <thead>
             <tr>
               <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28" />
               {stages.map(s => (
                 <th
                   key={s.stage}
-                  className="align-top w-60 min-w-[200px] px-[3px] pb-3 font-normal"
+                  className="align-top min-w-[200px] px-[3px] pb-3 font-normal"
                 >
                   <div className="bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90">
                     {s.stage}
@@ -170,20 +170,16 @@ export default function PersonaGallery() {
                 const activities = getActivities(stageMap[s.stage] ?? []);
                 return (
                   <td key={s.stage} className="align-top px-[3px]">
-                    {activities.length > 0 ? (
-                      <div className="flex flex-col gap-2">
-                        {activities.map(activity => (
-                          <div
-                            key={activity}
-                            className="bg-blue-20 px-2 py-2 text-base font-semibold text-blue-90 rounded"
-                          >
-                            {activity}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="bg-white rounded px-2 py-3 min-h-[48px]" />
-                    )}
+                    <div className="flex flex-col gap-2">
+                      {activities.map(activity => (
+                        <div
+                          key={activity}
+                          className="bg-blue-20 p-4 text-base font-semibold text-blue-90 rounded"
+                        >
+                          {activity}
+                        </div>
+                      ))}
+                    </div>
                   </td>
                 );
               })}
@@ -198,20 +194,16 @@ export default function PersonaGallery() {
                 const steps = getSteps(stageMap[s.stage] ?? []);
                 return (
                   <td key={s.stage} className="align-top px-[3px] pt-16">
-                    {steps.length > 0 ? (
-                      <div className="flex flex-col gap-1">
-                        {steps.map((step, i) => (
-                          <div
-                            key={i}
-                            className="bg-white px-2 py-2 text-base text-blue-90 leading-snug rounded"
-                          >
-                            {step}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="bg-white rounded px-2 py-3 min-h-[48px]" />
-                    )}
+                    <div className="flex flex-col gap-1">
+                      {steps.map((step, i) => (
+                        <div
+                          key={i}
+                          className="bg-white p-4 text-base text-blue-90 leading-snug rounded"
+                        >
+                          {step}
+                        </div>
+                      ))}
+                    </div>
                   </td>
                 );
               })}
