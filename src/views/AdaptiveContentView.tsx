@@ -2,14 +2,6 @@ import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { AdaptiveContent } from '../types';
 
-const SEGMENTS = [
-  'Local',
-  'Intrastate',
-  'Interstate',
-  'Short-haul International',
-  'Long-haul International',
-];
-
 function CellPopover({
   rule,
   onClose,
@@ -25,9 +17,8 @@ function CellPopover({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <p className="text-base text-blue-80 uppercase tracking-wide mb-0.5">{rule.page_type}</p>
-            <h3 className="font-semibold text-blue-90">{rule.content_element}</h3>
-            <p className="text-base text-blue-80 mt-0.5">{rule.segment}</p>
+            <p className="text-base text-blue-80 uppercase tracking-wide mb-0.5">{rule.content_type}</p>
+            <p className="text-base text-blue-80 mt-0.5 capitalize">{rule.segment}</p>
           </div>
           <button
             onClick={onClose}
@@ -36,28 +27,8 @@ function CellPopover({
             ✕
           </button>
         </div>
-
-        <div className="space-y-3">
-          <DetailRow label="Default" value={rule.default_variant} />
-          <DetailRow label="Adapted variant" value={rule.adapted_variant} accent />
-          <DetailRow label="Rationale" value={rule.rationale} />
-          {rule.source_evidence && (
-            <DetailRow label="Evidence" value={rule.source_evidence} />
-          )}
-        </div>
+        <p className="text-base leading-relaxed text-blue-90">{rule.content}</p>
       </div>
-    </div>
-  );
-}
-
-function DetailRow({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
-  if (!value) return null;
-  return (
-    <div>
-      <p className="text-base font-semibold text-blue-80 uppercase tracking-wide mb-0.5">{label}</p>
-      <p className={`text-base leading-relaxed ${accent ? 'text-blue-90 font-medium' : 'text-blue-90'}`}>
-        {value}
-      </p>
     </div>
   );
 }
@@ -71,19 +42,23 @@ export default function AdaptiveContentView() {
   const { adaptiveContent } = data;
 
   const filtered = useMemo(() =>
-    adaptiveContent.filter(r => {
-      if (siteFilter !== 'both' && r.site !== siteFilter) return false;
-      return true;
-    }), [adaptiveContent, siteFilter]);
+    adaptiveContent.filter(r =>
+      siteFilter === 'both' || r.site === siteFilter || r.site === 'both'
+    ), [adaptiveContent, siteFilter]);
 
-  const pageTypes = useMemo(() =>
-    [...new Set(filtered.map(r => r.page_type))].sort(),
+  const segments = useMemo(() =>
+    [...new Set(filtered.map(r => r.segment.trim().toLowerCase()))].sort(),
+    [filtered]);
+
+  const contentTypes = useMemo(() =>
+    [...new Set(filtered.map(r => r.content_type.trim()))].sort(),
     [filtered]);
 
   const ruleMap = useMemo(() => {
     const map: Record<string, AdaptiveContent> = {};
     filtered.forEach(r => {
-      map[`${r.page_type}||${r.segment}`] = r;
+      const key = `${r.content_type.trim()}||${r.segment.trim().toLowerCase()}`;
+      if (!map[key]) map[key] = r;
     });
     return map;
   }, [filtered]);
@@ -92,45 +67,45 @@ export default function AdaptiveContentView() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
-        <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by page type and audience segment. Each cell defines what changes for a given context.</p>
+        <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by type and audience segment. Each cell defines what changes for a given context.</p>
       </div>
 
-      {pageTypes.length === 0 ? (
+      {contentTypes.length === 0 ? (
         <div className="py-16 text-center text-blue-90/40">
           No adaptive content rules for the current filters.
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-base">
+          <table className="w-full border-collapse table-fixed text-base">
             <thead>
               <tr className="bg-blue-20 text-blue-90">
-                <th className="text-left px-4 py-3 text-base font-semibold uppercase tracking-wider rounded-tl-xl sticky left-0 bg-blue-20 z-10">
-                  Page type
+                <th className="text-left px-4 py-3 text-base font-semibold uppercase tracking-wider rounded-tl-xl sticky left-0 bg-blue-20 z-10 w-48 min-w-48">
+                  Content type
                 </th>
-                {SEGMENTS.map(seg => (
-                  <th key={seg} className="text-center px-3 py-3 text-base font-semibold whitespace-nowrap">
+                {segments.map(seg => (
+                  <th key={seg} className="text-center px-3 py-3 text-base font-semibold whitespace-nowrap capitalize min-w-[180px]">
                     {seg}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {pageTypes.map(pageType => (
-                <tr key={pageType}>
-                  <td className="px-4 py-3 font-medium text-blue-90 sticky left-0 bg-white border-r border-blue-20 min-w-40">
-                    {pageType}
+              {contentTypes.map(contentType => (
+                <tr key={contentType}>
+                  <td className="px-4 py-3 font-medium text-blue-90 sticky left-0 bg-white border-r border-blue-20 w-48 min-w-48 align-top">
+                    {contentType}
                   </td>
-                  {SEGMENTS.map(seg => {
-                    const rule = ruleMap[`${pageType}||${seg}`];
+                  {segments.map(seg => {
+                    const rule = ruleMap[`${contentType}||${seg}`];
                     if (!rule) {
                       return (
-                        <td key={seg} className="px-3 py-3 text-center text-blue-30 text-base">
+                        <td key={seg} className="px-3 py-3 text-center text-blue-30 text-base align-top">
                           —
                         </td>
                       );
                     }
                     return (
-                      <td key={seg} className="px-3 py-2">
+                      <td key={seg} className="px-3 py-2 align-top">
                         <button
                           onClick={() => setSelectedRule(rule)}
                           className="relative w-full text-left rounded px-2 py-3 bg-blue-20 text-blue-90 hover:bg-blue-30 transition-all"
@@ -143,12 +118,7 @@ export default function AdaptiveContentView() {
                               <line x1="4.5" y1="5.5" x2="1" y2="9" />
                             </svg>
                           </span>
-                          <p className="text-base font-medium leading-snug pr-3">{rule.content_element}</p>
-                          {rule.adapted_variant && (
-                            <p className="text-base opacity-70 mt-0.5 line-clamp-2">
-                              {rule.adapted_variant}
-                            </p>
-                          )}
+                          <p className="text-base leading-snug pr-3 line-clamp-4">{rule.content}</p>
                         </button>
                       </td>
                     );

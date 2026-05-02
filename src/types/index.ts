@@ -50,20 +50,11 @@ export interface UsmEntry {
 }
 
 // ── Adaptive Content ──────────────────────────────────────────────────────────
-export type ContentPriority = 'MVP' | 'Phase 2' | 'Phase 3';
-
 export interface AdaptiveContent {
-  content_rule_id: string;
-  site: Site;
-  stage_id: string;
+  content_type: string;
+  site: CjmSite;
   segment: string;
-  page_type: string;
-  content_element: string;
-  default_variant: string;
-  adapted_variant: string;
-  rationale: string;
-  priority: ContentPriority;
-  source_evidence: string;
+  content: string;
 }
 
 // ── Gaps ──────────────────────────────────────────────────────────────────────

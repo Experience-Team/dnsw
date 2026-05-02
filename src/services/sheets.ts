@@ -1,7 +1,7 @@
 import type {
   SheetData, Persona, JourneyStage,
   AdaptiveContent, Gap, Site, CjmSite,
-  ContentPriority, GapSeverity,
+  GapSeverity,
   CjmEntry, CjmRowType, UsmEntry,
 } from '../types';
 
@@ -118,13 +118,6 @@ function parseCjmSite(val: string | undefined): CjmSite {
   return 'visitnsw';
 }
 
-function parsePriority(val: string | undefined): ContentPriority {
-  const v = (val ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
-  if (v === 'mvp')     return 'MVP';
-  if (v === 'phase 2') return 'Phase 2';
-  if (v === 'phase 3') return 'Phase 3';
-  return 'Phase 2';
-}
 
 function parseGapSeverity(val: string | undefined): GapSeverity {
   const v = (val ?? '').trim().toLowerCase();
@@ -205,19 +198,14 @@ function parseUsmEntries(rows: string[][]): UsmEntry[] {
 }
 
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
-  return rowsToObjects(rows).map(r => ({
-    content_rule_id: r.content_rule_id  ?? '',
-    site:            parseSite(r.site),
-    stage_id:        r.stage_id         ?? '',
-    segment:         r.segment          ?? '',
-    page_type:       r.page_type        ?? '',
-    content_element: r.content_element  ?? '',
-    default_variant: r.default_variant  ?? '',
-    adapted_variant: r.adapted_variant  ?? '',
-    rationale:       r.rationale        ?? '',
-    priority:        parsePriority(r.priority),
-    source_evidence: r.source_evidence  ?? '',
-  }));
+  return rowsToObjects(rows)
+    .filter(r => (r.content_type ?? '').trim() && (r.content ?? '').trim())
+    .map(r => ({
+      content_type: (r.content_type ?? '').trim(),
+      site:         parseCjmSite(r.site),
+      segment:      (r.segment ?? '').trim(),
+      content:      (r.content ?? '').trim(),
+    }));
 }
 
 function parseGaps(rows: string[][]): Gap[] {
@@ -283,10 +271,6 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     fetchTab(TABS.adaptiveContent),
     fetchTab(TABS.quoteBank),
   ]);
-
-  console.debug('[sheets] adaptiveRows header row:', adaptiveRows[0]);
-  console.debug('[sheets] adaptiveRows row count:', adaptiveRows.length);
-  console.debug('[sheets] adaptiveRows sample row[1]:', adaptiveRows[1]);
 
   return {
     personas:        parsePersonas(personaRows),

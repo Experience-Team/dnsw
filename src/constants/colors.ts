@@ -1,10 +1,4 @@
-import type { ContentPriority, GapSeverity } from '../types';
-
-export const PRIORITY_COLORS: Record<ContentPriority, string> = {
-  'MVP':     'bg-green-20 text-green-80',
-  'Phase 2': 'bg-yellow-20 text-yellow-80',
-  'Phase 3': 'bg-grey-20 text-grey-60',
-};
+import type { GapSeverity } from '../types';
 
 export const SEVERITY_COLORS: Record<GapSeverity, string> = {
   High:   'bg-red-10 text-red-70 border border-red-30',
