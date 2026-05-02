@@ -33,7 +33,7 @@ function PillButton({
       type="button"
       onClick={onClick}
       className={`
-        text-base text-blue-90 px-4 py-2.5 rounded-full transition-all
+        text-base text-blue-90 px-4 py-1 rounded-full transition-all
         ${active ? 'bg-blue-30' : 'bg-white'}
       `}
     >
@@ -81,34 +81,36 @@ export default function CustomerJourneyMapView() {
 
   return (
     <div>
-      {/* Filters — label width (w-24) + gap-4 = 112px, matching the sticky col (w-28) */}
-      <div className="flex flex-col gap-3 mb-8">
-        <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-24 shrink-0 leading-10">Site</span>
-          <div className="flex gap-4">
-            <PillButton
-              label="Visit"
-              active={siteFilter === 'visitnsw'}
-              onClick={() => setSiteFilter(siteFilter === 'visitnsw' ? 'both' : 'visitnsw')}
-            />
-            <PillButton
-              label="Sydney"
-              active={siteFilter === 'sydney'}
-              onClick={() => setSiteFilter(siteFilter === 'sydney' ? 'both' : 'sydney')}
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-24 shrink-0 leading-10">Audience</span>
-          <div className="flex gap-4 flex-wrap">
-            {SEGMENTS.map(seg => (
+      {/* Filters */}
+      <div className="sticky top-[139px] z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 shrink-0">
+            <span className="text-base text-blue-90">Site</span>
+            <div className="flex gap-2">
               <PillButton
-                key={seg}
-                label={seg}
-                active={audienceFilter === seg}
-                onClick={() => setAudienceFilter(v => v === seg ? '' : seg)}
+                label="Visit"
+                active={siteFilter === 'visitnsw'}
+                onClick={() => setSiteFilter(siteFilter === 'visitnsw' ? 'both' : 'visitnsw')}
               />
-            ))}
+              <PillButton
+                label="Sydney"
+                active={siteFilter === 'sydney'}
+                onClick={() => setSiteFilter(siteFilter === 'sydney' ? 'both' : 'sydney')}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-base text-blue-90 shrink-0">Audience</span>
+            <div className="flex gap-2 flex-wrap">
+              {SEGMENTS.map(seg => (
+                <PillButton
+                  key={seg}
+                  label={seg}
+                  active={audienceFilter === seg}
+                  onClick={() => setAudienceFilter(v => v === seg ? '' : seg)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -32,7 +32,7 @@ function PillButton({
       type="button"
       onClick={onClick}
       className={`
-        text-base text-blue-90 px-4 py-2.5 rounded-full transition-all
+        text-base text-blue-90 px-4 py-1 rounded-full transition-all
         ${active ? 'bg-blue-30' : 'bg-white'}
       `}
     >
@@ -168,55 +168,57 @@ export default function GapsDashboard() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 mb-8">
-        <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Segment</span>
-          <div className="flex gap-4 flex-wrap">
-            <PillButton
-              label="All"
-              active={segmentFilter === ''}
-              onClick={() => setSegmentFilter('')}
-            />
-            {SEGMENTS.map(seg => (
+      <div className="sticky top-[139px] z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
+        <div className="flex items-center gap-8 flex-wrap">
+          <div className="flex items-center gap-4 shrink-0">
+            <span className="text-base text-blue-90">Segment</span>
+            <div className="flex gap-2 flex-wrap">
               <PillButton
-                key={seg}
-                label={seg}
-                active={segmentFilter === seg}
-                onClick={() => setSegmentFilter(v => v === seg ? '' : seg)}
+                label="All"
+                active={segmentFilter === ''}
+                onClick={() => setSegmentFilter('')}
               />
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Sentiment</span>
-          <div className="flex gap-4 flex-wrap">
-            {SENTIMENTS.map(s => (
-              <PillButton
-                key={s}
-                label={s}
-                active={sentimentFilter === s}
-                onClick={() => setSentiment(s)}
-              />
-            ))}
-          </div>
-        </div>
-        {themeFilter && (
-          <div className="flex items-center gap-4">
-            <span className="text-base text-blue-90 w-20 shrink-0">Theme</span>
-            <div className="flex items-center gap-2">
-              <span className="bg-blue-80 text-white text-base px-2.5 py-1 rounded-full">
-                {themeFilter}
-              </span>
-              <button
-                type="button"
-                onClick={() => setThemeFilter('')}
-                className="text-base text-blue-80 hover:text-blue-90 underline"
-              >
-                Clear
-              </button>
+              {SEGMENTS.map(seg => (
+                <PillButton
+                  key={seg}
+                  label={seg}
+                  active={segmentFilter === seg}
+                  onClick={() => setSegmentFilter(v => v === seg ? '' : seg)}
+                />
+              ))}
             </div>
           </div>
-        )}
+          <div className="flex items-center gap-4 shrink-0">
+            <span className="text-base text-blue-90">Sentiment</span>
+            <div className="flex gap-2">
+              {SENTIMENTS.map(s => (
+                <PillButton
+                  key={s}
+                  label={s}
+                  active={sentimentFilter === s}
+                  onClick={() => setSentiment(s)}
+                />
+              ))}
+            </div>
+          </div>
+          {themeFilter && (
+            <div className="flex items-center gap-4 shrink-0">
+              <span className="text-base text-blue-90">Theme</span>
+              <div className="flex items-center gap-2">
+                <span className="bg-blue-80 text-white text-base px-2.5 py-1 rounded-full">
+                  {themeFilter}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setThemeFilter('')}
+                  className="text-base text-blue-80 hover:text-blue-90 underline"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Cards */}
