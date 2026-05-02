@@ -284,6 +284,10 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     fetchTab(TABS.quoteBank),
   ]);
 
+  console.debug('[sheets] adaptiveRows header row:', adaptiveRows[0]);
+  console.debug('[sheets] adaptiveRows row count:', adaptiveRows.length);
+  console.debug('[sheets] adaptiveRows sample row[1]:', adaptiveRows[1]);
+
   return {
     personas:        parsePersonas(personaRows),
     stages:          parseStages(stageRows),
