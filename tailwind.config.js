@@ -10,17 +10,17 @@ export default {
       white: '#ffffff',
       black: '#000000',
 
-      // ── Blues — Sydney use only ──────────────────────────────────────────
-      'blue-100': '#07172D',
-      'blue-90':  '#062E66',
-      'blue-80':  '#0D479A',
-      'blue-70':  '#115AC1',
-      'blue-60':  '#2273E3',
-      'blue-50':  '#4E95FA',
-      'blue-40':  '#83B6FF',
-      'blue-30':  '#B3D4FF',
-      'blue-20':  '#D8E7FF',
-      'blue-10':  '#F0F6FF',
+      // ── Blues — Sydney default, overridden to green in NSW theme ────────────
+      'blue-100': 'rgb(var(--blue-100-rgb) / <alpha-value>)',
+      'blue-90':  'rgb(var(--blue-90-rgb)  / <alpha-value>)',
+      'blue-80':  'rgb(var(--blue-80-rgb)  / <alpha-value>)',
+      'blue-70':  'rgb(var(--blue-70-rgb)  / <alpha-value>)',
+      'blue-60':  'rgb(var(--blue-60-rgb)  / <alpha-value>)',
+      'blue-50':  'rgb(var(--blue-50-rgb)  / <alpha-value>)',
+      'blue-40':  'rgb(var(--blue-40-rgb)  / <alpha-value>)',
+      'blue-30':  'rgb(var(--blue-30-rgb)  / <alpha-value>)',
+      'blue-20':  'rgb(var(--blue-20-rgb)  / <alpha-value>)',
+      'blue-10':  'rgb(var(--blue-10-rgb)  / <alpha-value>)',
 
       // ── Greens — NSW use only ────────────────────────────────────────────
       'green-100': '#002E17',

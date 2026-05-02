@@ -4,7 +4,19 @@
 
 /* CSS custom properties — available for inline SVG and plain CSS uses */
 :root {
-  /* Blues — Sydney */
+  /* Blues — Sydney (RGB channels for Tailwind alpha support) */
+  --blue-100-rgb: 7 23 45;
+  --blue-90-rgb:  6 46 102;
+  --blue-80-rgb:  13 71 154;
+  --blue-70-rgb:  17 90 193;
+  --blue-60-rgb:  34 115 227;
+  --blue-50-rgb:  78 149 250;
+  --blue-40-rgb:  131 182 255;
+  --blue-30-rgb:  179 212 255;
+  --blue-20-rgb:  216 231 255;
+  --blue-10-rgb:  240 246 255;
+
+  /* Blues — hex values for inline SVG / plain CSS */
   --blue-100: #07172D;
   --blue-90:  #062E66;
   --blue-80:  #0D479A;
@@ -42,6 +54,20 @@
 
   /* Accent */
   --accent: #FF4D25;
+}
+
+/* NSW theme — remap blue-* channels to green values */
+[data-theme="nsw"] {
+  --blue-100-rgb: 0 46 23;
+  --blue-90-rgb:  1 69 51;
+  --blue-80-rgb:  0 86 60;
+  --blue-70-rgb:  5 104 74;
+  --blue-60-rgb:  22 131 91;
+  --blue-50-rgb:  4 160 105;
+  --blue-40-rgb:  82 194 144;
+  --blue-30-rgb:  168 222 189;
+  --blue-20-rgb:  207 237 217;
+  --blue-10-rgb:  240 250 242;
 }
 
 html, body {
