@@ -99,7 +99,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"PT Sans"', 'sans-serif'],
+        sans: ['"Noto Sans"', 'sans-serif'],
+        heading: ['"Encode Sans"', 'sans-serif'],
       },
     },
   },
