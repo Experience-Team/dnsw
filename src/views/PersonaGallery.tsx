@@ -22,6 +22,7 @@ function PillButton({
   return (
     <button
       type="button"
+      onMouseDown={e => e.preventDefault()}
       onClick={onClick}
       className={`
         text-base text-blue-90 px-4 py-1 rounded-full transition-all
