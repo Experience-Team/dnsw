@@ -79,11 +79,18 @@ export default function AppShell() {
               disabled={loading}
               className="text-xs font-bold px-[13px] py-[7px] rounded-[6px] border border-blue-20
                          text-blue-30 hover:text-white hover:border-white transition-all
-                         disabled:opacity-40 disabled:cursor-not-allowed"
+                         disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-[6px]"
             >
               {loading ? (
-                <span className="w-3 h-3 border border-blue-30 border-t-transparent rounded-full animate-spin inline-block" />
-              ) : '↻ Refresh'}
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="animate-spin" aria-hidden="true">
+                  <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="21 7" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M10.5 4.5H7.5M10.5 4.5V1.5M10.5 4.5C9.5 2.7 7.6 1.5 5.5 1.5A4.5 4.5 0 1 0 10 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+              Refresh
             </button>
           </div>
         </div>
