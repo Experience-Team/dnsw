@@ -100,8 +100,8 @@ function rowsToObjects(rows: string[][]): Record<string, string>[] {
     .map(row => {
       const obj: Record<string, string> = {};
       headers.forEach((h, i) => {
-        // Normalise header to lowercase so column names are case-insensitive
-        obj[h.trim().toLowerCase()] = (row[i] ?? '').trim();
+      // Normalise header: lowercase + collapse spaces to underscore
+        obj[h.trim().toLowerCase().replace(/\s+/g, '_')] = (row[i] ?? '').trim();
       });
       return obj;
     });
