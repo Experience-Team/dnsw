@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
-// import type { SiteFilter } from '../types';
+import type { SiteFilter } from '../types';
 
 const NAV_ITEMS = [
   { label: 'Customer Journey Map', to: '/journey-map/cjm',      end: false },
@@ -11,21 +11,21 @@ const NAV_ITEMS = [
   { label: 'Quote Bank',           to: '/journey-map/quotes',    end: false },
 ] as const;
 
-// const SITE_OPTIONS: { label: string; value: SiteFilter }[] = [
-//   { label: 'Both',      value: 'both'     },
-//   { label: 'visitnsw',  value: 'visitnsw' },
-//   { label: 'Sydney',    value: 'sydney'   },
-// ];
+const SITE_OPTIONS: { label: string; value: SiteFilter }[] = [
+  { label: 'Both',   value: 'both'     },
+  { label: 'Visit',  value: 'visitnsw' },
+  { label: 'Sydney', value: 'sydney'   },
+];
 
-// function siteButtonClass(active: boolean, value: SiteFilter) {
-//   if (!active) return 'text-grey-50 hover:text-grey-80 border border-transparent';
-//   if (value === 'visitnsw') return 'bg-green-80 text-white border border-green-80';
-//   if (value === 'sydney')   return 'bg-blue-70 text-white border border-blue-70';
-//   return 'bg-grey-90 text-white border border-grey-90';
-// }
+function siteButtonClass(active: boolean, value: SiteFilter) {
+  if (!active) return 'text-white/50 hover:text-white border border-transparent';
+  if (value === 'visitnsw') return 'bg-green-80 text-white border border-green-80';
+  if (value === 'sydney')   return 'bg-blue-70  text-white border border-blue-70';
+  return 'bg-grey-80 text-white border border-grey-80';
+}
 
 export default function AppShell() {
-  const { data, loading, error, lastRefreshed, refresh } =
+  const { data, loading, error, lastRefreshed, refresh, siteFilter, setSiteFilter } =
     useAppContext();
   const navigate = useNavigate();
 
@@ -36,7 +36,7 @@ export default function AppShell() {
     : '';
 
   return (
-    <div className="min-h-screen bg-blue-10 flex flex-col">
+    <div className="min-h-screen bg-blue-10 flex flex-col" data-theme={siteFilter === 'visitnsw' ? 'nsw' : undefined}>
       {/* ── Header ── */}
       <header className="bg-blue-80 text-white sticky top-0 z-40">
         <div className="px-10 h-14 flex items-center gap-6">
@@ -53,8 +53,8 @@ export default function AppShell() {
 
           <div className="flex-1" />
 
-          {/* Site filter — hidden for now */}
-          {/* <div className="flex items-center gap-1 bg-grey-80 rounded-lg p-1">
+          {/* Site filter */}
+          <div className="flex items-center gap-1 bg-grey-80 rounded-lg p-1">
             {SITE_OPTIONS.map(opt => (
               <button
                 key={opt.value}
@@ -67,7 +67,7 @@ export default function AppShell() {
                 {opt.label}
               </button>
             ))}
-          </div> */}
+          </div>
 
           {/* Refresh */}
           <div className="flex items-center gap-3 shrink-0">
