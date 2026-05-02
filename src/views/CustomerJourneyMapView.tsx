@@ -114,7 +114,7 @@ export default function CustomerJourneyMapView() {
       </div>
 
       {/* Grid — -mr-10 breaks out of main's right padding for full-width */}
-      <div className="overflow-x-auto pb-4 -mr-10">
+      <div className="overflow-x-auto pb-4">
         <table className="border-collapse table-fixed w-full">
           <thead>
             <tr>
