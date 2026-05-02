@@ -77,14 +77,13 @@ export default function AppShell() {
             <button
               onClick={refresh}
               disabled={loading}
-              className="text-base font-medium px-3 py-1.5 rounded-md border border-blue-30
+              className="text-xs font-bold px-[13px] py-[7px] rounded-[6px] border border-blue-20
                          text-blue-30 hover:text-white hover:border-white transition-all
-                         disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                         disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="w-3 h-3 border border-blue-30 border-t-transparent rounded-full animate-spin inline-block" />
-              ) : '↻'}
-              Refresh
+              ) : '↻ Refresh'}
             </button>
           </div>
         </div>
