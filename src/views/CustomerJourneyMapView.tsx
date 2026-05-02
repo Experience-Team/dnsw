@@ -65,7 +65,6 @@ export default function CustomerJourneyMapView() {
     [cjmEntries, siteFilter, audienceFilter]
   );
 
-  // Build lookup: rowType → stageId → content[]
   const grid = useMemo(() => {
     const g: Record<CjmRowType, Record<string, string[]>> = {
       'Pain Point':  {},
@@ -80,24 +79,12 @@ export default function CustomerJourneyMapView() {
     return g;
   }, [filtered]);
 
-  // Max cell count per row type section (ensures row heights stay uniform across columns)
-  const maxRows = useMemo(() =>
-    ROW_TYPES.reduce((acc, rt) => {
-      acc[rt] = stages.reduce(
-        (m, s) => Math.max(m, (grid[rt][s.stage_id] ?? []).length),
-        0
-      );
-      return acc;
-    }, {} as Record<CjmRowType, number>),
-    [grid, stages]
-  );
-
   return (
     <div>
-      {/* Filters */}
+      {/* Filters — label width (w-24) + gap-4 = 112px, matching the sticky col (w-28) */}
       <div className="flex flex-col gap-3 mb-8">
         <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Site</span>
+          <span className="text-base text-blue-90 w-24 shrink-0 leading-10">Site</span>
           <div className="flex gap-4">
             <PillButton
               label="Visit"
@@ -112,7 +99,7 @@ export default function CustomerJourneyMapView() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-base text-blue-90 w-20 shrink-0 leading-10">Audience</span>
+          <span className="text-base text-blue-90 w-24 shrink-0 leading-10">Audience</span>
           <div className="flex gap-4 flex-wrap">
             {SEGMENTS.map(seg => (
               <PillButton
@@ -126,17 +113,16 @@ export default function CustomerJourneyMapView() {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="overflow-x-auto pb-4">
-        <table className="border-collapse">
+      {/* Grid — -mr-10 breaks out of main's right padding for full-width */}
+      <div className="overflow-x-auto pb-4 -mr-10">
+        <table className="border-collapse table-fixed w-full">
           <thead>
             <tr>
-              {/* Corner spacer */}
               <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28" />
               {stages.map(s => (
                 <th
                   key={s.stage_id}
-                  className="align-top w-60 min-w-[200px] px-[3px] pb-3 font-normal"
+                  className="align-top min-w-[200px] px-[3px] pb-3 font-normal"
                 >
                   <div className="bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90">
                     {s.stage_name}
@@ -151,47 +137,36 @@ export default function CustomerJourneyMapView() {
             </tr>
           </thead>
           <tbody>
-            {ROW_TYPES.map((rt, rtIdx) => {
-              const total = Math.max(maxRows[rt], 1);
-              return (
-                <tr key={rt}>
+            {ROW_TYPES.map((rt, rtIdx) => (
+              <tr key={rt}>
+                <td
+                  className={`sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28 ${
+                    rtIdx > 0 ? 'pt-16' : ''
+                  }`}
+                >
+                  <span className="text-base text-blue-90 whitespace-nowrap">
+                    {ROW_LABELS[rt]}
+                  </span>
+                </td>
+                {stages.map(s => (
                   <td
-                    className={`sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28 ${
-                      rtIdx > 0 ? 'pt-16' : ''
-                    }`}
+                    key={s.stage_id}
+                    className={`align-top px-[3px] ${rtIdx > 0 ? 'pt-16' : ''}`}
                   >
-                    <span className="text-base text-blue-90 whitespace-nowrap">
-                      {ROW_LABELS[rt]}
-                    </span>
-                  </td>
-                  {stages.map(s => {
-                    const items = grid[rt][s.stage_id] ?? [];
-                    return (
-                      <td
-                        key={s.stage_id}
-                        className={`align-top px-[3px] ${rtIdx > 0 ? 'pt-16' : ''}`}
-                      >
-                        <div className="flex flex-col gap-2">
-                          {Array.from({ length: total }).map((_, i) => {
-                            const content = items[i];
-                            return (
-                              <div
-                                key={i}
-                                className={`rounded px-2 py-3 text-base text-blue-90 leading-snug ${
-                                  content ? 'bg-blue-20' : 'bg-white'
-                                }`}
-                              >
-                                {content ?? ' '}
-                              </div>
-                            );
-                          })}
+                    <div className="flex flex-col gap-2">
+                      {(grid[rt][s.stage_id] ?? []).map((content, i) => (
+                        <div
+                          key={i}
+                          className="bg-blue-20 rounded p-4 text-base text-blue-90 leading-snug"
+                        >
+                          {content}
                         </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
+                      ))}
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
