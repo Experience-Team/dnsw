@@ -165,7 +165,7 @@ export default function GapsDashboard() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
-        <p className="text-base text-blue-90/60 mt-0.5">Participant quotes from user research.</p>
+        <p className="text-base text-blue-90/60 mt-0.5"><span className="font-bold">{quotes.length}</span> Participant quotes from user research.</p>
       </div>
 
       {/* Filters */}
