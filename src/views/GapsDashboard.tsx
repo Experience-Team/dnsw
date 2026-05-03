@@ -325,5 +325,6 @@ export default function GapsDashboard() {
           </div>
         )}
       </div>
+    </div>
   );
 }
