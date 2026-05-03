@@ -306,23 +306,24 @@ export default function GapsDashboard() {
         </>
       )}
 
-      {/* Cards grid */}
-      {filtered.length === 0 ? (
-        <div className="py-16 text-center text-blue-90/40">
-          No quotes match the current filters.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map(q => (
-            <QuoteCard
-              key={q.quote_id || q.quote}
-              quote={q}
-              activeTheme={themeFilter}
-              onThemeClick={handleThemeClick}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+      {/* Cards grid — shifts right when panel is open */}
+      <div className={`transition-[margin] duration-200 ${panelOpen ? 'ml-[316px]' : 'ml-0'}`}>
+        {filtered.length === 0 ? (
+          <div className="py-16 text-center text-blue-90/40">
+            No quotes match the current filters.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map(q => (
+              <QuoteCard
+                key={q.quote_id || q.quote}
+                quote={q}
+                activeTheme={themeFilter}
+                onThemeClick={handleThemeClick}
+              />
+            ))}
+          </div>
+        )}
+      </div>
   );
 }
