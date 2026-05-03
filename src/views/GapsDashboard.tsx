@@ -211,7 +211,7 @@ export default function GapsDashboard() {
           {/* Backdrop — click outside to close */}
           <div className="fixed inset-0 z-[15]" onClick={() => setPanelOpen(false)} />
           {/* Panel */}
-          <div className="fixed top-[195px] left-10 z-[16] w-[300px] max-h-[calc(100vh-195px)] bg-white rounded-xl shadow-[10px_4px_44px_0px_rgba(0,0,0,0.15)] flex flex-col">
+          <div className="fixed top-[139px] left-10 z-[16] w-[300px] max-h-[calc(100vh-139px)] bg-white rounded-xl shadow-[10px_4px_44px_0px_rgba(0,0,0,0.15)] flex flex-col">
             {/* Close button */}
             <button
               type="button"
