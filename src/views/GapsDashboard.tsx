@@ -6,12 +6,15 @@ const SEGMENTS = [
   'Local',
   'Intrastate',
   'Interstate',
-  'Short-haul International',
-  'Long-haul International',
+  'Short-haul international',
+  'Long-haul international',
 ];
 
 const SENTIMENTS = ['All', 'Positive', 'Neutral', 'Negative'] as const;
 
+function sentenceCase(s: string) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
 
 function PillButton({
   label,
@@ -88,7 +91,7 @@ function QuoteCard({
       {/* Metadata strip */}
       {(quote.segment || quote.stage || quote.travel_party || quote.sentiment) && (
         <div className="border-t border-grey-20 pt-3 flex flex-wrap gap-x-4 gap-y-2 text-base text-blue-90">
-          {quote.segment      && <span><span className="font-bold">Segment: </span>{quote.segment}</span>}
+          {quote.segment      && <span><span className="font-bold">Segment: </span>{sentenceCase(quote.segment)}</span>}
           {quote.stage        && <span><span className="font-bold">Stage: </span>{quote.stage}</span>}
           {quote.travel_party && <span><span className="font-bold">Travel party: </span>{quote.travel_party}</span>}
           {quote.sentiment    && <span><span className="font-bold">Sentiment: </span>{quote.sentiment}</span>}
