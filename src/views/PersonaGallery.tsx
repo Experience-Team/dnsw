@@ -155,7 +155,7 @@ export default function PersonaGallery() {
                     {s.stage}
                   </div>
                   {s.description && (
-                    <p className="text-[13px] not-italic font-normal text-blue-60 leading-[1.3] mt-1 text-left">
+                    <p className="text-[13px] font-normal text-blue-60 leading-[1.3] mt-1 text-left">
                       {s.description}
                     </p>
                   )}

@@ -70,7 +70,7 @@ function QuoteCard({
       </button>
 
       {/* Quote */}
-      <blockquote className="text-blue-90 text-base leading-relaxed pr-6 italic">
+      <blockquote className="text-blue-90 text-base leading-relaxed pr-6">
         "{quote.quote}"
       </blockquote>
 
