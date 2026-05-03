@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchQuotes } from '../services/sheets';
 import type { QuoteEntry } from '../services/sheets';
 
@@ -12,11 +12,6 @@ const SEGMENTS = [
 
 const SENTIMENTS = ['All', 'Positive', 'Neutral', 'Negative'] as const;
 
-const SENTIMENT_BADGE: Record<string, string> = {
-  Positive: 'bg-green-20 text-green-80',
-  Neutral:  'bg-grey-20 text-grey-70',
-  Negative: 'bg-red-20 text-red-70',
-};
 
 function PillButton({
   label,
@@ -51,38 +46,23 @@ function QuoteCard({
   activeTheme: string;
   onThemeClick: (theme: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
-
   const themes = quote.themes
     .split(',')
     .map(t => t.trim())
     .filter(Boolean);
 
   return (
-    <div className="bg-blue-20 rounded-xl p-5 relative flex flex-col gap-3">
-      <button
-        type="button"
-        onClick={() => setExpanded(v => !v)}
-        className="absolute top-4 right-4 text-blue-80 text-base leading-none select-none"
-        aria-label={expanded ? 'Collapse' : 'Expand'}
-      >
-        {expanded ? '▲' : '▼'}
-      </button>
-
+    <div className="bg-white rounded-xl p-5 flex flex-col gap-4">
       {/* Quote */}
-      <blockquote className="text-blue-90 text-base leading-relaxed pr-6">
+      <blockquote className="text-blue-90 text-base leading-relaxed">
         "{quote.quote}"
       </blockquote>
 
-      {/* Sentiment badge */}
-      {quote.sentiment && (
-        <span
-          className={`self-start text-base font-medium px-2.5 py-1 rounded-full ${
-            SENTIMENT_BADGE[quote.sentiment] ?? 'bg-blue-10 text-blue-90'
-          }`}
-        >
-          {quote.sentiment}
-        </span>
+      {/* Context */}
+      {quote.trip_context && (
+        <p className="text-base text-blue-90">
+          <span className="font-bold">Context: </span>{quote.trip_context}
+        </p>
       )}
 
       {/* Theme tags */}
@@ -96,7 +76,7 @@ function QuoteCard({
               className={`text-base px-2.5 py-1 rounded-full transition-all ${
                 activeTheme === theme
                   ? 'bg-blue-80 text-white'
-                  : 'bg-white text-blue-90 hover:bg-blue-30'
+                  : 'bg-grey-10 text-blue-90 hover:bg-grey-20'
               }`}
             >
               {theme}
@@ -105,13 +85,13 @@ function QuoteCard({
         </div>
       )}
 
-      {/* Expanded details */}
-      {expanded && (
-        <div className="border-t border-blue-30 pt-3 flex flex-col gap-1.5 text-base text-blue-90">
-          {quote.segment     && <div><span className="font-semibold">Segment: </span>{quote.segment}</div>}
-          {quote.stage       && <div><span className="font-semibold">Stage: </span>{quote.stage}</div>}
-          {quote.travel_party && <div><span className="font-semibold">Travel party: </span>{quote.travel_party}</div>}
-          {quote.trip_context && <div><span className="font-semibold">Trip context: </span>{quote.trip_context}</div>}
+      {/* Metadata strip */}
+      {(quote.segment || quote.stage || quote.travel_party || quote.sentiment) && (
+        <div className="border-t border-grey-20 pt-3 flex flex-wrap gap-x-4 gap-y-2 text-base text-blue-90">
+          {quote.segment      && <span><span className="font-bold">Segment: </span>{quote.segment}</span>}
+          {quote.stage        && <span><span className="font-bold">Stage: </span>{quote.stage}</span>}
+          {quote.travel_party && <span><span className="font-bold">Travel party: </span>{quote.travel_party}</span>}
+          {quote.sentiment    && <span><span className="font-bold">Sentiment: </span>{quote.sentiment}</span>}
         </div>
       )}
     </div>
