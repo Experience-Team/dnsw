@@ -140,7 +140,7 @@ export default function PersonaGallery() {
 
       {/* Grid */}
       <div className="overflow-x-auto pb-4">
-        <table className="border-collapse table-fixed w-full">
+        <table className="border-collapse">
           <thead>
             {/* Row 1: stage headers spanning their activity sub-columns */}
             <tr>
@@ -149,7 +149,7 @@ export default function PersonaGallery() {
                 <th
                   key={s.stage}
                   colSpan={s.activities.length || 1}
-                  className="align-top px-[3px] pb-1 font-normal"
+                  className="align-top px-[2px] pb-1 font-normal"
                 >
                   <div className="bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90">
                     {s.stage}
@@ -164,16 +164,16 @@ export default function PersonaGallery() {
             </tr>
             {/* Row 2: one sub-column header per activity */}
             <tr>
-              <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28 align-bottom pb-3 font-normal">
+              <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28 align-bottom pb-2 font-normal">
                 <span className="text-base text-blue-90 whitespace-nowrap">Activity</span>
               </th>
               {stageData.flatMap(s =>
                 s.activities.map(a => (
                   <th
                     key={`${s.stage}-${a.name}`}
-                    className="align-top min-w-[200px] px-[3px] pb-3 font-normal"
+                    className="align-top min-w-[285px] px-[2px] pb-2 font-normal"
                   >
-                    <div className="bg-blue-20 p-4 text-base font-semibold text-blue-90 rounded text-left">
+                    <div className="bg-blue-80 px-2 py-3 text-base font-bold text-white rounded text-left">
                       {a.name}
                     </div>
                   </th>
@@ -189,12 +189,12 @@ export default function PersonaGallery() {
               </td>
               {stageData.flatMap(s =>
                 s.activities.map(a => (
-                  <td key={`${s.stage}-${a.name}`} className="align-top px-[3px]">
+                  <td key={`${s.stage}-${a.name}`} className="align-top px-[2px]">
                     <div className="flex flex-col gap-1">
                       {a.steps.map((step, i) => (
                         <div
                           key={i}
-                          className="bg-white p-4 text-base text-blue-90 leading-snug rounded"
+                          className="bg-white px-2 py-3 text-base text-blue-90 leading-snug rounded"
                         >
                           {step}
                         </div>
