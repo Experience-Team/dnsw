@@ -34,26 +34,43 @@ function PillButton({
   );
 }
 
-function getActivities(entries: UsmEntry[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  entries.forEach(e => {
-    if (e.activity && !seen.has(e.activity)) {
-      seen.add(e.activity);
-      result.push(e.activity);
-    }
-  });
-  return result;
+interface ActivityData {
+  name: string;
+  steps: string[];
 }
 
-function getSteps(entries: UsmEntry[]): string[] {
-  const map = new Map<string, string[]>();
-  const order: string[] = [];
+interface StageData {
+  stage: string;
+  description: string;
+  activities: ActivityData[];
+}
+
+function buildStageData(entries: UsmEntry[]): StageData[] {
+  const stageMap = new Map<string, { description: string; activities: Map<string, string[]> }>();
+  const stageOrder: string[] = [];
+
   entries.forEach(e => {
-    if (!map.has(e.activity)) { map.set(e.activity, []); order.push(e.activity); }
-    if (e.step) map.get(e.activity)!.push(e.step);
+    if (!stageMap.has(e.stage)) {
+      stageMap.set(e.stage, { description: e.stage_description ?? '', activities: new Map() });
+      stageOrder.push(e.stage);
+    }
+    const stage = stageMap.get(e.stage)!;
+    if (e.activity && !stage.activities.has(e.activity)) {
+      stage.activities.set(e.activity, []);
+    }
+    if (e.activity && e.step) {
+      stage.activities.get(e.activity)!.push(e.step);
+    }
   });
-  return order.flatMap(a => map.get(a)!);
+
+  return stageOrder.map(s => {
+    const { description, activities } = stageMap.get(s)!;
+    return {
+      stage: s,
+      description,
+      activities: [...activities.entries()].map(([name, steps]) => ({ name, steps })),
+    };
+  });
 }
 
 export default function PersonaGallery() {
@@ -62,18 +79,6 @@ export default function PersonaGallery() {
 
   if (!data) return null;
   const { usmEntries } = data;
-
-  const stages = useMemo(() => {
-    const seen = new Set<string>();
-    const descriptions = new Map<string, string>();
-    const order: string[] = [];
-    usmEntries.forEach(e => {
-      if (!seen.has(e.stage)) { seen.add(e.stage); order.push(e.stage); }
-      if (!descriptions.get(e.stage) && e.stage_description)
-        descriptions.set(e.stage, e.stage_description);
-    });
-    return order.map(s => ({ stage: s, description: descriptions.get(s) ?? '' }));
-  }, [usmEntries]);
 
   const filtered = useMemo(() =>
     usmEntries.filter(e => {
@@ -90,14 +95,7 @@ export default function PersonaGallery() {
     [usmEntries, siteFilter, audienceFilter]
   );
 
-  const stageMap = useMemo(() => {
-    const m: Record<string, UsmEntry[]> = {};
-    filtered.forEach(e => {
-      if (!m[e.stage]) m[e.stage] = [];
-      m[e.stage].push(e);
-    });
-    return m;
-  }, [filtered]);
+  const stageData = useMemo(() => buildStageData(filtered), [filtered]);
 
   return (
     <div>
@@ -144,12 +142,14 @@ export default function PersonaGallery() {
       <div className="overflow-x-auto pb-4">
         <table className="border-collapse table-fixed w-full">
           <thead>
+            {/* Row 1: stage headers spanning their activity sub-columns */}
             <tr>
               <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28" />
-              {stages.map(s => (
+              {stageData.map(s => (
                 <th
                   key={s.stage}
-                  className="align-top min-w-[200px] px-[3px] pb-3 font-normal"
+                  colSpan={s.activities.length || 1}
+                  className="align-top px-[3px] pb-1 font-normal"
                 >
                   <div className="bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90">
                     {s.stage}
@@ -162,43 +162,36 @@ export default function PersonaGallery() {
                 </th>
               ))}
             </tr>
+            {/* Row 2: one sub-column header per activity */}
+            <tr>
+              <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28 align-bottom pb-3 font-normal">
+                <span className="text-base text-blue-90 whitespace-nowrap">Activity</span>
+              </th>
+              {stageData.flatMap(s =>
+                s.activities.map(a => (
+                  <th
+                    key={`${s.stage}-${a.name}`}
+                    className="align-top min-w-[200px] px-[3px] pb-3 font-normal"
+                  >
+                    <div className="bg-blue-20 p-4 text-base font-semibold text-blue-90 rounded text-left">
+                      {a.name}
+                    </div>
+                  </th>
+                ))
+              )}
+            </tr>
           </thead>
           <tbody>
-            {/* Activity row */}
+            {/* Steps: one cell per activity */}
             <tr>
               <td className="sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28">
-                <span className="text-base text-blue-90 whitespace-nowrap">Activity</span>
-              </td>
-              {stages.map(s => {
-                const activities = getActivities(stageMap[s.stage] ?? []);
-                return (
-                  <td key={s.stage} className="align-top px-[3px]">
-                    <div className="flex flex-col gap-2">
-                      {activities.map(activity => (
-                        <div
-                          key={activity}
-                          className="bg-blue-20 p-4 text-base font-semibold text-blue-90 rounded"
-                        >
-                          {activity}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                );
-              })}
-            </tr>
-
-            {/* Steps row */}
-            <tr>
-              <td className="sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28 pt-16">
                 <span className="text-base text-blue-90 whitespace-nowrap">Steps</span>
               </td>
-              {stages.map(s => {
-                const steps = getSteps(stageMap[s.stage] ?? []);
-                return (
-                  <td key={s.stage} className="align-top px-[3px] pt-16">
+              {stageData.flatMap(s =>
+                s.activities.map(a => (
+                  <td key={`${s.stage}-${a.name}`} className="align-top px-[3px]">
                     <div className="flex flex-col gap-1">
-                      {steps.map((step, i) => (
+                      {a.steps.map((step, i) => (
                         <div
                           key={i}
                           className="bg-white p-4 text-base text-blue-90 leading-snug rounded"
@@ -208,8 +201,8 @@ export default function PersonaGallery() {
                       ))}
                     </div>
                   </td>
-                );
-              })}
+                ))
+              )}
             </tr>
           </tbody>
         </table>
