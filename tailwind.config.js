@@ -99,7 +99,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Noto Sans"', 'sans-serif'],
+        sans: ['"Karla"', 'sans-serif'],
         heading: ['"Encode Sans"', 'sans-serif'],
       },
     },
