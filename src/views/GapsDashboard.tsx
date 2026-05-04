@@ -17,14 +17,39 @@ function sentenceCase(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
+function filterQuotes(
+  quotes: QuoteEntry[],
+  segment: string,
+  sentiment: string,
+  stage: string,
+  travelParty: string,
+  theme: string,
+): QuoteEntry[] {
+  return quotes.filter(q => {
+    const segmentMatch =
+      segment === '' ||
+      q.segment.trim().toLowerCase() === 'all' ||
+      q.segment.split(',').map(s => s.trim().toLowerCase()).includes(segment.toLowerCase());
+    const sentimentMatch = sentiment === 'All' || q.sentiment === sentiment;
+    const themeMatch = theme === '' || q.themes.split(',').map(t => t.trim()).includes(theme);
+    const stageMatch = stage === '' || q.stage.trim().toLowerCase() === stage.toLowerCase();
+    const travelPartyMatch =
+      travelParty === '' ||
+      q.travel_party.split(',').map(s => s.trim().toLowerCase()).includes(travelParty.toLowerCase());
+    return segmentMatch && sentimentMatch && themeMatch && stageMatch && travelPartyMatch;
+  });
+}
+
 function FilterPill({
   label,
   active,
   onClick,
+  count,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
+  count?: number;
 }) {
   return (
     <button
@@ -35,7 +60,7 @@ function FilterPill({
         active ? 'bg-blue-30' : 'bg-grey-10 hover:bg-grey-20'
       }`}
     >
-      {label}
+      {count !== undefined ? `${label} (${count})` : label}
     </button>
   );
 }
@@ -143,26 +168,24 @@ export default function GapsDashboard() {
   );
 
   const filtered = useMemo(() =>
-    quotes.filter(q => {
-      const segmentMatch =
-        segmentFilter === '' ||
-        q.segment.trim().toLowerCase() === 'all' ||
-        q.segment.split(',').map(s => s.trim().toLowerCase()).includes(segmentFilter.toLowerCase());
-      const sentimentMatch =
-        sentimentFilter === 'All' || q.sentiment === sentimentFilter;
-      const themeMatch =
-        themeFilter === '' ||
-        q.themes.split(',').map(t => t.trim()).includes(themeFilter);
-      const stageMatch =
-        stageFilter === '' ||
-        q.stage.trim().toLowerCase() === stageFilter.toLowerCase();
-      const travelPartyMatch =
-        travelPartyFilter === '' ||
-        q.travel_party.split(',').map(s => s.trim().toLowerCase()).includes(travelPartyFilter.toLowerCase());
-      return segmentMatch && sentimentMatch && themeMatch && stageMatch && travelPartyMatch;
-    }),
-    [quotes, segmentFilter, sentimentFilter, themeFilter, stageFilter, travelPartyFilter]
+    filterQuotes(quotes, segmentFilter, sentimentFilter, stageFilter, travelPartyFilter, themeFilter),
+    [quotes, segmentFilter, sentimentFilter, stageFilter, travelPartyFilter, themeFilter]
   );
+
+  // Base sets per dimension (all other filters applied) for faceted counts
+  const segBase  = useMemo(() => filterQuotes(quotes, '',           sentimentFilter, stageFilter, travelPartyFilter, themeFilter), [quotes, sentimentFilter, stageFilter, travelPartyFilter, themeFilter]);
+  const senBase  = useMemo(() => filterQuotes(quotes, segmentFilter, 'All',          stageFilter, travelPartyFilter, themeFilter), [quotes, segmentFilter, stageFilter, travelPartyFilter, themeFilter]);
+  const stgBase  = useMemo(() => filterQuotes(quotes, segmentFilter, sentimentFilter, '',         travelPartyFilter, themeFilter), [quotes, segmentFilter, sentimentFilter, travelPartyFilter, themeFilter]);
+  const tpBase   = useMemo(() => filterQuotes(quotes, segmentFilter, sentimentFilter, stageFilter, '',              themeFilter), [quotes, segmentFilter, sentimentFilter, stageFilter, themeFilter]);
+  const thmBase  = useMemo(() => filterQuotes(quotes, segmentFilter, sentimentFilter, stageFilter, travelPartyFilter, ''),        [quotes, segmentFilter, sentimentFilter, stageFilter, travelPartyFilter]);
+
+  const segCount = (seg: string) => seg === ''
+    ? segBase.length
+    : segBase.filter(q => q.segment.trim().toLowerCase() === 'all' || q.segment.split(',').map(s => s.trim().toLowerCase()).includes(seg.toLowerCase())).length;
+  const senCount = (s: string) => s === 'All' ? senBase.length : senBase.filter(q => q.sentiment === s).length;
+  const stgCount = (s: string) => s === '' ? stgBase.length : stgBase.filter(q => q.stage.trim().toLowerCase() === s.toLowerCase()).length;
+  const tpCount  = (tp: string) => tp === '' ? tpBase.length : tpBase.filter(q => q.travel_party.split(',').map(s => s.trim().toLowerCase()).includes(tp.toLowerCase())).length;
+  const thmCount = (t: string) => t === '' ? thmBase.length : thmBase.filter(q => q.themes.split(',').map(s => s.trim()).includes(t)).length;
 
   const handleThemeClick = (theme: string) =>
     setThemeFilter(v => v === theme ? '' : theme);
@@ -194,13 +217,14 @@ export default function GapsDashboard() {
               <span className="font-bold">{filtered.length}</span> Participant quotes from user research
             </p>
                 <FilterSection label="Segment">
-                  <FilterPill label="All" active={segmentFilter === ''} onClick={() => setSegmentFilter('')} />
+                  <FilterPill label="All" active={segmentFilter === ''} onClick={() => setSegmentFilter('')} count={segCount('')} />
                   {SEGMENTS.map(seg => (
                     <FilterPill
                       key={seg}
                       label={seg}
                       active={segmentFilter === seg}
                       onClick={() => setSegmentFilter(v => v === seg ? '' : seg)}
+                      count={segCount(seg)}
                     />
                   ))}
                 </FilterSection>
@@ -212,19 +236,21 @@ export default function GapsDashboard() {
                       label={s}
                       active={sentimentFilter === s}
                       onClick={() => setSentiment(s)}
+                      count={senCount(s)}
                     />
                   ))}
                 </FilterSection>
 
                 {stages.length > 0 && (
                   <FilterSection label="Stage">
-                    <FilterPill label="All" active={stageFilter === ''} onClick={() => setStageFilter('')} />
+                    <FilterPill label="All" active={stageFilter === ''} onClick={() => setStageFilter('')} count={stgCount('')} />
                     {stages.map(s => (
                       <FilterPill
                         key={s}
                         label={s}
                         active={stageFilter === s}
                         onClick={() => setStageFilter(v => v === s ? '' : s)}
+                        count={stgCount(s)}
                       />
                     ))}
                   </FilterSection>
@@ -232,13 +258,14 @@ export default function GapsDashboard() {
 
                 {travelParties.length > 0 && (
                   <FilterSection label="Travel party">
-                    <FilterPill label="All" active={travelPartyFilter === ''} onClick={() => setTravelParty('')} />
+                    <FilterPill label="All" active={travelPartyFilter === ''} onClick={() => setTravelParty('')} count={tpCount('')} />
                     {travelParties.map(tp => (
                       <FilterPill
                         key={tp}
                         label={tp}
                         active={travelPartyFilter === tp}
                         onClick={() => setTravelParty(v => v === tp ? '' : tp)}
+                        count={tpCount(tp)}
                       />
                     ))}
                   </FilterSection>
@@ -246,13 +273,14 @@ export default function GapsDashboard() {
 
                 {allThemes.length > 0 && (
                   <FilterSection label="Theme">
-                    <FilterPill label="All" active={themeFilter === ''} onClick={() => setThemeFilter('')} />
+                    <FilterPill label="All" active={themeFilter === ''} onClick={() => setThemeFilter('')} count={thmCount('')} />
                     {allThemes.map(t => (
                       <FilterPill
                         key={t}
                         label={t}
                         active={themeFilter === t}
                         onClick={() => setThemeFilter(v => v === t ? '' : t)}
+                        count={thmCount(t)}
                       />
                     ))}
                   </FilterSection>
