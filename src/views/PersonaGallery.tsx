@@ -102,6 +102,7 @@ export default function PersonaGallery() {
       {/* Filters */}
       <div className="sticky top-14 z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
         <div className="flex items-center gap-8">
+          {/* Site filter hidden
           <div className="flex items-center gap-4 shrink-0">
             <span className="text-base text-blue-90">Site</span>
             <div className="flex gap-2">
@@ -117,6 +118,7 @@ export default function PersonaGallery() {
               />
             </div>
           </div>
+          */}
           <div className="flex items-center gap-4">
             <span className="text-base text-blue-90 shrink-0">Audience</span>
             <div className="flex gap-2 flex-wrap">
