@@ -131,6 +131,7 @@ function parseCjmRowType(val: string | undefined): CjmRowType {
   if (v === 'Pain Point'  || v === 'Pain Points')   return 'Pain Point';
   if (v === 'Delight'     || v === 'Delights')      return 'Delight';
   if (v === 'Touchpoint'  || v === 'Touchpoints')   return 'Touchpoint';
+  if (v === 'Device')                               return 'Device';
   if (v === 'Opportunity' || v === 'Opportunities') return 'Opportunity';
   return 'Pain Point';
 }
