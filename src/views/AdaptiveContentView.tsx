@@ -79,8 +79,7 @@ export default function AdaptiveContentView() {
           <table className="w-full border-collapse table-fixed text-base">
             <thead>
               <tr className="bg-blue-20 text-blue-90">
-                <th className="text-left px-4 py-3 text-base font-semibold uppercase tracking-wider rounded-tl-xl sticky left-0 bg-blue-20 z-10 w-48 min-w-48">
-
+                <th className="text-left px-4 py-3 sticky left-0 bg-blue-20 z-10 w-48 min-w-48" />
                 {segments.map(seg => (
                   <th key={seg} className="text-center px-3 py-3 text-base font-semibold whitespace-nowrap capitalize min-w-[180px]">
                     {seg}
