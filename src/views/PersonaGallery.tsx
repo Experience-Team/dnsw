@@ -171,7 +171,7 @@ export default function PersonaGallery() {
                 s.activities.map(a => (
                   <th
                     key={`${s.stage}-${a.name}`}
-                    className="align-top min-w-[285px] px-[2px] pb-2 font-normal"
+                    className="align-top min-w-[220px] px-[2px] pb-2 font-normal"
                   >
                     <div className="bg-blue-80 px-2 py-3 text-base font-bold text-white rounded text-left">
                       {a.name}
