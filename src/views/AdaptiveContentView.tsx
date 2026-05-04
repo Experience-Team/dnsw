@@ -80,8 +80,7 @@ export default function AdaptiveContentView() {
             <thead>
               <tr className="bg-blue-20 text-blue-90">
                 <th className="text-left px-4 py-3 text-base font-semibold uppercase tracking-wider rounded-tl-xl sticky left-0 bg-blue-20 z-10 w-48 min-w-48">
-                  Content type
-                </th>
+
                 {segments.map(seg => (
                   <th key={seg} className="text-center px-3 py-3 text-base font-semibold whitespace-nowrap capitalize min-w-[180px]">
                     {seg}
@@ -92,7 +91,7 @@ export default function AdaptiveContentView() {
             <tbody>
               {contentTypes.map(contentType => (
                 <tr key={contentType}>
-                  <td className="px-4 py-3 font-medium text-blue-90 sticky left-0 bg-white border-r border-blue-20 w-48 min-w-48 align-top">
+                  <td className="px-4 py-3 font-medium text-blue-90 sticky left-0 border-r border-blue-20 w-48 min-w-48 align-top">
                     {contentType}
                   </td>
                   {segments.map(seg => {
