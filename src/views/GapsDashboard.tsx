@@ -110,7 +110,6 @@ export default function GapsDashboard() {
   const [quotes, setQuotes]                 = useState<QuoteEntry[]>([]);
   const [loading, setLoading]               = useState(true);
   const [error, setError]                   = useState<string | null>(null);
-  const [panelOpen, setPanelOpen]           = useState(false);
   const [segmentFilter, setSegmentFilter]   = useState('');
   const [sentimentFilter, setSentiment]     = useState('All');
   const [stageFilter, setStageFilter]       = useState('');
@@ -186,45 +185,14 @@ export default function GapsDashboard() {
 
   return (
     <div>
-      {/* Sticky top bar */}
-      <div className="sticky top-[139px] z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
-        <div className="relative flex items-center h-8">
-          <button
-            type="button"
-            onClick={() => setPanelOpen(v => !v)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-md border border-blue-80 bg-white text-blue-80 text-xs font-bold transition-colors hover:bg-blue-10"
-          >
-            <svg width="12" height="10" viewBox="0 0 12 10" fill="none" aria-hidden="true">
-              <path d="M0.5 1h11M3 5h6M5 9h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            FILTERS
-          </button>
-          <p className="absolute left-1/2 -translate-x-1/2 text-base text-blue-90 whitespace-nowrap">
-            <span className="font-bold">{filtered.length}</span> Participant quotes from user research
-          </p>
-        </div>
-      </div>
-
-      {/* Filter panel */}
-      {panelOpen && (
-        <>
-          {/* Backdrop — click outside to close */}
-          <div className="fixed inset-0 z-[25]" onClick={() => setPanelOpen(false)} />
-          {/* Panel */}
-          <div className="fixed top-[139px] left-10 z-[26] w-[300px] max-h-[calc(100vh-139px)] bg-white rounded-xl shadow-[10px_4px_44px_0px_rgba(0,0,0,0.15)] flex flex-col">
-            {/* Close button */}
-            <button
-              type="button"
-              onClick={() => setPanelOpen(false)}
-              className="absolute top-4 right-4 size-8 flex items-center justify-center rounded-md border border-blue-80 bg-white text-blue-80 text-sm hover:bg-blue-10 transition-colors"
-              aria-label="Close filters"
-            >
-              ✕
-            </button>
-
-            {/* Scrollable filter sections */}
-            <div className="overflow-y-auto flex-1 px-6 py-6">
-              <div className="flex flex-col gap-8 pr-10">
+      {/* Filter panel — always visible */}
+      <div className="fixed top-14 left-10 z-[26] w-[300px] max-h-[calc(100vh-56px)] bg-white rounded-xl flex flex-col">
+        {/* Scrollable filter sections */}
+        <div className="overflow-y-auto flex-1 px-6 py-6">
+          <div className="flex flex-col gap-8">
+            <p className="text-base text-blue-90 shrink-0">
+              <span className="font-bold">{filtered.length}</span> Participant quotes from user research
+            </p>
                 <FilterSection label="Segment">
                   <FilterPill label="All" active={segmentFilter === ''} onClick={() => setSegmentFilter('')} />
                   {SEGMENTS.map(seg => (
@@ -289,25 +257,23 @@ export default function GapsDashboard() {
                     ))}
                   </FilterSection>
                 )}
-              </div>
-            </div>
-
-            {/* Clear all footer */}
-            <div className="px-6 py-4 border-t border-grey-20 shrink-0">
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="text-base font-bold text-blue-80 hover:text-blue-90 transition-colors"
-              >
-                Clear all
-              </button>
-            </div>
           </div>
-        </>
-      )}
+        </div>
 
-      {/* Cards grid — shifts right when panel is open */}
-      <div className={`transition-[margin] duration-200 ${panelOpen ? 'ml-[316px]' : 'ml-0'}`}>
+        {/* Clear all footer */}
+        <div className="border-t border-grey-20 shrink-0 flex justify-center py-8">
+          <button
+            type="button"
+            onClick={clearAllFilters}
+            className="text-lg font-bold text-blue-90 hover:text-blue-80 transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+      </div>
+
+      {/* Cards grid */}
+      <div className="ml-[316px]">
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-blue-90/40">
             No quotes match the current filters.
