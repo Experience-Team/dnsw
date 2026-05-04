@@ -67,7 +67,7 @@ function buildStageData(entries: UsmEntry[]): StageData[] {
 }
 
 export default function PersonaGallery() {
-  const { data, siteFilter, setSiteFilter } = useAppContext();
+  const { data, siteFilter } = useAppContext();
   const [audienceFilter, setAudienceFilter] = useState('');
 
   if (!data) return null;
