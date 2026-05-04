@@ -146,7 +146,6 @@ export default function PersonaGallery() {
           <thead>
             {/* Row 1: stage headers spanning their activity sub-columns */}
             <tr>
-              <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28" />
               {stageData.map(s => (
                 <th
                   key={s.stage}
@@ -166,9 +165,6 @@ export default function PersonaGallery() {
             </tr>
             {/* Row 2: one sub-column header per activity */}
             <tr>
-              <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28 align-bottom pb-2 font-normal">
-                <span className="text-base text-blue-90 whitespace-nowrap">Activity</span>
-              </th>
               {stageData.flatMap(s =>
                 s.activities.map(a => (
                   <th
@@ -186,9 +182,6 @@ export default function PersonaGallery() {
           <tbody>
             {/* Steps: one cell per activity */}
             <tr>
-              <td className="sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28">
-                <span className="text-base text-blue-90 whitespace-nowrap">Steps</span>
-              </td>
               {stageData.flatMap(s =>
                 s.activities.map(a => (
                   <td key={`${s.stage}-${a.name}`} className="align-top px-[2px]">
