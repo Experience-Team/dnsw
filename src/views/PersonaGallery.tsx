@@ -141,6 +141,7 @@ export default function PersonaGallery() {
       </div>
 
       {/* Grid */}
+      <div className="relative">
       <div className="overflow-x-auto pb-4 -mr-10">
         <table className="border-collapse">
           <thead>
@@ -201,6 +202,8 @@ export default function PersonaGallery() {
             </tr>
           </tbody>
         </table>
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-r from-transparent to-blue-10" />
       </div>
     </div>
   );
