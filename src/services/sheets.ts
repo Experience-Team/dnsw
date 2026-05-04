@@ -184,17 +184,24 @@ function parseCjmEntries(rows: string[][]): CjmEntry[] {
 }
 
 function parseUsmEntries(rows: string[][]): UsmEntry[] {
+  let lastStage = '';
+  let lastStageDesc = '';
   return rowsToObjects(rows)
-    .filter(r => (r.stage ?? '').trim() && (r.step ?? '').trim())
-    .map(r => ({
-      stage:             (r.stage ?? '').trim(),
-      stage_description: (r.stage_description ?? '').trim(),
-      row_type:          parseCjmRowType(r.row_type),
-      activity:          (r.activity ?? '').trim(),
-      site:              parseCjmSite(r.site),
-      segment:           (r.segment ?? '').trim(),
-      step:              (r.step ?? '').trim(),
-    }));
+    .map(r => {
+      if (r.stage?.trim()) {
+        lastStage     = r.stage.trim();
+        lastStageDesc = (r.stage_description ?? '').trim();
+      }
+      return {
+        stage:             lastStage,
+        stage_description: lastStageDesc,
+        activity:          (r.activity ?? '').trim(),
+        site:              parseCjmSite(r.site),
+        segment:           (r.segment ?? '').trim(),
+        step:              (r.step ?? '').trim(),
+      };
+    })
+    .filter(e => e.stage && e.step);
 }
 
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
@@ -261,10 +268,10 @@ export async function fetchQuotes(): Promise<QuoteEntry[]> {
 
 export async function fetchAllSheetData(): Promise<SheetData> {
   const [
-    stageRows,
-    personaRows,
+    cjmRows,
+    usmRows,
     adaptiveRows,
-    gapRows,
+    quoteRows,
   ] = await Promise.all([
     fetchTab(TABS.cjm),
     fetchTab(TABS.usm),
@@ -273,11 +280,11 @@ export async function fetchAllSheetData(): Promise<SheetData> {
   ]);
 
   return {
-    personas:        parsePersonas(personaRows),
-    stages:          parseStages(stageRows),
-    cjmEntries:      parseCjmEntries(stageRows),
-    usmEntries:      parseUsmEntries(personaRows),
+    personas:        [],
+    stages:          parseStages(cjmRows),
+    cjmEntries:      parseCjmEntries(cjmRows),
+    usmEntries:      parseUsmEntries(usmRows),
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
-    gaps:            parseGaps(gapRows),
+    gaps:            parseGaps(quoteRows),
   };
 }

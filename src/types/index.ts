@@ -42,7 +42,6 @@ export interface CjmEntry {
 export interface UsmEntry {
   stage:             string;
   stage_description: string;
-  row_type:          CjmRowType;
   activity:          string;
   site:              CjmSite;
   segment:           string;
