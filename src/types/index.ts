@@ -28,7 +28,7 @@ export interface JourneyStage {
 }
 
 // ── CJM grid entries ──────────────────────────────────────────────────────────
-export type CjmRowType = 'Pain Point' | 'Delight' | 'Touchpoint' | 'Opportunity';
+export type CjmRowType = 'Pain Point' | 'Delight' | 'Touchpoint' | 'Device' | 'Opportunity';
 
 export interface CjmEntry {
   stage_id: string;

@@ -2,12 +2,13 @@ import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { CjmRowType } from '../types';
 
-const ROW_TYPES: CjmRowType[] = ['Pain Point', 'Delight', 'Touchpoint', 'Opportunity'];
+const ROW_TYPES: CjmRowType[] = ['Pain Point', 'Delight', 'Touchpoint', 'Device', 'Opportunity'];
 
 const ROW_LABELS: Record<CjmRowType, string> = {
   'Pain Point':  'Pain Points',
   'Delight':     'Delights',
   'Touchpoint':  'Touchpoints',
+  'Device':      'Device',
   'Opportunity': 'Opportunities',
 };
 
@@ -71,6 +72,7 @@ export default function CustomerJourneyMapView() {
       'Pain Point':  {},
       'Delight':     {},
       'Touchpoint':  {},
+      'Device':      {},
       'Opportunity': {},
     };
     filtered.forEach(e => {
