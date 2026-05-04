@@ -1,5 +1,5 @@
 import type {
-  SheetData, Persona, JourneyStage,
+  SheetData, JourneyStage,
   AdaptiveContent, Gap, Site, CjmSite,
   GapSeverity,
   CjmEntry, CjmRowType, UsmEntry,
@@ -137,22 +137,6 @@ function parseCjmRowType(val: string | undefined): CjmRowType {
 
 // ── Per-tab parsers ───────────────────────────────────────────────────────────
 
-function parsePersonas(rows: string[][]): Persona[] {
-  return rowsToObjects(rows).map(r => ({
-    persona_id:       r.persona_id       ?? '',
-    site:             parseSite(r.site),
-    name:             r.name             ?? '',
-    segment:          r.segment          ?? '',
-    description:      r.description      ?? '',
-    goals:            r.goals            ?? '',
-    frustrations:     r.frustrations     ?? '',
-    tech_comfort:     r.tech_comfort     ?? '',
-    planning_horizon: r.planning_horizon ?? '',
-    travel_party:     r.travel_party     ?? '',
-    budget_range:     r.budget_range     ?? '',
-    source_evidence:  r.source_evidence  ?? '',
-  }));
-}
 
 function parseStages(rows: string[][]): JourneyStage[] {
   const seen = new Set<string>();
