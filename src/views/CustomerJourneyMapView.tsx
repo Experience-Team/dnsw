@@ -133,7 +133,7 @@ export default function CustomerJourneyMapView() {
                     {s.stage_name}
                   </div>
                   {s.description && (
-                    <p className="text-[13px] font-normal text-blue-60 leading-[1.3] mt-1 text-left">
+                    <p className="text-[12px] font-light text-blue-90 leading-[15.5px] mt-1 text-left">
                       {s.description}
                     </p>
                   )}
