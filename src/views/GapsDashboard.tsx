@@ -186,7 +186,7 @@ export default function GapsDashboard() {
   return (
     <div>
       {/* Filter panel — always visible */}
-      <div className="fixed top-14 left-10 z-[26] w-[300px] max-h-[calc(100vh-56px)] bg-white rounded-xl flex flex-col">
+      <div className="fixed top-[80px] left-10 z-[26] w-[300px] max-h-[calc(100vh-80px)] bg-white rounded-xl flex flex-col">
         {/* Scrollable filter sections */}
         <div className="overflow-y-auto flex-1 px-6 py-6">
           <div className="flex flex-col gap-8">
