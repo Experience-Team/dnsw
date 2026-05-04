@@ -141,8 +141,8 @@ export default function PersonaGallery() {
       </div>
 
       {/* Grid */}
-      <div className="relative">
-      <div className="overflow-x-auto pb-4 -mr-10">
+      <div className="relative -mr-10">
+      <div className="overflow-x-auto pb-4">
         <table className="border-collapse">
           <thead>
             {/* Row 1: stage headers spanning their activity sub-columns */}
