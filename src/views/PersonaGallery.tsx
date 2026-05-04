@@ -2,13 +2,6 @@ import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { UsmEntry } from '../types';
 
-const SEGMENTS = [
-  'Local',
-  'Intrastate',
-  'Interstate',
-  'Short-haul International',
-  'Long-haul International',
-];
 
 function PillButton({
   label,
@@ -95,6 +88,13 @@ export default function PersonaGallery() {
     [usmEntries, siteFilter, audienceFilter]
   );
 
+  const segments = useMemo(() =>
+    [...new Set(usmEntries.flatMap(e =>
+      e.segment ? e.segment.split(',').map(s => s.trim()).filter(s => s && s.toLowerCase() !== 'all') : []
+    ))].sort(),
+    [usmEntries]
+  );
+
   const stageData = useMemo(() => buildStageData(filtered), [filtered]);
 
   return (
@@ -125,7 +125,7 @@ export default function PersonaGallery() {
                 active={audienceFilter === ''}
                 onClick={() => setAudienceFilter('')}
               />
-              {SEGMENTS.map(seg => (
+              {segments.map(seg => (
                 <PillButton
                   key={seg}
                   label={seg}
