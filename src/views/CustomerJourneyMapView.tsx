@@ -62,7 +62,7 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
   'Touchpoint': {
     emoji: '👆',
     headerBg: '#d8e7ff',
-    headerBorder: '#2273e3',
+    headerBorder: '#b3d4ff',
     headerColor: '#062e66',
     stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
     stageTextDark: '#062e66',
@@ -74,7 +74,7 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
   'Device': {
     emoji: '📱',
     headerBg: '#d8e7ff',
-    headerBorder: '#2273e3',
+    headerBorder: '#b3d4ff',
     headerColor: '#062e66',
     stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
     stageTextDark: '#062e66',
@@ -87,7 +87,7 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
   'Opportunity': {
     emoji: '💡',
     headerBg: '#d8e7ff',
-    headerBorder: '#2273e3',
+    headerBorder: '#b3d4ff',
     headerColor: '#062e66',
     stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
     stageTextDark: '#062e66',
