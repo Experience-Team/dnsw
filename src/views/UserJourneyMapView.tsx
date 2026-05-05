@@ -158,7 +158,7 @@ function PillButton({
 function EntryCard({ entry, cellText }: { entry: UjmEntry; cellText: string }) {
   const { bg, color } = LAYER_PILL_STYLE[entry.layer];
   return (
-    <div className="bg-white rounded px-3 py-3 text-base leading-snug" style={{ color: cellText }}>
+    <div className="text-base leading-snug" style={{ color: cellText }}>
       {entry.layer !== 'universal' && (
         <span
           className="inline-block text-xs font-bold px-2 py-0.5 rounded-full mb-1.5 mr-1"
