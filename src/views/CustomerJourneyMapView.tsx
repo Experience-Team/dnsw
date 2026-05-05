@@ -30,6 +30,7 @@ type RowTheme = {
   cellEven: string;
   cellOdd: string;
   cellText: string;
+  cellAlign?: 'center';
 };
 
 const ROW_THEMES: Record<CjmRowType, RowTheme> = {
@@ -76,6 +77,7 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
     cellEven: 'rgba(179,212,255,0.1)',
     cellOdd: 'rgba(34,115,227,0.1)',
     cellText: '#062e66',
+    cellAlign: 'center',
   },
   'Opportunity': {
     emoji: '💡',
@@ -233,7 +235,7 @@ export default function CustomerJourneyMapView() {
                             return (
                               <div
                                 key={s.stage_id}
-                                className="flex-1 min-w-[200px] px-4 py-5"
+                                className={`flex-1 min-w-[200px] px-4 py-5${theme.cellAlign === 'center' ? ' text-center' : ''}`}
                                 style={{ backgroundColor: bg, color: theme.cellText }}
                               >
                                 {content && <p className="text-base leading-snug">{content}</p>}
