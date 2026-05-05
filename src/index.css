@@ -14,7 +14,7 @@
   --blue-40-rgb:  131 182 255;
   --blue-30-rgb:  179 212 255;
   --blue-20-rgb:  216 231 255;
-  --blue-10-rgb:  240 246 255;
+  --blue-10-rgb:  245 249 255;
 
   /* Blues — hex values for inline SVG / plain CSS */
   --blue-100: #07172D;
@@ -26,7 +26,7 @@
   --blue-40:  #83B6FF;
   --blue-30:  #B3D4FF;
   --blue-20:  #D8E7FF;
-  --blue-10:  #F0F6FF;
+  --blue-10:  #F5F9FF;
 
   /* Greens — NSW */
   --green-100: #002E17;
