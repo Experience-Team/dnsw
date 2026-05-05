@@ -189,12 +189,9 @@ export default function UserJourneyMapView() {
     ujmEntries.filter(e => {
       const layerMatch = e.layer === 'universal' || activeLayers.has(e.layer);
       if (!layerMatch) return false;
+      if (segmentFilter === 'all') return true;
       const seg = e.segment.toLowerCase();
-      const segmentMatch =
-        segmentFilter === 'all'
-          ? seg === 'all'
-          : seg === 'all' || seg === segmentFilter;
-      return segmentMatch;
+      return seg === 'all' || seg === segmentFilter;
     }),
     [ujmEntries, activeLayers, segmentFilter]
   );
