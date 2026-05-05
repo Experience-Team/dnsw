@@ -20,6 +20,76 @@ const SEGMENTS = [
   'Long-haul International',
 ];
 
+type RowTheme = {
+  emoji: string;
+  headerBg: string;
+  headerBorder: string;
+  stageColors: string[];
+  stageTextDark: string;
+  darkTextFromIndex: number;
+  cellEven: string;
+  cellOdd: string;
+  cellText: string;
+};
+
+const ROW_THEMES: Record<CjmRowType, RowTheme> = {
+  'Pain Point': {
+    emoji: '😣',
+    headerBg: '#f9e5ec',
+    headerBorder: '#f9b6b6',
+    stageColors: ['#c02158', '#dc477b', '#e887a9', '#f5c7d7', '#f7d4e0'],
+    stageTextDark: '#c02158',
+    darkTextFromIndex: 3,
+    cellEven: '#f9e5ec',
+    cellOdd: '#fbf1f4',
+    cellText: '#2f0011',
+  },
+  'Delight': {
+    emoji: '🙂',
+    headerBg: '#e5faea',
+    headerBorder: '#52c290',
+    stageColors: ['#146727', '#1c9138', '#24bc48', '#3ad960', '#90eaa5'],
+    stageTextDark: '#112c17',
+    darkTextFromIndex: 3,
+    cellEven: '#e5faea',
+    cellOdd: '#f2fbf4',
+    cellText: '#011606',
+  },
+  'Touchpoint': {
+    emoji: '👆',
+    headerBg: '#d8e7ff',
+    headerBorder: '#2273e3',
+    stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
+    stageTextDark: '#062e66',
+    darkTextFromIndex: 4,
+    cellEven: 'rgba(179,212,255,0.1)',
+    cellOdd: 'rgba(34,115,227,0.1)',
+    cellText: '#062e66',
+  },
+  'Device': {
+    emoji: '📱',
+    headerBg: '#d8e7ff',
+    headerBorder: '#2273e3',
+    stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
+    stageTextDark: '#062e66',
+    darkTextFromIndex: 4,
+    cellEven: 'rgba(179,212,255,0.1)',
+    cellOdd: 'rgba(34,115,227,0.1)',
+    cellText: '#062e66',
+  },
+  'Opportunity': {
+    emoji: '💡',
+    headerBg: '#d8e7ff',
+    headerBorder: '#2273e3',
+    stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
+    stageTextDark: '#062e66',
+    darkTextFromIndex: 4,
+    cellEven: 'rgba(179,212,255,0.1)',
+    cellOdd: 'rgba(34,115,227,0.1)',
+    cellText: '#062e66',
+  },
+};
+
 function PillButton({
   label,
   active,
@@ -118,62 +188,63 @@ export default function CustomerJourneyMapView() {
         </div>
       </div>
 
-      {/* Grid — -mr-10 breaks out of main's right padding for full-width */}
+      {/* Grid */}
       <div className="overflow-x-auto pb-4">
-        <table className="border-collapse table-fixed w-full">
-          <thead>
-            <tr>
-              <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28" />
-              {stages.map(s => (
-                <th
-                  key={s.stage_id}
-                  className="align-top min-w-[200px] px-[3px] pb-3 font-normal"
+        <div className="flex flex-col gap-[72px]">
+          {ROW_TYPES.map(rt => {
+            const theme = ROW_THEMES[rt];
+            return (
+              <div key={rt}>
+                {/* Category header */}
+                <div
+                  className="px-4 py-3 border-t text-[20px] font-bold text-blue-90"
+                  style={{ backgroundColor: theme.headerBg, borderColor: theme.headerBorder }}
                 >
-                  <div className="bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90">
-                    {s.stage_name}
-                  </div>
-                  {s.description && (
-                    <p className="text-[12px] font-light text-blue-90 leading-[15.5px] mt-1 text-left">
-                      {s.description}
-                    </p>
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {ROW_TYPES.map((rt, rtIdx) => (
-              <tr key={rt}>
-                <td
-                  className={`sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28 ${
-                    rtIdx > 0 ? 'pt-16' : ''
-                  }`}
+                  {theme.emoji} {ROW_LABELS[rt]}
+                </div>
+
+                {/* Stage header row */}
+                <div className="flex">
+                  {stages.map((s, i) => {
+                    const bg = theme.stageColors[i] ?? theme.stageColors[theme.stageColors.length - 1];
+                    const color = i < theme.darkTextFromIndex ? '#f0f6ff' : theme.stageTextDark;
+                    return (
+                      <div
+                        key={s.stage_id}
+                        className="flex-1 min-w-[200px] h-[26px] flex items-center justify-center text-base font-bold"
+                        style={{ backgroundColor: bg, color }}
+                      >
+                        {s.stage_name}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Content columns */}
+                <div
+                  className="flex border-b"
+                  style={{ borderColor: theme.headerBorder }}
                 >
-                  <span className="text-base text-blue-90 whitespace-nowrap">
-                    {ROW_LABELS[rt]}
-                  </span>
-                </td>
-                {stages.map(s => (
-                  <td
-                    key={s.stage_id}
-                    className={`align-top px-[3px] ${rtIdx > 0 ? 'pt-16' : ''}`}
-                  >
-                    <div className="flex flex-col gap-2">
-                      {(grid[rt][s.stage_id] ?? []).map((content, i) => (
-                        <div
-                          key={i}
-                          className="bg-blue-20 rounded p-4 text-base text-blue-90 leading-snug"
-                        >
-                          {content}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  {stages.map((s, i) => {
+                    const items = grid[rt][s.stage_id] ?? [];
+                    const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
+                    return (
+                      <div
+                        key={s.stage_id}
+                        className="flex-1 min-w-[200px] px-4 py-5 flex flex-col gap-3"
+                        style={{ backgroundColor: bg, color: theme.cellText }}
+                      >
+                        {items.map((content, j) => (
+                          <p key={j} className="text-base leading-snug">{content}</p>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
