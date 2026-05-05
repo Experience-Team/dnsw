@@ -23,6 +23,67 @@ const UJM_ROW_TYPES: UjmRowType[] = [
   'Opportunities',
 ];
 
+// ── Row-type themes (mirrors CJM, extended to 6 stages) ──────────────────────
+
+type SwimLaneTheme = {
+  emoji: string;
+  headerBg: string;
+  headerBorder: string;
+  headerColor: string;
+  stageColors: string[];
+  stageTextDark: string;
+  darkTextFromIndex: number;
+  cellEven: string;
+  cellOdd: string;
+  cellText: string;
+};
+
+const BLUE_THEME: Omit<SwimLaneTheme, 'emoji'> = {
+  headerBg: '#d8e7ff',
+  headerBorder: '#b3d4ff',
+  headerColor: '#062e66',
+  stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#4e95fa', '#b3d4ff'],
+  stageTextDark: '#062e66',
+  darkTextFromIndex: 5,
+  cellEven: 'rgba(179,212,255,0.1)',
+  cellOdd: 'rgba(34,115,227,0.1)',
+  cellText: '#062e66',
+};
+
+const ROW_THEMES: Record<UjmRowType, SwimLaneTheme> = {
+  'Goals':         { emoji: '🎯', ...BLUE_THEME },
+  'Actions':       { emoji: '⚡', ...BLUE_THEME },
+  'Mindset':       { emoji: '💭', ...BLUE_THEME },
+  'Touchpoints':   { emoji: '👆', ...BLUE_THEME },
+  'Pain Points': {
+    emoji: '😣',
+    headerBg: '#f9e5ec',
+    headerBorder: '#f9b6b6',
+    headerColor: '#c02158',
+    stageColors: ['#c02158', '#d4326a', '#dc477b', '#e887a9', '#f5c7d7', '#f7d4e0'],
+    stageTextDark: '#c02158',
+    darkTextFromIndex: 4,
+    cellEven: '#f9e5ec',
+    cellOdd: '#fbf1f4',
+    cellText: '#2f0011',
+  },
+  'Delights': {
+    emoji: '🙂',
+    headerBg: '#e5faea',
+    headerBorder: '#52c290',
+    headerColor: '#146727',
+    stageColors: ['#146727', '#186e2a', '#1c9138', '#24bc48', '#3ad960', '#90eaa5'],
+    stageTextDark: '#112c17',
+    darkTextFromIndex: 4,
+    cellEven: '#e5faea',
+    cellOdd: '#f2fbf4',
+    cellText: '#011606',
+  },
+  'Opportunities': { emoji: '💡', ...BLUE_THEME },
+};
+
+// ── Layer config ──────────────────────────────────────────────────────────────
+
 const LAYER_LABELS: Record<UjmLayer, string> = {
   'universal':       'Universal',
   'day-out':         'Day out / event in Sydney',
@@ -39,7 +100,6 @@ const LAYER_PILL_LABELS: Record<UjmLayer, string> = {
   'intl-multi-stop': 'International',
 };
 
-// Accent colour per trip-type layer
 const LAYER_PILL_STYLE: Record<UjmLayer, { bg: string; color: string }> = {
   'universal':       { bg: '',        color: ''        },
   'day-out':         { bg: '#FEF3C7', color: '#92400E' },
@@ -55,10 +115,10 @@ const DEVICE_ICON: Record<string, string> = {
 };
 
 const SEGMENTS = [
-  { value: 'all',          label: 'All' },
-  { value: 'local',        label: 'Local' },
-  { value: 'intrastate',   label: 'Intrastate' },
-  { value: 'interstate',   label: 'Interstate' },
+  { value: 'all',             label: 'All' },
+  { value: 'local',           label: 'Local' },
+  { value: 'intrastate',      label: 'Intrastate' },
+  { value: 'interstate',      label: 'Interstate' },
   { value: 'intl-short-haul', label: 'Short-haul international' },
   { value: 'intl-long-haul',  label: 'Long-haul international' },
 ];
@@ -95,23 +155,18 @@ function PillButton({
   );
 }
 
-function LayerPill({ layer }: { layer: UjmLayer }) {
-  if (layer === 'universal') return null;
-  const { bg, color } = LAYER_PILL_STYLE[layer];
+function EntryCard({ entry, cellText }: { entry: UjmEntry; cellText: string }) {
+  const { bg, color } = LAYER_PILL_STYLE[entry.layer];
   return (
-    <span
-      className="inline-block text-xs font-bold px-2 py-0.5 rounded-full mb-1.5"
-      style={{ backgroundColor: bg, color }}
-    >
-      {LAYER_PILL_LABELS[layer]}
-    </span>
-  );
-}
-
-function EntryCard({ entry }: { entry: UjmEntry }) {
-  return (
-    <div className="bg-white rounded px-3 py-3 text-base text-blue-90 leading-snug">
-      <LayerPill layer={entry.layer} />
+    <div className="bg-white rounded px-3 py-3 text-base leading-snug" style={{ color: cellText }}>
+      {entry.layer !== 'universal' && (
+        <span
+          className="inline-block text-xs font-bold px-2 py-0.5 rounded-full mb-1.5 mr-1"
+          style={{ backgroundColor: bg, color }}
+        >
+          {LAYER_PILL_LABELS[entry.layer]}
+        </span>
+      )}
       {entry.device && (
         <span className="text-sm mr-1.5">{DEVICE_ICON[entry.device]}</span>
       )}
@@ -131,17 +186,6 @@ export default function UserJourneyMapView() {
   if (!data) return null;
   const { ujmEntries } = data;
 
-  // Build stage → description map from data
-  const stageDescriptions = useMemo(() => {
-    const map: Record<string, string> = {};
-    ujmEntries.forEach(e => {
-      if (e.stage_description && !map[e.stage]) {
-        map[e.stage] = e.stage_description;
-      }
-    });
-    return map;
-  }, [ujmEntries]);
-
   function toggleLayer(layer: UjmLayer) {
     setActiveLayers(prev => {
       const next = new Set(prev);
@@ -152,11 +196,8 @@ export default function UserJourneyMapView() {
 
   const filtered = useMemo(() =>
     ujmEntries.filter(e => {
-      // Layer: universal always shown; others shown only if toggled on
       const layerMatch = e.layer === 'universal' || activeLayers.has(e.layer);
       if (!layerMatch) return false;
-
-      // Segment: 'all' → only segment=all rows; specific → segment=all OR exact match
       const seg = e.segment.toLowerCase();
       const segmentMatch =
         segmentFilter === 'all'
@@ -167,7 +208,6 @@ export default function UserJourneyMapView() {
     [ujmEntries, activeLayers, segmentFilter]
   );
 
-  // grid[rowType][stage] = UjmEntry[]
   const grid = useMemo(() => {
     const g: Record<UjmRowType, Record<string, UjmEntry[]>> = {
       'Goals': {}, 'Actions': {}, 'Mindset': {}, 'Touchpoints': {},
@@ -185,17 +225,10 @@ export default function UserJourneyMapView() {
       {/* ── Filters ── */}
       <div className="sticky top-14 z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
         <div className="flex flex-col gap-2">
-          {/* Layer filter */}
           <div className="flex items-center gap-4">
             <span className="text-base text-blue-90 shrink-0 w-20">Layer</span>
             <div className="flex gap-2 flex-wrap">
-              {/* Universal — always active, not toggleable */}
-              <PillButton
-                label="Universal"
-                active
-                disabled
-                onClick={() => {}}
-              />
+              <PillButton label="Universal" active disabled onClick={() => {}} />
               {TRIP_LAYERS.map(layer => (
                 <PillButton
                   key={layer}
@@ -206,7 +239,6 @@ export default function UserJourneyMapView() {
               ))}
             </div>
           </div>
-          {/* Segment filter */}
           <div className="flex items-center gap-4">
             <span className="text-base text-blue-90 shrink-0 w-20">Audience</span>
             <div className="flex gap-2 flex-wrap">
@@ -225,61 +257,69 @@ export default function UserJourneyMapView() {
 
       {/* ── Grid ── */}
       <div className="overflow-x-auto pb-4">
-        <table className="border-collapse">
-          <thead>
-            <tr>
-              {/* Empty corner above swim lane labels */}
-              <th className="sticky left-0 z-20 bg-blue-10 w-28 min-w-28" />
-              {UJM_STAGES.map(stage => (
-                <th
-                  key={stage}
-                  className="align-top min-w-[220px] px-[3px] pb-3 font-normal"
+        <div className="flex flex-col gap-[72px]">
+          {UJM_ROW_TYPES.map(rowType => {
+            const theme = ROW_THEMES[rowType];
+            return (
+              <div key={rowType}>
+                {/* Swim lane header */}
+                <div
+                  className="px-4 py-3 border-t text-[20px] font-bold"
+                  style={{
+                    backgroundColor: theme.headerBg,
+                    borderColor: theme.headerBorder,
+                    color: theme.headerColor,
+                  }}
                 >
-                  <div className="bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90">
-                    {stage}
-                  </div>
-                  {stageDescriptions[stage] && (
-                    <p className="text-[12px] font-light text-blue-90 leading-[15.5px] mt-1 text-left">
-                      {stageDescriptions[stage]}
-                    </p>
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {UJM_ROW_TYPES.map((rowType, rowIdx) => (
-              <tr key={rowType}>
-                {/* Swim lane label — sticky left */}
-                <td
-                  className={`sticky left-0 z-10 bg-blue-10 pr-4 align-top w-28 min-w-28 ${
-                    rowIdx > 0 ? 'pt-16' : ''
-                  }`}
-                >
-                  <span className="text-base text-blue-90 whitespace-nowrap font-medium">
-                    {rowType}
-                  </span>
-                </td>
-                {/* Stage cells */}
-                {UJM_STAGES.map(stage => {
-                  const entries = grid[rowType][stage] ?? [];
-                  return (
-                    <td
-                      key={stage}
-                      className={`align-top px-[3px] ${rowIdx > 0 ? 'pt-16' : ''}`}
-                    >
-                      <div className="flex flex-col gap-2">
-                        {entries.map((entry, i) => (
-                          <EntryCard key={i} entry={entry} />
-                        ))}
+                  {theme.emoji} {rowType}
+                </div>
+
+                {/* Stage headers */}
+                <div className="flex">
+                  {UJM_STAGES.map((stage, i) => {
+                    const bg = theme.stageColors[i] ?? theme.stageColors[theme.stageColors.length - 1];
+                    const color = i < theme.darkTextFromIndex ? '#f0f6ff' : theme.stageTextDark;
+                    return (
+                      <div
+                        key={stage}
+                        className="flex-1 min-w-[200px] h-[26px] flex items-center justify-center text-base font-bold"
+                        style={{ backgroundColor: bg, color }}
+                      >
+                        {stage}
                       </div>
-                    </td>
+                    );
+                  })}
+                </div>
+
+                {/* Content rows — items align across stages */}
+                {(() => {
+                  const maxRows = Math.max(0, ...UJM_STAGES.map(s => (grid[rowType][s] ?? []).length));
+                  return (
+                    <div className="border-b" style={{ borderColor: theme.headerBorder }}>
+                      {Array.from({ length: maxRows }).map((_, rowIdx) => (
+                        <div key={rowIdx} className="flex">
+                          {UJM_STAGES.map((stage, i) => {
+                            const entry = (grid[rowType][stage] ?? [])[rowIdx];
+                            const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
+                            return (
+                              <div
+                                key={stage}
+                                className="flex-1 min-w-[200px] px-4 py-5"
+                                style={{ backgroundColor: bg }}
+                              >
+                                {entry && <EntryCard entry={entry} cellText={theme.cellText} />}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
                   );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                })()}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
