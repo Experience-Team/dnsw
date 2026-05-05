@@ -23,7 +23,7 @@ export default function AppShell() {
   return (
     <div className="min-h-screen bg-blue-10 flex flex-col" data-theme={siteFilter === 'visitnsw' ? 'nsw' : undefined}>
       {/* ── Header ── */}
-      <header className="bg-blue-80 text-white sticky top-0 z-40">
+      <header className="bg-blue-90 text-white sticky top-0 z-40">
         <div className="px-10 h-14 flex items-center">
           {/* Nav tabs */}
           <div className="flex h-full items-end gap-6">
