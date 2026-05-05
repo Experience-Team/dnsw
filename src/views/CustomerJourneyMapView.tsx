@@ -220,27 +220,31 @@ export default function CustomerJourneyMapView() {
                   })}
                 </div>
 
-                {/* Content columns */}
-                <div
-                  className="flex border-b"
-                  style={{ borderColor: theme.headerBorder }}
-                >
-                  {stages.map((s, i) => {
-                    const items = grid[rt][s.stage_id] ?? [];
-                    const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
-                    return (
-                      <div
-                        key={s.stage_id}
-                        className="flex-1 min-w-[200px] px-4 py-5 flex flex-col gap-3"
-                        style={{ backgroundColor: bg, color: theme.cellText }}
-                      >
-                        {items.map((content, j) => (
-                          <p key={j} className="text-base leading-snug">{content}</p>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
+                {/* Content rows — items align across stages */}
+                {(() => {
+                  const maxRows = Math.max(0, ...stages.map(s => (grid[rt][s.stage_id] ?? []).length));
+                  return (
+                    <div className="border-b" style={{ borderColor: theme.headerBorder }}>
+                      {Array.from({ length: maxRows }).map((_, rowIdx) => (
+                        <div key={rowIdx} className="flex">
+                          {stages.map((s, i) => {
+                            const content = (grid[rt][s.stage_id] ?? [])[rowIdx];
+                            const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
+                            return (
+                              <div
+                                key={s.stage_id}
+                                className="flex-1 min-w-[200px] px-4 py-5"
+                                style={{ backgroundColor: bg, color: theme.cellText }}
+                              >
+                                {content && <p className="text-base leading-snug">{content}</p>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
