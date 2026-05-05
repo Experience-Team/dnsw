@@ -135,14 +135,14 @@ function parseCjmRowType(val: string | undefined): CjmRowType {
 }
 
 function parseUjmRowType(val: string | undefined): UjmRowType {
-  const v = (val ?? '').trim();
-  if (v === 'Goals')        return 'Goals';
-  if (v === 'Actions')      return 'Actions';
-  if (v === 'Mindset')      return 'Mindset';
-  if (v === 'Touchpoints')  return 'Touchpoints';
-  if (v === 'Pain Points')  return 'Pain Points';
-  if (v === 'Delights')     return 'Delights';
-  if (v === 'Opportunities') return 'Opportunities';
+  const v = (val ?? '').trim().toLowerCase();
+  if (v === 'goals' || v === 'goal')                return 'Goals';
+  if (v === 'actions' || v === 'action')            return 'Actions';
+  if (v === 'mindset')                              return 'Mindset';
+  if (v === 'touchpoints' || v === 'touchpoint')    return 'Touchpoints';
+  if (v === 'pain points' || v === 'pain point')    return 'Pain Points';
+  if (v === 'delights' || v === 'delight')          return 'Delights';
+  if (v === 'opportunities' || v === 'opportunity') return 'Opportunities';
   return 'Goals';
 }
 
