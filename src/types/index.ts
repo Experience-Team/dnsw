@@ -48,6 +48,35 @@ export interface UsmEntry {
   step:              string;
 }
 
+// ── UJM grid entries ──────────────────────────────────────────────────────────
+export type UjmRowType =
+  | 'Goals'
+  | 'Actions'
+  | 'Mindset'
+  | 'Touchpoints'
+  | 'Pain Points'
+  | 'Delights'
+  | 'Opportunities';
+
+export type UjmLayer =
+  | 'universal'
+  | 'day-out'
+  | 'weekend-away'
+  | 'road-trip'
+  | 'intl-multi-stop';
+
+export type UjmDevice = 'desktop' | 'mobile' | 'both';
+
+export interface UjmEntry {
+  stage:             string;
+  stage_description: string;
+  row_type:          UjmRowType;
+  layer:             UjmLayer;
+  segment:           string;
+  content:           string;
+  device:            UjmDevice | '';
+}
+
 // ── Adaptive Content ──────────────────────────────────────────────────────────
 export interface AdaptiveContent {
   content_type: string;
@@ -77,6 +106,7 @@ export interface SheetData {
   stages:          JourneyStage[];
   cjmEntries:      CjmEntry[];
   usmEntries:      UsmEntry[];
+  ujmEntries:      UjmEntry[];
   adaptiveContent: AdaptiveContent[];
   gaps:            Gap[];
 }
