@@ -239,19 +239,6 @@ export default function UserJourneyMapView() {
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-base text-blue-90 shrink-0 w-20">Audience</span>
-            <div className="flex gap-2 flex-wrap">
-              {SEGMENTS.map(({ value, label }) => (
-                <PillButton
-                  key={value}
-                  label={label}
-                  active={segmentFilter === value}
-                  onClick={() => setSegmentFilter(value)}
-                />
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
