@@ -24,6 +24,7 @@ type RowTheme = {
   emoji: string;
   headerBg: string;
   headerBorder: string;
+  headerColor: string;
   stageColors: string[];
   stageTextDark: string;
   darkTextFromIndex: number;
@@ -38,6 +39,7 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
     emoji: '😣',
     headerBg: '#f9e5ec',
     headerBorder: '#f9b6b6',
+    headerColor: '#c02158',
     stageColors: ['#c02158', '#dc477b', '#e887a9', '#f5c7d7', '#f7d4e0'],
     stageTextDark: '#c02158',
     darkTextFromIndex: 3,
@@ -49,6 +51,7 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
     emoji: '🙂',
     headerBg: '#e5faea',
     headerBorder: '#52c290',
+    headerColor: '#146727',
     stageColors: ['#146727', '#1c9138', '#24bc48', '#3ad960', '#90eaa5'],
     stageTextDark: '#112c17',
     darkTextFromIndex: 3,
@@ -59,7 +62,8 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
   'Touchpoint': {
     emoji: '👆',
     headerBg: '#d8e7ff',
-    headerBorder: '#2273e3',
+    headerBorder: '#b3d4ff',
+    headerColor: '#062e66',
     stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
     stageTextDark: '#062e66',
     darkTextFromIndex: 4,
@@ -70,7 +74,8 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
   'Device': {
     emoji: '📱',
     headerBg: '#d8e7ff',
-    headerBorder: '#2273e3',
+    headerBorder: '#b3d4ff',
+    headerColor: '#062e66',
     stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
     stageTextDark: '#062e66',
     darkTextFromIndex: 4,
@@ -82,7 +87,8 @@ const ROW_THEMES: Record<CjmRowType, RowTheme> = {
   'Opportunity': {
     emoji: '💡',
     headerBg: '#d8e7ff',
-    headerBorder: '#2273e3',
+    headerBorder: '#b3d4ff',
+    headerColor: '#062e66',
     stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#b3d4ff'],
     stageTextDark: '#062e66',
     darkTextFromIndex: 4,
@@ -199,8 +205,8 @@ export default function CustomerJourneyMapView() {
               <div key={rt}>
                 {/* Category header */}
                 <div
-                  className="px-4 py-3 border-t text-[20px] font-bold text-blue-90"
-                  style={{ backgroundColor: theme.headerBg, borderColor: theme.headerBorder }}
+                  className="px-4 py-3 border-t text-[20px] font-bold"
+                  style={{ backgroundColor: theme.headerBg, borderColor: theme.headerBorder, color: theme.headerColor }}
                 >
                   {theme.emoji} {ROW_LABELS[rt]}
                 </div>
