@@ -114,15 +114,6 @@ const DEVICE_ICON: Record<string, string> = {
   both:    '💻 📱',
 };
 
-const SEGMENTS = [
-  { value: 'all',             label: 'All' },
-  { value: 'local',           label: 'Local' },
-  { value: 'intrastate',      label: 'Intrastate' },
-  { value: 'interstate',      label: 'Interstate' },
-  { value: 'intl-short-haul', label: 'Short-haul international' },
-  { value: 'intl-long-haul',  label: 'Long-haul international' },
-];
-
 const TRIP_LAYERS: UjmLayer[] = ['day-out', 'weekend-away', 'road-trip', 'intl-multi-stop'];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -181,7 +172,7 @@ export default function UserJourneyMapView() {
   const { data } = useAppContext();
 
   const [activeLayers, setActiveLayers] = useState<Set<UjmLayer>>(new Set());
-  const [segmentFilter, setSegmentFilter] = useState<string>('all');
+  const [segmentFilter] = useState<string>('all');
 
   if (!data) return null;
   const { ujmEntries } = data;
@@ -235,19 +226,6 @@ export default function UserJourneyMapView() {
                   label={LAYER_LABELS[layer]}
                   active={activeLayers.has(layer)}
                   onClick={() => toggleLayer(layer)}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-base text-blue-90 shrink-0 w-20">Audience</span>
-            <div className="flex gap-2 flex-wrap">
-              {SEGMENTS.map(({ value, label }) => (
-                <PillButton
-                  key={value}
-                  label={label}
-                  active={segmentFilter === value}
-                  onClick={() => setSegmentFilter(value)}
                 />
               ))}
             </div>
