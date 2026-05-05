@@ -3,6 +3,7 @@ import type {
   AdaptiveContent, Gap, Site, CjmSite,
   GapSeverity,
   CjmEntry, CjmRowType, UsmEntry,
+  UjmEntry, UjmRowType, UjmLayer, UjmDevice,
 } from '../types';
 
 const CSV_BASE_URL =
@@ -15,6 +16,7 @@ const TABS = {
   usm:             1829750647,
   adaptiveContent: 1130418870,
   quoteBank:       1133768074,
+  ujm:             1039846540,
 } as const;
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
@@ -32,7 +34,6 @@ function parseCsv(text: string): string[][] {
     if (inQuotes) {
       if (ch === '"') {
         if (lines[i + 1] === '"') {
-          // escaped double-quote inside quoted field
           cell += '"';
           i += 2;
           continue;
@@ -59,7 +60,6 @@ function parseCsv(text: string): string[][] {
     i++;
   }
 
-  // flush last cell / row
   row.push(cell);
   if (row.some(c => c !== '')) rows.push(row);
 
@@ -100,7 +100,6 @@ function rowsToObjects(rows: string[][]): Record<string, string>[] {
     .map(row => {
       const obj: Record<string, string> = {};
       headers.forEach((h, i) => {
-      // Normalise header: lowercase + collapse spaces to underscore
         obj[h.trim().toLowerCase().replace(/\s+/g, '_')] = (row[i] ?? '').trim();
       });
       return obj;
@@ -117,7 +116,6 @@ function parseCjmSite(val: string | undefined): CjmSite {
   if (v === 'both')   return 'both';
   return 'visitnsw';
 }
-
 
 function parseGapSeverity(val: string | undefined): GapSeverity {
   const v = (val ?? '').trim().toLowerCase();
@@ -136,8 +134,36 @@ function parseCjmRowType(val: string | undefined): CjmRowType {
   return 'Pain Point';
 }
 
-// ── Per-tab parsers ───────────────────────────────────────────────────────────
+function parseUjmRowType(val: string | undefined): UjmRowType {
+  const v = (val ?? '').trim();
+  if (v === 'Goals')        return 'Goals';
+  if (v === 'Actions')      return 'Actions';
+  if (v === 'Mindset')      return 'Mindset';
+  if (v === 'Touchpoints')  return 'Touchpoints';
+  if (v === 'Pain Points')  return 'Pain Points';
+  if (v === 'Delights')     return 'Delights';
+  if (v === 'Opportunities') return 'Opportunities';
+  return 'Goals';
+}
 
+function parseUjmLayer(val: string | undefined): UjmLayer {
+  const v = (val ?? '').trim().toLowerCase();
+  if (v === 'day-out')         return 'day-out';
+  if (v === 'weekend-away')    return 'weekend-away';
+  if (v === 'road-trip')       return 'road-trip';
+  if (v === 'intl-multi-stop') return 'intl-multi-stop';
+  return 'universal';
+}
+
+function parseUjmDevice(val: string | undefined): UjmDevice | '' {
+  const v = (val ?? '').trim().toLowerCase();
+  if (v === 'desktop') return 'desktop';
+  if (v === 'mobile')  return 'mobile';
+  if (v === 'both')    return 'both';
+  return '';
+}
+
+// ── Per-tab parsers ───────────────────────────────────────────────────────────
 
 function parseStages(rows: string[][]): JourneyStage[] {
   const seen = new Set<string>();
@@ -187,6 +213,20 @@ function parseUsmEntries(rows: string[][]): UsmEntry[] {
       };
     })
     .filter(e => e.stage && e.step);
+}
+
+function parseUjmEntries(rows: string[][]): UjmEntry[] {
+  return rowsToObjects(rows)
+    .filter(r => (r.stage ?? '').trim() && (r.content ?? '').trim())
+    .map(r => ({
+      stage:             (r.stage ?? '').trim(),
+      stage_description: (r.stage_description ?? '').trim(),
+      row_type:          parseUjmRowType(r.row_type),
+      layer:             parseUjmLayer(r.layer),
+      segment:           (r.segment ?? '').trim().toLowerCase(),
+      content:           (r.content ?? '').trim(),
+      device:            parseUjmDevice(r.device),
+    }));
 }
 
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
@@ -257,11 +297,13 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     usmRows,
     adaptiveRows,
     quoteRows,
+    ujmRows,
   ] = await Promise.all([
     fetchTab(TABS.cjm),
     fetchTab(TABS.usm),
     fetchTab(TABS.adaptiveContent),
     fetchTab(TABS.quoteBank),
+    fetchTab(TABS.ujm),
   ]);
 
   return {
@@ -269,6 +311,7 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     stages:          parseStages(cjmRows),
     cjmEntries:      parseCjmEntries(cjmRows),
     usmEntries:      parseUsmEntries(usmRows),
+    ujmEntries:      parseUjmEntries(ujmRows),
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
     gaps:            parseGaps(quoteRows),
   };
