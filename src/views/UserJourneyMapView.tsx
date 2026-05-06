@@ -288,37 +288,20 @@ export default function UserJourneyMapView() {
 
                 {/* Content rows — grouped for Goals/Actions, per-entry for all others */}
                 {(() => {
-                  const isBulleted = rowType === 'Goals' || rowType === 'Actions';
-                  const layerCells = activeLayer ? LAYER_ROW_CELL[activeLayer] : null;
-                  const hasLayerRow = activeLayer && UJM_STAGES.some(
-                    s => (grid[rowType][s] ?? []).some(e => e.layer === activeLayer)
-                  );
-                  return (
-                    <>
-                      {/* Universal row */}
-                      <div className="flex">
-                        {UJM_STAGES.map((stage, i) => {
-                          const entries = (grid[rowType][stage] ?? []).filter(e => e.layer === 'universal');
-                          const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
-                          return (
-                            <div
-                              key={stage}
-                              className="flex-1 min-w-[200px] px-4 py-5 flex flex-col"
-                              style={{ backgroundColor: bg }}
-                            >
-                              {entries.map((entry, idx) => (
-                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} />
-                              ))}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      {/* Active layer row */}
-                      {hasLayerRow && layerCells && (
+                  const isGrouped = rowType === 'Goals' || rowType === 'Actions';
+
+                  if (isGrouped) {
+                    const layerCells = activeLayer ? LAYER_ROW_CELL[activeLayer] : null;
+                    const hasLayerRow = activeLayer && UJM_STAGES.some(
+                      s => (grid[rowType][s] ?? []).some(e => e.layer === activeLayer)
+                    );
+                    return (
+                      <>
+                        {/* Universal row */}
                         <div className="flex">
                           {UJM_STAGES.map((stage, i) => {
-                            const entries = (grid[rowType][stage] ?? []).filter(e => e.layer === activeLayer);
-                            const bg = i % 2 === 0 ? layerCells.even : layerCells.odd;
+                            const entries = (grid[rowType][stage] ?? []).filter(e => e.layer === 'universal');
+                            const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
                             return (
                               <div
                                 key={stage}
@@ -326,14 +309,57 @@ export default function UserJourneyMapView() {
                                 style={{ backgroundColor: bg }}
                               >
                                 {entries.map((entry, idx) => (
-                                  <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} />
+                                  <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted showLayerPill={false} />
                                 ))}
                               </div>
                             );
                           })}
                         </div>
-                      )}
-                    </>
+                        {/* Active layer row */}
+                        {hasLayerRow && layerCells && (
+                          <div className="flex">
+                            {UJM_STAGES.map((stage, i) => {
+                              const entries = (grid[rowType][stage] ?? []).filter(e => e.layer === activeLayer);
+                              const bg = i % 2 === 0 ? layerCells.even : layerCells.odd;
+                              return (
+                                <div
+                                  key={stage}
+                                  className="flex-1 min-w-[200px] px-4 py-5 flex flex-col"
+                                  style={{ backgroundColor: bg }}
+                                >
+                                  {entries.map((entry, idx) => (
+                                    <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted showLayerPill={false} />
+                                  ))}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
+                    );
+                  }
+
+                  const maxRows = Math.max(0, ...UJM_STAGES.map(s => (grid[rowType][s] ?? []).length));
+                  return (
+                    <div>
+                      {Array.from({ length: maxRows }).map((_, rowIdx) => (
+                        <div key={rowIdx} className="flex">
+                          {UJM_STAGES.map((stage, i) => {
+                            const entry = (grid[rowType][stage] ?? [])[rowIdx];
+                            const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
+                            return (
+                              <div
+                                key={stage}
+                                className="flex-1 min-w-[200px] px-4 py-5"
+                                style={{ backgroundColor: bg }}
+                              >
+                                {entry && <EntryCard entry={entry} cellText={theme.cellText} bulleted={false} />}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
                   );
                 })()}
               </div>
