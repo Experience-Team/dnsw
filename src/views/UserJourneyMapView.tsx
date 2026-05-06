@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { UjmEntry, UjmLayer, UjmRowType } from '../types';
 import { DeviceIcon } from '../icons/DeviceIcon';
+import { SiInstagram, SiGoogle } from '@icons-pack/react-simple-icons';
+import { Star, MessageCircle, MousePointer2 } from 'lucide-react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -120,6 +122,21 @@ const LAYER_ROW_CELL: Record<UjmLayer, { even: string; odd: string }> = {
 
 const TRIP_LAYERS: UjmLayer[] = ['day-out', 'weekend-away', 'road-trip', 'intl-multi-stop'];
 
+// ── Touchpoint icon helper ────────────────────────────────────────────────────
+
+function getTouchpointIcon(content: string) {
+  const c = content.toLowerCase();
+  if (c.includes('instagram') || c.includes('social media') || c.includes('facebook') || c.includes('tiktok') || c.includes('pinterest') || c.includes('youtube'))
+    return <SiInstagram size={14} />;
+  if (c.includes('google') || c.includes('search engine') || c.includes('search'))
+    return <SiGoogle size={14} />;
+  if (c.includes('review') || c.includes('rating') || c.includes('tripadvisor') || c.includes('star'))
+    return <Star size={14} />;
+  if (c.includes('word of mouth') || c.includes('wom') || c.includes('friend') || c.includes('recommendation') || c.includes('referred'))
+    return <MessageCircle size={14} />;
+  return <MousePointer2 size={14} />;
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function PillButton({
@@ -151,7 +168,7 @@ function PillButton({
   );
 }
 
-function EntryCard({ entry, cellText, bulleted, showLayerPill = true }: { entry: UjmEntry; cellText: string; bulleted?: boolean; showLayerPill?: boolean }) {
+function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon }: { entry: UjmEntry; cellText: string; bulleted?: boolean; showLayerPill?: boolean; icon?: ReactNode }) {
   const { bg, color } = LAYER_PILL_STYLE[entry.layer];
   const hasMeta = (showLayerPill && entry.layer !== 'universal') || !!entry.device;
   return (
@@ -177,6 +194,11 @@ function EntryCard({ entry, cellText, bulleted, showLayerPill = true }: { entry:
         <div className="flex items-start gap-1">
           <span className="shrink-0">•</span>
           <span className="flex-1 min-w-0">{entry.content}</span>
+        </div>
+      ) : icon ? (
+        <div className="flex items-center gap-1.5">
+          <span className="shrink-0 opacity-60">{icon}</span>
+          <span>{entry.content}</span>
         </div>
       ) : (
         entry.content
@@ -324,7 +346,7 @@ export default function UserJourneyMapView() {
                               style={{ backgroundColor: bg }}
                             >
                               {entries.map((entry, idx) => (
-                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} />
+                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} />
                               ))}
                             </div>
                           );
@@ -343,7 +365,7 @@ export default function UserJourneyMapView() {
                                 style={{ backgroundColor: bg }}
                               >
                                 {entries.map((entry, idx) => (
-                                  <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} />
+                                  <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} />
                                 ))}
                               </div>
                             );
