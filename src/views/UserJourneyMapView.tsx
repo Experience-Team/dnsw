@@ -20,6 +20,7 @@ const UJM_ROW_TYPES: UjmRowType[] = [
   'Actions',
   'Touchpoints',
   'Pain Points',
+  'Delights',
   'Opportunities',
 ];
 
