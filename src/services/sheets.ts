@@ -4,6 +4,7 @@ import type {
   GapSeverity,
   CjmEntry, CjmRowType, UsmEntry,
   UjmEntry, UjmRowType, UjmLayer, UjmDevice,
+  SitemapNode, SitemapGroup,
 } from '../types';
 
 const CSV_BASE_URL =
@@ -17,6 +18,7 @@ const TABS = {
   adaptiveContent: 1130418870,
   quoteBank:       1133768074,
   ujm:             1039846540,
+  sitemap:         795825564,
 } as const;
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
@@ -256,6 +258,38 @@ function parseGaps(rows: string[][]): Gap[] {
   }));
 }
 
+// ── Sitemap ───────────────────────────────────────────────────────────────────
+
+function classifySitemapGroup(pageType: string): SitemapGroup {
+  const v = pageType.toLowerCase();
+  if (/accommodation|hotel|motel|hostel|b&b|cabin|apartment|villa|resort/.test(v)) return 'accommodation';
+  if (/destination|neighbourhood|neighborhood|region|suburb|area|place/.test(v)) return 'destination';
+  if (/tour|attraction|food|drink|restaurant|hire|rental|event|product|experience|activity/.test(v)) return 'products';
+  if (/article|tag|blog|story|guide|inspiration/.test(v)) return 'articles';
+  if (/main\s*nav|primary\s*nav|hub|landing|home|category/.test(v)) return 'main-nav';
+  return 'utility';
+}
+
+function parseSitemapNodes(rows: string[][]): SitemapNode[] {
+  return rowsToObjects(rows)
+    .filter(r => (r.id ?? '').trim() && (r.page_name ?? '').trim())
+    .map(r => {
+      const pageType = (r.page_type ?? '').trim();
+      const levelNum = parseInt((r.level ?? '').trim(), 10);
+      return {
+        id:          (r.id ?? '').trim(),
+        parent_id:   (r.parent_id ?? '').trim(),
+        level:       Number.isFinite(levelNum) ? levelNum : 0,
+        page_name:   (r.page_name ?? '').trim(),
+        url:         (r.url ?? '').trim(),
+        parent_page: (r.parent_page ?? '').trim(),
+        page_type:   pageType,
+        description: (r.description ?? '').trim(),
+        group:       classifySitemapGroup(pageType),
+      };
+    });
+}
+
 // ── Quote Bank ────────────────────────────────────────────────────────────────
 
 export interface QuoteEntry {
@@ -300,12 +334,14 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     adaptiveRows,
     quoteRows,
     ujmRows,
+    sitemapRows,
   ] = await Promise.all([
     fetchTab(TABS.cjm),
     fetchTab(TABS.usm),
     fetchTab(TABS.adaptiveContent),
     fetchTab(TABS.quoteBank),
     fetchTab(TABS.ujm),
+    fetchTab(TABS.sitemap),
   ]);
 
   return {
@@ -316,5 +352,6 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     ujmEntries:      parseUjmEntries(ujmRows),
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
     gaps:            parseGaps(quoteRows),
+    sitemapNodes:    parseSitemapNodes(sitemapRows),
   };
 }

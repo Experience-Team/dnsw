@@ -100,6 +100,27 @@ export interface Gap {
   recommended_action: string;
 }
 
+// ── Sitemap ───────────────────────────────────────────────────────────────────
+export type SitemapGroup =
+  | 'main-nav'
+  | 'destination'
+  | 'accommodation'
+  | 'products'
+  | 'articles'
+  | 'utility';
+
+export interface SitemapNode {
+  id:          string;
+  parent_id:   string;
+  level:       number;
+  page_name:   string;
+  url:         string;
+  parent_page: string;
+  page_type:   string;
+  description: string;
+  group:       SitemapGroup;
+}
+
 // ── Full data bundle ──────────────────────────────────────────────────────────
 export interface SheetData {
   personas:        Persona[];
@@ -109,4 +130,5 @@ export interface SheetData {
   ujmEntries:      UjmEntry[];
   adaptiveContent: AdaptiveContent[];
   gaps:            Gap[];
+  sitemapNodes:    SitemapNode[];
 }
