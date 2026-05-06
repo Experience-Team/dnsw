@@ -7,6 +7,7 @@ import CustomerJourneyMapView from './views/CustomerJourneyMapView';
 import AdaptiveContentView from './views/AdaptiveContentView';
 import GapsDashboard from './views/GapsDashboard';
 import PersonaGallery from './views/PersonaGallery';
+import SitemapView from './views/SitemapView';
 
 function JourneyMapLayout() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="usm"     element={<PersonaGallery />} />
           <Route path="content" element={<AdaptiveContentView />} />
           <Route path="quotes"  element={<GapsDashboard />} />
+          <Route path="sitemap" element={<SitemapView />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
