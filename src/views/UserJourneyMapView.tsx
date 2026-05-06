@@ -255,7 +255,7 @@ export default function UserJourneyMapView() {
 
       {/* ── Grid ── */}
       <div className="overflow-x-auto pb-4">
-        <div className="flex flex-col gap-[72px]">
+        <div className="flex flex-col gap-8">
           {UJM_ROW_TYPES.map(rowType => {
             const theme = ROW_THEMES[rowType];
             return (
