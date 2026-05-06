@@ -148,21 +148,32 @@ function PillButton({
 
 function EntryCard({ entry, cellText, bulleted }: { entry: UjmEntry; cellText: string; bulleted?: boolean }) {
   const { bg, color } = LAYER_PILL_STYLE[entry.layer];
+  const hasMeta = entry.layer !== 'universal' || !!entry.device;
   return (
     <div className="text-base leading-snug" style={{ color: cellText }}>
-      {entry.layer !== 'universal' && (
-        <span
-          className="inline-block text-xs font-bold px-2 py-0.5 rounded-full mb-1.5 mr-1"
-          style={{ backgroundColor: bg, color }}
-        >
-          {LAYER_PILL_LABELS[entry.layer]}
-        </span>
+      {hasMeta && (
+        <div className="mb-1">
+          {entry.layer !== 'universal' && (
+            <span
+              className="inline-block text-xs font-bold px-2 py-0.5 rounded-full mr-1"
+              style={{ backgroundColor: bg, color }}
+            >
+              {LAYER_PILL_LABELS[entry.layer]}
+            </span>
+          )}
+          {entry.device && (
+            <span className="text-sm">{DEVICE_ICON[entry.device]}</span>
+          )}
+        </div>
       )}
-      {entry.device && (
-        <span className="text-sm mr-1.5">{DEVICE_ICON[entry.device]}</span>
+      {bulleted ? (
+        <div className="flex items-start gap-1">
+          <span className="shrink-0">•</span>
+          <span className="flex-1 min-w-0">{entry.content}</span>
+        </div>
+      ) : (
+        entry.content
       )}
-      {bulleted && <span className="mr-1">•</span>}
-      {entry.content}
     </div>
   );
 }
@@ -280,7 +291,7 @@ export default function UserJourneyMapView() {
                             return (
                               <div
                                 key={stage}
-                                className="flex-1 min-w-[200px] px-4 py-5"
+                                className="flex-1 min-w-[200px] px-4 py-1"
                                 style={{ backgroundColor: bg }}
                               >
                                 {entry && <EntryCard entry={entry} cellText={theme.cellText} bulleted={rowType === 'Goals' || rowType === 'Actions'} />}
