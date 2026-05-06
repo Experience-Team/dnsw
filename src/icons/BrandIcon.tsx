@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from 'react';
+import type { IconType } from '@icons-pack/react-simple-icons';
 import {
   SiFacebook,
   SiInstagram,
@@ -11,11 +11,9 @@ import {
   SiBookingdotcom,
 } from '@icons-pack/react-simple-icons';
 
-type SiIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number; color?: string }>;
-
 // null = known brand but no icon yet — renders a placeholder
-// undefined = completely unknown brand — renders nothing
-const BRAND_MAP: Record<string, SiIcon | null> = {
+// undefined (key missing) = unknown brand — renders nothing
+const BRAND_MAP: Record<string, IconType | null> = {
   facebook:         SiFacebook,
   instagram:        SiInstagram,
   x:                SiX,
