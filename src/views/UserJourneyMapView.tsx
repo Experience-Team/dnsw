@@ -190,7 +190,7 @@ export default function UserJourneyMapView() {
   const { data } = useAppContext();
 
   const [activeLayer, setActiveLayer] = useState<UjmLayer | null>(null);
-  const [segmentFilter, setSegmentFilter] = useState<string>('');
+  const [segmentFilter] = useState<string>('all');
 
   if (!data) return null;
   const { ujmEntries } = data;
@@ -199,17 +199,13 @@ export default function UserJourneyMapView() {
     setActiveLayer(prev => (prev === layer ? null : layer));
   }
 
-  const segments = useMemo(() =>
-    [...new Set(ujmEntries.map(e => e.segment).filter(s => s && s !== 'all'))].sort(),
-    [ujmEntries]
-  );
-
   const filtered = useMemo(() =>
     ujmEntries.filter(e => {
       const layerMatch = e.layer === 'universal' || e.layer === activeLayer;
       if (!layerMatch) return false;
-      const segmentMatch = segmentFilter === '' || e.segment === 'all' || e.segment === segmentFilter;
-      return segmentMatch;
+      if (segmentFilter === 'all') return true;
+      const seg = e.segment.toLowerCase();
+      return seg === 'all' || seg === segmentFilter;
     }),
     [ujmEntries, activeLayer, segmentFilter]
   );
@@ -235,38 +231,22 @@ export default function UserJourneyMapView() {
 
       {/* ── Filters (sticky) ── */}
       <div className="sticky top-14 z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
-        <div className="flex flex-col gap-2">
-          {/* User group */}
-          {segments.length > 0 && (
-            <div className="flex gap-2 flex-wrap">
-              {segments.map(seg => (
-                <PillButton
-                  key={seg}
-                  label={seg.charAt(0).toUpperCase() + seg.slice(1)}
-                  active={segmentFilter === seg}
-                  onClick={() => setSegmentFilter(prev => prev === seg ? '' : seg)}
-                />
-              ))}
-            </div>
-          )}
-          {/* Layer */}
-          <div className="flex gap-2 flex-wrap">
-            <button
-              type="button"
-              className="text-base px-4 py-1 rounded-full bg-blue-30 text-blue-90 opacity-60 cursor-default"
-            >
-              Universal
-            </button>
-            {TRIP_LAYERS.map(layer => (
-              <PillButton
-                key={layer}
-                label={LAYER_LABELS[layer]}
-                active={activeLayer === layer}
-                activeStyle={LAYER_PILL_STYLE[layer]}
-                onClick={() => toggleLayer(layer)}
-              />
-            ))}
-          </div>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            type="button"
+            className="text-base px-4 py-1 rounded-full bg-blue-30 text-blue-90 opacity-60 cursor-default"
+          >
+            Universal
+          </button>
+          {TRIP_LAYERS.map(layer => (
+            <PillButton
+              key={layer}
+              label={LAYER_LABELS[layer]}
+              active={activeLayer === layer}
+              activeStyle={LAYER_PILL_STYLE[layer]}
+              onClick={() => toggleLayer(layer)}
+            />
+          ))}
         </div>
       </div>
 
