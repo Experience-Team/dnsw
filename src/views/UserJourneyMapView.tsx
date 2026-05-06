@@ -170,7 +170,8 @@ function PillButton({
 
 function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon }: { entry: UjmEntry; cellText: string; bulleted?: boolean; showLayerPill?: boolean; icon?: ReactNode }) {
   const { bg, color } = LAYER_PILL_STYLE[entry.layer];
-  const hasMeta = (showLayerPill && entry.layer !== 'universal') || !!entry.device;
+  const showDevice = !!entry.device && !icon;
+  const hasMeta = (showLayerPill && entry.layer !== 'universal') || showDevice;
   return (
     <div className="text-base leading-snug" style={{ color: cellText }}>
       {hasMeta && (
@@ -183,7 +184,7 @@ function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon }: { 
               {LAYER_PILL_LABELS[entry.layer]}
             </span>
           )}
-          {entry.device && (
+          {showDevice && (
             <span className="flex items-center gap-0.5 text-current">
               <DeviceIcon device={entry.device} size={14} />
             </span>
