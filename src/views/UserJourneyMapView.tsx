@@ -2,8 +2,8 @@ import { useState, useMemo, type ReactNode } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { UjmEntry, UjmLayer, UjmRowType } from '../types';
 import { DeviceIcon } from '../icons/DeviceIcon';
-import { SiInstagram, SiGoogle } from '@icons-pack/react-simple-icons';
-import { Star, MessageCircle, MousePointer2, Mail, SignpostBig } from 'lucide-react';
+import { SiInstagram, SiGoogle, SiPinterest, SiBookingdotcom, SiAirbnb, SiFacebook, SiReddit, SiOpenai, SiTripadvisor } from '@icons-pack/react-simple-icons';
+import { Star, MessageCircle, MousePointer2, Mail, SignpostBig, Home, Key, Map, Globe, Bell, Plug, Newspaper, StickyNote, Table2 } from 'lucide-react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -126,18 +126,33 @@ const TRIP_LAYERS: UjmLayer[] = ['day-out', 'weekend-away', 'road-trip', 'intl-m
 
 function getTouchpointIcon(content: string) {
   const c = content.toLowerCase();
-  if (c.includes('instagram') || c.includes('social media') || c.includes('facebook') || c.includes('tiktok') || c.includes('pinterest') || c.includes('youtube'))
-    return <SiInstagram size={14} />;
-  if (c.includes('google') || c.includes('search engine') || c.includes('search'))
-    return <SiGoogle size={14} />;
-  if (c.includes('review') || c.includes('rating') || c.includes('tripadvisor') || c.includes('star'))
-    return <Star size={14} />;
-  if (c.includes('word of mouth') || c.includes('word-of-mouth') || c.includes('wom') || c.includes('friend') || c.includes('recommendation') || c.includes('referred'))
-    return <MessageCircle size={14} />;
-  if (c.includes('signage') || c.includes('sign'))
-    return <SignpostBig size={14} />;
-  if (c.includes('email'))
-    return <Mail size={14} />;
+  // Specific brands first
+  if (c.includes('booking.com'))                                                     return <SiBookingdotcom size={14} />;
+  if (c.includes('airbnb'))                                                          return <SiAirbnb size={14} />;
+  if (c.includes('stayz'))                                                           return <Home size={14} />;
+  if (c.includes('direct property') || c.includes('direct booking'))                return <Key size={14} />;
+  if (c.includes('chatgpt') || c.includes('openai') || c.includes('gpt'))          return <SiOpenai size={14} />;
+  if (c.includes('lonely planet'))                                                   return <Globe size={14} />;
+  if (c.includes('reddit'))                                                          return <SiReddit size={14} />;
+  if (c.includes('tripadvisor'))                                                     return <SiTripadvisor size={14} />;
+  if (c.includes('google maps') || c.includes('maps'))                              return <Map size={14} />;
+  if (c.includes('facebook'))                                                        return <SiFacebook size={14} />;
+  if (c.includes('pinterest'))                                                       return <SiPinterest size={14} />;
+  if (c.includes('instagram') || c.includes('social media') || c.includes('tiktok') || c.includes('youtube'))
+                                                                                     return <SiInstagram size={14} />;
+  if (c.includes('google') || c.includes('search engine') || c.includes('search')) return <SiGoogle size={14} />;
+  if (c.includes('review') || c.includes('rating') || c.includes('star'))          return <Star size={14} />;
+  if (c.includes('word of mouth') || c.includes('word-of-mouth') || c.includes('wom') || c.includes('recommendation') || c.includes('referred'))
+                                                                                     return <MessageCircle size={14} />;
+  if (c.includes('signage'))                                                         return <SignpostBig size={14} />;
+  if (c.includes('email'))                                                           return <Mail size={14} />;
+  if (c.includes('concierge'))                                                       return <Bell size={14} />;
+  if (c.includes('ev charging') || c.includes('charging app'))                      return <Plug size={14} />;
+  if (c.includes('time out') || c.includes('broadsheet') || c.includes('concrete playground'))
+                                                                                     return <Newspaper size={14} />;
+  if (c.includes('notes app') || c.includes('notes app'))                           return <StickyNote size={14} />;
+  if (c.includes('excel') || c.includes('google sheets') || c.includes('spreadsheet'))
+                                                                                     return <Table2 size={14} />;
   return <MousePointer2 size={14} />;
 }
 
@@ -172,9 +187,9 @@ function PillButton({
   );
 }
 
-function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon }: { entry: UjmEntry; cellText: string; bulleted?: boolean; showLayerPill?: boolean; icon?: ReactNode }) {
+function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon, hideDevice = false }: { entry: UjmEntry; cellText: string; bulleted?: boolean; showLayerPill?: boolean; icon?: ReactNode; hideDevice?: boolean }) {
   const { bg, color } = LAYER_PILL_STYLE[entry.layer];
-  const showDevice = !!entry.device && !icon;
+  const showDevice = !!entry.device && !icon && !hideDevice;
   const hasMeta = (showLayerPill && entry.layer !== 'universal') || showDevice;
   return (
     <div className="text-base leading-snug" style={{ color: cellText }}>
@@ -351,7 +366,7 @@ export default function UserJourneyMapView() {
                               style={{ backgroundColor: bg }}
                             >
                               {entries.map((entry, idx) => (
-                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} />
+                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} />
                               ))}
                             </div>
                           );
@@ -370,7 +385,7 @@ export default function UserJourneyMapView() {
                                 style={{ backgroundColor: bg }}
                               >
                                 {entries.map((entry, idx) => (
-                                  <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} />
+                                  <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} />
                                 ))}
                               </div>
                             );
