@@ -183,29 +183,25 @@ function EntryCard({ entry, cellText, bulleted }: { entry: UjmEntry; cellText: s
 export default function UserJourneyMapView() {
   const { data } = useAppContext();
 
-  const [activeLayers, setActiveLayers] = useState<Set<UjmLayer>>(new Set());
+  const [activeLayer, setActiveLayer] = useState<UjmLayer | null>(null);
   const [segmentFilter] = useState<string>('all');
 
   if (!data) return null;
   const { ujmEntries } = data;
 
   function toggleLayer(layer: UjmLayer) {
-    setActiveLayers(prev => {
-      const next = new Set(prev);
-      if (next.has(layer)) next.delete(layer); else next.add(layer);
-      return next;
-    });
+    setActiveLayer(prev => (prev === layer ? null : layer));
   }
 
   const filtered = useMemo(() =>
     ujmEntries.filter(e => {
-      const layerMatch = e.layer === 'universal' || activeLayers.has(e.layer);
+      const layerMatch = e.layer === 'universal' || e.layer === activeLayer;
       if (!layerMatch) return false;
       if (segmentFilter === 'all') return true;
       const seg = e.segment.toLowerCase();
       return seg === 'all' || seg === segmentFilter;
     }),
-    [ujmEntries, activeLayers, segmentFilter]
+    [ujmEntries, activeLayer, segmentFilter]
   );
 
   const grid = useMemo(() => {
@@ -233,7 +229,7 @@ export default function UserJourneyMapView() {
                 <PillButton
                   key={layer}
                   label={LAYER_LABELS[layer]}
-                  active={activeLayers.has(layer)}
+                  active={activeLayer === layer}
                   onClick={() => toggleLayer(layer)}
                 />
               ))}
