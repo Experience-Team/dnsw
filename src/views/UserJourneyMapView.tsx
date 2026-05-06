@@ -209,7 +209,7 @@ export default function UserJourneyMapView() {
     ujmEntries.filter(e => {
       const layerMatch = e.layer === 'universal' || e.layer === activeLayer;
       if (!layerMatch) return false;
-      return segmentFilter === '' || e.segment === 'all' || e.segment === segmentFilter;
+      return e.segment === 'all' || e.segment === segmentFilter;
     }),
     [ujmEntries, activeLayer, segmentFilter]
   );
