@@ -146,7 +146,7 @@ function PillButton({
   );
 }
 
-function EntryCard({ entry, cellText }: { entry: UjmEntry; cellText: string }) {
+function EntryCard({ entry, cellText, bulleted }: { entry: UjmEntry; cellText: string; bulleted?: boolean }) {
   const { bg, color } = LAYER_PILL_STYLE[entry.layer];
   return (
     <div className="text-base leading-snug" style={{ color: cellText }}>
@@ -161,6 +161,7 @@ function EntryCard({ entry, cellText }: { entry: UjmEntry; cellText: string }) {
       {entry.device && (
         <span className="text-sm mr-1.5">{DEVICE_ICON[entry.device]}</span>
       )}
+      {bulleted && <span className="mr-1">•</span>}
       {entry.content}
     </div>
   );
@@ -282,7 +283,7 @@ export default function UserJourneyMapView() {
                                 className="flex-1 min-w-[200px] px-4 py-5"
                                 style={{ backgroundColor: bg }}
                               >
-                                {entry && <EntryCard entry={entry} cellText={theme.cellText} />}
+                                {entry && <EntryCard entry={entry} cellText={theme.cellText} bulleted={rowType === 'Goals' || rowType === 'Actions'} />}
                               </div>
                             );
                           })}
