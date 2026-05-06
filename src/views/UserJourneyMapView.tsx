@@ -278,8 +278,32 @@ export default function UserJourneyMapView() {
                   })}
                 </div>
 
-                {/* Content rows — items align across stages */}
+                {/* Content rows — grouped for Goals/Actions, per-entry for all others */}
                 {(() => {
+                  const isGrouped = rowType === 'Goals' || rowType === 'Actions';
+
+                  if (isGrouped) {
+                    return (
+                      <div className="border-b flex" style={{ borderColor: theme.headerBorder }}>
+                        {UJM_STAGES.map((stage, i) => {
+                          const entries = grid[rowType][stage] ?? [];
+                          const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
+                          return (
+                            <div
+                              key={stage}
+                              className="flex-1 min-w-[200px] px-4 py-1 flex flex-col"
+                              style={{ backgroundColor: bg }}
+                            >
+                              {entries.map((entry, idx) => (
+                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted />
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  }
+
                   const maxRows = Math.max(0, ...UJM_STAGES.map(s => (grid[rowType][s] ?? []).length));
                   return (
                     <div className="border-b" style={{ borderColor: theme.headerBorder }}>
@@ -294,7 +318,7 @@ export default function UserJourneyMapView() {
                                 className="flex-1 min-w-[200px] px-4 py-1"
                                 style={{ backgroundColor: bg }}
                               >
-                                {entry && <EntryCard entry={entry} cellText={theme.cellText} bulleted={rowType === 'Goals' || rowType === 'Actions'} />}
+                                {entry && <EntryCard entry={entry} cellText={theme.cellText} bulleted={false} />}
                               </div>
                             );
                           })}
