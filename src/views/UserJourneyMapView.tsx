@@ -385,7 +385,7 @@ export default function UserJourneyMapView() {
                                 style={{ backgroundColor: bg }}
                               >
                                 {entries.map((entry, idx) => (
-                                  <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} />
+                                  <EntryCard key={idx} entry={entry} cellText={LAYER_PILL_STYLE[activeLayer].color} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} />
                                 ))}
                               </div>
                             );
