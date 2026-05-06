@@ -2,8 +2,8 @@ import { useState, useMemo, type ReactNode } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { UjmEntry, UjmLayer, UjmRowType } from '../types';
 import { DeviceIcon } from '../icons/DeviceIcon';
-import { SiInstagram, SiGoogle, SiPinterest, SiBookingdotcom, SiAirbnb, SiFacebook, SiReddit, SiOpenai, SiTripadvisor } from '@icons-pack/react-simple-icons';
-import { Star, MessageCircle, MousePointer2, Mail, SignpostBig, Home, Key, Map, Globe, Bell, Plug, Newspaper, StickyNote, Table2 } from 'lucide-react';
+import { SiInstagram, SiGoogle, SiPinterest, SiBookingdotcom, SiAirbnb, SiFacebook, SiReddit, SiTripadvisor } from '@icons-pack/react-simple-icons';
+import { Star, MessageCircle, MousePointer2, Mail, SignpostBig, Home, Key, Map, Globe, Bell, Plug, Newspaper, StickyNote, Table2, Sparkles } from 'lucide-react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -131,7 +131,7 @@ function getTouchpointIcon(content: string) {
   if (c.includes('airbnb'))                                                          return <SiAirbnb size={14} />;
   if (c.includes('stayz'))                                                           return <Home size={14} />;
   if (c.includes('direct property') || c.includes('direct booking'))                return <Key size={14} />;
-  if (c.includes('chatgpt') || c.includes('openai') || c.includes('gpt'))          return <SiOpenai size={14} />;
+  if (c.includes('chatgpt') || c.includes('openai') || c.includes('gpt'))          return <Sparkles size={14} />;
   if (c.includes('lonely planet'))                                                   return <Globe size={14} />;
   if (c.includes('reddit'))                                                          return <SiReddit size={14} />;
   if (c.includes('tripadvisor'))                                                     return <SiTripadvisor size={14} />;
