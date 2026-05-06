@@ -14,9 +14,9 @@ const UJM_STAGES = [
 ];
 
 const UJM_ROW_TYPES: UjmRowType[] = [
+  'Mindset',
   'Goals',
   'Actions',
-  'Mindset',
   'Touchpoints',
   'Pain Points',
   'Delights',
@@ -122,24 +122,25 @@ function PillButton({
   label,
   active,
   onClick,
-  disabled,
+  activeStyle,
+  className: extraClass = '',
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
-  disabled?: boolean;
+  activeStyle?: { bg: string; color: string };
+  className?: string;
 }) {
+  const inlineStyle = active && activeStyle
+    ? { backgroundColor: activeStyle.bg, color: activeStyle.color }
+    : undefined;
   return (
     <button
       type="button"
       onMouseDown={e => e.preventDefault()}
       onClick={onClick}
-      disabled={disabled}
-      className={`
-        text-base text-blue-90 px-4 py-1 rounded-full transition-all
-        ${active ? 'bg-blue-30' : 'bg-white'}
-        ${disabled ? 'opacity-60 cursor-default' : ''}
-      `}
+      style={inlineStyle}
+      className={`text-base px-4 py-1 rounded-full transition-all ${active && !activeStyle ? 'bg-blue-30 text-blue-90' : !active ? 'bg-white text-blue-90' : ''} ${extraClass}`}
     >
       {label}
     </button>
@@ -218,23 +219,29 @@ export default function UserJourneyMapView() {
 
   return (
     <div>
-      {/* ── Filters ── */}
+      {/* ── Description (non-sticky, scrolls away) ── */}
+      <p className="text-base text-blue-90 mb-3">
+        Choose a user group to explore their goals and actions. The universal journey applies to everyone, regardless of group.
+      </p>
+
+      {/* ── Filters (sticky) ── */}
       <div className="sticky top-14 z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-4">
-            <span className="text-base text-blue-90 shrink-0 w-20">Layer</span>
-            <div className="flex gap-2 flex-wrap">
-              <PillButton label="Universal" active disabled onClick={() => {}} />
-              {TRIP_LAYERS.map(layer => (
-                <PillButton
-                  key={layer}
-                  label={LAYER_LABELS[layer]}
-                  active={activeLayer === layer}
-                  onClick={() => toggleLayer(layer)}
-                />
-              ))}
-            </div>
-          </div>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            type="button"
+            className="text-base px-4 py-1 rounded-full bg-blue-30 text-blue-90 opacity-60 cursor-default"
+          >
+            Universal
+          </button>
+          {TRIP_LAYERS.map(layer => (
+            <PillButton
+              key={layer}
+              label={LAYER_LABELS[layer]}
+              active={activeLayer === layer}
+              activeStyle={LAYER_PILL_STYLE[layer]}
+              onClick={() => toggleLayer(layer)}
+            />
+          ))}
         </div>
       </div>
 
@@ -244,10 +251,10 @@ export default function UserJourneyMapView() {
           {UJM_ROW_TYPES.map(rowType => {
             const theme = ROW_THEMES[rowType];
             return (
-              <div key={rowType}>
+              <div key={rowType} className="rounded-2xl overflow-hidden">
                 {/* Swim lane header */}
                 <div
-                  className="px-4 py-3 border-t text-[20px] font-bold"
+                  className="px-4 py-3 text-[20px] font-bold"
                   style={{
                     backgroundColor: theme.headerBg,
                     borderColor: theme.headerBorder,
@@ -280,14 +287,14 @@ export default function UserJourneyMapView() {
 
                   if (isGrouped) {
                     return (
-                      <div className="border-b flex" style={{ borderColor: theme.headerBorder }}>
+                      <div className="flex">
                         {UJM_STAGES.map((stage, i) => {
                           const entries = grid[rowType][stage] ?? [];
                           const bg = i % 2 === 0 ? theme.cellEven : theme.cellOdd;
                           return (
                             <div
                               key={stage}
-                              className="flex-1 min-w-[200px] px-4 py-1 flex flex-col"
+                              className="flex-1 min-w-[200px] px-4 py-5 flex flex-col"
                               style={{ backgroundColor: bg }}
                             >
                               {entries.map((entry, idx) => (
@@ -302,7 +309,7 @@ export default function UserJourneyMapView() {
 
                   const maxRows = Math.max(0, ...UJM_STAGES.map(s => (grid[rowType][s] ?? []).length));
                   return (
-                    <div className="border-b" style={{ borderColor: theme.headerBorder }}>
+                    <div>
                       {Array.from({ length: maxRows }).map((_, rowIdx) => (
                         <div key={rowIdx} className="flex">
                           {UJM_STAGES.map((stage, i) => {
@@ -311,7 +318,7 @@ export default function UserJourneyMapView() {
                             return (
                               <div
                                 key={stage}
-                                className="flex-1 min-w-[200px] px-4 py-1"
+                                className="flex-1 min-w-[200px] px-4 py-5"
                                 style={{ backgroundColor: bg }}
                               >
                                 {entry && <EntryCard entry={entry} cellText={theme.cellText} bulleted={false} />}
