@@ -200,8 +200,9 @@ export default function UserJourneyMapView() {
     setActiveLayer(prev => (prev === layer ? null : layer));
   }
 
+  const HIDDEN_SEGMENTS = new Set(['interstate', 'intl-long-haul']);
   const segments = useMemo(() =>
-    [...new Set(ujmEntries.map(e => e.segment).filter(s => s && s !== 'all'))].sort(),
+    [...new Set(ujmEntries.map(e => e.segment).filter(s => s && s !== 'all' && !HIDDEN_SEGMENTS.has(s)))].sort(),
     [ujmEntries]
   );
 
