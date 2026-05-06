@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import type { UjmEntry, UjmLayer, UjmRowType } from '../types';
 import { DeviceIcon } from '../icons/DeviceIcon';
 import { SiInstagram, SiGoogle } from '@icons-pack/react-simple-icons';
-import { Star, MessageCircle, MousePointer2 } from 'lucide-react';
+import { Star, MessageCircle, MousePointer2, Mail, SignpostBig } from 'lucide-react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -132,8 +132,12 @@ function getTouchpointIcon(content: string) {
     return <SiGoogle size={14} />;
   if (c.includes('review') || c.includes('rating') || c.includes('tripadvisor') || c.includes('star'))
     return <Star size={14} />;
-  if (c.includes('word of mouth') || c.includes('wom') || c.includes('friend') || c.includes('recommendation') || c.includes('referred'))
+  if (c.includes('word of mouth') || c.includes('word-of-mouth') || c.includes('wom') || c.includes('friend') || c.includes('recommendation') || c.includes('referred'))
     return <MessageCircle size={14} />;
+  if (c.includes('signage') || c.includes('sign'))
+    return <SignpostBig size={14} />;
+  if (c.includes('email'))
+    return <Mail size={14} />;
   return <MousePointer2 size={14} />;
 }
 
