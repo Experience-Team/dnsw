@@ -147,11 +147,13 @@ function parseUjmRowType(val: string | undefined): UjmRowType {
 }
 
 function parseUjmLayer(val: string | undefined): UjmLayer {
-  const v = (val ?? '').trim().toLowerCase();
-  if (v === 'day-out')         return 'day-out';
-  if (v === 'weekend-away')    return 'weekend-away';
-  if (v === 'road-trip')       return 'road-trip';
-  if (v === 'intl-multi-stop') return 'intl-multi-stop';
+  // Normalise spaces→hyphens so "Day out" matches "day-out" etc.
+  const v = (val ?? '').trim().toLowerCase().replace(/\s+/g, '-');
+  if (v === 'day-out')                            return 'day-out';
+  if (v === 'weekend-away')                       return 'weekend-away';
+  if (v === 'road-trip')                          return 'road-trip';
+  if (v === 'intl-multi-stop' || v === 'intl'
+      || v === 'international' || v === 'multi-stop') return 'intl-multi-stop';
   return 'universal';
 }
 
@@ -223,7 +225,7 @@ function parseUjmEntries(rows: string[][]): UjmEntry[] {
       stage_description: (r.stage_description ?? '').trim(),
       row_type:          parseUjmRowType(r.row_type),
       layer:             parseUjmLayer(r.layer),
-      segment:           (r.segment ?? '').trim().toLowerCase(),
+      segment:           (r.segment ?? '').trim().toLowerCase() || 'all',
       content:           (r.content ?? '').trim(),
       device:            parseUjmDevice(r.device),
     }));
