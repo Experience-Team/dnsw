@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { SitemapNode, SitemapGroup } from '../types';
 
@@ -44,11 +44,7 @@ export default function SitemapView() {
   const { data } = useAppContext();
   const nodes = data?.sitemapNodes ?? [];
 
-  const [expanded, setExpanded] = useState<Set<string>>(() => {
-    // Default: root expanded so levels 1-2 are visible
-    const root = nodes.find(n => n.id === '1');
-    return new Set(root ? [root.id] : []);
-  });
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
 
   const [enabledGroups, setEnabledGroups] = useState<Set<SitemapGroup>>(
     () => new Set(GROUP_ORDER),
@@ -160,6 +156,55 @@ export default function SitemapView() {
     top:  l.depth * ROW_H,
   });
 
+  // Pan state (transform-based, replaces native scroll)
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
+  const centeredRef = useRef(false);
+  const [transform, setTransform] = useState({ x: 0, y: 0 });
+  const [grabbing, setGrabbing] = useState(false);
+
+  const rootLaid = laid.find(l => l.node.id === root.id);
+  const rootCenterX = rootLaid ? rootLaid.x * SLOT_W + H_GAP / 2 + NODE_W / 2 : 0;
+
+  const centreOnRoot = () => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    setTransform({ x: vp.clientWidth / 2 - rootCenterX, y: V_GAP / 2 });
+  };
+
+  useEffect(() => {
+    if (centeredRef.current || !rootLaid) return;
+    const vp = viewportRef.current;
+    if (!vp) return;
+    setTransform({ x: vp.clientWidth / 2 - rootCenterX, y: V_GAP / 2 });
+    centeredRef.current = true;
+  }, [rootLaid, rootCenterX]);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Don't start a pan when grabbing a node button
+    if ((e.target as HTMLElement).closest('button')) return;
+    dragRef.current = { x: e.clientX, y: e.clientY, tx: transform.x, ty: transform.y };
+    setGrabbing(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    setTransform({
+      x: dragRef.current.tx + (e.clientX - dragRef.current.x),
+      y: dragRef.current.ty + (e.clientY - dragRef.current.y),
+    });
+  };
+
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    setGrabbing(false);
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* Filter bar */}
@@ -193,16 +238,33 @@ export default function SitemapView() {
         >
           Collapse all
         </button>
+        <button
+          onClick={centreOnRoot}
+          className="text-base px-3 py-1 rounded-full border border-grey-30 text-grey-80 hover:bg-grey-10"
+        >
+          Reset view
+        </button>
       </div>
 
-      {/* Tree canvas */}
-      <div className="bg-white border border-grey-20 rounded-lg overflow-auto">
+      {/* Tree canvas — pannable */}
+      <div
+        ref={viewportRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className={`bg-white border border-grey-20 rounded-lg overflow-hidden h-[70vh] select-none ${
+          grabbing ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
+      >
         <div
           className="relative"
           style={{
-            width:   width + H_GAP,
-            height:  height + V_GAP / 2,
-            padding: `${V_GAP / 4}px ${H_GAP / 2}px`,
+            width:     width + H_GAP,
+            height:    height + V_GAP / 2,
+            padding:   `${V_GAP / 4}px ${H_GAP / 2}px`,
+            transform: `translate(${transform.x}px, ${transform.y}px)`,
+            transformOrigin: 'top left',
           }}
         >
           {/* Connector lines (SVG underneath nodes) */}
