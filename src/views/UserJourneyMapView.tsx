@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { UjmEntry, UjmLayer, UjmRowType } from '../types';
+import { DeviceIcon } from '../icons/DeviceIcon';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -116,11 +117,6 @@ const LAYER_ROW_CELL: Record<UjmLayer, { even: string; odd: string }> = {
   'intl-multi-stop': { even: 'rgba(207,250,254,0.3)', odd: 'rgba(207,250,254,0.5)' },
 };
 
-const DEVICE_ICON: Record<string, string> = {
-  desktop: '💻',
-  mobile:  '📱',
-  both:    '💻 📱',
-};
 
 const TRIP_LAYERS: UjmLayer[] = ['day-out', 'weekend-away', 'road-trip', 'intl-multi-stop'];
 
@@ -171,7 +167,9 @@ function EntryCard({ entry, cellText, bulleted, showLayerPill = true }: { entry:
             </span>
           )}
           {entry.device && (
-            <span className="text-sm">{DEVICE_ICON[entry.device]}</span>
+            <span className="flex items-center gap-0.5 text-current">
+              <DeviceIcon device={entry.device} size={14} />
+            </span>
           )}
         </div>
       )}
