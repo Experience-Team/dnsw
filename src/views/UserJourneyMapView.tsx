@@ -331,8 +331,8 @@ export default function UserJourneyMapView() {
                         })}
                       </div>
                       {/* Active layer row */}
-                      {hasLayerRow && layerCells && (
-                        <div className="flex">
+                      {hasLayerRow && layerCells && activeLayer && (
+                        <div className="flex" style={{ borderTop: `2px solid ${LAYER_PILL_STYLE[activeLayer].color}` }}>
                           {UJM_STAGES.map((stage, i) => {
                             const entries = (grid[rowType][stage] ?? []).filter(e => e.layer === activeLayer);
                             const bg = i % 2 === 0 ? layerCells.even : layerCells.odd;
