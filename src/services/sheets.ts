@@ -230,6 +230,7 @@ function parseUjmEntries(rows: string[][]): UjmEntry[] {
       segment:           (r.segment ?? '').trim().toLowerCase() || 'all',
       content:           (r.content ?? '').trim(),
       device:            parseUjmDevice(r.device),
+      image_url:         (r.image_url ?? '').trim(),
     }));
 }
 
