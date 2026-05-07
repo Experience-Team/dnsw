@@ -5,11 +5,11 @@ import ErrorState from './ErrorState';
 
 const NAV_ITEMS = [
   { label: 'User Journey Map',     to: '/journey-map/ujm',       end: false },
-  { label: 'Customer Journey Map', to: '/journey-map/cjm',       end: false },
+  // { label: 'Customer Journey Map', to: '/journey-map/cjm',       end: false },
   { label: 'User Story Map',       to: '/journey-map/usm',       end: false },
   { label: 'Adaptive Content',     to: '/journey-map/content',   end: false },
   { label: 'Quote Bank',           to: '/journey-map/quotes',    end: false },
-  { label: 'Sitemap',              to: '/journey-map/sitemap',   end: false },
+  // { label: 'Sitemap',              to: '/journey-map/sitemap',   end: false },
 ] as const;
 
 export default function AppShell() {
