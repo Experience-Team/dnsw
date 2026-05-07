@@ -198,7 +198,7 @@ function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon, hide
           src={entry.image_url}
           alt=""
           loading="lazy"
-          className="w-full h-32 object-cover rounded-lg mb-2"
+          className="w-full aspect-square object-cover rounded-lg mb-2"
           onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
         />
       )}
