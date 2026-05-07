@@ -79,7 +79,7 @@ export default function AdaptiveContentView() {
           <table className="w-full border-collapse table-fixed text-base">
             <thead>
               <tr className="bg-blue-20 text-blue-90">
-                <th className="text-left px-4 py-3 sticky left-0 bg-blue-20 z-10 w-48 min-w-48" />
+                <th className="py-3 sticky left-0 bg-blue-20 z-10 w-36 min-w-36" />
                 {segments.map(seg => (
                   <th key={seg} className="text-center px-3 py-3 text-base font-semibold whitespace-nowrap capitalize min-w-[180px]">
                     {seg}
@@ -90,23 +90,23 @@ export default function AdaptiveContentView() {
             <tbody>
               {contentTypes.map(contentType => (
                 <tr key={contentType}>
-                  <td className="px-4 py-3 font-medium text-blue-90 sticky left-0 border-r border-blue-20 w-48 min-w-48 align-top">
+                  <td className="pr-4 py-3 font-medium text-blue-90 sticky left-0 bg-blue-10 w-36 min-w-36 align-top">
                     {contentType}
                   </td>
                   {segments.map(seg => {
                     const rule = ruleMap[`${contentType}||${seg}`];
                     if (!rule) {
                       return (
-                        <td key={seg} className="px-3 py-3 text-center text-blue-30 text-base align-top">
+                        <td key={seg} className="px-1.5 py-2 text-center text-blue-30 text-base align-top">
                           —
                         </td>
                       );
                     }
                     return (
-                      <td key={seg} className="px-3 py-2 align-top">
+                      <td key={seg} className="px-1.5 py-2 align-top">
                         <button
                           onClick={() => setSelectedRule(rule)}
-                          className="relative w-full text-left rounded px-2 py-3 bg-blue-20 text-blue-90 hover:bg-blue-30 transition-all"
+                          className="relative w-full text-left rounded px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
                         >
                           <span className="absolute top-1.5 right-1.5 opacity-30 pointer-events-none">
                             <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
@@ -116,7 +116,7 @@ export default function AdaptiveContentView() {
                               <line x1="4.5" y1="5.5" x2="1" y2="9" />
                             </svg>
                           </span>
-                          <p className="text-base leading-snug pr-3 line-clamp-4">{rule.content}</p>
+                          <p className="text-base leading-snug pr-3 line-clamp-5">{rule.content}</p>
                         </button>
                       </td>
                     );
