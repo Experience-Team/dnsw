@@ -187,12 +187,21 @@ function PillButton({
   );
 }
 
-function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon, hideDevice = false }: { entry: UjmEntry; cellText: string; bulleted?: boolean; showLayerPill?: boolean; icon?: ReactNode; hideDevice?: boolean }) {
+function EntryCard({ entry, cellText, bulleted, showLayerPill = true, icon, hideDevice = false, showImage = false }: { entry: UjmEntry; cellText: string; bulleted?: boolean; showLayerPill?: boolean; icon?: ReactNode; hideDevice?: boolean; showImage?: boolean }) {
   const { bg, color } = LAYER_PILL_STYLE[entry.layer];
   const showDevice = !!entry.device && !icon && !hideDevice;
   const hasMeta = (showLayerPill && entry.layer !== 'universal') || showDevice;
   return (
     <div className="text-base leading-snug" style={{ color: cellText }}>
+      {showImage && entry.image_url && (
+        <img
+          src={entry.image_url}
+          alt=""
+          loading="lazy"
+          className="w-full h-32 object-cover rounded-lg mb-2"
+          onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+        />
+      )}
       {hasMeta && (
         <div className="mb-1">
           {showLayerPill && entry.layer !== 'universal' && (
@@ -366,7 +375,7 @@ export default function UserJourneyMapView() {
                               style={{ backgroundColor: bg }}
                             >
                               {entries.map((entry, idx) => (
-                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} />
+                                <EntryCard key={idx} entry={entry} cellText={theme.cellText} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} showImage={rowType === 'Mindset'} />
                               ))}
                             </div>
                           );
@@ -385,7 +394,7 @@ export default function UserJourneyMapView() {
                                 style={{ backgroundColor: bg }}
                               >
                                 {entries.map((entry, idx) => (
-                                  <EntryCard key={idx} entry={entry} cellText={LAYER_PILL_STYLE[activeLayer].color} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} />
+                                  <EntryCard key={idx} entry={entry} cellText={LAYER_PILL_STYLE[activeLayer].color} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} showImage={rowType === 'Mindset'} />
                                 ))}
                               </div>
                             );

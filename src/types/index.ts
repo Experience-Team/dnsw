@@ -75,6 +75,7 @@ export interface UjmEntry {
   segment:           string;
   content:           string;
   device:            UjmDevice | '';
+  image_url:         string;
 }
 
 // ── Adaptive Content ──────────────────────────────────────────────────────────
