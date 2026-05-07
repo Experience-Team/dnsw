@@ -281,7 +281,7 @@ export default function UserJourneyMapView() {
   return (
     <div>
       {/* ── Description (non-sticky, scrolls away) ── */}
-      <p className="text-base text-blue-90 mb-3">
+      <p className="text-base text-blue-90 mb-0">
         Choose a user group to explore their goals and actions. The universal journey applies to everyone, regardless of group.
       </p>
 
