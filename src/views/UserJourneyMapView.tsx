@@ -45,20 +45,18 @@ const BLUE_THEME: Omit<SwimLaneTheme, 'emoji'> = {
   headerBg: '#f0f6ff',
   headerBorder: '#b3d4ff',
   headerColor: '#062e66',
-  stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#4e95fa', '#b3d4ff'],
+  stageColors: ['#0d479a', '#0d479a', '#0d479a', '#0d479a', '#0d479a', '#0d479a'],
   stageTextDark: '#062e66',
-  darkTextFromIndex: 5,
+  darkTextFromIndex: 6,
   cellEven: '#ffffff',
   cellOdd: '#ffffff',
   cellText: '#062e66',
 };
 
-const FLAT_BLUE_STAGE_COLORS = ['#0d479a', '#0d479a', '#0d479a', '#0d479a', '#0d479a', '#0d479a'];
-
 const ROW_THEMES: Record<UjmRowType, SwimLaneTheme> = {
-  'Goals':         { emoji: '🎯', ...BLUE_THEME, stageColors: FLAT_BLUE_STAGE_COLORS, darkTextFromIndex: 6 },
+  'Goals':         { emoji: '🎯', ...BLUE_THEME },
   'Actions':       { emoji: '⚡', ...BLUE_THEME },
-  'Mindset':       { emoji: '💭', ...BLUE_THEME, stageColors: FLAT_BLUE_STAGE_COLORS, darkTextFromIndex: 6 },
+  'Mindset':       { emoji: '💭', ...BLUE_THEME },
   'Touchpoints':   { emoji: '👆', ...BLUE_THEME },
   'Pain Points': {
     emoji: '😣',
