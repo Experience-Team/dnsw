@@ -107,14 +107,11 @@ const LAYER_PILL_LABELS: Record<UjmLayer, string> = {
 
 const LAYER_PILL_STYLE: Record<UjmLayer, { bg: string; color: string }> = {
   'universal':       { bg: '',        color: ''        },
-  'day-out':         { bg: '#FEF3C7', color: '#92400E' },
+  'day-out':         { bg: '#fffae3', color: '#9e3900' },
   'weekend-away':    { bg: '#EDE9FE', color: '#5B21B6' },
   'road-trip':       { bg: '#D1FAE5', color: '#065F46' },
   'intl-multi-stop': { bg: '#CFFAFE', color: '#164E63' },
 };
-
-const LAYER_ROW_BG = '#fffae3';
-const LAYER_ROW_TEXT = '#9e3900';
 
 const TRIP_LAYERS: UjmLayer[] = ['day-out', 'weekend-away', 'road-trip', 'intl-multi-stop'];
 
@@ -176,7 +173,7 @@ function PillButton({
       onMouseDown={e => e.preventDefault()}
       onClick={onClick}
       style={inlineStyle}
-      className={`text-base px-4 py-1 rounded-full transition-all ${active && !activeStyle ? 'bg-blue-30 text-blue-90' : !active ? 'bg-white text-blue-90' : ''} ${extraClass}`}
+      className={`text-base px-4 py-1 rounded-full border border-[#d0e5ff] transition-all ${active && !activeStyle ? 'bg-blue-30 text-blue-90' : !active ? 'bg-white text-blue-90' : ''} ${extraClass}`}
     >
       {label}
     </button>
@@ -275,18 +272,18 @@ export default function UserJourneyMapView() {
   }, [filtered]);
 
   return (
-    <div>
+    <div className="bg-white -mx-10 -my-6 px-10 py-6 min-h-[calc(100vh-3.5rem)]">
       {/* ── Description (non-sticky, scrolls away) ── */}
       <p className="text-base text-blue-90 mb-0">
         Choose a user group to explore their goals and actions. The universal journey applies to everyone, regardless of group.
       </p>
 
       {/* ── Filters (sticky) ── */}
-      <div className="sticky top-14 z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5 flex flex-col gap-2">
+      <div className="sticky top-14 z-20 bg-white -mx-10 px-10 py-3 mb-5 flex flex-col gap-2">
         <div className="flex gap-2 flex-wrap">
           <button
             type="button"
-            className="text-base px-4 py-1 rounded-full bg-blue-30 text-blue-90 opacity-60 cursor-default"
+            className="text-base px-4 py-1 rounded-full border border-[#d0e5ff] bg-blue-30 text-blue-90 opacity-60 cursor-default"
           >
             Universal
           </button>
@@ -381,14 +378,15 @@ export default function UserJourneyMapView() {
                         <div className="flex">
                           {UJM_STAGES.map(stage => {
                             const entries = (grid[rowType][stage] ?? []).filter(e => e.layer === activeLayer);
+                            const layerStyle = LAYER_PILL_STYLE[activeLayer];
                             return (
                               <div
                                 key={stage}
                                 className="flex-1 min-w-[200px] px-4 py-5 flex flex-col gap-2"
-                                style={{ backgroundColor: LAYER_ROW_BG }}
+                                style={{ backgroundColor: layerStyle.bg }}
                               >
                                 {entries.map((entry, idx) => (
-                                  <EntryCard key={idx} entry={entry} cellText={LAYER_ROW_TEXT} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} showImage={rowType === 'Mindset'} />
+                                  <EntryCard key={idx} entry={entry} cellText={layerStyle.color} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} showImage={rowType === 'Mindset'} />
                                 ))}
                               </div>
                             );
