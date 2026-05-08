@@ -163,7 +163,7 @@ function PillButton({
   className?: string;
 }) {
   const inlineStyle = active && activeStyle
-    ? { backgroundColor: activeStyle.bg, color: activeStyle.color }
+    ? { backgroundColor: activeStyle.bg, color: activeStyle.color, borderColor: `${activeStyle.color}80` }
     : undefined;
   return (
     <button
