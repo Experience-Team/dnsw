@@ -46,9 +46,13 @@ export default function AdaptiveContentView() {
       siteFilter === 'both' || r.site === siteFilter || r.site === 'both'
     ), [adaptiveContent, siteFilter]);
 
-  const segments = useMemo(() =>
-    [...new Set(filtered.map(r => r.segment.trim().toLowerCase()))].sort(),
-    [filtered]);
+  const segments = useMemo(() => {
+    const order = ['local', 'intrastate', 'interstate', 'intl-short-haul', 'intl-long-haul'];
+    const present = [...new Set(filtered.map(r => r.segment.trim().toLowerCase()))];
+    const ranked = present.filter(s => order.includes(s)).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+    const extras = present.filter(s => !order.includes(s)).sort();
+    return [...ranked, ...extras];
+  }, [filtered]);
 
   const contentTypes = useMemo(() =>
     [...new Set(filtered.map(r => r.content_type.trim()))].sort(),

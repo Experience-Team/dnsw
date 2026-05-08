@@ -42,21 +42,23 @@ type SwimLaneTheme = {
 };
 
 const BLUE_THEME: Omit<SwimLaneTheme, 'emoji'> = {
-  headerBg: '#d8e7ff',
+  headerBg: '#f0f6ff',
   headerBorder: '#b3d4ff',
   headerColor: '#062e66',
   stageColors: ['#062e66', '#0d479a', '#115ac1', '#2273e3', '#4e95fa', '#b3d4ff'],
   stageTextDark: '#062e66',
   darkTextFromIndex: 5,
-  cellEven: 'rgba(179,212,255,0.1)',
-  cellOdd: 'rgba(34,115,227,0.1)',
+  cellEven: '#ffffff',
+  cellOdd: '#ffffff',
   cellText: '#062e66',
 };
 
+const FLAT_BLUE_STAGE_COLORS = ['#0d479a', '#0d479a', '#0d479a', '#0d479a', '#0d479a', '#0d479a'];
+
 const ROW_THEMES: Record<UjmRowType, SwimLaneTheme> = {
-  'Goals':         { emoji: '🎯', ...BLUE_THEME },
+  'Goals':         { emoji: '🎯', ...BLUE_THEME, stageColors: FLAT_BLUE_STAGE_COLORS, darkTextFromIndex: 6 },
   'Actions':       { emoji: '⚡', ...BLUE_THEME },
-  'Mindset':       { emoji: '💭', ...BLUE_THEME },
+  'Mindset':       { emoji: '💭', ...BLUE_THEME, stageColors: FLAT_BLUE_STAGE_COLORS, darkTextFromIndex: 6 },
   'Touchpoints':   { emoji: '👆', ...BLUE_THEME },
   'Pain Points': {
     emoji: '😣',
@@ -111,14 +113,8 @@ const LAYER_PILL_STYLE: Record<UjmLayer, { bg: string; color: string }> = {
   'intl-multi-stop': { bg: '#CFFAFE', color: '#164E63' },
 };
 
-const LAYER_ROW_CELL: Record<UjmLayer, { even: string; odd: string }> = {
-  'universal':       { even: '', odd: '' },
-  'day-out':         { even: 'rgba(254,243,199,0.3)', odd: 'rgba(254,243,199,0.5)' },
-  'weekend-away':    { even: 'rgba(237,233,254,0.3)', odd: 'rgba(237,233,254,0.5)' },
-  'road-trip':       { even: 'rgba(198,252,228,0.3)', odd: 'rgba(198,252,228,0.5)' },
-  'intl-multi-stop': { even: 'rgba(207,250,254,0.3)', odd: 'rgba(207,250,254,0.5)' },
-};
-
+const LAYER_ROW_BG = '#fffae3';
+const LAYER_ROW_TEXT = '#9e3900';
 
 const TRIP_LAYERS: UjmLayer[] = ['day-out', 'weekend-away', 'road-trip', 'intl-multi-stop'];
 
@@ -338,7 +334,7 @@ export default function UserJourneyMapView() {
                 </div>
 
                 {/* Stage headers */}
-                <div className="flex">
+                <div className="flex gap-px">
                   {UJM_STAGES.map((stage, i) => {
                     const bg = theme.stageColors[i] ?? theme.stageColors[theme.stageColors.length - 1];
                     const color = i < theme.darkTextFromIndex ? '#f0f6ff' : theme.stageTextDark;
@@ -357,7 +353,6 @@ export default function UserJourneyMapView() {
                 {/* Content rows — universal row + optional active-layer row */}
                 {(() => {
                   const isBulleted = rowType === 'Goals' || rowType === 'Actions';
-                  const layerCells = activeLayer ? LAYER_ROW_CELL[activeLayer] : null;
                   const hasLayerRow = activeLayer && UJM_STAGES.some(
                     s => (grid[rowType][s] ?? []).some(e => e.layer === activeLayer)
                   );
@@ -382,19 +377,18 @@ export default function UserJourneyMapView() {
                         })}
                       </div>
                       {/* Active layer row */}
-                      {hasLayerRow && layerCells && activeLayer && (
-                        <div className="flex" style={{ borderTop: `2px solid ${LAYER_PILL_STYLE[activeLayer].color}` }}>
-                          {UJM_STAGES.map((stage, i) => {
+                      {hasLayerRow && activeLayer && (
+                        <div className="flex">
+                          {UJM_STAGES.map(stage => {
                             const entries = (grid[rowType][stage] ?? []).filter(e => e.layer === activeLayer);
-                            const bg = i % 2 === 0 ? layerCells.even : layerCells.odd;
                             return (
                               <div
                                 key={stage}
                                 className="flex-1 min-w-[200px] px-4 py-5 flex flex-col gap-2"
-                                style={{ backgroundColor: bg }}
+                                style={{ backgroundColor: LAYER_ROW_BG }}
                               >
                                 {entries.map((entry, idx) => (
-                                  <EntryCard key={idx} entry={entry} cellText={LAYER_PILL_STYLE[activeLayer].color} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} showImage={rowType === 'Mindset'} />
+                                  <EntryCard key={idx} entry={entry} cellText={LAYER_ROW_TEXT} bulleted={isBulleted} showLayerPill={false} icon={rowType === 'Touchpoints' ? getTouchpointIcon(entry.content) : undefined} hideDevice={rowType === 'Pain Points'} showImage={rowType === 'Mindset'} />
                                 ))}
                               </div>
                             );
