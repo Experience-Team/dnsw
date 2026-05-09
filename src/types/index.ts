@@ -39,6 +39,8 @@ export interface CjmEntry {
 }
 
 // ── USM grid entries ──────────────────────────────────────────────────────────
+export type SupportRating = 'owned' | 'partial' | 'gap';
+
 export interface UsmEntry {
   stage:             string;
   stage_description: string;
@@ -46,6 +48,8 @@ export interface UsmEntry {
   site:              CjmSite;
   segment:           string;
   step:              string;
+  support_rating:    SupportRating;
+  support_rationale: string;
 }
 
 // ── UJM grid entries ──────────────────────────────────────────────────────────
