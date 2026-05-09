@@ -2,7 +2,7 @@ import type {
   SheetData, JourneyStage,
   AdaptiveContent, Gap, Site, CjmSite,
   GapSeverity,
-  CjmEntry, CjmRowType, UsmEntry,
+  CjmEntry, CjmRowType, UsmEntry, SupportRating,
   UjmEntry, UjmRowType, UjmLayer, UjmDevice,
   SitemapNode, SitemapGroup,
 } from '../types';
@@ -198,6 +198,11 @@ function parseCjmEntries(rows: string[][]): CjmEntry[] {
     }));
 }
 
+function parseSupportRating(v: string | undefined): SupportRating {
+  const s = (v ?? '').trim().toLowerCase();
+  return s === 'owned' || s === 'partial' ? s : 'gap';
+}
+
 function parseUsmEntries(rows: string[][]): UsmEntry[] {
   let lastStage = '';
   let lastStageDesc = '';
@@ -214,6 +219,8 @@ function parseUsmEntries(rows: string[][]): UsmEntry[] {
         site:              parseCjmSite(r.site),
         segment:           (r.segment ?? '').trim(),
         step:              (r.step ?? '').trim(),
+        support_rating:    parseSupportRating(r.support_rating),
+        support_rationale: (r.support_rationale ?? '').trim(),
       };
     })
     .filter(e => e.stage && e.step);
