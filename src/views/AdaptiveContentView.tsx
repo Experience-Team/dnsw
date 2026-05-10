@@ -47,7 +47,7 @@ export default function AdaptiveContentView() {
     ), [adaptiveContent, siteFilter]);
 
   const segments = useMemo(() => {
-    const order = ['local', 'intrastate', 'interstate', 'intl-short-haul', 'intl-long-haul'];
+    const order = ['local', 'intrastate', 'interstate', 'international short haul', 'international long haul'];
     const present = [...new Set(filtered.map(r => r.segment.trim().toLowerCase()))];
     const ranked = present.filter(s => order.includes(s)).sort((a, b) => order.indexOf(a) - order.indexOf(b));
     const extras = present.filter(s => !order.includes(s)).sort();
