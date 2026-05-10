@@ -242,7 +242,7 @@ export default function UserJourneyMapView() {
     setActiveLayer(prev => (prev === layer ? null : layer));
   }
 
-  const HIDDEN_SEGMENTS = new Set(['interstate', 'intl-long-haul']);
+  const HIDDEN_SEGMENTS = new Set(['Interstate', 'International Long Haul']);
   const segments = useMemo(() =>
     [...new Set(ujmEntries.map(e => e.segment).filter(s => s && s !== 'all' && !HIDDEN_SEGMENTS.has(s)))].sort(),
     [ujmEntries]
@@ -300,7 +300,7 @@ export default function UserJourneyMapView() {
             {segments.map(seg => (
               <PillButton
                 key={seg}
-                label={seg.charAt(0).toUpperCase() + seg.slice(1)}
+                label={seg}
                 active={segmentFilter === seg}
                 onClick={() => setSegmentFilter(prev => prev === seg ? '' : seg)}
               />
