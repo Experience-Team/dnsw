@@ -183,6 +183,10 @@ export default function PersonaGallery() {
 
   return (
     <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-blue-90">User Story Map</h1>
+      </div>
+
       {/* Filters */}
       <div className="sticky top-14 z-20 bg-blue-10 -mx-10 px-10 py-3 mb-5">
         <div className="flex items-center gap-8 flex-wrap">

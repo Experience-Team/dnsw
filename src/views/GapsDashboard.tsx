@@ -302,6 +302,10 @@ export default function GapsDashboard() {
 
       {/* Cards grid */}
       <div className="ml-[316px]">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
+          <p className="text-base text-blue-90/60 mt-0.5">Direct quotes from user research. Filter by segment, sentiment, and theme to focus the view.</p>
+        </div>
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-blue-90/40">
             No quotes match the current filters.
