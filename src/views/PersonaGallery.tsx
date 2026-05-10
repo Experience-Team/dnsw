@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { SupportRating, UsmEntry } from '../types';
 
@@ -164,6 +164,19 @@ export default function PersonaGallery() {
 
   const stageData = useMemo(() => buildStageData(filtered), [filtered]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showFade, setShowFade] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const update = () => setShowFade(el.scrollWidth > el.clientWidth + 1);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [stageData]);
+
   return (
     <div>
       {/* Filters */}
@@ -209,7 +222,7 @@ export default function PersonaGallery() {
 
       {/* Grid */}
       <div className="relative -mr-10">
-      <div className="overflow-x-auto pb-4">
+      <div ref={scrollRef} className="overflow-x-auto pb-4">
         <table className="border-collapse">
           <thead>
             {/* Row 1: stage headers spanning their activity sub-columns */}
@@ -283,7 +296,9 @@ export default function PersonaGallery() {
           </tbody>
         </table>
       </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-r from-transparent to-blue-10" />
+      {showFade && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-r from-transparent to-blue-10" />
+      )}
       </div>
 
       {selectedStep && (
