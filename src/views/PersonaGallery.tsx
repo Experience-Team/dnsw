@@ -170,11 +170,15 @@ export default function PersonaGallery() {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const update = () => setShowFade(el.scrollWidth > el.clientWidth + 1);
+    const update = () => setShowFade(el.scrollWidth - el.clientWidth - el.scrollLeft > 1);
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
-    return () => ro.disconnect();
+    el.addEventListener('scroll', update, { passive: true });
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', update);
+    };
   }, [stageData]);
 
   return (
