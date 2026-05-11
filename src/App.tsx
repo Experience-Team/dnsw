@@ -6,7 +6,7 @@ import UserJourneyMapView from './views/UserJourneyMapView';
 import CustomerJourneyMapView from './views/CustomerJourneyMapView';
 import AdaptiveContentView from './views/AdaptiveContentView';
 import GapsDashboard from './views/GapsDashboard';
-import PersonaGallery from './views/PersonaGallery';
+import UserStoryMap from './views/UserStoryMap';
 import SitemapView from './views/SitemapView';
 
 function JourneyMapLayout() {
@@ -26,7 +26,7 @@ export default function App() {
           <Route index element={<Navigate to="ujm" replace />} />
           <Route path="ujm"     element={<UserJourneyMapView />} />
           <Route path="cjm"     element={<CustomerJourneyMapView />} />
-          <Route path="usm"     element={<PersonaGallery />} />
+          <Route path="usm"     element={<UserStoryMap />} />
           <Route path="content" element={<AdaptiveContentView />} />
           <Route path="quotes"  element={<GapsDashboard />} />
           <Route path="sitemap" element={<SitemapView />} />
