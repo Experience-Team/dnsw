@@ -122,7 +122,7 @@ function buildStageData(entries: UsmEntry[]): StageData[] {
   });
 }
 
-export default function PersonaGallery() {
+export default function UserStoryMap() {
   const { data, siteFilter } = useAppContext();
   const [audienceFilter, setAudienceFilter] = useState('');
   const [activeRatings, setActiveRatings] = useState<Set<SupportRating>>(
