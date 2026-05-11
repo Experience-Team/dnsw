@@ -210,6 +210,20 @@ export default function PersonaGallery() {
             </div>
           </div>
           <div className="flex items-center gap-2 ml-auto flex-wrap">
+            <span className="text-base text-blue-90 shrink-0 mr-1">Website features</span>
+            <button
+              type="button"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => setActiveRatings(new Set(RATING_ORDER))}
+              className={`text-base text-blue-90 px-4 py-1 rounded-full transition-all flex items-center gap-1.5 ${activeRatings.size === RATING_ORDER.length ? 'bg-blue-30' : 'bg-white'}`}
+            >
+              <span className="flex items-center gap-0.5">
+                {RATING_ORDER.map(r => (
+                  <span key={r} className="w-2 h-2 rounded-full" style={{ backgroundColor: RATING_COLOR[r] }} />
+                ))}
+              </span>
+              All
+            </button>
             {RATING_ORDER.map(r => {
               const active = activeRatings.has(r);
               return (
@@ -242,14 +256,17 @@ export default function PersonaGallery() {
                   colSpan={s.activities.length || 1}
                   className="align-top px-[2px] pb-1 font-normal"
                 >
-                  <div className="bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90">
+                  <div className="group relative bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90 cursor-default">
                     {s.stage}
+                    {s.description && (
+                      <div
+                        role="tooltip"
+                        className="invisible group-hover:visible pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-1 w-[180px] p-2.5 bg-blue-20 text-blue-90 text-[13px] leading-snug text-left rounded-md shadow-md z-30"
+                      >
+                        {s.description}
+                      </div>
+                    )}
                   </div>
-                  {s.description && (
-                    <p className="text-[12px] font-light text-blue-90 leading-[15.5px] mt-1 text-left">
-                      {s.description}
-                    </p>
-                  )}
                 </th>
               ))}
             </tr>
@@ -306,7 +323,7 @@ export default function PersonaGallery() {
         </table>
       </div>
       {showFade && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-r from-transparent to-blue-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-r from-transparent to-blue-10 opacity-50" />
       )}
       </div>
 
