@@ -2,6 +2,20 @@ import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { AdaptiveContent } from '../types';
 
+const CONTENT_TYPE_ICON: Record<string, string> = {
+  'accommodation prompts':       '🛏️',
+  'assumed knowledge':           '💡',
+  'experience framing':          '🖼️',
+  'geographic context':          '🗺️',
+  'price & value framing':       '💰',
+  'seasonal & temporal signals': '📅',
+  'transport & getting there':   '🚗',
+};
+
+function iconFor(contentType: string): string {
+  return CONTENT_TYPE_ICON[contentType.trim().toLowerCase()] ?? '📄';
+}
+
 function CellPopover({
   rule,
   onClose,
@@ -99,7 +113,10 @@ export default function AdaptiveContentView() {
             {contentTypes.map(contentType => (
               <tr key={contentType}>
                 <td className="pr-4 py-3 font-medium text-blue-90 sticky left-0 bg-blue-10 w-36 min-w-36 align-top">
-                  {contentType}
+                  <div className="flex items-start gap-1.5 leading-6">
+                    <span aria-hidden="true" className="shrink-0">{iconFor(contentType)}</span>
+                    <span>{contentType}</span>
+                  </div>
                 </td>
                 {segments.map(seg => {
                   const rule = ruleMap[`${contentType}||${seg}`];
