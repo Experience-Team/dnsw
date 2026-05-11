@@ -323,7 +323,7 @@ export default function UserJourneyMapView() {
           {UJM_ROW_TYPES.map(rowType => {
             const theme = ROW_THEMES[rowType];
             return (
-              <div key={rowType} className="rounded-2xl overflow-hidden">
+              <div key={rowType} className="rounded-md overflow-hidden">
                 {/* Swim lane header */}
                 <div
                   className="px-4 py-3 text-[20px] font-bold"

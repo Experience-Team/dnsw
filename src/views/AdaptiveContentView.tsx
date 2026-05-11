@@ -88,7 +88,7 @@ export default function AdaptiveContentView() {
                   key={seg}
                   className="sticky top-14 z-20 bg-blue-10 px-0.5 pb-2 min-w-[180px] font-normal"
                 >
-                  <div className="bg-blue-20 h-10 flex items-center justify-center text-base font-bold text-blue-90 leading-6 capitalize whitespace-nowrap">
+                  <div className="bg-blue-20 h-10 flex items-center justify-center text-base font-bold text-blue-90 leading-6 capitalize whitespace-nowrap rounded-md">
                     {seg}
                   </div>
                 </th>
@@ -114,7 +114,7 @@ export default function AdaptiveContentView() {
                     <td key={seg} className="px-1.5 py-2 align-top">
                       <button
                         onClick={() => setSelectedRule(rule)}
-                        className="relative w-full text-left rounded px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
+                        className="relative w-full text-left rounded-md px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
                       >
                         <span className="absolute top-1.5 right-1.5 opacity-30 pointer-events-none">
                           <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
