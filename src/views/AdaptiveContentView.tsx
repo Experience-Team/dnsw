@@ -5,7 +5,7 @@ import type { AdaptiveContent } from '../types';
 const CONTENT_TYPE_ICON: Record<string, string> = {
   'accommodation prompts':       '🛏️',
   'assumed knowledge':           '💡',
-  'experience framing':          '🖼️',
+  'experience framing':          '🪂',
   'geographic context':          '🗺️',
   'price & value framing':       '💰',
   'seasonal & temporal signals': '📅',
@@ -131,7 +131,7 @@ export default function AdaptiveContentView() {
                     <td key={seg} className="px-1.5 py-2 align-top">
                       <button
                         onClick={() => setSelectedRule(rule)}
-                        className="relative w-full text-left rounded-md px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
+                        className="relative w-full text-left rounded-md px-3 py-4 bg-white text-blue-90 hover:bg-white hover:shadow-md transition-shadow"
                       >
                         <span className="absolute top-1.5 right-1.5 opacity-30 pointer-events-none">
                           <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
