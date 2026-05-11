@@ -132,10 +132,8 @@ export default function PersonaGallery() {
 
   function toggleRating(r: SupportRating) {
     setActiveRatings(prev => {
-      if (prev.has(r) && prev.size === 1) return prev;
-      const next = new Set(prev);
-      if (next.has(r)) next.delete(r); else next.add(r);
-      return next;
+      if (prev.size === 1 && prev.has(r)) return new Set(RATING_ORDER);
+      return new Set([r]);
     });
   }
 
@@ -225,7 +223,7 @@ export default function PersonaGallery() {
               All
             </button>
             {RATING_ORDER.map(r => {
-              const active = activeRatings.has(r);
+              const active = activeRatings.size === 1 && activeRatings.has(r);
               return (
                 <button
                   key={r}
