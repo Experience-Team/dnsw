@@ -19,7 +19,7 @@ const RATING_BLURB: Record<SupportRating, string> = {
   gap:     'Not meaningfully supported by the sites',
 };
 
-const HIDDEN_SEGMENTS = new Set(['Interstate', 'International Long Haul']);
+const HIDDEN_SEGMENTS = new Set(['interstate', 'intl-long-haul', 'international long haul']);
 
 const RATING_ORDER: SupportRating[] = ['owned', 'partial', 'gap'];
 
@@ -159,7 +159,7 @@ export default function PersonaGallery() {
 
   const segments = useMemo(() =>
     [...new Set(usmEntries.flatMap(e =>
-      e.segment ? e.segment.split(',').map(s => s.trim()).filter(s => s && s.toLowerCase() !== 'all' && !HIDDEN_SEGMENTS.has(s)) : []
+      e.segment ? e.segment.split(',').map(s => s.trim()).filter(s => s && s.toLowerCase() !== 'all' && !HIDDEN_SEGMENTS.has(s.toLowerCase())) : []
     ))].sort(),
     [usmEntries]
   );
