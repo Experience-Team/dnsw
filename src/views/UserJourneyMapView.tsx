@@ -242,9 +242,12 @@ export default function UserJourneyMapView() {
     setActiveLayer(prev => (prev === layer ? null : layer));
   }
 
-  const HIDDEN_SEGMENTS = new Set(['Interstate', 'International Long Haul']);
+  const HIDDEN_SEGMENTS = new Set(['interstate', 'intl-long-haul', 'international long haul']);
   const segments = useMemo(() =>
-    [...new Set(ujmEntries.map(e => e.segment).filter(s => s && s !== 'all' && !HIDDEN_SEGMENTS.has(s)))].sort(),
+    [...new Set(ujmEntries.map(e => e.segment).filter(s => {
+      const lower = s.trim().toLowerCase();
+      return s && lower !== 'all' && !HIDDEN_SEGMENTS.has(lower);
+    }))].sort(),
     [ujmEntries]
   );
 
