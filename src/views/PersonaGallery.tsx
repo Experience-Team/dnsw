@@ -52,29 +52,32 @@ function StepPopover({ entry, onClose }: { entry: UsmEntry; onClose: () => void 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div>
-            <p className="text-base text-blue-80 uppercase tracking-wide mb-0.5">{entry.stage}</p>
-            <p className="text-base text-blue-80 mt-0.5 capitalize">{entry.activity}</p>
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 flex flex-col gap-2">
+        <div className="flex items-start gap-2 w-full">
+          <div className="flex-1 min-w-0 flex flex-col gap-1 text-base text-blue-90 leading-[22px]">
+            <p><span className="font-bold">Step:</span> {entry.step}</p>
+            <p><span className="font-bold">Phase:</span> {entry.stage}</p>
+            <p><span className="font-bold">Activity:</span> <span className="capitalize">{entry.activity}</span></p>
           </div>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-blue-10 hover:bg-blue-20 flex items-center justify-center text-blue-80 text-base shrink-0"
+            aria-label="Close"
           >
             ✕
           </button>
         </div>
-        <p className="text-base leading-relaxed text-blue-90 mb-4">{entry.step}</p>
-        <h4 className="text-base font-bold text-blue-90 mb-1">Why this rating</h4>
-        <p className="text-base leading-relaxed text-blue-90 mb-3">{entry.support_rationale}</p>
-        <p className="text-sm text-blue-80 flex items-center gap-1.5">
-          <span
-            className="w-2 h-2 rounded-full inline-block shrink-0"
-            style={{ backgroundColor: RATING_COLOR[entry.support_rating] }}
-          />
-          <span><strong>{RATING_LABEL[entry.support_rating]}:</strong> {RATING_BLURB[entry.support_rating]}</span>
-        </p>
+        <div className="flex flex-col gap-1 w-full">
+          <h4 className="pt-3 text-base font-bold text-blue-90 leading-6">Why this rating</h4>
+          <div className="flex items-center gap-1.5 pt-1 text-sm text-blue-90 leading-5">
+            <span
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: RATING_COLOR[entry.support_rating] }}
+            />
+            <span><strong>{RATING_LABEL[entry.support_rating]}:</strong> {RATING_BLURB[entry.support_rating]}</span>
+          </div>
+          <p className="text-base text-blue-90 leading-[22px]">{entry.support_rationale}</p>
+        </div>
       </div>
     </div>
   );
