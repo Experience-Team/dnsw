@@ -79,57 +79,60 @@ export default function AdaptiveContentView() {
           No adaptive content rules for the current filters.
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse table-fixed text-base">
-            <thead>
-              <tr className="bg-blue-20 text-blue-90">
-                <th className="py-3 sticky left-0 bg-blue-20 z-10 w-36 min-w-36" />
-                {segments.map(seg => (
-                  <th key={seg} className="text-center px-3 py-3 text-base font-semibold whitespace-nowrap capitalize min-w-[180px]">
+        <table className="w-full border-collapse table-fixed text-base">
+          <thead>
+            <tr>
+              <th className="sticky top-14 left-0 z-30 bg-blue-10 w-36 min-w-36" />
+              {segments.map(seg => (
+                <th
+                  key={seg}
+                  className="sticky top-14 z-20 bg-blue-10 px-0.5 pb-2 min-w-[180px] font-normal"
+                >
+                  <div className="bg-blue-20 h-10 flex items-center justify-center text-base font-bold text-blue-90 leading-6 capitalize whitespace-nowrap">
                     {seg}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {contentTypes.map(contentType => (
-                <tr key={contentType}>
-                  <td className="pr-4 py-3 font-medium text-blue-90 sticky left-0 bg-blue-10 w-36 min-w-36 align-top">
-                    {contentType}
-                  </td>
-                  {segments.map(seg => {
-                    const rule = ruleMap[`${contentType}||${seg}`];
-                    if (!rule) {
-                      return (
-                        <td key={seg} className="px-1.5 py-2 text-center text-blue-30 text-base align-top">
-                          —
-                        </td>
-                      );
-                    }
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {contentTypes.map(contentType => (
+              <tr key={contentType}>
+                <td className="pr-4 py-3 font-medium text-blue-90 sticky left-0 bg-blue-10 w-36 min-w-36 align-top">
+                  {contentType}
+                </td>
+                {segments.map(seg => {
+                  const rule = ruleMap[`${contentType}||${seg}`];
+                  if (!rule) {
                     return (
-                      <td key={seg} className="px-1.5 py-2 align-top">
-                        <button
-                          onClick={() => setSelectedRule(rule)}
-                          className="relative w-full text-left rounded px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
-                        >
-                          <span className="absolute top-1.5 right-1.5 opacity-30 pointer-events-none">
-                            <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="5.5,1 9,1 9,4.5" />
-                              <line x1="5.5" y1="4.5" x2="9" y2="1" />
-                              <polyline points="4.5,9 1,9 1,5.5" />
-                              <line x1="4.5" y1="5.5" x2="1" y2="9" />
-                            </svg>
-                          </span>
-                          <p className="text-base leading-snug pr-3 line-clamp-5">{rule.content}</p>
-                        </button>
+                      <td key={seg} className="px-1.5 py-2 text-center text-blue-30 text-base align-top">
+                        —
                       </td>
                     );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  }
+                  return (
+                    <td key={seg} className="px-1.5 py-2 align-top">
+                      <button
+                        onClick={() => setSelectedRule(rule)}
+                        className="relative w-full text-left rounded px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
+                      >
+                        <span className="absolute top-1.5 right-1.5 opacity-30 pointer-events-none">
+                          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="5.5,1 9,1 9,4.5" />
+                            <line x1="5.5" y1="4.5" x2="9" y2="1" />
+                            <polyline points="4.5,9 1,9 1,5.5" />
+                            <line x1="4.5" y1="5.5" x2="1" y2="9" />
+                          </svg>
+                        </span>
+                        <p className="text-base leading-snug pr-3 line-clamp-5">{rule.content}</p>
+                      </button>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
 
       {selectedRule && (
