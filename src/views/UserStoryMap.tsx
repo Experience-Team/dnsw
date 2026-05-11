@@ -287,7 +287,7 @@ export default function UserStoryMap() {
                   colSpan={s.activities.length || 1}
                   className="align-top px-[2px] pb-1 font-normal"
                 >
-                  <div className="group relative bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90 cursor-default">
+                  <div className="group relative bg-blue-20 w-full text-center text-[18px] leading-10 text-blue-90 cursor-default rounded-md">
                     {s.stage}
                     {s.description && (
                       <div
@@ -309,7 +309,7 @@ export default function UserStoryMap() {
                     key={`${s.stage}-${a.name}`}
                     className="align-top min-w-[220px] px-[2px] pb-2 font-normal"
                   >
-                    <div className="bg-blue-80 px-2 py-3 text-base font-bold text-white rounded text-left">
+                    <div className="bg-blue-80 px-2 py-3 text-base font-bold text-white rounded-md text-left">
                       {a.name}
                     </div>
                   </th>
@@ -328,7 +328,7 @@ export default function UserStoryMap() {
                         <button
                           key={i}
                           onClick={() => setSelectedStep(entry)}
-                          className="relative w-full text-left rounded px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
+                          className="relative w-full text-left rounded-md px-3 py-4 bg-white text-blue-90 hover:bg-blue-10 transition-all"
                         >
                           <span
                             className="absolute top-2 left-2 w-2 h-2 rounded-full pointer-events-none"
