@@ -21,6 +21,22 @@ const RATING_BLURB: Record<SupportRating, string> = {
 
 const RATING_ORDER: SupportRating[] = ['owned', 'partial', 'gap'];
 
+const AUDIENCE_LABEL: Record<string, string> = {
+  'intrastate':       'Intrastate',
+  'interstate':       'Interstate',
+  'intl-short-haul':  'International Short Haul',
+  'intl-long-haul':   'International Long Haul',
+  'local':            'Local',
+  'all':              'All audiences',
+};
+
+function parseSegments(raw: string | undefined | null): string[] {
+  if (!raw) return [];
+  const parts = raw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (parts.includes('all')) return ['all'];
+  return [...new Set(parts)];
+}
+
 
 function PillButton({
   label,
@@ -47,6 +63,7 @@ function PillButton({
 }
 
 function StepPopover({ entry, onClose }: { entry: UsmEntry; onClose: () => void }) {
+  const segments = parseSegments(entry.segment);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
@@ -67,6 +84,19 @@ function StepPopover({ entry, onClose }: { entry: UsmEntry; onClose: () => void 
             ✕
           </button>
         </div>
+        {segments.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap pt-1 text-base text-blue-90">
+            <span className="font-bold shrink-0">Audience:</span>
+            {segments.map(seg => (
+              <span
+                key={seg}
+                className="text-base text-blue-90 px-4 py-1 rounded-full bg-blue-10"
+              >
+                {AUDIENCE_LABEL[seg] ?? seg}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="flex flex-col gap-1 w-full">
           <h4 className="pt-3 text-base font-bold text-blue-90 leading-6">Why this rating</h4>
           <div className="flex items-center gap-1.5 pt-1 text-sm text-blue-90 leading-5">
