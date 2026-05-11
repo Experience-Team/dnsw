@@ -37,7 +37,7 @@ export default function AppShell() {
                 className={({ isActive }) =>
                   `pb-[13px] pt-[6px] border-b-[3px] text-base transition-colors whitespace-nowrap ${
                     isActive
-                      ? 'border-blue-10 text-white font-bold'
+                      ? 'border-yellow-50 text-white font-bold'
                       : 'border-transparent text-blue-30 hover:text-white'
                   }`
                 }
