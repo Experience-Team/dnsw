@@ -187,6 +187,7 @@ export default function PersonaGallery() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-blue-90">User Story Map</h1>
+        <p className="text-base text-blue-90/60 mt-0.5">Each step is rated by how well our sites support it, making gaps and strengths visible to guide feature prioritisation.</p>
       </div>
 
       {/* Filters */}
