@@ -271,6 +271,11 @@ export default function UserJourneyMapView() {
 
   return (
     <div className="bg-white -mx-10 -my-6 px-10 py-6 min-h-[calc(100vh-3.5rem)]">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-blue-90">User Journey Map</h1>
+        <p className="text-base text-blue-90/60 mt-0.5">How users think, feel, and act across the trip journey. Select a trip type to overlay layered variations on the universal flow.</p>
+      </div>
+
       {/* ── Description (non-sticky, scrolls away) ── */}
       <p className="text-base text-blue-90 mb-0">
         Choose a user group to explore their goals and actions. The universal journey applies to everyone, regardless of group.
