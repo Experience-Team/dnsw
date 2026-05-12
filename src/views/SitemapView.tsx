@@ -52,7 +52,6 @@ export default function SitemapView() {
       arr.push(n);
       byParent.set(n.parent_id, arr);
     }
-    for (const arr of byParent.values()) arr.sort((a, b) => a.page_name.localeCompare(b.page_name));
     const root = nodes.find(n => n.id === '1') ?? null;
     return { byParent, root };
   }, [nodes]);
