@@ -1,6 +1,6 @@
 import type {
   SheetData, JourneyStage,
-  AdaptiveContent, Gap, Site, CjmSite,
+  AdaptiveContent, ConfidenceLevel, Gap, Site, CjmSite,
   GapSeverity,
   CjmEntry, CjmRowType, UsmEntry, SupportRating,
   UjmEntry, UjmRowType, UjmLayer, UjmDevice,
@@ -241,14 +241,23 @@ function parseUjmEntries(rows: string[][]): UjmEntry[] {
     }));
 }
 
+function parseConfidence(val: string | undefined): ConfidenceLevel {
+  const v = (val ?? '').trim().toLowerCase();
+  if (v === 'high')   return 'high';
+  if (v === 'low')    return 'low';
+  return 'medium';
+}
+
 function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
   return rowsToObjects(rows)
-    .filter(r => (r.content_type ?? '').trim() && (r.content ?? '').trim())
+    .filter(r => (r.content_type ?? '').trim() && (r.variant_guidance ?? '').trim())
     .map(r => ({
-      content_type: (r.content_type ?? '').trim(),
-      site:         parseCjmSite(r.site),
-      segment:      (r.segment ?? '').trim(),
-      content:      (r.content ?? '').trim(),
+      content_type:     (r.content_type ?? '').trim(),
+      site:             parseCjmSite(r.site),
+      segment:          (r.segment ?? '').trim(),
+      variant_guidance: (r.variant_guidance ?? '').trim(),
+      rationale:        (r.rationale ?? '').trim(),
+      confidence:       parseConfidence(r.confidence),
     }));
 }
 
