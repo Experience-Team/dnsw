@@ -83,11 +83,15 @@ export interface UjmEntry {
 }
 
 // ── Adaptive Content ──────────────────────────────────────────────────────────
+export type ConfidenceLevel = 'high' | 'medium' | 'low';
+
 export interface AdaptiveContent {
-  content_type: string;
-  site: CjmSite;
-  segment: string;
-  content: string;
+  content_type:     string;
+  site:             CjmSite;
+  segment:          string;
+  variant_guidance: string;
+  rationale:        string;
+  confidence:       ConfidenceLevel;
 }
 
 // ── Gaps ──────────────────────────────────────────────────────────────────────

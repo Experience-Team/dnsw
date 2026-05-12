@@ -1,20 +1,41 @@
 import { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import type { AdaptiveContent } from '../types';
+import type { AdaptiveContent, ConfidenceLevel } from '../types';
 
 const CONTENT_TYPE_ICON: Record<string, string> = {
-  'accommodation prompts':       '🛏️',
-  'assumed knowledge':           '💡',
-  'experience framing':          '🪂',
-  'geographic context':          '🗺️',
-  'price & value framing':       '💰',
-  'seasonal & temporal signals': '📅',
-  'transport & getting there':   '🚗',
+  'geographic context':              '🗺️',
+  'cultural & contextual knowledge': '💡',
+  'transport & getting there':       '🚗',
+  'accommodation prompts':           '🛏️',
+  'framing & tone':                  '🪂',
+  'price & value framing':           '💰',
+  'seasonal & temporal signals':     '📅',
+  'trust & credibility signals':     '🛡️',
+  'travel party considerations':     '👥',
+  'booking confidence signals':      '✅',
 };
 
 function iconFor(contentType: string): string {
   return CONTENT_TYPE_ICON[contentType.trim().toLowerCase()] ?? '📄';
 }
+
+const CONFIDENCE_COLOR: Record<ConfidenceLevel, string> = {
+  high:   '#04A069',
+  medium: '#FFD400',
+  low:    '#FA0057',
+};
+
+const CONFIDENCE_LABEL: Record<ConfidenceLevel, string> = {
+  high: 'High', medium: 'Medium', low: 'Low',
+};
+
+const CONFIDENCE_BLURB: Record<ConfidenceLevel, string> = {
+  high:   'Strongly evidenced by research',
+  medium: 'Moderately evidenced by research',
+  low:    'Lightly evidenced — treat as a hypothesis',
+};
+
+const CONFIDENCE_ORDER: ConfidenceLevel[] = ['high', 'medium', 'low'];
 
 function CellPopover({
   rule,
@@ -28,8 +49,8 @@ function CellPopover({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-        <div className="flex items-start justify-between gap-4 mb-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 flex flex-col gap-2">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-base text-blue-80 uppercase tracking-wide mb-0.5">{rule.content_type}</p>
             <p className="text-base text-blue-80 mt-0.5 capitalize">{rule.segment}</p>
@@ -37,11 +58,25 @@ function CellPopover({
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-blue-10 hover:bg-blue-20 flex items-center justify-center text-blue-80 text-base shrink-0"
+            aria-label="Close"
           >
             ✕
           </button>
         </div>
-        <p className="text-base leading-relaxed text-blue-90">{rule.content}</p>
+        <p className="text-base leading-relaxed text-blue-90">{rule.variant_guidance}</p>
+        {rule.rationale && (
+          <div className="flex flex-col gap-1 pt-3">
+            <h4 className="text-base font-bold text-blue-90 leading-6">Why this variant</h4>
+            <p className="text-base text-blue-90 leading-[22px]">{rule.rationale}</p>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 pt-3 text-sm text-blue-90 leading-5">
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ backgroundColor: CONFIDENCE_COLOR[rule.confidence] }}
+          />
+          <span><strong>{CONFIDENCE_LABEL[rule.confidence]} confidence:</strong> {CONFIDENCE_BLURB[rule.confidence]}</span>
+        </div>
       </div>
     </div>
   );
@@ -50,15 +85,32 @@ function CellPopover({
 export default function AdaptiveContentView() {
   const { data, siteFilter } = useAppContext();
   const [selectedRule, setSelectedRule] = useState<AdaptiveContent | null>(null);
+  const [activeConfidence, setActiveConfidence] = useState<Set<ConfidenceLevel>>(
+    () => new Set(CONFIDENCE_ORDER)
+  );
 
   if (!data) return null;
 
   const { adaptiveContent } = data;
 
+  function toggleConfidence(c: ConfidenceLevel) {
+    setActiveConfidence(prev => {
+      const next = new Set(prev);
+      if (next.has(c)) {
+        if (next.size === 1) return prev;
+        next.delete(c);
+      } else {
+        next.add(c);
+      }
+      return next;
+    });
+  }
+
   const filtered = useMemo(() =>
     adaptiveContent.filter(r =>
-      siteFilter === 'both' || r.site === siteFilter || r.site === 'both'
-    ), [adaptiveContent, siteFilter]);
+      (siteFilter === 'both' || r.site === siteFilter || r.site === 'both') &&
+      activeConfidence.has(r.confidence)
+    ), [adaptiveContent, siteFilter, activeConfidence]);
 
   const segments = useMemo(() => {
     const order = ['local', 'intrastate', 'interstate', 'international short haul', 'international long haul'];
@@ -83,9 +135,29 @@ export default function AdaptiveContentView() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
-        <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by type and audience segment. Each cell defines what changes for a given context.</p>
+      <div className="mb-6 flex items-start justify-between gap-6 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
+          <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by type and audience segment. Each cell defines what changes for a given context.</p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <span className="text-base text-blue-90 shrink-0 mr-1">Confidence</span>
+          {CONFIDENCE_ORDER.map(c => {
+            const active = activeConfidence.has(c);
+            return (
+              <button
+                key={c}
+                type="button"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => toggleConfidence(c)}
+                className={`text-base text-blue-90 px-4 py-1 rounded-full transition-all flex items-center gap-1.5 ${active ? 'bg-blue-30' : 'bg-white'}`}
+              >
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: CONFIDENCE_COLOR[c] }} />
+                {CONFIDENCE_LABEL[c]}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {contentTypes.length === 0 ? (
@@ -133,6 +205,10 @@ export default function AdaptiveContentView() {
                         onClick={() => setSelectedRule(rule)}
                         className="relative w-full text-left rounded-md px-3 py-4 bg-white text-blue-90 hover:bg-white hover:shadow-md transition-shadow"
                       >
+                        <span
+                          className="absolute top-2 left-2 w-2 h-2 rounded-full pointer-events-none"
+                          style={{ backgroundColor: CONFIDENCE_COLOR[rule.confidence] }}
+                        />
                         <span className="absolute top-1.5 right-1.5 opacity-30 pointer-events-none">
                           <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="5.5,1 9,1 9,4.5" />
@@ -141,7 +217,7 @@ export default function AdaptiveContentView() {
                             <line x1="4.5" y1="5.5" x2="1" y2="9" />
                           </svg>
                         </span>
-                        <p className="text-base leading-snug pr-3 line-clamp-5">{rule.content}</p>
+                        <p className="text-base leading-snug pl-4 pr-3 line-clamp-5">{rule.variant_guidance}</p>
                       </button>
                     </td>
                   );
