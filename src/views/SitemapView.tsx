@@ -1,37 +1,34 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
-import type { SitemapNode, SitemapGroup } from '../types';
+import type { SitemapNode } from '../types';
 
-const GROUP_LABELS: Record<SitemapGroup, string> = {
-  'main-nav':      'Main Nav',
-  'destination':   'Destination / Neighbourhood',
-  'accommodation': 'Accommodation',
-  'products':      'Products',
-  'articles':      'Articles / Tags',
-  'utility':       'Utility / External',
+const STACK_DEPTH  = 2;    // children of depth ≥ STACK_DEPTH stack vertically
+const NODE_W       = 200;
+const NODE_H       = 40;
+const H_GAP        = 24;
+const V_GAP        = 56;
+const STACK_GAP    = 8;
+const STACK_INDENT = 24;
+const RAIL_OFFSET  = 12;   // X-offset of the stack rail inside the parent pill
+
+const DEPTH_LABEL: Record<number, string> = {
+  0: 'Root', 1: 'Section', 2: 'Region', 3: 'Area', 4: 'Page',
 };
 
-const GROUP_ORDER: SitemapGroup[] = [
-  'main-nav', 'destination', 'accommodation', 'products', 'articles', 'utility',
-];
+function depthClass(depth: number): string {
+  if (depth === 0) return 'bg-blue-90 text-white';
+  if (depth === 1) return 'bg-blue-80 text-white';
+  if (depth === 2) return 'bg-blue-30 text-blue-90';
+  if (depth === 3) return 'bg-blue-20 text-blue-90';
+  return 'bg-blue-10 text-blue-90 border border-blue-20';
+}
 
-const GROUP_STYLE: Record<SitemapGroup, { node: string; pill: string; stroke: string }> = {
-  'main-nav':      { node: 'bg-blue-10 border-blue-70 text-blue-90',     pill: 'bg-blue-10 text-blue-90 border-blue-30',     stroke: '#1B5FAA' },
-  'destination':   { node: 'bg-green-10 border-green-70 text-green-90',  pill: 'bg-green-10 text-green-90 border-green-30',  stroke: '#05684A' },
-  'accommodation': { node: 'bg-purple-10 border-purple-70 text-purple-90', pill: 'bg-purple-10 text-purple-90 border-purple-30', stroke: '#7D00D1' },
-  'products':      { node: 'bg-orange-10 border-orange-60 text-orange-90', pill: 'bg-orange-10 text-orange-90 border-orange-30', stroke: '#ED5E00' },
-  'articles':      { node: 'bg-yellow-20 border-yellow-70 text-yellow-90', pill: 'bg-yellow-20 text-yellow-90 border-yellow-40', stroke: '#AD8700' },
-  'utility':       { node: 'bg-grey-10 border-grey-60 text-grey-90',     pill: 'bg-grey-10 text-grey-90 border-grey-30',     stroke: '#757575' },
-};
+function depthLabel(depth: number): string {
+  return DEPTH_LABEL[Math.min(depth, 4)];
+}
 
-const NODE_W = 200;
-const NODE_H = 56;
-const H_GAP  = 24;
-const V_GAP  = 80;
-const SLOT_W = NODE_W + H_GAP;
-const ROW_H  = NODE_H + V_GAP;
-
-interface LaidOutNode {
+interface Box { w: number; h: number; }
+interface Placed {
   node:     SitemapNode;
   x:        number;
   y:        number;
@@ -45,12 +42,8 @@ export default function SitemapView() {
   const nodes = data?.sitemapNodes ?? [];
 
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const initialisedRef = useRef(false);
 
-  const [enabledGroups, setEnabledGroups] = useState<Set<SitemapGroup>>(
-    () => new Set(GROUP_ORDER),
-  );
-
-  // Build parent_id → children map
   const { byParent, root } = useMemo(() => {
     const byParent = new Map<string, SitemapNode[]>();
     for (const n of nodes) {
@@ -59,60 +52,86 @@ export default function SitemapView() {
       arr.push(n);
       byParent.set(n.parent_id, arr);
     }
-    // Sort children by page_name for stable layout
     for (const arr of byParent.values()) arr.sort((a, b) => a.page_name.localeCompare(b.page_name));
     const root = nodes.find(n => n.id === '1') ?? null;
     return { byParent, root };
   }, [nodes]);
 
-  // Compute layout: bottom-up x assignment, depth-based y
-  const { laid, width, height } = useMemo(() => {
-    const laid: LaidOutNode[] = [];
-    if (!root) return { laid, width: 0, height: 0 };
+  useEffect(() => {
+    if (initialisedRef.current || !root) return;
+    const L1 = byParent.get(root.id) ?? [];
+    setExpanded(new Set([root.id, ...L1.map(n => n.id)]));
+    initialisedRef.current = true;
+  }, [root, byParent]);
 
-    let cursor = 0;
-    const visit = (node: SitemapNode, depth: number): number => {
-      const allKids = byParent.get(node.id) ?? [];
-      const kids = allKids.filter(c => enabledGroups.has(c.group));
-      const isExpanded = expanded.has(node.id);
-      const hasKids = kids.length > 0;
+  const { placed, edges, totalW, totalH } = useMemo(() => {
+    const placed: Placed[] = [];
+    const edges: { from: Placed; to: Placed }[] = [];
+    if (!root) return { placed, edges, totalW: 0, totalH: 0 };
 
-      let x: number;
-      if (!isExpanded || !hasKids) {
-        x = cursor;
-        cursor += 1;
+    const boxes = new Map<string, Box>();
+    const visibleKids = (n: SitemapNode) =>
+      expanded.has(n.id) ? (byParent.get(n.id) ?? []) : [];
+
+    function measure(node: SitemapNode, depth: number): Box {
+      const cached = boxes.get(node.id);
+      if (cached) return cached;
+      const kids = visibleKids(node);
+      let box: Box;
+      if (kids.length === 0) {
+        box = { w: NODE_W, h: NODE_H };
       } else {
-        const childXs = kids.map(c => visit(c, depth + 1));
-        x = (childXs[0] + childXs[childXs.length - 1]) / 2;
+        const childBoxes = kids.map(k => measure(k, depth + 1));
+        if (depth < STACK_DEPTH) {
+          const w = childBoxes.reduce((s, b) => s + b.w, 0) + H_GAP * (kids.length - 1);
+          const h = NODE_H + V_GAP + Math.max(...childBoxes.map(b => b.h));
+          box = { w: Math.max(NODE_W, w), h };
+        } else {
+          const w = STACK_INDENT + Math.max(...childBoxes.map(b => b.w));
+          const h = NODE_H + STACK_GAP + childBoxes.reduce((s, b) => s + b.h, 0) + STACK_GAP * (kids.length - 1);
+          box = { w: Math.max(NODE_W, w), h };
+        }
       }
-      laid.push({ node, x, y: depth, depth, hasKids, expanded: isExpanded });
-      return x;
-    };
+      boxes.set(node.id, box);
+      return box;
+    }
 
-    if (enabledGroups.has(root.group)) visit(root, 0);
+    function place(node: SitemapNode, depth: number, originX: number, originY: number, parentPlaced: Placed | null) {
+      const box = boxes.get(node.id)!;
+      const kids = visibleKids(node);
+      const allKids = byParent.get(node.id) ?? [];
+      const isCentred = depth <= STACK_DEPTH;
+      const nodeX = isCentred ? originX + box.w / 2 - NODE_W / 2 : originX;
+      const self: Placed = {
+        node, x: nodeX, y: originY, depth,
+        hasKids:  allKids.length > 0,
+        expanded: expanded.has(node.id),
+      };
+      placed.push(self);
+      if (parentPlaced) edges.push({ from: parentPlaced, to: self });
 
-    const maxDepth = laid.reduce((m, n) => Math.max(m, n.depth), 0);
-    const width  = Math.max(1, cursor) * SLOT_W;
-    const height = (maxDepth + 1) * ROW_H;
-    return { laid, width, height };
-  }, [root, byParent, enabledGroups, expanded]);
+      if (kids.length === 0) return;
 
-  // Build edges: parent → child for visible nodes
-  const edges = useMemo(() => {
-    const visibleIds = new Set(laid.map(l => l.node.id));
-    const out: { from: LaidOutNode; to: LaidOutNode }[] = [];
-    const byNodeId = new Map(laid.map(l => [l.node.id, l]));
-    for (const l of laid) {
-      if (!l.expanded) continue;
-      const kids = byParent.get(l.node.id) ?? [];
-      for (const k of kids) {
-        if (!visibleIds.has(k.id)) continue;
-        const child = byNodeId.get(k.id);
-        if (child) out.push({ from: l, to: child });
+      if (depth < STACK_DEPTH) {
+        let cx = originX;
+        for (const k of kids) {
+          const kb = boxes.get(k.id)!;
+          place(k, depth + 1, cx, originY + NODE_H + V_GAP, self);
+          cx += kb.w + H_GAP;
+        }
+      } else {
+        let cy = originY + NODE_H + STACK_GAP;
+        for (const k of kids) {
+          place(k, depth + 1, nodeX + STACK_INDENT, cy, self);
+          cy += boxes.get(k.id)!.h + STACK_GAP;
+        }
       }
     }
-    return out;
-  }, [laid, byParent]);
+
+    const rootBox = measure(root, 0);
+    place(root, 0, 0, 0, null);
+    return { placed, edges, totalW: rootBox.w, totalH: rootBox.h };
+  }, [root, byParent, expanded]);
 
   const toggleNode = (id: string) => {
     setExpanded(prev => {
@@ -122,49 +141,16 @@ export default function SitemapView() {
     });
   };
 
-  const toggleGroup = (g: SitemapGroup) => {
-    setEnabledGroups(prev => {
-      const next = new Set(prev);
-      if (next.has(g)) next.delete(g); else next.add(g);
-      return next;
-    });
-  };
-
-  const expandAll = () => setExpanded(new Set(nodes.map(n => n.id)));
+  const expandAll   = () => setExpanded(new Set(nodes.map(n => n.id)));
   const collapseAll = () => setExpanded(root ? new Set([root.id]) : new Set());
 
-  const groupCounts = useMemo(() => {
-    const c: Record<SitemapGroup, number> = {
-      'main-nav': 0, 'destination': 0, 'accommodation': 0,
-      'products': 0, 'articles': 0, 'utility': 0,
-    };
-    for (const n of nodes) c[n.group]++;
-    return c;
-  }, [nodes]);
-
-  if (!root) {
-    return (
-      <div className="text-base text-grey-60 p-6">
-        No sitemap data found. Check the Sitemap tab in the Google Sheet.
-      </div>
-    );
-  }
-
-  // Pixel positions for laid nodes
-  const nodePos = (l: LaidOutNode) => ({
-    left: l.x * SLOT_W,
-    top:  l.depth * ROW_H,
-  });
-
-  // Pan state (transform-based, replaces native scroll)
   const viewportRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const centeredRef = useRef(false);
   const [transform, setTransform] = useState({ x: 0, y: 0 });
   const [grabbing, setGrabbing] = useState(false);
 
-  const rootLaid = laid.find(l => l.node.id === root.id);
-  const rootCenterX = rootLaid ? rootLaid.x * SLOT_W + H_GAP / 2 + NODE_W / 2 : 0;
+  const rootCenterX = totalW / 2;
 
   const centreOnRoot = () => {
     const vp = viewportRef.current;
@@ -173,21 +159,19 @@ export default function SitemapView() {
   };
 
   useEffect(() => {
-    if (centeredRef.current || !rootLaid) return;
+    if (centeredRef.current || totalW === 0) return;
     const vp = viewportRef.current;
     if (!vp) return;
     setTransform({ x: vp.clientWidth / 2 - rootCenterX, y: V_GAP / 2 });
     centeredRef.current = true;
-  }, [rootLaid, rootCenterX]);
+  }, [totalW, rootCenterX]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    // Don't start a pan when grabbing a node button
     if ((e.target as HTMLElement).closest('button')) return;
     dragRef.current = { x: e.clientX, y: e.clientY, tx: transform.x, ty: transform.y };
     setGrabbing(true);
     e.currentTarget.setPointerCapture(e.pointerId);
   };
-
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current) return;
     setTransform({
@@ -195,7 +179,6 @@ export default function SitemapView() {
       y: dragRef.current.ty + (e.clientY - dragRef.current.y),
     });
   };
-
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current) return;
     dragRef.current = null;
@@ -205,129 +188,142 @@ export default function SitemapView() {
     }
   };
 
+  if (!root) {
+    return (
+      <div className="text-base text-blue-90/60 p-6">
+        No sitemap data found. Check the Sitemap tab in the Google Sheet.
+      </div>
+    );
+  }
+
+  const padX = H_GAP;
+  const padY = V_GAP / 2;
+  const canvasW = totalW + padX * 2;
+  const canvasH = totalH + padY * 2;
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Filter bar */}
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-base font-semibold text-grey-80">Page types:</span>
-        {GROUP_ORDER.map(g => {
-          const on = enabledGroups.has(g);
-          const style = GROUP_STYLE[g];
-          return (
-            <button
-              key={g}
-              onClick={() => toggleGroup(g)}
-              className={`text-base px-3 py-1 rounded-full border transition-all ${
-                on ? style.pill : 'bg-white text-grey-50 border-grey-30 line-through'
-              }`}
-            >
-              {GROUP_LABELS[g]} <span className="opacity-60">({groupCounts[g]})</span>
-            </button>
-          );
-        })}
-        <div className="flex-1" />
+        <h1 className="text-2xl font-bold text-blue-90 mr-4">Sitemap</h1>
         <button
           onClick={expandAll}
-          className="text-base px-3 py-1 rounded-full border border-grey-30 text-grey-80 hover:bg-grey-10"
+          className="text-base text-blue-90 px-4 py-1 rounded-full bg-white hover:bg-blue-20 transition-all"
         >
           Expand all
         </button>
         <button
           onClick={collapseAll}
-          className="text-base px-3 py-1 rounded-full border border-grey-30 text-grey-80 hover:bg-grey-10"
+          className="text-base text-blue-90 px-4 py-1 rounded-full bg-white hover:bg-blue-20 transition-all"
         >
           Collapse all
         </button>
         <button
           onClick={centreOnRoot}
-          className="text-base px-3 py-1 rounded-full border border-grey-30 text-grey-80 hover:bg-grey-10"
+          className="text-base text-blue-90 px-4 py-1 rounded-full bg-white hover:bg-blue-20 transition-all"
         >
           Reset view
         </button>
+        <div className="flex-1" />
+        <div className="flex items-center gap-3 flex-wrap text-base text-blue-90">
+          {[0, 1, 2, 3, 4].map(d => (
+            <span key={d} className="flex items-center gap-1.5">
+              <span className={`inline-block w-4 h-4 rounded ${depthClass(d)}`} />
+              {depthLabel(d)}
+            </span>
+          ))}
+        </div>
       </div>
 
-      {/* Tree canvas — pannable */}
       <div
         ref={viewportRef}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        className={`bg-white border border-grey-20 rounded-lg overflow-hidden h-[70vh] select-none ${
+        className={`bg-white rounded-md overflow-hidden h-[75vh] select-none ${
           grabbing ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
         <div
           className="relative"
           style={{
-            width:     width + H_GAP,
-            height:    height + V_GAP / 2,
-            padding:   `${V_GAP / 4}px ${H_GAP / 2}px`,
-            transform: `translate(${transform.x}px, ${transform.y}px)`,
+            width:           canvasW,
+            height:          canvasH,
+            transform:       `translate(${transform.x}px, ${transform.y}px)`,
             transformOrigin: 'top left',
           }}
         >
-          {/* Connector lines (SVG underneath nodes) */}
           <svg
             className="absolute inset-0 pointer-events-none"
-            width={width + H_GAP}
-            height={height + V_GAP / 2}
+            width={canvasW}
+            height={canvasH}
           >
-            {edges.map(({ from, to }, i) => {
-              const fp = nodePos(from);
-              const tp = nodePos(to);
-              const x1 = fp.left + NODE_W / 2 + H_GAP / 2;
-              const y1 = fp.top + NODE_H + V_GAP / 4;
-              const x2 = tp.left + NODE_W / 2 + H_GAP / 2;
-              const y2 = tp.top + V_GAP / 4;
-              const midY = y1 + (y2 - y1) / 2;
-              const stroke = GROUP_STYLE[to.node.group].stroke;
+            <defs>
+              <marker
+                id="sitemap-arrow"
+                markerWidth="6"
+                markerHeight="6"
+                refX="5"
+                refY="3"
+                orient="auto"
+              >
+                <path d="M0,0 L5,3 L0,6 Z" fill="#062E66" fillOpacity="0.5" />
+              </marker>
+            </defs>
+            {edges.map((e, i) => {
+              const fx = e.from.x + padX;
+              const fy = e.from.y + padY;
+              const tx = e.to.x + padX;
+              const ty = e.to.y + padY;
+              const isStacked = e.to.depth > STACK_DEPTH;
+              const d = isStacked
+                ? `M ${fx + RAIL_OFFSET} ${fy + NODE_H} V ${ty + NODE_H / 2} H ${tx}`
+                : (() => {
+                    const x1 = fx + NODE_W / 2;
+                    const y1 = fy + NODE_H;
+                    const x2 = tx + NODE_W / 2;
+                    const midY = y1 + (ty - y1) / 2;
+                    return `M ${x1} ${y1} V ${midY} H ${x2} V ${ty}`;
+                  })();
               return (
                 <path
                   key={i}
-                  d={`M ${x1} ${y1} V ${midY} H ${x2} V ${y2}`}
+                  d={d}
                   fill="none"
-                  stroke={stroke}
-                  strokeOpacity="0.4"
-                  strokeWidth="1.5"
+                  stroke="#062E66"
+                  strokeOpacity="0.5"
+                  strokeWidth="1"
+                  markerEnd="url(#sitemap-arrow)"
                 />
               );
             })}
           </svg>
 
-          {/* Nodes */}
-          {laid.map(l => {
-            const pos = nodePos(l);
-            const style = GROUP_STYLE[l.node.group];
-            const allKids = byParent.get(l.node.id) ?? [];
-            const visibleKidCount = allKids.filter(c => enabledGroups.has(c.group)).length;
+          {placed.map(p => {
+            const visibleChildren = byParent.get(p.node.id) ?? [];
+            const canExpand = visibleChildren.length > 0;
             return (
               <button
-                key={l.node.id}
-                onClick={() => visibleKidCount > 0 && toggleNode(l.node.id)}
-                disabled={visibleKidCount === 0}
-                title={l.node.url || l.node.description || l.node.page_type}
-                className={`absolute rounded-lg border-2 px-3 py-2 text-left shadow-sm transition-all
-                            ${style.node}
-                            ${visibleKidCount > 0 ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5' : 'cursor-default'}`}
+                key={p.node.id}
+                onClick={() => canExpand && toggleNode(p.node.id)}
+                disabled={!canExpand}
+                title={p.node.url || p.node.description || p.node.page_type}
+                className={`absolute rounded-md px-3 flex items-center text-base font-medium leading-tight transition-all
+                            ${depthClass(p.depth)}
+                            ${canExpand ? 'cursor-pointer hover:brightness-105' : 'cursor-default'}`}
                 style={{
-                  left:   pos.left + H_GAP / 2,
-                  top:    pos.top + V_GAP / 4,
+                  left:   p.x + padX,
+                  top:    p.y + padY,
                   width:  NODE_W,
                   height: NODE_H,
                 }}
               >
-                <div className="text-base font-semibold leading-tight truncate">
-                  {l.node.page_name}
-                </div>
-                <div className="text-xs opacity-70 truncate flex items-center gap-1">
-                  <span className="truncate">{l.node.page_type || GROUP_LABELS[l.node.group]}</span>
-                  {visibleKidCount > 0 && (
-                    <span className="ml-auto shrink-0 font-bold">
-                      {l.expanded ? '−' : '+'}{visibleKidCount}
-                    </span>
-                  )}
-                </div>
+                <span className="truncate flex-1 text-center">{p.node.page_name}</span>
+                {canExpand && (
+                  <span className="ml-2 shrink-0 opacity-70 text-sm">
+                    {p.expanded ? '−' : '+'}{visibleChildren.length}
+                  </span>
+                )}
               </button>
             );
           })}
