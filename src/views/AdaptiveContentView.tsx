@@ -1,6 +1,17 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { AdaptiveContent, ConfidenceLevel } from '../types';
+
+type AdaptiveSite = 'sydney' | 'visitnsw';
+
+const SITE_STORAGE_KEY = 'dnsw.adaptiveContent.site';
+
+const SITE_LABEL: Record<AdaptiveSite, string> = {
+  sydney:   'sydney.com',
+  visitnsw: 'visitnsw.com',
+};
+
+const SITE_ORDER: AdaptiveSite[] = ['sydney', 'visitnsw'];
 
 const CONTENT_TYPE_ICON: Record<string, string> = {
   'geographic context':              '🗺️',
@@ -83,11 +94,20 @@ function CellPopover({
 }
 
 export default function AdaptiveContentView() {
-  const { data, siteFilter } = useAppContext();
+  const { data } = useAppContext();
   const [selectedRule, setSelectedRule] = useState<AdaptiveContent | null>(null);
   const [activeConfidence, setActiveConfidence] = useState<Set<ConfidenceLevel>>(
     () => new Set(CONFIDENCE_ORDER)
   );
+  const [site, setSite] = useState<AdaptiveSite>(() => {
+    if (typeof window === 'undefined') return 'sydney';
+    const stored = window.localStorage.getItem(SITE_STORAGE_KEY);
+    return stored === 'visitnsw' || stored === 'sydney' ? stored : 'sydney';
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem(SITE_STORAGE_KEY, site);
+  }, [site]);
 
   if (!data) return null;
 
@@ -108,9 +128,9 @@ export default function AdaptiveContentView() {
 
   const filtered = useMemo(() =>
     adaptiveContent.filter(r =>
-      (siteFilter === 'both' || r.site === siteFilter || r.site === 'both') &&
+      (r.site === site || r.site === 'both') &&
       activeConfidence.has(r.confidence)
-    ), [adaptiveContent, siteFilter, activeConfidence]);
+    ), [adaptiveContent, site, activeConfidence]);
 
   const segments = useMemo(() => {
     const order = ['local', 'intrastate', 'interstate', 'international short haul', 'international long haul'];
@@ -135,10 +155,30 @@ export default function AdaptiveContentView() {
 
   return (
     <div>
-      <div className="mb-6 flex items-start justify-between gap-6 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
-          <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by type and audience segment. Each cell defines what changes for a given context.</p>
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
+        <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by type and audience segment. Each cell defines what changes for a given context.</p>
+      </div>
+
+      <div className="mb-5 flex items-center justify-between gap-6 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-base text-blue-90 shrink-0">Site</span>
+          <div className="flex gap-2 flex-wrap">
+            {SITE_ORDER.map(s => {
+              const active = site === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => setSite(s)}
+                  className={`text-base text-blue-90 px-4 py-1 rounded-full transition-all ${active ? 'bg-blue-30' : 'bg-white'}`}
+                >
+                  {SITE_LABEL[s]}
+                </button>
+              );
+            })}
+          </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap shrink-0">
           <span className="text-base text-blue-90 shrink-0 mr-1">Confidence</span>
