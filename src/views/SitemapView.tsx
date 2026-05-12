@@ -148,14 +148,37 @@ export default function SitemapView() {
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const centeredRef = useRef(false);
   const [transform, setTransform] = useState({ x: 0, y: 0 });
+  const [scale, setScale] = useState(1);
   const [grabbing, setGrabbing] = useState(false);
+
+  const MIN_SCALE = 0.25;
+  const MAX_SCALE = 2.5;
+  const clamp = (s: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 
   const rootCenterX = totalW / 2;
 
-  const centreOnRoot = () => {
+  const resetView = () => {
     const vp = viewportRef.current;
     if (!vp) return;
+    setScale(1);
     setTransform({ x: vp.clientWidth / 2 - rootCenterX, y: V_GAP / 2 });
+  };
+
+  const zoomBy = (factor: number, anchorX?: number, anchorY?: number) => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    setScale(prevScale => {
+      const next = clamp(prevScale * factor);
+      if (next === prevScale) return prevScale;
+      const rect = vp.getBoundingClientRect();
+      const ax = anchorX ?? rect.width / 2;
+      const ay = anchorY ?? rect.height / 2;
+      setTransform(prev => ({
+        x: ax - (ax - prev.x) * (next / prevScale),
+        y: ay - (ay - prev.y) * (next / prevScale),
+      }));
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -165,6 +188,27 @@ export default function SitemapView() {
     setTransform({ x: vp.clientWidth / 2 - rootCenterX, y: V_GAP / 2 });
     centeredRef.current = true;
   }, [totalW, rootCenterX]);
+
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const onWheel = (e: WheelEvent) => {
+      const isZoom = e.ctrlKey || e.metaKey;
+      if (isZoom) {
+        e.preventDefault();
+        const rect = vp.getBoundingClientRect();
+        const ax = e.clientX - rect.left;
+        const ay = e.clientY - rect.top;
+        const factor = Math.exp(-e.deltaY * 0.01);
+        zoomBy(factor, ax, ay);
+      } else {
+        e.preventDefault();
+        setTransform(prev => ({ x: prev.x - e.deltaX, y: prev.y - e.deltaY }));
+      }
+    };
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    return () => vp.removeEventListener('wheel', onWheel);
+  }, []);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest('button')) return;
@@ -218,11 +262,34 @@ export default function SitemapView() {
           Collapse all
         </button>
         <button
-          onClick={centreOnRoot}
+          onClick={resetView}
           className="text-base text-blue-90 px-4 py-1 rounded-full bg-white hover:bg-blue-20 transition-all"
         >
           Reset view
         </button>
+        <div className="flex items-center gap-1 ml-1">
+          <button
+            onClick={() => zoomBy(1 / 1.2)}
+            aria-label="Zoom out"
+            className="text-base text-blue-90 w-8 h-8 rounded-full bg-white hover:bg-blue-20 transition-all flex items-center justify-center"
+          >
+            −
+          </button>
+          <button
+            onClick={() => { setScale(1); }}
+            aria-label="Reset zoom"
+            className="text-base text-blue-90 px-3 h-8 rounded-full bg-white hover:bg-blue-20 transition-all min-w-[56px]"
+          >
+            {Math.round(scale * 100)}%
+          </button>
+          <button
+            onClick={() => zoomBy(1.2)}
+            aria-label="Zoom in"
+            className="text-base text-blue-90 w-8 h-8 rounded-full bg-white hover:bg-blue-20 transition-all flex items-center justify-center"
+          >
+            +
+          </button>
+        </div>
         <div className="flex-1" />
         <div className="flex items-center gap-3 flex-wrap text-base text-blue-90">
           {[0, 1, 2, 3, 4].map(d => (
@@ -249,7 +316,7 @@ export default function SitemapView() {
           style={{
             width:           canvasW,
             height:          canvasH,
-            transform:       `translate(${transform.x}px, ${transform.y}px)`,
+            transform:       `translate(${transform.x}px, ${transform.y}px) scale(${scale})`,
             transformOrigin: 'top left',
           }}
         >
