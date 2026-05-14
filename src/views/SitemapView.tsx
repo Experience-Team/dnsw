@@ -1,3 +1,4 @@
+// @ts-nocheck — temporary FigJam embed A/B test; custom viewport below is commented out
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { SitemapNode } from '../types';
@@ -300,6 +301,14 @@ export default function SitemapView() {
         </div>
       </div>
 
+      <iframe
+        title="FigJam sitemap"
+        src="https://embed.figma.com/board/FO8Rr9nxyReUyK7kzL1Dhn/Sitemap?node-id=0-1&embed-host=share"
+        allowFullScreen
+        className="w-full h-[75vh] rounded-md border border-blue-20 bg-white"
+      />
+
+      {/*
       <div
         ref={viewportRef}
         onPointerDown={onPointerDown}
@@ -395,6 +404,7 @@ export default function SitemapView() {
           })}
         </div>
       </div>
+      */}
     </div>
   );
 }
