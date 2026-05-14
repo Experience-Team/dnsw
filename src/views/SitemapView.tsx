@@ -305,7 +305,7 @@ export default function SitemapView() {
         title="FigJam sitemap"
         src="https://embed.figma.com/board/FO8Rr9nxyReUyK7kzL1Dhn/Sitemap?node-id=0-1&embed-host=share"
         allowFullScreen
-        className="w-full h-[75vh] rounded-md border border-blue-20 bg-white"
+        className="w-full h-[calc(100vh-10rem)] rounded-md border border-blue-20 bg-white"
       />
 
       {/*
