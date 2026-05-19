@@ -247,6 +247,7 @@ export default function SitemapView() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/*
       <div className="flex items-center gap-3 flex-wrap">
         <h1 className="text-2xl font-bold text-blue-90 mr-4">Sitemap</h1>
         <button
@@ -300,12 +301,13 @@ export default function SitemapView() {
           ))}
         </div>
       </div>
+      */}
 
       <iframe
         title="FigJam sitemap"
         src="https://embed.figma.com/board/FO8Rr9nxyReUyK7kzL1Dhn/Sitemap?node-id=0-1&embed-host=share"
         allowFullScreen
-        className="w-full h-[75vh] rounded-md border border-blue-20 bg-white"
+        className="w-full h-[calc(100vh-6rem)] rounded-md border border-blue-20 bg-white"
       />
 
       {/*
