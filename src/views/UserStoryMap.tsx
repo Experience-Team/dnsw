@@ -309,7 +309,7 @@ export default function UserStoryMap() {
                     key={`${s.stage}-${a.name}`}
                     className="align-top min-w-[220px] px-[2px] pb-2 font-normal"
                   >
-                    <div className="bg-blue-80 px-2 py-3 text-base font-bold text-white rounded-md text-left">
+                    <div className="bg-blue-80 px-2 py-3 text-base font-bold text-white rounded-md text-center">
                       {a.name}
                     </div>
                   </th>
