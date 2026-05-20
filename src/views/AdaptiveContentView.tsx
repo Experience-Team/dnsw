@@ -115,14 +115,8 @@ export default function AdaptiveContentView() {
 
   function toggleConfidence(c: ConfidenceLevel) {
     setActiveConfidence(prev => {
-      const next = new Set(prev);
-      if (next.has(c)) {
-        if (next.size === 1) return prev;
-        next.delete(c);
-      } else {
-        next.add(c);
-      }
-      return next;
+      if (prev.size === 1 && prev.has(c)) return new Set(CONFIDENCE_ORDER);
+      return new Set([c]);
     });
   }
 
@@ -182,8 +176,21 @@ export default function AdaptiveContentView() {
         </div>
         <div className="flex items-center gap-2 flex-wrap shrink-0">
           <span className="text-base text-blue-90 shrink-0 mr-1">Confidence</span>
+          <button
+            type="button"
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => setActiveConfidence(new Set(CONFIDENCE_ORDER))}
+            className={`text-base text-blue-90 px-4 py-1 rounded-full transition-all flex items-center gap-1.5 ${activeConfidence.size === CONFIDENCE_ORDER.length ? 'bg-blue-30' : 'bg-white'}`}
+          >
+            <span className="flex items-center gap-0.5">
+              {CONFIDENCE_ORDER.map(c => (
+                <span key={c} className="w-2 h-2 rounded-full" style={{ backgroundColor: CONFIDENCE_COLOR[c] }} />
+              ))}
+            </span>
+            All
+          </button>
           {CONFIDENCE_ORDER.map(c => {
-            const active = activeConfidence.has(c);
+            const active = activeConfidence.size === 1 && activeConfidence.has(c);
             return (
               <button
                 key={c}
