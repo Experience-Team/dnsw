@@ -148,7 +148,7 @@ export default function AdaptiveContentView() {
   }, [filtered]);
 
   return (
-    <div>
+    <div data-theme={site === 'visitnsw' ? 'nsw' : undefined}>
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
         <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by type and audience segment. Each cell defines what changes for a given context.</p>
