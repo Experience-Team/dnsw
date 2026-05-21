@@ -25,8 +25,6 @@ function ToolCard({ icon, title, bullets, useFor, href }: ToolCardProps) {
       className="bg-white border border-grey-20 rounded-2xl p-8 text-left relative overflow-hidden
                  transition-all hover:shadow-lg hover:-translate-y-0.5 group w-full flex flex-col"
     >
-      <div className="absolute top-0 left-0 right-0 h-1 bg-blue-70" />
-
       <div
         className="rounded-xl flex items-center justify-center text-2xl mb-4 bg-blue-10"
         style={{ width: 52, height: 52 }}
@@ -115,18 +113,13 @@ const TOOLS: ToolCardProps[] = [
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-grey-10 flex flex-col">
-      <header className="bg-green-80 px-10 h-14 flex items-center">
-        <h1 className="text-white font-semibold text-lg">Tools</h1>
-      </header>
-
       <main className="flex-1 max-w-screen-xl mx-auto w-full px-10 py-16">
         <section className="mb-14">
           <h2 className="text-4xl font-bold text-grey-90 mb-3 tracking-tight">
-            Welcome to the tools hub
+            UX Research Hub
           </h2>
           <p className="text-base text-grey-60 leading-relaxed max-w-lg">
-            A collection of research and design tools to help you understand your users
-            and improve their experiences.
+            A repository to help you understand our users and make better decisions.
           </p>
         </section>
 
