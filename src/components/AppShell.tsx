@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
@@ -72,6 +72,16 @@ export default function AppShell() {
               )}
               Refresh
             </button>
+            <Link
+              to="/"
+              aria-label="Home"
+              className="px-[14px] py-[8px] rounded-[6px] border border-blue-20
+                         text-blue-30 hover:text-white hover:border-white transition-all flex items-center"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M1.5 6L6 1.5L10.5 6M2.5 5.5V10.5H9.5V5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
           </div>
         </div>
       </header>
