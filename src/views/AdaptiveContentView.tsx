@@ -62,10 +62,7 @@ function CellPopover({
     >
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-base text-blue-80 uppercase tracking-wide mb-0.5">{rule.content_type}</p>
-            <p className="text-base text-blue-80 mt-0.5 capitalize">{rule.segment}</p>
-          </div>
+          <p className="text-base text-blue-80 uppercase tracking-[0.4px] leading-6">{rule.content_type}</p>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-full bg-blue-10 hover:bg-blue-20 flex items-center justify-center text-blue-80 text-base shrink-0"
@@ -74,7 +71,10 @@ function CellPopover({
             ✕
           </button>
         </div>
-        <p className="text-base leading-relaxed text-blue-90">{rule.variant_guidance}</p>
+        <div className="flex flex-col gap-1 pt-3">
+          <h4 className="text-base font-bold text-blue-90 leading-6 capitalize">{rule.segment}</h4>
+          <p className="text-base text-blue-90 leading-[26px]">{rule.variant_guidance}</p>
+        </div>
         {rule.rationale && (
           <div className="flex flex-col gap-1 pt-3">
             <h4 className="text-base font-bold text-blue-90 leading-6">Why this variant</h4>
