@@ -128,6 +128,7 @@ function QuoteCard({
           className="w-[72px] h-[72px] rounded shrink-0 object-cover"
         />
         <div className="flex flex-col gap-2 text-base text-blue-90">
+          {quote.participant  && <p><span className="font-bold">Participant: </span>{quote.participant}</p>}
           {quote.segment      && <p><span className="font-bold">Segment: </span>{sentenceCase(quote.segment)}</p>}
           {quote.stage        && <p><span className="font-bold">Stage: </span>{quote.stage}</p>}
           {quote.travel_party && <p><span className="font-bold">Travel party: </span>{quote.travel_party}</p>}
