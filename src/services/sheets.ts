@@ -342,10 +342,19 @@ function parseQuotes(rows: string[][]): QuoteEntry[] {
     }));
 }
 
+function normalizeName(s: string): string {
+  return (s ?? '')
+    .normalize('NFKD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
 function parseParticipantImages(rows: string[][]): Map<string, string> {
   const map = new Map<string, string>();
   rowsToObjects(rows).forEach(r => {
-    const name = (r.name ?? '').trim().toLowerCase();
+    const name = normalizeName(r.name ?? '');
     const url  = (r.image_url ?? '').trim();
     if (name && url) map.set(name, url);
   });
@@ -360,7 +369,7 @@ export async function fetchQuotes(): Promise<QuoteEntry[]> {
   const images = parseParticipantImages(imageRows);
   return parseQuotes(quoteRows).map(q => ({
     ...q,
-    image_url: images.get(q.participant.trim().toLowerCase()) ?? '',
+    image_url: images.get(normalizeName(q.participant)) ?? '',
   }));
 }
 
