@@ -34,9 +34,14 @@ function ToolCard({ icon, title, bullets, useFor, href }: ToolCardProps) {
 
       <h3 className="text-lg font-semibold text-grey-90 mb-3">{title}</h3>
 
-      <ul className="text-base text-grey-60 leading-relaxed mb-4 space-y-1.5 list-disc pl-5">
+      <ul className="text-base text-grey-60 leading-snug mb-4 space-y-1.5">
         {bullets.map((b) => (
-          <li key={b}>{b}</li>
+          <li key={b} className="flex gap-2">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0 mt-0.5 text-blue-70" aria-hidden="true">
+              <path d="M2.5 7.5L5.5 10.5L11.5 3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span>{b}</span>
+          </li>
         ))}
       </ul>
 
@@ -45,7 +50,6 @@ function ToolCard({ icon, title, bullets, useFor, href }: ToolCardProps) {
       </p>
 
       <span className="text-base font-semibold flex items-center gap-1 text-blue-70">
-        Open tool
         <span className="transition-transform group-hover:translate-x-0.5">→</span>
       </span>
     </button>
@@ -65,7 +69,7 @@ const TOOLS: ToolCardProps[] = [
     href: '/#/journey-map/ujm',
   },
   {
-    icon: '📋',
+    icon: '📖',
     title: 'User Story Map',
     bullets: [
       'Stages broken into activities and steps',
@@ -98,7 +102,7 @@ const TOOLS: ToolCardProps[] = [
     href: '/#/journey-map/quotes',
   },
   {
-    icon: '🗂️',
+    icon: '🗺️',
     title: 'Sitemap',
     bullets: [
       'Site information architecture at a glance',
@@ -118,7 +122,7 @@ export default function HomePage() {
           <h2 className="text-4xl font-bold text-grey-90 mb-3 tracking-tight">
             UX Research Hub
           </h2>
-          <p className="text-base text-grey-60 leading-relaxed max-w-lg">
+          <p className="text-base text-grey-60 leading-relaxed">
             A repository to help you understand our users and make better decisions.
           </p>
         </section>
