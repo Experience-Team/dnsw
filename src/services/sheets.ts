@@ -13,12 +13,13 @@ const CSV_BASE_URL =
   '/pub?output=csv&single=true';
 
 const TABS = {
-  cjm:             167369858,
-  usm:             1829750647,
-  adaptiveContent: 1130418870,
-  quoteBank:       1133768074,
-  ujm:             1039846540,
-  sitemap:         795825564,
+  cjm:               167369858,
+  usm:               1829750647,
+  adaptiveContent:   1130418870,
+  quoteBank:         1133768074,
+  ujm:               1039846540,
+  sitemap:           795825564,
+  participantImages: 967421101,
 } as const;
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
@@ -319,6 +320,8 @@ export interface QuoteEntry {
   site:         string;
   travel_party: string;
   trip_context: string;
+  participant:  string;
+  image_url:    string;
 }
 
 function parseQuotes(rows: string[][]): QuoteEntry[] {
@@ -334,12 +337,31 @@ function parseQuotes(rows: string[][]): QuoteEntry[] {
       site:         r.site         ?? '',
       travel_party: r.travel_party ?? '',
       trip_context: r.trip_context ?? '',
+      participant:  r.participant  ?? '',
+      image_url:    '',
     }));
 }
 
+function parseParticipantImages(rows: string[][]): Map<string, string> {
+  const map = new Map<string, string>();
+  rowsToObjects(rows).forEach(r => {
+    const name = (r.name ?? '').trim().toLowerCase();
+    const url  = (r.image_url ?? '').trim();
+    if (name && url) map.set(name, url);
+  });
+  return map;
+}
+
 export async function fetchQuotes(): Promise<QuoteEntry[]> {
-  const rows = await fetchTab(TABS.quoteBank);
-  return parseQuotes(rows);
+  const [quoteRows, imageRows] = await Promise.all([
+    fetchTab(TABS.quoteBank),
+    fetchTab(TABS.participantImages),
+  ]);
+  const images = parseParticipantImages(imageRows);
+  return parseQuotes(quoteRows).map(q => ({
+    ...q,
+    image_url: images.get(q.participant.trim().toLowerCase()) ?? '',
+  }));
 }
 
 // ── Orchestrator ──────────────────────────────────────────────────────────────

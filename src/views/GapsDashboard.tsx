@@ -123,7 +123,7 @@ function QuoteCard({
 
       <div className="border-t border-grey-20 pt-[17px] flex gap-4">
         <img
-          src={PLACEHOLDER_IMAGE}
+          src={quote.image_url || PLACEHOLDER_IMAGE}
           alt=""
           className="w-[72px] h-[72px] rounded shrink-0 object-cover"
         />
