@@ -3,18 +3,17 @@ import { useNavigate } from 'react-router-dom';
 interface ToolCardProps {
   icon: string;
   title: string;
-  description: string;
+  bullets: string[];
+  useFor: string;
   href: string;
-  variant: 'sydney' | 'nsw';
 }
 
-function ToolCard({ icon, title, description, href, variant }: ToolCardProps) {
+function ToolCard({ icon, title, bullets, useFor, href }: ToolCardProps) {
   const navigate = useNavigate();
-  const isSydney = variant === 'sydney';
 
   const handleClick = () => {
     if (href.startsWith('/#/')) {
-      navigate(href.slice(2)); // strip '#'
+      navigate(href.slice(2));
     } else {
       window.location.href = href;
     }
@@ -24,33 +23,30 @@ function ToolCard({ icon, title, description, href, variant }: ToolCardProps) {
     <button
       onClick={handleClick}
       className="bg-white border border-grey-20 rounded-2xl p-8 text-left relative overflow-hidden
-                 transition-all hover:shadow-lg hover:-translate-y-0.5 group w-full"
+                 transition-all hover:shadow-lg hover:-translate-y-0.5 group w-full flex flex-col"
     >
-      {/* Colour-coded top strip */}
-      <div
-        className={`absolute top-0 left-0 right-0 h-1 ${
-          isSydney ? 'bg-blue-70' : 'bg-green-80'
-        }`}
-      />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-blue-70" />
 
-      {/* Icon */}
       <div
-        className={`w-13 h-13 rounded-xl flex items-center justify-center text-2xl mb-4 ${
-          isSydney ? 'bg-blue-10' : 'bg-green-10'
-        }`}
+        className="rounded-xl flex items-center justify-center text-2xl mb-4 bg-blue-10"
         style={{ width: 52, height: 52 }}
       >
         {icon}
       </div>
 
-      <h3 className="text-lg font-semibold text-grey-90 mb-2">{title}</h3>
-      <p className="text-base text-grey-60 leading-relaxed mb-4">{description}</p>
+      <h3 className="text-lg font-semibold text-grey-90 mb-3">{title}</h3>
 
-      <span
-        className={`text-base font-semibold flex items-center gap-1 ${
-          isSydney ? 'text-blue-70' : 'text-green-70'
-        }`}
-      >
+      <ul className="text-base text-grey-60 leading-relaxed mb-4 space-y-1.5 list-disc pl-5">
+        {bullets.map((b) => (
+          <li key={b}>{b}</li>
+        ))}
+      </ul>
+
+      <p className="text-base text-grey-90 mb-4 mt-auto">
+        <span className="font-semibold">Use this for:</span> {useFor}
+      </p>
+
+      <span className="text-base font-semibold flex items-center gap-1 text-blue-70">
         Open tool
         <span className="transition-transform group-hover:translate-x-0.5">→</span>
       </span>
@@ -58,16 +54,72 @@ function ToolCard({ icon, title, description, href, variant }: ToolCardProps) {
   );
 }
 
+const TOOLS: ToolCardProps[] = [
+  {
+    icon: '🧭',
+    title: 'User Journey Map',
+    bullets: [
+      'How users think, feel, and act across the trip',
+      'Trip-type overlays on a universal flow',
+      'Pain points and opportunities at each touchpoint',
+    ],
+    useFor: 'understanding the end-to-end experience before, during, and after a trip.',
+    href: '/#/journey-map/ujm',
+  },
+  {
+    icon: '📋',
+    title: 'User Story Map',
+    bullets: [
+      'Stages broken into activities and steps',
+      'Per-step rating of how well our sites support the user',
+      'Visible gaps and strengths across the journey',
+    ],
+    useFor: 'prioritising website features by where users are least supported.',
+    href: '/#/journey-map/usm',
+  },
+  {
+    icon: '✍️',
+    title: 'Adaptive Content',
+    bullets: [
+      'Content rules mapped by type × audience segment',
+      'Variant guidance with rationale for each cell',
+      'Confidence levels flagged for every recommendation',
+    ],
+    useFor: 'writing or briefing content that adapts to segment and context.',
+    href: '/#/journey-map/content',
+  },
+  {
+    icon: '💬',
+    title: 'Quote Bank',
+    bullets: [
+      'Direct quotes from user research',
+      'Filter by segment, sentiment, and theme',
+      'Sourced and attributed for evidence',
+    ],
+    useFor: 'backing a recommendation or insight with real user voice.',
+    href: '/#/journey-map/quotes',
+  },
+  {
+    icon: '🗂️',
+    title: 'Sitemap',
+    bullets: [
+      'Site information architecture at a glance',
+      'Page-level metadata and types',
+      'Navigation flows between sections',
+    ],
+    useFor: 'reviewing structure before content changes or new pages.',
+    href: '/#/journey-map/sitemap',
+  },
+];
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-grey-10 flex flex-col">
-      {/* Header */}
       <header className="bg-green-80 px-10 h-14 flex items-center">
         <h1 className="text-white font-semibold text-lg">Tools</h1>
       </header>
 
-      {/* Main */}
-      <main className="flex-1 max-w-screen-md mx-auto w-full px-10 py-16">
+      <main className="flex-1 max-w-screen-xl mx-auto w-full px-10 py-16">
         <section className="mb-14">
           <h2 className="text-4xl font-bold text-grey-90 mb-3 tracking-tight">
             Welcome to the tools hub
@@ -78,25 +130,13 @@ export default function HomePage() {
           </p>
         </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <ToolCard
-            icon="🗺️"
-            title="Customer Journey Map"
-            description="Visualise the end-to-end experience of your customers, identify pain points, and uncover opportunities to improve every touchpoint."
-            href="/#/journey-map"
-            variant="sydney"
-          />
-          <ToolCard
-            icon="👤"
-            title="Personas"
-            description="Build rich, research-backed personas to align your team around a shared understanding of who your users are and what they need."
-            href="/#/journey-map/personas"
-            variant="nsw"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {TOOLS.map((t) => (
+            <ToolCard key={t.title} {...t} />
+          ))}
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="text-center py-7 text-base text-grey-40 border-t border-grey-20">
         &copy; 2026 Tools Hub. All rights reserved.
       </footer>
