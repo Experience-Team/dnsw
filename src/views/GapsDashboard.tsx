@@ -319,14 +319,15 @@ export default function GapsDashboard() {
             No quotes match the current filters.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
             {filtered.map(q => (
-              <QuoteCard
-                key={q.quote_id || q.quote}
-                quote={q}
-                activeTheme={themeFilter}
-                onThemeClick={handleThemeClick}
-              />
+              <div key={q.quote_id || q.quote} className="break-inside-avoid mb-4">
+                <QuoteCard
+                  quote={q}
+                  activeTheme={themeFilter}
+                  onThemeClick={handleThemeClick}
+                />
+              </div>
             ))}
           </div>
         )}
