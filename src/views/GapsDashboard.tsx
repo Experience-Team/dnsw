@@ -13,6 +13,8 @@ const SEGMENTS = [
 
 const SENTIMENTS = ['All', 'Positive', 'Neutral', 'Negative'] as const;
 
+const PLACEHOLDER_IMAGE = 'https://res.cloudinary.com/driwnxikm/image/upload/q_auto/f_auto/v1779366388/Boris_kiwdl2.png';
+
 function sentenceCase(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
@@ -89,7 +91,7 @@ function QuoteCard({
     .filter(Boolean);
 
   return (
-    <div className="bg-white rounded-xl p-5 flex flex-col gap-4">
+    <div className="bg-white rounded-xl px-5 pt-5 pb-[22px] flex flex-col gap-4">
       <blockquote className="text-blue-90 text-base leading-relaxed">
         "{quote.quote}"
       </blockquote>
@@ -119,14 +121,19 @@ function QuoteCard({
         </div>
       )}
 
-      {(quote.segment || quote.stage || quote.travel_party || quote.sentiment) && (
-        <div className="border-t border-grey-20 pt-3 flex flex-wrap gap-x-4 gap-y-2 text-base text-blue-90">
-          {quote.segment      && <span><span className="font-bold">Segment: </span>{sentenceCase(quote.segment)}</span>}
-          {quote.stage        && <span><span className="font-bold">Stage: </span>{quote.stage}</span>}
-          {quote.travel_party && <span><span className="font-bold">Travel party: </span>{quote.travel_party}</span>}
-          {quote.sentiment    && <span><span className="font-bold">Sentiment: </span>{quote.sentiment}</span>}
+      <div className="border-t border-grey-20 pt-[17px] flex gap-4">
+        <img
+          src={PLACEHOLDER_IMAGE}
+          alt=""
+          className="w-[72px] h-[72px] rounded shrink-0 object-cover"
+        />
+        <div className="flex flex-col gap-2 text-base text-blue-90">
+          {quote.segment      && <p><span className="font-bold">Segment: </span>{sentenceCase(quote.segment)}</p>}
+          {quote.stage        && <p><span className="font-bold">Stage: </span>{quote.stage}</p>}
+          {quote.travel_party && <p><span className="font-bold">Travel party: </span>{quote.travel_party}</p>}
+          {quote.sentiment    && <p><span className="font-bold">Sentiment: </span>{quote.sentiment}</p>}
         </div>
-      )}
+      </div>
     </div>
   );
 }
