@@ -125,7 +125,7 @@ function QuoteCard({
         <img
           src={quote.image_url || PLACEHOLDER_IMAGE}
           alt=""
-          className="w-[72px] h-[72px] rounded shrink-0 object-cover"
+          className="w-20 h-20 rounded shrink-0 object-cover"
         />
         <div className="flex flex-col gap-1 text-sm text-blue-90">
           {quote.participant  && <p><span className="font-bold">Participant: </span>{quote.participant}</p>}
