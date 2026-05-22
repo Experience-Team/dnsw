@@ -22,7 +22,7 @@ function ToolCard({ icon, title, bullets, useFor, href }: ToolCardProps) {
   return (
     <button
       onClick={handleClick}
-      className="bg-white border border-grey-20 rounded-2xl p-8 text-left relative overflow-hidden
+      className="bg-[#ff69b4] border border-grey-20 rounded-2xl p-8 text-left relative overflow-hidden
                  transition-all hover:shadow-lg hover:-translate-y-0.5 group w-full flex flex-col"
     >
       <div
