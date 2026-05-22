@@ -321,6 +321,7 @@ export interface QuoteEntry {
   travel_party: string;
   trip_context: string;
   participant:  string;
+  alias:        string;
   image_url:    string;
 }
 
@@ -338,6 +339,7 @@ function parseQuotes(rows: string[][]): QuoteEntry[] {
       travel_party: r.travel_party ?? '',
       trip_context: r.trip_context ?? '',
       participant:  r.participant  ?? '',
+      alias:        '',
       image_url:    '',
     }));
 }
@@ -351,12 +353,20 @@ function normalizeName(s: string): string {
     .trim();
 }
 
-function parseParticipantImages(rows: string[][]): Map<string, string> {
-  const map = new Map<string, string>();
+interface ParticipantInfo {
+  imageUrl: string;
+  alias:    string;
+}
+
+function parseParticipantImages(rows: string[][]): Map<string, ParticipantInfo> {
+  const map = new Map<string, ParticipantInfo>();
   rowsToObjects(rows).forEach(r => {
     const name = normalizeName(r.name ?? '');
-    const url  = (r.image_url ?? '').trim();
-    if (name && url) map.set(name, url);
+    if (!name) return;
+    map.set(name, {
+      imageUrl: (r.image_url ?? '').trim(),
+      alias:    (r.alias ?? '').trim(),
+    });
   });
   return map;
 }
@@ -367,10 +377,14 @@ export async function fetchQuotes(): Promise<QuoteEntry[]> {
     fetchTab(TABS.participantImages),
   ]);
   const images = parseParticipantImages(imageRows);
-  return parseQuotes(quoteRows).map(q => ({
-    ...q,
-    image_url: images.get(normalizeName(q.participant)) ?? '',
-  }));
+  return parseQuotes(quoteRows).map(q => {
+    const info = images.get(normalizeName(q.participant));
+    return {
+      ...q,
+      alias:     info?.alias ?? '',
+      image_url: info?.imageUrl ?? '',
+    };
+  });
 }
 
 // ── Orchestrator ──────────────────────────────────────────────────────────────
