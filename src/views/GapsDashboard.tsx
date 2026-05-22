@@ -91,7 +91,7 @@ function QuoteCard({
     .filter(Boolean);
 
   return (
-    <div className="bg-white rounded-xl px-5 pt-5 pb-[22px] flex flex-col gap-4">
+    <div className="bg-[#ff69b4] rounded-xl px-5 pt-5 pb-[22px] flex flex-col gap-4">
       <blockquote className="text-blue-90 text-base leading-relaxed">
         "{quote.quote}"
       </blockquote>
