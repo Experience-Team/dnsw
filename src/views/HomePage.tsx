@@ -34,7 +34,7 @@ function ToolCard({ icon, title, bullets, useFor, href }: ToolCardProps) {
 
       <h3 className="text-lg font-semibold text-grey-90 mb-3">{title}</h3>
 
-      <ul className="text-sm text-grey-60 leading-snug mb-4 space-y-1">
+      <ul className="text-base text-grey-60 leading-snug mb-4 space-y-1.5">
         {bullets.map((b) => (
           <li key={b} className="flex gap-2">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0 mt-0.5 text-blue-70" aria-hidden="true">
