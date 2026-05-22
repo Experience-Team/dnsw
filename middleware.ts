@@ -1,4 +1,4 @@
-export const config = { matcher: '/((?!favicon.ico).*)' };
+export const config = { matcher: '/((?!assets/|favicon.ico).*)' };
 
 export default function middleware(request: Request) {
   const auth = request.headers.get('authorization');
