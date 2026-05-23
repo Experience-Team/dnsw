@@ -297,7 +297,7 @@ export default function GapsDashboard() {
         </div>
 
         {/* Clear all footer */}
-        <div className="border-t border-grey-20 shrink-0 flex justify-center py-8">
+        <div className="border-t border-grey-20 shrink-0 flex justify-center py-8 drop-shadow-[0px_0px_21px_rgba(0,0,0,0.65)]">
           <button
             type="button"
             onClick={clearAllFilters}
