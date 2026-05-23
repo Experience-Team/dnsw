@@ -389,6 +389,15 @@ export async function fetchQuotes(): Promise<QuoteEntry[]> {
 
 // ── Orchestrator ──────────────────────────────────────────────────────────────
 
+async function fetchTabSafe(gid: number, name: string): Promise<string[][]> {
+  try {
+    return await fetchTab(gid);
+  } catch (e) {
+    console.warn(`Could not load the "${name}" sheet tab (gid ${gid}); continuing without it.`, e);
+    return [];
+  }
+}
+
 export async function fetchAllSheetData(): Promise<SheetData> {
   const [
     cjmRows,
@@ -398,12 +407,12 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     ujmRows,
     sitemapRows,
   ] = await Promise.all([
-    fetchTab(TABS.cjm),
-    fetchTab(TABS.usm),
-    fetchTab(TABS.adaptiveContent),
-    fetchTab(TABS.quoteBank),
-    fetchTab(TABS.ujm),
-    fetchTab(TABS.sitemap),
+    fetchTabSafe(TABS.cjm, 'Customer Journey Map'),
+    fetchTabSafe(TABS.usm, 'User Story Map'),
+    fetchTabSafe(TABS.adaptiveContent, 'Adaptive Content'),
+    fetchTabSafe(TABS.quoteBank, 'Quote Bank'),
+    fetchTabSafe(TABS.ujm, 'User Journey Map'),
+    fetchTabSafe(TABS.sitemap, 'Sitemap'),
   ]);
 
   return {
