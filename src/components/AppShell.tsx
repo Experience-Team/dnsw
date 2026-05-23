@@ -75,7 +75,7 @@ export default function AppShell() {
             <Link
               to="/"
               aria-label="Home"
-              className="px-[14px] py-[8px] rounded-[6px] border border-blue-20
+              className="h-[34px] px-[14px] py-[8px] rounded-[6px] border border-blue-20
                          text-blue-30 hover:text-white hover:border-white transition-all flex items-center"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
