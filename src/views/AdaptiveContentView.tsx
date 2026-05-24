@@ -46,7 +46,7 @@ const CONFIDENCE_BLURB: Record<ConfidenceLevel, string> = {
   low:    'Lightly evidenced — treat as a hypothesis',
 };
 
-const CONFIDENCE_ORDER: ConfidenceLevel[] = ['high', 'medium'];
+const CONFIDENCE_ORDER: ConfidenceLevel[] = ['high', 'medium', 'low'];
 
 function CellPopover({
   rule,
