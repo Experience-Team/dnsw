@@ -73,12 +73,12 @@ function CellPopover({
         </div>
         <div className="flex flex-col gap-1 pt-3">
           <h4 className="text-base font-bold text-blue-90 leading-6 capitalize">{rule.segment}</h4>
-          <p className="text-base text-blue-90 leading-[26px]">{rule.variant_guidance}</p>
+          <p className="text-base text-blue-90 leading-[26px] text-pretty">{rule.variant_guidance}</p>
         </div>
         {rule.rationale && (
           <div className="flex flex-col gap-1 pt-3">
             <h4 className="text-base font-bold text-blue-90 leading-6">Why this variant</h4>
-            <p className="text-base text-blue-90 leading-[22px]">{rule.rationale}</p>
+            <p className="text-base text-blue-90 leading-[22px] text-pretty">{rule.rationale}</p>
           </div>
         )}
         <div className="flex items-center gap-1.5 pt-3 text-sm text-blue-90 leading-5">
@@ -267,7 +267,7 @@ export default function AdaptiveContentView() {
                             <line x1="4.5" y1="5.5" x2="1" y2="9" />
                           </svg>
                         </span>
-                        <p className="text-base leading-snug pl-4 pr-3">{rule.summary || rule.variant_guidance}</p>
+                        <p className="text-base leading-snug pl-4 pr-3 text-pretty">{rule.summary || rule.variant_guidance}</p>
                       </button>
                     </td>
                   );
