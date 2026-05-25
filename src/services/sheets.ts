@@ -256,6 +256,7 @@ function parseAdaptiveContent(rows: string[][]): AdaptiveContent[] {
       content_type:     (r.content_type ?? '').trim(),
       site:             parseCjmSite(r.site),
       segment:          (r.segment ?? '').trim(),
+      summary:          (r.summary ?? '').trim(),
       variant_guidance: (r.variant_guidance ?? '').trim(),
       rationale:        (r.rationale ?? '').trim(),
       confidence:       parseConfidence(r.confidence),

@@ -89,6 +89,7 @@ export interface AdaptiveContent {
   content_type:     string;
   site:             CjmSite;
   segment:          string;
+  summary:          string;
   variant_guidance: string;
   rationale:        string;
   confidence:       ConfidenceLevel;

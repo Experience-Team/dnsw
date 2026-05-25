@@ -267,7 +267,7 @@ export default function AdaptiveContentView() {
                             <line x1="4.5" y1="5.5" x2="1" y2="9" />
                           </svg>
                         </span>
-                        <p className="text-base leading-snug pl-4 pr-3 line-clamp-5">{rule.variant_guidance}</p>
+                        <p className="text-base leading-snug pl-4 pr-3">{rule.summary || rule.variant_guidance}</p>
                       </button>
                     </td>
                   );
