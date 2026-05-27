@@ -148,6 +148,7 @@ export default function GapsDashboard() {
   const [stageFilter, setStageFilter]       = useState('');
   const [travelPartyFilter, setTravelParty] = useState('');
   const [themeFilter, setThemeFilter]       = useState('');
+  const [shuffleSeed, setShuffleSeed]       = useState(0);
 
   useEffect(() => {
     fetchQuotes()
@@ -179,6 +180,16 @@ export default function GapsDashboard() {
     filterQuotes(quotes, segmentFilter, sentimentFilter, stageFilter, travelPartyFilter, themeFilter),
     [quotes, segmentFilter, sentimentFilter, stageFilter, travelPartyFilter, themeFilter]
   );
+
+  const displayed = useMemo(() => {
+    if (shuffleSeed === 0) return filtered;
+    const result = [...filtered];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }, [filtered, shuffleSeed]);
 
   // Base sets per dimension (all other filters applied) for faceted counts
   const segBase  = useMemo(() => filterQuotes(quotes, '',           sentimentFilter, stageFilter, travelPartyFilter, themeFilter), [quotes, sentimentFilter, stageFilter, travelPartyFilter, themeFilter]);
@@ -310,9 +321,23 @@ export default function GapsDashboard() {
 
       {/* Cards grid */}
       <div className="ml-[316px]">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
-          <p className="text-base text-blue-90/60 mt-0.5">Direct quotes from user research. Filter by segment, sentiment, and theme to focus the view.</p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
+            <p className="text-base text-blue-90/60 mt-0.5">Direct quotes from user research. Filter by segment, sentiment, and theme to focus the view.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShuffleSeed(Date.now())}
+            disabled={filtered.length < 2}
+            className="shrink-0 text-base text-blue-90 px-4 py-1.5 rounded-full bg-white hover:bg-blue-10 transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2.5 4h2.2l1.6 2M13.5 4h-2.2L6 12H4.7l-2.2 0M13.5 12h-2.2l-1.6-2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M11.8 2.5L13.5 4l-1.7 1.5M11.8 10.5L13.5 12l-1.7 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Shuffle
+          </button>
         </div>
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-blue-90/40">
@@ -320,7 +345,7 @@ export default function GapsDashboard() {
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
-            {filtered.map(q => (
+            {displayed.map(q => (
               <div key={q.quote_id || q.quote} className="break-inside-avoid mb-4">
                 <QuoteCard
                   quote={q}
