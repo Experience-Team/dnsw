@@ -250,7 +250,7 @@ export default function AdaptiveContentView() {
                     );
                   }
                   return (
-                    <td key={seg} className="px-1.5 py-2 align-top">
+                    <td key={seg} className="px-1.5 py-2 align-top h-full">
                       <button
                         onClick={() => setSelectedRule(rule)}
                         className="relative w-full h-full text-left rounded-md px-3 py-4 bg-white text-blue-90 hover:bg-white hover:shadow-md transition-shadow"

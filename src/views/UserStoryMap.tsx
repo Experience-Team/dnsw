@@ -75,6 +75,12 @@ function StepPopover({ entry, onClose }: { entry: UsmEntry; onClose: () => void 
             <p><span className="font-bold">Step:</span> {entry.step}</p>
             <p><span className="font-bold">Phase:</span> {entry.stage}</p>
             <p><span className="font-bold">Activity:</span> <span className="capitalize">{entry.activity}</span></p>
+            {segments.length > 0 && (
+              <p>
+                <span className="font-bold">Audience:</span>{' '}
+                {segments.map(seg => AUDIENCE_LABEL[seg] ?? seg).join(', ')}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -84,19 +90,6 @@ function StepPopover({ entry, onClose }: { entry: UsmEntry; onClose: () => void 
             ✕
           </button>
         </div>
-        {segments.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap pt-1 text-base text-blue-90">
-            <span className="font-bold shrink-0">Audience:</span>
-            {segments.map(seg => (
-              <span
-                key={seg}
-                className="text-base text-blue-90 px-4 py-1 rounded-full bg-blue-10"
-              >
-                {AUDIENCE_LABEL[seg] ?? seg}
-              </span>
-            ))}
-          </div>
-        )}
         <div className="flex flex-col gap-1 w-full">
           <h4 className="pt-3 text-base font-bold text-blue-90 leading-6">Why this rating</h4>
           <div className="flex items-center gap-1.5 pt-1 text-sm text-blue-90 leading-5">
