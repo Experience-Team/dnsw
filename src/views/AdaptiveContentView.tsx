@@ -73,12 +73,12 @@ function CellPopover({
         </div>
         <div className="flex flex-col gap-1 pt-3">
           <h4 className="text-base font-bold text-blue-90 leading-6 capitalize">{rule.segment}</h4>
-          <p className="text-base text-blue-90 leading-[26px] text-pretty">{rule.variant_guidance}</p>
+          <p className="text-base text-blue-90 leading-relaxed text-pretty">{rule.variant_guidance}</p>
         </div>
         {rule.rationale && (
           <div className="flex flex-col gap-1 pt-3">
             <h4 className="text-base font-bold text-blue-90 leading-6">Why this variant</h4>
-            <p className="text-base text-blue-90 leading-[22px] text-pretty">{rule.rationale}</p>
+            <p className="text-base text-blue-90 leading-relaxed text-pretty">{rule.rationale}</p>
           </div>
         )}
         <div className="flex items-center gap-1.5 pt-3 text-sm text-blue-90 leading-5">
