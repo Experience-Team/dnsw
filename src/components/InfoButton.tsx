@@ -23,8 +23,8 @@ export default function InfoButton({ title, bullets, useFor }: InfoButtonProps) 
         type="button"
         aria-label={`About ${title}`}
         onClick={() => setOpen(true)}
-        className="inline-flex items-center justify-center w-6 h-6 rounded-full border-2 border-blue-90/30
-                   text-blue-90/50 hover:border-blue-90 hover:text-blue-90 transition-colors text-sm font-bold leading-none"
+        className="inline-flex items-center justify-center w-3 h-3 rounded-full border border-blue-90/30
+                   text-blue-90/50 hover:border-blue-90 hover:text-blue-90 transition-colors text-[8px] font-bold leading-none self-start mt-1"
       >
         ?
       </button>
