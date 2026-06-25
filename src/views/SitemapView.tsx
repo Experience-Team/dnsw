@@ -2,6 +2,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { SitemapNode } from '../types';
+import InfoButton from '../components/InfoButton';
 
 const STACK_DEPTH  = 2;    // children of depth ≥ STACK_DEPTH stack vertically
 const NODE_W       = 200;
@@ -302,6 +303,17 @@ export default function SitemapView() {
         </div>
       </div>
       */}
+
+      <div className="mb-2">
+        <h1 className="text-2xl font-bold text-blue-90 inline-flex items-center gap-2">
+          Sitemap
+          <InfoButton
+            title="Sitemap"
+            bullets={['Site information architecture at a glance', 'Page-level metadata and types', 'Navigation flows between sections']}
+            useFor="reviewing structure before content changes or new pages."
+          />
+        </h1>
+      </div>
 
       <iframe
         title="FigJam sitemap"

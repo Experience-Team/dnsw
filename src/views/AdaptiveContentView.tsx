@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, Fragment } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { AdaptiveContent, ConfidenceLevel } from '../types';
+import InfoButton from '../components/InfoButton';
 
 type AdaptiveSite = 'sydney' | 'visitnsw';
 
@@ -153,7 +154,14 @@ export default function AdaptiveContentView() {
       className="-mx-10 -my-6 px-10 py-6 bg-blue-10 min-h-[calc(100vh-3.5rem)]"
     >
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-blue-90">Adaptive Content</h1>
+        <h1 className="text-2xl font-bold text-blue-90 inline-flex items-center gap-2">
+          Adaptive Content
+          <InfoButton
+            title="Adaptive Content"
+            bullets={['Content rules mapped by type × audience segment', 'Variant guidance with rationale for each cell', 'Confidence levels flagged for every recommendation']}
+            useFor="writing or briefing content that adapts to segment and context."
+          />
+        </h1>
         <p className="text-base text-blue-90/60 mt-0.5">Content rules mapped by type and audience segment. Each cell defines what changes for a given context.</p>
       </div>
 

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { SupportRating, UsmEntry } from '../types';
+import InfoButton from '../components/InfoButton';
 
 
 const RATING_COLOR: Record<SupportRating, string> = {
@@ -208,7 +209,14 @@ export default function UserStoryMap() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-blue-90">User Story Map</h1>
+        <h1 className="text-2xl font-bold text-blue-90 inline-flex items-center gap-2">
+          User Story Map
+          <InfoButton
+            title="User Story Map"
+            bullets={['Stages broken into activities and steps', 'Per-step rating of how well our sites support the user', 'Visible gaps and strengths across the journey']}
+            useFor="prioritising website features by where users are least supported."
+          />
+        </h1>
         <p className="text-base text-blue-90/60 mt-0.5">Each step is rated by how well our sites support it, making gaps and strengths visible to guide feature prioritisation. <span className="font-bold">This only applies to our websites, not all channels (e.g. social media).</span></p>
       </div>
 

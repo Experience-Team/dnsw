@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
+import InfoButton from '../components/InfoButton';
 import { fetchQuotes } from '../services/sheets';
 import type { QuoteEntry } from '../services/sheets';
 
@@ -323,7 +324,14 @@ export default function GapsDashboard() {
       <div className="ml-[316px]">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-blue-90">Quote Bank</h1>
+            <h1 className="text-2xl font-bold text-blue-90 inline-flex items-center gap-2">
+              Quote Bank
+              <InfoButton
+                title="Quote Bank"
+                bullets={['Direct quotes from user research', 'Filter by segment, sentiment, and theme', 'Sourced and attributed for evidence']}
+                useFor="backing a recommendation or insight with real user voice."
+              />
+            </h1>
             <p className="text-base text-blue-90/60 mt-0.5">Direct quotes from user research. Filter by segment, sentiment, and theme to focus the view.</p>
           </div>
           <button
