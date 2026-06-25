@@ -1,0 +1,6 @@
+/* Visit NSW theme — placeholder colours until Figma audit confirms values */
+.theme-nsw {
+  --color-primary:    #1a3a1a;
+  --color-accent:     #2e5c2e;
+  --color-logo-text:  #ffffff;
+}
