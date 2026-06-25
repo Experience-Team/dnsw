@@ -1,6 +1,6 @@
 # Wireframe Builder — Skill
 
-Build low-fidelity, greyscale HTML/CSS wireframes that mimic the structure of the Destination NSW live sites (sydney.com and visitnsw.com). Output is rendered in-browser with no real imagery or colour beyond greyscale.
+Build low-fidelity, greyscale HTML/CSS wireframes that mimic the structure of the Destination NSW live sites (sydney.com and visitnsw.com). Output is rendered in-browser with no real imagery or colour beyond greyscale, plus themed accent colours per site.
 
 ---
 
@@ -18,79 +18,98 @@ Use this skill when the user asks to:
 
 ```
 wireframes/
-  index.html          ← entry point; loads the shell + page switcher
-  shell.html          ← utility bar + nav + footer (included by all pages)
-  shared.css          ← base wireframe styles, layout grid, typography scale
+  index.html            ← launch screen; lists all pages (disabled until built)
+  shared.css            ← all wireframe styles and component CSS classes
+  includes.js           ← fetches [data-include] partials; no build step needed
   components/
-    nav.html          ← main navigation (site-wide)
-    utility-bar.html  ← top bar: site switcher + page switcher dropdown
-    hero.html         ← hero/banner component
-    card.html         ← generic content card
-    footer.html       ← site footer
-    [add more here]
+    nav.html            ← sticky nav: hamburger | logo+toggle | search | wishlist
+    hero.html           ← full-width hero with text overlay bottom-left
+    newsletter.html     ← "Discover Somewhere New" full-width banner
+    footer.html         ← social icons + acknowledgement + 5-col links + bottom bar
   pages/
-    home.html         ← homepage wireframe
+    home.html           ← homepage (Sydney/NSW switchable)
     [add more here]
   themes/
-    sydney.css        ← CSS variable overrides for Sydney theme
-    nsw.css           ← CSS variable overrides for NSW theme
+    sydney.css          ← --color-accent: #005EA2 (blue)
+    nsw.css             ← --color-accent: #00563C (green)
 ```
 
 **Rules:**
-- Every page imports `shared.css` and the active theme CSS.
-- Every page imports components via `<div data-include="...">` or equivalent include pattern — never copy-paste component HTML into a page file.
-- Add new pages to `wireframes/pages/`. Register them in the `PAGES` array in `index.html` (set `active: false` until the page is built).
-- Add new components to `wireframes/components/` and document them below.
+- `shared.css` defines all component CSS classes. Never add per-page `<style>` blocks for shared patterns — update `shared.css`.
+- Include nav, hero, newsletter, footer via `<div data-include="..."></div>`. These are the same across all pages.
+- Sections with variable content (carousels, grids, deals, text blocks) are written inline in each page file using the CSS classes from `shared.css`.
+- Add new pages to `wireframes/pages/` and register them in `index.html`. Set `class="disabled"` until built.
+- Scripts inside data-include partials execute normally after include.
 
 ---
 
 ## Component catalogue
 
-| File | Description | Status |
-|------|-------------|--------|
-| `utility-bar.html` | Top bar with site switcher and page dropdown | — |
-| `nav.html` | Primary navigation | — |
-| `hero.html` | Full-width hero/banner with headline placeholder | — |
-| `card.html` | Content card (image box + title + body placeholder) | — |
-| `footer.html` | Site footer with link columns | — |
+### Included via data-include (same structure on every page)
 
-> Update this table whenever a component is added or changed.
+| Component | File | Notes |
+|-----------|------|-------|
+| Nav | `nav.html` | Hamburger flyout with sub-menus; site toggle (sydney↔nsw) |
+| Hero | `hero.html` | Full-width checkerboard placeholder; headline + tagline overlay bottom-left |
+| Newsletter | `newsletter.html` | Full-width banner; heading, body, outline-white CTA |
+| Footer | `footer.html` | Social icons, acknowledgement, 5-col links, bottom bar with logo boxes |
+
+### CSS class components (inline in page HTML)
+
+| Pattern | Classes | Notes |
+|---------|---------|-------|
+| Intro block | `.intro-block` | h1 + body + "Read more" link; full-width white bg |
+| Section wrapper | `.section` | White bg; `.section-header` for title + view-all alignment |
+| Tab bar | `.tab-bar` | Horizontal tabs; add `.active` to selected button |
+| Card carousel | `.carousel` | Flex scroll row; wrap in `.carousel-wrap`; add `.carousel-nav` prev/next |
+| Event card | `.event-card` | Image + badge + venue + title + date + price + bookmark |
+| Content card (overlay) | `.content-card` | Square image with `.card-overlay` title + meta; use in `.grid-4` or `.grid-5` |
+| Article card | `.article-card` + `.featured`/`.small` | Full-bleed image with overlay tag + title |
+| News grid | `.news-grid` | 1 large left + 2 stacked right layout |
+| Deals card | `.deals-card` | Horizontal: image left + text body right |
+| Editorial / promo banner | `.promo-banner` | ~16rem tall; full-width image bg; white text + CTA overlay |
+| Text block | `.text-block` | 2-col text with heading |
+| Breadcrumb bar | `.page-switcher-bar` | Inner pages only: breadcrumb left + Share/Save right |
+
+### Grids
+- `.grid-5` — 5 equal columns (Discover the best / Places sections)
+- `.grid-4` — 4 equal columns (Season sections)
+- `.grid-3` — 3 equal columns
+- `.grid-2` — 2 equal columns
 
 ---
 
 ## Theme system
 
-Themes are CSS variable overrides applied by adding a class to `<body>`:
-- `class="theme-sydney"` → loads `themes/sydney.css`
-- `class="theme-nsw"` → loads `themes/nsw.css`
+Two themes, applied as a class on `<body>`:
 
-The site switcher in the utility bar toggles between these two classes. No structural HTML changes — only the variable values change.
+| Class | Site | Accent colour |
+|-------|------|--------------|
+| `theme-sydney` | sydney.com | `#005EA2` (blue) |
+| `theme-nsw` | visitnsw.com | `#00563C` (forest green) |
 
-**Core variables** (defined in `shared.css`):
-```css
---color-primary       /* nav/header background */
---color-accent        /* active states, CTAs */
---color-logo-text     /* logo wordmark colour */
-```
+The nav toggle switches both the body class and `#theme-sheet` href. Nav, buttons, tabs, links, and active states all use `var(--color-accent)` so they flip automatically. No HTML changes needed between themes.
 
 ---
 
 ## Wireframe style rules
 
-- Greyscale only: `#111`, `#444`, `#888`, `#bbb`, `#ddd`, `#f5f5f5`, `white`
-- Image placeholders: `background: #ddd` box with centred "Image" label
-- Text placeholders: lorem-style dummy text at appropriate size
+- Greyscale only: `#111`, `#444`, `#888`, `#bbb`, `#ccc`, `#f0f0f0`, `#f9f9f9`, `#fff`
+- Image placeholders: `.ph-img` — `background: var(--color-placeholder)` with "Image" label
+- Text placeholders: lorem-style dummy text at the appropriate scale
 - No shadows, gradients, or icon fonts — flat boxes only
-- Font: system-ui (no web font imports)
-- All measurements in `rem`
+- Font: `system-ui` — no web font imports
+- Accent colour (`var(--color-accent)`) used only for: CTAs, active tabs, links, nav toggle active state
 
 ---
 
 ## How to add a new page
 
-1. Create `wireframes/pages/<page-name>.html` — copy the page template below.
-2. Add the page to the `PAGES` array in `index.html` with `active: true`.
-3. Compose the page using existing components; create new component files if needed and add them to the catalogue above.
+1. Create `wireframes/pages/<page-name>.html` — copy the template below.
+2. Add to `index.html` pages list with `class="disabled"` until ready.
+3. Compose with `data-include` for nav/hero/newsletter/footer.
+4. Write sections inline using CSS classes from `shared.css`.
+5. If a new section pattern is needed, add its CSS to `shared.css` and document it in the component catalogue above.
 
 ### Page template
 
@@ -105,16 +124,19 @@ The site switcher in the utility bar toggles between these two classes. No struc
   <link rel="stylesheet" href="../themes/sydney.css" id="theme-sheet" />
 </head>
 <body class="theme-sydney">
-  <!-- Utility bar -->
-  <div data-include="../components/utility-bar.html"></div>
-  <!-- Nav -->
+
   <div data-include="../components/nav.html"></div>
+  <div data-include="../components/hero.html"></div>
 
-  <main>
-    <!-- Page content here, using component includes -->
-  </main>
+  <!-- Page sections go here -->
+  <div class="intro-block">
+    <div class="container">
+      <h1>Page title</h1>
+      <p>Intro text.</p>
+    </div>
+  </div>
 
-  <!-- Footer -->
+  <div data-include="../components/newsletter.html"></div>
   <div data-include="../components/footer.html"></div>
   <script src="../includes.js"></script>
 </body>
@@ -127,6 +149,5 @@ The site switcher in the utility bar toggles between these two classes. No struc
 
 | Date | What was added |
 |------|---------------|
-| — | Skill scaffolded; awaiting Figma audit |
-
-> Append a row each session.
+| 2026-06-25 | Skill scaffolded from Figma audit of Page 64 (sydney.com category page) |
+| 2026-06-25 | Homepage built (Sydney/NSW switchable); all component CSS in shared.css |

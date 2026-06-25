@@ -7,39 +7,33 @@
   <link rel="stylesheet" href="shared.css" />
   <style>
     body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .launch {
-      text-align: center;
-      max-width: 28rem;
-    }
+    .launch { text-align: center; max-width: 28rem; }
     .launch h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
     .launch p  { color: #888; font-size: .9375rem; margin-bottom: 2rem; }
     .launch ul { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
     .launch ul li a {
-      display: block;
+      display: flex; align-items: center; justify-content: space-between;
       padding: .75rem 1.25rem;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      text-decoration: none;
-      color: #111;
-      font-size: .9375rem;
+      background: #fff; border: 1px solid #ddd; border-radius: 6px;
+      text-decoration: none; color: #111; font-size: .9375rem;
       transition: box-shadow .15s;
     }
     .launch ul li a:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    .launch ul li a.disabled { color: #bbb; pointer-events: none; }
-    .launch ul li a span { float: right; font-size: .75rem; color: #bbb; margin-top: .1rem; }
+    .launch ul li a.disabled { color: #bbb; pointer-events: none; background: #fafafa; }
+    .launch ul li a span { font-size: .75rem; color: #bbb; }
   </style>
 </head>
 <body>
   <div class="launch">
     <h1>DNSW Wireframes</h1>
-    <p>Select a page to open. Pages not yet built are shown but inactive.</p>
+    <p>Select a page. Pages not yet built are shown but inactive.</p>
     <ul>
-      <li><a href="pages/home.html">Homepage <span>Sydney / NSW</span></a></li>
-      <!-- Add new pages below. Use class="disabled" for unbuilt pages. -->
+      <li><a href="pages/home.html">Homepage <span>Sydney / NSW ↗</span></a></li>
       <li><a class="disabled">Destination page <span>Coming soon</span></a></li>
-      <li><a class="disabled">Things to do <span>Coming soon</span></a></li>
-      <li><a class="disabled">Itineraries <span>Coming soon</span></a></li>
+      <li><a class="disabled">Category / Things to do <span>Coming soon</span></a></li>
+      <li><a class="disabled">Listing page <span>Coming soon</span></a></li>
+      <li><a class="disabled">Article page <span>Coming soon</span></a></li>
+      <li><a class="disabled">Deals &amp; packages <span>Coming soon</span></a></li>
     </ul>
   </div>
 </body>

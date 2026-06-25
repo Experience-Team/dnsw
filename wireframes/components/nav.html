@@ -1,8 +1,98 @@
 <nav class="site-nav">
-  <span class="logo">LOGO</span>
-  <a href="#">Destinations</a>
-  <a href="#">Things to do</a>
-  <a href="#">Plan your trip</a>
-  <a href="#">Deals</a>
-  <a href="#" class="disabled">Events (coming soon)</a>
+  <button class="nav-hamburger" onclick="document.getElementById('nav-menu').classList.add('open')" aria-label="Open menu">☰</button>
+  <a class="nav-logo" href="../index.html">
+    <span>sydney<span class="logo-dot">.</span>com</span>
+  </a>
+  <button class="nav-site-toggle" onclick="toggleSite(this)">▼</button>
+  <div class="nav-divider"></div>
+  <div class="nav-search">
+    <span>🔍</span>
+    <input type="text" placeholder="Search" readonly />
+  </div>
+  <div class="nav-spacer"></div>
+  <button class="nav-wishlist" aria-label="Wishlist">♡</button>
 </nav>
+
+<!-- Hamburger menu overlay -->
+<div id="nav-menu" class="nav-menu-overlay">
+  <div class="nav-menu-backdrop" onclick="document.getElementById('nav-menu').classList.remove('open')"></div>
+  <div class="nav-menu-panel">
+    <button class="nav-menu-close" onclick="document.getElementById('nav-menu').classList.remove('open')">✕ Close</button>
+
+    <!-- Site toggle inside menu -->
+    <div class="nav-menu-util">
+      <button class="active" onclick="setTheme('sydney',this.parentNode)">sydney.com</button>
+      <button onclick="setTheme('nsw',this.parentNode)">visitnsw.com</button>
+    </div>
+
+    <!-- Nav items -->
+    <div class="nav-menu-item" onclick="toggleSubmenu('sub-destinations')">
+      Destinations <span class="expand-icon">›</span>
+    </div>
+    <div id="sub-destinations" class="nav-submenu">
+      <a href="#">Sydney</a>
+      <a href="#">Blue Mountains</a>
+      <a href="#">Hunter Valley</a>
+      <a href="#">Byron Bay</a>
+      <a href="#">South Coast</a>
+      <a href="#">Central West</a>
+    </div>
+
+    <div class="nav-menu-item" onclick="toggleSubmenu('sub-todo')">
+      Things to do <span class="expand-icon">›</span>
+    </div>
+    <div id="sub-todo" class="nav-submenu">
+      <a href="#">Beaches</a>
+      <a href="#">Food & Wine</a>
+      <a href="#">Arts & Culture</a>
+      <a href="#">Outdoors & Adventure</a>
+      <a href="#">Family</a>
+      <a href="#">Wellness</a>
+    </div>
+
+    <div class="nav-menu-item" onclick="toggleSubmenu('sub-trips')">
+      Trips <span class="expand-icon">›</span>
+    </div>
+    <div id="sub-trips" class="nav-submenu">
+      <a href="#">Road trips</a>
+      <a href="#">Itineraries</a>
+      <a href="#">Weekend escapes</a>
+    </div>
+
+    <div class="nav-menu-item">Events</div>
+    <div class="nav-menu-item">Accommodation</div>
+    <div class="nav-menu-item">Deals</div>
+  </div>
+</div>
+
+<script>
+function toggleSubmenu(id) {
+  var el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+function toggleSite(btn) {
+  var current = document.body.classList.contains('theme-nsw') ? 'nsw' : 'sydney';
+  var next = current === 'sydney' ? 'nsw' : 'sydney';
+  setTheme(next, null);
+}
+function setTheme(theme, btnGroup) {
+  document.body.className = 'theme-' + theme;
+  var sheet = document.getElementById('theme-sheet');
+  if (sheet) sheet.href = sheet.href.replace(/themes\/\w+\.css/, 'themes/' + theme + '.css');
+  // Update logo text
+  var logos = document.querySelectorAll('.nav-logo span');
+  logos.forEach(function(l) {
+    if (!l.classList.contains('logo-dot')) {
+      l.childNodes.forEach(function(n) {
+        if (n.nodeType === 3) n.textContent = theme === 'sydney' ? 'sydney' : 'visitnsw';
+      });
+    }
+  });
+  // Sync menu buttons if btnGroup provided
+  if (btnGroup) {
+    btnGroup.querySelectorAll('button').forEach(function(b) {
+      b.classList.toggle('active', b.textContent.trim().startsWith(theme === 'sydney' ? 'sydney' : 'visitnsw'));
+    });
+  }
+}
+</script>

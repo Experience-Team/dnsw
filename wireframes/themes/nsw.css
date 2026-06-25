@@ -1,6 +1,5 @@
-/* Visit NSW theme — placeholder colours until Figma audit confirms values */
+/* VisitNSW.com theme */
 .theme-nsw {
-  --color-primary:    #1a3a1a;
-  --color-accent:     #2e5c2e;
-  --color-logo-text:  #ffffff;
+  --color-primary: #00563C;
+  --color-accent:  #00563C;
 }
