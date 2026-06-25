@@ -17,7 +17,7 @@ Use this skill when the user asks to:
 ## File structure
 
 ```
-wireframes/
+public/wireframes/
   index.html            ← launch screen; lists all pages (disabled until built)
   shared.css            ← all wireframe styles and component CSS classes
   includes.js           ← fetches [data-include] partials; no build step needed
