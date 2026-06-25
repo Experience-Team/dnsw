@@ -1,5 +1,6 @@
 import { useState, useMemo, type ReactNode } from 'react';
 import { useAppContext } from '../context/AppContext';
+import InfoButton from '../components/InfoButton';
 import type { UjmEntry, UjmLayer, UjmRowType } from '../types';
 import { DeviceIcon } from '../icons/DeviceIcon';
 import { SiInstagram, SiGoogle, SiPinterest, SiBookingdotcom, SiAirbnb, SiFacebook, SiReddit, SiTripadvisor } from '@icons-pack/react-simple-icons';
@@ -275,7 +276,14 @@ export default function UserJourneyMapView() {
   return (
     <div className="bg-blue-10 -mx-10 -my-6 px-10 pt-6 min-h-[calc(100vh-3.5rem)] flex flex-col">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-blue-90">User Journey Map</h1>
+        <h1 className="text-2xl font-bold text-blue-90 inline-flex items-center gap-2">
+            User Journey Map
+            <InfoButton
+              title="User Journey Map"
+              bullets={['How users think, feel, and act across the trip', 'Trip-type overlays on a universal flow', 'Pain points and opportunities at each touchpoint']}
+              useFor="understanding the end-to-end experience before, during, and after a trip."
+            />
+          </h1>
         <p className="text-base text-blue-90/60 mt-0.5">How users think, feel, and act across the trip journey. Select a trip type to overlay layered variations on the universal flow.</p>
       </div>
 
