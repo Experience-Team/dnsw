@@ -102,6 +102,16 @@ const TOOLS: ToolCardProps[] = [
     href: '/#/journey-map/quotes',
   },
   {
+    icon: '🎨',
+    title: 'UX',
+    bullets: [
+      'Prototypes and design explorations',
+      'Work in progress',
+    ],
+    useFor: 'reviewing and sharing UX prototypes.',
+    href: '/#/ux',
+  },
+  {
     icon: '🗺️',
     title: 'Sitemap',
     bullets: [
