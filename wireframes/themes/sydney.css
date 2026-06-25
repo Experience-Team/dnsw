@@ -1,0 +1,6 @@
+/* Sydney theme — placeholder colours until Figma audit confirms values */
+.theme-sydney {
+  --color-primary:    #1a1a2e;
+  --color-accent:     #3a3a5c;
+  --color-logo-text:  #ffffff;
+}
