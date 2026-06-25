@@ -2,7 +2,6 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import AppShell from './components/AppShell';
 import HomePage from './views/HomePage';
-import UXPage from './views/UXPage';
 import UserJourneyMapView from './views/UserJourneyMapView';
 import CustomerJourneyMapView from './views/CustomerJourneyMapView';
 import AdaptiveContentView from './views/AdaptiveContentView';
@@ -23,7 +22,6 @@ export default function App() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/ux" element={<UXPage />} />
         <Route path="/journey-map" element={<JourneyMapLayout />}>
           <Route index element={<Navigate to="ujm" replace />} />
           <Route path="ujm"     element={<UserJourneyMapView />} />

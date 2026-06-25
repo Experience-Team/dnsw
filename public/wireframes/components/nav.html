@@ -1,9 +1,8 @@
 <nav class="site-nav">
   <button class="nav-hamburger" onclick="document.getElementById('nav-menu').classList.add('open')" aria-label="Open menu">☰</button>
   <a class="nav-logo" href="../index.html">
-    <span>sydney<span class="logo-dot">.</span>com</span>
+    <span id="nav-logo-text">sydney<span class="logo-dot">.</span>com</span>
   </a>
-  <button class="nav-site-toggle" onclick="toggleSite(this)">▼</button>
   <div class="nav-divider"></div>
   <div class="nav-search">
     <span>🔍</span>
@@ -19,10 +18,10 @@
   <div class="nav-menu-panel">
     <button class="nav-menu-close" onclick="document.getElementById('nav-menu').classList.remove('open')">✕ Close</button>
 
-    <!-- Site toggle inside menu -->
-    <div class="nav-menu-util">
-      <button class="active" onclick="setTheme('sydney',this.parentNode)">sydney.com</button>
-      <button onclick="setTheme('nsw',this.parentNode)">visitnsw.com</button>
+    <!-- Site toggle -->
+    <div class="nav-menu-util" id="nav-site-btns">
+      <button id="btn-sydney" onclick="switchSite('sydney')">sydney.com</button>
+      <button id="btn-nsw" onclick="switchSite('nsw')">visitnsw.com</button>
     </div>
 
     <!-- Nav items -->
@@ -66,33 +65,23 @@
 </div>
 
 <script>
-function toggleSubmenu(id) {
-  var el = document.getElementById(id);
-  el.classList.toggle('open');
-}
-function toggleSite(btn) {
-  var current = document.body.classList.contains('theme-nsw') ? 'nsw' : 'sydney';
-  var next = current === 'sydney' ? 'nsw' : 'sydney';
-  setTheme(next, null);
-}
-function setTheme(theme, btnGroup) {
-  document.body.className = 'theme-' + theme;
-  var sheet = document.getElementById('theme-sheet');
-  if (sheet) sheet.href = sheet.href.replace(/themes\/\w+\.css/, 'themes/' + theme + '.css');
-  // Update logo text
-  var logos = document.querySelectorAll('.nav-logo span');
-  logos.forEach(function(l) {
-    if (!l.classList.contains('logo-dot')) {
-      l.childNodes.forEach(function(n) {
-        if (n.nodeType === 3) n.textContent = theme === 'sydney' ? 'sydney' : 'visitnsw';
-      });
-    }
-  });
-  // Sync menu buttons if btnGroup provided
-  if (btnGroup) {
-    btnGroup.querySelectorAll('button').forEach(function(b) {
-      b.classList.toggle('active', b.textContent.trim().startsWith(theme === 'sydney' ? 'sydney' : 'visitnsw'));
-    });
+(function () {
+  var site = document.body.dataset.site || 'sydney';
+  // Set active toggle button
+  document.getElementById(site === 'nsw' ? 'btn-nsw' : 'btn-sydney').classList.add('active');
+  // Set logo text
+  if (site === 'nsw') {
+    var logoText = document.getElementById('nav-logo-text');
+    logoText.innerHTML = 'visitnsw<span class="logo-dot">.</span>com';
   }
+})();
+
+function toggleSubmenu(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function switchSite(site) {
+  var base = window.location.pathname.replace(/\/pages\/[^/]+$/, '');
+  window.location.href = base + '/pages/' + (site === 'sydney' ? 'home.html' : 'home-nsw.html');
 }
 </script>
