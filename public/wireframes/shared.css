@@ -109,7 +109,7 @@ body {
 .nav-search-pill {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: .4rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
@@ -646,9 +646,15 @@ body {
 /* ── Mobile (≤768px) ── */
 @media (max-width: 48rem) {
 
-  /* Nav — hide search pill and spacers, keep icons */
-  .nav-search-pill { display: none; }
+  /* Nav — strip pill styling on mobile, show search icon next to bookmark */
   .nav-spacer { display: none; }
+  .nav-logo + .nav-spacer { display: flex; } /* keep spacer after logo to push icons right */
+  .nav-search-pill {
+    border: none;
+    border-radius: 0;
+    min-width: auto;
+    padding: .25rem;
+  }
 
   /* Grids — collapse to 2-col */
   .grid-4 { grid-template-columns: repeat(2, 1fr); column-gap: .75rem; row-gap: 1.5rem; }
