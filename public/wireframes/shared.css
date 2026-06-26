@@ -690,4 +690,16 @@ body {
 
   /* Promo banner — tighter positioning */
   .promo-banner .promo-content { bottom: 1.25rem; left: 1.25rem; }
+
+  /* Tab bar — full bleed, no grey bottom border, blue underline visible, no scrollbar */
+  .tab-bar {
+    border-bottom: none;
+    margin-left: -2rem;
+    margin-right: -2rem;
+    padding-left: 2rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-bar button { margin-bottom: 0; }
 }
