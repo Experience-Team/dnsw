@@ -59,7 +59,7 @@ body {
 }
 .btn-primary   { background: var(--color-accent); color: #fff; }
 .btn-outline   { background: none; color: var(--color-accent); border-color: var(--color-accent); }
-.btn-outline-white { background: none; color: #fff; border-color: #fff; }
+.btn-outline-dark { background: none; color: #111; border-color: #111; }
 .btn-sm        { padding: .35rem .9rem; font-size: .8125rem; }
 
 /* ── Nav ── */
@@ -511,10 +511,10 @@ body {
   position: absolute;
   bottom: 2rem;
   left: 2rem;
-  color: #fff;
+  color: #111;
 }
 .promo-banner .promo-content h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: .25rem; }
-.promo-sub { font-size: .875rem; color: rgba(255,255,255,.85); margin: .25rem 0 .75rem; }
+.promo-sub { font-size: .875rem; color: #111; margin: .25rem 0 .75rem; }
 .promo-banner .promo-content p  { font-size: .875rem; opacity: .85; margin-bottom: 1rem; }
 
 /* ── Newsletter banner ── */
@@ -537,6 +537,7 @@ body {
   color: #fff;
   max-width: 36rem;
 }
+.newsletter-banner { color: #111; }
 .newsletter-banner h2 { font-size: 2rem; font-weight: 700; margin-bottom: .75rem; }
 .newsletter-banner p  { font-size: .9375rem; margin-bottom: 1.25rem; opacity: .9; }
 
