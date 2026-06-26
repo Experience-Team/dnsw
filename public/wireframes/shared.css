@@ -694,9 +694,10 @@ body {
   /* Tab bar — full bleed, no grey bottom border, blue underline visible, no scrollbar */
   .tab-bar {
     border-bottom: none;
+    width: 100vw;
     margin-left: -2rem;
-    margin-right: -2rem;
     padding-left: 2rem;
+    padding-right: 2rem;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
