@@ -437,7 +437,7 @@ body {
 
 /* ── Content grid ── */
 .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: .75rem; row-gap: 1.5rem; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 
@@ -538,7 +538,7 @@ body {
   max-width: 36rem;
 }
 .newsletter-banner { color: #111; }
-.newsletter-banner h2 { font-size: 2rem; font-weight: 700; margin-bottom: .75rem; }
+.newsletter-banner h2 { font-size: 2rem; font-weight: 700; margin-bottom: .75rem; color: #111; }
 .newsletter-banner p  { font-size: .9375rem; margin-bottom: 1.25rem; color: #111; }
 
 /* ── Text block (2-col) ── */
