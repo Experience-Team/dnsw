@@ -642,3 +642,46 @@ body {
 .breadcrumb .sep { color: #ccc; }
 .page-actions { display: flex; gap: 1rem; }
 .page-actions a { color: var(--color-text-muted); text-decoration: none; font-size: .8125rem; }
+
+/* ── Mobile (≤768px) ── */
+@media (max-width: 48rem) {
+
+  /* Nav — hide search pill and spacers, keep icons */
+  .nav-search-pill { display: none; }
+  .nav-spacer { display: none; }
+
+  /* Grids — collapse to 2-col */
+  .grid-4 { grid-template-columns: repeat(2, 1fr); column-gap: .75rem; row-gap: 1.5rem; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+
+  /* Event cards — narrower on mobile */
+  .event-card { width: 9.75rem; }
+
+  /* News grid — horizontal scroll carousel, both cards same size */
+  .news-grid {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: .5rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .news-grid::-webkit-scrollbar { display: none; }
+  .news-grid .stacked { display: contents; }
+  .article-card.featured,
+  .article-card.small { height: 13.75rem; width: 18.5rem; flex-shrink: 0; }
+
+  /* Deals card — stack vertically */
+  .deals-card { grid-template-columns: 1fr; }
+  .deals-card .deals-img { height: 14.75rem; }
+
+  /* More about Sydney — single column */
+  .text-block .text-cols { grid-template-columns: 1fr; gap: 1.5rem; }
+
+  /* Footer links — 2-col */
+  .footer-links { grid-template-columns: repeat(2, 1fr); }
+
+  /* Promo banner — tighter positioning */
+  .promo-banner .promo-content { bottom: 1.25rem; left: 1.25rem; }
+}
