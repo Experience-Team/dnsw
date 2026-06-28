@@ -697,6 +697,25 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .hero-event-list li { font-size: .8125rem; color: rgba(255,255,255,.8); text-shadow: 0 1px 3px rgba(0,0,0,.5); }
 .hero-event-list li::before { content: "• "; }
 
+/* ── Split hero (events page) ── */
+.hero-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 26rem;
+  overflow: hidden;
+}
+.hero-split-content {
+  background: #444;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem 3rem;
+  color: #fff;
+}
+.hero-split-content .hero-headline { text-shadow: none; color: #fff; }
+.hero-split-content .hero-sub { color: rgba(255,255,255,.65); text-shadow: none; }
+.hero-split-content .hero-event-list li { color: rgba(255,255,255,.75); text-shadow: none; }
+
 /* ── Filter bar ── */
 .filter-bar { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
 .filter-chip {
@@ -816,6 +835,11 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 
   /* Promo banner — tighter positioning */
   .promo-banner .promo-content { bottom: 1.25rem; left: 1.25rem; }
+
+  /* Split hero — stack on mobile */
+  .hero-split { grid-template-columns: 1fr; height: auto; }
+  .hero-split-img { height: 12rem; }
+  .hero-split-content { padding: 1.75rem 1.5rem; }
 
   /* Filter bar — horizontal scroll on mobile */
   .filter-bar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; }
