@@ -78,8 +78,6 @@ body {
   transform: translateY(-100%);
 }
 .utility-bar-inner {
-  max-width: 80rem;
-  margin: 0 auto;
   padding: 0 1.5rem;
   height: 100%;
   display: flex;
