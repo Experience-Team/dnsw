@@ -62,6 +62,54 @@ body {
 .btn-outline-dark { background: none; color: #111; border-color: #111; }
 .btn-sm        { padding: .35rem .9rem; font-size: .8125rem; }
 
+/* ── Utility bar (wireframe nav) ── */
+.utility-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #444;
+  height: 2rem;
+  transform: translateY(0);
+  transition: transform .18s ease;
+}
+.utility-bar--hidden {
+  transform: translateY(-100%);
+}
+.utility-bar-inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.utility-bar-grid {
+  color: rgba(255,255,255,.75);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color .15s;
+}
+.utility-bar-grid:hover { color: #fff; }
+.utility-bar-variations {
+  display: flex;
+  gap: 1.25rem;
+}
+.utility-bar-variations a {
+  color: rgba(255,255,255,.6);
+  text-decoration: none;
+  font-size: .8125rem;
+  transition: color .15s;
+}
+.utility-bar-variations a.active,
+.utility-bar-variations a:hover { color: #fff; }
+
+/* Body offset — makes room for the utility bar */
+body { padding-top: 2rem; }
+
 /* ── Nav ── */
 .site-nav {
   background: #fff;
@@ -72,9 +120,11 @@ body {
   padding: 0 1.5rem;
   gap: 1rem;
   position: sticky;
-  top: 0;
+  top: 2rem;
   z-index: 100;
+  transition: top .18s ease;
 }
+body.utility-bar-body--hidden .site-nav { top: 0; }
 .nav-hamburger {
   background: none;
   border: none;
@@ -690,6 +740,9 @@ body {
 
   /* Promo banner — tighter positioning */
   .promo-banner .promo-content { bottom: 1.25rem; left: 1.25rem; }
+
+  /* Utility bar — compact on mobile */
+  .utility-bar-variations a:nth-child(n+3) { display: none; }
 
   /* Tab bar — full bleed, no grey bottom border, blue underline visible, no scrollbar */
   .tab-bar {

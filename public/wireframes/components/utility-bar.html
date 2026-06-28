@@ -1,13 +1,41 @@
-<div class="utility-bar">
-  <div class="site-switcher">
-    <button data-theme="sydney" class="active">Sydney.com</button>
-    <button data-theme="nsw">VisitNSW.com</button>
-  </div>
-  <div class="page-switcher">
-    <select data-page-switcher aria-label="Jump to page">
-      <option value="">Jump to page…</option>
-      <option value="pages/home.html">Homepage</option>
-      <!-- Add new pages here. Disabled pages: <option disabled>Page name (coming soon)</option> -->
-    </select>
+<div class="utility-bar" id="utility-bar">
+  <div class="utility-bar-inner">
+    <a href="/wireframes/index.html" class="utility-bar-grid" aria-label="Wireframe index" title="All wireframes">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="1" y="1" width="5.5" height="5.5" rx="1" fill="currentColor"/>
+        <rect x="9.5" y="1" width="5.5" height="5.5" rx="1" fill="currentColor"/>
+        <rect x="1" y="9.5" width="5.5" height="5.5" rx="1" fill="currentColor"/>
+        <rect x="9.5" y="9.5" width="5.5" height="5.5" rx="1" fill="currentColor"/>
+      </svg>
+    </a>
+    <nav class="utility-bar-variations" aria-label="Variations">
+      <a href="#" class="active">Variation 1</a>
+      <a href="#">Variation 2</a>
+      <a href="#">Variation 3</a>
+    </nav>
   </div>
 </div>
+<script data-included>
+(function () {
+  var bar = document.getElementById('utility-bar');
+  if (!bar) return;
+  var lastY = window.scrollY;
+  var ticking = false;
+
+  function update() {
+    var y = window.scrollY;
+    var down = y > lastY && y > 48;
+    bar.classList.toggle('utility-bar--hidden', down);
+    document.body.classList.toggle('utility-bar-body--hidden', down);
+    lastY = y;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+})();
+</script>
