@@ -191,7 +191,7 @@
           <div class="filter-actions">
             <button class="filter-action-btn" id="map-view-trigger">Map view</button>
             <button class="filter-action-btn" id="filters-modal-trigger">Filters</button>
-            <button class="filter-action-btn">When</button>
+            <button class="filter-action-btn" id="when-modal-trigger">When</button>
           </div>
           <div class="filter-bar" role="group" aria-label="Filter by category">
             <button class="filter-chip active">All</button>
@@ -527,6 +527,35 @@
     </div>
   </div>
 
+  <!-- When / date modal -->
+  <div class="filters-modal-overlay" id="when-modal" hidden>
+    <div class="filters-modal when-modal" role="dialog" aria-modal="true" aria-labelledby="when-modal-title">
+
+      <div class="filters-modal-header">
+        <h2 class="filters-modal-title" id="when-modal-title">When would you like to go?</h2>
+        <button class="filters-modal-close" id="when-modal-close" aria-label="Close">&#x2715;</button>
+      </div>
+
+      <div class="filters-modal-body">
+        <div class="when-quick-row">
+          <label class="filters-check-row"><input type="checkbox" name="when" value="today"> Today</label>
+          <label class="filters-check-row"><input type="checkbox" name="when" value="this-week"> This Week</label>
+          <label class="filters-check-row"><input type="checkbox" name="when" value="this-weekend"> This Weekend</label>
+          <label class="filters-check-row"><input type="checkbox" name="when" value="next-week"> Next Week</label>
+        </div>
+        <div class="when-cal-wrap">
+          <div class="when-cal" id="when-cal-left"></div>
+          <div class="when-cal" id="when-cal-right"></div>
+        </div>
+      </div>
+
+      <div class="filters-modal-footer">
+        <button class="filters-clear" id="when-clear">Clear</button>
+        <button class="filters-submit" id="when-apply">See results</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Filters modal -->
   <div class="filters-modal-overlay" id="filters-modal" hidden>
     <div class="filters-modal" role="dialog" aria-modal="true" aria-labelledby="filters-modal-title">
@@ -767,6 +796,92 @@
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay) overlay.hidden = true;
     });
+
+    // ── When modal ──
+    (function () {
+      var whenModal = document.getElementById('when-modal');
+      document.getElementById('when-modal-trigger').addEventListener('click', function () { whenModal.hidden = false; });
+      document.getElementById('when-modal-close').addEventListener('click', function () { whenModal.hidden = true; });
+      document.getElementById('when-apply').addEventListener('click', function () { whenModal.hidden = true; });
+      whenModal.addEventListener('click', function (e) { if (e.target === whenModal) whenModal.hidden = true; });
+      document.getElementById('when-clear').addEventListener('click', function () {
+        whenModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+        selectedDates = {};
+        renderBothCals();
+      });
+
+      var selectedDates = {};
+      var today = new Date(); today.setHours(0,0,0,0);
+      var monthOffset = 0;
+
+      function renderCal(el, year, month, isRight) {
+        var DAYS = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+        var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        var firstDay = new Date(year, month, 1);
+        var lastDay  = new Date(year, month + 1, 0);
+        var startDow = (firstDay.getDay() + 6) % 7;
+        var html = '<div class="when-cal-header">';
+        if (!isRight) {
+          html += '<button class="when-cal-nav" id="when-prev"' + (monthOffset === 0 ? ' hidden' : '') + '>&#8249;</button>';
+        } else { html += '<span></span>'; }
+        html += '<span class="when-cal-title">' + monthNames[month] + ' ' + year + '</span>';
+        if (isRight) { html += '<button class="when-cal-nav" id="when-next">&#8250;</button>'; }
+        else { html += '<span></span>'; }
+        html += '</div><div class="when-cal-grid">';
+        DAYS.forEach(function (d) { html += '<span class="when-cal-day-hdr">' + d + '</span>'; });
+        for (var i = 0; i < startDow; i++) html += '<span></span>';
+        for (var d = 1; d <= lastDay.getDate(); d++) {
+          var dt = new Date(year, month, d);
+          var key = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+          var cls = 'when-cal-day';
+          if (dt < today) cls += ' past';
+          else if (selectedDates[key]) cls += ' selected';
+          var dis = dt < today ? 'disabled' : '';
+          html += '<button class="' + cls + '" data-date="' + key + '" ' + dis + '>' + d + '</button>';
+        }
+        var total = startDow + lastDay.getDate();
+        var trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
+        for (var t = 1; t <= trailing; t++) html += '<button class="when-cal-day other-month" disabled>' + t + '</button>';
+        html += '</div>';
+        el.innerHTML = html;
+        el.querySelectorAll('.when-cal-day:not([disabled]):not(.other-month)').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var k = btn.dataset.date;
+            if (selectedDates[k]) delete selectedDates[k]; else selectedDates[k] = true;
+            renderBothCals();
+          });
+        });
+        var prev = document.getElementById('when-prev');
+        var next = document.getElementById('when-next');
+        if (prev) prev.addEventListener('click', function () { monthOffset--; renderBothCals(); });
+        if (next) next.addEventListener('click', function () { monthOffset++; renderBothCals(); });
+      }
+
+      function renderBothCals() {
+        var now = new Date();
+        var leftDate  = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+        var rightDate = new Date(now.getFullYear(), now.getMonth() + monthOffset + 1, 1);
+        renderCal(document.getElementById('when-cal-left'),  leftDate.getFullYear(),  leftDate.getMonth(),  false);
+        renderCal(document.getElementById('when-cal-right'), rightDate.getFullYear(), rightDate.getMonth(), true);
+      }
+
+      // Pre-select today, tomorrow, and all of next month to match screenshot
+      (function () {
+        var now = new Date(); now.setHours(0,0,0,0);
+        for (var i = 0; i < 2; i++) {
+          var dd = new Date(now); dd.setDate(dd.getDate() + i);
+          selectedDates[dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0')] = true;
+        }
+        var nm = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        var last = new Date(nm.getFullYear(), nm.getMonth() + 1, 0).getDate();
+        for (var d = 1; d <= last; d++) {
+          selectedDates[nm.getFullYear() + '-' + String(nm.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0')] = true;
+        }
+      })();
+
+      renderBothCals();
+      document.getElementById('when-modal-trigger').addEventListener('click', renderBothCals);
+    })();
 
     // ── Map view toggle ──
     var mapViewBtn = document.getElementById('map-view-trigger');
