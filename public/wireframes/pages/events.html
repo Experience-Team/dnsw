@@ -230,6 +230,7 @@
             Accessibility
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
+          <button class="v2-clear-all" id="v2-clear-all" hidden>&#x2715; Clear all</button>
           <div class="filter-map-spacer"></div>
           <a href="#" class="btn btn-primary btn-sm" id="v2-map-trigger">View on Map</a>
         </div>
@@ -1419,21 +1420,37 @@
         var span = label.querySelector('.filter-count');
         if (!span) { span = document.createElement('span'); span.className = 'filter-count'; label.appendChild(span); }
         span.textContent = '(' + n + ')';
+        label.classList.toggle('option-zero', n === 0);
       }
 
       function updateAllCounts() {
+        var locAnyActive = false, catAnyActive = false, accAnyActive = false;
+
         document.querySelectorAll('#location-modal input[name="loc2"]').forEach(function (inp) {
           var val = inp.value;
-          if (val === 'anywhere') { setCount(inp, E.filter(function (e) { return matchesFilters(e, 'loc'); }).length); return; }
-          if (regions[val]) { setCount(inp, countRegion(val)); return; }
-          setCount(inp, countFor('loc', val));
+          var n;
+          if (val === 'anywhere') { n = E.filter(function (e) { return matchesFilters(e, 'loc'); }).length; }
+          else if (regions[val]) { n = countRegion(val); }
+          else { n = countFor('loc', val); }
+          setCount(inp, n);
+          if (n > 0) locAnyActive = true;
         });
+
         document.querySelectorAll('#category-modal input[name="cat2"]').forEach(function (inp) {
-          setCount(inp, countFor('cat', inp.value));
+          var n = countFor('cat', inp.value);
+          setCount(inp, n);
+          if (n > 0) catAnyActive = true;
         });
+
         document.querySelectorAll('#accessibility-modal input[name="acc2"]').forEach(function (inp) {
-          setCount(inp, countFor('acc', inp.value));
+          var n = countFor('acc', inp.value);
+          setCount(inp, n);
+          if (n > 0) accAnyActive = true;
         });
+
+        document.getElementById('v2-location-trigger').classList.toggle('filter-dropdown--empty', !locAnyActive);
+        document.getElementById('v2-category-trigger').classList.toggle('filter-dropdown--empty', !catAnyActive);
+        document.getElementById('v2-accessibility-trigger').classList.toggle('filter-dropdown--empty', !accAnyActive);
       }
 
       function syncState() {
@@ -1448,6 +1465,9 @@
         var total = E.filter(function(e) { return matchesFilters(e, null); }).length;
         var rc = document.getElementById('v2-result-count');
         if (rc) rc.textContent = 'Showing ' + total + ' results';
+        var anyActive = v2State.locs.length > 0 || v2State.cat || v2State.acc.length > 0;
+        var clearBtn = document.getElementById('v2-clear-all');
+        if (clearBtn) clearBtn.hidden = !anyActive;
       }
 
       ['#location-modal', '#category-modal', '#accessibility-modal'].forEach(function (sel) {
@@ -1458,6 +1478,22 @@
       document.getElementById('location-clear').addEventListener('click', syncState);
       document.getElementById('category-clear').addEventListener('click', syncState);
       document.getElementById('accessibility-clear').addEventListener('click', syncState);
+
+      // Global clear all
+      document.getElementById('v2-clear-all').addEventListener('click', function () {
+        document.querySelectorAll('#location-modal input[name="loc2"]').forEach(function (cb) { cb.checked = false; });
+        document.querySelectorAll('#category-modal input[name="cat2"]').forEach(function (r) { r.checked = false; });
+        document.querySelectorAll('#accessibility-modal input[name="acc2"]').forEach(function (cb) { cb.checked = false; });
+        // Reset pills
+        ['v2-location-trigger','v2-category-trigger','v2-accessibility-trigger'].forEach(function (id) {
+          var btn = document.getElementById(id);
+          var svg = btn.querySelector('svg');
+          var base = id === 'v2-location-trigger' ? 'Location' : id === 'v2-category-trigger' ? 'Category' : 'Accessibility';
+          btn.textContent = base;
+          if (svg) btn.appendChild(svg);
+        });
+        syncState();
+      });
 
       updateAllCounts();
     })();
