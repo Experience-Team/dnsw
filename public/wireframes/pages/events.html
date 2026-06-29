@@ -566,13 +566,13 @@
       <div class="filters-modal-body">
         <div class="filters-section">
           <div class="filters-sub-grid">
-            <label class="filters-check-row"><input type="checkbox" name="cat2" value="exhibition"> Exhibition And Shows</label>
-            <label class="filters-check-row"><input type="checkbox" name="cat2" value="markets"> Markets</label>
-            <label class="filters-check-row"><input type="checkbox" name="cat2" value="food-wine"> Food And Wine</label>
-            <label class="filters-check-row"><input type="checkbox" name="cat2" value="sport"> Sporting Events</label>
-            <label class="filters-check-row"><input type="checkbox" name="cat2" value="community"> Community Event</label>
-            <label class="filters-check-row"><input type="checkbox" name="cat2" value="classes"> Classes Lessons Workshops And Talks</label>
-            <label class="filters-check-row"><input type="checkbox" name="cat2" value="business"> Business Event</label>
+            <label class="filters-check-row"><input type="radio" name="cat2" value="exhibition"> Exhibition And Shows</label>
+            <label class="filters-check-row"><input type="radio" name="cat2" value="markets"> Markets</label>
+            <label class="filters-check-row"><input type="radio" name="cat2" value="food-wine"> Food And Wine</label>
+            <label class="filters-check-row"><input type="radio" name="cat2" value="sport"> Sporting Events</label>
+            <label class="filters-check-row"><input type="radio" name="cat2" value="community"> Community Event</label>
+            <label class="filters-check-row"><input type="radio" name="cat2" value="classes"> Classes Lessons Workshops And Talks</label>
+            <label class="filters-check-row"><input type="radio" name="cat2" value="business"> Business Event</label>
           </div>
         </div>
       </div>
@@ -1169,11 +1169,24 @@
     // ── V2 Category modal ──
     var categoryModal = document.getElementById('category-modal');
     document.getElementById('v2-category-trigger').addEventListener('click', function () { categoryModal.hidden = false; });
+    function updateCategoryPill() {
+      var btn = document.getElementById('v2-category-trigger');
+      var svg = btn.querySelector('svg');
+      var checked = categoryModal.querySelector('input[name="cat2"]:checked');
+      var label = checked ? 'Category (' + checked.closest('label').textContent.trim() + ')' : 'Category';
+      btn.textContent = label;
+      if (svg) btn.appendChild(svg);
+    }
+
     document.getElementById('category-modal-close').addEventListener('click', function () { categoryModal.hidden = true; });
-    document.getElementById('category-apply').addEventListener('click', function () { categoryModal.hidden = true; });
+    document.getElementById('category-apply').addEventListener('click', function () {
+      categoryModal.hidden = true;
+      updateCategoryPill();
+    });
     categoryModal.addEventListener('click', function (e) { if (e.target === categoryModal) categoryModal.hidden = true; });
     document.getElementById('category-clear').addEventListener('click', function () {
-      categoryModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+      categoryModal.querySelectorAll('input[type="radio"]').forEach(function (r) { r.checked = false; });
+      updateCategoryPill();
     });
 
     // ── V2 Accessibility modal ──
