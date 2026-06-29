@@ -537,11 +537,11 @@
       </div>
 
       <div class="filters-modal-body">
-        <div class="when-quick-row">
-          <label class="filters-check-row"><input type="checkbox" name="when" value="today"> Today</label>
-          <label class="filters-check-row"><input type="checkbox" name="when" value="this-week"> This Week</label>
-          <label class="filters-check-row"><input type="checkbox" name="when" value="this-weekend"> This Weekend</label>
-          <label class="filters-check-row"><input type="checkbox" name="when" value="next-week"> Next Week</label>
+        <div class="when-seg-ctrl" id="when-seg">
+          <button class="when-seg-btn" data-value="today">Today</button>
+          <button class="when-seg-btn" data-value="this-week">This Week</button>
+          <button class="when-seg-btn" data-value="this-weekend">This Weekend</button>
+          <button class="when-seg-btn" data-value="next-week">Next Week</button>
         </div>
         <div class="when-cal-wrap">
           <div class="when-cal" id="when-cal-left"></div>
@@ -1024,14 +1024,55 @@
     // ── When modal ──
     (function () {
       var whenModal = document.getElementById('when-modal');
+      var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+      function getDatePillLabel() {
+        var active = document.querySelector('#when-seg .when-seg-btn.active');
+        if (active) return 'Date (' + active.textContent.trim() + ')';
+        var keys = Object.keys(selectedDates).sort();
+        if (keys.length === 0) return 'Date';
+        function fmt(k) { var p = k.split('-'); return parseInt(p[2]) + ' ' + MONTHS[parseInt(p[1]) - 1]; }
+        if (keys.length === 1) return 'Date (' + fmt(keys[0]) + ')';
+        return 'Date (' + fmt(keys[0]) + ' – ' + fmt(keys[keys.length - 1]) + ')';
+      }
+
+      function updateV2Pill() {
+        var btn = document.getElementById('v2-date-trigger');
+        if (!btn) return;
+        var svg = btn.querySelector('svg');
+        btn.textContent = getDatePillLabel();
+        if (svg) btn.appendChild(svg);
+      }
+
+      function resetPill() {
+        var btn = document.getElementById('v2-date-trigger');
+        if (!btn) return;
+        var svg = btn.querySelector('svg');
+        btn.textContent = 'Date';
+        if (svg) btn.appendChild(svg);
+      }
+
       document.getElementById('when-modal-trigger').addEventListener('click', function () { whenModal.hidden = false; });
       document.getElementById('when-modal-close').addEventListener('click', function () { whenModal.hidden = true; });
-      document.getElementById('when-apply').addEventListener('click', function () { whenModal.hidden = true; });
+      document.getElementById('when-apply').addEventListener('click', function () {
+        whenModal.hidden = true;
+        updateV2Pill();
+      });
       whenModal.addEventListener('click', function (e) { if (e.target === whenModal) whenModal.hidden = true; });
       document.getElementById('when-clear').addEventListener('click', function () {
-        whenModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+        document.querySelectorAll('#when-seg .when-seg-btn').forEach(function (b) { b.classList.remove('active'); });
         selectedDates = {};
         renderBothCals();
+        resetPill();
+      });
+
+      // Segmented control — single select
+      document.querySelectorAll('#when-seg .when-seg-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var isActive = btn.classList.contains('active');
+          document.querySelectorAll('#when-seg .when-seg-btn').forEach(function (b) { b.classList.remove('active'); });
+          if (!isActive) btn.classList.add('active');
+        });
       });
 
       var selectedDates = {};
