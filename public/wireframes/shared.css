@@ -915,6 +915,26 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 }
 .vs-overlay-btn.active { border-color: var(--color-accent); color: var(--color-accent); }
 
+/* ── When / date modal ── */
+.when-modal { max-width: 54rem; }
+.when-quick-row { display: flex; gap: 2rem; margin-bottom: 1.5rem; }
+.when-quick-row .filters-check-row { font-size: 1rem; }
+.when-cal-wrap {
+  display: flex; gap: 2rem;
+  border: 1px solid var(--color-border); border-radius: .75rem; padding: 1.5rem;
+}
+.when-cal { flex: 1; }
+.when-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.when-cal-title { font-size: 1rem; font-weight: 700; }
+.when-cal-nav { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--color-text); padding: .25rem .5rem; }
+.when-cal-nav[hidden] { visibility: hidden; pointer-events: none; }
+.when-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; text-align: center; }
+.when-cal-day-hdr { font-size: .75rem; font-weight: 600; color: var(--color-text-muted); padding-bottom: .5rem; }
+.when-cal-day { font-size: .875rem; padding: .4rem .25rem; border-radius: .375rem; cursor: pointer; border: none; background: none; color: var(--color-text); }
+.when-cal-day.other-month { color: #ccc; cursor: default; }
+.when-cal-day.past { color: #bbb; cursor: default; }
+.when-cal-day.selected { background: var(--color-accent); color: #fff; font-weight: 600; }
+
 /* ── Map view ── */
 #map-content-row { display: block; }
 #map-content-row.map-active { display: flex; align-items: flex-start; gap: 1.5rem; }
