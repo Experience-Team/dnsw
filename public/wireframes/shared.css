@@ -750,6 +750,66 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .result-count { font-size: .875rem; color: var(--color-text-muted); margin-left: auto; }
 .load-more-wrap { text-align: center; margin-top: 2rem; }
 
+/* ── V2 filter bar (dropdown pills + map button) ── */
+.filter-bar-v2 { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; }
+.filter-dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: .4rem .85rem;
+  font-size: .875rem;
+  color: var(--color-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.filter-dropdown:hover { border-color: #aaa; }
+.filter-dropdown svg { flex-shrink: 0; }
+.filter-map-spacer { flex: 1; }
+
+/* ── Variant switcher (margin sidebar, desktop only) ── */
+.variant-switcher {
+  position: fixed;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  z-index: 50;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: .5rem;
+  padding: .6rem .45rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+}
+.vs-label {
+  font-size: .6rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .1rem;
+}
+.vs-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: .375rem;
+  padding: .25rem 0;
+  font-size: .75rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  width: 2.1rem;
+  text-align: center;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.vs-btn.active { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+.vs-btn:not(.active):hover { border-color: #aaa; color: var(--color-text); }
+
 /* ── FAQ accordion ── */
 .faq-list { border-top: 1px solid var(--color-border); }
 .faq-item { border-bottom: 1px solid var(--color-border); }
@@ -820,6 +880,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 
   /* Promo banner — tighter positioning */
   .promo-banner .promo-content { bottom: 1.25rem; left: 1.25rem; }
+
+  /* Variant switcher — hidden on mobile */
+  .variant-switcher { display: none; }
 
   /* Split hero — stack on mobile */
   .hero-split { grid-template-columns: 1fr; height: auto; }
