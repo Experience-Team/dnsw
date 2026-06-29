@@ -406,7 +406,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .event-card {
   width: 13rem;
   background: #fff;
-  border: 1px solid var(--color-border);
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
   overflow: hidden;
   display: flex;
@@ -418,7 +418,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   position: absolute;
   top: .5rem;
   left: .5rem;
-  background: var(--color-accent);
+  background: #ed4242;
   color: #fff;
   font-size: .65rem;
   font-weight: 700;
@@ -454,8 +454,18 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   padding-top: .4rem;
   margin-top: auto;
 }
-.event-card .card-price { font-size: .8rem; font-weight: 700; }
-.event-card .card-price span { font-size: .7rem; font-weight: 400; color: var(--color-text-muted); }
+.event-card .card-price {
+  display: inline-flex;
+  align-items: center;
+  background: #f0f5ff;
+  color: #005ea3;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: .2rem .5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.event-card .card-price span { font-weight: 400; color: #005ea3; }
 .event-card .card-desc {
   font-size: .75rem;
   color: var(--color-text-muted);
