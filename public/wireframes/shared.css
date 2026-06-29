@@ -772,8 +772,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 /* ── Variant switcher (margin sidebar, desktop only) ── */
 .variant-switcher {
   position: absolute;
-  left: -3.75rem;
-  top: 0;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -812,7 +813,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 /* Mobile trigger pill */
 .vs-mobile-trigger {
   display: none; /* shown via mobile override */
-  position: fixed;
+  position: absolute;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
