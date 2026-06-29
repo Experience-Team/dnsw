@@ -1242,6 +1242,199 @@
       });
     });
 
+    // ── V2 cross-filter counts ──
+    (function () {
+      var regions = {
+        'inner-sydney':  ['alexandria','balmain','chippendale','darlinghurst','glebe','leichhardt','marrickville','newtown','paddington','redfern','surry-hills'],
+        'sydney-city':   ['barangaroo','chinatown','circular-quay','city-centre','darling-harbour','kings-cross','potts-point','pyrmont','sydney-harbour','the-rocks','walsh-bay'],
+        'sydney-east':   ['bondi','coogee','double-bay','la-perouse','maroubra','moore-park','randwick','watsons-bay'],
+        'sydney-north':  ['hawkesbury','hornsby','manly','mosman','north-sydney','northern-beaches','palm-beach','windsor'],
+        'sydney-south':  ['bundeena','cronulla','mascot'],
+        'sydney-west':   ['appin','blacktown','cabramatta','camden','campbelltown','parramatta','penrith','picton','olympic-park','thirlmere']
+      };
+
+      // 110 synthetic events {loc, cat, acc:[]}
+      // cats: exhibition, festival, food, markets, music, performing-arts, sport
+      // acc:  vision, hearing, wheelchair, quiet, auslan, companion
+      var E = [
+        {loc:'city-centre',cat:'music',acc:['wheelchair']},
+        {loc:'city-centre',cat:'festival',acc:[]},
+        {loc:'city-centre',cat:'exhibition',acc:['vision','wheelchair']},
+        {loc:'city-centre',cat:'performing-arts',acc:['auslan']},
+        {loc:'city-centre',cat:'food',acc:[]},
+        {loc:'city-centre',cat:'markets',acc:['hearing']},
+        {loc:'city-centre',cat:'sport',acc:[]},
+        {loc:'newtown',cat:'music',acc:['quiet']},
+        {loc:'newtown',cat:'festival',acc:['wheelchair','auslan']},
+        {loc:'newtown',cat:'exhibition',acc:[]},
+        {loc:'newtown',cat:'food',acc:['vision']},
+        {loc:'newtown',cat:'markets',acc:[]},
+        {loc:'newtown',cat:'performing-arts',acc:['hearing']},
+        {loc:'bondi',cat:'sport',acc:[]},
+        {loc:'bondi',cat:'festival',acc:['wheelchair']},
+        {loc:'bondi',cat:'markets',acc:[]},
+        {loc:'bondi',cat:'music',acc:['quiet']},
+        {loc:'bondi',cat:'food',acc:['companion']},
+        {loc:'manly',cat:'festival',acc:[]},
+        {loc:'manly',cat:'sport',acc:['wheelchair']},
+        {loc:'manly',cat:'music',acc:[]},
+        {loc:'manly',cat:'food',acc:['vision']},
+        {loc:'parramatta',cat:'exhibition',acc:['auslan']},
+        {loc:'parramatta',cat:'festival',acc:[]},
+        {loc:'parramatta',cat:'markets',acc:['wheelchair']},
+        {loc:'parramatta',cat:'sport',acc:[]},
+        {loc:'parramatta',cat:'performing-arts',acc:['hearing']},
+        {loc:'darling-harbour',cat:'food',acc:[]},
+        {loc:'darling-harbour',cat:'festival',acc:['wheelchair','companion']},
+        {loc:'darling-harbour',cat:'music',acc:[]},
+        {loc:'darling-harbour',cat:'exhibition',acc:['vision']},
+        {loc:'the-rocks',cat:'markets',acc:[]},
+        {loc:'the-rocks',cat:'exhibition',acc:['auslan']},
+        {loc:'the-rocks',cat:'food',acc:['quiet']},
+        {loc:'circular-quay',cat:'performing-arts',acc:[]},
+        {loc:'circular-quay',cat:'festival',acc:['wheelchair']},
+        {loc:'circular-quay',cat:'music',acc:['hearing']},
+        {loc:'surry-hills',cat:'food',acc:[]},
+        {loc:'surry-hills',cat:'markets',acc:['vision']},
+        {loc:'surry-hills',cat:'music',acc:[]},
+        {loc:'paddington',cat:'exhibition',acc:['wheelchair']},
+        {loc:'paddington',cat:'markets',acc:[]},
+        {loc:'paddington',cat:'performing-arts',acc:['auslan','quiet']},
+        {loc:'redfern',cat:'music',acc:[]},
+        {loc:'redfern',cat:'festival',acc:['companion']},
+        {loc:'redfern',cat:'sport',acc:[]},
+        {loc:'glebe',cat:'markets',acc:['vision']},
+        {loc:'glebe',cat:'food',acc:[]},
+        {loc:'marrickville',cat:'music',acc:['hearing']},
+        {loc:'marrickville',cat:'festival',acc:[]},
+        {loc:'marrickville',cat:'food',acc:['wheelchair']},
+        {loc:'alexandria',cat:'exhibition',acc:[]},
+        {loc:'alexandria',cat:'sport',acc:['companion']},
+        {loc:'balmain',cat:'markets',acc:[]},
+        {loc:'balmain',cat:'performing-arts',acc:['vision']},
+        {loc:'chippendale',cat:'exhibition',acc:['auslan']},
+        {loc:'chippendale',cat:'music',acc:[]},
+        {loc:'darlinghurst',cat:'performing-arts',acc:['wheelchair']},
+        {loc:'darlinghurst',cat:'food',acc:[]},
+        {loc:'leichhardt',cat:'markets',acc:['hearing']},
+        {loc:'leichhardt',cat:'festival',acc:[]},
+        {loc:'randwick',cat:'sport',acc:[]},
+        {loc:'randwick',cat:'exhibition',acc:['quiet']},
+        {loc:'coogee',cat:'festival',acc:[]},
+        {loc:'coogee',cat:'food',acc:['wheelchair']},
+        {loc:'double-bay',cat:'markets',acc:[]},
+        {loc:'double-bay',cat:'performing-arts',acc:['vision']},
+        {loc:'maroubra',cat:'sport',acc:[]},
+        {loc:'moore-park',cat:'sport',acc:['wheelchair','companion']},
+        {loc:'moore-park',cat:'festival',acc:[]},
+        {loc:'watsons-bay',cat:'food',acc:['quiet']},
+        {loc:'la-perouse',cat:'exhibition',acc:[]},
+        {loc:'north-sydney',cat:'performing-arts',acc:['auslan']},
+        {loc:'north-sydney',cat:'music',acc:[]},
+        {loc:'mosman',cat:'exhibition',acc:['wheelchair']},
+        {loc:'mosman',cat:'markets',acc:[]},
+        {loc:'hornsby',cat:'festival',acc:['hearing']},
+        {loc:'hornsby',cat:'sport',acc:[]},
+        {loc:'northern-beaches',cat:'sport',acc:[]},
+        {loc:'northern-beaches',cat:'music',acc:['vision']},
+        {loc:'palm-beach',cat:'food',acc:[]},
+        {loc:'hawkesbury',cat:'markets',acc:['quiet']},
+        {loc:'windsor',cat:'festival',acc:[]},
+        {loc:'blacktown',cat:'sport',acc:['wheelchair']},
+        {loc:'blacktown',cat:'music',acc:[]},
+        {loc:'penrith',cat:'festival',acc:['companion']},
+        {loc:'penrith',cat:'sport',acc:[]},
+        {loc:'campbelltown',cat:'markets',acc:['vision']},
+        {loc:'camden',cat:'festival',acc:[]},
+        {loc:'cabramatta',cat:'food',acc:['hearing']},
+        {loc:'olympic-park',cat:'sport',acc:['wheelchair','auslan']},
+        {loc:'olympic-park',cat:'music',acc:[]},
+        {loc:'appin',cat:'markets',acc:[]},
+        {loc:'picton',cat:'festival',acc:['quiet']},
+        {loc:'thirlmere',cat:'exhibition',acc:[]},
+        {loc:'bundeena',cat:'food',acc:['vision']},
+        {loc:'cronulla',cat:'sport',acc:[]},
+        {loc:'cronulla',cat:'festival',acc:['wheelchair']},
+        {loc:'mascot',cat:'music',acc:[]},
+        {loc:'barangaroo',cat:'food',acc:['companion']},
+        {loc:'barangaroo',cat:'music',acc:['auslan']},
+        {loc:'chinatown',cat:'food',acc:[]},
+        {loc:'chinatown',cat:'festival',acc:['hearing']},
+        {loc:'kings-cross',cat:'performing-arts',acc:[]},
+        {loc:'potts-point',cat:'music',acc:['vision']},
+        {loc:'pyrmont',cat:'exhibition',acc:[]},
+        {loc:'sydney-harbour',cat:'festival',acc:['wheelchair']},
+        {loc:'walsh-bay',cat:'performing-arts',acc:['auslan']}
+      ];
+
+      var v2State = { locs: [], cat: null, acc: [] };
+
+      function matchesFilters(e, excludeDim) {
+        var locOk = excludeDim === 'loc' || v2State.locs.length === 0 || v2State.locs.indexOf(e.loc) !== -1;
+        var catOk = excludeDim === 'cat' || !v2State.cat || e.cat === v2State.cat;
+        var accOk = excludeDim === 'acc' || v2State.acc.length === 0 || v2State.acc.some(function (a) { return e.acc.indexOf(a) !== -1; });
+        return locOk && catOk && accOk;
+      }
+
+      function countFor(dim, value) {
+        return E.filter(function (e) {
+          var base = matchesFilters(e, dim);
+          if (dim === 'loc') return base && e.loc === value;
+          if (dim === 'cat') return base && e.cat === value;
+          if (dim === 'acc') return base && e.acc.indexOf(value) !== -1;
+        }).length;
+      }
+
+      function countRegion(key) {
+        return (regions[key] || []).reduce(function (s, sub) { return s + countFor('loc', sub); }, 0);
+      }
+
+      function setCount(input, n) {
+        var label = input.closest('label') || (input.parentElement && input.parentElement.closest('label'));
+        if (!label) return;
+        var span = label.querySelector('.filter-count');
+        if (!span) { span = document.createElement('span'); span.className = 'filter-count'; label.appendChild(span); }
+        span.textContent = '(' + n + ')';
+      }
+
+      function updateAllCounts() {
+        document.querySelectorAll('#location-modal input[name="loc2"]').forEach(function (inp) {
+          var val = inp.value;
+          if (val === 'anywhere') { setCount(inp, E.filter(function (e) { return matchesFilters(e, 'loc'); }).length); return; }
+          if (regions[val]) { setCount(inp, countRegion(val)); return; }
+          setCount(inp, countFor('loc', val));
+        });
+        document.querySelectorAll('#category-modal input[name="cat2"]').forEach(function (inp) {
+          setCount(inp, countFor('cat', inp.value));
+        });
+        document.querySelectorAll('#accessibility-modal input[name="acc2"]').forEach(function (inp) {
+          setCount(inp, countFor('acc', inp.value));
+        });
+      }
+
+      function syncState() {
+        v2State.locs = Array.from(document.querySelectorAll('#location-modal input[name="loc2"]:checked'))
+          .map(function (i) { return i.value; })
+          .filter(function (v) { return v !== 'anywhere' && !regions[v]; });
+        var catEl = document.querySelector('#category-modal input[name="cat2"]:checked');
+        v2State.cat = catEl ? catEl.value : null;
+        v2State.acc = Array.from(document.querySelectorAll('#accessibility-modal input[name="acc2"]:checked'))
+          .map(function (i) { return i.value; });
+        updateAllCounts();
+      }
+
+      ['#location-modal', '#category-modal', '#accessibility-modal'].forEach(function (sel) {
+        document.querySelector(sel).addEventListener('change', syncState);
+      });
+
+      // Also re-sync after clear actions so other modals update immediately
+      document.getElementById('location-clear').addEventListener('click', syncState);
+      document.getElementById('category-clear').addEventListener('click', syncState);
+      document.getElementById('accessibility-clear').addEventListener('click', syncState);
+
+      updateAllCounts();
+    })();
+
     // ── Filters modal ──
     var filtersModal = document.getElementById('filters-modal');
     document.getElementById('filters-modal-trigger').addEventListener('click', function () {

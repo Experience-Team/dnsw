@@ -1108,3 +1108,4 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   .tab-bar::-webkit-scrollbar { display: none; }
   .tab-bar button { margin-bottom: 0; }
 }
+.filter-count { color: var(--color-text-muted); font-size: .8em; margin-left: .25rem; }
