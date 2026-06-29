@@ -222,11 +222,11 @@
             Location
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <button class="filter-dropdown">
+          <button class="filter-dropdown" id="v2-category-trigger">
             Category
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <button class="filter-dropdown">
+          <button class="filter-dropdown" id="v2-accessibility-trigger">
             Accessibility
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
@@ -552,6 +552,77 @@
       <div class="filters-modal-footer">
         <button class="filters-clear" id="when-clear">Clear</button>
         <button class="filters-submit" id="when-apply">See results</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- V2 Category modal -->
+  <div class="filters-modal-overlay" id="category-modal" hidden>
+    <div class="filters-modal" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
+      <div class="filters-modal-header">
+        <h2 class="filters-modal-title" id="category-modal-title">Category</h2>
+        <button class="filters-modal-close" id="category-modal-close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="filters-modal-body">
+        <div class="filters-section">
+          <div class="filters-sub-grid">
+            <label class="filters-check-row"><input type="checkbox" name="cat2" value="exhibition"> Exhibition And Shows</label>
+            <label class="filters-check-row"><input type="checkbox" name="cat2" value="markets"> Markets</label>
+            <label class="filters-check-row"><input type="checkbox" name="cat2" value="food-wine"> Food And Wine</label>
+            <label class="filters-check-row"><input type="checkbox" name="cat2" value="sport"> Sporting Events</label>
+            <label class="filters-check-row"><input type="checkbox" name="cat2" value="community"> Community Event</label>
+            <label class="filters-check-row"><input type="checkbox" name="cat2" value="classes"> Classes Lessons Workshops And Talks</label>
+            <label class="filters-check-row"><input type="checkbox" name="cat2" value="business"> Business Event</label>
+          </div>
+        </div>
+      </div>
+      <div class="filters-modal-footer">
+        <button class="filters-clear" id="category-clear">Clear all</button>
+        <button class="filters-submit" id="category-apply">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- V2 Accessibility modal -->
+  <div class="filters-modal-overlay" id="accessibility-modal" hidden>
+    <div class="filters-modal" role="dialog" aria-modal="true" aria-labelledby="accessibility-modal-title">
+      <div class="filters-modal-header">
+        <h2 class="filters-modal-title" id="accessibility-modal-title">Accessibility</h2>
+        <button class="filters-modal-close" id="accessibility-modal-close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="filters-modal-body">
+        <div class="filters-section">
+          <div class="filters-sub-grid">
+            <label class="filters-access-row">
+              <input type="checkbox" name="acc2" value="high-support">
+              <span><strong>High Support Needs</strong><span class="filters-access-desc">Caters for people with high support needs who travel with a support person</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="acc2" value="companion-card">
+              <span><strong>Companion Card</strong><span class="filters-access-desc">Allows a person's carer free entry into participating venues and events</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="acc2" value="vision">
+              <span><strong>Vision</strong><span class="filters-access-desc">Caters for people who are blind or have vision loss</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="acc2" value="mobility">
+              <span><strong>Mobility</strong><span class="filters-access-desc">Caters for people with sufficient mobility to climb a few steps but who would benefit from fixtures to aid balance</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="acc2" value="hearing">
+              <span><strong>Hearing</strong><span class="filters-access-desc">Caters for people who are deaf or have hearing loss</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="acc2" value="wheelchair">
+              <span><strong>Wheelchair</strong><span class="filters-access-desc">Caters for people who use a wheelchair</span></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="filters-modal-footer">
+        <button class="filters-clear" id="accessibility-clear">Clear all</button>
+        <button class="filters-submit" id="accessibility-apply">Done</button>
       </div>
     </div>
   </div>
@@ -1052,6 +1123,26 @@
       e.preventDefault();
       var active = mapContentRow.classList.toggle('map-active');
       mapViewBtn.textContent = active ? 'List view' : 'Map view';
+    });
+
+    // ── V2 Category modal ──
+    var categoryModal = document.getElementById('category-modal');
+    document.getElementById('v2-category-trigger').addEventListener('click', function () { categoryModal.hidden = false; });
+    document.getElementById('category-modal-close').addEventListener('click', function () { categoryModal.hidden = true; });
+    document.getElementById('category-apply').addEventListener('click', function () { categoryModal.hidden = true; });
+    categoryModal.addEventListener('click', function (e) { if (e.target === categoryModal) categoryModal.hidden = true; });
+    document.getElementById('category-clear').addEventListener('click', function () {
+      categoryModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+    });
+
+    // ── V2 Accessibility modal ──
+    var accessibilityModal = document.getElementById('accessibility-modal');
+    document.getElementById('v2-accessibility-trigger').addEventListener('click', function () { accessibilityModal.hidden = false; });
+    document.getElementById('accessibility-modal-close').addEventListener('click', function () { accessibilityModal.hidden = true; });
+    document.getElementById('accessibility-apply').addEventListener('click', function () { accessibilityModal.hidden = true; });
+    accessibilityModal.addEventListener('click', function (e) { if (e.target === accessibilityModal) accessibilityModal.hidden = true; });
+    document.getElementById('accessibility-clear').addEventListener('click', function () {
+      accessibilityModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
     });
 
     // ── V2 Location modal ──
