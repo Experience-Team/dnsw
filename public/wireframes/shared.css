@@ -749,7 +749,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .hero-split-content .hero-event-list li { color: rgba(255,255,255,.75); text-shadow: none; }
 
 /* ── Filter bar V1 ── */
-.filter-top-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .75rem; flex-wrap: wrap; }
+.filter-top-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .75rem; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.filter-top-row::-webkit-scrollbar { display: none; }
+.filter-top-row .filter-bar { flex-wrap: nowrap; }
 .filter-actions { display: flex; gap: .5rem; flex-shrink: 0; }
 .filter-action-btn {
   background: #fff;
@@ -996,9 +998,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   .hero-split-img { height: 12rem; }
   .hero-split-content { padding: 1.75rem 1.5rem; min-height: 13.75rem; }
 
-  /* Filter bar — horizontal scroll on mobile */
-  .filter-top-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; gap: .5rem; }
-  .filter-top-row::-webkit-scrollbar { display: none; }
+  /* Filter bar — chips stay nowrap/scrollable (already set globally) */
   .filter-bar { flex-wrap: nowrap; }
   .result-count { margin-left: 0; }
 
