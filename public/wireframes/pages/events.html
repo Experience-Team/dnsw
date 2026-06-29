@@ -1202,8 +1202,8 @@
       if (checked.length === 0) {
         label = 'Accessibility';
       } else if (checked.length === 1) {
-        var al = checked[0].closest('label').cloneNode(true); var af = al.querySelector('.filter-count'); if (af) af.remove();
-        label = 'Accessibility (' + al.textContent.trim() + ')';
+        var strong = checked[0].closest('label').querySelector('strong');
+        label = 'Accessibility (' + (strong ? strong.textContent.trim() : checked[0].value) + ')';
       } else {
         label = 'Accessibility (' + checked.length + ')';
       }
