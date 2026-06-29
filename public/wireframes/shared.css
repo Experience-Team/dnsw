@@ -459,6 +459,10 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   color: var(--color-text-muted);
 }
 
+/* Allow event-card to fill grid columns (overrides fixed carousel width) */
+.grid-3 .event-card,
+.grid-4 .event-card { width: auto; }
+
 /* ── Content card (image with overlay title — used in grids) ── */
 .content-card {
   position: relative;
@@ -745,25 +749,6 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 }
 .result-count { font-size: .875rem; color: var(--color-text-muted); margin-left: auto; }
 .load-more-wrap { text-align: center; margin-top: 2rem; }
-
-/* ── Event result card (grid layout, not carousel) ── */
-.event-result-card {
-  background: #fff;
-  border: 1px solid var(--color-border);
-  border-radius: .5rem;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.event-result-card .card-img { height: 10rem; position: relative; }
-.event-result-card .card-body { padding: .75rem; flex: 1; display: flex; flex-direction: column; gap: .3rem; }
-.event-result-card .card-date { font-size: .75rem; color: var(--color-text-muted); }
-.event-result-card .card-title { font-size: .9rem; font-weight: 700; line-height: 1.3; }
-.event-result-card .card-desc { font-size: .75rem; color: var(--color-text-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.event-result-card .card-location { font-size: .75rem; color: var(--color-text-muted); margin-top: auto; padding-top: .35rem; }
-.event-result-card .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding: .5rem .75rem; margin-top: .35rem; }
-.event-result-card .card-price { font-size: .8rem; font-weight: 700; }
-.event-result-card .card-bookmark { background: none; border: none; cursor: pointer; color: var(--color-text-muted); padding: 0; }
 
 /* ── FAQ accordion ── */
 .faq-list { border-top: 1px solid var(--color-border); }
