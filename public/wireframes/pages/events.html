@@ -173,6 +173,11 @@
         <button class="vs-btn" data-variant="v2">V2</button>
       </div>
 
+      <!-- Mobile variant trigger (pill tab on left edge) -->
+      <button class="vs-mobile-trigger" aria-label="Switch filter style" id="vs-mobile-trigger">
+        <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><rect width="14" height="1.5" rx=".75" fill="#fff"/><rect y="4.75" width="14" height="1.5" rx=".75" fill="#fff"/><rect y="9.5" width="14" height="1.5" rx=".75" fill="#fff"/></svg>
+      </button>
+
       <!-- Filter variant V1: category chips + sort dropdowns -->
       <div id="filter-v1" class="filter-variant">
         <div class="filter-bar" role="group" aria-label="Filter by category">
@@ -505,6 +510,17 @@
   <div data-include="../components/newsletter.html"></div>
   <div data-include="../components/footer.html"></div>
 
+  <!-- Mobile variant switcher overlay -->
+  <div class="vs-overlay" id="vs-overlay" hidden>
+    <div class="vs-overlay-panel">
+      <p class="vs-overlay-label">Filter style</p>
+      <div class="vs-overlay-options">
+        <button class="vs-overlay-btn active" data-variant="v1">V1</button>
+        <button class="vs-overlay-btn" data-variant="v2">V2</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../includes.js"></script>
 
   <!-- FAQ accordion -->
@@ -519,14 +535,30 @@
 
   <!-- Variant switcher -->
   <script>
-    document.querySelectorAll('.vs-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var v = this.dataset.variant;
-        document.querySelectorAll('.filter-variant').forEach(function(el) { el.hidden = true; });
-        document.getElementById('filter-' + v).hidden = false;
-        document.querySelectorAll('.vs-btn').forEach(function(b) { b.classList.remove('active'); });
-        this.classList.add('active');
+    function setVariant(v) {
+      document.querySelectorAll('.filter-variant').forEach(function(el) { el.hidden = true; });
+      document.getElementById('filter-' + v).hidden = false;
+      document.querySelectorAll('.vs-btn, .vs-overlay-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.variant === v);
       });
+    }
+
+    document.querySelectorAll('.vs-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { setVariant(this.dataset.variant); });
+    });
+
+    document.querySelectorAll('.vs-overlay-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        setVariant(this.dataset.variant);
+        document.getElementById('vs-overlay').hidden = true;
+      });
+    });
+
+    var trigger = document.getElementById('vs-mobile-trigger');
+    var overlay = document.getElementById('vs-overlay');
+    trigger.addEventListener('click', function() { overlay.hidden = false; });
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) overlay.hidden = true;
     });
   </script>
 

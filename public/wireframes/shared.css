@@ -809,6 +809,67 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .vs-btn.active { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
 .vs-btn:not(.active):hover { border-color: #aaa; color: var(--color-text); }
 
+/* Mobile trigger pill */
+.vs-mobile-trigger {
+  display: none; /* shown via mobile override */
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  background: rgba(87,87,87,.85);
+  border: none;
+  border-radius: 0 200px 200px 0;
+  width: 1.75rem;
+  height: 2.75rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile overlay */
+.vs-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+.vs-overlay[hidden] { display: none; }
+.vs-overlay-panel {
+  background: #fff;
+  width: 100%;
+  border-radius: 1rem 1rem 0 0;
+  padding: 1.5rem 1.5rem 2.5rem;
+}
+.vs-overlay-label {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+.vs-overlay-options {
+  display: flex;
+  gap: .75rem;
+}
+.vs-overlay-btn {
+  flex: 1;
+  padding: .75rem;
+  border: 2px solid var(--color-border);
+  border-radius: .5rem;
+  background: #fff;
+  font-size: .9375rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.vs-overlay-btn.active { border-color: var(--color-accent); color: var(--color-accent); }
+
 /* ── FAQ accordion ── */
 .faq-list { border-top: 1px solid var(--color-border); }
 .faq-item { border-bottom: 1px solid var(--color-border); }
@@ -880,8 +941,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   /* Promo banner — tighter positioning */
   .promo-banner .promo-content { bottom: 1.25rem; left: 1.25rem; }
 
-  /* Variant switcher — hidden on mobile */
+  /* Variant switcher — hidden on mobile, use pill trigger instead */
   .variant-switcher { display: none; }
+  .vs-mobile-trigger { display: flex; }
 
   /* Split hero — stack on mobile */
   .hero-split { grid-template-columns: 1fr; height: auto; }
