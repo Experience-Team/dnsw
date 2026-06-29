@@ -233,7 +233,7 @@
           <div class="filter-map-spacer"></div>
           <a href="#" class="btn btn-primary btn-sm" id="v2-map-trigger">View on Map</a>
         </div>
-        <p class="result-count" style="margin-bottom:1.25rem;">Showing 659 results</p>
+        <p class="result-count" id="v2-result-count" style="margin-bottom:1.25rem;">Showing 659 results</p>
       </div>
 
       </div><!-- end filters wrapper -->
@@ -1445,6 +1445,9 @@
         v2State.acc = Array.from(document.querySelectorAll('#accessibility-modal input[name="acc2"]:checked'))
           .map(function (i) { return i.value; });
         updateAllCounts();
+        var total = E.filter(function(e) { return matchesFilters(e, null); }).length;
+        var rc = document.getElementById('v2-result-count');
+        if (rc) rc.textContent = 'Showing ' + total + ' results';
       }
 
       ['#location-modal', '#category-modal', '#accessibility-modal'].forEach(function (sel) {
