@@ -163,43 +163,75 @@
         </div>
       </div>
 
-      <!-- Category filter chips -->
-      <div class="filter-bar" role="group" aria-label="Filter by category">
-        <button class="filter-chip active">All</button>
-        <button class="filter-chip">Comedy</button>
-        <button class="filter-chip">Visual Arts</button>
-        <button class="filter-chip">Performance</button>
-        <button class="filter-chip">Exhibitions</button>
-        <button class="filter-chip">Festivals</button>
-        <button class="filter-chip">Family</button>
-        <button class="filter-chip">Music</button>
-        <button class="filter-chip">Sports</button>
-        <button class="filter-chip">Food &amp; Drink</button>
-        <button class="filter-chip">Markets</button>
-        <button class="filter-chip">Free</button>
+      <!-- Variant switcher (desktop only, fixed left margin) -->
+      <div class="variant-switcher" aria-label="Switch filter style">
+        <span class="vs-label">Filters</span>
+        <button class="vs-btn active" data-variant="v1">V1</button>
+        <button class="vs-btn" data-variant="v2">V2</button>
       </div>
 
-      <!-- Sort / date controls + result count -->
-      <div class="filter-controls">
-        <select class="filter-select" aria-label="Sort by">
-          <option>Sort by</option>
-          <option>Date: Earliest first</option>
-          <option>Date: Latest first</option>
-          <option>Popularity</option>
-        </select>
-        <select class="filter-select" aria-label="Dates">
-          <option>Dates</option>
-          <option>Today</option>
-          <option>This weekend</option>
-          <option>This month</option>
-        </select>
-        <select class="filter-select" aria-label="When">
-          <option>When</option>
-          <option>Morning</option>
-          <option>Afternoon</option>
-          <option>Evening</option>
-        </select>
-        <span class="result-count">Showing 110 results</span>
+      <!-- Filter variant V1: category chips + sort dropdowns -->
+      <div id="filter-v1" class="filter-variant">
+        <div class="filter-bar" role="group" aria-label="Filter by category">
+          <button class="filter-chip active">All</button>
+          <button class="filter-chip">Comedy</button>
+          <button class="filter-chip">Visual Arts</button>
+          <button class="filter-chip">Performance</button>
+          <button class="filter-chip">Exhibitions</button>
+          <button class="filter-chip">Festivals</button>
+          <button class="filter-chip">Family</button>
+          <button class="filter-chip">Music</button>
+          <button class="filter-chip">Sports</button>
+          <button class="filter-chip">Food &amp; Drink</button>
+          <button class="filter-chip">Markets</button>
+          <button class="filter-chip">Free</button>
+        </div>
+        <div class="filter-controls">
+          <select class="filter-select" aria-label="Sort by">
+            <option>Sort by</option>
+            <option>Date: Earliest first</option>
+            <option>Date: Latest first</option>
+            <option>Popularity</option>
+          </select>
+          <select class="filter-select" aria-label="Dates">
+            <option>Dates</option>
+            <option>Today</option>
+            <option>This weekend</option>
+            <option>This month</option>
+          </select>
+          <select class="filter-select" aria-label="When">
+            <option>When</option>
+            <option>Morning</option>
+            <option>Afternoon</option>
+            <option>Evening</option>
+          </select>
+          <span class="result-count">Showing 110 results</span>
+        </div>
+      </div>
+
+      <!-- Filter variant V2: dropdown pills + map button -->
+      <div id="filter-v2" class="filter-variant" hidden>
+        <div class="filter-bar-v2">
+          <button class="filter-dropdown">
+            Date
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="filter-dropdown">
+            Location
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="filter-dropdown">
+            Category
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="filter-dropdown">
+            Accessibility
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="filter-map-spacer"></div>
+          <a href="#" class="btn btn-primary btn-sm">View on Map</a>
+        </div>
+        <p class="result-count" style="margin-bottom:1.25rem;">Showing 110 results</p>
       </div>
 
       <!-- Event results grid -->
@@ -476,6 +508,19 @@
       btn.addEventListener('click', function () {
         var item = btn.closest('.faq-item');
         item.classList.toggle('open');
+      });
+    });
+  </script>
+
+  <!-- Variant switcher -->
+  <script>
+    document.querySelectorAll('.vs-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var v = this.dataset.variant;
+        document.querySelectorAll('.filter-variant').forEach(function(el) { el.hidden = true; });
+        document.getElementById('filter-' + v).hidden = false;
+        document.querySelectorAll('.vs-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
       });
     });
   </script>
