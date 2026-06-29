@@ -412,7 +412,8 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   display: flex;
   flex-direction: column;
 }
-.event-card .card-img { height: 8rem; position: relative; flex-shrink: 0; }
+.event-card .card-img { aspect-ratio: 4 / 3; height: auto; position: relative; flex-shrink: 0; }
+.event-card .card-img::after { content: ''; background: url('data:image/svg+xml,<svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.2 1.2H1.6C1.375 1.2 1.2 1.4 1.2 1.6V9.6V9.625L1.3 9.475L3.3 6.675C3.425 6.5 3.6 6.4 3.8 6.4C3.975 6.4 4.175 6.5 4.275 6.65L5.05 7.725L7.125 5.05C7.225 4.9 7.4 4.8 7.6 4.8C7.775 4.8 7.95 4.9 8.075 5.05L11.475 9.45L11.6 9.6V1.6C11.6 1.4 11.4 1.2 11.2 1.2ZM1.6 0H11.2C12.075 0 12.8 0.725 12.8 1.6V9.6C12.8 10.5 12.075 11.2 11.2 11.2H1.6C0.7 11.2 0 10.5 0 9.6V1.6C0 0.725 0.7 0 1.6 0ZM3.6 4.8C3.15 4.8 2.775 4.575 2.55 4.2C2.325 3.85 2.325 3.375 2.55 3C2.775 2.65 3.15 2.4 3.6 2.4C4.025 2.4 4.4 2.65 4.625 3C4.85 3.375 4.85 3.85 4.625 4.2C4.4 4.575 4.025 4.8 3.6 4.8Z" fill="%23AAAAAA"/></svg>') center / 13px 12px no-repeat; }
 .event-card .card-badge {
   position: absolute;
   top: .5rem;
