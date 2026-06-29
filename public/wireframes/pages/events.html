@@ -208,7 +208,7 @@
             <button class="filter-chip">Free</button>
           </div>
         </div>
-        <p class="result-count" style="margin-bottom:1.25rem;">Seeing 15 of 596 results</p>
+        <p class="result-count" style="margin-bottom:1.25rem;">Seeing 15 of 659 results</p>
       </div>
 
       <!-- Filter variant V2: dropdown pills + map button -->
@@ -233,7 +233,7 @@
           <div class="filter-map-spacer"></div>
           <a href="#" class="btn btn-primary btn-sm" id="v2-map-trigger">View on Map</a>
         </div>
-        <p class="result-count" style="margin-bottom:1.25rem;">Showing 110 results</p>
+        <p class="result-count" style="margin-bottom:1.25rem;">Showing 659 results</p>
       </div>
 
       </div><!-- end filters wrapper -->
@@ -1253,10 +1253,10 @@
         'sydney-west':   ['appin','blacktown','cabramatta','camden','campbelltown','parramatta','penrith','picton','olympic-park','thirlmere']
       };
 
-      // 110 synthetic events {loc, cat, acc:[]}
+      // 659 synthetic events (110 base × 6, sliced to 659)
       // cats: exhibition, festival, food, markets, music, performing-arts, sport
       // acc:  vision, hearing, wheelchair, quiet, auslan, companion
-      var E = [
+      var BASE = [
         {loc:'city-centre',cat:'music',acc:['wheelchair']},
         {loc:'city-centre',cat:'festival',acc:[]},
         {loc:'city-centre',cat:'exhibition',acc:['vision','wheelchair']},
@@ -1366,6 +1366,7 @@
         {loc:'sydney-harbour',cat:'festival',acc:['wheelchair']},
         {loc:'walsh-bay',cat:'performing-arts',acc:['auslan']}
       ];
+      var E = (function(b) { var a=[]; for(var i=0;i<6;i++) a=a.concat(b); return a.slice(0,659); })(BASE);
 
       var v2State = { locs: [], cat: null, acc: [] };
 
