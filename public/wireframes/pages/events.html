@@ -1194,14 +1194,32 @@
     document.getElementById('location-modal-close').addEventListener('click', function () {
       locationModal.hidden = true;
     });
+    function updateLocationPill() {
+      var btn = document.getElementById('v2-location-trigger');
+      var svg = btn.querySelector('svg');
+      var checked = Array.from(locationModal.querySelectorAll('input[name="loc2"]:checked'));
+      var label;
+      if (checked.length === 0) {
+        label = 'Location';
+      } else if (checked.length === 1) {
+        label = 'Location (' + checked[0].closest('label').textContent.trim() + ')';
+      } else {
+        label = 'Location (' + checked.length + ')';
+      }
+      btn.textContent = label;
+      if (svg) btn.appendChild(svg);
+    }
+
     document.getElementById('location-apply').addEventListener('click', function () {
       locationModal.hidden = true;
+      updateLocationPill();
     });
     locationModal.addEventListener('click', function (e) {
       if (e.target === locationModal) locationModal.hidden = true;
     });
     document.getElementById('location-clear').addEventListener('click', function () {
       locationModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+      updateLocationPill();
     });
     locationModal.querySelectorAll('.filters-group-toggle').forEach(function (btn) {
       btn.addEventListener('click', function () {
