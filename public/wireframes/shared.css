@@ -270,8 +270,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .hero .ph-img {
   width: 100%;
   height: 100%;
+  background: #444;
 }
-.hero .ph-img::after { font-size: 1rem; color: #bbb; }
+.hero .ph-img::after { font-size: 1rem; color: rgba(255,255,255,.3); }
 .hero-content {
   position: absolute;
   bottom: 2.5rem;
@@ -973,10 +974,13 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   .variant-switcher { display: none; }
   .vs-mobile-trigger { display: flex; }
 
+  /* Full-bleed hero — shorter on mobile */
+  .hero { height: 16.25rem; }
+
   /* Split hero — stack on mobile */
   .hero-split { grid-template-columns: 1fr; height: auto; }
   .hero-split-img { height: 12rem; }
-  .hero-split-content { padding: 1.75rem 1.5rem; }
+  .hero-split-content { padding: 1.75rem 1.5rem; min-height: 13.75rem; }
 
   /* Filter bar — horizontal scroll on mobile */
   .filter-bar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; }
