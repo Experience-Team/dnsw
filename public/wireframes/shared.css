@@ -748,8 +748,22 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .hero-split-content .hero-sub { color: rgba(255,255,255,.65); text-shadow: none; }
 .hero-split-content .hero-event-list li { color: rgba(255,255,255,.75); text-shadow: none; }
 
-/* ── Filter bar ── */
-.filter-bar { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+/* ── Filter bar V1 ── */
+.filter-top-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .75rem; flex-wrap: wrap; }
+.filter-actions { display: flex; gap: .5rem; flex-shrink: 0; }
+.filter-action-btn {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: .25rem;
+  padding: .4375rem .625rem;
+  font-size: .8125rem;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--color-text);
+  font-family: inherit;
+}
+.filter-action-btn:hover { border-color: #aaa; }
+.filter-bar { display: flex; flex-wrap: wrap; gap: .5rem; }
 .filter-chip {
   background: none;
   border: 1px solid var(--color-border);
@@ -983,8 +997,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   .hero-split-content { padding: 1.75rem 1.5rem; min-height: 13.75rem; }
 
   /* Filter bar — horizontal scroll on mobile */
-  .filter-bar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; }
-  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-top-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; gap: .5rem; }
+  .filter-top-row::-webkit-scrollbar { display: none; }
+  .filter-bar { flex-wrap: nowrap; }
   .result-count { margin-left: 0; }
 
   /* Utility bar — compact on mobile */
