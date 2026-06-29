@@ -1173,7 +1173,8 @@
       var btn = document.getElementById('v2-category-trigger');
       var svg = btn.querySelector('svg');
       var checked = categoryModal.querySelector('input[name="cat2"]:checked');
-      var label = checked ? 'Category (' + checked.closest('label').textContent.trim() + ')' : 'Category';
+      var label;
+      if (checked) { var cl = checked.closest('label').cloneNode(true); var cf = cl.querySelector('.filter-count'); if (cf) cf.remove(); label = 'Category (' + cl.textContent.trim() + ')'; } else { label = 'Category'; }
       btn.textContent = label;
       if (svg) btn.appendChild(svg);
     }
@@ -1193,10 +1194,30 @@
     var accessibilityModal = document.getElementById('accessibility-modal');
     document.getElementById('v2-accessibility-trigger').addEventListener('click', function () { accessibilityModal.hidden = false; });
     document.getElementById('accessibility-modal-close').addEventListener('click', function () { accessibilityModal.hidden = true; });
-    document.getElementById('accessibility-apply').addEventListener('click', function () { accessibilityModal.hidden = true; });
+    function updateAccessibilityPill() {
+      var btn = document.getElementById('v2-accessibility-trigger');
+      var svg = btn.querySelector('svg');
+      var checked = Array.from(accessibilityModal.querySelectorAll('input[name="acc2"]:checked'));
+      var label;
+      if (checked.length === 0) {
+        label = 'Accessibility';
+      } else if (checked.length === 1) {
+        var al = checked[0].closest('label').cloneNode(true); var af = al.querySelector('.filter-count'); if (af) af.remove();
+        label = 'Accessibility (' + al.textContent.trim() + ')';
+      } else {
+        label = 'Accessibility (' + checked.length + ')';
+      }
+      btn.textContent = label;
+      if (svg) btn.appendChild(svg);
+    }
+    document.getElementById('accessibility-apply').addEventListener('click', function () {
+      accessibilityModal.hidden = true;
+      updateAccessibilityPill();
+    });
     accessibilityModal.addEventListener('click', function (e) { if (e.target === accessibilityModal) accessibilityModal.hidden = true; });
     document.getElementById('accessibility-clear').addEventListener('click', function () {
       accessibilityModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+      updateAccessibilityPill();
     });
 
     // ── V2 Location modal ──
