@@ -190,7 +190,7 @@
         <div class="filter-top-row">
           <div class="filter-actions">
             <button class="filter-action-btn">Map view</button>
-            <button class="filter-action-btn">Filters</button>
+            <button class="filter-action-btn" id="filters-modal-trigger">Filters</button>
             <button class="filter-action-btn">When</button>
           </div>
           <div class="filter-bar" role="group" aria-label="Filter by category">
@@ -524,6 +524,207 @@
     </div>
   </div>
 
+  <!-- Filters modal -->
+  <div class="filters-modal-overlay" id="filters-modal" hidden>
+    <div class="filters-modal" role="dialog" aria-modal="true" aria-labelledby="filters-modal-title">
+
+      <div class="filters-modal-header">
+        <h2 class="filters-modal-title" id="filters-modal-title">Plan your trip</h2>
+        <button class="filters-modal-close" id="filters-modal-close" aria-label="Close">&#x2715;</button>
+      </div>
+
+      <div class="filters-modal-body">
+
+        <!-- Locations -->
+        <div class="filters-section">
+          <h3 class="filters-section-title">Locations</h3>
+          <label class="filters-check-row">
+            <input type="checkbox" name="location" value="anywhere"> Anywhere
+          </label>
+
+          <div class="filters-group">
+            <button class="filters-group-toggle" aria-expanded="false">
+              <label class="filters-check-row" onclick="event.stopPropagation()">
+                <input type="checkbox" name="location" value="inner-sydney"> Inner Sydney
+              </label>
+              <span class="filters-group-chevron"></span>
+            </button>
+            <div class="filters-group-body" hidden>
+              <div class="filters-sub-grid">
+                <label class="filters-check-row"><input type="checkbox" name="location" value="alexandria"> Alexandria &amp; Rosebery</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="balmain"> Balmain</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="chippendale"> Chippendale</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="darlinghurst"> Darlinghurst</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="glebe"> Glebe</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="leichhardt"> Leichhardt</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="marrickville"> Marrickville</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="newtown"> Newtown</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="paddington"> Paddington</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="redfern"> Redfern &amp; Waterloo</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="surry-hills"> Surry Hills</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-group">
+            <button class="filters-group-toggle" aria-expanded="false">
+              <label class="filters-check-row" onclick="event.stopPropagation()">
+                <input type="checkbox" name="location" value="sydney-city"> Sydney City
+              </label>
+              <span class="filters-group-chevron"></span>
+            </button>
+            <div class="filters-group-body" hidden>
+              <div class="filters-sub-grid">
+                <label class="filters-check-row"><input type="checkbox" name="location" value="barangaroo"> Barangaroo</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="chinatown"> Chinatown &amp; Haymarket</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="circular-quay"> Circular Quay</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="city-centre"> City Centre</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="darling-harbour"> Darling Harbour</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="kings-cross"> Kings Cross</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="potts-point"> Potts Point &amp; Woolloomooloo</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="pyrmont"> Pyrmont</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="sydney-harbour"> Sydney Harbour</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="the-rocks"> The Rocks</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="walsh-bay"> Walsh Bay</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-group">
+            <button class="filters-group-toggle" aria-expanded="false">
+              <label class="filters-check-row" onclick="event.stopPropagation()">
+                <input type="checkbox" name="location" value="sydney-east"> Sydney East
+              </label>
+              <span class="filters-group-chevron"></span>
+            </button>
+            <div class="filters-group-body" hidden>
+              <div class="filters-sub-grid">
+                <label class="filters-check-row"><input type="checkbox" name="location" value="bondi"> Bondi</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="coogee"> Coogee</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="double-bay"> Double Bay</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="la-perouse"> La Perouse</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="maroubra"> Maroubra</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="moore-park"> Moore Park</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="randwick"> Randwick</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="watsons-bay"> Watsons Bay</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-group">
+            <button class="filters-group-toggle" aria-expanded="false">
+              <label class="filters-check-row" onclick="event.stopPropagation()">
+                <input type="checkbox" name="location" value="sydney-north"> Sydney North
+              </label>
+              <span class="filters-group-chevron"></span>
+            </button>
+            <div class="filters-group-body" hidden>
+              <div class="filters-sub-grid">
+                <label class="filters-check-row"><input type="checkbox" name="location" value="hawkesbury"> Hawkesbury</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="hornsby"> Hornsby &amp; Ku-ring-gai National Park</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="manly"> Manly</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="mosman"> Mosman</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="north-sydney"> North Sydney &amp; Chatswood</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="northern-beaches"> Northern Beaches</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="palm-beach"> Palm Beach</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="windsor"> Windsor</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-group">
+            <button class="filters-group-toggle" aria-expanded="false">
+              <label class="filters-check-row" onclick="event.stopPropagation()">
+                <input type="checkbox" name="location" value="sydney-south"> Sydney South
+              </label>
+              <span class="filters-group-chevron"></span>
+            </button>
+            <div class="filters-group-body" hidden>
+              <div class="filters-sub-grid">
+                <label class="filters-check-row"><input type="checkbox" name="location" value="bundeena"> Bundeena</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="cronulla"> Cronulla</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="mascot"> Mascot</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-group">
+            <button class="filters-group-toggle" aria-expanded="false">
+              <label class="filters-check-row" onclick="event.stopPropagation()">
+                <input type="checkbox" name="location" value="sydney-west"> Sydney West
+              </label>
+              <span class="filters-group-chevron"></span>
+            </button>
+            <div class="filters-group-body" hidden>
+              <div class="filters-sub-grid">
+                <label class="filters-check-row"><input type="checkbox" name="location" value="appin"> Appin</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="blacktown"> Blacktown</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="cabramatta"> Cabramatta</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="camden"> Camden</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="campbelltown"> Campbelltown</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="parramatta"> Parramatta</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="penrith"> Penrith</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="picton"> Picton</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="olympic-park"> Sydney Olympic Park</label>
+                <label class="filters-check-row"><input type="checkbox" name="location" value="thirlmere"> Thirlmere</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event types -->
+        <div class="filters-section">
+          <div class="filters-sub-grid">
+            <label class="filters-check-row"><input type="checkbox" name="type" value="exhibition"> Exhibition And Shows</label>
+            <label class="filters-check-row"><input type="checkbox" name="type" value="markets"> Markets</label>
+            <label class="filters-check-row"><input type="checkbox" name="type" value="food-wine"> Food And Wine</label>
+            <label class="filters-check-row"><input type="checkbox" name="type" value="sport"> Sporting Events</label>
+            <label class="filters-check-row"><input type="checkbox" name="type" value="community"> Community Event</label>
+            <label class="filters-check-row"><input type="checkbox" name="type" value="classes"> Classes Lessons Workshops And Talks</label>
+            <label class="filters-check-row"><input type="checkbox" name="type" value="business"> Business Event</label>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="filters-section">
+          <h3 class="filters-section-title">Accessibility</h3>
+          <div class="filters-sub-grid">
+            <label class="filters-access-row">
+              <input type="checkbox" name="access" value="high-support">
+              <span><strong>High Support Needs</strong><span class="filters-access-desc">Caters for people with high support needs who travel with a support person</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="access" value="companion-card">
+              <span><strong>Companion Card</strong><span class="filters-access-desc">Allows a person's carer free entry into participating venues and events</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="access" value="vision">
+              <span><strong>Vision</strong><span class="filters-access-desc">Caters for people who are blind or have vision loss</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="access" value="mobility">
+              <span><strong>Mobility</strong><span class="filters-access-desc">Caters for people with sufficient mobility to climb a few steps but who would benefit from fixtures to aid balance</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="access" value="hearing">
+              <span><strong>Hearing</strong><span class="filters-access-desc">Caters for people who are deaf or have hearing loss</span></span>
+            </label>
+            <label class="filters-access-row">
+              <input type="checkbox" name="access" value="wheelchair">
+              <span><strong>Wheelchair</strong><span class="filters-access-desc">Caters for people who use a wheelchair</span></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="filters-modal-footer">
+        <button class="filters-clear" id="filters-clear">Clear all</button>
+        <button class="filters-submit" id="filters-modal-apply">Done</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../includes.js"></script>
 
   <!-- FAQ accordion -->
@@ -562,6 +763,31 @@
     trigger.addEventListener('click', function() { overlay.hidden = false; });
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay) overlay.hidden = true;
+    });
+
+    // ── Filters modal ──
+    var filtersModal = document.getElementById('filters-modal');
+    document.getElementById('filters-modal-trigger').addEventListener('click', function () {
+      filtersModal.hidden = false;
+    });
+    document.getElementById('filters-modal-close').addEventListener('click', function () {
+      filtersModal.hidden = true;
+    });
+    document.getElementById('filters-modal-apply').addEventListener('click', function () {
+      filtersModal.hidden = true;
+    });
+    filtersModal.addEventListener('click', function (e) {
+      if (e.target === filtersModal) filtersModal.hidden = true;
+    });
+    document.getElementById('filters-clear').addEventListener('click', function () {
+      filtersModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+    });
+    document.querySelectorAll('.filters-group-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        btn.nextElementSibling.hidden = expanded;
+      });
     });
   </script>
 
