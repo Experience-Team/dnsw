@@ -1215,7 +1215,9 @@
       if (checked.length === 0) {
         label = 'Location';
       } else if (checked.length === 1) {
-        label = 'Location (' + checked[0].closest('label').textContent.trim() + ')';
+        var lbl = checked[0].closest('label').cloneNode(true);
+        var fc = lbl.querySelector('.filter-count'); if (fc) fc.remove();
+        label = 'Location (' + lbl.textContent.trim() + ')';
       } else {
         label = 'Location (' + checked.length + ')';
       }
