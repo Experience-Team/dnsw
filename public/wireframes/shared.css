@@ -917,8 +917,10 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 
 /* ── When / date modal ── */
 .when-modal { max-width: 54rem; }
-.when-quick-row { display: flex; gap: 2rem; margin-bottom: 1.5rem; }
-.when-quick-row .filters-check-row { font-size: 1rem; }
+.when-seg-ctrl { display: flex; margin-bottom: 1.5rem; border: 1px solid var(--color-border); border-radius: .5rem; overflow: hidden; }
+.when-seg-btn { flex: 1; padding: .5rem .75rem; font-size: .875rem; background: none; border: none; border-right: 1px solid var(--color-border); cursor: pointer; color: var(--color-text); font-family: inherit; white-space: nowrap; }
+.when-seg-btn:last-child { border-right: none; }
+.when-seg-btn.active { background: var(--color-accent); color: #fff; font-weight: 600; }
 .when-cal-wrap {
   display: flex; gap: 2rem;
   border: 1px solid var(--color-border); border-radius: .75rem; padding: 1.5rem;
