@@ -915,6 +915,19 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 }
 .vs-overlay-btn.active { border-color: var(--color-accent); color: var(--color-accent); }
 
+/* ── Map view ── */
+#map-content-row { display: block; }
+#map-content-row.map-active { display: flex; align-items: flex-start; gap: 1.5rem; }
+#map-content-row.map-active .grid-3 {
+  flex: 0 0 26rem;
+  grid-template-columns: 1fr;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-right: .5rem;
+}
+.map-panel { display: none; flex: 1; min-height: 80vh; background: #ccc; border-radius: .5rem; position: sticky; top: 1.5rem; }
+#map-content-row.map-active .map-panel { display: block; }
+
 /* ── Filters modal ── */
 .filters-modal-overlay {
   position: fixed; inset: 0;

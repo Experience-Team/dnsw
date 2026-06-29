@@ -189,7 +189,7 @@
       <div id="filter-v1" class="filter-variant">
         <div class="filter-top-row">
           <div class="filter-actions">
-            <button class="filter-action-btn">Map view</button>
+            <button class="filter-action-btn" id="map-view-trigger">Map view</button>
             <button class="filter-action-btn" id="filters-modal-trigger">Filters</button>
             <button class="filter-action-btn">When</button>
           </div>
@@ -238,7 +238,8 @@
 
       </div><!-- end filters wrapper -->
 
-      <!-- Event results grid -->
+      <!-- Event results grid + map panel -->
+      <div id="map-content-row">
       <div class="grid-3">
 
         <div class="event-card">
@@ -376,7 +377,9 @@
           </div>
         </div>
 
-      </div>
+      </div><!-- end grid-3 -->
+      <div class="map-panel ph-img" id="map-panel"></div>
+      </div><!-- end map-content-row -->
 
       <div class="load-more-wrap">
         <a href="#" class="btn btn-primary">Load more</a>
@@ -763,6 +766,14 @@
     trigger.addEventListener('click', function() { overlay.hidden = false; });
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay) overlay.hidden = true;
+    });
+
+    // ── Map view toggle ──
+    var mapViewBtn = document.getElementById('map-view-trigger');
+    var mapContentRow = document.getElementById('map-content-row');
+    mapViewBtn.addEventListener('click', function () {
+      var active = mapContentRow.classList.toggle('map-active');
+      mapViewBtn.textContent = active ? 'List view' : 'Map view';
     });
 
     // ── Filters modal ──
