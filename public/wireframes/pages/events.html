@@ -1187,7 +1187,7 @@
     document.getElementById('filters-clear').addEventListener('click', function () {
       filtersModal.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
     });
-    document.querySelectorAll('.filters-group-toggle').forEach(function (btn) {
+    filtersModal.querySelectorAll('.filters-group-toggle').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var expanded = btn.getAttribute('aria-expanded') === 'true';
         btn.setAttribute('aria-expanded', String(!expanded));
