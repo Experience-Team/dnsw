@@ -154,7 +154,20 @@
   </section>
 
   <!-- All events in Sydney -->
-  <section class="section" style="background:#f9f9f9;">
+  <section class="section" style="background:#f9f9f9; position:relative;">
+
+    <!-- Variant switcher (desktop only, far left edge) -->
+    <div class="variant-switcher" aria-label="Switch filter style">
+      <span class="vs-label">Filters</span>
+      <button class="vs-btn active" data-variant="v1">V1</button>
+      <button class="vs-btn" data-variant="v2">V2</button>
+    </div>
+
+    <!-- Mobile variant trigger (pill tab on left edge, scrolls with page) -->
+    <button class="vs-mobile-trigger" aria-label="Switch filter style" id="vs-mobile-trigger">
+      <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><rect width="14" height="1.5" rx=".75" fill="#fff"/><rect y="4.75" width="14" height="1.5" rx=".75" fill="#fff"/><rect y="9.5" width="14" height="1.5" rx=".75" fill="#fff"/></svg>
+    </button>
+
     <div class="container">
       <div class="section-header">
         <div>
@@ -164,19 +177,7 @@
       </div>
 
       <!-- Filters + variant switcher -->
-      <div style="position:relative;">
-
-      <!-- Variant switcher (desktop only, left margin) -->
-      <div class="variant-switcher" aria-label="Switch filter style">
-        <span class="vs-label">Filters</span>
-        <button class="vs-btn active" data-variant="v1">V1</button>
-        <button class="vs-btn" data-variant="v2">V2</button>
-      </div>
-
-      <!-- Mobile variant trigger (pill tab on left edge) -->
-      <button class="vs-mobile-trigger" aria-label="Switch filter style" id="vs-mobile-trigger">
-        <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><rect width="14" height="1.5" rx=".75" fill="#fff"/><rect y="4.75" width="14" height="1.5" rx=".75" fill="#fff"/><rect y="9.5" width="14" height="1.5" rx=".75" fill="#fff"/></svg>
-      </button>
+      <div>
 
       <!-- Filter variant V1: category chips + sort dropdowns -->
       <div id="filter-v1" class="filter-variant">
@@ -242,7 +243,7 @@
         <p class="result-count" style="margin-bottom:1.25rem;">Showing 110 results</p>
       </div>
 
-      </div><!-- end filters+switcher wrapper -->
+      </div><!-- end filters wrapper -->
 
       <!-- Event results grid -->
       <div class="grid-3">
@@ -504,7 +505,7 @@
         </div>
 
       </div>
-    </div>
+    </div><!-- end .container -->
   </section>
 
   <div data-include="../components/newsletter.html"></div>
