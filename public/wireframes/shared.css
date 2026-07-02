@@ -1154,7 +1154,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 }
 /* Active row */
 .v3-active-row { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem; font-size: .875rem; flex-wrap: wrap; }
-.v3-result-count { color: var(--color-text); white-space: nowrap; }
+.v3-result-count { color: var(--color-text-muted); white-space: nowrap; margin-left: auto; padding-left: 1rem; }
 .v3-tags { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
 .v3-tag {
   background: none; border: none; cursor: pointer;
