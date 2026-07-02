@@ -1113,3 +1113,53 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .v2-clear-all:hover { color: var(--color-text); }
 .filter-dropdown--empty { opacity: .4; }
 .option-zero { opacity: .4; pointer-events: none; }
+
+/* ── V3 filter bar ── */
+.filter-bar-v3 { display: flex; align-items: center; gap: .5rem; flex-wrap: nowrap; margin-bottom: .75rem; }
+.v3-date-group { display: flex; gap: .375rem; align-items: center; }
+.v3-date-chip {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: .4rem .85rem;
+  font-size: .875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: .3rem;
+}
+.v3-date-chip:hover { border-color: #aaa; }
+.v3-date-chip.active { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
+.v3-date-chip.active svg path { stroke: #fff; }
+.v3-divider { width: 1px; height: 22px; background: var(--color-border); margin: 0 .25rem; flex-shrink: 0; }
+.v3-filter-group { display: flex; gap: .375rem; align-items: center; }
+.v3-pill {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: .4rem .85rem;
+  font-size: .875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: .35rem;
+}
+.v3-pill:hover { border-color: #aaa; }
+.v3-badge {
+  background: #111;
+  color: #fff;
+  font-size: .7rem;
+  border-radius: 200px;
+  width: 16px; height: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+/* Active row */
+.v3-active-row { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem; font-size: .875rem; flex-wrap: wrap; }
+.v3-result-count { color: var(--color-text); white-space: nowrap; }
+.v3-tags { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.v3-tag {
+  background: none; border: none; cursor: pointer;
+  font-size: .875rem; color: var(--color-text);
+  display: inline-flex; align-items: center; gap: .25rem;
+  padding: 0;
+}
+.v3-tag:hover { text-decoration: underline; }
