@@ -250,7 +250,10 @@
         <!-- Active filters row — hidden when nothing selected -->
         <div class="v3-active-row" id="v3-active-row" hidden>
           <span class="v3-result-count" id="v3-result-count">Showing 659 results.</span>
-          <div class="v3-tags" id="v3-tags"></div>
+          <div class="v3-tags-row">
+            <div class="v3-tags" id="v3-tags"></div>
+            <button class="v2-clear-all" id="v3-clear-all">&#x2715; Clear all</button>
+          </div>
         </div>
       </div>
 
@@ -1774,6 +1777,13 @@
       document.getElementById('location-clear').addEventListener('click', v3Sync);
       document.getElementById('category-clear').addEventListener('click', v3Sync);
       document.getElementById('accessibility-clear').addEventListener('click', v3Sync);
+
+      document.getElementById('v3-clear-all').addEventListener('click', function () {
+        document.querySelectorAll('#location-modal input[name="loc2"]').forEach(function (cb) { cb.checked = false; });
+        document.querySelectorAll('#category-modal input[name="cat2"]').forEach(function (r) { r.checked = false; });
+        document.querySelectorAll('#accessibility-modal input[name="acc2"]').forEach(function (cb) { cb.checked = false; });
+        document.getElementById('location-modal').dispatchEvent(new Event('change', { bubbles: true }));
+      });
     })();
 
     // ── Filters modal ──
