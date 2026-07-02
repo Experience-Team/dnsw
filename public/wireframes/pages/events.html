@@ -1652,12 +1652,20 @@
         return strong ? strong.textContent.trim() : val;
       }
 
+      var v3Regions = {
+        'inner-sydney':  ['alexandria','balmain','chippendale','darlinghurst','glebe','leichhardt','marrickville','newtown','paddington','redfern','surry-hills'],
+        'sydney-city':   ['barangaroo','chinatown','circular-quay','city-centre','darling-harbour','kings-cross','potts-point','pyrmont','sydney-harbour','the-rocks','walsh-bay'],
+        'sydney-east':   ['bondi','coogee','double-bay','la-perouse','maroubra','moore-park','randwick','watsons-bay'],
+        'sydney-north':  ['hawkesbury','hornsby','manly','mosman','north-sydney','northern-beaches','palm-beach','windsor'],
+        'sydney-south':  ['bundeena','cronulla','mascot'],
+        'sydney-west':   ['appin','blacktown','cabramatta','camden','campbelltown','parramatta','penrith','picton','olympic-park','thirlmere']
+      };
+
       function v3Sync() {
         var locChecked = Array.from(document.querySelectorAll('#location-modal input[name="loc2"]:checked'))
           .map(function (i) { return i.value; })
           .filter(function (v) {
-            var regions = ['inner-sydney','sydney-city','sydney-east','sydney-north','sydney-south','sydney-west'];
-            return v !== 'anywhere' && regions.indexOf(v) === -1;
+            return v !== 'anywhere' && !v3Regions[v];
           });
         var catChecked = Array.from(document.querySelectorAll('#category-modal input[name="cat2"]:checked'))
           .map(function (i) { return i.value; });
@@ -1677,7 +1685,7 @@
         accBadge.textContent = accChecked.length;
         accBadge.hidden = accChecked.length === 0;
 
-        // Build active filter tags
+        // Build active filter tags — collapse fully-selected regions into one tag
         var tagsEl = document.getElementById('v3-tags');
         tagsEl.innerHTML = '';
         var anyActive = locChecked.length > 0 || catChecked.length > 0 || accChecked.length > 0;
@@ -1690,14 +1698,40 @@
           tagsEl.appendChild(tag);
         }
 
-        locChecked.forEach(function (val) {
+        // Location tags: show region tag if all subs selected, else individual sub tags
+        var remainingSubs = locChecked.slice();
+        Object.keys(v3Regions).forEach(function (regionKey) {
+          var subs = v3Regions[regionKey];
+          var allSelected = subs.every(function (s) { return locChecked.indexOf(s) !== -1; });
+          if (allSelected && subs.length > 0 && subs.every(function(s){ return locChecked.indexOf(s) !== -1; })) {
+            // Get region label from its input
+            var regionInp = document.querySelector('#location-modal input[name="loc2"][value="' + regionKey + '"]');
+            var regionLbl = regionInp ? (function(){ var l = regionInp.closest('label') || regionInp.parentElement.closest('label'); var c = l ? l.cloneNode(true) : null; if(c){ var fc=c.querySelector('.filter-count'); if(fc) fc.remove(); return c.textContent.trim(); } return regionKey; })() : regionKey;
+            makeTag(regionLbl, function () {
+              subs.forEach(function (s) {
+                var inp = document.querySelector('#location-modal input[name="loc2"][value="' + s + '"]');
+                if (inp) inp.checked = false;
+              });
+              var rInp = document.querySelector('#location-modal input[name="loc2"][value="' + regionKey + '"]');
+              if (rInp) rInp.checked = false;
+              document.getElementById('location-modal').dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            // Remove these subs from remainingSubs
+            subs.forEach(function (s) {
+              var idx = remainingSubs.indexOf(s);
+              if (idx !== -1) remainingSubs.splice(idx, 1);
+            });
+          }
+        });
+        // Remaining individual subs not covered by a full-region tag
+        remainingSubs.forEach(function (val) {
           makeTag(getLocLabel(val), function () {
             var inp = document.querySelector('#location-modal input[name="loc2"][value="' + val + '"]');
             if (inp) inp.checked = false;
-            // fire syncState for V2 cross-filter engine
             document.getElementById('location-modal').dispatchEvent(new Event('change', { bubbles: true }));
           });
         });
+
         catChecked.forEach(function (val) {
           makeTag(getCatLabel(val), function () {
             var inp = document.querySelector('#category-modal input[name="cat2"][value="' + val + '"]');
