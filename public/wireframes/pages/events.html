@@ -249,8 +249,8 @@
         </div>
         <!-- Active filters row — hidden when nothing selected -->
         <div class="v3-active-row" id="v3-active-row" hidden>
-          <div class="v3-tags" id="v3-tags"></div>
           <span class="v3-result-count" id="v3-result-count">Showing 659 results.</span>
+          <div class="v3-tags" id="v3-tags"></div>
         </div>
       </div>
 
@@ -1557,6 +1557,10 @@
       });
 
       updateAllCounts();
+
+      // Expose for V3 tag counts
+      window._v2CountFor = countFor;
+      window._v2CountRegion = countRegion;
     })();
 
     // ── V3 filter wiring ──
@@ -1690,10 +1694,13 @@
         tagsEl.innerHTML = '';
         var anyActive = locChecked.length > 0 || catChecked.length > 0 || accChecked.length > 0;
 
-        function makeTag(label, removeFn) {
+        var _countFor = window._v2CountFor;
+        var _countRegion = window._v2CountRegion;
+
+        function makeTag(label, count, removeFn) {
           var tag = document.createElement('button');
           tag.className = 'v3-tag';
-          tag.innerHTML = '&#x2715; ' + label;
+          tag.innerHTML = '&#x2715; ' + label + (count != null ? ' (' + count + ')' : '');
           tag.addEventListener('click', removeFn);
           tagsEl.appendChild(tag);
         }
@@ -1702,12 +1709,12 @@
         var remainingSubs = locChecked.slice();
         Object.keys(v3Regions).forEach(function (regionKey) {
           var subs = v3Regions[regionKey];
-          var allSelected = subs.every(function (s) { return locChecked.indexOf(s) !== -1; });
-          if (allSelected && subs.length > 0 && subs.every(function(s){ return locChecked.indexOf(s) !== -1; })) {
-            // Get region label from its input
+          var allSelected = subs.length > 0 && subs.every(function (s) { return locChecked.indexOf(s) !== -1; });
+          if (allSelected) {
             var regionInp = document.querySelector('#location-modal input[name="loc2"][value="' + regionKey + '"]');
             var regionLbl = regionInp ? (function(){ var l = regionInp.closest('label') || regionInp.parentElement.closest('label'); var c = l ? l.cloneNode(true) : null; if(c){ var fc=c.querySelector('.filter-count'); if(fc) fc.remove(); return c.textContent.trim(); } return regionKey; })() : regionKey;
-            makeTag(regionLbl, function () {
+            var regionCount = _countRegion ? _countRegion(regionKey) : null;
+            makeTag(regionLbl, regionCount, function () {
               subs.forEach(function (s) {
                 var inp = document.querySelector('#location-modal input[name="loc2"][value="' + s + '"]');
                 if (inp) inp.checked = false;
@@ -1716,16 +1723,15 @@
               if (rInp) rInp.checked = false;
               document.getElementById('location-modal').dispatchEvent(new Event('change', { bubbles: true }));
             });
-            // Remove these subs from remainingSubs
             subs.forEach(function (s) {
               var idx = remainingSubs.indexOf(s);
               if (idx !== -1) remainingSubs.splice(idx, 1);
             });
           }
         });
-        // Remaining individual subs not covered by a full-region tag
         remainingSubs.forEach(function (val) {
-          makeTag(getLocLabel(val), function () {
+          var c = _countFor ? _countFor('loc', val) : null;
+          makeTag(getLocLabel(val), c, function () {
             var inp = document.querySelector('#location-modal input[name="loc2"][value="' + val + '"]');
             if (inp) inp.checked = false;
             document.getElementById('location-modal').dispatchEvent(new Event('change', { bubbles: true }));
@@ -1733,14 +1739,16 @@
         });
 
         catChecked.forEach(function (val) {
-          makeTag(getCatLabel(val), function () {
+          var c = _countFor ? _countFor('cat', val) : null;
+          makeTag(getCatLabel(val), c, function () {
             var inp = document.querySelector('#category-modal input[name="cat2"][value="' + val + '"]');
             if (inp) inp.checked = false;
             document.getElementById('category-modal').dispatchEvent(new Event('change', { bubbles: true }));
           });
         });
         accChecked.forEach(function (val) {
-          makeTag(getAccLabel(val), function () {
+          var c = _countFor ? _countFor('acc', val) : null;
+          makeTag(getAccLabel(val), c, function () {
             var inp = document.querySelector('#accessibility-modal input[name="acc2"][value="' + val + '"]');
             if (inp) inp.checked = false;
             document.getElementById('accessibility-modal').dispatchEvent(new Event('change', { bubbles: true }));
