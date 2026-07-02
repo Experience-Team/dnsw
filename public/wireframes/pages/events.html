@@ -1587,6 +1587,39 @@
         mapViewBtn.textContent = active ? 'List view' : 'Map view';
       });
 
+      // Region cascade — check/uncheck all subs when region changes; sync region from subs
+      (function () {
+        var locModal = document.getElementById('location-modal');
+        locModal.querySelectorAll('.filters-group').forEach(function (group) {
+          var toggleBtn = group.querySelector('.filters-group-toggle');
+          var regionInp = toggleBtn && toggleBtn.querySelector('input[name="loc2"]');
+          var body = group.querySelector('.filters-group-body');
+          if (!regionInp || !body) return;
+
+          var subInputs = Array.from(body.querySelectorAll('input[name="loc2"]'));
+
+          // Region checkbox → cascade to all subs
+          regionInp.addEventListener('change', function () {
+            subInputs.forEach(function (s) { s.checked = regionInp.checked; });
+            // Auto-expand accordion when checking
+            if (regionInp.checked) {
+              toggleBtn.setAttribute('aria-expanded', 'true');
+              body.hidden = false;
+            }
+          });
+
+          // Any sub checkbox → sync region state
+          subInputs.forEach(function (sub) {
+            sub.addEventListener('change', function () {
+              var anyChecked = subInputs.some(function (s) { return s.checked; });
+              var allChecked = subInputs.every(function (s) { return s.checked; });
+              regionInp.checked = allChecked;
+              regionInp.indeterminate = anyChecked && !allChecked;
+            });
+          });
+        });
+      })();
+
       // Open V2 modals from V3 triggers (reuse same modal content)
       document.getElementById('v3-location-trigger').addEventListener('click', function () {
         document.getElementById('location-modal').hidden = false;
