@@ -1589,6 +1589,7 @@
         var mapViewBtn = document.getElementById('map-view-trigger');
         var active = mapContentRow.classList.toggle('map-active');
         mapViewBtn.textContent = active ? 'List view' : 'Map view';
+        this.textContent = active ? 'List view' : 'View on Map';
       });
 
       // Region cascade — check/uncheck all subs when region changes; sync region from subs
