@@ -947,8 +947,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   overflow-y: auto;
   padding-right: .5rem;
 }
-.map-panel { display: none; flex: 1; min-height: 80vh; background: #ccc; border-radius: .5rem; position: sticky; top: 1.5rem; }
+.map-panel { display: none; flex: 1; height: 80vh; background: #ccc; border-radius: .5rem; position: sticky; top: 1.5rem; overflow: hidden; }
 #map-content-row.map-active .map-panel { display: block; }
+#map-content-row.map-active .map-panel iframe { width: 100%; height: 100%; display: block; }
 
 /* Landscape card style in map view */
 #map-content-row.map-active .event-card { flex-direction: row; width: auto; }
