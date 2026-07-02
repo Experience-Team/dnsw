@@ -1152,6 +1152,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
+.v3-badge[hidden] { display: none; }
 /* Active row */
 .v3-active-row { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; font-size: .875rem; }
 .v3-result-count { color: var(--color-text-muted); white-space: nowrap; }
