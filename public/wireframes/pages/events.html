@@ -167,6 +167,7 @@
       <span class="vs-label">Filters</span>
       <button class="vs-btn active" data-variant="v1">V1</button>
       <button class="vs-btn" data-variant="v2">V2</button>
+      <button class="vs-btn" data-variant="v3">V3</button>
     </div>
 
     <!-- Mobile variant trigger (pill tab on left edge, scrolls with page) -->
@@ -209,6 +210,48 @@
           </div>
         </div>
         <p class="result-count" style="margin-bottom:1.25rem;">Seeing 15 of 659 results</p>
+      </div>
+
+      <!-- Filter variant V3: inline date chips + counter-badge pills + active filter tags -->
+      <div id="filter-v3" class="filter-variant" hidden>
+        <div class="filter-bar-v3">
+          <!-- Date quick-select chips -->
+          <div class="v3-date-group">
+            <button class="v3-date-chip" data-value="tonight">Tonight</button>
+            <button class="v3-date-chip" data-value="this-weekend">This weekend</button>
+            <button class="v3-date-chip" data-value="next-week">Next week</button>
+            <button class="v3-date-chip v3-date-chip--cal" id="v3-cal-trigger">
+              Calendar
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="v3-divider"></div>
+          <!-- Filter pills with counter badges -->
+          <div class="v3-filter-group">
+            <button class="v3-pill" id="v3-location-trigger">
+              Location
+              <span class="v3-badge" id="v3-loc-badge" hidden>0</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="v3-pill" id="v3-category-trigger">
+              Category
+              <span class="v3-badge" id="v3-cat-badge" hidden>0</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="v3-pill" id="v3-accessibility-trigger">
+              Accessibility
+              <span class="v3-badge" id="v3-acc-badge" hidden>0</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="filter-map-spacer"></div>
+          <a href="#" class="btn btn-primary btn-sm" id="v3-map-trigger">View on Map</a>
+        </div>
+        <!-- Active filters row — hidden when nothing selected -->
+        <div class="v3-active-row" id="v3-active-row" hidden>
+          <span class="v3-result-count" id="v3-result-count">Showing 659 results.</span>
+          <div class="v3-tags" id="v3-tags"></div>
+        </div>
       </div>
 
       <!-- Filter variant V2: dropdown pills + map button -->
@@ -524,6 +567,7 @@
       <div class="vs-overlay-options">
         <button class="vs-overlay-btn active" data-variant="v1">V1</button>
         <button class="vs-overlay-btn" data-variant="v2">V2</button>
+        <button class="vs-overlay-btn" data-variant="v3">V3</button>
       </div>
     </div>
   </div>
@@ -1513,6 +1557,145 @@
       });
 
       updateAllCounts();
+    })();
+
+    // ── V3 filter wiring ──
+    (function () {
+      // Reuse the same modals and cross-filter engine as V2
+      // State: which location sub-values, cat, and acc are checked in V2 modals
+
+      // Date chips — single select, toggle
+      document.querySelectorAll('#filter-v3 .v3-date-chip').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var isActive = btn.classList.contains('active');
+          document.querySelectorAll('#filter-v3 .v3-date-chip').forEach(function (b) { b.classList.remove('active'); });
+          if (!isActive) btn.classList.add('active');
+        });
+      });
+
+      // Calendar chip opens the When modal
+      document.getElementById('v3-cal-trigger').addEventListener('click', function () {
+        document.getElementById('when-modal').hidden = false;
+      });
+
+      // Map trigger shares the same toggle
+      document.getElementById('v3-map-trigger').addEventListener('click', function (e) {
+        e.preventDefault();
+        var mapContentRow = document.getElementById('map-content-row');
+        var mapViewBtn = document.getElementById('map-view-trigger');
+        var active = mapContentRow.classList.toggle('map-active');
+        mapViewBtn.textContent = active ? 'List view' : 'Map view';
+      });
+
+      // Open V2 modals from V3 triggers (reuse same modal content)
+      document.getElementById('v3-location-trigger').addEventListener('click', function () {
+        document.getElementById('location-modal').hidden = false;
+      });
+      document.getElementById('v3-category-trigger').addEventListener('click', function () {
+        document.getElementById('category-modal').hidden = false;
+      });
+      document.getElementById('v3-accessibility-trigger').addEventListener('click', function () {
+        document.getElementById('accessibility-modal').hidden = false;
+      });
+
+      function getLocLabel(val) {
+        var inp = document.querySelector('#location-modal input[name="loc2"][value="' + val + '"]');
+        if (!inp) return val;
+        var lbl = inp.closest('label').cloneNode(true);
+        var fc = lbl.querySelector('.filter-count'); if (fc) fc.remove();
+        return lbl.textContent.trim();
+      }
+      function getCatLabel(val) {
+        var inp = document.querySelector('#category-modal input[name="cat2"][value="' + val + '"]');
+        if (!inp) return val;
+        var lbl = inp.closest('label').cloneNode(true);
+        var fc = lbl.querySelector('.filter-count'); if (fc) fc.remove();
+        return lbl.textContent.trim();
+      }
+      function getAccLabel(val) {
+        var inp = document.querySelector('#accessibility-modal input[name="acc2"][value="' + val + '"]');
+        if (!inp) return val;
+        var strong = inp.closest('label').querySelector('strong');
+        return strong ? strong.textContent.trim() : val;
+      }
+
+      function v3Sync() {
+        var locChecked = Array.from(document.querySelectorAll('#location-modal input[name="loc2"]:checked'))
+          .map(function (i) { return i.value; })
+          .filter(function (v) {
+            var regions = ['inner-sydney','sydney-city','sydney-east','sydney-north','sydney-south','sydney-west'];
+            return v !== 'anywhere' && regions.indexOf(v) === -1;
+          });
+        var catChecked = Array.from(document.querySelectorAll('#category-modal input[name="cat2"]:checked'))
+          .map(function (i) { return i.value; });
+        var accChecked = Array.from(document.querySelectorAll('#accessibility-modal input[name="acc2"]:checked'))
+          .map(function (i) { return i.value; });
+
+        // Update counter badges
+        var locBadge = document.getElementById('v3-loc-badge');
+        locBadge.textContent = locChecked.length;
+        locBadge.hidden = locChecked.length === 0;
+
+        var catBadge = document.getElementById('v3-cat-badge');
+        catBadge.textContent = catChecked.length;
+        catBadge.hidden = catChecked.length === 0;
+
+        var accBadge = document.getElementById('v3-acc-badge');
+        accBadge.textContent = accChecked.length;
+        accBadge.hidden = accChecked.length === 0;
+
+        // Build active filter tags
+        var tagsEl = document.getElementById('v3-tags');
+        tagsEl.innerHTML = '';
+        var anyActive = locChecked.length > 0 || catChecked.length > 0 || accChecked.length > 0;
+
+        function makeTag(label, removeFn) {
+          var tag = document.createElement('button');
+          tag.className = 'v3-tag';
+          tag.innerHTML = '&#x2715; ' + label;
+          tag.addEventListener('click', removeFn);
+          tagsEl.appendChild(tag);
+        }
+
+        locChecked.forEach(function (val) {
+          makeTag(getLocLabel(val), function () {
+            var inp = document.querySelector('#location-modal input[name="loc2"][value="' + val + '"]');
+            if (inp) inp.checked = false;
+            // fire syncState for V2 cross-filter engine
+            document.getElementById('location-modal').dispatchEvent(new Event('change', { bubbles: true }));
+          });
+        });
+        catChecked.forEach(function (val) {
+          makeTag(getCatLabel(val), function () {
+            var inp = document.querySelector('#category-modal input[name="cat2"][value="' + val + '"]');
+            if (inp) inp.checked = false;
+            document.getElementById('category-modal').dispatchEvent(new Event('change', { bubbles: true }));
+          });
+        });
+        accChecked.forEach(function (val) {
+          makeTag(getAccLabel(val), function () {
+            var inp = document.querySelector('#accessibility-modal input[name="acc2"][value="' + val + '"]');
+            if (inp) inp.checked = false;
+            document.getElementById('accessibility-modal').dispatchEvent(new Event('change', { bubbles: true }));
+          });
+        });
+
+        // Update result count from V2's live count (they share the same cross-filter engine)
+        var v2rc = document.getElementById('v2-result-count');
+        var v3rc = document.getElementById('v3-result-count');
+        if (v2rc && v3rc) v3rc.textContent = v2rc.textContent.replace(/\.$/, '') + '.';
+
+        // Show/hide active row
+        document.getElementById('v3-active-row').hidden = !anyActive;
+      }
+
+      // Sync V3 whenever the shared modals change
+      ['#location-modal', '#category-modal', '#accessibility-modal'].forEach(function (sel) {
+        document.querySelector(sel).addEventListener('change', v3Sync);
+      });
+      document.getElementById('location-clear').addEventListener('click', v3Sync);
+      document.getElementById('category-clear').addEventListener('click', v3Sync);
+      document.getElementById('accessibility-clear').addEventListener('click', v3Sync);
     })();
 
     // ── Filters modal ──
