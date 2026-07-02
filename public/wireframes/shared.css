@@ -950,6 +950,11 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .map-panel { display: none; flex: 1; min-height: 80vh; background: #ccc; border-radius: .5rem; position: sticky; top: 1.5rem; }
 #map-content-row.map-active .map-panel { display: block; }
 
+/* Landscape card style in map view */
+#map-content-row.map-active .event-card { flex-direction: row; width: auto; }
+#map-content-row.map-active .event-card .card-img { width: 7rem; aspect-ratio: 1 / 1; flex-shrink: 0; }
+#map-content-row.map-active .event-card .card-desc { display: none; }
+
 /* ── Filters modal ── */
 .filters-modal-overlay {
   position: fixed; inset: 0;
