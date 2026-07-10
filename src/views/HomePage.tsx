@@ -65,7 +65,7 @@ export default function HomePage() {
             icon="🎨"
             title="UX"
             description="Prototypes and design explorations. A space for reviewing and sharing UX work in progress."
-            href="https://dnsw.vercel.app/wireframes/index.html"
+            href="https://dnsw-phi.vercel.app/wireframes/index.html"
           />
         </div>
       </main>
