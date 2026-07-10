@@ -644,6 +644,8 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .text-block h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; }
 .text-block .text-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 .text-block p { font-size: .875rem; color: var(--color-text-muted); line-height: 1.7; }
+.text-block ul a { color: var(--color-text-muted); text-decoration: none; }
+.text-block ul a:hover { color: var(--color-accent); }
 
 /* ── Footer ── */
 .site-footer {
