@@ -647,6 +647,62 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .text-block ul a { color: var(--color-text-muted); text-decoration: none; }
 .text-block ul a:hover { color: var(--color-accent); }
 
+/* ── Schematic map (distance-from-airport map + legend) ── */
+.schem-map {
+  background: #f7f9fa;
+  border: 1px solid #111;
+  border-radius: 14px;
+  padding: 2rem;
+}
+.schem-map-heading { display: flex; align-items: flex-start; justify-content: flex-end; margin-bottom: 1rem; }
+.schem-map-compass {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.2);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  font-weight: 700;
+  color: #111;
+  flex-shrink: 0;
+  line-height: 1.1;
+}
+.schem-map-compass span { font-size: 1rem; line-height: 1; }
+.schem-map-svg-wrap { width: 100%; }
+.schem-map-svg-wrap svg { display: block; width: 100%; height: auto; }
+.schem-map-legend {
+  background: #fff;
+  border: 1px solid #a6a8ad;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-top: 1.5rem;
+  max-width: 26rem;
+  margin-left: auto;
+}
+.schem-map-legend-title { font-size: .9375rem; font-weight: 700; margin-bottom: .75rem; }
+.schem-map-legend-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+.schem-map-legend-row:last-child { margin-bottom: 0; }
+.schem-map-legend-row span.label { font-size: .875rem; color: #262626; }
+.schem-map-swatch { flex-shrink: 0; }
+.schem-map-swatch-dot {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  border: 1.5px solid #111;
+  background: #fff;
+}
+.schem-map-swatch-dot.filled { background: #111; }
+.schem-map-swatch-dot.airport { background: #fade8c; }
+.schem-map-swatch-line {
+  width: 2rem;
+  height: 0;
+  border-top: 2px dashed #111;
+}
+
 /* ── Footer ── */
 .site-footer {
   background: #fff;
