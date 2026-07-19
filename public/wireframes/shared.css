@@ -104,6 +104,46 @@ body {
 }
 .utility-bar-variations a.active,
 .utility-bar-variations a:hover { color: #fff; }
+.utility-bar-dropdown { position: relative; }
+.utility-bar-dropdown-toggle {
+  background: none;
+  border: none;
+  font-family: inherit;
+  color: rgba(255,255,255,.6);
+  font-size: .8125rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  padding: 0;
+  transition: color .15s;
+}
+.utility-bar-dropdown-toggle:hover { color: #fff; }
+.utility-bar-dropdown.open .utility-bar-dropdown-toggle { color: #fff; }
+.utility-bar-dropdown-caret { font-size: .625rem; }
+.utility-bar-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: .6rem;
+  min-width: 12rem;
+  background: #444;
+  border: 1px solid rgba(255,255,255,.2);
+  padding: .35rem 0;
+}
+.utility-bar-dropdown.open .utility-bar-dropdown-menu { display: block; }
+.utility-bar-dropdown-menu a {
+  display: block;
+  padding: .4rem 1rem;
+  color: rgba(255,255,255,.6);
+  text-decoration: none;
+  font-size: .8125rem;
+  white-space: nowrap;
+  transition: color .15s;
+}
+.utility-bar-dropdown-menu a.active,
+.utility-bar-dropdown-menu a:hover { color: #fff; }
 
 /* Body offset — makes room for the utility bar */
 body { padding-top: 2rem; }
@@ -1170,7 +1210,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   .result-count { margin-left: 0; }
 
   /* Utility bar — compact on mobile */
-  .utility-bar-variations a:nth-child(n+3) { display: none; }
+  .utility-bar-variations > *:nth-child(n+3) { display: none; }
 
   /* Tab bar — full bleed, no grey bottom border, blue underline visible, no scrollbar */
   .tab-bar {

@@ -12,8 +12,15 @@
       <a href="../pages/home.html">Home</a>
       <a href="../pages/events.html">Events</a>
       <a href="../pages/accommodation.html">Accommodation</a>
-      <a href="../pages/western-sydney-airport.html">Airport</a>
-      <a href="../pages/western-sydney.html">Western Sydney</a>
+      <div class="utility-bar-dropdown" id="utility-bar-western-sydney">
+        <button type="button" class="utility-bar-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+          Western Sydney <span class="utility-bar-dropdown-caret">▾</span>
+        </button>
+        <div class="utility-bar-dropdown-menu">
+          <a href="../pages/western-sydney.html">Western Sydney</a>
+          <a href="../pages/western-sydney-airport.html">Western Sydney Airport</a>
+        </div>
+      </div>
     </nav>
   </div>
 </div>
@@ -39,5 +46,19 @@
       ticking = true;
     }
   }, { passive: true });
+
+  var dropdown = document.getElementById('utility-bar-western-sydney');
+  if (dropdown) {
+    var toggle = dropdown.querySelector('.utility-bar-dropdown-toggle');
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = dropdown.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function () {
+      dropdown.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  }
 })();
 </script>
