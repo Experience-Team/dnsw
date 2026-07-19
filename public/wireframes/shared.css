@@ -144,6 +144,13 @@ body {
 }
 .utility-bar-dropdown-menu a.active,
 .utility-bar-dropdown-menu a:hover { color: #fff; }
+.utility-bar-dropdown-menu a.utility-bar-dropdown-sub {
+  padding-left: 2rem;
+  font-size: .75rem;
+  color: rgba(255,255,255,.45);
+}
+.utility-bar-dropdown-menu a.utility-bar-dropdown-sub.active,
+.utility-bar-dropdown-menu a.utility-bar-dropdown-sub:hover { color: #fff; }
 
 /* Body offset — makes room for the utility bar */
 body { padding-top: 2rem; }
