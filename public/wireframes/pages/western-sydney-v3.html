@@ -261,17 +261,40 @@
   <!-- Placeholder: itinerary planner (future feature) -->
   <div class="build-placeholder"><span class="emoji">📋</span>Plan your Western Sydney itinerary</div>
 
-  <!-- Cross-promo: Western Sydney Airport -->
-  <section class="section">
+  <!-- Interactive: Your gateway to regional NSW -->
+  <section class="section" id="gateway-regional-nsw">
     <div class="container">
-      <div class="promo-banner" style="height:20rem;">
-        <div class="ph-img" style="width:100%;height:100%;"></div>
-        <div class="promo-content">
-          <p class="promo-sub" style="color:#fff; text-transform:uppercase; font-size:.75rem; letter-spacing:.06em;">Eyebrow headline</p>
-          <h2 style="color:#fff;">Western Sydney Airport</h2>
-          <p style="color:#fff;">Tagline</p>
-          <a href="western-sydney-airport.html" class="btn btn-outline-dark btn-sm" style="background:#fff; border-radius:999px;">← Button label →</a>
+      <div class="section-header" style="margin-bottom:1.5rem;">
+        <div>
+          <p class="section-title">Your gateway to regional NSW</p>
+          <p class="section-body">Western Sydney International sits on the doorstep of some of the state's best regional escapes.</p>
         </div>
+      </div>
+
+      <div class="filter-bar gateway-selector" role="group" aria-label="Choose a region">
+        <button type="button" class="filter-chip active" data-region="blue-mountains">Blue Mountains</button>
+        <button type="button" class="filter-chip" data-region="southern-highlands">Southern Highlands (Bowral)</button>
+        <button type="button" class="filter-chip" data-region="central-west">Central West (Orange)</button>
+      </div>
+
+      <div class="gateway-panel" id="gateway-panel">
+        <div class="gateway-panel-media">
+          <span id="gateway-panel-media-label">Image — Blue Mountains</span>
+        </div>
+        <div class="gateway-panel-copy">
+          <p class="gateway-panel-copy-text" id="gateway-panel-copy-text">Swap the tarmac for the Three Sisters &mdash; misty escarpments, cliffside walks and cool-climate villages wait just beyond the western fringe.</p>
+          <p class="gateway-panel-transport" id="gateway-panel-transport">PLACEHOLDER &mdash; confirm transport link and travel time to the Blue Mountains</p>
+        </div>
+      </div>
+
+      <div class="gateway-facts">
+        <p class="gateway-facts-title">Why WSI</p>
+        <ul class="gateway-facts-list">
+          <li><span><strong>Opens 25 October 2026</strong> &mdash; first flight (Jetstar) departs at 11am.</span></li>
+          <li><span><strong>Domestic routes at launch:</strong> Jetstar to Melbourne, Brisbane and the Gold Coast.</span></li>
+          <li><span><strong>International routes at launch:</strong> Air New Zealand to Auckland (daily, from 26 October 2026); Singapore Airlines to Singapore (from 23 November 2026).</span></li>
+          <li><span><strong>Coming soon:</strong> Emirates and Qatar Airways joining shortly after opening; Qantas joining from 28 March 2027.</span></li>
+        </ul>
       </div>
     </div>
   </section>
@@ -461,14 +484,66 @@
 
   <script src="../includes.js"></script>
 
-  <!-- Filter chip single-select -->
+  <!-- Filter chip single-select (scoped per filter bar) -->
   <script>
     document.querySelectorAll('.filter-bar .filter-chip').forEach(function (chip) {
       chip.addEventListener('click', function () {
-        document.querySelectorAll('.filter-bar .filter-chip').forEach(function (c) { c.classList.remove('active'); });
+        var bar = chip.closest('.filter-bar');
+        bar.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
         chip.classList.add('active');
       });
     });
+  </script>
+
+  <!-- Interactive gateway-to-regional-NSW showcase -->
+  <script>
+  (function () {
+    var REGIONS = {
+      'blue-mountains': {
+        mediaLabel: 'Image — Blue Mountains',
+        copy: 'Swap the tarmac for the Three Sisters — misty escarpments, cliffside walks and cool-climate villages wait just beyond the western fringe.',
+        transport: 'PLACEHOLDER — confirm transport link and travel time to the Blue Mountains'
+      },
+      'southern-highlands': {
+        mediaLabel: 'Image — Southern Highlands',
+        copy: 'Rolling paddocks, tulip fields and long lazy lunches — the Southern Highlands turn a quick regional trip into a proper weekend away.',
+        transport: 'PLACEHOLDER — confirm transport link and travel time to the Southern Highlands'
+      },
+      'central-west': {
+        mediaLabel: 'Image — Central West',
+        copy: 'Vineyards, volcanic peaks and paddock-to-plate dining — Orange and the Central West reward the traveller who goes a little further.',
+        transport: 'PLACEHOLDER — confirm transport link and travel time to the Central West'
+      }
+    };
+
+    var selector = document.querySelector('.gateway-selector');
+    var panel = document.getElementById('gateway-panel');
+    if (!selector || !panel) return;
+
+    var mediaLabelEl = document.getElementById('gateway-panel-media-label');
+    var copyEl = document.getElementById('gateway-panel-copy-text');
+    var transportEl = document.getElementById('gateway-panel-transport');
+
+    selector.querySelectorAll('.filter-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var region = REGIONS[chip.getAttribute('data-region')];
+        if (!region) return;
+
+        selector.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+
+        panel.classList.add('is-entering');
+        window.requestAnimationFrame(function () {
+          mediaLabelEl.textContent = region.mediaLabel;
+          copyEl.textContent = region.copy;
+          transportEl.textContent = region.transport;
+          window.requestAnimationFrame(function () {
+            panel.classList.remove('is-entering');
+          });
+        });
+      });
+    });
+  })();
   </script>
 
   <!-- FAQ accordion -->
