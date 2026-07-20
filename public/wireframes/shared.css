@@ -1308,6 +1308,28 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .intro-toc-copy { flex: 1; min-width: 0; }
 .intro-toc-copy h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: .9rem; }
 .intro-toc-copy p { color: var(--color-text-muted); line-height: 1.6; }
+.listen-control {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-top: 1.25rem;
+}
+.listen-control-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid #111;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  color: #111;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.listen-control-label { font-weight: 700; font-size: .9375rem; color: #111; }
+.listen-control-duration { font-size: .9375rem; color: var(--color-text-muted); }
 .toc-panel { flex-shrink: 0; width: 21rem; }
 .toc-panel-title { font-weight: 700; font-size: 1.0625rem; margin-bottom: .75rem; }
 .toc-list { display: flex; flex-direction: column; gap: .65rem; }
