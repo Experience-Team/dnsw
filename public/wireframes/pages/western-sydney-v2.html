@@ -76,10 +76,10 @@
           <button type="button" class="area-map-pin" data-town="Penrith" style="left:36.6%; bottom:71.2%;">Penrith</button>
           <button type="button" class="area-map-pin" data-town="Blacktown" style="left:54.3%; bottom:70.8%;">Blacktown</button>
           <button type="button" class="area-map-pin" data-town="Parramatta" style="left:58.5%; bottom:64.2%;">Parramatta</button>
-          <button type="button" class="area-map-pin" data-town="Sydney Olympic Park" style="left:62.5%; bottom:61.8%;">Sydney Olympic Park</button>
+          <button type="button" class="area-map-pin active" data-town="Sydney Olympic Park" style="left:62.5%; bottom:61.8%;">Sydney Olympic Park</button>
           <span class="area-map-pin area-map-pin-cbd" style="left:73.2%; bottom:60.2%;">Sydney CBD</span>
           <button type="button" class="area-map-pin" data-town="Cabramatta" style="left:45.8%; bottom:57.7%;">Cabramatta</button>
-          <button type="button" class="area-map-pin active" data-town="Campbelltown" style="left:44.9%; bottom:38.9%;">Campbelltown</button>
+          <button type="button" class="area-map-pin" data-town="Campbelltown" style="left:44.9%; bottom:38.9%;">Campbelltown</button>
           <button type="button" class="area-map-pin" data-town="Camden" style="left:26.5%; bottom:39.4%;">Camden</button>
           <button type="button" class="area-map-pin" data-town="Picton" style="left:18.9%; bottom:31.0%;">Picton</button>
           <button type="button" class="area-map-pin" data-town="Thirlmere" style="left:13.9%; bottom:24.1%;">Thirlmere</button>
@@ -88,28 +88,28 @@
         <div class="area-map-panel">
           <div class="area-map-panel-content" id="area-map-panel-content">
             <div class="area-map-panel-section">
-              <h3 id="map-panel-name">Campbelltown</h3>
-              <p id="map-panel-desc">A place full of historical charm, lively entertainment and natural beauty. Enjoy the surrounds on a bushwalk, mountain bike ride or river kayak, and discover contemporary art, Indigenous and colonial heritage, and Australia's largest botanic garden.</p>
+              <h3 id="map-panel-name">Sydney Olympic Park</h3>
+              <p id="map-panel-desc">Home of the 2000 Olympics, now a hub of stadiums, parklands and wetlands beside the Parramatta River.</p>
             </div>
             <div class="area-map-panel-section">
               <h4>Getting there from CBD</h4>
-              <p class="transport-line"><strong>Driving:</strong> <span id="map-panel-driving">under 35 minutes in standard traffic.</span></p>
-              <p class="transport-line"><strong>Public transport:</strong> <span id="map-panel-transit">Direct: Route 845</span></p>
+              <p class="transport-line"><strong>Driving:</strong> <span id="map-panel-driving">28 minutes in light traffic.</span></p>
+              <p class="transport-line"><strong>Public transport:</strong> <span id="map-panel-transit">Direct: T7 Olympic Park Line</span></p>
             </div>
             <div class="area-map-panel-section" style="border-bottom:none;">
               <h4>Highlights</h4>
               <ul class="chevron-list" id="map-panel-highlights">
-                <li><span>Campbelltown Arts Centre</span><span class="chevron">›</span></li>
-                <li><span>Japanese Gardens</span><span class="chevron">›</span></li>
-                <li><span>Australian Botanical Garden</span><span class="chevron">›</span></li>
+                <li><span>Accor Stadium</span><span class="chevron">›</span></li>
+                <li><span>Bicentennial Park</span><span class="chevron">›</span></li>
+                <li><span>Sydney Showground</span><span class="chevron">›</span></li>
               </ul>
             </div>
             <div class="area-map-panel-cta">
-              <a href="#" class="btn btn-primary" style="width:100%; justify-content:center;" id="map-panel-cta">Discover more about Campbelltown →</a>
+              <a href="#" class="btn btn-primary" style="width:100%; justify-content:center;" id="map-panel-cta">Discover more about Sydney Olympic Park →</a>
             </div>
             <div class="area-map-nav">
-              <a href="#" id="map-panel-prev" data-town="Blacktown">‹ Blacktown</a>
-              <a href="#" id="map-panel-next" data-town="Penrith">Penrith ›</a>
+              <a href="#" id="map-panel-prev" data-town="Campbelltown">‹ Campbelltown</a>
+              <a href="#" id="map-panel-next" data-town="Parramatta">Parramatta ›</a>
             </div>
           </div>
         </div>
@@ -508,7 +508,7 @@
   <!-- Interactive Sydney West map -->
   <script>
   (function () {
-    var TOWN_ORDER = ['Parramatta', 'Cabramatta', 'Sydney Olympic Park', 'Blacktown', 'Campbelltown', 'Penrith', 'Camden', 'Picton', 'Thirlmere', 'Appin'];
+    var TOWN_ORDER = ['Sydney Olympic Park', 'Parramatta', 'Blacktown', 'Penrith', 'Cabramatta', 'Camden', 'Picton', 'Thirlmere', 'Appin', 'Campbelltown'];
 
     var TOWNS = {
       'Parramatta': {
