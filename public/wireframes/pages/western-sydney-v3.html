@@ -45,9 +45,10 @@
           <h2>About Sydney West</h2>
           <p>Western Sydney spans Parramatta, Penrith, Campbelltown, Blacktown, Camden and the Southern Highlands fringe, 25&ndash;95km west of the CBD. Home to Sydney Olympic Park, Featherdale Wildlife Park and the NSW Rail Museum, the region opens direct via Western Sydney International Airport from October 2026.</p>
           <div class="listen-control">
-            <button class="listen-control-btn" aria-label="Play audio guide">▶</button>
+            <button class="listen-control-btn" id="listen-control-btn" aria-label="Play audio guide">▶</button>
             <span class="listen-control-label">Listen</span>
-            <span class="listen-control-duration">&bull; 18 minutes</span>
+            <span class="listen-control-duration">&bull; 4 minutes</span>
+            <audio id="listen-control-audio" src="../assets/audio/western-sydney-guide.mp3" preload="none"></audio>
           </div>
         </div>
         <div class="toc-panel">
@@ -483,6 +484,35 @@
   <div data-include="../components/footer.html"></div>
 
   <script src="../includes.js"></script>
+
+  <!-- Listen control: play/pause the audio guide -->
+  <script>
+  (function () {
+    var btn = document.getElementById('listen-control-btn');
+    var audio = document.getElementById('listen-control-audio');
+    if (!btn || !audio) return;
+
+    btn.addEventListener('click', function () {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    });
+    audio.addEventListener('play', function () {
+      btn.textContent = '❙❙';
+      btn.setAttribute('aria-label', 'Pause audio guide');
+    });
+    audio.addEventListener('pause', function () {
+      btn.textContent = '▶';
+      btn.setAttribute('aria-label', 'Play audio guide');
+    });
+    audio.addEventListener('ended', function () {
+      btn.textContent = '▶';
+      btn.setAttribute('aria-label', 'Play audio guide');
+    });
+  })();
+  </script>
 
   <!-- Filter chip single-select (scoped per filter bar) -->
   <script>
