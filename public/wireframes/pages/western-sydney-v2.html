@@ -73,42 +73,44 @@
       </div>
       <div class="area-map">
         <div class="area-map-visual ph-img">
-          <span class="area-map-pin" style="left:36.6%; top:28.8%;">Penrith</span>
-          <span class="area-map-pin" style="left:54.3%; top:29.2%;">Blacktown</span>
-          <span class="area-map-pin" style="left:58.5%; top:35.8%;">Parramatta</span>
-          <span class="area-map-pin" style="left:62.5%; top:38.2%;">Sydney Olympic Park</span>
-          <span class="area-map-pin" style="left:73.2%; top:39.8%;">Sydney CBD</span>
-          <span class="area-map-pin" style="left:45.8%; top:42.3%;">Cabramatta</span>
-          <span class="area-map-pin active" style="left:44.9%; top:61.1%;">Campbelltown</span>
-          <span class="area-map-pin" style="left:26.5%; top:60.6%;">Camden</span>
-          <span class="area-map-pin" style="left:18.9%; top:69.0%;">Picton</span>
-          <span class="area-map-pin" style="left:13.9%; top:75.9%;">Thirlmere</span>
-          <span class="area-map-pin" style="left:37.5%; top:70.0%;">Appin</span>
+          <button type="button" class="area-map-pin" data-town="Penrith" style="left:36.6%; top:28.8%;">Penrith</button>
+          <button type="button" class="area-map-pin" data-town="Blacktown" style="left:54.3%; top:29.2%;">Blacktown</button>
+          <button type="button" class="area-map-pin" data-town="Parramatta" style="left:58.5%; top:35.8%;">Parramatta</button>
+          <button type="button" class="area-map-pin" data-town="Sydney Olympic Park" style="left:62.5%; top:38.2%;">Sydney Olympic Park</button>
+          <span class="area-map-pin area-map-pin-cbd" style="left:73.2%; top:39.8%;">Sydney CBD</span>
+          <button type="button" class="area-map-pin" data-town="Cabramatta" style="left:45.8%; top:42.3%;">Cabramatta</button>
+          <button type="button" class="area-map-pin active" data-town="Campbelltown" style="left:44.9%; top:61.1%;">Campbelltown</button>
+          <button type="button" class="area-map-pin" data-town="Camden" style="left:26.5%; top:60.6%;">Camden</button>
+          <button type="button" class="area-map-pin" data-town="Picton" style="left:18.9%; top:69.0%;">Picton</button>
+          <button type="button" class="area-map-pin" data-town="Thirlmere" style="left:13.9%; top:75.9%;">Thirlmere</button>
+          <button type="button" class="area-map-pin" data-town="Appin" style="left:37.5%; top:70.0%;">Appin</button>
         </div>
         <div class="area-map-panel">
-          <div class="area-map-panel-section">
-            <h3>Campbelltown</h3>
-            <p>A place full of historical charm, lively entertainment and natural beauty. Enjoy the surrounds on a bushwalk, mountain bike ride or river kayak, and discover contemporary art, Indigenous and colonial heritage, and Australia's largest botanic garden.</p>
-          </div>
-          <div class="area-map-panel-section">
-            <h4>Getting there from CBD</h4>
-            <p class="transport-line"><strong>Driving:</strong> under 35 minutes in standard traffic.</p>
-            <p class="transport-line"><strong>Public transport:</strong> Direct: Route 845</p>
-          </div>
-          <div class="area-map-panel-section" style="border-bottom:none;">
-            <h4>Highlights</h4>
-            <ul class="chevron-list">
-              <li><span>Campbelltown Arts Centre</span><span class="chevron">›</span></li>
-              <li><span>Japanese Gardens</span><span class="chevron">›</span></li>
-              <li><span>Australian Botanical Garden</span><span class="chevron">›</span></li>
-            </ul>
-          </div>
-          <div class="area-map-panel-cta">
-            <a href="#" class="btn btn-primary" style="width:100%; justify-content:center;">Discover more about Campbelltown →</a>
-          </div>
-          <div class="area-map-nav">
-            <a href="#">‹ Sydney Olympic Park</a>
-            <a href="#">Parramatta ›</a>
+          <div class="area-map-panel-content" id="area-map-panel-content">
+            <div class="area-map-panel-section">
+              <h3 id="map-panel-name">Campbelltown</h3>
+              <p id="map-panel-desc">A place full of historical charm, lively entertainment and natural beauty. Enjoy the surrounds on a bushwalk, mountain bike ride or river kayak, and discover contemporary art, Indigenous and colonial heritage, and Australia's largest botanic garden.</p>
+            </div>
+            <div class="area-map-panel-section">
+              <h4>Getting there from CBD</h4>
+              <p class="transport-line"><strong>Driving:</strong> <span id="map-panel-driving">under 35 minutes in standard traffic.</span></p>
+              <p class="transport-line"><strong>Public transport:</strong> <span id="map-panel-transit">Direct: Route 845</span></p>
+            </div>
+            <div class="area-map-panel-section" style="border-bottom:none;">
+              <h4>Highlights</h4>
+              <ul class="chevron-list" id="map-panel-highlights">
+                <li><span>Campbelltown Arts Centre</span><span class="chevron">›</span></li>
+                <li><span>Japanese Gardens</span><span class="chevron">›</span></li>
+                <li><span>Australian Botanical Garden</span><span class="chevron">›</span></li>
+              </ul>
+            </div>
+            <div class="area-map-panel-cta">
+              <a href="#" class="btn btn-primary" style="width:100%; justify-content:center;" id="map-panel-cta">Discover more about Campbelltown →</a>
+            </div>
+            <div class="area-map-nav">
+              <a href="#" id="map-panel-prev" data-town="Blacktown">‹ Blacktown</a>
+              <a href="#" id="map-panel-next" data-town="Penrith">Penrith ›</a>
+            </div>
           </div>
         </div>
       </div>
@@ -501,6 +503,135 @@
         item.classList.toggle('open');
       });
     });
+  </script>
+
+  <!-- Interactive Sydney West map -->
+  <script>
+  (function () {
+    var TOWN_ORDER = ['Parramatta', 'Cabramatta', 'Sydney Olympic Park', 'Blacktown', 'Campbelltown', 'Penrith', 'Camden', 'Picton', 'Thirlmere', 'Appin'];
+
+    var TOWNS = {
+      'Parramatta': {
+        desc: "Sydney's second city and one of Australia's oldest colonial settlements, packed with heritage sites, a buzzing food scene and riverside parklands.",
+        driving: '22 minutes in light traffic.',
+        transit: 'Direct: T1 Western Line to Parramatta Station',
+        highlights: ["Old Government House – Australia's oldest surviving public building", 'Parramatta Park – UNESCO-listed riverside parklands', 'Riverside Theatres – 700+ shows a year, from comedy to concerts']
+      },
+      'Cabramatta': {
+        desc: 'Sydney’s home of Vietnamese and South-East Asian food and culture, with bustling markets, street food and the ornate Pai Lau Friendship Arch.',
+        driving: '39 minutes in light traffic.',
+        transit: 'Direct: T2 Inner West & Leppington Line',
+        highlights: ['Pai Lau Friendship Arch', 'Freedom Plaza', 'Cabramatta Markets']
+      },
+      'Sydney Olympic Park': {
+        desc: 'Home of the 2000 Olympics, now a hub of stadiums, parklands and wetlands beside the Parramatta River.',
+        driving: '28 minutes in light traffic.',
+        transit: 'Direct: T7 Olympic Park Line',
+        highlights: ['Accor Stadium', 'Bicentennial Park', 'Sydney Showground']
+      },
+      'Blacktown': {
+        desc: "A fast-growing multicultural hub with Featherdale Wildlife Park, live sport and one of Sydney's biggest regional shopping precincts.",
+        driving: '40 minutes in light traffic.',
+        transit: 'Direct: T1 Western Line to Blacktown Station',
+        highlights: ['Featherdale Wildlife Park', 'Blacktown Showground', 'Nurragingy Reserve']
+      },
+      'Campbelltown': {
+        desc: "A place full of historical charm, lively entertainment and natural beauty. Enjoy the surrounds on a bushwalk, mountain bike ride or river kayak, and discover contemporary art, Indigenous and colonial heritage, and Australia's largest botanic garden.",
+        driving: 'under 35 minutes in standard traffic.',
+        transit: 'Direct: Route 845',
+        highlights: ['Campbelltown Arts Centre', 'Japanese Gardens', 'Australian Botanical Garden']
+      },
+      'Penrith': {
+        desc: "Find a mix of history, art and the outdoors in the action-packed Western Sydney suburb of Penrith. Enjoy a line-up of great eateries, cultural treasures at museums and galleries, and extreme thrills like skydiving, whitewater rafting and wakeboarding — all within an hour's drive from Sydney, at the foot of the Blue Mountains, on the spectacular Nepean River.",
+        driving: '52 minutes in light traffic.',
+        transit: 'Direct: T1 Western Line to Penrith Station',
+        highlights: ['iFLY Downunder indoor skydiving', 'Penrith Whitewater Stadium', 'Nepean River foreshore']
+      },
+      'Camden': {
+        desc: "Sydney's colonial farming heartland, with heritage cottages, vineyards and paddocks now edging the new Western Sydney Airport precinct.",
+        driving: '58 minutes in light traffic.',
+        transit: 'Bus: Route 895 from Campbelltown Station',
+        highlights: ['Camden Park House & Garden', 'Local vineyards', 'Camden Show (seasonal)']
+      },
+      'Picton': {
+        desc: 'A heritage-listed Southern Highlands village with sandstone architecture, antique stores and easy access to bushwalking trails along Stonequarry Creek.',
+        driving: '80 minutes in light traffic.',
+        transit: 'Train: T8 Airport & South Line to Picton Station',
+        highlights: ['Picton Botanic Gardens', 'Stonequarry Creek walking track', 'Picton Railway Viaduct']
+      },
+      'Thirlmere': {
+        desc: "A slice of Southern Highlands charm on Sydney's fringe, best known for its heritage steam trains and quiet lakeside walks.",
+        driving: '75 minutes in light traffic.',
+        transit: 'Train: T8 Airport & South Line to Tahmoor, then local bus',
+        highlights: ['NSW Rail Museum', 'Thirlmere Lakes National Park', 'Steam Fest (seasonal)']
+      },
+      'Appin': {
+        desc: 'A small rural village on the Georges River, surrounded by bushland trails and historic farmland on the way to the Southern Highlands.',
+        driving: '66 minutes in light traffic.',
+        transit: 'Bus: Route 891 from Campbelltown Station',
+        highlights: ['Georges River walking tracks', 'Appin Lookout', 'Cataract Dam']
+      }
+    };
+
+    var panelContent = document.getElementById('area-map-panel-content');
+    var pins = document.querySelectorAll('.area-map-pin[data-town]');
+    var nameEl = document.getElementById('map-panel-name');
+    var descEl = document.getElementById('map-panel-desc');
+    var drivingEl = document.getElementById('map-panel-driving');
+    var transitEl = document.getElementById('map-panel-transit');
+    var highlightsEl = document.getElementById('map-panel-highlights');
+    var ctaEl = document.getElementById('map-panel-cta');
+    var prevEl = document.getElementById('map-panel-prev');
+    var nextEl = document.getElementById('map-panel-next');
+
+    function renderTown(town) {
+      var data = TOWNS[town];
+      if (!data || !panelContent) return;
+
+      panelContent.classList.add('is-entering');
+
+      window.requestAnimationFrame(function () {
+        nameEl.textContent = town;
+        descEl.textContent = data.desc;
+        drivingEl.textContent = data.driving;
+        transitEl.textContent = data.transit;
+        highlightsEl.innerHTML = data.highlights.map(function (h) {
+          return '<li><span>' + h + '</span><span class="chevron">›</span></li>';
+        }).join('');
+        ctaEl.textContent = 'Discover more about ' + town + ' →';
+
+        var idx = TOWN_ORDER.indexOf(town);
+        var prevTown = TOWN_ORDER[(idx - 1 + TOWN_ORDER.length) % TOWN_ORDER.length];
+        var nextTown = TOWN_ORDER[(idx + 1) % TOWN_ORDER.length];
+        prevEl.textContent = '‹ ' + prevTown;
+        prevEl.setAttribute('data-town', prevTown);
+        nextEl.textContent = nextTown + ' ›';
+        nextEl.setAttribute('data-town', nextTown);
+
+        pins.forEach(function (p) {
+          p.classList.toggle('active', p.getAttribute('data-town') === town);
+        });
+
+        window.requestAnimationFrame(function () {
+          panelContent.classList.remove('is-entering');
+        });
+      });
+    }
+
+    pins.forEach(function (pin) {
+      pin.addEventListener('click', function () {
+        renderTown(pin.getAttribute('data-town'));
+      });
+    });
+
+    [prevEl, nextEl].forEach(function (link) {
+      if (!link) return;
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        renderTown(link.getAttribute('data-town'));
+      });
+    });
+  })();
   </script>
 
 </body>
