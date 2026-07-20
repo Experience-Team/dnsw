@@ -1494,6 +1494,7 @@ button.area-map-pin:hover { color: #111; }
   padding: .25rem 0;
   line-height: 1.5;
 }
+.content-block-copy .chevron-list a { color: var(--color-accent); text-decoration: underline; }
 .content-block-copy .btn { align-self: flex-start; }
 
 /* ── Floating chat placeholder ── */
