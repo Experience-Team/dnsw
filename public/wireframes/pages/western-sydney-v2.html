@@ -78,7 +78,6 @@
           <h3>Parramatta</h3>
           <p>Sydney's second city and one of Australia's oldest colonial settlements, packed with heritage sites, a buzzing food scene and riverside parklands.</p>
           <p><strong>Known for:</strong> history and heritage; multicultural food scene</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 22 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>Old Government House &ndash; Australia's oldest surviving public building</span></li>
@@ -95,7 +94,6 @@
           <h3>Cabramatta</h3>
           <p>Sydney's home of Vietnamese and South-East Asian food and culture, with bustling markets, street food and the ornate Pai Lau Friendship Arch.</p>
           <p><strong>Known for:</strong> Vietnamese food scene; Asian grocery markets</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 39 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>Pai Lau Friendship Arch</span></li>
@@ -112,7 +110,6 @@
           <h3>Sydney Olympic Park</h3>
           <p>Home of the 2000 Olympics, now a hub of stadiums, parklands and wetlands beside the Parramatta River.</p>
           <p><strong>Known for:</strong> major stadiums; wetlands and cycling trails</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 28 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>Accor Stadium</span></li>
@@ -129,7 +126,6 @@
           <h3>Blacktown</h3>
           <p>A fast-growing multicultural hub with Featherdale Wildlife Park, live sport and one of Sydney's biggest regional shopping precincts.</p>
           <p><strong>Known for:</strong> Featherdale Wildlife Park; live sport at Blacktown Stadium</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 40 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>Featherdale Wildlife Park</span></li>
@@ -146,7 +142,6 @@
           <h3>Campbelltown</h3>
           <p>A place full of historical charm, lively entertainment and natural beauty. Enjoy the surrounds on a bushwalk, mountain bike ride or river kayak, and discover contemporary art, Indigenous and colonial heritage, and Australia's largest botanic garden.</p>
           <p><strong>Known for:</strong> history and heritage; live entertainment</p>
-          <p><strong>Drive time from Sydney CBD:</strong> under 35 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>Campbelltown Arts Centre</span></li>
@@ -163,7 +158,6 @@
           <h3>Penrith</h3>
           <p>Find a mix of history, art and the outdoors in the action-packed Western Sydney suburb of Penrith. Enjoy a line-up of great eateries, cultural treasures at museums and galleries, and extreme thrills like skydiving, whitewater rafting and wakeboarding &mdash; all within an hour's drive from Sydney, at the foot of the Blue Mountains, on the spectacular Nepean River.</p>
           <p><strong>Known for:</strong> indoor skydiving, whitewater adventure and Blue Mountains access</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 52 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>iFLY Downunder indoor skydiving</span></li>
@@ -180,7 +174,6 @@
           <h3>Thirlmere</h3>
           <p>A slice of Southern Highlands charm on Sydney's fringe, best known for its heritage steam trains and quiet lakeside walks.</p>
           <p><strong>Known for:</strong> NSW Rail Museum; heritage steam train rides</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 75 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>NSW Rail Museum</span></li>
@@ -197,7 +190,6 @@
           <h3>Appin</h3>
           <p>A small rural village on the Georges River, surrounded by bushland trails and historic farmland on the way to the Southern Highlands.</p>
           <p><strong>Known for:</strong> bushwalking trails; rural heritage</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 66 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>Georges River walking tracks</span></li>
@@ -214,7 +206,6 @@
           <h3>Camden</h3>
           <p>Sydney's colonial farming heartland, with heritage cottages, vineyards and paddocks now edging the new Western Sydney Airport precinct.</p>
           <p><strong>Known for:</strong> colonial heritage; vineyards and farm gates</p>
-          <p><strong>Drive time from Sydney CBD:</strong> 58 min</p>
           <p><strong>Highlights:</strong></p>
           <ul class="chevron-list">
             <li><span>Camden Park House &amp; Garden</span></li>
@@ -255,6 +246,7 @@
             <div class="area-map-panel-section" style="border-bottom:none;">
               <h3 id="map-panel-name">Sydney Olympic Park</h3>
               <p class="transport-line"><strong>Driving:</strong> <span id="map-panel-driving">28 minutes in light traffic.</span></p>
+              <p class="transport-line"><strong>Public transport:</strong> <span id="map-panel-transit">Direct: T7 Olympic Park Line</span></p>
             </div>
             <div class="area-map-nav">
               <a href="#" id="map-panel-prev" data-town="Campbelltown">‹ Campbelltown</a>
@@ -495,22 +487,23 @@
     var TOWN_ORDER = ['Sydney Olympic Park', 'Parramatta', 'Blacktown', 'Penrith', 'Cabramatta', 'Camden', 'Picton', 'Thirlmere', 'Appin', 'Campbelltown'];
 
     var TOWNS = {
-      'Parramatta': { driving: '22 minutes in light traffic.' },
-      'Cabramatta': { driving: '39 minutes in light traffic.' },
-      'Sydney Olympic Park': { driving: '28 minutes in light traffic.' },
-      'Blacktown': { driving: '40 minutes in light traffic.' },
-      'Campbelltown': { driving: 'under 35 minutes in standard traffic.' },
-      'Penrith': { driving: '52 minutes in light traffic.' },
-      'Camden': { driving: '58 minutes in light traffic.' },
-      'Picton': { driving: '80 minutes in light traffic.' },
-      'Thirlmere': { driving: '75 minutes in light traffic.' },
-      'Appin': { driving: '66 minutes in light traffic.' }
+      'Parramatta': { driving: '22 minutes in light traffic.', transit: 'Direct: T1 Western Line to Parramatta Station' },
+      'Cabramatta': { driving: '39 minutes in light traffic.', transit: 'Direct: T2 Inner West & Leppington Line' },
+      'Sydney Olympic Park': { driving: '28 minutes in light traffic.', transit: 'Direct: T7 Olympic Park Line' },
+      'Blacktown': { driving: '40 minutes in light traffic.', transit: 'Direct: T1 Western Line to Blacktown Station' },
+      'Campbelltown': { driving: 'under 35 minutes in standard traffic.', transit: 'Direct: Route 845' },
+      'Penrith': { driving: '52 minutes in light traffic.', transit: 'Direct: T1 Western Line to Penrith Station' },
+      'Camden': { driving: '58 minutes in light traffic.', transit: 'Bus: Route 895 from Campbelltown Station' },
+      'Picton': { driving: '80 minutes in light traffic.', transit: 'Train: T8 Airport & South Line to Picton Station' },
+      'Thirlmere': { driving: '75 minutes in light traffic.', transit: 'Train: T8 Airport & South Line to Tahmoor, then local bus' },
+      'Appin': { driving: '66 minutes in light traffic.', transit: 'Bus: Route 891 from Campbelltown Station' }
     };
 
     var panelContent = document.getElementById('area-map-panel-content');
     var pins = document.querySelectorAll('.area-map-pin[data-town]');
     var nameEl = document.getElementById('map-panel-name');
     var drivingEl = document.getElementById('map-panel-driving');
+    var transitEl = document.getElementById('map-panel-transit');
     var prevEl = document.getElementById('map-panel-prev');
     var nextEl = document.getElementById('map-panel-next');
 
@@ -523,6 +516,7 @@
       window.requestAnimationFrame(function () {
         nameEl.textContent = town;
         drivingEl.textContent = data.driving;
+        transitEl.textContent = data.transit;
 
         var idx = TOWN_ORDER.indexOf(town);
         var prevTown = TOWN_ORDER[(idx - 1 + TOWN_ORDER.length) % TOWN_ORDER.length];
