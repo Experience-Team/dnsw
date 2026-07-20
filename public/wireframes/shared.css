@@ -120,7 +120,8 @@ body {
   transition: color .15s;
 }
 .utility-bar-dropdown-toggle:hover { color: #fff; }
-.utility-bar-dropdown.open .utility-bar-dropdown-toggle { color: #fff; }
+.utility-bar-dropdown.open .utility-bar-dropdown-toggle,
+.utility-bar-dropdown.current .utility-bar-dropdown-toggle { color: #fff; }
 .utility-bar-dropdown-caret { font-size: .625rem; }
 .utility-bar-dropdown-menu {
   display: none;

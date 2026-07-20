@@ -62,6 +62,18 @@
       dropdown.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
     });
+
+    // Highlight whichever Western Sydney page is currently open
+    var currentFile = window.location.pathname.split('/').pop();
+    var isCurrentInDropdown = false;
+    dropdown.querySelectorAll('.utility-bar-dropdown-menu a[href]').forEach(function (link) {
+      var linkFile = link.getAttribute('href').split('/').pop();
+      if (linkFile === currentFile) {
+        link.classList.add('active');
+        isCurrentInDropdown = true;
+      }
+    });
+    dropdown.classList.toggle('current', isCurrentInDropdown);
   }
 })();
 </script>
