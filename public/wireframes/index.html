@@ -21,10 +21,17 @@
     .launch ul li a:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
     .launch ul li a.disabled { color: #bbb; pointer-events: none; background: #fafafa; }
     .launch ul li a span { font-size: .75rem; color: #bbb; }
+    .home-link {
+      display: inline-flex; align-items: center; gap: .35rem;
+      margin-bottom: 1.5rem;
+      color: #888; font-size: .875rem; text-decoration: none;
+    }
+    .home-link:hover { color: #111; text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="launch">
+    <a href="https://dnsw-phi.vercel.app/" class="home-link">← Home</a>
     <h1>DNSW Wireframes</h1>
     <p>Select a page. Pages not yet built are shown but inactive.</p>
     <ul>
