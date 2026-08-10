@@ -1587,3 +1587,100 @@ button.area-map-pin:hover { color: #111; }
 .gateway-facts-title { font-weight: 700; font-size: 1.0625rem; margin-bottom: .75rem; }
 .gateway-facts-list { list-style: disc; padding-left: 1.4rem; color: #111; font-size: .9375rem; }
 .gateway-facts-list li { padding: .3rem 0; line-height: 1.5; }
+
+/* ── Event/place detail header (title + location/date meta + actions) ── */
+.detail-header { padding-top: 2rem; }
+.detail-header h1 { font-size: 2.5rem; line-height: 1.15; color: var(--color-accent); margin-bottom: 1.25rem; }
+.detail-meta-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.detail-meta-facts { display: flex; flex-wrap: wrap; gap: .5rem 2rem; }
+.detail-meta-fact { display: flex; align-items: flex-start; gap: .5rem; font-size: .9375rem; color: #111; }
+.detail-meta-fact-icon { flex-shrink: 0; width: 1.25rem; text-align: center; color: var(--color-text-muted); }
+.detail-meta-fact a { color: var(--color-accent); text-decoration: underline; margin-left: .35rem; font-size: .8125rem; white-space: nowrap; }
+.detail-meta-actions { display: flex; align-items: center; gap: .75rem; flex-shrink: 0; }
+
+/* ── Photo gallery hero (main image + side thumbnails incl. map thumb) ── */
+.detail-gallery { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+.detail-gallery-main { flex: 1 1 65%; position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 16/9; }
+.detail-gallery-count {
+  position: absolute; bottom: 1rem; right: 1rem;
+  background: #fff; color: #111; font-size: .8125rem; font-weight: 600;
+  padding: .5rem 1rem; border-radius: 2rem; display: flex; align-items: center; gap: .4rem;
+}
+.detail-gallery-side { flex: 1 1 30%; display: flex; flex-direction: column; gap: .5rem; }
+.detail-gallery-thumb { position: relative; border-radius: 8px; overflow: hidden; flex: 1; }
+.detail-gallery-thumb.is-map::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,0) 45%);
+}
+.detail-gallery-explore {
+  position: absolute; bottom: .75rem; left: 50%; transform: translateX(-50%);
+  z-index: 1;
+}
+
+/* ── Detail tabs (Overview / Nearby / FAQs) ── */
+.detail-tabs { display: flex; gap: 2rem; border-bottom: 1px solid var(--color-border); margin-bottom: 2rem; }
+.detail-tab {
+  display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  padding: .75rem .25rem 1rem;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  font-size: .8125rem; color: var(--color-text-muted); cursor: pointer; font-family: inherit;
+}
+.detail-tab.active { color: var(--color-accent); border-bottom-color: var(--color-accent); font-weight: 600; }
+
+/* ── Overview + sidebar info card layout ── */
+.detail-overview-row { display: flex; gap: 3rem; align-items: flex-start; margin-bottom: 3rem; }
+.detail-overview { flex: 1 1 65%; min-width: 0; }
+.detail-overview h2 { font-size: 1.375rem; font-weight: 700; margin-bottom: .75rem; }
+.detail-overview p { font-size: 1rem; color: #0d0d0d; line-height: 1.6; margin-bottom: .5rem; }
+.detail-overview .btn { margin-top: .75rem; }
+
+.detail-info-card { flex: 1 1 30%; max-width: 22rem; background: #f5f8fc; border-radius: 8px; padding: 1.75rem; }
+.detail-info-card h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 1.25rem; }
+.detail-info-fact { display: flex; gap: .75rem; align-items: flex-start; margin-bottom: 1rem; font-size: .875rem; }
+.detail-info-fact-icon { flex-shrink: 0; width: 1rem; color: var(--color-text-muted); }
+.detail-info-fact-body a { display: block; color: var(--color-accent); text-decoration: underline; }
+.detail-info-links { border-top: 1px solid var(--color-border); padding-top: 1rem; margin-top: .5rem; display: flex; flex-direction: column; gap: .75rem; }
+.detail-info-links a { color: var(--color-accent); text-decoration: underline; font-size: .875rem; font-weight: 600; }
+.detail-info-social-title { font-size: .8125rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+.detail-info-social { display: flex; gap: .6rem; }
+.detail-info-social a {
+  width: 1.75rem; height: 1.75rem; border-radius: 50%; background: #fff; border: 1px solid var(--color-border);
+  display: flex; align-items: center; justify-content: center; font-size: .7rem; color: var(--color-text-muted); text-decoration: none;
+}
+
+/* ── Location section (address + embedded map) ── */
+.detail-location-address { font-size: .9375rem; color: #111; margin-bottom: .2rem; }
+.detail-location-address + .detail-location-address { color: var(--color-text-muted); margin-bottom: .75rem; }
+.detail-location-directions { display: inline-block; margin-bottom: 1.25rem; color: var(--color-accent); text-decoration: underline; font-size: .9375rem; }
+.detail-location-map { border-radius: 8px; overflow: hidden; height: 22rem; }
+.detail-location-map iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* ── Floating newsletter signup popup ── */
+.newsletter-popup {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 20rem; z-index: 40;
+  background: var(--color-accent); color: #fff; border-radius: 8px; padding: 1.25rem 1.5rem 1.5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+}
+.newsletter-popup-close {
+  position: absolute; top: .6rem; right: .6rem; background: none; border: none; color: #fff;
+  opacity: .8; cursor: pointer; font-size: .9rem; padding: .25rem;
+}
+.newsletter-popup h3 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; padding-right: 1.5rem; }
+.newsletter-popup p { font-size: .8125rem; line-height: 1.5; opacity: .9; margin-bottom: 1rem; }
+.newsletter-popup .btn { width: 100%; justify-content: center; }
+.newsletter-popup[hidden] { display: none; }
+
+@media (max-width: 900px) {
+  .detail-gallery { flex-direction: column; }
+  .detail-overview-row { flex-direction: column; }
+  .detail-info-card { max-width: none; width: 100%; }
+  .detail-meta-row { flex-direction: column; }
+  .newsletter-popup { left: 1rem; right: 1rem; width: auto; bottom: 1rem; }
+}

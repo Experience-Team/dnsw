@@ -101,8 +101,8 @@
     <h1>Component Library</h1>
     <p>Every UI component used across the wireframe pages, gathered in one place for a design-consistency audit. Real markup and classes are shown as they appear in production — including cases where the same conceptual component has drifted into several inconsistent variants. Amber callouts flag inconsistencies between variants; red callouts flag likely bugs or dead code.</p>
     <div class="lib-stats">
-      <div class="lib-stat"><b>8</b>pages audited</div>
-      <div class="lib-stat"><b>20</b>component families</div>
+      <div class="lib-stat"><b>9</b>pages audited</div>
+      <div class="lib-stat"><b>21</b>component families</div>
       <div class="lib-stat"><b>5</b>card variants, consolidated from 6</div>
       <div class="lib-stat"><b>3</b>parallel filter-bar systems</div>
     </div>
@@ -127,6 +127,7 @@
     <a href="#promo"><span class="lib-resolved-dot"></span>Promo &amp; CTA banners</a>
     <a href="#maps"><span class="lib-resolved-dot"></span>Map modules</a>
     <a href="#content-block"><span class="lib-resolved-dot"></span>Content block &amp; chevron list</a>
+    <a href="#detail-page">Event / place detail page</a>
     <a href="#v3-only">V3-only modules</a>
     <a href="#misc">Placeholders &amp; chat FAB</a>
     <a href="#footer">Footer</a>
@@ -930,6 +931,84 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ EVENT / PLACE DETAIL PAGE ══════════════════ -->
+    <section class="lib-section" id="detail-page">
+      <div class="lib-section-head"><h2>Event / place detail page <code>pages/disneys-the-lion-king.html</code></h2></div>
+      <p class="lib-section-desc">New page template — a single event/place detail view, reproducing sydney.com's Lion King event page. It reuses <code>.event-card</code>, <code>.card-bookmark</code>, <code>.card-amenity-icon</code>, <code>.faq-list</code>, <code>.grid-3</code>, <code>.btn</code> variants and the shared newsletter banner / footer includes as-is. Seven new component families were added for the patterns this template introduces that no existing page had: a detail header/meta row, a photo gallery hero, section tabs, an overview + sidebar info-card layout, a location/map block, and a floating newsletter popup.</p>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div class="detail-meta-row" style="margin-bottom:0;">
+            <div class="detail-meta-facts">
+              <div class="detail-meta-fact"><span class="detail-meta-fact-icon">📍</span><span>Capitol Theatre <a href="#">Get directions ↗</a></span></div>
+              <div class="detail-meta-fact"><span class="detail-meta-fact-icon">📅</span><span>Tue 11 Aug '26 – Sun 04 Oct '26 (DAILY event)</span></div>
+            </div>
+            <div class="detail-meta-actions">
+              <a href="#" class="btn btn-outline-dark btn-sm">Booking details ↗</a>
+              <a href="#" class="btn btn-primary btn-sm">Visit website ↗</a>
+            </div>
+          </div>
+        </div>
+        <div class="lib-caption"><code>.detail-header</code> / <code>.detail-meta-row</code> — location + date facts on the left, booking actions on the right. New; no existing page had a per-item meta row like this.</div>
+      </div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div class="detail-gallery" style="height:12rem;">
+            <div class="detail-gallery-main ph-img"><span class="detail-gallery-count">🖼 5 photos</span></div>
+            <div class="detail-gallery-side">
+              <div class="detail-gallery-thumb ph-img"></div>
+              <div class="detail-gallery-thumb is-map ph-img"><a href="#" class="btn btn-light btn-sm detail-gallery-explore">Explore nearby ↗</a></div>
+            </div>
+          </div>
+        </div>
+        <div class="lib-caption"><code>.detail-gallery</code> — main image + stacked side thumbnails, last thumb doubling as a "find on map" tile. New pattern, distinct from <code>.carousel</code> and <code>.hero-split-img</code>.</div>
+      </div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <nav class="detail-tabs" style="margin-bottom:0;">
+            <a href="#" class="detail-tab">☰ Overview</a>
+            <a href="#" class="detail-tab">👤 Nearby</a>
+            <a href="#" class="detail-tab active">ⓘ FAQs</a>
+          </nav>
+        </div>
+        <div class="lib-caption"><code>.detail-tabs</code> — icon + label jump links to the page's own sections. New; visually similar to but distinct from the <code>.carousel-nav</code>/tab-bar pattern used for filtering carousels.</div>
+      </div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div class="detail-overview-row" style="margin-bottom:0;">
+            <div class="detail-overview">
+              <h2>Overview</h2>
+              <p>Disney's The Lion King is now playing at the Capitol Theatre! Prepare for a spectacle far beyond your imagination…</p>
+              <a href="#" class="btn btn-outline-dark btn-sm">Read more ⌄</a>
+            </div>
+            <div class="detail-info-card">
+              <h3>Disney's The Lion King</h3>
+              <div class="detail-info-fact"><span class="detail-info-fact-icon">📍</span><div class="detail-info-fact-body"><span>Capitol Theatre</span><a href="#">13 Campbell St Haymarket NSW 2000 ↗</a></div></div>
+              <div class="detail-info-links"><a href="#">↗ Booking details</a><a href="#">↗ Visit website</a></div>
+              <p class="detail-info-social-title">Find us on socials</p>
+              <div class="detail-info-social"><a href="#" aria-label="Facebook">Fb</a><a href="#" aria-label="Instagram">Ig</a></div>
+            </div>
+          </div>
+        </div>
+        <div class="lib-caption"><code>.detail-overview-row</code> / <code>.detail-info-card</code> — two-column body copy + sticky-feeling summary card. The "Nearby Experiences" grid below it in the real page is just <code>.grid-3</code> of <code>.event-card</code> with the price footer swapped for a <code>.card-amenity-icon</code> — no new card variant needed.</div>
+      </div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner" style="position:relative; min-height:8rem; background:#eee;">
+          <div class="newsletter-popup" style="position:absolute; bottom:1rem; right:1rem;">
+            <button class="newsletter-popup-close" aria-label="Close">&#x2715;</button>
+            <h3>Subscribe to our newsletter</h3>
+            <p>Stay connected to Sydney for all the latest news, stories, upcoming events and travel inspiration.</p>
+            <a href="#" class="btn btn-light">Subscribe</a>
+          </div>
+        </div>
+        <div class="lib-caption"><code>.newsletter-popup</code> — a dismissible, fixed-position widget layered over the footer. Distinct from the full-width <code>.newsletter-banner</code> include, which still appears above the footer on this page unchanged.</div>
       </div>
     </section>
 
