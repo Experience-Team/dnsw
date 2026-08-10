@@ -125,7 +125,7 @@
     <a href="#filters-modal"><span class="lib-resolved-dot"></span>Filter &amp; date modals</a>
     <a href="#faq"><span class="lib-resolved-dot"></span>FAQ accordion</a>
     <a href="#promo"><span class="lib-resolved-dot"></span>Promo &amp; CTA banners</a>
-    <a href="#maps"><span class="lib-flag-dot"></span>Map modules</a>
+    <a href="#maps"><span class="lib-resolved-dot"></span>Map modules</a>
     <a href="#content-block"><span class="lib-flag-dot"></span>Content block &amp; chevron list</a>
     <a href="#v3-only">V3-only modules</a>
     <a href="#misc">Placeholders &amp; chat FAB</a>
@@ -847,8 +847,8 @@
 
     <!-- ══════════════════ MAPS ══════════════════ -->
     <section class="lib-section" id="maps">
-      <div class="lib-section-head"><h2>Map modules</h2></div>
-      <p class="lib-section-desc">Four structurally unrelated "map" implementations exist across the site, with no shared visual language between them.</p>
+      <div class="lib-section-head"><h2>Map modules <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">Four map implementations, kept as four — each serves a genuinely different purpose (a static custom-drawn regional map, a list/map toggle for a results grid, an interactive neighbourhood-picker, and a schematic distance diagram), so this isn't a case of picking one canonical shape. The only real bug found was cosmetic drift between the two <code>.map-panel</code> Google Maps embeds: events.html's iframe carried an inline <code>border-radius:.5rem</code> and accommodation.html's carried <code>display:block</code> instead — both redundant, since <code>#map-content-row.map-active .map-panel iframe</code> in <code>shared.css</code> already sets width/height/display, and the <code>.map-panel</code> container itself already clips to a rounded corner via <code>overflow:hidden</code>. Both iframes are now down to the one style they actually need, <code>border:0</code>. The <code>.area-map</code> markup, data and JS being duplicated verbatim between western-sydney V2 and V3 is intentional reuse (confirmed byte-identical, no drift) rather than a bug — there's no shared-include mechanism in this static wireframe setup to de-duplicate it further.</p>
 
       <div class="lib-2col">
         <div class="lib-variant">
