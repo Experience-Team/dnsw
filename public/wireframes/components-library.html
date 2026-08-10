@@ -126,7 +126,7 @@
     <a href="#faq"><span class="lib-resolved-dot"></span>FAQ accordion</a>
     <a href="#promo"><span class="lib-resolved-dot"></span>Promo &amp; CTA banners</a>
     <a href="#maps"><span class="lib-resolved-dot"></span>Map modules</a>
-    <a href="#content-block"><span class="lib-flag-dot"></span>Content block &amp; chevron list</a>
+    <a href="#content-block"><span class="lib-resolved-dot"></span>Content block &amp; chevron list</a>
     <a href="#v3-only">V3-only modules</a>
     <a href="#misc">Placeholders &amp; chat FAB</a>
     <a href="#footer">Footer</a>
@@ -909,9 +909,9 @@
 
     <!-- ══════════════════ CONTENT BLOCK ══════════════════ -->
     <section class="lib-section" id="content-block">
-      <div class="lib-section-head"><h2>Content block &amp; chevron list</h2></div>
-      <p class="lib-section-desc"><code>.content-block</code> (media + copy neighbourhood profile) is used identically for the 9-town lists on western-sydney V2 and V3 — but the class name "chevron list" is used for two visually unrelated things.</p>
-      <div class="lib-flag"><b>Naming inconsistency —</b> <code>.chevron-list</code> means a flex row with a trailing "›" glyph inside the area-map info panel, but is reused inside <code>.content-block-copy</code> as a plain disc-bulleted list with no chevron glyph at all — same class, two unrelated visual treatments.</div>
+      <div class="lib-section-head"><h2>Content block &amp; chevron list <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc"><code>.content-block</code> (media + copy neighbourhood profile) is used identically for the 9-town lists on western-sydney V2 and V3. Its "Highlights" bullet list is now its own class, <code>.highlight-list</code> (disc bullets, no chevron), instead of a same-named-but-different override of <code>.chevron-list</code>.</p>
+      <p class="lib-section-desc">The real <code>.chevron-list</code> (flex row + trailing "›" glyph, for the area-map info panel) turned out to have zero live usages left anywhere on the site — the area-map panel now only shows plain <code>.transport-line</code> paragraphs, no list. Its dead CSS is removed along with the class name conflict; all 18 "Highlights" lists (9 towns × 2 pages) now use <code>.highlight-list</code>.</p>
 
       <div class="lib-demo">
         <div class="lib-demo-inner">
@@ -922,7 +922,7 @@
               <p>Sydney's second city and one of Australia's oldest colonial settlements, packed with heritage sites and a buzzing food scene.</p>
               <p><strong>Known for:</strong> history and heritage; multicultural food scene</p>
               <p><strong>Highlights:</strong></p>
-              <ul class="chevron-list">
+              <ul class="highlight-list">
                 <li><span>Explore the rich heritage of <a href="#">Old Government House</a>.</span></li>
                 <li><span>Wander the riverside parklands of <a href="#">Parramatta Park</a>.</span></li>
               </ul>
