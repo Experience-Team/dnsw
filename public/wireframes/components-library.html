@@ -970,13 +970,13 @@
 
       <div class="lib-demo">
         <div class="lib-demo-inner">
-          <nav class="detail-tabs" style="margin-bottom:0;">
-            <a href="#" class="detail-tab">☰ Overview</a>
+          <nav class="detail-tabs" style="margin-bottom:0; position:static;">
+            <a href="#" class="detail-tab active">☰ Overview</a>
             <a href="#" class="detail-tab">👤 Nearby</a>
-            <a href="#" class="detail-tab active">ⓘ FAQs</a>
+            <a href="#" class="detail-tab">ⓘ FAQs</a>
           </nav>
         </div>
-        <div class="lib-caption"><code>.detail-tabs</code> — icon + label jump links to the page's own sections. New; visually similar to but distinct from the <code>.carousel-nav</code>/tab-bar pattern used for filtering carousels.</div>
+        <div class="lib-caption"><code>.detail-tabs</code> — icon + label jump links to the page's own sections. <code>position: sticky</code> in the live page (pinned just below the site nav, shown here as <code>static</code> so it doesn't stick inside this demo box) and an <code>IntersectionObserver</code> swaps the <code>.active</code> tab to whichever section is currently scrolled into view. New; visually similar to but distinct from the <code>.carousel-nav</code>/tab-bar pattern used for filtering carousels.</div>
       </div>
 
       <div class="lib-demo">
@@ -984,8 +984,11 @@
           <div class="detail-overview-row" style="margin-bottom:0;">
             <div class="detail-overview">
               <h2>Overview</h2>
-              <p>Disney's The Lion King is now playing at the Capitol Theatre! Prepare for a spectacle far beyond your imagination…</p>
-              <a href="#" class="btn btn-outline-dark btn-sm">Read more ⌄</a>
+              <div class="detail-overview-body" style="max-height:none;">
+                <p>Disney's The Lion King is is now playing at the Capitol Theatre!</p>
+                <p>Prepare for a spectacle far beyond your imagination as you follow the powerful story of Simba as he journeys from wide-eyed cub to his destined role as King of the Pridelands.</p>
+              </div>
+              <button type="button" class="btn btn-outline-dark btn-sm detail-overview-toggle">Read more <span class="chevron">⌄</span></button>
             </div>
             <div class="detail-info-card">
               <h3>Disney's The Lion King</h3>
@@ -996,7 +999,7 @@
             </div>
           </div>
         </div>
-        <div class="lib-caption"><code>.detail-overview-row</code> / <code>.detail-info-card</code> — two-column body copy + sticky-feeling summary card. The "Nearby Experiences" grid below it in the real page is just <code>.grid-3</code> of <code>.event-card</code> with the price footer swapped for a <code>.card-amenity-icon</code> — no new card variant needed.</div>
+        <div class="lib-caption"><code>.detail-overview-row</code> / <code>.detail-info-card</code> — two-column body copy + summary sidebar. <code>.detail-overview-body</code> clamps to ~4 lines with a fade-out and a working "Read more ⇄ Read less" toggle (<code>.expanded</code>). The "Nearby Experiences" grid below it in the real page is just <code>.grid-3</code> of <code>.event-card</code> with the price footer swapped for a <code>.card-amenity-icon</code> — no new card variant needed.</div>
       </div>
 
       <div class="lib-demo">
