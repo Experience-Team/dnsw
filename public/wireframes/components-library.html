@@ -117,7 +117,7 @@
     <a href="#breadcrumb"><span class="lib-resolved-dot"></span>Breadcrumb / page switcher</a>
     <a href="#intro"><span class="lib-resolved-dot"></span>Intro &amp; text block</a>
     <a href="#section-header"><span class="lib-resolved-dot"></span>Section header</a>
-    <a href="#buttons"><span class="lib-bug-dot"></span>Buttons</a>
+    <a href="#buttons"><span class="lib-resolved-dot"></span>Buttons</a>
     <a href="#cards"><span class="lib-bug-dot"></span>Cards</a>
     <a href="#badges"><span class="lib-flag-dot"></span>Badges, tags &amp; dates</a>
     <a href="#carousel"><span class="lib-flag-dot"></span>Carousel &amp; tabs</a>
@@ -354,8 +354,8 @@
 
     <!-- ══════════════════ BUTTONS ══════════════════ -->
     <section class="lib-section" id="buttons">
-      <div class="lib-section-head"><h2>Buttons</h2></div>
-      <p class="lib-section-desc">Three real button classes exist (<code>.btn-primary</code>, <code>.btn-outline</code> [unused in practice], <code>.btn-outline-dark</code>) plus <code>.btn-sm</code>, but several CTAs bypass the system entirely with inline <code>style=""</code> overrides.</p>
+      <div class="lib-section-head"><h2>Buttons <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">Four real button classes: <code>.btn-primary</code>, <code>.btn-outline</code> (accent-coloured outline, not currently used by any page but kept as a valid option), <code>.btn-outline-dark</code>, and <code>.btn-light</code> — a new solid white variant for CTAs on dark or photo backgrounds, added to replace two one-off inline-styled hacks that were both reinventing the same "light button" need. Plus <code>.btn-sm</code> as a size modifier. Every <code>.btn</code> on every page now uses one of these classes with no inline style overrides.</p>
 
       <div class="lib-demo">
         <div class="lib-demo-inner">
@@ -366,19 +366,16 @@
             <a href="#" class="btn btn-outline-dark btn-sm">btn-outline-dark btn-sm</a>
           </div>
         </div>
+        <div class="lib-demo-inner lib-demo-dark" style="border-top:1px dashed #e5e5e5;">
+          <div class="lib-demo-row">
+            <a href="#" class="btn btn-light">btn-light</a>
+            <a href="#" class="btn btn-light btn-sm">btn-light btn-sm</a>
+          </div>
+        </div>
+        <div class="lib-caption"><code>.btn-light</code> — used on accommodation.html's "Discover Somewhere New" CTA and western-sydney-v2.html's Airport cross-promo, both previously hand-rolled with inline <code>style=""</code> overrides (one on a bare <code>.btn</code>, one as a pill-shaped override of <code>.btn-outline-dark</code>). western-sydney-v2.html's button also carried literal placeholder text (<code>← Button label →</code>), replaced with real copy ("Explore the airport →").</div>
       </div>
 
-      <div class="lib-flag-bug">
-        <b>Bug — placeholder text shipped live.</b> western-sydney-v2.html's Airport cross-promo CTA reads literally <code>← Button label →</code>, and overrides <code>.btn-outline-dark</code> with inline <code>style="background:#fff; border-radius:999px;"</code> instead of a proper pill modifier.
-        <div style="margin-top:.6rem;"><a href="#" class="btn btn-outline-dark btn-sm" style="background:#fff; border-radius:999px;">← Button label →</a></div>
-      </div>
-
-      <div class="lib-flag-bug">
-        <b>Inconsistency — unclassed one-off button.</b> accommodation.html's "Discover Somewhere New" CTA hand-rolls a white button via <code>&lt;a class="btn" style="background:#fff;color:#111;font-weight:600;"&gt;</code> instead of reusing <code>.btn-outline-dark</code> like every other dark-background CTA on the site.
-        <div style="margin-top:.6rem;background:#111;padding:1rem;display:inline-block;border-radius:6px;"><a href="#" class="btn" style="background:#fff; color:#111; font-weight:600;">Explore NSW stays</a></div>
-      </div>
-
-      <div class="lib-flag"><b>Proliferation —</b> beyond <code>.btn</code>, at least 8 other button-shaped controls exist as their own one-off pill/chip families: <code>.filter-action-btn</code>, <code>.filter-chip</code>, <code>.filter-dropdown</code>, <code>.v3-pill</code>, <code>.v3-date-chip</code>, <code>.when-seg-btn</code>, <code>.vs-btn</code>, <code>.vs-overlay-btn</code>. See the Filter bars section.</div>
+      <div class="lib-flag"><b>Proliferation —</b> beyond <code>.btn</code>, at least 8 other button-shaped controls exist as their own one-off pill/chip families: <code>.filter-action-btn</code>, <code>.filter-chip</code>, <code>.filter-dropdown</code>, <code>.v3-pill</code>, <code>.v3-date-chip</code>, <code>.when-seg-btn</code>, <code>.vs-btn</code>, <code>.vs-overlay-btn</code>. Out of scope for this fix — see the Filter bars section.</div>
     </section>
 
     <!-- ══════════════════ CARDS ══════════════════ -->
@@ -832,7 +829,7 @@
         </div>
         <div class="lib-variant">
           <div class="lib-variant-meta">
-            <span class="lib-variant-name">Overridden — eyebrow + tagline + pill button</span>
+            <span class="lib-variant-name">Overridden — eyebrow + tagline + light button</span>
             <span class="lib-variant-pages"><b>Used on</b> western-sydney-v2.html cross-promo</span>
           </div>
           <div class="lib-demo">
@@ -843,20 +840,20 @@
                   <p class="promo-sub" style="color:#fff;text-transform:uppercase;font-size:.75rem;letter-spacing:.06em;">Eyebrow headline</p>
                   <h2 style="color:#fff;">Western Sydney Airport</h2>
                   <p style="color:#fff;">Tagline</p>
-                  <a href="#" class="btn btn-outline-dark btn-sm" style="background:#fff;border-radius:999px;">← Button label →</a>
+                  <a href="#" class="btn btn-light btn-sm">Explore the airport →</a>
                 </div>
               </div>
             </div>
           </div>
-          <div class="lib-caption"><code>.promo-sub</code> repurposed as an uppercase eyebrow (its opposite use elsewhere is a plain subtitle), plus the placeholder-text button bug noted earlier.</div>
+          <div class="lib-caption"><code>.promo-sub</code> repurposed as an uppercase eyebrow (its opposite use elsewhere is a plain subtitle) — still open. The button itself is now fixed: real copy, <a href="#buttons">canonical <code>.btn-light</code></a> instead of an inline-styled pill override.</div>
         </div>
       </div>
 
-      <div class="lib-flag-bug"><b>One-off duplicate CTA.</b> accommodation.html has an entirely inline-styled <code>&lt;section style="background:#111;color:#fff;"&gt;</code> "Discover Somewhere New" band, immediately followed by the real <code>.newsletter-banner</code> include — which uses the exact same headline. Two CTAs with the same message stacked back to back; candidate for removing the one-off.</div>
+      <div class="lib-flag-bug"><b>One-off duplicate CTA.</b> accommodation.html has an entirely inline-styled <code>&lt;section style="background:#111;color:#fff;"&gt;</code> "Discover Somewhere New" band, immediately followed by the real <code>.newsletter-banner</code> include — which uses the exact same headline. Two CTAs with the same message stacked back to back; candidate for removing the one-off. (The button inside it is now fixed — see <a href="#buttons">Buttons</a>.)</div>
       <div style="background:#111;color:#fff;padding:1.5rem;text-align:center;border-radius:8px;">
         <h2 style="font-size:1.25rem;margin-bottom:.5rem;">Discover Somewhere New</h2>
         <p style="opacity:.75;font-size:.8125rem;margin-bottom:.75rem;">Explore all the best accommodation New South Wales has to offer.</p>
-        <a href="#" class="btn" style="background:#fff;color:#111;font-weight:600;">Explore NSW stays</a>
+        <a href="#" class="btn btn-light">Explore NSW stays</a>
       </div>
 
       <div class="lib-variant" style="margin-top:1.5rem;">

@@ -61,6 +61,7 @@ body {
 .btn-primary   { background: var(--color-accent); color: #fff; }
 .btn-outline   { background: none; color: var(--color-accent); border-color: var(--color-accent); }
 .btn-outline-dark { background: none; color: #111; border-color: #111; }
+.btn-light     { background: #fff; color: #111; border-color: #fff; }
 .btn-sm        { padding: .35rem .9rem; font-size: .8125rem; }
 
 /* ── Utility bar (wireframe nav) ── */
