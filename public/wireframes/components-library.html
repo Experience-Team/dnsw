@@ -120,7 +120,7 @@
     <a href="#buttons"><span class="lib-resolved-dot"></span>Buttons</a>
     <a href="#cards"><span class="lib-resolved-dot"></span>Cards</a>
     <a href="#badges"><span class="lib-resolved-dot"></span>Badges, tags &amp; dates</a>
-    <a href="#carousel"><span class="lib-flag-dot"></span>Carousel &amp; tabs</a>
+    <a href="#carousel"><span class="lib-resolved-dot"></span>Carousel &amp; tabs</a>
     <a href="#filters"><span class="lib-bug-dot"></span>Filter bars</a>
     <a href="#filters-modal"><span class="lib-flag-dot"></span>Filter &amp; date modals</a>
     <a href="#faq"><span class="lib-flag-dot"></span>FAQ accordion</a>
@@ -321,7 +321,7 @@
     <!-- ══════════════════ SECTION HEADER ══════════════════ -->
     <section class="lib-section" id="section-header">
       <div class="lib-section-head"><h2>Section header <span class="lib-resolved">Resolved</span></h2></div>
-      <p class="lib-section-desc">One canonical <code>.section-header</code> shape everywhere: the title always sits inside a wrapping text <code>&lt;div&gt;</code>, with an optional <code>.section-body</code> subheading alongside it, plus an optional <code>.view-all-link</code> as the header's second flex child. All 34 usages across the 8 pages now share this exact DOM shape — 4 instances (accommodation, home-nsw, home ×2) previously omitted the wrapping <code>&lt;div&gt;</code> around the title when there was no subheading, which this fix removed. Where a <code>.carousel-nav</code> sits in the header's right-hand slot instead of a link, that placement is a separate, still-open inconsistency tracked under <a href="#carousel">Carousel &amp; tabs</a>.</p>
+      <p class="lib-section-desc">One canonical <code>.section-header</code> shape everywhere: the title always sits inside a wrapping text <code>&lt;div&gt;</code>, with an optional <code>.section-body</code> subheading alongside it, plus an optional <code>.view-all-link</code> as the header's second flex child. All 34 usages across the 8 pages now share this exact DOM shape — 4 instances (accommodation, home-nsw, home ×2) previously omitted the wrapping <code>&lt;div&gt;</code> around the title when there was no subheading, which this fix removed. Where a <code>.carousel-nav</code> sits in the header's right-hand slot instead of a link, see <a href="#carousel">Carousel &amp; tabs</a> — now also resolved.</p>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
@@ -522,17 +522,21 @@
 
     <!-- ══════════════════ CAROUSEL & TABS ══════════════════ -->
     <section class="lib-section" id="carousel">
-      <div class="lib-section-head"><h2>Carousel &amp; tab bar</h2></div>
-      <p class="lib-section-desc"><code>.carousel-bleed</code> extends a horizontally-scrolling <code>.carousel</code> to the viewport edge. <code>.tab-bar</code> is a simple active/inactive button row.</p>
-      <div class="lib-flag"><b>Inconsistency —</b> home-nsw.html's carousels (experiences, driving itineraries, top events) are NOT wrapped in <code>.carousel-bleed</code> — they stay inside <code>.container</code>, so they don't bleed to the viewport edge like every other page's carousels.</div>
-      <div class="lib-flag"><b>Inconsistency —</b> <code>.carousel-nav</code> (‹ ›) placement varies: beside the title in an undocumented inline-styled wrapper (home, accommodation), a direct <code>.section-header</code> child (home-nsw, events), or below the carousel next to a CTA button (western-sydney.html) — three placements for one control.</div>
+      <div class="lib-section-head"><h2>Carousel &amp; tab bar <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc"><code>.carousel-bleed</code> extends a horizontally-scrolling <code>.carousel</code> to the viewport edge. <code>.tab-bar</code> is a simple active/inactive button row. Every carousel on the site now bleeds, and <code>.carousel-nav</code> is always a direct <code>.section-header</code> child with no wrapper — <code>.section-header</code>'s own <code>display:flex; justify-content:space-between;</code> already positions it correctly.</p>
+      <p class="lib-section-desc">home-nsw.html's 3 carousels (experiences, driving itineraries, top events) were the only ones not wrapped in <code>.carousel-bleed</code> — they stayed inside <code>.container</code> instead of bleeding to the viewport edge. Now fixed to match every other page, including re-wrapping each carousel's trailing "view all"/CTA link back in its own <code>.container</code> so it stays centred below the full-bleed carousel.</p>
+      <p class="lib-section-desc">home.html, accommodation.html and events.html each wrapped <code>.carousel-nav</code> in a redundant inline-styled <code>&lt;div style="display:flex;align-items:center;gap:.75rem;"&gt;</code> — unnecessary since <code>.section-header</code> already lays out its two children the same way. All 3 now place <code>.carousel-nav</code> directly, matching home-nsw.html's pattern.</p>
+      <div class="lib-flag">western-sydney.html's 4 carousels are a deliberately different case, not folded into the above: their <code>.section-header</code> has no nav at all — <code>.carousel-nav</code> instead sits below the carousel, paired with a "Browse more…" link in a <code>space-between</code> row. That's a distinct list-preview-with-CTA pattern, not a placement variant of the same control, so it's left as-is rather than forced into the header.</div>
 
       <div class="lib-demo">
         <div class="lib-demo-inner">
           <div class="tab-bar" style="margin-bottom:1rem;">
             <button class="active">Iconic</button><button>Stays</button><button>Family picks</button><button>Arts &amp; culture</button>
           </div>
-          <div class="carousel-nav"><button>‹</button><button>›</button></div>
+          <div class="section-header" style="margin-top:1rem;">
+            <div><p class="section-title">Must-see events</p></div>
+            <div class="carousel-nav"><button>‹</button><button>›</button></div>
+          </div>
         </div>
       </div>
     </section>
