@@ -27,6 +27,12 @@
   .lib-toc a:hover { color: #005EA2; border-left-color: #ddd; }
   .lib-toc a .lib-flag-dot { width: .4rem; height: .4rem; border-radius: 50%; background: #d97706; flex-shrink: 0; }
   .lib-toc a .lib-bug-dot { width: .4rem; height: .4rem; border-radius: 50%; background: #dc2626; flex-shrink: 0; }
+  .lib-toc a .lib-resolved-dot { width: .4rem; height: .4rem; border-radius: 50%; background: #16a34a; flex-shrink: 0; }
+  .lib-section h2 .lib-resolved {
+    display: inline-block; vertical-align: middle; font-size: .6875rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .04em; color: #15803d; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 999px;
+    padding: .15rem .55rem; margin-left: .5rem;
+  }
 
   .lib-main { flex: 1; min-width: 0; }
 
@@ -107,7 +113,7 @@
   <nav class="lib-toc">
     <p class="lib-toc-title">Jump to</p>
     <a href="#nav-utility">Nav &amp; utility bar</a>
-    <a href="#hero"><span class="lib-flag-dot"></span>Hero</a>
+    <a href="#hero"><span class="lib-resolved-dot"></span>Hero</a>
     <a href="#breadcrumb"><span class="lib-flag-dot"></span>Breadcrumb / page switcher</a>
     <a href="#intro"><span class="lib-flag-dot"></span>Intro &amp; text block</a>
     <a href="#section-header"><span class="lib-flag-dot"></span>Section header</a>
@@ -192,66 +198,30 @@
 
     <!-- ══════════════════ HERO ══════════════════ -->
     <section class="lib-section" id="hero">
-      <div class="lib-section-head"><h2>Hero</h2></div>
-      <p class="lib-section-desc">A shared <code>components/hero.html</code> partial exists, but only <code>home.html</code> actually includes it — every other page hand-copies its own inline <code>.hero</code> markup instead.</p>
-
-      <div class="lib-flag"><b>Inconsistency —</b> the shared partial's headline is a <code>&lt;p class="hero-headline"&gt;</code> with no <code>&lt;h1&gt;</code> anywhere in it. Every page that inlined its own copy of the hero fixed this by using <code>&lt;h1 class="hero-headline"&gt;</code> instead. Home is the only page missing a real <code>&lt;h1&gt;</code> in its hero.</div>
-      <div class="lib-flag"><b>Inconsistency —</b> <code>.hero-content</code> is wrapped in <code>.container</code> on accommodation / western-sydney* / airport, but not on home.html's shared partial or home-nsw.html's inline copy — different max-width/padding behaviour for the same headline.</div>
-
-      <div class="lib-2col">
-        <div class="lib-variant">
-          <div class="lib-variant-meta">
-            <span class="lib-variant-name">Shared partial <code>components/hero.html</code></span>
-            <span class="lib-variant-pages"><b>Used on</b> home.html only</span>
-          </div>
-          <div class="lib-demo">
-            <div class="lib-demo-inner pad-0">
-              <section class="hero" style="height:16rem;">
-                <div class="ph-img" style="width:100%;height:100%;"></div>
-                <div class="hero-content">
-                  <p class="hero-headline">Feel new<br>in Sydney</p>
-                </div>
-              </section>
-            </div>
-            <div class="lib-caption">Note: <code>&lt;p&gt;</code>, not <code>&lt;h1&gt;</code>.</div>
-          </div>
-        </div>
-
-        <div class="lib-variant">
-          <div class="lib-variant-meta">
-            <span class="lib-variant-name">Inline copy (headline-only)</span>
-            <span class="lib-variant-pages"><b>Used on</b> accommodation, western-sydney*, airport</span>
-          </div>
-          <div class="lib-demo">
-            <div class="lib-demo-inner pad-0">
-              <div class="hero" style="height:16rem;">
-                <div class="ph-img" style="width:100%;height:100%;"></div>
-                <div class="hero-content container">
-                  <h1 class="hero-headline">Western Sydney</h1>
-                </div>
-              </div>
-            </div>
-            <div class="lib-caption">Correct <code>&lt;h1&gt;</code>, wrapped in <code>.container</code>.</div>
-          </div>
-        </div>
-      </div>
+      <div class="lib-section-head"><h2>Hero <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">Consolidated to exactly two hero patterns: a <b>text-only hero</b> (<code>.hero</code>, used on every page except events.html) and a <b>split hero</b> (<code>.hero-split</code>, events.html only — kept as its own pattern since it carries a live event list a text-only hero has no room for). Every page's inline copy — plus the old <code>components/hero.html</code> partial — now shares one canonical structure: a real <code>&lt;h1&gt;</code>, wrapped in <code>.hero-content.container</code>, with <code>.hero-sub</code> as an optional second line.</p>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
-          <span class="lib-variant-name">Inline copy + subhead + event list</span>
-          <span class="lib-variant-pages"><b>Used on</b> home-nsw.html</span>
+          <span class="lib-variant-name">Text-only hero <code>.hero</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> home, home-nsw, accommodation, western-sydney V1/V2/V3, airport</span>
         </div>
         <div class="lib-demo">
           <div class="lib-demo-inner pad-0">
             <div class="hero" style="height:16rem;">
               <div class="ph-img" style="width:100%;height:100%;"></div>
-              <div class="hero-content">
-                <h1 class="hero-headline">Feel new<br>in NSW</h1>
-                <p class="hero-sub">Don't miss these headline events</p>
+              <div class="hero-content container">
+                <h1 class="hero-headline">Western Sydney</h1>
+                <p class="hero-sub" id="hero-sub-demo">Explore New South Wales</p>
               </div>
             </div>
           </div>
-          <div class="lib-caption">Adds <code>.hero-sub</code> not present in the shared partial or the headline-only variant.</div>
+          <div class="lib-caption">
+            <label style="display:flex; align-items:center; gap:.45rem; cursor:pointer;">
+              <input type="checkbox" id="hero-sub-toggle" checked onchange="document.getElementById('hero-sub-demo').style.display = this.checked ? '' : 'none';">
+              Show subheading <span style="color:#bbb;">— <code>.hero-sub</code> is optional; most pages (accommodation, western-sydney, airport) omit it and use the headline alone</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -275,7 +245,7 @@
               <div class="hero-split-img ph-img"></div>
             </section>
           </div>
-          <div class="lib-caption">Structurally unrelated to <code>.hero</code> — a one-off two-column layout, not a modifier of it.</div>
+          <div class="lib-caption">Two-column layout carrying a live event list — kept as a distinct pattern from the text-only hero rather than merged into it.</div>
         </div>
       </div>
     </section>
