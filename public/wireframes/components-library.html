@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DNSW Wireframes — Component Library</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  /* ── Library chrome (not part of the shared design system — scoped to this audit page) ── */
+  body { background: #fff; }
+  .lib-header {
+    background: #111; color: #fff; padding: 2rem 2rem 1.5rem;
+  }
+  .lib-header-inner { max-width: 90rem; margin: 0 auto; }
+  .lib-back { color: rgba(255,255,255,.6); text-decoration: none; font-size: .8125rem; }
+  .lib-back:hover { color: #fff; }
+  .lib-header h1 { font-size: 1.625rem; font-weight: 700; margin: .75rem 0 .5rem; }
+  .lib-header p { color: rgba(255,255,255,.7); font-size: .9375rem; max-width: 46rem; line-height: 1.6; }
+  .lib-header .lib-stats { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .lib-header .lib-stat { font-size: .8125rem; color: rgba(255,255,255,.55); }
+  .lib-header .lib-stat b { color: #fff; font-size: 1.05rem; display: block; }
+
+  .lib-shell { max-width: 90rem; margin: 0 auto; display: flex; align-items: flex-start; gap: 2.5rem; padding: 2rem; }
+  .lib-toc { flex-shrink: 0; width: 15rem; position: sticky; top: 1.5rem; }
+  .lib-toc-title { font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #999; margin-bottom: .75rem; }
+  .lib-toc a { display: flex; align-items: center; gap: .4rem; font-size: .8125rem; color: #444; text-decoration: none; padding: .3rem 0; border-left: 2px solid transparent; padding-left: .6rem; margin-left: -.6rem; }
+  .lib-toc a:hover { color: #005EA2; border-left-color: #ddd; }
+  .lib-toc a .lib-flag-dot { width: .4rem; height: .4rem; border-radius: 50%; background: #d97706; flex-shrink: 0; }
+  .lib-toc a .lib-bug-dot { width: .4rem; height: .4rem; border-radius: 50%; background: #dc2626; flex-shrink: 0; }
+
+  .lib-main { flex: 1; min-width: 0; }
+
+  .lib-section { padding: 2.25rem 0; border-bottom: 1px solid #eee; scroll-margin-top: 1.5rem; }
+  .lib-section:first-child { padding-top: 0; }
+  .lib-section-head { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .4rem; flex-wrap: wrap; }
+  .lib-section h2 { font-size: 1.3rem; font-weight: 700; }
+  .lib-section-desc { font-size: .875rem; color: #666; max-width: 52rem; line-height: 1.6; margin-bottom: 1.25rem; }
+
+  .lib-flag {
+    background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #d97706;
+    border-radius: 4px; padding: .75rem 1rem; margin: 1rem 0; font-size: .8125rem; color: #78350f; line-height: 1.6;
+  }
+  .lib-flag b { color: #92400e; }
+  .lib-flag-bug {
+    background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626;
+    border-radius: 4px; padding: .75rem 1rem; margin: 1rem 0; font-size: .8125rem; color: #7f1d1d; line-height: 1.6;
+  }
+  .lib-flag-bug b { color: #991b1b; }
+
+  .lib-variant { margin-top: 1.75rem; }
+  .lib-variant-meta {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    margin-bottom: .6rem;
+  }
+  .lib-variant-name { font-size: .9375rem; font-weight: 700; color: #111; }
+  .lib-variant-name code { font-weight: 400; font-size: .8125rem; background: #f1f1f1; padding: .1rem .4rem; border-radius: 3px; color: #555; }
+  .lib-variant-pages { font-size: .75rem; color: #999; }
+  .lib-variant-pages b { color: #666; font-weight: 600; }
+
+  .lib-demo {
+    border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; background: #fcfcfc;
+  }
+  .lib-demo-inner { padding: 1.5rem; }
+  .lib-demo-inner.pad-0 { padding: 0; }
+  .lib-demo-dark { background: #111; }
+  .lib-demo-grey { background: #f5f5f5; }
+  .lib-demo-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
+  .lib-demo-row.tight { gap: .5rem; }
+  .lib-demo-row > * { flex-shrink: 0; }
+
+  .lib-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  @media (max-width: 60rem) { .lib-2col { grid-template-columns: 1fr; } }
+
+  /* Reset carousel/grid components to a fixed sane width inside demo frames */
+  .lib-demo .event-card, .lib-demo .content-card, .lib-demo .img-card, .lib-demo .season-card { width: 16rem; }
+  .lib-demo .article-card.featured { width: 22rem; }
+  .lib-demo .article-card.small { width: 16rem; height: 9rem; }
+  .lib-demo .article-card:not(.featured):not(.small) { width: 18.5rem; height: 13.75rem; }
+
+  .lib-caption { font-size: .75rem; color: #999; padding: .6rem 1rem; border-top: 1px dashed #e5e5e5; background: #fafafa; }
+
+  .lib-swatch-strip { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 1px solid #e5e5e5; }
+  .lib-swatch-strip > div { flex: 1; padding: 1rem; font-size: .75rem; color: #fff; }
+
+  .lib-legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .75rem; color: #666; margin-top: .75rem; }
+  .lib-legend span { display: inline-flex; align-items: center; gap: .35rem; }
+  .lib-legend .dot { width: .5rem; height: .5rem; border-radius: 50%; display: inline-block; }
+</style>
+</head>
+<body>
+
+<div class="lib-header">
+  <div class="lib-header-inner">
+    <a href="index.html" class="lib-back">← All wireframes</a>
+    <h1>Component Library</h1>
+    <p>Every UI component used across the wireframe pages, gathered in one place for a design-consistency audit. Real markup and classes are shown as they appear in production — including cases where the same conceptual component has drifted into several inconsistent variants. Amber callouts flag inconsistencies between variants; red callouts flag likely bugs or dead code.</p>
+    <div class="lib-stats">
+      <div class="lib-stat"><b>8</b>pages audited</div>
+      <div class="lib-stat"><b>20</b>component families</div>
+      <div class="lib-stat"><b>6</b>card variants alone</div>
+      <div class="lib-stat"><b>3</b>parallel filter-bar systems</div>
+    </div>
+  </div>
+</div>
+
+<div class="lib-shell">
+  <nav class="lib-toc">
+    <p class="lib-toc-title">Jump to</p>
+    <a href="#nav-utility">Nav &amp; utility bar</a>
+    <a href="#hero"><span class="lib-flag-dot"></span>Hero</a>
+    <a href="#breadcrumb"><span class="lib-flag-dot"></span>Breadcrumb / page switcher</a>
+    <a href="#intro"><span class="lib-flag-dot"></span>Intro &amp; text block</a>
+    <a href="#section-header"><span class="lib-flag-dot"></span>Section header</a>
+    <a href="#buttons"><span class="lib-bug-dot"></span>Buttons</a>
+    <a href="#cards"><span class="lib-bug-dot"></span>Cards</a>
+    <a href="#badges"><span class="lib-flag-dot"></span>Badges, tags &amp; dates</a>
+    <a href="#carousel"><span class="lib-flag-dot"></span>Carousel &amp; tabs</a>
+    <a href="#filters"><span class="lib-bug-dot"></span>Filter bars</a>
+    <a href="#filters-modal"><span class="lib-flag-dot"></span>Filter &amp; date modals</a>
+    <a href="#faq"><span class="lib-flag-dot"></span>FAQ accordion</a>
+    <a href="#promo"><span class="lib-bug-dot"></span>Promo &amp; CTA banners</a>
+    <a href="#maps"><span class="lib-flag-dot"></span>Map modules</a>
+    <a href="#content-block"><span class="lib-flag-dot"></span>Content block &amp; chevron list</a>
+    <a href="#v3-only">V3-only modules</a>
+    <a href="#misc">Placeholders &amp; chat FAB</a>
+    <a href="#footer">Footer</a>
+    <a href="#dev-tools"><span class="lib-flag-dot"></span>Dev-only tools</a>
+    <a href="#orphaned"><span class="lib-bug-dot"></span>Orphaned components</a>
+  </nav>
+
+  <main class="lib-main">
+
+    <!-- ══════════════════ NAV & UTILITY BAR ══════════════════ -->
+    <section class="lib-section" id="nav-utility">
+      <div class="lib-section-head"><h2>Nav &amp; utility bar</h2></div>
+      <p class="lib-section-desc">Both are shared partials (<code>components/utility-bar.html</code>, <code>components/nav.html</code>) included via <code>data-include</code> on all 8 pages — a good example of a properly reused component, no drift observed.</p>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Utility bar <code>.utility-bar</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> all 8 pages (shared include)</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner pad-0" style="background:#111; padding-bottom:11rem; position:relative;">
+            <div class="utility-bar" style="position:static;">
+              <div class="utility-bar-inner">
+                <a href="index.html" class="utility-bar-grid" aria-label="Wireframe index" title="All wireframes">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1" fill="currentColor"/><rect x="9.5" y="1" width="5.5" height="5.5" rx="1" fill="currentColor"/><rect x="1" y="9.5" width="5.5" height="5.5" rx="1" fill="currentColor"/><rect x="9.5" y="9.5" width="5.5" height="5.5" rx="1" fill="currentColor"/></svg>
+                </a>
+                <nav class="utility-bar-variations" aria-label="Pages">
+                  <a href="#">Home</a>
+                  <a href="#">Events</a>
+                  <a href="#">Accommodation</a>
+                  <div class="utility-bar-dropdown open current" id="lib-ws-dd">
+                    <button type="button" class="utility-bar-dropdown-toggle" aria-expanded="true">Western Sydney <span class="utility-bar-dropdown-caret">▾</span></button>
+                    <div class="utility-bar-dropdown-menu">
+                      <p class="utility-bar-dropdown-label">Western Sydney</p>
+                      <a href="#" class="utility-bar-dropdown-sub">Western Sydney V1</a>
+                      <a href="#" class="utility-bar-dropdown-sub active">Western Sydney V2</a>
+                      <a href="#" class="utility-bar-dropdown-sub">Western Sydney V3</a>
+                      <a href="#">Western Sydney Airport</a>
+                    </div>
+                  </div>
+                </nav>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption">The only nested/dropdown nav pattern in the bar — every other utility-bar link is flat. Shown open here to expose the submenu.</div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Site nav <code>.site-nav</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> all 8 pages (shared include)</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner pad-0">
+            <nav class="site-nav" style="position:static;">
+              <button class="nav-hamburger" aria-label="Open menu">☰</button>
+              <a class="nav-logo" href="#"><span>sydney<span class="logo-dot">.</span>com</span></a>
+              <div class="nav-spacer"></div>
+              <div class="nav-search-pill"><svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M7.4987 14.1666C11.1806 14.1666 14.1654 11.1819 14.1654 7.49998C14.1654 3.81808 11.1806 0.833313 7.4987 0.833313C3.8168 0.833313 0.832031 3.81808 0.832031 7.49998C0.832031 11.1819 3.8168 14.1666 7.4987 14.1666Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.8333 15.8333L12.25 12.25" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="nav-spacer"></div>
+              <button class="nav-wishlist" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </nav>
+          </div>
+          <div class="lib-caption">Logo text swaps "sydney.com" / "visitnsw.com" via <code>data-site</code> on &lt;body&gt;.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ HERO ══════════════════ -->
+    <section class="lib-section" id="hero">
+      <div class="lib-section-head"><h2>Hero</h2></div>
+      <p class="lib-section-desc">A shared <code>components/hero.html</code> partial exists, but only <code>home.html</code> actually includes it — every other page hand-copies its own inline <code>.hero</code> markup instead.</p>
+
+      <div class="lib-flag"><b>Inconsistency —</b> the shared partial's headline is a <code>&lt;p class="hero-headline"&gt;</code> with no <code>&lt;h1&gt;</code> anywhere in it. Every page that inlined its own copy of the hero fixed this by using <code>&lt;h1 class="hero-headline"&gt;</code> instead. Home is the only page missing a real <code>&lt;h1&gt;</code> in its hero.</div>
+      <div class="lib-flag"><b>Inconsistency —</b> <code>.hero-content</code> is wrapped in <code>.container</code> on accommodation / western-sydney* / airport, but not on home.html's shared partial or home-nsw.html's inline copy — different max-width/padding behaviour for the same headline.</div>
+
+      <div class="lib-2col">
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">Shared partial <code>components/hero.html</code></span>
+            <span class="lib-variant-pages"><b>Used on</b> home.html only</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner pad-0">
+              <section class="hero" style="height:16rem;">
+                <div class="ph-img" style="width:100%;height:100%;"></div>
+                <div class="hero-content">
+                  <p class="hero-headline">Feel new<br>in Sydney</p>
+                </div>
+              </section>
+            </div>
+            <div class="lib-caption">Note: <code>&lt;p&gt;</code>, not <code>&lt;h1&gt;</code>.</div>
+          </div>
+        </div>
+
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">Inline copy (headline-only)</span>
+            <span class="lib-variant-pages"><b>Used on</b> accommodation, western-sydney*, airport</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner pad-0">
+              <div class="hero" style="height:16rem;">
+                <div class="ph-img" style="width:100%;height:100%;"></div>
+                <div class="hero-content container">
+                  <h1 class="hero-headline">Western Sydney</h1>
+                </div>
+              </div>
+            </div>
+            <div class="lib-caption">Correct <code>&lt;h1&gt;</code>, wrapped in <code>.container</code>.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Inline copy + subhead + event list</span>
+          <span class="lib-variant-pages"><b>Used on</b> home-nsw.html</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner pad-0">
+            <div class="hero" style="height:16rem;">
+              <div class="ph-img" style="width:100%;height:100%;"></div>
+              <div class="hero-content">
+                <h1 class="hero-headline">Feel new<br>in NSW</h1>
+                <p class="hero-sub">Don't miss these headline events</p>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption">Adds <code>.hero-sub</code> not present in the shared partial or the headline-only variant.</div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Split hero <code>.hero-split</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> events.html only</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner pad-0">
+            <section class="hero-split" style="height:16rem;">
+              <div class="hero-split-content">
+                <h1 class="hero-headline">Find out what's on<br>in Sydney</h1>
+                <p class="hero-sub">Don't miss these headline events</p>
+                <ul class="hero-event-list">
+                  <li>Tony Albert: Not a Souvenir</li>
+                  <li>Museum of Contemporary Art</li>
+                  <li>25 Jun – 19 Oct</li>
+                </ul>
+              </div>
+              <div class="hero-split-img ph-img"></div>
+            </section>
+          </div>
+          <div class="lib-caption">Structurally unrelated to <code>.hero</code> — a one-off two-column layout, not a modifier of it.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ BREADCRUMB ══════════════════ -->
+    <section class="lib-section" id="breadcrumb">
+      <div class="lib-section-head"><h2>Breadcrumb / page-switcher bar</h2></div>
+      <p class="lib-section-desc"><code>.page-switcher-bar</code> wraps <code>.breadcrumb</code> + <code>.page-actions</code>. Structurally identical on 6/8 pages (absent by design on the two homepages).</p>
+      <div class="lib-flag"><b>Inconsistency —</b> <code>.page-actions</code> shows "Share" + "Save" everywhere except western-sydney-airport.html, which shows "Share" only.</div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Standard — Share + Save</span>
+          <span class="lib-variant-pages"><b>Used on</b> events, accommodation, western-sydney V1/V2/V3</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="page-switcher-bar" style="border:none;">
+              <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="#" class="crumb">Home</a><span class="sep">›</span>
+                <a href="#" class="crumb">Destinations</a><span class="sep">›</span>
+                <a href="#" class="crumb">Sydney</a><span class="sep">›</span>
+                <span class="crumb-active">Western Sydney</span>
+              </nav>
+              <div class="page-actions"><a href="#">Share</a><a href="#">Save</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Share-only</span>
+          <span class="lib-variant-pages"><b>Used on</b> western-sydney-airport.html only</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="page-switcher-bar" style="border:none;">
+              <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="#" class="crumb">Home</a><span class="sep">›</span>
+                <a href="#" class="crumb">Travel information: What you need to know before you go</a><span class="sep">›</span>
+                <span class="crumb-active">Getting around Sydney</span>
+              </nav>
+              <div class="page-actions"><a href="#">Share</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ INTRO / TEXT BLOCK ══════════════════ -->
+    <section class="lib-section" id="intro">
+      <div class="lib-section-head"><h2>Intro block &amp; text block</h2></div>
+      <p class="lib-section-desc"><code>.intro-block</code> appears on every page. Three different affordances exist for "expand the intro copy," and three different layout mechanisms exist for the conceptually identical "two-column supporting text" pattern.</p>
+      <div class="lib-flag"><b>Inconsistency —</b> "read more" is a wired-up JS toggle (<code>.read-more</code>) on home.html, an inert unwired link on home-nsw.html, and replaced entirely by a plain inline link mid-paragraph on western-sydney.html / airport.html.</div>
+      <div class="lib-flag"><b>Inconsistency —</b> the two-column text pattern uses <code>.text-cols</code> (CSS grid) on home/home-nsw, <code>.grid-2</code> on accommodation, and an inline <code>style="column-count:2"</code> on western-sydney.html — three mechanisms, one visual result.</div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Intro block <code>.intro-block</code> — wired "Read more"</span>
+          <span class="lib-variant-pages"><b>Used on</b> home.html</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="intro-block" style="padding:0;">
+              <h1>Sydney, Australia</h1>
+              <p>Welcome to Sydney, with new experiences around every corner. As the official tourism, destinations and events website, let us guide you through this surprising city.</p>
+              <a href="#" class="read-more">Read more ↓</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Text block — 3 layout mechanisms for the same pattern</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="lib-demo-row" style="gap:2rem;">
+              <div style="flex:1;min-width:12rem;">
+                <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">.text-cols (home / home-nsw)</p>
+                <div class="text-block" style="padding:0;">
+                  <div class="text-cols">
+                    <p>Body copy column one…</p>
+                    <ul><li><a href="#">Link one</a></li><li><a href="#">Link two</a></li></ul>
+                  </div>
+                </div>
+              </div>
+              <div style="flex:1;min-width:12rem;">
+                <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">.grid-2 (accommodation)</p>
+                <div class="grid-2"><p style="font-size:.875rem;color:#888;">Body copy column one…</p><p style="font-size:.875rem;color:#888;">Body copy column two…</p></div>
+              </div>
+              <div style="flex:1;min-width:12rem;">
+                <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">inline column-count:2 (western-sydney)</p>
+                <div style="column-count:2;font-size:.875rem;color:#888;">Suburb link list rendered as CSS columns…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ SECTION HEADER ══════════════════ -->
+    <section class="lib-section" id="section-header">
+      <div class="lib-section-head"><h2>Section header</h2></div>
+      <p class="lib-section-desc"><code>.section-header</code> is used on nearly every section, but with at least 4 different internal shapes and no single canonical pattern.</p>
+      <div class="lib-flag"><b>Inconsistency —</b> presence/absence of a wrapping <code>&lt;div&gt;</code>, <code>.section-body</code>, <code>.view-all-link</code>, and <code>.carousel-nav</code> all vary ad hoc per page/section, and carousel-nav controls are sometimes placed in an undocumented inline-styled <code>&lt;div&gt;</code> rather than a shared class.</div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div style="display:flex;flex-direction:column;gap:1.5rem;">
+            <div>
+              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">1 — Title only</p>
+              <div class="section-header"><div><p class="section-title">Must-see events</p></div></div>
+            </div>
+            <div>
+              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">2 — Title + body</p>
+              <div class="section-header"><div><p class="section-title">Sydney's best luxury hotels</p><p class="section-body">Find the finest places to stay in the city</p></div></div>
+            </div>
+            <div>
+              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">3 — Title + "View all" link (no wrapper div)</p>
+              <div class="section-header"><p class="section-title">Travel Inspiration</p><a href="#" class="view-all-link">View all</a></div>
+            </div>
+            <div>
+              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">4 — Title + carousel nav (ad hoc inline-styled wrapper)</p>
+              <div class="section-header">
+                <div><p class="section-title">Must-see events</p></div>
+                <div style="display:flex;align-items:center;gap:.75rem;"><div class="carousel-nav"><button>‹</button><button>›</button></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ BUTTONS ══════════════════ -->
+    <section class="lib-section" id="buttons">
+      <div class="lib-section-head"><h2>Buttons</h2></div>
+      <p class="lib-section-desc">Three real button classes exist (<code>.btn-primary</code>, <code>.btn-outline</code> [unused in practice], <code>.btn-outline-dark</code>) plus <code>.btn-sm</code>, but several CTAs bypass the system entirely with inline <code>style=""</code> overrides.</p>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div class="lib-demo-row">
+            <a href="#" class="btn btn-primary">btn-primary</a>
+            <a href="#" class="btn btn-primary btn-sm">btn-primary btn-sm</a>
+            <a href="#" class="btn btn-outline-dark">btn-outline-dark</a>
+            <a href="#" class="btn btn-outline-dark btn-sm">btn-outline-dark btn-sm</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-flag-bug">
+        <b>Bug — placeholder text shipped live.</b> western-sydney-v2.html's Airport cross-promo CTA reads literally <code>← Button label →</code>, and overrides <code>.btn-outline-dark</code> with inline <code>style="background:#fff; border-radius:999px;"</code> instead of a proper pill modifier.
+        <div style="margin-top:.6rem;"><a href="#" class="btn btn-outline-dark btn-sm" style="background:#fff; border-radius:999px;">← Button label →</a></div>
+      </div>
+
+      <div class="lib-flag-bug">
+        <b>Inconsistency — unclassed one-off button.</b> accommodation.html's "Discover Somewhere New" CTA hand-rolls a white button via <code>&lt;a class="btn" style="background:#fff;color:#111;font-weight:600;"&gt;</code> instead of reusing <code>.btn-outline-dark</code> like every other dark-background CTA on the site.
+        <div style="margin-top:.6rem;background:#111;padding:1rem;display:inline-block;border-radius:6px;"><a href="#" class="btn" style="background:#fff; color:#111; font-weight:600;">Explore NSW stays</a></div>
+      </div>
+
+      <div class="lib-flag"><b>Proliferation —</b> beyond <code>.btn</code>, at least 8 other button-shaped controls exist as their own one-off pill/chip families: <code>.filter-action-btn</code>, <code>.filter-chip</code>, <code>.filter-dropdown</code>, <code>.v3-pill</code>, <code>.v3-date-chip</code>, <code>.when-seg-btn</code>, <code>.vs-btn</code>, <code>.vs-overlay-btn</code>. See the Filter bars section.</div>
+    </section>
+
+    <!-- ══════════════════ CARDS ══════════════════ -->
+    <section class="lib-section" id="cards">
+      <div class="lib-section-head"><h2>Cards</h2></div>
+      <p class="lib-section-desc">The biggest inconsistency cluster on the site. At least 6 named "card" variants exist for overlapping purposes — some are genuinely different content shapes, others are unexplained duplicates.</p>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Event / listing card <code>.event-card</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> all pages except home-nsw.html's own copy (below) — reused for events, hotels, and generic listings alike</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner lib-demo-grey">
+            <div class="lib-demo-row">
+              <div class="event-card">
+                <div class="card-img ph-img"><span class="card-badge">Hot Deal</span><span class="card-date-overlay">25 Jun – 19 Oct</span></div>
+                <div class="card-body">
+                  <div class="card-top-line">
+                    <p class="card-venue">Sydney City</p>
+                    <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                  </div>
+                  <p class="card-title">Tony Albert: Not a Souvenir</p>
+                  <p class="card-desc">One of the most fearless and influential Australian contemporary artists is taking over the MCA this winter…</p>
+                  <div class="card-footer"><p class="card-price"><span>from </span>$35</p></div>
+                </div>
+              </div>
+              <div class="event-card">
+                <div class="card-img ph-img"><span class="card-badge">Hot Deal</span></div>
+                <div class="card-body">
+                  <div class="card-top-line">
+                    <p class="card-venue">Sydney City</p>
+                    <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                  </div>
+                  <p class="card-title">Radisson Blu Plaza Hotel Sydney</p>
+                  <p class="card-desc">Iconic heritage hotel in the heart of the city, steps from Pitt Street Mall.</p>
+                  <div class="card-footer">
+                    <div class="card-amenities"><span class="card-amenity-icon" title="Wheelchair accessible">♿</span><span class="card-amenity-icon" title="Eco-friendly">🌿</span></div>
+                    <p class="card-price"><span>from </span>$329</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption">Same class reused for an event listing (left) and a hotel listing (right) — hotel usage repurposes <code>.card-venue</code> as a location label and adds <code>.card-amenities</code>, which events never show.</div>
+        </div>
+      </div>
+
+      <div class="lib-flag"><b>Inconsistency — bookmark icon.</b> An inline SVG heart-outline button on every page except home-nsw.html, which uses a plain 🔖 emoji button for the identical control. home-nsw.html also swaps the image <code>.card-date-overlay</code> badge for plain text <code>.card-date</code> below the title — two different ways of showing the same "when" field.</div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner lib-demo-grey">
+          <div class="event-card" style="width:14rem;">
+            <div class="card-img ph-img"></div>
+            <div class="card-body">
+              <p class="card-venue">Snowy Mountains</p>
+              <p class="card-title">Pristine wilderness adventures</p>
+              <p class="card-date">Year-round</p>
+              <div class="card-footer"><p class="card-price"><span>from </span>$120</p><button class="card-bookmark">🔖</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="lib-caption">home-nsw.html's variant of <code>.event-card</code> — no <code>.card-top-line</code>/<code>.card-desc</code>, plain-text date, emoji bookmark.</div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Overlay content card <code>.content-card</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> home-nsw, accommodation, western-sydney.html</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner lib-demo-grey">
+            <div class="content-card ph-img">
+              <div class="card-overlay"><p class="card-title">Sydney West</p><p class="card-meta">Parramatta · Penrith · Blacktown</p></div>
+            </div>
+          </div>
+          <div class="lib-caption">Structural inconsistency: on home-nsw.html this is <code>&lt;div class="content-card"&gt;&lt;div class="ph-img"&gt;</code> (nested), but on accommodation.html / western-sydney.html the <code>ph-img</code> class is merged directly onto <code>.content-card</code> — two different DOM shapes for one visual result.</div>
+        </div>
+      </div>
+
+      <div class="lib-2col">
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name"><code>.img-card</code></span>
+            <span class="lib-variant-pages"><b>Used on</b> home, events, accommodation, airport</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner lib-demo-grey">
+              <div class="img-card">
+                <div class="img-card-img ph-img"></div>
+                <div class="img-card-body"><p class="img-card-title">Hotels &amp; Motels</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name"><code>.season-card</code> <em>(duplicate)</em></span>
+            <span class="lib-variant-pages"><b>Used on</b> home.html only</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner lib-demo-grey">
+              <div class="season-card">
+                <div class="ph-img season-card-img"></div>
+                <div class="season-card-body"><p class="season-card-title">Warm up with a bowl of ramen</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lib-flag-bug"><b>Confirmed duplicate.</b> shared.css literally comments <code>.season-card</code> as a "Legacy alias" of <code>.img-card</code> — identical CSS rules under two different class names, used on different pages. Candidate for merging into one class.</div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Article / editorial card <code>.article-card</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> home, home-nsw, accommodation (featured/small), western-sydney.html (unsized one-off)</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner lib-demo-grey">
+            <div class="lib-demo-row">
+              <div class="article-card featured">
+                <div class="ph-img" style="width:100%;height:100%;"></div>
+                <div class="card-overlay"><p class="card-tag">Jun 2026 – 6 min read</p><p class="card-title">17 of the best luxury stays in Sydney</p></div>
+              </div>
+              <div class="article-card small">
+                <div class="ph-img" style="width:100%;height:100%;"></div>
+                <div class="card-overlay"><p class="card-tag">May 2026 – 4 min read</p><p class="card-title">Where to stay near Sydney's best beaches</p></div>
+              </div>
+              <div class="article-card">
+                <div class="ph-img" style="width:100%;height:100%;"></div>
+                <div class="card-overlay"><p class="card-tag">Be inspired</p><p class="card-title">western-sydney.html — no size modifier</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption">Third card: western-sydney.html sizes its article-card via an inline <code>style="width:18.5rem;height:13.75rem;"</code> instead of reusing the <code>.featured</code>/<code>.small</code> modifier classes shown left.</div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Deals card <code>.deals-card</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> home.html only — single instance, no reuse elsewhere</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="deals-card" style="max-width:32rem;">
+              <div class="deals-img ph-img"></div>
+              <div class="deals-body">
+                <p class="deals-title">Feel Indulgent with Accor Hotels</p>
+                <p class="deals-desc">Book your next Sydney stay at an Accor property with rates from $165 per night</p>
+                <div><a href="#" class="btn btn-primary btn-sm">Book now with Accor</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ BADGES / TAGS / DATES ══════════════════ -->
+    <section class="lib-section" id="badges">
+      <div class="lib-section-head"><h2>Badges, tags &amp; date treatments</h2></div>
+      <p class="lib-section-desc">Small status/meta indicators scattered across the card family, with duplicated meaning expressed in different visual forms.</p>
+      <div class="lib-demo">
+        <div class="lib-demo-inner lib-demo-grey">
+          <div class="lib-demo-row tight" style="align-items:center;">
+            <div class="card-img ph-img" style="width:8rem;height:6rem;position:relative;"><span class="card-badge">Hot Deal</span></div>
+            <div class="card-img ph-img" style="width:8rem;height:6rem;position:relative;"><span class="card-date-overlay">29 Jul</span></div>
+            <p class="card-date" style="background:#fff;padding:.4rem .6rem;border-radius:4px;">Year-round <span style="color:#999;">(.card-date text)</span></p>
+            <span class="card-amenity-icon" title="Wheelchair accessible">♿</span>
+            <p class="card-tag" style="background:#111;color:#fff;padding:.3rem .6rem;border-radius:4px;">May 2026 – 6 min read</p>
+            <span class="v3-badge" style="position:static;">3</span>
+          </div>
+        </div>
+        <div class="lib-caption">Left to right: <code>.card-badge</code>, <code>.card-date-overlay</code>, <code>.card-date</code> (text alternative to the overlay), <code>.card-amenity-icon</code>, <code>.card-tag</code>, <code>.v3-badge</code> counter.</div>
+      </div>
+      <div class="lib-flag"><b>Inconsistency —</b> <code>.card-date-overlay</code> (image badge) and <code>.card-date</code> (plain text under the title) convey identical information but never coexist on the same page — home-nsw.html uses text-only, everywhere else uses the overlay badge.</div>
+    </section>
+
+    <!-- ══════════════════ CAROUSEL & TABS ══════════════════ -->
+    <section class="lib-section" id="carousel">
+      <div class="lib-section-head"><h2>Carousel &amp; tab bar</h2></div>
+      <p class="lib-section-desc"><code>.carousel-bleed</code> extends a horizontally-scrolling <code>.carousel</code> to the viewport edge. <code>.tab-bar</code> is a simple active/inactive button row.</p>
+      <div class="lib-flag"><b>Inconsistency —</b> home-nsw.html's carousels (experiences, driving itineraries, top events) are NOT wrapped in <code>.carousel-bleed</code> — they stay inside <code>.container</code>, so they don't bleed to the viewport edge like every other page's carousels.</div>
+      <div class="lib-flag"><b>Inconsistency —</b> <code>.carousel-nav</code> (‹ ›) placement varies: beside the title in an undocumented inline-styled wrapper (home, accommodation), a direct <code>.section-header</code> child (home-nsw, events), or below the carousel next to a CTA button (western-sydney.html) — three placements for one control.</div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div class="tab-bar" style="margin-bottom:1rem;">
+            <button class="active">Iconic</button><button>Stays</button><button>Family picks</button><button>Arts &amp; culture</button>
+          </div>
+          <div class="carousel-nav"><button>‹</button><button>›</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ FILTER BARS ══════════════════ -->
+    <section class="lib-section" id="filters">
+      <div class="lib-section-head"><h2>Filter bars — three parallel systems</h2></div>
+      <p class="lib-section-desc">events.html ships three entirely different filter-bar interaction patterns, switchable live via a dev-only <code>.variant-switcher</code> (see "Dev-only tools" below). Other pages each independently picked a reduced subset of V1 — there is no single converged "final" pattern in use sitewide.</p>
+      <div class="lib-flag-bug"><b>Not yet decided.</b> Because events.html still ships all three as an A/B comparison, and accommodation.html / western-sydney-v2/v3.html each only adopted V1 (in a reduced form with fewer action buttons), the site currently has no consistent filter UI. This is the single highest-value inconsistency to resolve.</div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">V1 — action buttons + chip row <code>.filter-top-row</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> events (full), accommodation (full), western-sydney V2/V3 (Map view only, reduced)</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="filter-top-row">
+              <div class="filter-actions">
+                <button class="filter-action-btn">Map view</button>
+                <button class="filter-action-btn">Filters</button>
+                <button class="filter-action-btn">When</button>
+              </div>
+              <div class="filter-bar" role="group">
+                <button class="filter-chip active">All</button>
+                <button class="filter-chip">Comedy</button>
+                <button class="filter-chip">Visual Arts</button>
+                <button class="filter-chip">Performance</button>
+                <button class="filter-chip">Music</button>
+              </div>
+            </div>
+            <p class="result-count">Seeing 15 of 659 results</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-2col">
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">V2 — dropdown pills <code>.filter-bar-v2</code></span>
+            <span class="lib-variant-pages"><b>Used on</b> events.html only</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner">
+              <div class="filter-bar-v2">
+                <button class="filter-dropdown">Date <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button class="filter-dropdown">Location <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button class="filter-dropdown">Category <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <div class="filter-map-spacer"></div>
+                <a href="#" class="btn btn-primary btn-sm">View on Map</a>
+              </div>
+              <p class="result-count">Showing 659 results</p>
+            </div>
+          </div>
+        </div>
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">V3 — date chips + badge pills <code>.filter-bar-v3</code></span>
+            <span class="lib-variant-pages"><b>Used on</b> events.html only</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner">
+              <div class="filter-bar-v3">
+                <div class="v3-date-group">
+                  <button class="v3-date-chip active">Tonight</button>
+                  <button class="v3-date-chip">This weekend</button>
+                </div>
+                <div class="v3-divider"></div>
+                <div class="v3-filter-group">
+                  <button class="v3-pill">Location <span class="v3-badge" style="position:static;">2</span></button>
+                  <button class="v3-pill">Category</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lib-flag"><b>Wording drift —</b> the result-count string reads "Seeing X of Y results" under V1 but "Showing X results" under V2/V3, and on western-sydney V2/V3 the count is duplicated both above and below the results grid.</div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">4th reuse — <code>.filter-chip</code> as a single-select region tab bar</span>
+          <span class="lib-variant-pages"><b>Used on</b> western-sydney-v3.html "Your gateway to regional NSW"</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="filter-bar gateway-selector" role="group">
+              <button class="filter-chip active">Blue Mountains</button>
+              <button class="filter-chip">Southern Highlands (Bowral)</button>
+              <button class="filter-chip">Central West (Orange)</button>
+            </div>
+          </div>
+          <div class="lib-caption">Same <code>.filter-chip</code> class repurposed for a non-filter region switcher — a 4th distinct usage of one visual component.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ FILTER / DATE MODALS ══════════════════ -->
+    <section class="lib-section" id="filters-modal">
+      <div class="lib-section-head"><h2>Filter &amp; date modals</h2></div>
+      <p class="lib-section-desc">One <code>.filters-modal</code> shell is reused for 5 structurally distinct pieces of content. Footer button verbs are inconsistent ("See results" / "Done" / "Clear" / "Apply" / "Clear all") with no shared convention.</p>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div class="filters-modal" style="position:static;max-width:32rem;">
+            <div class="filters-modal-header">
+              <h2 class="filters-modal-title">Filter accommodation</h2>
+              <button class="filters-modal-close" aria-label="Close">✕</button>
+            </div>
+            <div class="filters-modal-body" style="max-height:20rem;">
+              <div class="filters-section">
+                <h3 class="filters-section-title">Property type</h3>
+                <div class="filters-sub-grid">
+                  <label class="filters-check-row"><input type="checkbox"> Hotel</label>
+                  <label class="filters-check-row"><input type="checkbox"> Apartment</label>
+                  <label class="filters-check-row"><input type="checkbox"> B&amp;B</label>
+                  <label class="filters-check-row"><input type="checkbox"> Glamping</label>
+                </div>
+              </div>
+              <div class="filters-section">
+                <h3 class="filters-section-title">Star rating</h3>
+                <div class="filters-sub-grid">
+                  <label class="filters-check-row"><input type="checkbox"> ★★★★★ 5 star</label>
+                  <label class="filters-check-row"><input type="checkbox"> ★★★★ 4 star</label>
+                </div>
+              </div>
+              <div class="filters-section">
+                <h3 class="filters-section-title">Accessibility</h3>
+                <label class="filters-access-row"><input type="checkbox">
+                  <span>Wheelchair accessible<span class="filters-access-desc">Step-free access to rooms and common areas</span></span>
+                </label>
+              </div>
+            </div>
+            <div class="filters-modal-footer">
+              <button class="filters-clear">Clear</button>
+              <button class="filters-submit">See results</button>
+            </div>
+          </div>
+        </div>
+        <div class="lib-caption">accommodation.html's filters modal — flat sections, no nested accordions.</div>
+      </div>
+
+      <div class="lib-2col">
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">Nested accordion group <code>.filters-group</code></span>
+            <span class="lib-variant-pages"><b>Used on</b> events.html "Locations" only</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner">
+              <div class="filters-group" style="border-top:1px solid var(--color-border);">
+                <button class="filters-group-toggle" aria-expanded="true">Sydney City<span class="filters-group-chevron"></span></button>
+                <div class="filters-group-body">
+                  <div class="filters-sub-grid">
+                    <label class="filters-check-row"><input type="checkbox"> CBD</label>
+                    <label class="filters-check-row"><input type="checkbox"> The Rocks</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">Unstyled raw inputs (price range)</span>
+            <span class="lib-variant-pages"><b>Used on</b> accommodation.html "Price per night" only</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner">
+              <div style="display:flex; gap:1rem; align-items:center;">
+                <label style="flex:1;"><span style="display:block;font-size:.8125rem;color:#888;margin-bottom:.35rem;">Min price</span><input type="number" placeholder="$0" style="width:100%;padding:.5rem .75rem;border:1px solid #ddd;border-radius:4px;font-size:.9rem;"></label>
+                <span style="margin-top:1.25rem;color:#888;">–</span>
+                <label style="flex:1;"><span style="display:block;font-size:.8125rem;color:#888;margin-bottom:.35rem;">Max price</span><input type="number" placeholder="$1,500" style="width:100%;padding:.5rem .75rem;border:1px solid #ddd;border-radius:4px;font-size:.9rem;"></label>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption">Raw inline-styled inputs, not a documented <code>.filters-*</code> input class — a one-off form pattern.</div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Date modal <code>.when-modal</code> — segmented control + calendar</span>
+          <span class="lib-variant-pages"><b>Used on</b> events.html only</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="when-seg-ctrl" style="max-width:28rem;">
+              <button class="when-seg-btn active">Today</button>
+              <button class="when-seg-btn">This weekend</button>
+              <button class="when-seg-btn">Pick dates</button>
+            </div>
+            <div class="when-cal" style="max-width:20rem;margin-top:1rem;">
+              <div class="when-cal-header"><span class="when-cal-title">July 2026</span></div>
+              <div class="when-cal-grid">
+                <span class="when-cal-day-hdr">Mo</span><span class="when-cal-day-hdr">Tu</span><span class="when-cal-day-hdr">We</span><span class="when-cal-day-hdr">Th</span><span class="when-cal-day-hdr">Fr</span><span class="when-cal-day-hdr">Sa</span><span class="when-cal-day-hdr">Su</span>
+                <span></span><span></span><span class="when-cal-day past">1</span><span class="when-cal-day past">2</span><span class="when-cal-day">3</span><span class="when-cal-day selected">4</span><span class="when-cal-day">5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ FAQ ══════════════════ -->
+    <section class="lib-section" id="faq">
+      <div class="lib-section-head"><h2>FAQ accordion</h2></div>
+      <p class="lib-section-desc"><code>.faq-list</code> is visually consistent on the 5 pages that have one (events, accommodation, western-sydney V2/V3, airport). home.html, home-nsw.html and western-sydney V1 have no FAQ section at all.</p>
+      <div class="lib-flag"><b>Inconsistency —</b> the open/close toggle is implemented two different ways: <code>item.classList.toggle('open')</code> on the parent <code>.faq-item</code> (events, western-sydney V2/V3, airport) vs. accommodation.html toggling <code>answer.hidden</code> directly and setting <code>.open</code> separately on the button — functionally equivalent, but not copy-identical code, risking drift.</div>
+      <div class="lib-demo">
+        <div class="lib-demo-inner pad-0">
+          <div class="faq-list">
+            <div class="faq-item open">
+              <button class="faq-question">What events are on in Sydney today or this weekend?<svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <div class="faq-answer" style="display:block;padding:0 0 1rem;">Sydney's events calendar is packed year-round. Use the date filter above to browse events happening today or this weekend.</div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question">What are the biggest annual events in Sydney?<svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ PROMO / CTA BANNERS ══════════════════ -->
+    <section class="lib-section" id="promo">
+      <div class="lib-section-head"><h2>Promo &amp; CTA banners</h2></div>
+      <p class="lib-section-desc"><code>.promo-banner</code>/<code>.promo-content</code> is stretched to fit 3 structurally different content shapes via heavy inline-style overrides rather than modifier classes. <code>.newsletter-banner</code>, by contrast, is a shared include on every page with zero drift — a good example to copy for the others.</p>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Baseline — heading + subtitle + button</span>
+          <span class="lib-variant-pages"><b>Used on</b> home.html</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner pad-0">
+            <div class="promo-banner" style="height:14rem;">
+              <div class="ph-img" style="width:100%;height:100%;"></div>
+              <div class="promo-content"><h2>Your wellness guide to Sydney</h2><p class="promo-sub">Time to recharge</p><a href="#" class="btn btn-outline-dark btn-sm">Find out more</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-2col">
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">Reduced — heading + button only</span>
+            <span class="lib-variant-pages"><b>Used on</b> home-nsw.html</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner pad-0">
+              <div class="promo-banner" style="height:14rem;">
+                <div class="ph-img" style="width:100%;height:100%;"></div>
+                <div class="promo-content"><h2>Your wellness guide to NSW</h2><a href="#" class="btn btn-outline-dark btn-sm">Find out more</a></div>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption">No <code>.promo-sub</code>, no supporting paragraph.</div>
+        </div>
+        <div class="lib-variant">
+          <div class="lib-variant-meta">
+            <span class="lib-variant-name">Overridden — eyebrow + tagline + pill button</span>
+            <span class="lib-variant-pages"><b>Used on</b> western-sydney-v2.html cross-promo</span>
+          </div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner pad-0">
+              <div class="promo-banner" style="height:14rem;">
+                <div class="ph-img" style="width:100%;height:100%;"></div>
+                <div class="promo-content">
+                  <p class="promo-sub" style="color:#fff;text-transform:uppercase;font-size:.75rem;letter-spacing:.06em;">Eyebrow headline</p>
+                  <h2 style="color:#fff;">Western Sydney Airport</h2>
+                  <p style="color:#fff;">Tagline</p>
+                  <a href="#" class="btn btn-outline-dark btn-sm" style="background:#fff;border-radius:999px;">← Button label →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption"><code>.promo-sub</code> repurposed as an uppercase eyebrow (its opposite use elsewhere is a plain subtitle), plus the placeholder-text button bug noted earlier.</div>
+        </div>
+      </div>
+
+      <div class="lib-flag-bug"><b>One-off duplicate CTA.</b> accommodation.html has an entirely inline-styled <code>&lt;section style="background:#111;color:#fff;"&gt;</code> "Discover Somewhere New" band, immediately followed by the real <code>.newsletter-banner</code> include — which uses the exact same headline. Two CTAs with the same message stacked back to back; candidate for removing the one-off.</div>
+      <div style="background:#111;color:#fff;padding:1.5rem;text-align:center;border-radius:8px;">
+        <h2 style="font-size:1.25rem;margin-bottom:.5rem;">Discover Somewhere New</h2>
+        <p style="opacity:.75;font-size:.8125rem;margin-bottom:.75rem;">Explore all the best accommodation New South Wales has to offer.</p>
+        <a href="#" class="btn" style="background:#fff;color:#111;font-weight:600;">Explore NSW stays</a>
+      </div>
+
+      <div class="lib-variant" style="margin-top:1.5rem;">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Newsletter banner <code>.newsletter-banner</code> — shared include, no drift ✓</span>
+          <span class="lib-variant-pages"><b>Used on</b> all 8 pages</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner pad-0">
+            <section class="newsletter-banner" style="height:14rem;">
+              <div class="ph-img" style="position:absolute;inset:0;width:100%;height:100%;"></div>
+              <div class="container">
+                <div class="newsletter-content">
+                  <h2>Discover Somewhere New</h2>
+                  <p>All the insider news, tips and inspiration you need to plan your next trip, delivered straight to your inbox.</p>
+                  <a href="#" class="btn btn-outline-dark">Subscribe</a>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ MAPS ══════════════════ -->
+    <section class="lib-section" id="maps">
+      <div class="lib-section-head"><h2>Map modules</h2></div>
+      <p class="lib-section-desc">Four structurally unrelated "map" implementations exist across the site, with no shared visual language between them.</p>
+
+      <div class="lib-2col">
+        <div class="lib-variant">
+          <div class="lib-variant-meta"><span class="lib-variant-name">Raw Google Maps iframe, no wrapper class</span><span class="lib-variant-pages"><b>Used on</b> western-sydney.html (V1) only</span></div>
+          <div class="lib-demo"><div class="lib-demo-inner pad-0" style="height:8rem;background:#ccc;display:flex;align-items:center;justify-content:center;color:#888;font-size:.8125rem;">&lt;iframe&gt; embed, inline border style</div></div>
+        </div>
+        <div class="lib-variant">
+          <div class="lib-variant-meta"><span class="lib-variant-name">List/map split view <code>.map-panel</code></span><span class="lib-variant-pages"><b>Used on</b> events, accommodation</span></div>
+          <div class="lib-demo"><div class="lib-demo-inner pad-0" style="height:8rem;background:#ccc;display:flex;align-items:center;justify-content:center;color:#888;font-size:.8125rem;">Sticky iframe, cards flip to landscape when active</div></div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Interactive pin + info panel <code>.area-map</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> western-sydney V2, western-sydney V3 (markup + data + JS duplicated verbatim between both)</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="area-map">
+              <div class="area-map-visual ph-img" style="width:16rem;height:12rem;position:relative;">
+                <button type="button" class="area-map-pin active" style="left:36%;bottom:55%;">Penrith</button>
+                <button type="button" class="area-map-pin" style="left:60%;bottom:40%;">Parramatta</button>
+                <span class="area-map-pin area-map-pin-cbd" style="left:80%;bottom:70%;position:absolute;">Sydney CBD</span>
+              </div>
+              <div class="area-map-panel">
+                <div class="area-map-panel-content">
+                  <div class="area-map-panel-section">
+                    <h3>Penrith</h3>
+                    <p class="transport-line">🚗 55 min from Sydney CBD</p>
+                    <p class="transport-line">🚆 Train to Penrith Station</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Schematic wayfinding diagram <code>.schem-map</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> western-sydney-airport.html only</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="schem-map-heading" style="margin-bottom:1rem;"><div class="schem-map-compass"><span>↑</span>N</div></div>
+            <div style="height:8rem;background:#f5f5f5;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#999;font-size:.8125rem;margin-bottom:1rem;">Full schematic SVG on the live page (1300+ node distance diagram)</div>
+            <div class="schem-map-legend" style="position:static;">
+              <p class="schem-map-legend-title">Legend</p>
+              <div class="schem-map-legend-row"><span class="schem-map-swatch"><span class="schem-map-swatch-dot filled"></span></span><span class="label">Reference point (CBD)</span></div>
+              <div class="schem-map-legend-row"><span class="schem-map-swatch"><span class="schem-map-swatch-dot airport"></span></span><span class="label">Airport</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ CONTENT BLOCK ══════════════════ -->
+    <section class="lib-section" id="content-block">
+      <div class="lib-section-head"><h2>Content block &amp; chevron list</h2></div>
+      <p class="lib-section-desc"><code>.content-block</code> (media + copy neighbourhood profile) is used identically for the 9-town lists on western-sydney V2 and V3 — but the class name "chevron list" is used for two visually unrelated things.</p>
+      <div class="lib-flag"><b>Naming inconsistency —</b> <code>.chevron-list</code> means a flex row with a trailing "›" glyph inside the area-map info panel, but is reused inside <code>.content-block-copy</code> as a plain disc-bulleted list with no chevron glyph at all — same class, two unrelated visual treatments.</div>
+
+      <div class="lib-demo">
+        <div class="lib-demo-inner">
+          <div class="content-block" style="align-items:flex-start;">
+            <div class="content-block-media ph-img" style="height:12rem;"></div>
+            <div class="content-block-copy">
+              <h3>Parramatta</h3>
+              <p>Sydney's second city and one of Australia's oldest colonial settlements, packed with heritage sites and a buzzing food scene.</p>
+              <p><strong>Known for:</strong> history and heritage; multicultural food scene</p>
+              <p><strong>Highlights:</strong></p>
+              <ul class="chevron-list">
+                <li><span>Explore the rich heritage of <a href="#">Old Government House</a>.</span></li>
+                <li><span>Wander the riverside parklands of <a href="#">Parramatta Park</a>.</span></li>
+              </ul>
+              <a href="#" class="btn btn-primary">Learn more about Parramatta →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ V3-ONLY MODULES ══════════════════ -->
+    <section class="lib-section" id="v3-only">
+      <div class="lib-section-head"><h2>V3-only modules</h2></div>
+      <p class="lib-section-desc">Western Sydney V3 introduces several modules with no equivalent anywhere else on the site — these are additive, not yet inconsistencies, but worth tracking since V2 is otherwise the same page structurally.</p>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta"><span class="lib-variant-name">Intro + jump-to TOC <code>.intro-toc</code> + "Listen" audio control</span><span class="lib-variant-pages"><b>Used on</b> western-sydney V2 (markup only, no audio) &amp; V3 (fully wired)</span></div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="intro-toc" style="align-items:flex-start;">
+              <div class="intro-toc-copy">
+                <h2>About Sydney West</h2>
+                <p class="intro-golden-thread">Western Sydney isn't the drive-through before Sydney starts — it's 25 to 95 kilometres of Sydney most people never stop in.</p>
+                <p class="content-placeholder-note">PLACEHOLDER — needs a verified surprising stat or comparison before publishing.</p>
+                <div class="listen-control">
+                  <button class="listen-control-btn" aria-label="Play audio guide">▶</button>
+                  <span class="listen-control-label">Listen</span>
+                  <span class="listen-control-duration">• 4 minutes</span>
+                </div>
+              </div>
+              <div class="toc-panel">
+                <p class="toc-panel-title">Jump to section</p>
+                <div class="toc-list">
+                  <a href="#">Sydney West Neighbourhoods <span class="chevron">⌄</span></a>
+                  <a href="#">A Perfect Saturday in Western Sydney <span class="chevron">⌄</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lib-caption"><code>.intro-golden-thread</code>, <code>.intro-identity-line</code> and <code>.content-placeholder-note</code> only appear in V3's version of this block — V2 has the plain heading + body only.</div>
+        </div>
+      </div>
+
+      <div class="lib-2col">
+        <div class="lib-variant">
+          <div class="lib-variant-meta"><span class="lib-variant-name">"Perfect Saturday" narrative timeline <code>.day-timeline</code></span></div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner">
+              <ol class="day-timeline">
+                <li class="day-timeline-item"><span class="day-timeline-time">9:00am</span><div class="day-timeline-copy"><h4>Sydney Olympic Park</h4><p>Start slow while it's quiet — a wetland walk through Bicentennial Park.</p></div></li>
+                <li class="day-timeline-item"><span class="day-timeline-time">1:00pm</span><div class="day-timeline-copy"><h4>Cabramatta</h4><p>Lunch is whatever smells best at Cabramatta Markets.</p></div></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div class="lib-variant">
+          <div class="lib-variant-meta"><span class="lib-variant-name">Gateway showcase <code>.gateway-panel</code> + <code>.gateway-facts</code></span></div>
+          <div class="lib-demo">
+            <div class="lib-demo-inner">
+              <div class="gateway-panel">
+                <div class="gateway-panel-media"><span>Image — Blue Mountains</span></div>
+                <div class="gateway-panel-copy"><p class="gateway-panel-copy-text">Swap the tarmac for the Three Sisters.</p></div>
+              </div>
+              <div class="gateway-facts" style="margin-top:1rem;">
+                <p class="gateway-facts-title">Why WSI</p>
+                <ul class="gateway-facts-list"><li>Opens 25 October 2026 — first flight departs at 11am.</li></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ MISC ══════════════════ -->
+    <section class="lib-section" id="misc">
+      <div class="lib-section-head"><h2>Placeholders &amp; chat FAB</h2></div>
+      <p class="lib-section-desc">Two small "not built yet" affordances, both scoped to western-sydney V2/V3 only.</p>
+      <div class="lib-demo">
+        <div class="lib-demo-inner lib-demo-grey">
+          <div class="lib-demo-row" style="align-items:center;">
+            <div class="build-placeholder"><span class="emoji">📋</span>Plan your Western Sydney itinerary</div>
+            <div class="build-placeholder"><span class="emoji">🔎</span>Semantic search</div>
+            <div class="chat-fab" style="position:static;">💬</div>
+          </div>
+        </div>
+        <div class="lib-caption"><code>.chat-fab</code> is a persistent floating button, but only appears on western-sydney V2/V3 — not present on any other page despite reading as a global/site-wide UI element.</div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ FOOTER ══════════════════ -->
+    <section class="lib-section" id="footer">
+      <div class="lib-section-head"><h2>Footer <code>.site-footer</code></h2></div>
+      <p class="lib-section-desc">Shared include, all 8 pages — consistent, no drift observed.</p>
+      <div class="lib-demo">
+        <div class="lib-demo-inner pad-0">
+          <footer class="site-footer" style="position:static;">
+            <div class="footer-social"><span>Fb</span><span>Yt</span><span>Tk</span><span>Ig</span></div>
+            <div class="footer-links">
+              <div class="footer-col"><h4>Sydney</h4><a href="#">Contact us</a><a href="#">Privacy</a></div>
+              <div class="footer-col"><h4>On this site</h4><a href="#">Destinations</a><a href="#">Events</a></div>
+            </div>
+            <div class="footer-bottom"><span>Sydney.com is the official tourism site for Destination NSW. © Copyright 2024.</span></div>
+          </footer>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ DEV TOOLS ══════════════════ -->
+    <section class="lib-section" id="dev-tools">
+      <div class="lib-section-head"><h2>Dev-only tools <em style="font-weight:400;color:#999;font-size:.9rem;">(out of scope for the design system)</em></h2></div>
+      <p class="lib-section-desc"><code>.variant-switcher</code> lets a viewer toggle between the three competing filter-bar designs live on events.html. It's a wireframe-authoring aid, not a product component — flagged here so it isn't mistaken for a real UI pattern during the audit.</p>
+      <div class="lib-demo">
+        <div class="lib-demo-inner lib-demo-dark">
+          <div class="variant-switcher" style="position:static;transform:none;">
+            <span class="vs-label">Filters</span>
+            <button class="vs-btn active">V1</button>
+            <button class="vs-btn">V2</button>
+            <button class="vs-btn">V3</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ ORPHANED ══════════════════ -->
+    <section class="lib-section" id="orphaned" style="border-bottom:none;">
+      <div class="lib-section-head"><h2>Orphaned components</h2></div>
+      <div class="lib-flag-bug">
+        <b>Dead code.</b> <code>components/card.html</code> defines a generic <code>.card</code> partial (<code>.card-img</code>, <code>.placeholder-img</code>, <code>.card-body</code>, <code>.card-title</code>, <code>.card-text</code>) that is <b>not referenced by any of the 8 pages</b>, and its class names have <b>no matching rules in shared.css</b> — it renders unstyled if ever included. Candidate for deletion, or reconciliation if it was meant to become the canonical card.
+      </div>
+      <div class="lib-demo">
+        <div class="lib-demo-inner lib-demo-grey">
+          <div style="width:14rem;border:1px dashed #ccc;padding:.5rem;background:#fff;">
+            <div class="ph-img" style="height:8rem;"></div>
+            <div style="padding:.5rem;">
+              <p style="font-weight:700;font-size:.875rem;">Card title placeholder</p>
+              <p style="font-size:.8125rem;color:#888;">Short description or teaser copy sits here. Two to three lines maximum.</p>
+            </div>
+          </div>
+        </div>
+        <div class="lib-caption">Rendered with inline fallback styling to show intent — the real markup has no CSS backing it at all.</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
