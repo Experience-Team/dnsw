@@ -122,8 +122,8 @@
     <a href="#badges"><span class="lib-resolved-dot"></span>Badges, tags &amp; dates</a>
     <a href="#carousel"><span class="lib-resolved-dot"></span>Carousel &amp; tabs</a>
     <a href="#filters"><span class="lib-bug-dot"></span>Filter bars</a>
-    <a href="#filters-modal"><span class="lib-flag-dot"></span>Filter &amp; date modals</a>
-    <a href="#faq"><span class="lib-flag-dot"></span>FAQ accordion</a>
+    <a href="#filters-modal"><span class="lib-resolved-dot"></span>Filter &amp; date modals</a>
+    <a href="#faq"><span class="lib-resolved-dot"></span>FAQ accordion</a>
     <a href="#promo"><span class="lib-bug-dot"></span>Promo &amp; CTA banners</a>
     <a href="#maps"><span class="lib-flag-dot"></span>Map modules</a>
     <a href="#content-block"><span class="lib-flag-dot"></span>Content block &amp; chevron list</a>
@@ -639,8 +639,8 @@
 
     <!-- ══════════════════ FILTER / DATE MODALS ══════════════════ -->
     <section class="lib-section" id="filters-modal">
-      <div class="lib-section-head"><h2>Filter &amp; date modals</h2></div>
-      <p class="lib-section-desc">One <code>.filters-modal</code> shell is reused for 5 structurally distinct pieces of content. Footer button verbs are inconsistent ("See results" / "Done" / "Clear" / "Apply" / "Clear all") with no shared convention.</p>
+      <div class="lib-section-head"><h2>Filter &amp; date modals <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">One <code>.filters-modal</code> shell is reused for 5 structurally distinct pieces of content — that's intentional (a shared shell for a nested accordion, a flat property/star-rating list, raw price inputs, a date picker, and standalone single-purpose modals). What wasn't intentional: the footer button verbs had drifted to 5 different wordings ("See results" / "Done" / "Clear" / "Apply" / "Clear all") with no shared convention. Now there are exactly two, chosen by what the button does: <b>"Clear all"</b> for every clear/reset button (was "Clear" on 2 of 7), and <b>"See results"</b> for the 4 modals that directly gate the page's main visible listing (accommodation's "Filter accommodation" and "Price per night" modals, events' "Filters" and "When" modals — was "Apply"/"Done" on 2 of these), vs. <b>"Done"</b> for the 3 standalone sub-modals (Location, Category, Accessibility) that just confirm a selection within V2/V3's larger live-updating filter system rather than triggering the filtering action themselves.</p>
 
       <div class="lib-demo">
         <div class="lib-demo-inner">
@@ -674,7 +674,7 @@
               </div>
             </div>
             <div class="filters-modal-footer">
-              <button class="filters-clear">Clear</button>
+              <button class="filters-clear">Clear all</button>
               <button class="filters-submit">See results</button>
             </div>
           </div>
@@ -746,9 +746,8 @@
 
     <!-- ══════════════════ FAQ ══════════════════ -->
     <section class="lib-section" id="faq">
-      <div class="lib-section-head"><h2>FAQ accordion</h2></div>
-      <p class="lib-section-desc"><code>.faq-list</code> is visually consistent on the 5 pages that have one (events, accommodation, western-sydney V2/V3, airport). home.html, home-nsw.html and western-sydney V1 have no FAQ section at all.</p>
-      <div class="lib-flag"><b>Inconsistency —</b> the open/close toggle is implemented two different ways: <code>item.classList.toggle('open')</code> on the parent <code>.faq-item</code> (events, western-sydney V2/V3, airport) vs. accommodation.html toggling <code>answer.hidden</code> directly and setting <code>.open</code> separately on the button — functionally equivalent, but not copy-identical code, risking drift.</div>
+      <div class="lib-section-head"><h2>FAQ accordion <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc"><code>.faq-list</code> is visually consistent on the 4 pages that have one (events, western-sydney V2/V3, airport). home.html, home-nsw.html and western-sydney V1 have no FAQ section at all. accommodation.html no longer counts as a 5th: it had no <code>.faq-item</code> markup left on the page at all — only 8 lines of orphaned toggle JS (<code>answer.hidden</code> + a separately-set <code>.open</code> class on the button) querying a selector that matched nothing. That dead code is removed; the one real toggle implementation — <code>item.classList.toggle('open')</code> on the parent <code>.faq-item</code>, relying on <code>.faq-item.open .faq-answer</code> in <code>shared.css</code> — is already identical across all 4 real FAQ sections.</p>
       <div class="lib-demo">
         <div class="lib-demo-inner pad-0">
           <div class="faq-list">

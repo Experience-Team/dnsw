@@ -683,8 +683,8 @@
       </div>
 
       <div class="filters-modal-footer">
-        <button class="filters-clear" id="price-clear">Clear</button>
-        <button class="filters-submit" id="price-apply">Apply</button>
+        <button class="filters-clear" id="price-clear">Clear all</button>
+        <button class="filters-submit" id="price-apply">See results</button>
       </div>
     </div>
   </div>
@@ -741,15 +741,6 @@
     });
     document.getElementById('price-clear').addEventListener('click', function () {
       priceModal.querySelectorAll('input[type="number"]').forEach(function (inp) { inp.value = ''; });
-    });
-
-    // ── FAQ accordion ──
-    document.querySelectorAll('.faq-question').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var answer = btn.nextElementSibling;
-        answer.hidden = !answer.hidden;
-        btn.classList.toggle('open', !answer.hidden);
-      });
     });
   </script>
 
