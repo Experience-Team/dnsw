@@ -103,7 +103,7 @@
     <div class="lib-stats">
       <div class="lib-stat"><b>8</b>pages audited</div>
       <div class="lib-stat"><b>20</b>component families</div>
-      <div class="lib-stat"><b>6</b>card variants alone</div>
+      <div class="lib-stat"><b>5</b>card variants, consolidated from 6</div>
       <div class="lib-stat"><b>3</b>parallel filter-bar systems</div>
     </div>
   </div>
@@ -118,7 +118,7 @@
     <a href="#intro"><span class="lib-resolved-dot"></span>Intro &amp; text block</a>
     <a href="#section-header"><span class="lib-resolved-dot"></span>Section header</a>
     <a href="#buttons"><span class="lib-resolved-dot"></span>Buttons</a>
-    <a href="#cards"><span class="lib-bug-dot"></span>Cards</a>
+    <a href="#cards"><span class="lib-resolved-dot"></span>Cards</a>
     <a href="#badges"><span class="lib-flag-dot"></span>Badges, tags &amp; dates</a>
     <a href="#carousel"><span class="lib-flag-dot"></span>Carousel &amp; tabs</a>
     <a href="#filters"><span class="lib-bug-dot"></span>Filter bars</a>
@@ -131,7 +131,7 @@
     <a href="#misc">Placeholders &amp; chat FAB</a>
     <a href="#footer">Footer</a>
     <a href="#dev-tools"><span class="lib-flag-dot"></span>Dev-only tools</a>
-    <a href="#orphaned"><span class="lib-bug-dot"></span>Orphaned components</a>
+    <a href="#orphaned"><span class="lib-resolved-dot"></span>Orphaned components</a>
   </nav>
 
   <main class="lib-main">
@@ -380,8 +380,8 @@
 
     <!-- ══════════════════ CARDS ══════════════════ -->
     <section class="lib-section" id="cards">
-      <div class="lib-section-head"><h2>Cards</h2></div>
-      <p class="lib-section-desc">The biggest inconsistency cluster on the site. At least 6 named "card" variants exist for overlapping purposes — some are genuinely different content shapes, others are unexplained duplicates.</p>
+      <div class="lib-section-head"><h2>Cards <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">The biggest inconsistency cluster on the site — originally 6 named "card" variants for overlapping purposes, one of which (<code>.season-card</code>) was a confirmed duplicate. Every structural inconsistency and duplicate is now fixed: the 5 remaining variants are each one consistent shape everywhere, and each is a genuinely distinct content type that's meant to look different (event/listing vs. overlay vs. image-below vs. article vs. deals).</p>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
@@ -426,55 +426,40 @@
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
-          <span class="lib-variant-name">Overlay content card <code>.content-card</code></span>
-          <span class="lib-variant-pages"><b>Used on</b> home-nsw, accommodation, western-sydney.html</span>
+          <span class="lib-variant-name">Overlay content card <code>.content-card</code> <span class="lib-resolved">Resolved</span></span>
+          <span class="lib-variant-pages"><b>Used on</b> home-nsw, accommodation, western-sydney.html — one DOM shape</span>
         </div>
         <div class="lib-demo">
           <div class="lib-demo-inner lib-demo-grey">
-            <div class="content-card ph-img">
+            <div class="content-card">
+              <div class="ph-img"></div>
               <div class="card-overlay"><p class="card-title">Sydney West</p><p class="card-meta">Parramatta · Penrith · Blacktown</p></div>
             </div>
           </div>
-          <div class="lib-caption">Structural inconsistency: on home-nsw.html this is <code>&lt;div class="content-card"&gt;&lt;div class="ph-img"&gt;</code> (nested), but on accommodation.html / western-sydney.html the <code>ph-img</code> class is merged directly onto <code>.content-card</code> — two different DOM shapes for one visual result.</div>
+          <div class="lib-caption">Now always <code>&lt;div class="content-card"&gt;&lt;div class="ph-img"&gt;</code> (nested) everywhere — matching what <code>shared.css</code>'s <code>.content-card .ph-img</code> descendant selector already assumed. accommodation.html and western-sydney.html previously merged the classes onto one element (<code>.content-card.ph-img</code>); their 16 instances are now nested to match home-nsw.html's original 23.</div>
         </div>
       </div>
-
-      <div class="lib-2col">
-        <div class="lib-variant">
-          <div class="lib-variant-meta">
-            <span class="lib-variant-name"><code>.img-card</code></span>
-            <span class="lib-variant-pages"><b>Used on</b> home, events, accommodation, airport</span>
-          </div>
-          <div class="lib-demo">
-            <div class="lib-demo-inner lib-demo-grey">
-              <div class="img-card">
-                <div class="img-card-img ph-img"></div>
-                <div class="img-card-body"><p class="img-card-title">Hotels &amp; Motels</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="lib-variant">
-          <div class="lib-variant-meta">
-            <span class="lib-variant-name"><code>.season-card</code> <em>(duplicate)</em></span>
-            <span class="lib-variant-pages"><b>Used on</b> home.html only</span>
-          </div>
-          <div class="lib-demo">
-            <div class="lib-demo-inner lib-demo-grey">
-              <div class="season-card">
-                <div class="ph-img season-card-img"></div>
-                <div class="season-card-body"><p class="season-card-title">Warm up with a bowl of ramen</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="lib-flag-bug"><b>Confirmed duplicate.</b> shared.css literally comments <code>.season-card</code> as a "Legacy alias" of <code>.img-card</code> — identical CSS rules under two different class names, used on different pages. Candidate for merging into one class.</div>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
-          <span class="lib-variant-name">Article / editorial card <code>.article-card</code></span>
-          <span class="lib-variant-pages"><b>Used on</b> home, home-nsw, accommodation (featured/small), western-sydney.html (unsized one-off)</span>
+          <span class="lib-variant-name">Image-below card <code>.img-card</code> <span class="lib-resolved">Resolved</span></span>
+          <span class="lib-variant-pages"><b>Used on</b> home, events, accommodation, airport — one class</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner lib-demo-grey">
+            <div class="img-card">
+              <div class="img-card-img ph-img"></div>
+              <div class="img-card-body"><p class="img-card-title">Hotels &amp; Motels</p></div>
+            </div>
+          </div>
+          <div class="lib-caption"><code>.season-card</code> — a duplicate that <code>shared.css</code> itself labelled a "Legacy alias" of <code>.img-card</code>, used only in home.html's "Choose your season" grid (8 instances) — has been removed. Those 8 cards now use <code>.img-card</code> directly, and the dead alias CSS is deleted. home.html's other 8 pre-existing <code>.img-card</code> instances also had their inner classes in the opposite order (<code>ph-img img-card-img</code> instead of <code>img-card-img ph-img</code> used everywhere else); both sets are now consistent.</div>
+        </div>
+      </div>
+
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Article / editorial card <code>.article-card</code> <span class="lib-resolved">Resolved</span></span>
+          <span class="lib-variant-pages"><b>Used on</b> home, home-nsw, accommodation (featured/small), western-sydney.html (new <code>.carousel</code> modifier)</span>
         </div>
         <div class="lib-demo">
           <div class="lib-demo-inner lib-demo-grey">
@@ -487,13 +472,13 @@
                 <div class="ph-img" style="width:100%;height:100%;"></div>
                 <div class="card-overlay"><p class="card-tag">May 2026 – 4 min read</p><p class="card-title">Where to stay near Sydney's best beaches</p></div>
               </div>
-              <div class="article-card">
+              <div class="article-card carousel">
                 <div class="ph-img" style="width:100%;height:100%;"></div>
-                <div class="card-overlay"><p class="card-tag">Be inspired</p><p class="card-title">western-sydney.html — no size modifier</p></div>
+                <div class="card-overlay"><p class="card-tag">Be inspired</p><p class="card-title">western-sydney.html carousel</p></div>
               </div>
             </div>
           </div>
-          <div class="lib-caption">Third card: western-sydney.html sizes its article-card via an inline <code>style="width:18.5rem;height:13.75rem;"</code> instead of reusing the <code>.featured</code>/<code>.small</code> modifier classes shown left.</div>
+          <div class="lib-caption">western-sydney.html's carousel previously sized its card via inline <code>style="width:18.5rem;height:13.75rem;"</code> — those exact dimensions already existed as the mobile-breakpoint size for <code>.featured</code>/<code>.small</code>, so they're now a proper third modifier, <code>.article-card.carousel</code>, applied at all viewport widths instead of hardcoded inline.</div>
         </div>
       </div>
 
@@ -1064,22 +1049,8 @@
 
     <!-- ══════════════════ ORPHANED ══════════════════ -->
     <section class="lib-section" id="orphaned" style="border-bottom:none;">
-      <div class="lib-section-head"><h2>Orphaned components</h2></div>
-      <div class="lib-flag-bug">
-        <b>Dead code.</b> <code>components/card.html</code> defines a generic <code>.card</code> partial (<code>.card-img</code>, <code>.placeholder-img</code>, <code>.card-body</code>, <code>.card-title</code>, <code>.card-text</code>) that is <b>not referenced by any of the 8 pages</b>, and its class names have <b>no matching rules in shared.css</b> — it renders unstyled if ever included. Candidate for deletion, or reconciliation if it was meant to become the canonical card.
-      </div>
-      <div class="lib-demo">
-        <div class="lib-demo-inner lib-demo-grey">
-          <div style="width:14rem;border:1px dashed #ccc;padding:.5rem;background:#fff;">
-            <div class="ph-img" style="height:8rem;"></div>
-            <div style="padding:.5rem;">
-              <p style="font-weight:700;font-size:.875rem;">Card title placeholder</p>
-              <p style="font-size:.8125rem;color:#888;">Short description or teaser copy sits here. Two to three lines maximum.</p>
-            </div>
-          </div>
-        </div>
-        <div class="lib-caption">Rendered with inline fallback styling to show intent — the real markup has no CSS backing it at all.</div>
-      </div>
+      <div class="lib-section-head"><h2>Orphaned components <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc"><code>components/card.html</code> defined a generic <code>.card</code> partial (<code>.card-img</code>, <code>.placeholder-img</code>, <code>.card-body</code>, <code>.card-title</code>, <code>.card-text</code>) that was never referenced by any of the 8 pages, and its class names had no matching rules in <code>shared.css</code> — it rendered unstyled if ever included. The file has been deleted rather than reconciled, since every real content-card need is already covered by <a href="#cards">one of the five real card variants</a>.</p>
     </section>
 
   </main>

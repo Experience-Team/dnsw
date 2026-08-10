@@ -591,12 +591,6 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .img-card-body { padding: .5rem 0 0; }
 .img-card-title { font-size: .875rem; font-weight: 700; color: var(--color-text); line-height: 1.3; }
 
-/* Legacy alias so season-card still works if referenced elsewhere */
-.season-card { background: none; }
-.season-card-img { aspect-ratio: 4/3; width: 100%; border-radius: 10px; }
-.season-card-body { padding: .5rem 0 0; }
-.season-card-title { font-size: .875rem; font-weight: 700; color: var(--color-text); line-height: 1.3; }
-
 /* ── News / article grid ── */
 .news-grid {
   display: grid;
@@ -622,6 +616,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .article-card.featured .card-title { font-size: 1.3rem; }
 .article-card.featured { height: 31rem; }
 .article-card.small    { height: 15rem; }
+.article-card.carousel { width: 18.5rem; height: 13.75rem; flex-shrink: 0; }
 
 /* ── Deals card ── */
 .deals-card {
