@@ -116,7 +116,7 @@
     <a href="#hero"><span class="lib-resolved-dot"></span>Hero</a>
     <a href="#breadcrumb"><span class="lib-resolved-dot"></span>Breadcrumb / page switcher</a>
     <a href="#intro"><span class="lib-resolved-dot"></span>Intro &amp; text block</a>
-    <a href="#section-header"><span class="lib-flag-dot"></span>Section header</a>
+    <a href="#section-header"><span class="lib-resolved-dot"></span>Section header</a>
     <a href="#buttons"><span class="lib-bug-dot"></span>Buttons</a>
     <a href="#cards"><span class="lib-bug-dot"></span>Cards</a>
     <a href="#badges"><span class="lib-flag-dot"></span>Badges, tags &amp; dates</a>
@@ -320,32 +320,33 @@
 
     <!-- ══════════════════ SECTION HEADER ══════════════════ -->
     <section class="lib-section" id="section-header">
-      <div class="lib-section-head"><h2>Section header</h2></div>
-      <p class="lib-section-desc"><code>.section-header</code> is used on nearly every section, but with at least 4 different internal shapes and no single canonical pattern.</p>
-      <div class="lib-flag"><b>Inconsistency —</b> presence/absence of a wrapping <code>&lt;div&gt;</code>, <code>.section-body</code>, <code>.view-all-link</code>, and <code>.carousel-nav</code> all vary ad hoc per page/section, and carousel-nav controls are sometimes placed in an undocumented inline-styled <code>&lt;div&gt;</code> rather than a shared class.</div>
+      <div class="lib-section-head"><h2>Section header <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">One canonical <code>.section-header</code> shape everywhere: the title always sits inside a wrapping text <code>&lt;div&gt;</code>, with an optional <code>.section-body</code> subheading alongside it, plus an optional <code>.view-all-link</code> as the header's second flex child. All 34 usages across the 8 pages now share this exact DOM shape — 4 instances (accommodation, home-nsw, home ×2) previously omitted the wrapping <code>&lt;div&gt;</code> around the title when there was no subheading, which this fix removed. Where a <code>.carousel-nav</code> sits in the header's right-hand slot instead of a link, that placement is a separate, still-open inconsistency tracked under <a href="#carousel">Carousel &amp; tabs</a>.</p>
 
-      <div class="lib-demo">
-        <div class="lib-demo-inner">
-          <div style="display:flex;flex-direction:column;gap:1.5rem;">
-            <div>
-              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">1 — Title only</p>
-              <div class="section-header"><div><p class="section-title">Must-see events</p></div></div>
-            </div>
-            <div>
-              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">2 — Title + body</p>
-              <div class="section-header"><div><p class="section-title">Sydney's best luxury hotels</p><p class="section-body">Find the finest places to stay in the city</p></div></div>
-            </div>
-            <div>
-              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">3 — Title + "View all" link (no wrapper div)</p>
-              <div class="section-header"><p class="section-title">Travel Inspiration</p><a href="#" class="view-all-link">View all</a></div>
-            </div>
-            <div>
-              <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">4 — Title + carousel nav (ad hoc inline-styled wrapper)</p>
-              <div class="section-header">
-                <div><p class="section-title">Must-see events</p></div>
-                <div style="display:flex;align-items:center;gap:.75rem;"><div class="carousel-nav"><button>‹</button><button>›</button></div></div>
+      <div class="lib-variant">
+        <div class="lib-variant-meta">
+          <span class="lib-variant-name">Section header <code>.section-header</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> all 8 pages — 34 instances, one shape</span>
+        </div>
+        <div class="lib-demo">
+          <div class="lib-demo-inner">
+            <div class="section-header">
+              <div>
+                <p class="section-title">Sydney's best luxury hotels</p>
+                <p class="section-body" id="sh-body-demo">Find the finest places to stay in the city</p>
               </div>
+              <a href="#" class="view-all-link" id="sh-link-demo">View all</a>
             </div>
+          </div>
+          <div class="lib-caption">
+            <label style="display:flex; align-items:center; gap:.45rem; cursor:pointer; margin-bottom:.4rem;">
+              <input type="checkbox" id="sh-body-toggle" checked onchange="document.getElementById('sh-body-demo').style.display = this.checked ? '' : 'none';">
+              Show subheading <span style="color:#bbb;">— <code>.section-body</code> is optional; most sections are title-only</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:.45rem; cursor:pointer;">
+              <input type="checkbox" id="sh-link-toggle" checked onchange="document.getElementById('sh-link-demo').style.display = this.checked ? '' : 'none';">
+              Show "View all" link <span style="color:#bbb;">— <code>.view-all-link</code> is optional; never shown together with a subheading in practice</span>
+            </label>
           </div>
         </div>
       </div>
