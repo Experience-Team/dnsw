@@ -124,7 +124,7 @@
     <a href="#filters"><span class="lib-bug-dot"></span>Filter bars</a>
     <a href="#filters-modal"><span class="lib-resolved-dot"></span>Filter &amp; date modals</a>
     <a href="#faq"><span class="lib-resolved-dot"></span>FAQ accordion</a>
-    <a href="#promo"><span class="lib-bug-dot"></span>Promo &amp; CTA banners</a>
+    <a href="#promo"><span class="lib-resolved-dot"></span>Promo &amp; CTA banners</a>
     <a href="#maps"><span class="lib-flag-dot"></span>Map modules</a>
     <a href="#content-block"><span class="lib-flag-dot"></span>Content block &amp; chevron list</a>
     <a href="#v3-only">V3-only modules</a>
@@ -372,7 +372,7 @@
             <a href="#" class="btn btn-light btn-sm">btn-light btn-sm</a>
           </div>
         </div>
-        <div class="lib-caption"><code>.btn-light</code> — used on accommodation.html's "Discover Somewhere New" CTA and western-sydney-v2.html's Airport cross-promo, both previously hand-rolled with inline <code>style=""</code> overrides (one on a bare <code>.btn</code>, one as a pill-shaped override of <code>.btn-outline-dark</code>). western-sydney-v2.html's button also carried literal placeholder text (<code>← Button label →</code>), replaced with real copy ("Explore the airport →").</div>
+        <div class="lib-caption"><code>.btn-light</code> — used on western-sydney-v2.html's Airport cross-promo, previously a pill-shaped inline-style override of <code>.btn-outline-dark</code> carrying literal placeholder text (<code>← Button label →</code>), replaced with real copy ("Explore the airport →"). It originally also fixed a matching hack on accommodation.html's "Discover Somewhere New" CTA — that whole CTA has since been removed as a <a href="#promo">duplicate of the newsletter banner</a> right below it.</div>
       </div>
 
       <div class="lib-flag"><b>Proliferation —</b> beyond <code>.btn</code>, at least 8 other button-shaped controls exist as their own one-off pill/chip families: <code>.filter-action-btn</code>, <code>.filter-chip</code>, <code>.filter-dropdown</code>, <code>.v3-pill</code>, <code>.v3-date-chip</code>, <code>.when-seg-btn</code>, <code>.vs-btn</code>, <code>.vs-overlay-btn</code>. Out of scope for this fix — see the Filter bars section.</div>
@@ -765,8 +765,8 @@
 
     <!-- ══════════════════ PROMO / CTA BANNERS ══════════════════ -->
     <section class="lib-section" id="promo">
-      <div class="lib-section-head"><h2>Promo &amp; CTA banners</h2></div>
-      <p class="lib-section-desc"><code>.promo-banner</code>/<code>.promo-content</code> is stretched to fit 3 structurally different content shapes via heavy inline-style overrides rather than modifier classes. <code>.newsletter-banner</code>, by contrast, is a shared include on every page with zero drift — a good example to copy for the others.</p>
+      <div class="lib-section-head"><h2>Promo &amp; CTA banners <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">One <code>.promo-banner</code>/<code>.promo-content</code> shape everywhere: heading (required), an optional <code>.promo-eyebrow</code> above it, an optional <code>.promo-sub</code> below it, and a button. Two new modifier classes — <code>.promo-eyebrow</code> and <code>.promo-content.light-text</code> — replace what western-sydney-v2.html previously did with inline <code>style="color:#fff"</code> overrides on three separate elements and <code>.promo-sub</code> doing double duty as an eyebrow. <code>.newsletter-banner</code>, by contrast, is a shared include on every page with zero drift — the model the others now follow.</p>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
@@ -801,32 +801,27 @@
         </div>
         <div class="lib-variant">
           <div class="lib-variant-meta">
-            <span class="lib-variant-name">Overridden — eyebrow + tagline + light button</span>
+            <span class="lib-variant-name">Eyebrow + tagline, light text <code>.light-text</code></span>
             <span class="lib-variant-pages"><b>Used on</b> western-sydney-v2.html cross-promo</span>
           </div>
           <div class="lib-demo">
             <div class="lib-demo-inner pad-0">
               <div class="promo-banner" style="height:14rem;">
                 <div class="ph-img" style="width:100%;height:100%;"></div>
-                <div class="promo-content">
-                  <p class="promo-sub" style="color:#fff;text-transform:uppercase;font-size:.75rem;letter-spacing:.06em;">Eyebrow headline</p>
-                  <h2 style="color:#fff;">Western Sydney Airport</h2>
-                  <p style="color:#fff;">Tagline</p>
+                <div class="promo-content light-text">
+                  <p class="promo-eyebrow">Eyebrow headline</p>
+                  <h2>Western Sydney Airport</h2>
+                  <p class="promo-sub">Tagline</p>
                   <a href="#" class="btn btn-light btn-sm">Explore the airport →</a>
                 </div>
               </div>
             </div>
           </div>
-          <div class="lib-caption"><code>.promo-sub</code> repurposed as an uppercase eyebrow (its opposite use elsewhere is a plain subtitle) — still open. The button itself is now fixed: real copy, <a href="#buttons">canonical <code>.btn-light</code></a> instead of an inline-styled pill override.</div>
+          <div class="lib-caption">The eyebrow is now its own <code>.promo-eyebrow</code> class (no longer <code>.promo-sub</code> pulling double duty), and the tagline is a real <code>.promo-sub</code> — its documented, below-the-heading use — instead of an unclassed <code>&lt;p&gt;</code>. <code>.promo-content.light-text</code> replaces three separate inline <code>style="color:#fff"</code> overrides.</div>
         </div>
       </div>
 
-      <div class="lib-flag-bug"><b>One-off duplicate CTA.</b> accommodation.html has an entirely inline-styled <code>&lt;section style="background:#111;color:#fff;"&gt;</code> "Discover Somewhere New" band, immediately followed by the real <code>.newsletter-banner</code> include — which uses the exact same headline. Two CTAs with the same message stacked back to back; candidate for removing the one-off. (The button inside it is now fixed — see <a href="#buttons">Buttons</a>.)</div>
-      <div style="background:#111;color:#fff;padding:1.5rem;text-align:center;border-radius:8px;">
-        <h2 style="font-size:1.25rem;margin-bottom:.5rem;">Discover Somewhere New</h2>
-        <p style="opacity:.75;font-size:.8125rem;margin-bottom:.75rem;">Explore all the best accommodation New South Wales has to offer.</p>
-        <a href="#" class="btn btn-light">Explore NSW stays</a>
-      </div>
+      <p class="lib-section-desc">accommodation.html previously had an entirely inline-styled <code>&lt;section style="background:#111;color:#fff;"&gt;</code> "Discover Somewhere New" band, immediately followed by the real <code>.newsletter-banner</code> include using the exact same headline — two CTAs with the same message stacked back to back. The one-off has been removed; the newsletter banner alone now carries that message, as it does on every other page.</p>
 
       <div class="lib-variant" style="margin-top:1.5rem;">
         <div class="lib-variant-meta">

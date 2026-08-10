@@ -651,6 +651,10 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .promo-banner .promo-content h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: .25rem; }
 .promo-sub { font-size: .875rem; color: #111; margin: .25rem 0 .75rem; }
 .promo-banner .promo-content p  { font-size: .875rem; opacity: .85; margin-bottom: 1rem; }
+.promo-eyebrow { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .25rem; }
+.promo-content.light-text { color: #fff; }
+.promo-content.light-text .promo-sub,
+.promo-content.light-text .promo-eyebrow { color: #fff; }
 
 /* ── Newsletter banner ── */
 .newsletter-banner {
