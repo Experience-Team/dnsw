@@ -119,7 +119,7 @@
     <a href="#section-header"><span class="lib-resolved-dot"></span>Section header</a>
     <a href="#buttons"><span class="lib-resolved-dot"></span>Buttons</a>
     <a href="#cards"><span class="lib-resolved-dot"></span>Cards</a>
-    <a href="#badges"><span class="lib-flag-dot"></span>Badges, tags &amp; dates</a>
+    <a href="#badges"><span class="lib-resolved-dot"></span>Badges, tags &amp; dates</a>
     <a href="#carousel"><span class="lib-flag-dot"></span>Carousel &amp; tabs</a>
     <a href="#filters"><span class="lib-bug-dot"></span>Filter bars</a>
     <a href="#filters-modal"><span class="lib-flag-dot"></span>Filter &amp; date modals</a>
@@ -504,22 +504,20 @@
 
     <!-- ══════════════════ BADGES / TAGS / DATES ══════════════════ -->
     <section class="lib-section" id="badges">
-      <div class="lib-section-head"><h2>Badges, tags &amp; date treatments</h2></div>
-      <p class="lib-section-desc">Small status/meta indicators scattered across the card family, with duplicated meaning expressed in different visual forms.</p>
+      <div class="lib-section-head"><h2>Badges, tags &amp; date treatments <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc">Small status/meta indicators scattered across the card family. The one duplicated-meaning inconsistency here — a plain-text <code>.card-date</code> competing with the <code>.card-date-overlay</code> image badge — was already eliminated by the <a href="#cards">Event / listing card fix</a>: home-nsw.html's 10 cards were the only place <code>.card-date</code> ever appeared, and it had no dedicated CSS rule of its own (unstyled inline text). Every "when" field on the site is now the same <code>.card-date-overlay</code> badge.</p>
       <div class="lib-demo">
         <div class="lib-demo-inner lib-demo-grey">
           <div class="lib-demo-row tight" style="align-items:center;">
             <div class="card-img ph-img" style="width:8rem;height:6rem;position:relative;"><span class="card-badge">Hot Deal</span></div>
             <div class="card-img ph-img" style="width:8rem;height:6rem;position:relative;"><span class="card-date-overlay">29 Jul</span></div>
-            <p class="card-date" style="background:#fff;padding:.4rem .6rem;border-radius:4px;">Year-round <span style="color:#999;">(.card-date text)</span></p>
             <span class="card-amenity-icon" title="Wheelchair accessible">♿</span>
             <p class="card-tag" style="background:#111;color:#fff;padding:.3rem .6rem;border-radius:4px;">May 2026 – 6 min read</p>
             <span class="v3-badge" style="position:static;">3</span>
           </div>
         </div>
-        <div class="lib-caption">Left to right: <code>.card-badge</code>, <code>.card-date-overlay</code>, <code>.card-date</code> (text alternative to the overlay), <code>.card-amenity-icon</code>, <code>.card-tag</code>, <code>.v3-badge</code> counter.</div>
+        <div class="lib-caption">Left to right: <code>.card-badge</code>, <code>.card-date-overlay</code>, <code>.card-amenity-icon</code>, <code>.card-tag</code>, <code>.v3-badge</code> counter — each a distinct kind of meta indicator, no overlapping purpose between them.</div>
       </div>
-      <div class="lib-flag"><b>Inconsistency —</b> <code>.card-date-overlay</code> (image badge) and <code>.card-date</code> (plain text under the title) convey identical information but never coexist on the same page — home-nsw.html uses text-only, everywhere else uses the overlay badge.</div>
     </section>
 
     <!-- ══════════════════ CAROUSEL & TABS ══════════════════ -->
