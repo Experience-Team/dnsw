@@ -588,7 +588,7 @@
                 <div class="filter-map-spacer"></div>
                 <a href="#" class="btn btn-primary btn-sm">View on Map</a>
               </div>
-              <p class="result-count">Showing 659 results</p>
+              <p class="result-count">Seeing 15 of 659 results</p>
             </div>
           </div>
         </div>
@@ -610,11 +610,14 @@
                   <button class="v3-pill">Category</button>
                 </div>
               </div>
+              <div class="v3-active-row" style="margin-top:1rem;">
+                <span class="v3-result-count">Seeing 15 of 659 results</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="lib-flag"><b>Wording drift —</b> the result-count string reads "Seeing X of Y results" under V1 but "Showing X results" under V2/V3, and on western-sydney V2/V3 the count is duplicated both above and below the results grid.</div>
+      <div class="lib-flag"><b>Wording fixed, design still open —</b> the result-count string now reads "Seeing 15 of 659 results" identically under all three filter-bar versions (previously V2/V3 said "Showing 659 results", with V3 also appending a trailing period). western-sydney V2/V3's separate duplicated-count issue (shown both above and below the results grid) is unrelated to this fix and still open.</div>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
