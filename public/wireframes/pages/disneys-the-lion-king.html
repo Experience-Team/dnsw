@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wireframe — Disney's The Lion King (Event detail)</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <link rel="stylesheet" href="../themes/sydney.css" id="theme-sheet" />
+</head>
+<body class="theme-sydney" data-site="sydney">
+
+  <div data-include="../components/utility-bar.html"></div>
+  <div data-include="../components/nav.html"></div>
+
+  <div class="container detail-header">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb" style="margin-bottom:2rem; flex-wrap:wrap;">
+      <a href="../pages/home.html" class="crumb">Home</a>
+      <span class="sep">›</span>
+      <a href="#" class="crumb">Places to visit in Sydney</a>
+      <span class="sep">›</span>
+      <a href="#" class="crumb">Sydney City</a>
+      <span class="sep">›</span>
+      <a href="#" class="crumb">Chinatown &amp; Haymarket</a>
+      <span class="sep">›</span>
+      <a href="#" class="crumb">What's on in Chinatown &amp; Haymarket</a>
+      <span class="sep">›</span>
+      <span class="crumb-active">Disney's The Lion King</span>
+    </nav>
+
+    <h1>Disney's The Lion King</h1>
+
+    <!-- Meta row: location + dates, actions -->
+    <div class="detail-meta-row">
+      <div class="detail-meta-facts">
+        <div class="detail-meta-fact">
+          <span class="detail-meta-fact-icon">📍</span>
+          <span>Capitol Theatre <a href="#">Get directions ↗</a></span>
+        </div>
+        <div class="detail-meta-fact">
+          <span class="detail-meta-fact-icon">📅</span>
+          <span>Tue 11 Aug '26 – Sun 04 Oct '26 (DAILY event)</span>
+        </div>
+      </div>
+      <div class="detail-meta-actions">
+        <a href="#" class="btn btn-outline-dark btn-sm">Booking details ↗</a>
+        <a href="#" class="btn btn-primary btn-sm">Visit website ↗</a>
+        <button class="card-bookmark" aria-label="Save" style="border:1px solid var(--color-border); border-radius:50%; width:2.5rem; height:2.5rem; justify-content:center;"><svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+
+    <!-- Photo gallery hero -->
+    <div class="detail-gallery">
+      <div class="detail-gallery-main ph-img">
+        <span class="detail-gallery-count"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="10" rx="1" stroke="#111" stroke-width="1.3"/><circle cx="5" cy="6" r="1.2" fill="#111"/><path d="M2 11l3.5-3.5 2 2L11.5 5.5 14 8" stroke="#111" stroke-width="1.3"/></svg> 5 photos</span>
+      </div>
+      <div class="detail-gallery-side">
+        <div class="detail-gallery-thumb ph-img"></div>
+        <div class="detail-gallery-thumb ph-img"></div>
+        <div class="detail-gallery-thumb is-map ph-img">
+          <a href="#" class="btn btn-light btn-sm detail-gallery-explore">Explore nearby ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overview / Nearby / FAQs tabs -->
+    <nav class="detail-tabs" aria-label="Page sections">
+      <a href="#overview" class="detail-tab">☰ Overview</a>
+      <a href="#nearby" class="detail-tab">👤 Nearby</a>
+      <a href="#faqs" class="detail-tab active">ⓘ FAQs</a>
+    </nav>
+
+    <!-- Overview + sidebar info card -->
+    <div class="detail-overview-row" id="overview">
+      <div class="detail-overview">
+        <h2>Overview</h2>
+        <span class="card-amenity-icon" title="Accessible" style="margin-bottom:.75rem; display:inline-flex;">♿</span>
+        <p>Disney's The Lion King is now playing at the Capitol Theatre! Prepare for a spectacle far beyond your imagination as you follow the powerful story of Simba as he journeys from wide-eyed cub to his destined role as King of the Pridelands. Seen by over 124 million people worldwide, this landmark musical combines breathtaking visual artistry, unforgettable music, and a deeply moving story that has captured hearts across generations. Winner of…</p>
+        <a href="#" class="btn btn-outline-dark btn-sm">Read more ⌄</a>
+      </div>
+      <div class="detail-info-card">
+        <h3>Disney's The Lion King</h3>
+        <div class="detail-info-fact">
+          <span class="detail-info-fact-icon">📍</span>
+          <div class="detail-info-fact-body">
+            <span>Capitol Theatre</span>
+            <a href="#">13 Campbell St Haymarket NSW 2000 Australia ↗</a>
+          </div>
+        </div>
+        <div class="detail-info-fact">
+          <span class="detail-info-fact-icon">📅</span>
+          <div class="detail-info-fact-body"><span>Tue 11 Aug '26 – Sun 04 Oct '26 (DAILY event)</span></div>
+        </div>
+        <div class="detail-info-links">
+          <a href="#">↗ Booking details</a>
+          <a href="#">↗ Visit website</a>
+        </div>
+        <p class="detail-info-social-title">Find us on socials</p>
+        <div class="detail-info-social">
+          <a href="#" aria-label="Facebook">Fb</a>
+          <a href="#" aria-label="Instagram">Ig</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nearby Experiences -->
+    <section id="nearby" style="margin-bottom:3rem;">
+      <div class="section-header" style="margin-bottom:1.5rem;">
+        <div><p class="section-title">Nearby Experiences</p></div>
+      </div>
+      <div class="grid-3">
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <div class="card-top-line">
+              <p class="card-venue">Sydney City</p>
+              <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+            <p class="card-title">Australian Museum</p>
+            <p class="card-desc">Historic Sydney museum with free entry and interactive family exhibits.</p>
+            <div class="card-footer">
+              <span class="card-amenity-icon" title="Accessible">♿</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <div class="card-top-line">
+              <p class="card-venue">Inner Sydney</p>
+              <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+            <p class="card-title">Tequila Mockingbird</p>
+            <p class="card-desc">Heritage-listed restaurant serving diverse Latin American cuisine and premium spirits.</p>
+            <div class="card-footer">
+              <span class="card-amenity-icon" title="Accessible">♿</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <div class="card-top-line">
+              <p class="card-venue">Sydney City</p>
+              <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+            <p class="card-title">The Dymocks Building</p>
+            <p class="card-desc">Heritage-listed building with 120 unique specialty shops and services.</p>
+            <div class="card-footer">
+              <span class="card-amenity-icon" title="Accessible">♿</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Location -->
+    <section style="margin-bottom:3rem;">
+      <div class="section-header" style="margin-bottom:1rem;">
+        <div><p class="section-title">Location</p></div>
+      </div>
+      <p class="detail-location-address">Capitol Theatre</p>
+      <p class="detail-location-address">13 Campbell St Haymarket NSW 2000 Australia</p>
+      <a href="#" class="detail-location-directions">Get directions ↗</a>
+      <div class="detail-location-map">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d424141.6978944982!2d150.93197474999997!3d-33.84824395!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b129838f39a743f%3A0x3017d681632a850!2sSydney%20NSW!5e0!3m2!1sen!2sau!4v1782980983841!5m2!1sen!2sau" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+    </section>
+
+    <!-- FAQs -->
+    <section id="faqs" style="margin-bottom:3rem;">
+      <p class="section-title" style="margin-bottom:1.5rem;">FAQs</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">
+            Accessibility
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="faq-answer">The Capitol Theatre offers wheelchair-accessible seating, companion card entry, hearing loop assistance and audio description performances for select shows. Contact the box office ahead of your visit to arrange specific access requirements.</div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- end .container -->
+
+  <div data-include="../components/newsletter.html"></div>
+  <div data-include="../components/footer.html"></div>
+
+  <!-- Floating newsletter signup popup -->
+  <div class="newsletter-popup" id="newsletter-popup">
+    <button class="newsletter-popup-close" id="newsletter-popup-close" aria-label="Close">&#x2715;</button>
+    <h3>Subscribe to our newsletter</h3>
+    <p>Stay connected to Sydney for all the latest news, stories, upcoming events and travel inspiration.</p>
+    <a href="#" class="btn btn-light">Subscribe</a>
+  </div>
+
+  <script src="../includes.js"></script>
+  <script>
+    document.querySelectorAll('.faq-question').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        btn.closest('.faq-item').classList.toggle('open');
+      });
+    });
+    var popupClose = document.getElementById('newsletter-popup-close');
+    if (popupClose) {
+      popupClose.addEventListener('click', function () {
+        document.getElementById('newsletter-popup').setAttribute('hidden', '');
+      });
+    }
+  </script>
+
+</body>
+</html>
