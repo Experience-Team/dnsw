@@ -385,61 +385,44 @@
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
-          <span class="lib-variant-name">Event / listing card <code>.event-card</code></span>
-          <span class="lib-variant-pages"><b>Used on</b> all pages except home-nsw.html's own copy (below) — reused for events, hotels, and generic listings alike</span>
+          <span class="lib-variant-name">Event / listing card <code>.event-card</code> <span class="lib-resolved">Resolved</span></span>
+          <span class="lib-variant-pages"><b>Used on</b> all 8 pages, one shape — reused for events, hotels, and generic listings alike</span>
         </div>
         <div class="lib-demo">
           <div class="lib-demo-inner lib-demo-grey">
-            <div class="lib-demo-row">
-              <div class="event-card">
-                <div class="card-img ph-img"><span class="card-badge">Hot Deal</span><span class="card-date-overlay">25 Jun – 19 Oct</span></div>
-                <div class="card-body">
-                  <div class="card-top-line">
-                    <p class="card-venue">Sydney City</p>
-                    <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-                  </div>
-                  <p class="card-title">Tony Albert: Not a Souvenir</p>
-                  <p class="card-desc">One of the most fearless and influential Australian contemporary artists is taking over the MCA this winter…</p>
-                  <div class="card-footer"><p class="card-price"><span>from </span>$35</p></div>
-                </div>
+            <div class="event-card" style="width:16rem;">
+              <div class="card-img ph-img">
+                <span class="card-badge" id="ec-badge-demo">Hot Deal</span>
+                <span class="card-date-overlay" id="ec-date-demo">25 Jun – 19 Oct</span>
               </div>
-              <div class="event-card">
-                <div class="card-img ph-img"><span class="card-badge">Hot Deal</span></div>
-                <div class="card-body">
-                  <div class="card-top-line">
-                    <p class="card-venue">Sydney City</p>
-                    <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-                  </div>
-                  <p class="card-title">Radisson Blu Plaza Hotel Sydney</p>
-                  <p class="card-desc">Iconic heritage hotel in the heart of the city, steps from Pitt Street Mall.</p>
-                  <div class="card-footer">
-                    <div class="card-amenities"><span class="card-amenity-icon" title="Wheelchair accessible">♿</span><span class="card-amenity-icon" title="Eco-friendly">🌿</span></div>
-                    <p class="card-price"><span>from </span>$329</p>
-                  </div>
+              <div class="card-body">
+                <div class="card-top-line">
+                  <p class="card-venue">Sydney City</p>
+                  <button class="card-bookmark" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
+                <p class="card-title">Radisson Blu Plaza Hotel Sydney</p>
+                <p class="card-desc">Iconic heritage hotel in the heart of the city, steps from Pitt Street Mall.</p>
+                <div class="card-footer">
+                  <div class="card-amenities"><span class="card-amenity-icon" title="Wheelchair accessible">♿</span><span class="card-amenity-icon" title="Eco-friendly">🌿</span></div>
+                  <p class="card-price"><span>from </span>$329</p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="lib-caption">Same class reused for an event listing (left) and a hotel listing (right) — hotel usage repurposes <code>.card-venue</code> as a location label and adds <code>.card-amenities</code>, which events never show.</div>
-        </div>
-      </div>
-
-      <div class="lib-flag"><b>Inconsistency — bookmark icon.</b> An inline SVG heart-outline button on every page except home-nsw.html, which uses a plain 🔖 emoji button for the identical control. home-nsw.html also swaps the image <code>.card-date-overlay</code> badge for plain text <code>.card-date</code> below the title — two different ways of showing the same "when" field.</div>
-
-      <div class="lib-demo">
-        <div class="lib-demo-inner lib-demo-grey">
-          <div class="event-card" style="width:14rem;">
-            <div class="card-img ph-img"></div>
-            <div class="card-body">
-              <p class="card-venue">Snowy Mountains</p>
-              <p class="card-title">Pristine wilderness adventures</p>
-              <p class="card-date">Year-round</p>
-              <div class="card-footer"><p class="card-price"><span>from </span>$120</p><button class="card-bookmark">🔖</button></div>
-            </div>
+          <div class="lib-caption">
+            <label style="display:flex; align-items:center; gap:.45rem; cursor:pointer; margin-bottom:.4rem;">
+              <input type="checkbox" id="ec-badge-toggle" checked onchange="document.getElementById('ec-badge-demo').style.display = this.checked ? '' : 'none';">
+              Show "Hot Deal" badge <span style="color:#bbb;">— <code>.card-badge</code> is optional</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:.45rem; cursor:pointer;">
+              <input type="checkbox" id="ec-date-toggle" checked onchange="document.getElementById('ec-date-demo').style.display = this.checked ? '' : 'none';">
+              Show date badge <span style="color:#bbb;">— <code>.card-date-overlay</code> is optional; independent of the Hot Deal badge</span>
+            </label>
           </div>
         </div>
-        <div class="lib-caption">home-nsw.html's variant of <code>.event-card</code> — no <code>.card-top-line</code>/<code>.card-desc</code>, plain-text date, emoji bookmark.</div>
       </div>
+
+      <p class="lib-section-desc" style="margin-top:1rem;">Every <code>.event-card</code> now shares this one shape: the venue sits with the bookmark button in a <code>.card-top-line</code>, the date (when present) is always the image-overlay badge rather than plain text below the title, and the bookmark is always the inline SVG button — never the 🔖 emoji. home-nsw.html previously used a simplified copy of this card (plain-text date, emoji bookmark, no top-line) across 10 instances; it's now been rebuilt to match. <code>.card-desc</code> and <code>.card-amenities</code> remain content-driven optional fields (a 3-word carousel title doesn't need a description; a concert doesn't need accessibility/eco icons) rather than something every instance must include.</p>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
