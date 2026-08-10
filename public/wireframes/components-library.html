@@ -114,7 +114,7 @@
     <p class="lib-toc-title">Jump to</p>
     <a href="#nav-utility">Nav &amp; utility bar</a>
     <a href="#hero"><span class="lib-resolved-dot"></span>Hero</a>
-    <a href="#breadcrumb"><span class="lib-flag-dot"></span>Breadcrumb / page switcher</a>
+    <a href="#breadcrumb"><span class="lib-resolved-dot"></span>Breadcrumb / page switcher</a>
     <a href="#intro"><span class="lib-flag-dot"></span>Intro &amp; text block</a>
     <a href="#section-header"><span class="lib-flag-dot"></span>Section header</a>
     <a href="#buttons"><span class="lib-bug-dot"></span>Buttons</a>
@@ -252,14 +252,13 @@
 
     <!-- ══════════════════ BREADCRUMB ══════════════════ -->
     <section class="lib-section" id="breadcrumb">
-      <div class="lib-section-head"><h2>Breadcrumb / page-switcher bar</h2></div>
-      <p class="lib-section-desc"><code>.page-switcher-bar</code> wraps <code>.breadcrumb</code> + <code>.page-actions</code>. Structurally identical on 6/8 pages (absent by design on the two homepages).</p>
-      <div class="lib-flag"><b>Inconsistency —</b> <code>.page-actions</code> shows "Share" + "Save" everywhere except western-sydney-airport.html, which shows "Share" only.</div>
+      <div class="lib-section-head"><h2>Breadcrumb / page-switcher bar <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc"><code>.page-switcher-bar</code> wraps <code>.breadcrumb</code> + <code>.page-actions</code>. One canonical pattern now, structurally identical on all 6 inner pages (absent by design on the two homepages) — <code>.page-actions</code> always shows Share + Save. western-sydney-airport.html was missing the Save link; it's been added so every page offers the same actions.</p>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
           <span class="lib-variant-name">Standard — Share + Save</span>
-          <span class="lib-variant-pages"><b>Used on</b> events, accommodation, western-sydney V1/V2/V3</span>
+          <span class="lib-variant-pages"><b>Used on</b> events, accommodation, western-sydney V1/V2/V3, airport</span>
         </div>
         <div class="lib-demo">
           <div class="lib-demo-inner">
@@ -271,25 +270,6 @@
                 <span class="crumb-active">Western Sydney</span>
               </nav>
               <div class="page-actions"><a href="#">Share</a><a href="#">Save</a></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="lib-variant">
-        <div class="lib-variant-meta">
-          <span class="lib-variant-name">Share-only</span>
-          <span class="lib-variant-pages"><b>Used on</b> western-sydney-airport.html only</span>
-        </div>
-        <div class="lib-demo">
-          <div class="lib-demo-inner">
-            <div class="page-switcher-bar" style="border:none;">
-              <nav class="breadcrumb" aria-label="Breadcrumb">
-                <a href="#" class="crumb">Home</a><span class="sep">›</span>
-                <a href="#" class="crumb">Travel information: What you need to know before you go</a><span class="sep">›</span>
-                <span class="crumb-active">Getting around Sydney</span>
-              </nav>
-              <div class="page-actions"><a href="#">Share</a></div>
             </div>
           </div>
         </div>
