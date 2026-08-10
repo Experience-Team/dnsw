@@ -115,7 +115,7 @@
     <a href="#nav-utility">Nav &amp; utility bar</a>
     <a href="#hero"><span class="lib-resolved-dot"></span>Hero</a>
     <a href="#breadcrumb"><span class="lib-resolved-dot"></span>Breadcrumb / page switcher</a>
-    <a href="#intro"><span class="lib-flag-dot"></span>Intro &amp; text block</a>
+    <a href="#intro"><span class="lib-resolved-dot"></span>Intro &amp; text block</a>
     <a href="#section-header"><span class="lib-flag-dot"></span>Section header</a>
     <a href="#buttons"><span class="lib-bug-dot"></span>Buttons</a>
     <a href="#cards"><span class="lib-bug-dot"></span>Cards</a>
@@ -278,53 +278,42 @@
 
     <!-- ══════════════════ INTRO / TEXT BLOCK ══════════════════ -->
     <section class="lib-section" id="intro">
-      <div class="lib-section-head"><h2>Intro block &amp; text block</h2></div>
-      <p class="lib-section-desc"><code>.intro-block</code> appears on every page. Three different affordances exist for "expand the intro copy," and three different layout mechanisms exist for the conceptually identical "two-column supporting text" pattern.</p>
-      <div class="lib-flag"><b>Inconsistency —</b> "read more" is a wired-up JS toggle (<code>.read-more</code>) on home.html, an inert unwired link on home-nsw.html, and replaced entirely by a plain inline link mid-paragraph on western-sydney.html / airport.html.</div>
-      <div class="lib-flag"><b>Inconsistency —</b> the two-column text pattern uses <code>.text-cols</code> (CSS grid) on home/home-nsw, <code>.grid-2</code> on accommodation, and an inline <code>style="column-count:2"</code> on western-sydney.html — three mechanisms, one visual result.</div>
+      <div class="lib-section-head"><h2>Intro block &amp; text block <span class="lib-resolved">Resolved</span></h2></div>
+      <p class="lib-section-desc"><code>.intro-block</code> appears on every page. "Read more" now only appears where there's genuine hidden copy to reveal (both homepages); every inner page (accommodation, western-sydney, airport, events) is a single always-visible paragraph with no dead affordance. The two-column supporting-text pattern is now always <code>.text-block</code> + <code>.text-cols</code> — the ad hoc <code>.grid-2</code> reuse on accommodation.html and the inline <code>column-count:2</code> trick on western-sydney.html have both been converted to the same grid.</p>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
           <span class="lib-variant-name">Intro block <code>.intro-block</code> — wired "Read more"</span>
-          <span class="lib-variant-pages"><b>Used on</b> home.html</span>
+          <span class="lib-variant-pages"><b>Used on</b> home.html, home-nsw.html — the two pages with genuine extra copy to reveal</span>
         </div>
         <div class="lib-demo">
           <div class="lib-demo-inner">
             <div class="intro-block" style="padding:0;">
-              <h1>Sydney, Australia</h1>
+              <h2>Sydney, Australia</h2>
               <p>Welcome to Sydney, with new experiences around every corner. As the official tourism, destinations and events website, let us guide you through this surprising city.</p>
               <a href="#" class="read-more">Read more ↓</a>
             </div>
           </div>
+          <div class="lib-caption">Accommodation, western-sydney, airport and events pages have no "Read more" at all — their intro copy is a single short paragraph, shown in full.</div>
         </div>
       </div>
 
       <div class="lib-variant">
         <div class="lib-variant-meta">
-          <span class="lib-variant-name">Text block — 3 layout mechanisms for the same pattern</span>
+          <span class="lib-variant-name">Two-column supporting text <code>.text-block</code> + <code>.text-cols</code></span>
+          <span class="lib-variant-pages"><b>Used on</b> home, home-nsw ("More about…"), accommodation ("More about accommodation"), western-sydney V1 (suburb links)</span>
         </div>
         <div class="lib-demo">
           <div class="lib-demo-inner">
-            <div class="lib-demo-row" style="gap:2rem;">
-              <div style="flex:1;min-width:12rem;">
-                <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">.text-cols (home / home-nsw)</p>
-                <div class="text-block" style="padding:0;">
-                  <div class="text-cols">
-                    <p>Body copy column one…</p>
-                    <ul><li><a href="#">Link one</a></li><li><a href="#">Link two</a></li></ul>
-                  </div>
-                </div>
-              </div>
-              <div style="flex:1;min-width:12rem;">
-                <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">.grid-2 (accommodation)</p>
-                <div class="grid-2"><p style="font-size:.875rem;color:#888;">Body copy column one…</p><p style="font-size:.875rem;color:#888;">Body copy column two…</p></div>
-              </div>
-              <div style="flex:1;min-width:12rem;">
-                <p style="font-size:.75rem;font-weight:700;color:#999;margin-bottom:.4rem;">inline column-count:2 (western-sydney)</p>
-                <div style="column-count:2;font-size:.875rem;color:#888;">Suburb link list rendered as CSS columns…</div>
+            <div class="text-block" style="padding:0;">
+              <h2>More about Sydney</h2>
+              <div class="text-cols">
+                <div><p>Body copy column one…</p></div>
+                <div><ul><li><a href="#">Link one</a></li><li><a href="#">Link two</a></li></ul></div>
               </div>
             </div>
           </div>
+          <div class="lib-caption">Same grid whether both columns are prose (home, accommodation) or prose + a link list (home-nsw) or two link-list columns (western-sydney's suburb links, previously a single CSS <code>column-count:2</code> list).</div>
         </div>
       </div>
     </section>
