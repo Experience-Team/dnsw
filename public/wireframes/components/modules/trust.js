@@ -1,0 +1,49 @@
+// Trust bar, bound to `product.trust` (contract §10) plus the base record's
+// own `last_verified` — not `product.trust.last_verified`, which doesn't
+// exist; the contract deliberately doesn't duplicate that field (see §10).
+
+function fieldHtml(label, value) {
+  return `<div class="trust-field"><p class="trust-label">${label}</p><p class="trust-value">${value}</p></div>`;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+export function mount(container, product) {
+  const trust = product.trust;
+  const lastVerified = product.last_verified;
+
+  const ratingHtml = trust?.aggregate_rating
+    ? fieldHtml('Rating', `${trust.aggregate_rating} / 5${trust.review_count ? ` <span class="unit">(${trust.review_count} reviews)</span>` : ''}`)
+    : '';
+
+  const excerptsHtml = (trust?.review_excerpts ?? [])
+    .slice(0, 3)
+    .map((r) => `<p class="trust-review-excerpt">"${r.text}" — ${r.author}, ${r.source}</p>`)
+    .join('');
+
+  const badges = [
+    ...(trust?.accreditations ?? []).map((a) => `<span class="trust-badge">${a}</span>`),
+    trust?.aboriginal_owned ? '<span class="trust-badge">Aboriginal owned</span>' : '',
+    ...(trust?.awards ?? []).map((a) => `<span class="trust-badge">${a.name} ${a.year}</span>`),
+  ].join('');
+
+  const verifiedHtml = lastVerified ? fieldHtml('Last verified', formatDate(lastVerified)) : '';
+
+  const hasAnyContent = ratingHtml !== '' || excerptsHtml !== '' || badges !== '' || verifiedHtml !== '';
+  if (!hasAnyContent) {
+    container.hidden = true;
+    container.innerHTML = '';
+    return;
+  }
+
+  container.hidden = false;
+  container.innerHTML = [
+    ratingHtml,
+    excerptsHtml ? `<div class="trust-field">${excerptsHtml}</div>` : '',
+    badges ? `<div class="trust-field"><div class="trust-badge-list">${badges}</div></div>` : '',
+    verifiedHtml,
+  ].join('');
+}

@@ -3,12 +3,12 @@
 // <script type="module"> so it can use dynamic import().
 //
 // URL param ?fixture=live|target picks which fixture variant loads
-// (default live). Each element needs data-module (the module filename
+// (default target). Each element needs data-module (the module filename
 // under components/modules/, without .js) and data-slug (the fixture id,
 // matching public/wireframes/data/{slug}.{variant}.json).
 (function () {
   const params = new URLSearchParams(window.location.search);
-  const variant = params.get('fixture') === 'target' ? 'target' : 'live';
+  const variant = params.get('fixture') === 'live' ? 'live' : 'target';
 
   document.querySelectorAll('[data-module]').forEach(async (container) => {
     const moduleName = container.getAttribute('data-module');

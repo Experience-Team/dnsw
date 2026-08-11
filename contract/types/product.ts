@@ -288,6 +288,101 @@ export interface AccommodationExtension {
   brand: string | null;
 }
 
+// ── Trust (contract §10) — gap on every type ──────────────────────────────────
+// `last_verified` is deliberately not a field here — the Trust module reads
+// the base record's `last_verified` (contract §1/§7) directly rather than
+// duplicating it.
+
+export interface ReviewExcerpt {
+  author: string;
+  text: string;
+  source: string; // e.g. 'Google', 'TripAdvisor'
+  date: string | null; // date
+}
+
+export interface Award {
+  name: string;
+  year: number;
+  awarding_body: string;
+}
+
+export interface Trust {
+  aggregate_rating: number | null; // out of 5
+  review_count: number | null;
+  review_excerpts: ReviewExcerpt[];
+  review_source: string | null;
+  review_licence: string | null;
+  accreditations: string[];
+  aboriginal_owned: boolean | null;
+  awards: Award[];
+}
+
+// ── Getting there (contract §11) — gap on every type ──────────────────────────
+// `distance_from_cbd_km` is deliberately not a field here — see the existing
+// `distance_from_cbd` row in the Derived fields table (contract §7).
+
+export interface NearestTransport {
+  mode: string;
+  name: string;
+  walking_minutes: number | null;
+}
+
+export interface GettingThereParking {
+  available: boolean;
+  cost: string | null;
+  distance_minutes: number | null;
+}
+
+export interface GettingThere {
+  nearest_transport: NearestTransport[];
+  parking: GettingThereParking | null;
+  travel_time_from_cbd_minutes: number | null;
+  pickup_point: string | null;
+}
+
+// ── Live availability (contract §12) — gap on every type ──────────────────────
+// Distinct from `availability` (contract §4): that's the static schedule
+// shape, this is a real-time booking-engine feed layered on top.
+
+export type LiveSessionStatus = 'available' | 'few_left' | 'sold_out';
+
+export interface LiveSession {
+  datetime: string; // datetime
+  status: LiveSessionStatus;
+}
+
+export interface LiveAvailability {
+  next_sessions: LiveSession[];
+  remaining_capacity: number | null;
+  sold_out: boolean | null;
+  booking_partner: string | null;
+}
+
+// ── Suitability (contract §13) — gap on every type ────────────────────────────
+// Overlaps deliberately with several extension-block fields (§6) — a shared
+// cross-type summary, not a duplicate. See §13.
+
+export interface Suitability {
+  suitable_for: string[];
+  age_guidance: string | null;
+  dietary_options: string[];
+  languages_offered: string[];
+  fitness_level: FitnessLevel | null; // reuses FitnessLevel from §6
+  pet_policy: string | null;
+  group_size: { min: number; max: number } | null;
+  weather_dependency: 'indoor' | 'outdoor_weather_dependent' | 'all_weather' | null;
+}
+
+// ── Practical (contract §14) — gap on every type ──────────────────────────────
+// `advance_booking_required` is deliberately not a field here — read
+// `availability.advance_booking_required` (contract §4) directly.
+
+export interface Practical {
+  what_to_bring: string[];
+  on_site_facilities: string[];
+  best_time_to_visit: string | null;
+}
+
 // ── Shared product record (contract §1) ───────────────────────────────────────
 
 export type ProductType =
@@ -311,6 +406,11 @@ interface ProductRecordBase {
   accessibility: Accessibility;
   availability: Availability | null; // gap on every type — contract §4
   pricing: Pricing | null; // gap on every type — contract §5
+  trust: Trust | null; // gap on every type — contract §10
+  getting_there: GettingThere | null; // gap on every type — contract §11
+  live_availability: LiveAvailability | null; // gap on every type — contract §12, distinct from `availability` (§4)
+  suitability: Suitability | null; // gap on every type — contract §13
+  practical: Practical | null; // gap on every type — contract §14
   faqs: Faq[];
   place_ref: string | null;
   operator_ref: string | null;

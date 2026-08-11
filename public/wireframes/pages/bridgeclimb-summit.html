@@ -46,6 +46,9 @@
     <!-- Decision block: contract-bound module, mounted by modules.js -->
     <div class="decision-block" data-module="decision-block" data-slug="bridgeclimb-summit" hidden></div>
 
+    <!-- Trust bar: contract-bound module, mounted by modules.js -->
+    <div class="trust-module" data-module="trust" data-slug="bridgeclimb-summit" hidden></div>
+
     <!-- Photo gallery hero -->
     <div class="detail-gallery">
       <div class="detail-gallery-main ph-img">
@@ -86,8 +89,19 @@
         <div class="detail-info-links">
           <a href="#">↗ Booking details</a>
         </div>
+
+        <!-- Getting there + live availability: contract-bound modules, mounted by modules.js -->
+        <div class="getting-there-module" data-module="getting-there" data-slug="bridgeclimb-summit" hidden></div>
+        <div class="live-availability-module" data-module="live-availability" data-slug="bridgeclimb-summit" hidden></div>
       </div>
     </div>
+
+    <!-- New field-group modules: contract-bound, mounted by modules.js -->
+    <div class="extension-module" data-module="extension" data-slug="bridgeclimb-summit" hidden></div>
+    <div class="suitability-module" data-module="suitability" data-slug="bridgeclimb-summit" hidden></div>
+    <div class="practical-module" data-module="practical" data-slug="bridgeclimb-summit" hidden></div>
+    <div class="availability-module" data-module="availability" data-slug="bridgeclimb-summit" hidden></div>
+    <div class="pricing-module" data-module="pricing" data-slug="bridgeclimb-summit" hidden></div>
 
     <!-- Our Tours — same list as the BridgeClimb Sydney parent page, minus this page itself -->
     <section id="nearby" style="margin-bottom:3rem;">
@@ -160,19 +174,12 @@
       </div>
     </section>
 
-    <!-- FAQs — the real page's "FAQs" tab contains only the accessibility statement below, no Q&A pairs -->
+    <!-- FAQs: accessibility + faqs are contract-bound modules, mounted by modules.js -->
     <section id="faqs" style="margin-bottom:3rem;">
       <p class="section-title" style="margin-bottom:1.5rem;">FAQs</p>
       <div class="faq-list">
-        <div class="faq-item">
-          <button class="faq-question">
-            Accessibility
-            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <div class="faq-answer">
-            Disabled access available, contact operator for details.
-          </div>
-        </div>
+        <div class="accessibility-module" data-module="accessibility" data-slug="bridgeclimb-summit" hidden></div>
+        <div class="faqs-module" data-module="faqs" data-slug="bridgeclimb-summit" hidden></div>
       </div>
     </section>
 

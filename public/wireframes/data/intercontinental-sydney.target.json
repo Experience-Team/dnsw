@@ -114,6 +114,95 @@
     ],
     "cancellation_policy": "Free cancellation up to 48 hours before arrival for standard rate bookings."
   },
+  "trust": {
+    "aggregate_rating": 4.6,
+    "review_count": 5108,
+    "review_excerpts": [
+      {
+        "author": "Grace M.",
+        "text": "The Opera House view from our room was unreal. Faultless service.",
+        "source": "TripAdvisor",
+        "date": "2026-07-18"
+      },
+      {
+        "author": "David N.",
+        "text": "Historic building, modern comfort. Club lounge breakfast alone is worth the upgrade.",
+        "source": "Google",
+        "date": "2026-06-30"
+      }
+    ],
+    "review_source": "TripAdvisor",
+    "review_licence": "Displayed under TripAdvisor Content API terms",
+    "accreditations": [
+      "AAA Tourism 5 Star (self-declared, pending accreditation check)"
+    ],
+    "aboriginal_owned": false,
+    "awards": [
+      {
+        "name": "Best Luxury Hotel — NSW",
+        "year": 2025,
+        "awarding_body": "Australian Hotels Association"
+      }
+    ]
+  },
+  "getting_there": {
+    "nearest_transport": [
+      {
+        "mode": "train",
+        "name": "Circular Quay Station",
+        "walking_minutes": 4
+      },
+      {
+        "mode": "ferry",
+        "name": "Circular Quay Ferry Wharf",
+        "walking_minutes": 5
+      }
+    ],
+    "parking": {
+      "available": true,
+      "cost": "$65 per night valet",
+      "distance_minutes": 0
+    },
+    "travel_time_from_cbd_minutes": 3,
+    "pickup_point": null
+  },
+  "live_availability": {
+    "next_sessions": [],
+    "remaining_capacity": 14,
+    "sold_out": false,
+    "booking_partner": "IHG Direct Booking"
+  },
+  "suitability": {
+    "suitable_for": [
+      "couples",
+      "solo",
+      "groups"
+    ],
+    "age_guidance": null,
+    "dietary_options": [],
+    "languages_offered": [
+      "English",
+      "Mandarin",
+      "Japanese"
+    ],
+    "fitness_level": null,
+    "pet_policy": "Not accepted, except registered assistance animals",
+    "group_size": null,
+    "weather_dependency": "all_weather"
+  },
+  "practical": {
+    "what_to_bring": [
+      "Photo ID for check-in",
+      "Credit card for incidentals hold"
+    ],
+    "on_site_facilities": [
+      "Swimming pool",
+      "Fitness centre",
+      "Club InterContinental lounge",
+      "Multiple restaurants and bars"
+    ],
+    "best_time_to_visit": "Year-round; book Club InterContinental rooms early for Vivid Sydney season"
+  },
   "faqs": [
     {
       "question": "What time is check-in and check-out?",

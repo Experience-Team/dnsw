@@ -68,6 +68,11 @@ export const interContinentalSydneyLive: AccommodationProduct = {
 
   availability: null,
   pricing: null,
+  trust: null,
+  getting_there: null,
+  live_availability: null,
+  suitability: null,
+  practical: null,
   faqs: [],
 
   place_ref: null,

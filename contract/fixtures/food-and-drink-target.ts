@@ -103,6 +103,54 @@ export const motherChusTarget: FoodAndDrinkProduct = {
     cancellation_policy: null, // not applicable — walk-in dining, no reservation to cancel
   },
 
+  trust: {
+    aggregate_rating: 4.4,
+    review_count: 612,
+    review_excerpts: [
+      { author: 'Wei L.', text: 'Best soup buns in Chinatown, and the queue moves fast.', source: 'Google', date: '2026-06-02' },
+      { author: 'Hannah T.', text: 'Cheap, cheerful and the shallot pancakes are unreal.', source: 'Google', date: '2026-05-14' },
+    ],
+    review_source: 'Google Reviews',
+    review_licence: 'Displayed under Google Places API terms',
+    accreditations: [],
+    aboriginal_owned: false,
+    awards: [],
+  },
+
+  getting_there: {
+    nearest_transport: [
+      { mode: 'light_rail', name: 'Chinatown Light Rail Stop', walking_minutes: 3 },
+      { mode: 'train', name: 'Town Hall Station', walking_minutes: 8 },
+    ],
+    parking: { available: true, cost: 'Metered street parking, Sussex Street car park nearby', distance_minutes: 4 },
+    travel_time_from_cbd_minutes: 10,
+    pickup_point: null,
+  },
+
+  live_availability: {
+    next_sessions: [],
+    remaining_capacity: null,
+    sold_out: false,
+    booking_partner: null, // walk-in only, no booking engine
+  },
+
+  suitability: {
+    suitable_for: ['solo', 'couples', 'groups'],
+    age_guidance: null,
+    dietary_options: ['vegetarian'],
+    languages_offered: ['English', 'Mandarin'],
+    fitness_level: null,
+    pet_policy: 'Assistance animals only',
+    group_size: { min: 1, max: 8 },
+    weather_dependency: 'indoor',
+  },
+
+  practical: {
+    what_to_bring: [],
+    on_site_facilities: ['Wheelchair accessible entry', 'Takeaway available'],
+    best_time_to_visit: 'Before 12:30pm or after 8pm to avoid the lunch and dinner queue',
+  },
+
   faqs: [
     { question: 'Do you take reservations?', answer: "No, Mother Chu's is walk-in only." },
     { question: 'Is there parking nearby?', answer: 'Metered street parking and the Sussex Street car park are both within a short walk.' },

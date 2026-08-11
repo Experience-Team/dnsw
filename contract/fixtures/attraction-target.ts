@@ -8,11 +8,13 @@
 //
 // Parallels attraction.ts. Every field that was null there because it's
 // marked `gap` in docs/product-data-contract.md is filled here with a
-// realistic value. `extension` stays null even here — the real page carries
-// no attraction-specific field, so there is nothing to illustrate for
-// AttractionExtension without inventing a field the contract doesn't
-// support. It stays `_confirmed: false` in the contract; this fixture
-// doesn't change that.
+// realistic value, including `extension` — populated with illustrative
+// AttractionExtension values, marked `source: atdw_proposed` in the
+// contract doc (§6). `_confirmed: false` stays unchanged in
+// contract/types/product.ts: that flag records whether a real field
+// extraction validated the block, which it did not, and that stays
+// accurate regardless of this fixture. The `source` marker is what
+// prevents misrepresentation here, not `_confirmed`.
 
 import type { AttractionProduct } from '../types/product';
 
@@ -111,6 +113,54 @@ export const royalBotanicGardenTarget: AttractionProduct = {
     cancellation_policy: null, // not applicable — free general admission, nothing to cancel
   },
 
+  trust: {
+    aggregate_rating: 4.7,
+    review_count: 9250,
+    review_excerpts: [
+      { author: 'Amelia P.', text: 'Free, gorgeous, and the harbour views from the Domain side are unbeatable.', source: 'Google', date: '2026-07-08' },
+      { author: 'Josh W.', text: 'Perfect picnic spot, loved the Aboriginal Heritage Tour.', source: 'TripAdvisor', date: '2026-06-11' },
+    ],
+    review_source: 'Google Reviews',
+    review_licence: 'Displayed under Google Places API terms',
+    accreditations: [],
+    aboriginal_owned: false,
+    awards: [],
+  },
+
+  getting_there: {
+    nearest_transport: [
+      { mode: 'train', name: 'Martin Place Station', walking_minutes: 10 },
+      { mode: 'ferry', name: 'Circular Quay Ferry Wharf', walking_minutes: 12 },
+    ],
+    parking: { available: true, cost: 'Domain Car Park, from $18 for 2 hours', distance_minutes: 5 },
+    travel_time_from_cbd_minutes: 8,
+    pickup_point: null,
+  },
+
+  live_availability: {
+    next_sessions: [],
+    remaining_capacity: null,
+    sold_out: false,
+    booking_partner: null, // free general admission, no booking engine for entry itself
+  },
+
+  suitability: {
+    suitable_for: ['families', 'couples', 'solo', 'groups', 'school_groups'],
+    age_guidance: null,
+    dietary_options: [],
+    languages_offered: ['English'],
+    fitness_level: 'easy',
+    pet_policy: 'Assistance animals only',
+    group_size: null,
+    weather_dependency: 'outdoor_weather_dependent',
+  },
+
+  practical: {
+    what_to_bring: ['Sun protection', 'Water bottle', 'Comfortable walking shoes'],
+    on_site_facilities: ['Public toilets', 'Cafe', 'Visitor centre', 'Free Wi-Fi'],
+    best_time_to_visit: 'Early morning or late afternoon to avoid midday heat and tour groups',
+  },
+
   faqs: [
     { question: 'Is entry to the Garden free?', answer: 'Yes, general entry is free. Some guided tours and special events may have a charge.' },
     { question: 'Are dogs allowed?', answer: 'Only assistance animals are permitted within the Garden.' },
@@ -121,5 +171,12 @@ export const royalBotanicGardenTarget: AttractionProduct = {
   parent_ref: null,
   last_verified: '2026-08-01',
 
-  extension: null,
+  extension: {
+    _confirmed: false,
+    facilities: ['Public toilets', 'Cafe', 'Visitor centre', 'Free Wi-Fi'],
+    typical_visit_minutes: 90,
+    suitable_for: ['families', 'couples', 'solo', 'groups', 'school_groups'],
+    indoor_outdoor: 'outdoor',
+    free_entry: true,
+  },
 };

@@ -1623,6 +1623,59 @@ button.area-map-pin:hover { color: #111; }
 .decision-block-value .unit { font-weight: 400; color: var(--color-text-muted); }
 .decision-block-action { margin-left: auto; }
 
+/* ── Trust bar (contract-bound module) ── */
+.trust-module {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.trust-module[hidden] { display: none; }
+.trust-field { flex: 0 0 auto; }
+.trust-label { font-size: .75rem; color: var(--color-text-muted); margin-bottom: .15rem; }
+.trust-value { font-size: .9375rem; font-weight: 600; color: #111; }
+.trust-value .unit { font-weight: 400; color: var(--color-text-muted); }
+.trust-review-excerpt { font-size: .8125rem; color: var(--color-text-muted); font-style: italic; max-width: 20rem; margin: 0 0 .35rem; }
+.trust-badge-list { display: flex; flex-wrap: wrap; gap: .4rem; }
+.trust-badge, .accessibility-status-badge {
+  display: inline-block;
+  border: 1px solid var(--color-border);
+  border-radius: 2rem;
+  padding: .15rem .6rem;
+  font-size: .75rem;
+  color: var(--color-text-muted);
+}
+.accessibility-status-badge { margin-bottom: .5rem; font-weight: 600; color: var(--color-accent); border-color: var(--color-accent); }
+
+/* ── Shared field-list layout: suitability / practical / availability / pricing / extension ── */
+.detail-block { margin-bottom: 3rem; }
+.detail-block[hidden] { display: none; }
+.detail-block .section-title { margin-bottom: 1rem; }
+.detail-block-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 1.25rem 2rem; }
+.detail-block-field-wide { grid-column: 1 / -1; }
+.detail-block-label { font-size: .75rem; color: var(--color-text-muted); margin-bottom: .25rem; }
+.detail-block-value { font-size: .9375rem; color: #111; }
+.detail-block-field ul, .detail-block-field ol { margin: 0; padding-left: 1.1rem; font-size: .875rem; color: #111; line-height: 1.6; }
+.detail-block-field p { margin: 0; font-size: .875rem; color: #111; }
+
+.availability-hours-table { border-collapse: collapse; font-size: .875rem; }
+.availability-hours-table td { padding: .2rem .75rem .2rem 0; color: #111; }
+.availability-hours-table td:first-child { color: var(--color-text-muted); }
+.availability-special-hours, .availability-sessions { margin: 0; padding-left: 1.1rem; font-size: .8125rem; color: var(--color-text-muted); line-height: 1.6; }
+
+/* ── Sidebar modules: getting there / live availability ── */
+.getting-there-module, .live-availability-module {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+.getting-there-module[hidden], .live-availability-module[hidden] { display: none; }
+.getting-there-module .detail-info-fact, .live-availability-module .detail-info-fact { margin-bottom: .75rem; }
+
 /* ── Photo gallery hero (main image + side thumbnails incl. map thumb) ── */
 .detail-gallery { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
 .detail-gallery-main { flex: 1 1 65%; position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 16/9; }
@@ -1727,5 +1780,7 @@ body.utility-bar-body--hidden .detail-tabs { top: 3.5rem; }
   .detail-meta-row { flex-direction: column; }
   .decision-block { flex-direction: column; align-items: stretch; gap: .75rem; }
   .decision-block-action { margin-left: 0; }
+  .trust-module { flex-direction: column; align-items: stretch; gap: .75rem; }
+  .detail-block-grid { grid-template-columns: 1fr 1fr; }
   .newsletter-popup { left: 1rem; right: 1rem; width: auto; bottom: 1rem; }
 }

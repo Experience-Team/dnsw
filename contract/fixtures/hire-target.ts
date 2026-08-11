@@ -8,10 +8,12 @@
 //
 // Parallels hire.ts. Every field that was null there because it's marked
 // `gap` in docs/product-data-contract.md is filled here with a realistic
-// value. `extension` stays null even here — the real page carries no
-// hire-specific field, so there is nothing to illustrate for HireExtension
-// without inventing a field the contract doesn't support. It stays
-// `_confirmed: false` in the contract; this fixture doesn't change that.
+// value, including `extension` — populated with illustrative HireExtension
+// values, marked `source: atdw_proposed` in the contract doc (§6).
+// `_confirmed: false` stays unchanged in contract/types/product.ts: that
+// flag records whether a real field extraction validated the block, which
+// it did not, and that stays accurate regardless of this fixture. The
+// `source` marker is what prevents misrepresentation here, not `_confirmed`.
 // `pricing.from` below is an illustrative figure, not the real rate — do
 // not treat it as sourced, even though the real page happens to advertise
 // an hourly rate elsewhere; this fixture was built from the confirmed
@@ -119,6 +121,53 @@ export const sydneyHarbourKayaksTarget: HireProduct = {
     cancellation_policy: 'Free cancellation up to 24 hours before your booking.',
   },
 
+  trust: {
+    aggregate_rating: 4.9,
+    review_count: 1870,
+    review_excerpts: [
+      { author: 'Ryan C.', text: 'Middle Harbour is stunning by kayak — quiet bays, great gear.', source: 'TripAdvisor', date: '2026-07-01' },
+      { author: 'Nina D.', text: 'Free intro course made this approachable for total beginners.', source: 'Google', date: '2026-06-18' },
+    ],
+    review_source: 'TripAdvisor',
+    review_licence: 'Displayed under TripAdvisor Content API terms',
+    accreditations: [],
+    aboriginal_owned: false,
+    awards: [{ name: 'NSW Tourism Hall of Fame', year: 2021, awarding_body: 'NSW Tourism Awards' }],
+  },
+
+  getting_there: {
+    nearest_transport: [
+      { mode: 'bus', name: 'The Spit Junction, Route 178', walking_minutes: 5 },
+    ],
+    parking: { available: true, cost: 'Free 2-hour street parking near The Spit', distance_minutes: 2 },
+    travel_time_from_cbd_minutes: 25,
+    pickup_point: null,
+  },
+
+  live_availability: {
+    next_sessions: [],
+    remaining_capacity: 8, // kayaks remaining for the next available hour
+    sold_out: false,
+    booking_partner: 'Rezdy',
+  },
+
+  suitability: {
+    suitable_for: ['couples', 'solo', 'groups', 'families'],
+    age_guidance: 'Suitable for ages 8+, adult supervision required for minors',
+    dietary_options: [],
+    languages_offered: ['English'],
+    fitness_level: 'moderate',
+    pet_policy: 'Not permitted on hired craft',
+    group_size: { min: 1, max: 10 },
+    weather_dependency: 'outdoor_weather_dependent',
+  },
+
+  practical: {
+    what_to_bring: ['Sun protection', 'A change of clothes and swimwear', 'Water bottle'],
+    on_site_facilities: ['Changing area', 'Equipment storage', 'Retail shop'],
+    best_time_to_visit: 'Weekday mornings for calmer water and shorter waits',
+  },
+
   faqs: [
     { question: 'Do I need kayaking experience?', answer: 'No, stable beginner-friendly kayaks are available and a free introductory course is offered.' },
     { question: 'What should I bring?', answer: 'Sun protection, a change of clothes and swimwear. Life jackets and safety equipment are provided.' },
@@ -129,5 +178,18 @@ export const sydneyHarbourKayaksTarget: HireProduct = {
   parent_ref: null,
   last_verified: '2026-08-01',
 
-  extension: null,
+  extension: {
+    _confirmed: false,
+    items: [
+      { name: 'Single sea kayak', from: 45, unit: 'per_hour' },
+      { name: 'Double sea kayak', from: 65, unit: 'per_hour' },
+      { name: 'Surf ski', from: 55, unit: 'per_hour' },
+    ],
+    hire_periods: ['1 hour', 'Half day', 'Full day'],
+    requirements: ['Ability to swim', 'Signed liability waiver'],
+    min_age: 8,
+    min_height_cm: 120,
+    deposit_required: true,
+    equipment_included: ['Life jacket', 'Paddle', 'Waterproof storage bag'],
+  },
 };

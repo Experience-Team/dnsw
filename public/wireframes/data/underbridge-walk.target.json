@@ -123,6 +123,90 @@
     "exclusions": [],
     "cancellation_policy": "Free rescheduling up to 24 hours before your Walk."
   },
+  "trust": {
+    "aggregate_rating": 4.6,
+    "review_count": 1180,
+    "review_excerpts": [
+      {
+        "author": "Tom B.",
+        "text": "Great alternative if you want the Bridge experience without the full Climb.",
+        "source": "Google",
+        "date": "2026-06-15"
+      }
+    ],
+    "review_source": "Google Reviews",
+    "review_licence": "Displayed under Google Places API terms",
+    "accreditations": [],
+    "aboriginal_owned": false,
+    "awards": []
+  },
+  "getting_there": {
+    "nearest_transport": [
+      {
+        "mode": "train",
+        "name": "Circular Quay Station",
+        "walking_minutes": 8
+      },
+      {
+        "mode": "ferry",
+        "name": "Circular Quay Ferry Wharf",
+        "walking_minutes": 9
+      }
+    ],
+    "parking": {
+      "available": true,
+      "cost": "The Rocks Car Park, from $18 for 2 hours",
+      "distance_minutes": 5
+    },
+    "travel_time_from_cbd_minutes": 12,
+    "pickup_point": "BridgeClimb Base, 3 Cumberland Street, The Rocks"
+  },
+  "live_availability": {
+    "next_sessions": [
+      {
+        "datetime": "2026-08-12T10:30:00+10:00",
+        "status": "available"
+      },
+      {
+        "datetime": "2026-08-12T13:30:00+10:00",
+        "status": "available"
+      }
+    ],
+    "remaining_capacity": 15,
+    "sold_out": false,
+    "booking_partner": "BridgeClimb Direct Booking"
+  },
+  "suitability": {
+    "suitable_for": [
+      "families",
+      "couples",
+      "solo",
+      "groups",
+      "school_groups"
+    ],
+    "age_guidance": "Minimum age 6, suited to first-timers and families",
+    "dietary_options": [],
+    "languages_offered": [
+      "English"
+    ],
+    "fitness_level": "easy",
+    "pet_policy": "Not permitted",
+    "group_size": {
+      "min": 2,
+      "max": 20
+    },
+    "weather_dependency": "outdoor_weather_dependent"
+  },
+  "practical": {
+    "what_to_bring": [
+      "Comfortable enclosed walking shoes"
+    ],
+    "on_site_facilities": [
+      "Lockers",
+      "Retail shop"
+    ],
+    "best_time_to_visit": "Mid-morning departures have the shortest wait"
+  },
   "faqs": [
     {
       "question": "How is this different from a full Climb?",
