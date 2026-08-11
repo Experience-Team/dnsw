@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Wireframe — BridgeClimb Sydney (Tour detail)</title>
+  <title>Wireframe — BridgeClimb Summit (Tour detail)</title>
   <link rel="stylesheet" href="../shared.css" />
   <link rel="stylesheet" href="../themes/sydney.css" id="theme-sheet" />
 </head>
@@ -22,12 +22,14 @@
       <span class="sep">›</span>
       <a href="#" class="crumb">Sydney Tours</a>
       <span class="sep">›</span>
-      <span class="crumb-active">BridgeClimb Sydney</span>
+      <a href="bridgeclimb-sydney.html" class="crumb">BridgeClimb Sydney</a>
+      <span class="sep">›</span>
+      <span class="crumb-active">BridgeClimb Summit</span>
     </nav>
 
-    <h1>BridgeClimb Sydney</h1>
+    <h1>BridgeClimb Summit</h1>
 
-    <!-- Meta row: address, actions -->
+    <!-- Meta row: address, actions (confirmed real page has no separate "Visit website" button) -->
     <div class="detail-meta-row">
       <div class="detail-meta-facts">
         <div class="detail-meta-fact">
@@ -36,19 +38,18 @@
         </div>
       </div>
       <div class="detail-meta-actions">
-        <a href="#" class="btn btn-outline-dark btn-sm">Booking details ↗</a>
-        <a href="#" class="btn btn-primary btn-sm">Visit website ↗</a>
+        <a href="#" class="btn btn-primary btn-sm">Booking details ↗</a>
         <button class="card-bookmark" aria-label="Save" style="border:1px solid var(--color-border); border-radius:50%; width:2.5rem; height:2.5rem; justify-content:center;"><svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </div>
 
     <!-- Decision block: contract-bound module, mounted by modules.js -->
-    <div class="decision-block" data-module="decision-block" data-slug="bridgeclimb-sydney" hidden></div>
+    <div class="decision-block" data-module="decision-block" data-slug="bridgeclimb-summit" hidden></div>
 
     <!-- Photo gallery hero -->
     <div class="detail-gallery">
       <div class="detail-gallery-main ph-img">
-        <span class="detail-gallery-count"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="10" rx="1" stroke="#111" stroke-width="1.3"/><circle cx="5" cy="6" r="1.2" fill="#111"/><path d="M2 11l3.5-3.5 2 2L11.5 5.5 14 8" stroke="#111" stroke-width="1.3"/></svg> 6 photos</span>
+        <span class="detail-gallery-count"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="10" rx="1" stroke="#111" stroke-width="1.3"/><circle cx="5" cy="6" r="1.2" fill="#111"/><path d="M2 11l3.5-3.5 2 2L11.5 5.5 14 8" stroke="#111" stroke-width="1.3"/></svg> 8 photos</span>
       </div>
       <div class="detail-gallery-side">
         <div class="detail-gallery-thumb ph-img"></div>
@@ -58,37 +59,24 @@
       </div>
     </div>
 
-    <!-- Overview / Nearby / FAQs tabs — the source page has no FAQs section, but a placeholder
-         Accessibility FAQ is included below at the user's request for template consistency -->
+    <!-- Overview / Nearby / FAQs tabs -->
     <nav class="detail-tabs" aria-label="Page sections" id="detail-tabs">
       <a href="#overview" class="detail-tab active">☰ Overview</a>
       <a href="#nearby" class="detail-tab">👤 Nearby</a>
       <a href="#faqs" class="detail-tab">ⓘ FAQs</a>
     </nav>
 
-    <!-- Overview + sidebar info card -->
+    <!-- Overview + sidebar info card (no Highlights box — confirmed absent on the real page) -->
     <div class="detail-overview-row" id="overview">
       <div class="detail-overview">
-
-        <div class="detail-highlights">
-          <h3>Highlights</h3>
-          <ul>
-            <li>Climb to the summit of the iconic Sydney Harbour Bridge</li>
-            <li>Enjoy 360° views with expert commentary on history and engineering</li>
-            <li>Safe, guided adventure offering a unique and memorable experience</li>
-          </ul>
-        </div>
-
         <h2>Overview</h2>
         <span class="card-amenity-icon" title="Accessible" style="margin-bottom:.75rem; display:inline-flex;">♿</span>
         <div class="detail-overview-body" id="overview-body">
-          <p>BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.</p>
-          <p>As you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and secure every step of the way.</p>
+          <p>Experience the breath taking 360-degree panoramic views of Sydney, whilst scaling the iconic Sydney Harbour Bridge on BridgeClimb's original Climb experience. Feel on top of the world as you journey along the upper arch to the peak of an Australian icon, soaking in the stories from your expert Climb Leader and the sights of the Harbour and the City skyline that surround you.</p>
         </div>
-        <button type="button" class="btn btn-outline-dark btn-sm detail-overview-toggle" id="overview-toggle" aria-expanded="false" aria-controls="overview-body">Read more <span class="chevron">⌄</span></button>
       </div>
       <div class="detail-info-card">
-        <h3>BridgeClimb Sydney</h3>
+        <h3>BridgeClimb Summit</h3>
         <div class="detail-info-fact">
           <span class="detail-info-fact-icon">📍</span>
           <div class="detail-info-fact-body">
@@ -97,23 +85,11 @@
         </div>
         <div class="detail-info-links">
           <a href="#">↗ Booking details</a>
-          <a href="#">↗ Visit website</a>
-          <button type="button" class="detail-info-contact-toggle" id="contact-toggle" style="all:unset; cursor:pointer; color:var(--color-accent); text-decoration:underline; font-size:.875rem; font-weight:600;" aria-expanded="false" aria-controls="contact-body">✉ Get in touch</button>
-          <div class="detail-info-contact" id="contact-body">
-            <p>(02) 8274 7777</p>
-          </div>
-        </div>
-        <p class="detail-info-social-title">Find us on socials</p>
-        <div class="detail-info-social">
-          <a href="#" aria-label="Facebook">Fb</a>
-          <a href="#" aria-label="X">X</a>
-          <a href="#" aria-label="Instagram">Ig</a>
         </div>
       </div>
     </div>
 
-    <!-- Our Tours — a tour operator's own product list, not other businesses, so cards have
-         no bookmark, venue eyebrow or footer icon like the other product types' grids do -->
+    <!-- Our Tours — same list as the BridgeClimb Sydney parent page, minus this page itself -->
     <section id="nearby" style="margin-bottom:3rem;">
       <div class="section-header" style="margin-bottom:1.5rem;">
         <div><p class="section-title">Our Tours</p></div>
@@ -160,14 +136,6 @@
           </div>
         </div>
 
-        <a href="bridgeclimb-summit.html" class="event-card" style="text-decoration:none; color:inherit;">
-          <div class="card-img ph-img"></div>
-          <div class="card-body">
-            <p class="card-title">BridgeClimb Summit</p>
-            <p class="card-desc">Experience the breath taking 360 degree panoramic views of Sydney, whilst scaling the iconic Sydney Harbour Bridge on this Climb.</p>
-          </div>
-        </a>
-
         <div class="event-card">
           <div class="card-img ph-img"></div>
           <div class="card-body">
@@ -192,9 +160,7 @@
       </div>
     </section>
 
-    <!-- FAQs — not present on the real source page; added at the user's request so this
-         instance still demonstrates the .faq-list component. Content is a plausible
-         placeholder, not sourced copy. -->
+    <!-- FAQs — the real page's "FAQs" tab contains only the accessibility statement below, no Q&A pairs -->
     <section id="faqs" style="margin-bottom:3rem;">
       <p class="section-title" style="margin-bottom:1.5rem;">FAQs</p>
       <div class="faq-list">
@@ -204,10 +170,7 @@
             <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div class="faq-answer">
-            Actively welcomes people with access needs.<br>
-            Minimum height and weight requirements apply for all Climb experiences.<br>
-            Guides can discuss individual mobility, health and fitness requirements before booking.<br>
-            Offer multiple options for booking - web, email, phone.
+            Disabled access available, contact operator for details.
           </div>
         </div>
       </div>
@@ -238,28 +201,6 @@
     if (popupClose) {
       popupClose.addEventListener('click', function () {
         document.getElementById('newsletter-popup').setAttribute('hidden', '');
-      });
-    }
-
-    // Overview read more / read less
-    var overviewToggle = document.getElementById('overview-toggle');
-    var overviewBody = document.getElementById('overview-body');
-    if (overviewToggle && overviewBody) {
-      overviewToggle.addEventListener('click', function () {
-        var expanded = overviewBody.classList.toggle('expanded');
-        overviewToggle.classList.toggle('expanded', expanded);
-        overviewToggle.setAttribute('aria-expanded', expanded);
-        overviewToggle.innerHTML = expanded ? 'Read less <span class="chevron">⌄</span>' : 'Read more <span class="chevron">⌄</span>';
-      });
-    }
-
-    // Sidebar "Get in touch" reveal
-    var contactToggle = document.getElementById('contact-toggle');
-    var contactBody = document.getElementById('contact-body');
-    if (contactToggle && contactBody) {
-      contactToggle.addEventListener('click', function () {
-        var open = contactBody.classList.toggle('open');
-        contactToggle.setAttribute('aria-expanded', open);
       });
     }
 
