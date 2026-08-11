@@ -55,10 +55,12 @@
       </div>
     </div>
 
-    <!-- Overview / Nearby tabs — no FAQs tab on this page, the source has no FAQs section -->
+    <!-- Overview / Nearby / FAQs tabs — the source page has no FAQs section, but a placeholder
+         Accessibility FAQ is included below at the user's request for template consistency -->
     <nav class="detail-tabs" aria-label="Page sections" id="detail-tabs">
       <a href="#overview" class="detail-tab active">☰ Overview</a>
       <a href="#nearby" class="detail-tab">👤 Nearby</a>
+      <a href="#faqs" class="detail-tab">ⓘ FAQs</a>
     </nav>
 
     <!-- Overview + sidebar info card -->
@@ -187,7 +189,26 @@
       </div>
     </section>
 
-    <!-- No FAQs section — the source page has none -->
+    <!-- FAQs — not present on the real source page; added at the user's request so this
+         instance still demonstrates the .faq-list component. Content is a plausible
+         placeholder, not sourced copy. -->
+    <section id="faqs" style="margin-bottom:3rem;">
+      <p class="section-title" style="margin-bottom:1.5rem;">FAQs</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">
+            Accessibility
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="faq-answer">
+            Actively welcomes people with access needs.<br>
+            Minimum height and weight requirements apply for all Climb experiences.<br>
+            Guides can discuss individual mobility, health and fitness requirements before booking.<br>
+            Offer multiple options for booking - web, email, phone.
+          </div>
+        </div>
+      </div>
+    </section>
 
   </div><!-- end .container -->
 
@@ -204,6 +225,11 @@
 
   <script src="../includes.js"></script>
   <script>
+    document.querySelectorAll('.faq-question').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        btn.closest('.faq-item').classList.toggle('open');
+      });
+    });
     var popupClose = document.getElementById('newsletter-popup-close');
     if (popupClose) {
       popupClose.addEventListener('click', function () {
