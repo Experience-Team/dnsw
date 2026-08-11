@@ -1,6 +1,14 @@
 // Types derived from docs/product-data-contract.md (v0.1, 11 August 2026).
 // Do not add fields here that are not in the contract — if a field is needed
 // that the contract doesn't describe, the contract needs updating first.
+//
+// A `| null` on a field does not carry one fixed meaning — it can mean the
+// field is a gap (no record has real data for it yet, e.g. `pricing`), that
+// it's genuinely optional (e.g. `links.booking`, confirmed absent on some
+// live records), or that it doesn't apply to this record's type at all
+// (e.g. `parent_ref` on a non-tour). The type system doesn't encode which —
+// check docs/product-data-contract.md for the field in question rather than
+// assuming from the type alone.
 
 // ── Shared sub-shapes ─────────────────────────────────────────────────────────
 
@@ -9,7 +17,7 @@ export type HighlightsProvenance = 'generated' | 'edited' | 'removed' | 'approve
 export interface Highlights {
   items: string[];
   provenance: HighlightsProvenance;
-  generated_at: string; // date
+  generated_at: string | null; // date; unknown for every record extracted so far
 }
 
 export interface GalleryImage {
@@ -29,7 +37,7 @@ export interface Address {
   state: string;
   postcode: string;
   country: string;
-  geo: GeoCoordinates;
+  geo: GeoCoordinates | null; // no records extracted so far carry real coordinates
 }
 
 export interface Contact {
@@ -294,50 +302,50 @@ interface ProductRecordBase {
   id: string;
   title: string;
   overview: string; // rich text
-  highlights: Highlights;
+  highlights: Highlights | null; // absent on events; gap in practice for any record not yet generated
   gallery: GalleryImage[];
   address: Address;
   contact: Contact;
   socials: SocialLink[];
   links: ProductLinks;
   accessibility: Accessibility;
-  availability: Availability;
-  pricing: Pricing;
+  availability: Availability | null; // gap on every type — contract §4
+  pricing: Pricing | null; // gap on every type — contract §5
   faqs: Faq[];
   place_ref: string | null;
   operator_ref: string | null;
   parent_ref: string | null;
-  last_verified: string; // date
+  last_verified: string | null; // date; gap — no ATDW sync timestamp surfaces today
 }
 
 export interface TourProduct extends ProductRecordBase {
   type: 'tour';
-  extension: TourExtension;
+  extension: TourExtension | null; // empty for every type today — contract §6
 }
 
 export interface FoodAndDrinkProduct extends ProductRecordBase {
   type: 'food_and_drink';
-  extension: FoodAndDrinkExtension;
+  extension: FoodAndDrinkExtension | null;
 }
 
 export interface EventProduct extends ProductRecordBase {
   type: 'event';
-  extension: EventExtension;
+  extension: EventExtension | null;
 }
 
 export interface AttractionProduct extends ProductRecordBase {
   type: 'attraction';
-  extension: AttractionExtension;
+  extension: AttractionExtension | null;
 }
 
 export interface HireProduct extends ProductRecordBase {
   type: 'hire';
-  extension: HireExtension;
+  extension: HireExtension | null;
 }
 
 export interface AccommodationProduct extends ProductRecordBase {
   type: 'accommodation';
-  extension: AccommodationExtension;
+  extension: AccommodationExtension | null;
 }
 
 /**

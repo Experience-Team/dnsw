@@ -1,0 +1,132 @@
+// ⚠ ILLUSTRATIVE VALUES ONLY — NOT A PROPOSAL, NOT SOURCED DATA ⚠
+// Every price, date, duration, URL, phone number and id below is made up
+// to show the shape filled in. None of it is a recommendation for what the
+// real number should be — if one of these values ends up quoted in a deck
+// or a ticket, that's this comment failing, not the number being right.
+//
+// Target fixture — Disney's The Lion King (event).
+//
+// Parallels event.ts. Every field that was null there because it's marked
+// `gap` in docs/product-data-contract.md is filled here with a realistic
+// value, so the shape can be built and reviewed against a complete record.
+// These values are illustrative, not sourced — do not treat any URL, phone
+// number, id or date below as real.
+//
+// `highlights` stays null even here: the contract states it's structurally
+// absent on events, not merely ungenerated, so there's no gap to fill.
+
+import type { EventProduct } from '../types/product';
+
+export const lionKingTarget: EventProduct = {
+  id: 'disneys-the-lion-king',
+  type: 'event',
+  title: "Disney's The Lion King",
+  overview:
+    "Disney's The Lion King is now playing at the Capitol Theatre!\n\n" +
+    'Prepare for a spectacle far beyond your imagination as you follow the powerful story of Simba as he journeys from wide-eyed cub to his destined role as King of the Pridelands.\n\n' +
+    "Seen by over 124 million people worldwide, this landmark musical combines breathtaking visual artistry, unforgettable music, and a deeply moving story that has captured hearts across generations.\n\n" +
+    'Winner of six Tony Awards® including Best Musical, this is a spectacular theatrical experience you will never forget.',
+
+  highlights: null, // structural omission on events, not a gap to fill
+
+  gallery: [
+    { url: 'https://images.sydney.com/products/disneys-the-lion-king/hero.jpg', alt: "Cast members in costume performing Disney's The Lion King", credit: 'Disney Theatrical Productions' },
+    { url: 'https://images.sydney.com/products/disneys-the-lion-king/stage.jpg', alt: 'Full company on stage at the Capitol Theatre', credit: 'Disney Theatrical Productions' },
+    { url: 'https://images.sydney.com/products/disneys-the-lion-king/simba.jpg', alt: 'Simba and Nala puppet costumes close up', credit: 'Disney Theatrical Productions' },
+    { url: 'https://images.sydney.com/products/disneys-the-lion-king/theatre.jpg', alt: 'The Capitol Theatre auditorium', credit: 'Capitol Theatre' },
+    { url: 'https://images.sydney.com/products/disneys-the-lion-king/rafiki.jpg', alt: 'Rafiki costume portrait', credit: 'Disney Theatrical Productions' },
+  ],
+
+  address: {
+    line: '13 Campbell St',
+    suburb: 'Haymarket',
+    state: 'NSW',
+    postcode: '2000',
+    country: 'Australia',
+    geo: { lat: -33.8794, lng: 151.2073 },
+  },
+
+  contact: { phone: '(02) 9320 5000', email: 'boxoffice@capitoltheatre.com.au' },
+
+  socials: [
+    { platform: 'facebook', url: 'https://www.facebook.com/CapitolTheatreSydney' },
+    { platform: 'instagram', url: 'https://www.instagram.com/capitoltheatresydney/' },
+  ],
+
+  links: {
+    booking: 'https://premier.ticketek.com.au/shows/show.aspx?sh=LIONKING26',
+    website: 'https://disneytheatricalvenues.com/thelionking-sydney/',
+  },
+
+  accessibility: {
+    status: 'welcomes',
+    detail:
+      'Wheelchair-accessible seating, companion card entry, hearing loop assistance and audio description performances are available for select shows. Contact the box office ahead of your visit to arrange access requirements.',
+    features: ['wheelchair_access', 'hearing_loop', 'companion_card_accepted'],
+    operator_access_url: 'https://www.capitoltheatre.com.au/access',
+  },
+
+  availability: {
+    kind: 'event_dates',
+    opening_hours: [],
+    special_hours: [],
+    operating_days: [],
+    departure_times: [],
+    duration_minutes: 150,
+    seasonal: { from: '', to: '' },
+    event_dates: { start: '2026-08-11', end: '2026-10-04' },
+    sessions: [
+      { datetime: '2026-08-11T19:00:00+10:00', status: 'available' },
+      { datetime: '2026-08-12T13:00:00+10:00', status: 'sold_out' },
+    ],
+    recurrence: 'FREQ=DAILY;BYHOUR=19;BYMINUTE=0',
+    min_nights: 0,
+    checkin_time: '',
+    checkout_time: '',
+    advance_booking_required: true,
+    typical_duration_minutes: 150,
+  },
+
+  pricing: {
+    from: 60,
+    to: 250,
+    currency: 'AUD',
+    band: '$$$',
+    is_free: false,
+    unit: 'per_ticket',
+    concessions: [{ type: 'child', from: 45 }],
+    inclusions: ['Reserved seat', 'Digital program'],
+    exclusions: [],
+    cancellation_policy: 'Tickets are non-refundable; exchanges available up to 24 hours before the performance.',
+  },
+
+  faqs: [
+    {
+      question: 'How long does the show run for?',
+      answer: 'The performance runs approximately 2 hours and 30 minutes, including a 20-minute interval.',
+    },
+    {
+      question: 'Is there a minimum age recommendation?',
+      answer: 'The show is recommended for ages 6 and up. All patrons, regardless of age, require a ticket.',
+    },
+  ],
+
+  place_ref: 'capitol-theatre-sydney',
+  operator_ref: 'disney-theatrical-productions-anz',
+  parent_ref: null, // not applicable to events
+  last_verified: '2026-08-01',
+
+  extension: {
+    ticket_types: [
+      { name: 'A Reserve', from: 250, description: 'Premium seating, centre stalls or dress circle.' },
+      { name: 'B Reserve', from: 150, description: 'Stalls or dress circle side sections.' },
+      { name: 'C Reserve', from: 60, description: 'Upper circle.' },
+    ],
+    seating: 'reserved',
+    runtime_minutes: 150,
+    interval: true,
+    age_guidance: 'Recommended for ages 6+',
+    performer: ['Original Sydney Cast'],
+    producer: 'Disney Theatrical Productions',
+  },
+};
