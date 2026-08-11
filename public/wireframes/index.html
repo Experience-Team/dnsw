@@ -6,56 +6,109 @@
   <title>DNSW Wireframes</title>
   <link rel="stylesheet" href="shared.css" />
   <style>
-    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .launch { text-align: center; max-width: 28rem; }
-    .launch h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
-    .launch p  { color: #888; font-size: .9375rem; margin-bottom: 2rem; }
-    .launch ul { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
-    .launch ul li a {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: .75rem 1.25rem;
-      background: #fff; border: 1px solid #ddd; border-radius: 6px;
-      text-decoration: none; color: #111; font-size: .9375rem;
-      transition: box-shadow .15s;
+    body { background: #f5f8fc; min-height: 100vh; padding: 2rem 1.5rem 4rem; }
+    .launch { max-width: 80rem; margin: 0 auto; }
+    .launch-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem;
+      flex-wrap: wrap; margin-bottom: 2.75rem;
     }
-    .launch ul li a:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    .launch ul li a.disabled { color: #bbb; pointer-events: none; background: #fafafa; }
-    .launch ul li a span { font-size: .75rem; color: #bbb; }
     .home-link {
       display: inline-flex; align-items: center; gap: .35rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       color: #888; font-size: .875rem; text-decoration: none;
     }
     .home-link:hover { color: #111; text-decoration: underline; }
+    .launch h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: .5rem; }
+    .launch-header p { color: #888; font-size: .9375rem; }
+    .lib-link-btn {
+      flex-shrink: 0; margin-top: 2.4rem;
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .75rem 1.25rem;
+      background: #fff; border: 1px solid #ddd; border-radius: 6px;
+      text-decoration: none; color: #111; font-size: .9375rem; font-weight: 600;
+      transition: box-shadow .15s;
+    }
+    .lib-link-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .launch-columns {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem;
+    }
+    .launch-col-title {
+      font-size: .8125rem; font-weight: 600; color: #888; margin-bottom: .75rem;
+    }
+    .launch-col ul { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+    .launch-col ul li a {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem;
+      padding: .75rem 1.25rem;
+      background: #fff; border: 1px solid #ddd; border-radius: 6px;
+      text-decoration: none; color: #111; font-size: .9375rem; line-height: 1.4;
+      transition: box-shadow .15s;
+    }
+    .launch-col ul li a:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .launch-col ul li a.disabled { color: #bbb; pointer-events: none; background: #fafafa; }
+    .launch-col ul li a span { flex-shrink: 0; font-size: .75rem; color: #bbb; padding-top: .1rem; }
+    @media (max-width: 900px) {
+      .launch-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .launch-columns { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <div class="launch">
-    <a href="https://dnsw-phi.vercel.app/" class="home-link">← Home</a>
-    <h1>DNSW Wireframes</h1>
-    <p>Select a page. Pages not yet built are shown but inactive.</p>
-    <ul>
-      <li><a href="pages/home.html">Homepage <span>Sydney / NSW ↗</span></a></li>
-      <li><a href="pages/events.html">Events <span>↗</span></a></li>
-      <li><a href="pages/disneys-the-lion-king.html">Event detail — Disney's The Lion King <span>↗</span></a></li>
-      <li><a href="pages/accommodation.html">Accommodation <span>↗</span></a></li>
-      <li><a href="pages/intercontinental-sydney.html">Accommodation detail — InterContinental Sydney <span>↗</span></a></li>
-      <li><a href="pages/mother-chus-taiwanese-gourmet.html">Food &amp; drink detail — Mother Chu's Taiwanese Gourmet <span>↗</span></a></li>
-      <li><a href="pages/royal-botanic-garden-and-the-domain.html">Attraction detail — Royal Botanic Garden and the Domain <span>↗</span></a></li>
-      <li><a href="pages/sydney-harbour-kayaks-middle-harbour-mosman.html">Hire detail — Sydney Harbour Kayaks <span>↗</span></a></li>
-      <li><a href="pages/bridgeclimb-sydney.html">Tour detail — BridgeClimb Sydney <span>↗</span></a></li>
-      <li><a href="pages/western-sydney-airport.html">Western Sydney International Airport <span>↗</span></a></li>
-      <li><a href="pages/western-sydney.html">Western Sydney (Destination) <span>↗</span></a></li>
-      <li><a href="pages/western-sydney-v2.html">Western Sydney (Destination) V2 <span>↗</span></a></li>
-      <li><a href="pages/western-sydney-v3.html">Western Sydney (Destination) V3 <span>↗</span></a></li>
-      <li><a class="disabled">Category / Things to do <span>Coming soon</span></a></li>
-      <li><a class="disabled">Listing page <span>Coming soon</span></a></li>
-      <li><a class="disabled">Article page <span>Coming soon</span></a></li>
-      <li><a class="disabled">Deals &amp; packages <span>Coming soon</span></a></li>
-    </ul>
-    <ul style="margin-top:1.5rem;">
-      <li><a href="components-library.html">Component Library <span>Design audit ↗</span></a></li>
-    </ul>
+    <div class="launch-header">
+      <div>
+        <a href="https://dnsw-phi.vercel.app/" class="home-link">← Main navigation</a>
+        <h1>DNSW Wireframes</h1>
+        <p>Select a page. Pages not yet built are shown but inactive.</p>
+      </div>
+      <a href="components-library.html" class="lib-link-btn">Component library ↗</a>
+    </div>
+
+    <div class="launch-columns">
+
+      <div class="launch-col">
+        <p class="launch-col-title">Top level pages</p>
+        <ul>
+          <li><a href="pages/home.html">Homepage <span>Sydney / NSW ↗</span></a></li>
+          <li><a href="pages/events.html">Events <span>↗</span></a></li>
+          <li><a href="pages/accommodation.html">Accommodation <span>↗</span></a></li>
+        </ul>
+      </div>
+
+      <div class="launch-col">
+        <p class="launch-col-title">Product pages</p>
+        <ul>
+          <li><a href="pages/disneys-the-lion-king.html">Event detail — Disney's The Lion King <span>↗</span></a></li>
+          <li><a href="pages/intercontinental-sydney.html">Accommodation detail — InterContinental Sydney <span>↗</span></a></li>
+          <li><a href="pages/mother-chus-taiwanese-gourmet.html">Food &amp; drink detail — Mother Chu's Taiwanese Gourmet <span>↗</span></a></li>
+          <li><a href="pages/royal-botanic-garden-and-the-domain.html">Attraction detail — Royal Botanic Garden and the Domain <span>↗</span></a></li>
+          <li><a href="pages/sydney-harbour-kayaks-middle-harbour-mosman.html">Hire detail — Sydney Harbour Kayaks <span>↗</span></a></li>
+          <li><a href="pages/bridgeclimb-sydney.html">Tour detail — BridgeClimb Sydney <span>↗</span></a></li>
+        </ul>
+      </div>
+
+      <div class="launch-col">
+        <p class="launch-col-title">Destination</p>
+        <ul>
+          <li><a href="pages/western-sydney-airport.html">Western Sydney International Airport <span>↗</span></a></li>
+          <li><a href="pages/western-sydney.html">Western Sydney (Destination) <span>↗</span></a></li>
+          <li><a href="pages/western-sydney-v2.html">Western Sydney (Destination) V2 <span>↗</span></a></li>
+          <li><a href="pages/western-sydney-v3.html">Western Sydney (Destination) V3 <span>↗</span></a></li>
+        </ul>
+      </div>
+
+      <div class="launch-col">
+        <p class="launch-col-title">Upcoming</p>
+        <ul>
+          <li><a class="disabled">Category / Things to do <span>Coming soon</span></a></li>
+          <li><a class="disabled">Listing page <span>Coming soon</span></a></li>
+          <li><a class="disabled">Article page <span>Coming soon</span></a></li>
+          <li><a class="disabled">Deals &amp; packages <span>Coming soon</span></a></li>
+        </ul>
+      </div>
+
+    </div>
   </div>
 </body>
 </html>
