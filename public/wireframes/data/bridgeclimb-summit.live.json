@@ -1,0 +1,39 @@
+{
+  "id": "bridgeclimb-summit",
+  "type": "tour",
+  "title": "BridgeClimb Summit",
+  "overview": "Experience the breath taking 360-degree panoramic views of Sydney, whilst scaling the iconic Sydney Harbour Bridge on BridgeClimb's original Climb experience. Feel on top of the world as you journey along the upper arch to the peak of an Australian icon, soaking in the stories from your expert Climb Leader and the sights of the Harbour and the City skyline that surround you.",
+  "highlights": null,
+  "gallery": [],
+  "address": {
+    "line": "3 Cumberland Street",
+    "suburb": "The Rocks",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": null
+  },
+  "contact": {
+    "phone": null,
+    "email": null
+  },
+  "socials": [],
+  "links": {
+    "booking": "https://www.bridgeclimb.com/climbs-prices/summit",
+    "website": null
+  },
+  "accessibility": {
+    "status": "partial",
+    "detail": "Disabled access available, contact operator for details.",
+    "features": [],
+    "operator_access_url": null
+  },
+  "availability": null,
+  "pricing": null,
+  "faqs": [],
+  "place_ref": null,
+  "operator_ref": null,
+  "parent_ref": "bridgeclimb-sydney",
+  "last_verified": null,
+  "extension": null
+}

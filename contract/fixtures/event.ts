@@ -1,11 +1,10 @@
 // Live fixture — Disney's The Lion King (event).
 //
-// Source: sydney.com's Lion King event page. No saved HTML export of this
-// exact page was ever obtained in this session (every HTML file supplied
-// for it turned out to be a different page); the copy below comes from a
-// Figma screenshot of the real page plus the exact Overview text the user
-// pasted directly. Everything not explicitly confirmed by one of those two
-// sources is null — see the inline notes.
+// Source: full saved-HTML export of the real sydney.com page, parsed
+// directly for this fixture (a prior session had only a Figma screenshot
+// and pasted overview text — the fields that were null because of that gap
+// are now filled from the confirmed export; see inline notes for what
+// changed).
 //
 // Only fields marked `live` in docs/product-data-contract.md are populated.
 // Every field marked `gap` is null, not filled with a plausible guess.
@@ -42,27 +41,52 @@ export const lionKingLive: EventProduct = {
     geo: null,
   },
 
-  // Never confirmed for this record.
+  // Confirmed empty — the export's "Get in touch" panel carries no phone
+  // or email for this record.
   contact: { phone: null, email: null },
 
-  // The real page shows Facebook and Instagram icons in the sidebar, but no
-  // destination URL was ever captured for either — an empty array is more
-  // honest than a platform entry with an invented url.
-  socials: [],
+  socials: [
+    { platform: 'facebook', url: 'https://www.facebook.com/thelionkingAU/' },
+    { platform: 'instagram', url: 'https://www.instagram.com/thelionkingau/' },
+  ],
 
-  // Both "Booking details" and "Visit website" buttons are visible on the
-  // real page; neither URL was captured.
-  links: { booking: null, website: null },
+  links: {
+    // Decoded from the page's ATDW booking redirect.
+    booking: 'https://www.ticketmaster.com.au/disney-presents-the-lion-king-australia-tickets/artist/21441',
+    // Confirmed real destination — the page's own "Visit website" button
+    // points at this Ticketmaster affiliate link, not a plain ticketmaster.com.au
+    // URL, so that's what's captured here rather than unwrapped further.
+    website: 'https://ticketmaster.evyy.net/c/2023802/1965672/24024?subId1=sydney&subId2=lionking&u=https%3A%2F%2Fwww.ticketmaster.com.au%2Fdisney-presents-the-lion-king-australia-tickets%2Fartist%2F21441',
+  },
 
-  // No accessibility copy for this record was ever sourced — the FAQ answer
-  // used earlier in the wireframe build was an acknowledged placeholder, not
-  // extracted text, and is not reused here.
-  accessibility: { status: 'not_stated', features: [], detail: null, operator_access_url: null },
+  accessibility: {
+    status: 'welcomes',
+    detail: 'Actively welcomes people with access needs.',
+    features: [],
+    operator_access_url: null,
+  },
 
-  // Gap on every type (contract §4). The real page does carry a raw start
-  // date, end date and a "DAILY event" display string outside this schema,
-  // but the structured `availability` block itself has no live data today.
-  availability: null,
+  // The real page confirms a start date, end date and a "DAILY event"
+  // display string — no performance time or structured RRULE, so `kind`
+  // is `event_dates` and `recurrence` stays empty rather than guessing a
+  // schedule the page doesn't state. See contract §4.
+  availability: {
+    kind: 'event_dates',
+    opening_hours: [],
+    special_hours: [],
+    operating_days: [],
+    departure_times: [],
+    duration_minutes: 0,
+    seasonal: { from: '', to: '' },
+    event_dates: { start: '2026-08-11', end: '2026-10-04' },
+    sessions: [],
+    recurrence: '',
+    min_nights: 0,
+    checkin_time: '',
+    checkout_time: '',
+    advance_booking_required: false,
+    typical_duration_minutes: 0,
+  },
 
   // Gap on every type (contract §5).
   pricing: null,

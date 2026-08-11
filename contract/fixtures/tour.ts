@@ -1,11 +1,12 @@
-// Live fixtures — tour type: BridgeClimb Sydney (parent) and UnderBridge
-// Walk (child).
+// Live fixtures — tour type: BridgeClimb Sydney (parent), UnderBridge Walk
+// (child) and BridgeClimb Summit (child).
 //
-// UnderBridge Walk source: full saved-HTML export of the real sydney.com
-// page, parsed directly. BridgeClimb Sydney source: a Figma screenshot of
-// the real parent operator page (the HTML export supplied alongside it
-// turned out to be for a different child page, "BridgeClimb Summit", and
-// was not used) — see the inline notes below for exactly what that
+// UnderBridge Walk and BridgeClimb Summit sources: full saved-HTML exports
+// of the real sydney.com pages, parsed directly. BridgeClimb Sydney source:
+// a Figma screenshot of the real parent operator page (an HTML export was
+// supplied alongside it but turned out to be for the "BridgeClimb Summit"
+// child page instead — that export is now used for its own record below,
+// not for the parent) — see the inline notes for exactly what the
 // screenshot did and didn't confirm.
 //
 // Only fields marked `live` in docs/product-data-contract.md are populated.
@@ -144,4 +145,73 @@ export const underBridgeWalkLive: TourProduct = {
   extension: null,
 };
 
-export const tourFixturesLive: TourProduct[] = [bridgeClimbSydneyLive, underBridgeWalkLive];
+export const bridgeClimbSummitLive: TourProduct = {
+  id: 'bridgeclimb-summit',
+  type: 'tour',
+  title: 'BridgeClimb Summit',
+  overview:
+    "Experience the breath taking 360-degree panoramic views of Sydney, whilst scaling the iconic Sydney Harbour Bridge on BridgeClimb's original Climb experience. Feel on top of the world as you journey along the upper arch to the peak of an Australian icon, soaking in the stories from your expert Climb Leader and the sights of the Harbour and the City skyline that surround you.",
+
+  // Confirmed absent — the real page has no Highlights section at all,
+  // same as UnderBridge Walk.
+  highlights: null,
+
+  // The export confirms "8 photos" but carries no real asset URLs.
+  gallery: [],
+
+  // The child page authors its own address copy (labelled "Physical
+  // Address") rather than inheriting the parent's — same real street
+  // address, but populated here as this record's own live value.
+  address: {
+    line: '3 Cumberland Street',
+    suburb: 'The Rocks',
+    state: 'NSW',
+    postcode: '2000',
+    country: 'Australia',
+    geo: null,
+  },
+
+  // Confirmed empty — the "Get in touch" modal on this page has no phone
+  // or email content, despite the modal itself being present.
+  contact: { phone: null, email: null },
+
+  // Confirmed empty: no social icons appear on this page.
+  socials: [],
+
+  links: {
+    // Decoded from the page's ATDW booking redirect.
+    booking: 'https://www.bridgeclimb.com/climbs-prices/summit',
+    // Confirmed absent — only "Booking details" appears on this page, no
+    // separate "Visit website" link, same pattern as UnderBridge Walk.
+    website: null,
+  },
+
+  accessibility: {
+    // "Disabled access available, contact operator for details" doesn't
+    // actively welcome or flatly decline — `partial` fits better than
+    // `welcomes` here.
+    status: 'partial',
+    detail: 'Disabled access available, contact operator for details.',
+    features: [],
+    operator_access_url: null,
+  },
+
+  availability: null,
+  pricing: null,
+
+  // Confirmed absent — the "FAQs" tab on this page contains only the
+  // accessibility content above, no Q&A pairs.
+  faqs: [],
+
+  place_ref: null,
+  operator_ref: null,
+  // Confirmed live: this child's breadcrumb reads "BridgeClimb Sydney >
+  // BridgeClimb Summit", and its own URL sits under
+  // .../tours/bridgeclimb-sydney/bridgeclimb-summit.
+  parent_ref: 'bridgeclimb-sydney',
+  last_verified: null,
+
+  extension: null,
+};
+
+export const tourFixturesLive: TourProduct[] = [bridgeClimbSydneyLive, underBridgeWalkLive, bridgeClimbSummitLive];
