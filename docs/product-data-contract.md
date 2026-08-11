@@ -196,6 +196,8 @@ Event, tour, food and drink and accommodation all populate this differently and 
 
 The Lion King currently holds start date, end date and a display string reading "DAILY event". There is no performance time anywhere, so the record is browsable but not schedulable. `recurrence` must be structured or it cannot be reasoned about.
 
+Consumers must read `availability` as a whole block, switched on `kind`, not field by field. `kind` says which of the sub-shapes above is populated for this record; the rest are present but hold their "not applicable" sentinel (`[]`, `""`, or `0`) rather than real data. Binding to one sub-field directly (e.g. `operating_days` alone) silently breaks for every `kind` that doesn't use it.
+
 ---
 
 ## 5. Pricing
