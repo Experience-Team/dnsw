@@ -101,7 +101,7 @@
     <h1>Component Library</h1>
     <p>Every UI component used across the wireframe pages, gathered in one place for a design-consistency audit. Real markup and classes are shown as they appear in production — including cases where the same conceptual component has drifted into several inconsistent variants. Amber callouts flag inconsistencies between variants; red callouts flag likely bugs or dead code.</p>
     <div class="lib-stats">
-      <div class="lib-stat"><b>10</b>pages audited</div>
+      <div class="lib-stat"><b>11</b>pages audited</div>
       <div class="lib-stat"><b>22</b>component families</div>
       <div class="lib-stat"><b>5</b>card variants, consolidated from 6</div>
       <div class="lib-stat"><b>3</b>parallel filter-bar systems</div>
@@ -936,8 +936,8 @@
 
     <!-- ══════════════════ EVENT / PLACE DETAIL PAGE ══════════════════ -->
     <section class="lib-section" id="detail-page">
-      <div class="lib-section-head"><h2>Event / place detail page <code>disneys-the-lion-king.html</code> + <code>intercontinental-sydney.html</code></h2></div>
-      <p class="lib-section-desc">One page template, two instances — an event (Lion King) and an accommodation listing (InterContinental Sydney), reproducing their sydney.com source pages. Both reuse <code>.event-card</code>, <code>.card-bookmark</code>, <code>.card-amenity-icon</code>, <code>.faq-list</code>, <code>.grid-3</code>, <code>.btn</code> variants and the shared newsletter banner / footer includes as-is. The template's meta row degrades cleanly with only one fact (InterContinental has no date, only an address) — no variant needed. Two more component families were added for the hotel page's own patterns: a bordered "Highlights" bullet box above the Overview, and a "Get in touch" reveal in the sidebar info card.</p>
+      <div class="lib-section-head"><h2>Event / place detail page <code>disneys-the-lion-king.html</code> + <code>intercontinental-sydney.html</code> + <code>mother-chus-taiwanese-gourmet.html</code></h2></div>
+      <p class="lib-section-desc">One page template, three instances across event, accommodation and food &amp; drink product types, reproducing their sydney.com source pages. All three reuse <code>.event-card</code>, <code>.card-bookmark</code>, <code>.card-amenity-icon</code>, <code>.faq-list</code>, <code>.grid-3</code>, <code>.btn</code> variants and the shared newsletter banner / footer includes as-is. The template degrades cleanly per product type with no new variants needed: the meta row shows only an address when there's no event date; the "Booking details" action and the Overview accessibility badge are omitted entirely when the real page has neither; <code>.card-footer</code>/<code>.card-amenity-icon</code> is included per-card only where the source page actually shows one (Mother Chu's "More Like This" grid has it on 1 of 3 cards, matching the real accessibility data). The food &amp; drink page also renames the Nearby heading to "More Like This" — same section, same <code>#nearby</code> anchor, source-accurate label. Two more component families were added for the hotel/food pages' own patterns: a bordered "Highlights" bullet box above the Overview, and a "Get in touch" reveal in the sidebar info card (phone-only for Mother Chu's, phone + email for InterContinental — same component, different content).</p>
 
       <div class="lib-demo">
         <div class="lib-demo-inner">
