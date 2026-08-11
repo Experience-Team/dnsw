@@ -1,13 +1,11 @@
 // Live fixtures — tour type: BridgeClimb Sydney (parent), UnderBridge Walk
 // (child) and BridgeClimb Summit (child).
 //
-// UnderBridge Walk and BridgeClimb Summit sources: full saved-HTML exports
-// of the real sydney.com pages, parsed directly. BridgeClimb Sydney source:
-// a Figma screenshot of the real parent operator page (an HTML export was
-// supplied alongside it but turned out to be for the "BridgeClimb Summit"
-// child page instead — that export is now used for its own record below,
-// not for the parent) — see the inline notes for exactly what the
-// screenshot did and didn't confirm.
+// All three now sourced from full saved-HTML exports of the real sydney.com
+// pages, parsed directly (BridgeClimb Sydney previously had only a Figma
+// screenshot — the export supplied alongside it earlier turned out to be
+// the "BridgeClimb Summit" child page instead, now used for its own record
+// below; a correct export for the parent itself came later).
 //
 // Only fields marked `live` in docs/product-data-contract.md are populated.
 // Every field marked `gap` is null, not filled with a plausible guess.
@@ -20,10 +18,11 @@ export const bridgeClimbSydneyLive: TourProduct = {
   title: 'BridgeClimb Sydney',
   overview:
     "BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.\n\n" +
-    // The second paragraph is reproduced only up to the point the screenshot
-    // itself was truncated. The wireframe build earlier completed this
-    // sentence as a placeholder — that completion is not reused here.
-    "As you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and…",
+    "As you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and entertained along the way.\n\n" +
+    // "each e a new" is reproduced verbatim from the real page — an apparent
+    // authoring typo on the source (likely a truncated "each experience"),
+    // not corrected here.
+    'With every day on the Bridge unique, and each e a new exhilarating adventure, everyone will take something different from this unforgettable experience.',
 
   highlights: {
     items: [
@@ -35,7 +34,7 @@ export const bridgeClimbSydneyLive: TourProduct = {
     generated_at: null,
   },
 
-  // The screenshot confirms "6 photos" but carries no real asset URLs.
+  // The export confirms "6 photos" but carries no real asset URLs.
   gallery: [],
 
   address: {
@@ -47,23 +46,31 @@ export const bridgeClimbSydneyLive: TourProduct = {
     geo: null,
   },
 
-  // Never confirmed. The wireframe build used a placeholder phone number
-  // here — flagged as unverified in the components library at the time —
-  // and that placeholder is not carried into this fixture.
-  contact: { phone: null, email: null },
+  contact: { phone: '(02) 8274 7777', email: 'contact@bridgeclimb.com' },
 
-  // Facebook, X and Instagram icons are visible in the screenshot, but no
-  // destination URL was ever captured for any of them.
-  socials: [],
+  socials: [
+    { platform: 'facebook', url: 'https://www.facebook.com/bridgeclimbsydney/' },
+    { platform: 'x', url: 'https://x.com/bridgeclimb' },
+    { platform: 'instagram', url: 'https://www.instagram.com/bridgeclimb/' },
+  ],
 
-  // Both "Booking details" and "Visit website" buttons are visible on the
-  // real page; neither URL was captured.
-  links: { booking: null, website: null },
+  links: {
+    // Decoded from the page's ATDW booking redirect.
+    booking: 'https://www.bridgeclimb.com/book',
+    website: 'http://www.bridgeclimb.com/',
+  },
 
-  // Never confirmed for the parent record specifically — distinct from
-  // UnderBridge Walk's own accessibility answer below, since contact and
-  // accessibility do not inherit from parent to child today.
-  accessibility: { status: 'not_stated', features: [], detail: null, operator_access_url: null },
+  // The page shows a single wheelchair-accessibility icon next to Overview,
+  // with no accompanying statement, detail panel or accessibility FAQ tab —
+  // unlike every other audited page, which use the shared "FAQs > Accessibility"
+  // pattern with full detail text. A bare icon confirms a real signal
+  // (wheelchair_access) without confirming enough to call it "welcomes".
+  accessibility: {
+    status: 'partial',
+    detail: null,
+    features: ['wheelchair_access'],
+    operator_access_url: null,
+  },
 
   availability: null,
   pricing: null,

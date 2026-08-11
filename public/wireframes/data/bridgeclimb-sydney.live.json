@@ -2,7 +2,7 @@
   "id": "bridgeclimb-sydney",
   "type": "tour",
   "title": "BridgeClimb Sydney",
-  "overview": "BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.\n\nAs you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and…",
+  "overview": "BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.\n\nAs you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and entertained along the way.\n\nWith every day on the Bridge unique, and each e a new exhilarating adventure, everyone will take something different from this unforgettable experience.",
   "highlights": {
     "items": [
       "Climb to the summit of the iconic Sydney Harbour Bridge",
@@ -22,18 +22,33 @@
     "geo": null
   },
   "contact": {
-    "phone": null,
-    "email": null
+    "phone": "(02) 8274 7777",
+    "email": "contact@bridgeclimb.com"
   },
-  "socials": [],
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/bridgeclimbsydney/"
+    },
+    {
+      "platform": "x",
+      "url": "https://x.com/bridgeclimb"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/bridgeclimb/"
+    }
+  ],
   "links": {
-    "booking": null,
-    "website": null
+    "booking": "https://www.bridgeclimb.com/book",
+    "website": "http://www.bridgeclimb.com/"
   },
   "accessibility": {
-    "status": "not_stated",
-    "features": [],
+    "status": "partial",
     "detail": null,
+    "features": [
+      "wheelchair_access"
+    ],
     "operator_access_url": null
   },
   "availability": null,
