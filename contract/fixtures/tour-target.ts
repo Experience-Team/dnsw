@@ -4,22 +4,22 @@
 // real number should be — if one of these values ends up quoted in a deck
 // or a ticket, that's this comment failing, not the number being right.
 //
-// Target fixtures — tour type: BridgeClimb Sydney (parent) and UnderBridge
-// Walk (child).
+// Target fixtures — tour type: BridgeClimb Sydney (parent), UnderBridge
+// Walk (child) and BridgeClimb Summit (child).
 //
 // Parallels tour.ts. Every field that was null there because it's marked
 // `gap` in docs/product-data-contract.md is filled here with a realistic
-// value. UnderBridge Walk's `contact`, `socials`, `operator_ref` and
-// `place_ref` are set equal to the parent's, demonstrating the contract's
-// proposed inheritance defaults (§3: "contact, socials, operator_ref,
-// accessibility — inherited, overridable") — everywhere else the two
-// records still hold genuinely different values, since `title`, `overview`,
-// `gallery`, `links` and `availability` are proposed as child-only.
-// `accessibility` on UnderBridge Walk is carried over unchanged from the
-// live fixture, since that field's real value was already confirmed, not a
-// gap. These values are illustrative, not sourced — do not treat any URL,
-// phone number, id or date below as real, except where noted as carried
-// over from a confirmed live record.
+// value. UnderBridge Walk's and BridgeClimb Summit's `contact`, `socials`,
+// `operator_ref` and `place_ref` are set equal to the parent's,
+// demonstrating the contract's proposed inheritance defaults (§3: "contact,
+// socials, operator_ref, accessibility — inherited, overridable") —
+// everywhere else the records still hold genuinely different values, since
+// `title`, `overview`, `gallery`, `links` and `availability` are proposed
+// as child-only. `accessibility` on both children is carried over unchanged
+// from their live fixtures, since that field's real value was already
+// confirmed, not a gap. These values are illustrative, not sourced — do not
+// treat any URL, phone number, id or date below as real, except where noted
+// as carried over from a confirmed live record.
 
 import type { TourProduct } from '../types/product';
 
@@ -247,4 +247,116 @@ export const underBridgeWalkTarget: TourProduct = {
   },
 };
 
-export const tourFixturesTarget: TourProduct[] = [bridgeClimbSydneyTarget, underBridgeWalkTarget];
+export const bridgeClimbSummitTarget: TourProduct = {
+  id: 'bridgeclimb-summit',
+  type: 'tour',
+  title: 'BridgeClimb Summit',
+  overview:
+    "Experience the breath taking 360-degree panoramic views of Sydney, whilst scaling the iconic Sydney Harbour Bridge on BridgeClimb's original Climb experience. Feel on top of the world as you journey along the upper arch to the peak of an Australian icon, soaking in the stories from your expert Climb Leader and the sights of the Harbour and the City skyline that surround you.",
+
+  highlights: {
+    items: [
+      "Climb BridgeClimb's original route to the very top of the Bridge",
+      'Sweeping 360° views across the Harbour, Opera House and city skyline',
+      'Expert Climb Leader commentary throughout the ascent',
+    ],
+    provenance: 'generated',
+    generated_at: '2026-07-20',
+  },
+
+  gallery: [
+    { url: 'https://images.sydney.com/products/bridgeclimb-summit/arch.jpg', alt: 'Climbers on the upper arch of the Sydney Harbour Bridge', credit: 'BridgeClimb Sydney' },
+    { url: 'https://images.sydney.com/products/bridgeclimb-summit/summit-group.jpg', alt: 'Climb group posing at the Summit', credit: 'BridgeClimb Sydney' },
+    { url: 'https://images.sydney.com/products/bridgeclimb-summit/skyline.jpg', alt: 'City skyline view from the top of the Bridge', credit: 'BridgeClimb Sydney' },
+  ],
+
+  address: {
+    line: '3 Cumberland Street',
+    suburb: 'The Rocks',
+    state: 'NSW',
+    postcode: '2000',
+    country: 'Australia',
+    geo: { lat: -33.8523, lng: 151.2108 }, // same site as the parent
+  },
+
+  // Inherited from the parent per the contract's proposed default.
+  contact: { phone: '(02) 8274 7777', email: 'info@bridgeclimb.com' },
+
+  // Inherited from the parent per the contract's proposed default.
+  socials: [
+    { platform: 'facebook', url: 'https://www.facebook.com/BridgeClimbSydney' },
+    { platform: 'x', url: 'https://x.com/bridgeclimb' },
+    { platform: 'instagram', url: 'https://www.instagram.com/bridgeclimb/' },
+  ],
+
+  links: {
+    booking: 'https://www.bridgeclimb.com/climbs-prices/summit', // confirmed real, carried over from the live fixture
+    website: 'https://www.bridgeclimb.com/climbs-prices/summit',
+  },
+
+  // Confirmed real value from the live fixture — not a gap, so unchanged here.
+  accessibility: {
+    status: 'partial',
+    detail: 'Disabled access available, contact operator for details.',
+    features: [],
+    operator_access_url: null,
+  },
+
+  availability: {
+    kind: 'operating_days',
+    opening_hours: [],
+    special_hours: [],
+    operating_days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+    departure_times: ['07:15', '09:55', '12:35', '15:15', '17:55'],
+    duration_minutes: 210,
+    seasonal: { from: '', to: '' },
+    event_dates: { start: '', end: '' },
+    sessions: [],
+    recurrence: '',
+    min_nights: 0,
+    checkin_time: '',
+    checkout_time: '',
+    advance_booking_required: true,
+    typical_duration_minutes: 210,
+  },
+
+  pricing: {
+    from: 268,
+    to: 468,
+    currency: 'AUD',
+    band: '$$$$',
+    is_free: false,
+    unit: 'per_person',
+    concessions: [{ type: 'child', from: 178 }],
+    inclusions: ['All safety equipment', 'Professional Climb Leader', 'Certificate and group photo'],
+    exclusions: ['Personal photography during the Climb'],
+    cancellation_policy: 'Free rescheduling up to 24 hours before your Climb.',
+  },
+
+  faqs: [
+    { question: 'How is Summit different from other BridgeClimb experiences?', answer: "Summit is BridgeClimb's original route, taking you all the way to the top of the Bridge via the upper arch." },
+    { question: 'What should I wear?', answer: 'BridgeClimb provides a one-piece climb suit; wear comfortable enclosed shoes underneath.' },
+  ],
+
+  place_ref: 'sydney-harbour-bridge', // inherited from the parent
+  operator_ref: 'bridgeclimb-sydney-operator', // inherited from the parent
+  parent_ref: 'bridgeclimb-sydney', // confirmed real relationship, carried over from the live fixture
+  last_verified: '2026-08-01',
+
+  extension: {
+    itinerary: [
+      { order: 1, title: 'Breathalyser and briefing', description: 'Safety briefing, breathalyser test and climb suit fitting at BridgeClimb Base.', duration_minutes: 45 },
+      { order: 2, title: 'Ascend the upper arch', description: 'Guided ascent along the upper arch catwalk to the summit.', duration_minutes: 60 },
+      { order: 3, title: 'Summit', description: 'Time at the summit for 360-degree views and photos.', duration_minutes: 20 },
+      { order: 4, title: 'Descend', description: 'Guided descent back to BridgeClimb Base.', duration_minutes: 85 },
+    ],
+    meeting_point: { description: 'BridgeClimb Base, 3 Cumberland Street, The Rocks', geo: { lat: -33.8523, lng: 151.2108 } },
+    group_size: { min: 2, max: 14 },
+    languages: ['English'],
+    fitness_level: 'moderate',
+    min_age: 8,
+    what_to_bring: ['Comfortable enclosed shoes', 'Photo ID'],
+  },
+};
+
+export const tourFixturesTarget: TourProduct[] = [bridgeClimbSydneyTarget, underBridgeWalkTarget, bridgeClimbSummitTarget];

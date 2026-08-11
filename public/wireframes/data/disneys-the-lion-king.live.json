@@ -17,18 +17,49 @@
     "phone": null,
     "email": null
   },
-  "socials": [],
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/thelionkingAU/"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/thelionkingau/"
+    }
+  ],
   "links": {
-    "booking": null,
-    "website": null
+    "booking": "https://www.ticketmaster.com.au/disney-presents-the-lion-king-australia-tickets/artist/21441",
+    "website": "https://ticketmaster.evyy.net/c/2023802/1965672/24024?subId1=sydney&subId2=lionking&u=https%3A%2F%2Fwww.ticketmaster.com.au%2Fdisney-presents-the-lion-king-australia-tickets%2Fartist%2F21441"
   },
   "accessibility": {
-    "status": "not_stated",
+    "status": "welcomes",
+    "detail": "Actively welcomes people with access needs.",
     "features": [],
-    "detail": null,
     "operator_access_url": null
   },
-  "availability": null,
+  "availability": {
+    "kind": "event_dates",
+    "opening_hours": [],
+    "special_hours": [],
+    "operating_days": [],
+    "departure_times": [],
+    "duration_minutes": 0,
+    "seasonal": {
+      "from": "",
+      "to": ""
+    },
+    "event_dates": {
+      "start": "2026-08-11",
+      "end": "2026-10-04"
+    },
+    "sessions": [],
+    "recurrence": "",
+    "min_nights": 0,
+    "checkin_time": "",
+    "checkout_time": "",
+    "advance_booking_required": false,
+    "typical_duration_minutes": 0
+  },
   "pricing": null,
   "faqs": [],
   "place_ref": null,
