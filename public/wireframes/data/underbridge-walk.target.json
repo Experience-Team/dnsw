@@ -1,0 +1,187 @@
+{
+  "id": "underbridge-walk",
+  "type": "tour",
+  "title": "UnderBridge Walk",
+  "overview": "Weave beneath the Bridge's immense structure before ascending a short section of simple stairs to a lower vantage point on the Bridge, looking up at the awe-inspiring 'cathedral of steel' above you.\n\nA 2-hour total experience, with one hour on the Bridge, this experience is designed for curious explorers. You may not reach the Summit, but you'll still uncover a side of the Bridge few ever get to see — one that celebrates its incredible scale, hidden stories, and striking beauty from beneath.",
+  "highlights": {
+    "items": [
+      "A more accessible way to experience the Bridge, with fewer stairs than a full Climb",
+      "See the Bridge's underside engineering up close",
+      "Shorter, 2-hour experience suited to curious first-timers"
+    ],
+    "provenance": "generated",
+    "generated_at": "2026-07-20"
+  },
+  "gallery": [
+    {
+      "url": "https://images.sydney.com/products/underbridge-walk/underside.jpg",
+      "alt": "Group looking up at the Bridge's underside steelwork",
+      "credit": "BridgeClimb Sydney"
+    },
+    {
+      "url": "https://images.sydney.com/products/underbridge-walk/vantage-point.jpg",
+      "alt": "Lower vantage point platform on the Bridge",
+      "credit": "BridgeClimb Sydney"
+    },
+    {
+      "url": "https://images.sydney.com/products/underbridge-walk/guide.jpg",
+      "alt": "Guide pointing out a rivet detail to the group",
+      "credit": "BridgeClimb Sydney"
+    }
+  ],
+  "address": {
+    "line": "3 Cumberland Street",
+    "suburb": "The Rocks",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": {
+      "lat": -33.8523,
+      "lng": 151.2108
+    }
+  },
+  "contact": {
+    "phone": "(02) 8274 7777",
+    "email": "info@bridgeclimb.com"
+  },
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/BridgeClimbSydney"
+    },
+    {
+      "platform": "x",
+      "url": "https://x.com/bridgeclimb"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/bridgeclimb/"
+    }
+  ],
+  "links": {
+    "booking": "https://www.bridgeclimb.com/experiences/underbridge-walk",
+    "website": "https://www.bridgeclimb.com/experiences/underbridge-walk"
+  },
+  "accessibility": {
+    "status": "does_not_cater",
+    "detail": "Does not cater for people with access needs.",
+    "features": [],
+    "operator_access_url": null
+  },
+  "availability": {
+    "kind": "operating_days",
+    "opening_hours": [],
+    "special_hours": [],
+    "operating_days": [
+      "mon",
+      "tue",
+      "wed",
+      "thu",
+      "fri",
+      "sat",
+      "sun"
+    ],
+    "departure_times": [
+      "10:30",
+      "13:30",
+      "16:00"
+    ],
+    "duration_minutes": 120,
+    "seasonal": {
+      "from": "",
+      "to": ""
+    },
+    "event_dates": {
+      "start": "",
+      "end": ""
+    },
+    "sessions": [],
+    "recurrence": "",
+    "min_nights": 0,
+    "checkin_time": "",
+    "checkout_time": "",
+    "advance_booking_required": true,
+    "typical_duration_minutes": 120
+  },
+  "pricing": {
+    "from": 98,
+    "to": 158,
+    "currency": "AUD",
+    "band": "$$$",
+    "is_free": false,
+    "unit": "per_person",
+    "concessions": [
+      {
+        "type": "child",
+        "from": 68
+      }
+    ],
+    "inclusions": [
+      "Safety briefing",
+      "Professional guide"
+    ],
+    "exclusions": [],
+    "cancellation_policy": "Free rescheduling up to 24 hours before your Walk."
+  },
+  "faqs": [
+    {
+      "question": "How is this different from a full Climb?",
+      "answer": "UnderBridge Walk stays beneath the Bridge's lower vantage point and doesn't reach the Summit, with fewer stairs and a shorter, 2-hour experience."
+    },
+    {
+      "question": "What should I wear?",
+      "answer": "Comfortable enclosed walking shoes are recommended; no climb suit is required for this experience."
+    }
+  ],
+  "place_ref": "sydney-harbour-bridge",
+  "operator_ref": "bridgeclimb-sydney-operator",
+  "parent_ref": "bridgeclimb-sydney",
+  "last_verified": "2026-08-01",
+  "extension": {
+    "itinerary": [
+      {
+        "order": 1,
+        "title": "Briefing",
+        "description": "Safety briefing and equipment fitting at BridgeClimb Base.",
+        "duration_minutes": 20
+      },
+      {
+        "order": 2,
+        "title": "Underside walk",
+        "description": "Guided walk beneath the Bridge's arch structure.",
+        "duration_minutes": 40
+      },
+      {
+        "order": 3,
+        "title": "Lower vantage point",
+        "description": "Ascend a short staircase to a lower vantage point on the Bridge.",
+        "duration_minutes": 40
+      },
+      {
+        "order": 4,
+        "title": "Return",
+        "description": "Guided return to BridgeClimb Base.",
+        "duration_minutes": 20
+      }
+    ],
+    "meeting_point": {
+      "description": "BridgeClimb Base, 3 Cumberland Street, The Rocks",
+      "geo": {
+        "lat": -33.8523,
+        "lng": 151.2108
+      }
+    },
+    "group_size": {
+      "min": 2,
+      "max": 20
+    },
+    "languages": [
+      "English"
+    ],
+    "fitness_level": "easy",
+    "min_age": 6,
+    "what_to_bring": [
+      "Comfortable enclosed shoes"
+    ]
+  }
+}

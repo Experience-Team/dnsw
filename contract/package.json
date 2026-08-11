@@ -1,0 +1,5 @@
+{
+  "name": "contract-build",
+  "private": true,
+  "type": "commonjs"
+}

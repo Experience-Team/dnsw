@@ -1,0 +1,23 @@
+{
+  // Compiles fixtures/ + types/ + scripts/ to CommonJS so `node` can run the
+  // generator directly (contract/package.json sets "type": "commonjs" so
+  // Node treats this output as CommonJS despite the repo root's "type":
+  // "module"). moduleResolution "node" (not "nodenext"/"bundler") is
+  // deliberate — it's what lets the fixtures' extensionless relative
+  // imports (`from '../types/product'`) keep working unmodified. Do not
+  // "modernize" this to nodenext; that requires explicit .js extensions on
+  // every relative import and would break every fixture file.
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "./.build",
+    "rootDir": ".",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  // Deliberately excludes components/ — DecisionBlock.tsx uses JSX, which
+  // this config has no --jsx option for, and the generator never needs it.
+  "include": ["fixtures/**/*.ts", "types/**/*.ts", "scripts/**/*.ts"]
+}
