@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wireframe — BridgeClimb Sydney (Tour detail)</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <link rel="stylesheet" href="../themes/sydney.css" id="theme-sheet" />
+</head>
+<body class="theme-sydney" data-site="sydney">
+
+  <div data-include="../components/utility-bar.html"></div>
+  <div data-include="../components/nav.html"></div>
+
+  <div class="container detail-header">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb" style="margin-bottom:2rem; flex-wrap:wrap;">
+      <a href="../pages/home.html" class="crumb">Home</a>
+      <span class="sep">›</span>
+      <a href="#" class="crumb">Things to do in Sydney</a>
+      <span class="sep">›</span>
+      <a href="#" class="crumb">Sydney Tours</a>
+      <span class="sep">›</span>
+      <span class="crumb-active">BridgeClimb Sydney</span>
+    </nav>
+
+    <h1>BridgeClimb Sydney</h1>
+
+    <!-- Meta row: address, actions -->
+    <div class="detail-meta-row">
+      <div class="detail-meta-facts">
+        <div class="detail-meta-fact">
+          <span class="detail-meta-fact-icon">📍</span>
+          <a href="#">3 Cumberland Street The Rocks NSW 2000 Australia ↗</a>
+        </div>
+      </div>
+      <div class="detail-meta-actions">
+        <a href="#" class="btn btn-outline-dark btn-sm">Booking details ↗</a>
+        <a href="#" class="btn btn-primary btn-sm">Visit website ↗</a>
+        <button class="card-bookmark" aria-label="Save" style="border:1px solid var(--color-border); border-radius:50%; width:2.5rem; height:2.5rem; justify-content:center;"><svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+
+    <!-- Photo gallery hero -->
+    <div class="detail-gallery">
+      <div class="detail-gallery-main ph-img">
+        <span class="detail-gallery-count"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="10" rx="1" stroke="#111" stroke-width="1.3"/><circle cx="5" cy="6" r="1.2" fill="#111"/><path d="M2 11l3.5-3.5 2 2L11.5 5.5 14 8" stroke="#111" stroke-width="1.3"/></svg> 6 photos</span>
+      </div>
+      <div class="detail-gallery-side">
+        <div class="detail-gallery-thumb ph-img"></div>
+        <div class="detail-gallery-thumb is-map ph-img">
+          <a href="#" class="btn btn-light btn-sm detail-gallery-explore">Explore nearby ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overview / Nearby tabs — no FAQs tab on this page, the source has no FAQs section -->
+    <nav class="detail-tabs" aria-label="Page sections" id="detail-tabs">
+      <a href="#overview" class="detail-tab active">☰ Overview</a>
+      <a href="#nearby" class="detail-tab">👤 Nearby</a>
+    </nav>
+
+    <!-- Overview + sidebar info card -->
+    <div class="detail-overview-row" id="overview">
+      <div class="detail-overview">
+
+        <div class="detail-highlights">
+          <h3>Highlights</h3>
+          <ul>
+            <li>Climb to the summit of the iconic Sydney Harbour Bridge</li>
+            <li>Enjoy 360° views with expert commentary on history and engineering</li>
+            <li>Safe, guided adventure offering a unique and memorable experience</li>
+          </ul>
+        </div>
+
+        <h2>Overview</h2>
+        <span class="card-amenity-icon" title="Accessible" style="margin-bottom:.75rem; display:inline-flex;">♿</span>
+        <div class="detail-overview-body" id="overview-body">
+          <p>BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.</p>
+          <p>As you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and secure every step of the way.</p>
+        </div>
+        <button type="button" class="btn btn-outline-dark btn-sm detail-overview-toggle" id="overview-toggle" aria-expanded="false" aria-controls="overview-body">Read more <span class="chevron">⌄</span></button>
+      </div>
+      <div class="detail-info-card">
+        <h3>BridgeClimb Sydney</h3>
+        <div class="detail-info-fact">
+          <span class="detail-info-fact-icon">📍</span>
+          <div class="detail-info-fact-body">
+            <a href="#">3 Cumberland Street The Rocks NSW 2000 Australia ↗</a>
+          </div>
+        </div>
+        <div class="detail-info-links">
+          <a href="#">↗ Booking details</a>
+          <a href="#">↗ Visit website</a>
+          <button type="button" class="detail-info-contact-toggle" id="contact-toggle" style="all:unset; cursor:pointer; color:var(--color-accent); text-decoration:underline; font-size:.875rem; font-weight:600;" aria-expanded="false" aria-controls="contact-body">✉ Get in touch</button>
+          <div class="detail-info-contact" id="contact-body">
+            <p>(02) 8274 7777</p>
+          </div>
+        </div>
+        <p class="detail-info-social-title">Find us on socials</p>
+        <div class="detail-info-social">
+          <a href="#" aria-label="Facebook">Fb</a>
+          <a href="#" aria-label="X">X</a>
+          <a href="#" aria-label="Instagram">Ig</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Our Tours — a tour operator's own product list, not other businesses, so cards have
+         no bookmark, venue eyebrow or footer icon like the other product types' grids do -->
+    <section id="nearby" style="margin-bottom:3rem;">
+      <div class="section-header" style="margin-bottom:1.5rem;">
+        <div><p class="section-title">Our Tours</p></div>
+      </div>
+      <div class="grid-3">
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <p class="card-title">Mandarin Climb</p>
+            <p class="card-desc">Embark on an unforgettable journey as you climb to the top of the Sydney Harbour Bridge and take in breathtaking 360-degree views.</p>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <p class="card-title">UnderBridge Walk</p>
+            <p class="card-desc">Weave beneath the Bridge's immense structure before ascending a short section of simple stairs to a lower vantage point on the Bridge.</p>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <p class="card-title">Vivid Sydney Climb</p>
+            <p class="card-desc">The Vivid Sydney Climb is the hottest ticket in town. Ascend above the city's hustle and bustle to the Summit of the Bridge.</p>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <p class="card-title">BridgeClimb Ultimate</p>
+            <p class="card-desc">Going where no Climb has gone before, BridgeClimb Ultimate is the most adventurous Climb experience in BridgeClimb's history.</p>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <p class="card-title">BridgeClimb Burrawa Aboriginal Climb Experience</p>
+            <p class="card-desc">Reaching the summit of the Sydney Harbour Bridge is a quintessential Sydney experience and the Burrawa Indigenous Climb adds unique cultural depth.</p>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <p class="card-title">BridgeClimb Summit</p>
+            <p class="card-desc">Experience the breath taking 360 degree panoramic views of Sydney, whilst scaling the iconic Sydney Harbour Bridge on this Climb.</p>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="card-img ph-img"></div>
+          <div class="card-body">
+            <p class="card-title">BridgeClimb Summit Insider</p>
+            <p class="card-desc">Step-by-step (1,002 to be exact!) you'll journey through the heart of the Bridge, a cathedral of steel, before bursting into the sunlight at the top.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Location -->
+    <section style="margin-bottom:3rem;">
+      <div class="section-header" style="margin-bottom:1rem;">
+        <div><p class="section-title">Location</p></div>
+      </div>
+      <p class="detail-location-address">3 Cumberland Street</p>
+      <p class="detail-location-address">The Rocks NSW 2000 Australia</p>
+      <a href="#" class="detail-location-directions">Get directions ↗</a>
+      <div class="detail-location-map">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d424141.6978944982!2d150.93197474999997!3d-33.84824395!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b129838f39a743f%3A0x3017d681632a850!2sSydney%20NSW!5e0!3m2!1sen!2sau!4v1782980983841!5m2!1sen!2sau" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+    </section>
+
+    <!-- No FAQs section — the source page has none -->
+
+  </div><!-- end .container -->
+
+  <div data-include="../components/newsletter.html"></div>
+  <div data-include="../components/footer.html"></div>
+
+  <!-- Floating newsletter signup popup -->
+  <div class="newsletter-popup" id="newsletter-popup">
+    <button class="newsletter-popup-close" id="newsletter-popup-close" aria-label="Close">&#x2715;</button>
+    <h3>Subscribe to our newsletter</h3>
+    <p>Stay connected to Sydney for all the latest news, stories, upcoming events and travel inspiration.</p>
+    <a href="#" class="btn btn-light">Subscribe</a>
+  </div>
+
+  <script src="../includes.js"></script>
+  <script>
+    var popupClose = document.getElementById('newsletter-popup-close');
+    if (popupClose) {
+      popupClose.addEventListener('click', function () {
+        document.getElementById('newsletter-popup').setAttribute('hidden', '');
+      });
+    }
+
+    // Overview read more / read less
+    var overviewToggle = document.getElementById('overview-toggle');
+    var overviewBody = document.getElementById('overview-body');
+    if (overviewToggle && overviewBody) {
+      overviewToggle.addEventListener('click', function () {
+        var expanded = overviewBody.classList.toggle('expanded');
+        overviewToggle.classList.toggle('expanded', expanded);
+        overviewToggle.setAttribute('aria-expanded', expanded);
+        overviewToggle.innerHTML = expanded ? 'Read less <span class="chevron">⌄</span>' : 'Read more <span class="chevron">⌄</span>';
+      });
+    }
+
+    // Sidebar "Get in touch" reveal
+    var contactToggle = document.getElementById('contact-toggle');
+    var contactBody = document.getElementById('contact-body');
+    if (contactToggle && contactBody) {
+      contactToggle.addEventListener('click', function () {
+        var open = contactBody.classList.toggle('open');
+        contactToggle.setAttribute('aria-expanded', open);
+      });
+    }
+
+    // Detail tabs — sticky sub-nav highlights whichever section is currently in view
+    var tabs = document.querySelectorAll('.detail-tab');
+    if (tabs.length && 'IntersectionObserver' in window) {
+      var sections = Array.prototype.map.call(tabs, function (tab) {
+        return document.querySelector(tab.getAttribute('href'));
+      });
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var id = '#' + entry.target.id;
+            tabs.forEach(function (tab) {
+              tab.classList.toggle('active', tab.getAttribute('href') === id);
+            });
+          }
+        });
+      }, { rootMargin: '-140px 0px -50% 0px' });
+      sections.forEach(function (section) { if (section) observer.observe(section); });
+    }
+  </script>
+
+</body>
+</html>
