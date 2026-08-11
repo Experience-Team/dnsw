@@ -1,0 +1,60 @@
+{
+  "id": "royal-botanic-garden-and-the-domain",
+  "type": "attraction",
+  "title": "Royal Botanic Garden and the Domain",
+  "overview": "Welcome to the Royal Botanic Garden Sydney, an oasis of 30-hectares in the heart of the city.\n\nWrapped around Sydney Harbour and adjacent to the Sydney Opera House, the gardens occupy one of Sydney's most spectacular positions. It is one of Sydney's most beautiful and alluring destinations, where everyone is welcome to come and enjoy the abundant natural beauty.\n\nEstablished in 1816, it is the oldest scientific institution in the country and is home to an outstanding collection of plants from Australia and overseas.\n\nFrom the provocative rare and threatened plants of the world to the romantic rose garden, the themed garden areas show the diverse beauty of nature.\n\nSpecial features include Cadi Jam Ora: First Encounters, a garden display that remembers and acknowledges the Cadigal - the original inhabitants of Sydney's city centre - and their relationship with this land.\n\nThe Royal Botanic Garden offers a number of tour experiences, including the Aboriginal Heritage Tour, a free guided walk and bespoke heritage tours. Online bookings are essential.\n\nFree Wi-Fi is available throughout the Royal Botanic Garden Sydney. Download the free app for self-guided audio walking tours, garden maps and information on the latest events.",
+  "highlights": {
+    "items": [
+      "Stunning harbourfront location beside the Sydney Opera House",
+      "Explore themed gardens and rare global plant collections",
+      "Join unique Aboriginal Heritage and guided walking tours"
+    ],
+    "provenance": "generated",
+    "generated_at": null
+  },
+  "gallery": [],
+  "address": {
+    "line": "Mrs Macquaries Road",
+    "suburb": "Sydney",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": null
+  },
+  "contact": {
+    "phone": "(02) 9231 8111",
+    "email": null
+  },
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/BotanicSydney/"
+    },
+    {
+      "platform": "x",
+      "url": "https://x.com/BotanicSydney"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/botanicsydney/"
+    }
+  ],
+  "links": {
+    "booking": null,
+    "website": "https://www.botanicgardens.org.au/"
+  },
+  "accessibility": {
+    "status": "welcomes",
+    "detail": "Actively welcomes people with access needs. Caters for people who use a wheelchair. Has an accessible public toilet. Has wheelchair accessible parking. Has step free access to restaurant, lounge and bar. Has step free outdoor pathways. Has wheelchair accessible transport options available nearby.",
+    "features": [],
+    "operator_access_url": "https://www.botanicgardens.org.au/royal-botanic-garden-sydney/plan-your-visit/accessibility"
+  },
+  "availability": null,
+  "pricing": null,
+  "faqs": [],
+  "place_ref": null,
+  "operator_ref": null,
+  "parent_ref": null,
+  "last_verified": null,
+  "extension": null
+}

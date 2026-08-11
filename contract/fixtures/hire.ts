@@ -1,0 +1,92 @@
+// Live fixture — Sydney Harbour Kayaks - Middle Harbour (Mosman) (hire).
+//
+// Source: full saved-HTML export of the real sydney.com page, parsed
+// directly for this fixture. Only fields marked `live` in
+// docs/product-data-contract.md are populated; every field marked `gap`
+// is null, not filled with a plausible guess.
+//
+// extension stays null: the page carries no hire-specific field (no
+// itemised rental rates, no hire-period list, no age/height requirement)
+// — everything present maps to the shared record, accessibility, or links
+// blocks. HireExtension is still `_confirmed: false` in the contract; this
+// record doesn't change that, it just confirms the block has nothing to
+// confirm for this page.
+
+import type { HireProduct } from '../types/product';
+
+export const sydneyHarbourKayaksLive: HireProduct = {
+  id: 'sydney-harbour-kayaks-middle-harbour-mosman',
+  type: 'hire',
+  title: 'Sydney Harbour Kayaks - Middle Harbour (Mosman)',
+  overview:
+    'Discover Sydney Harbour at your own pace with Sydney Harbour Kayaks, proudly inducted into the NSW Tourism Hall of Fame.\n\n' +
+    "Located at The Spit Bridge in Mosman, their rental centre provides direct access to the spectacular waterways of Middle Harbour, one of Sydney's most beautiful paddling destinations. Explore secluded beaches, sandstone cliffs, tranquil bays and pristine bushland, all just minutes from the city.\n\n" +
+    "Choose from one of Australia's largest fleets of premium single and double sea kayaks and surf skis, featuring leading brands including Mirage Sea Kayaks, Fenn and Carbonology. Whether you're looking for a short paddle, a full-day adventure or a take-away rental for a race, holiday or expedition, they have the perfect craft for your next adventure.\n\n" +
+    'Paddling is always better with friends, and their range of stable double sea kayaks makes it easy to share the experience. Explore together, discover hidden corners of the harbour and create lasting memories on the water.\n\n' +
+    'Rentals are available from one hour through to full-day hire, with stable beginner-friendly kayaks through to high-performance surf skis for experienced paddlers.\n\n' +
+    'For those new to the sport, they also offer free introductory kayaking and safety courses, helping you build confidence and develop the skills needed to enjoy the water safely.\n\n' +
+    "Get out on the water, explore more and discover why Middle Harbour is Sydney's ultimate paddling playground.",
+
+  highlights: {
+    items: [
+      'Wide range of premium kayaks and surf skis from top brands',
+      'Flexible hire options, including off-the-beach and take-away rentals',
+      'Free kayaking courses to boost confidence and safety on the water',
+    ],
+    provenance: 'generated',
+    generated_at: null,
+  },
+
+  // The page confirms "16 photos" but every image alt attribute is empty —
+  // no captions or credits are authored, so no real asset data to carry over.
+  gallery: [],
+
+  address: {
+    line: '81 Parriwi Road, Smiths Boat Shed',
+    suburb: 'Mosman',
+    state: 'NSW',
+    postcode: '2088',
+    country: 'Australia',
+    geo: null,
+  },
+
+  contact: { phone: '0408 997 704', email: 'info@sydneyharbourkayaks.com.au' },
+
+  socials: [
+    { platform: 'facebook', url: 'https://www.facebook.com/seakayaking/' },
+    { platform: 'x', url: 'https://x.com/Syd_Harb_Kayaks' },
+    { platform: 'instagram', url: 'https://www.instagram.com/kayaksydney' },
+  ],
+
+  links: {
+    // Confirmed present — unlike the other five mounted pages, this record
+    // carries a real, distinct booking link alongside the website link.
+    booking: 'https://www.sydneyharbourkayaks.com.au/rentals',
+    website: 'http://www.sydneyharbourkayaks.com.au/',
+  },
+
+  accessibility: {
+    status: 'welcomes',
+    detail:
+      'Actively welcomes people with access needs. Caters for people who are blind or have vision loss. Caters for people who are deaf or have hearing loss. Offers multiple options for booking - web, email, phone.',
+    // No structured feature list exists today — the source is one free-text field.
+    features: [],
+    // Confirmed absent — no accessibility statement link on this page,
+    // unlike Royal Botanic Garden which has one.
+    operator_access_url: null,
+  },
+
+  availability: null,
+  pricing: null,
+
+  // Confirmed absent — the "FAQs" tab on the real page contains only the
+  // accessibility content above, no Q&A pairs.
+  faqs: [],
+
+  place_ref: null,
+  operator_ref: null,
+  parent_ref: null,
+  last_verified: null,
+
+  extension: null,
+};
