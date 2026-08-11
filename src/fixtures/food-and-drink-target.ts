@@ -1,0 +1,125 @@
+// ⚠ ILLUSTRATIVE VALUES ONLY — NOT A PROPOSAL, NOT SOURCED DATA ⚠
+// Every price, date, duration, URL, phone number and id below is made up
+// to show the shape filled in. None of it is a recommendation for what the
+// real number should be — if one of these values ends up quoted in a deck
+// or a ticket, that's this comment failing, not the number being right.
+//
+// Target fixture — Mother Chu's Taiwanese Gourmet (food_and_drink).
+//
+// Parallels food-and-drink.ts. Every field that was null there because it's
+// marked `gap` in docs/product-data-contract.md is filled here with a
+// realistic value. `cancellation_policy` and `operator_ref` stay null
+// deliberately — for a walk-in restaurant, "not applicable" is itself the
+// realistic value, not a gap. These values are illustrative, not sourced —
+// do not treat any URL, id or date below as real.
+
+import type { FoodAndDrinkProduct } from '../types/product';
+
+export const motherChusTarget: FoodAndDrinkProduct = {
+  id: 'mother-chus-taiwanese-gourmet',
+  type: 'food_and_drink',
+  title: "Mother Chu's Taiwanese Gourmet",
+  overview:
+    "Mother Chu's Taiwanese Gourmet offers a range of traditional Taiwanese delicacies, ranging from street food staples to snacks, buns and dumplings. Begin with one of the traditional drinks, perhaps hot soy bean milk, sour plum juice or homemade iced green tea. Then dive into the street eats including youtiao (fried bread sticks), shallot pancakes and baked sesame flatbread.\n\n" +
+    "Taiwanese cuisine is big on steamed buns dumplings, and Mother Chu's does not disappoint. There are more than a dozen varieties to choose from, ranging from the classic barbecued pork steamed bun to pork-and-prawn dim sims, vegetarian dumplings and steamed soup buns. Speciality side dishes are a must, and include a delicate cloud ear fungus salad, soy marinated eggs and omelette with salted and dried radish.",
+
+  highlights: {
+    items: [
+      'Authentic Taiwanese street food and traditional delicacies',
+      'Wide variety of steamed buns and dumplings to suit all tastes',
+      'Unique drinks like hot soy milk and homemade iced green tea',
+    ],
+    provenance: 'approved',
+    generated_at: '2026-07-15',
+  },
+
+  gallery: [
+    { url: 'https://images.sydney.com/products/mother-chus-taiwanese-gourmet/storefront.jpg', alt: "Mother Chu's Taiwanese Gourmet shopfront on Dixon Street", credit: "Mother Chu's Taiwanese Gourmet" },
+    { url: 'https://images.sydney.com/products/mother-chus-taiwanese-gourmet/dumplings.jpg', alt: 'Steamed dumplings on a bamboo tray', credit: "Mother Chu's Taiwanese Gourmet" },
+    { url: 'https://images.sydney.com/products/mother-chus-taiwanese-gourmet/bun.jpg', alt: 'Barbecued pork steamed bun', credit: "Mother Chu's Taiwanese Gourmet" },
+  ],
+
+  address: {
+    line: '1/84-88 Dixon Street',
+    suburb: 'Sydney',
+    state: 'NSW',
+    postcode: '2000',
+    country: 'Australia',
+    geo: { lat: -33.8794, lng: 151.2058 },
+  },
+
+  contact: { phone: '(02) 9211 0288', email: 'info@mychumama.com' },
+
+  socials: [
+    { platform: 'facebook', url: 'https://www.facebook.com/MyChuMama/' },
+    { platform: 'instagram', url: 'https://www.instagram.com/mychumama/' },
+  ],
+
+  links: { booking: null, website: 'https://mychumama.com/' },
+
+  accessibility: {
+    status: 'does_not_cater',
+    detail: 'Does not cater for people with access needs.',
+    features: [],
+    operator_access_url: null,
+  },
+
+  availability: {
+    kind: 'opening_hours',
+    opening_hours: [
+      { day: 'mon', opens: '11:00', closes: '21:00' },
+      { day: 'tue', opens: '11:00', closes: '21:00' },
+      { day: 'wed', opens: '11:00', closes: '21:00' },
+      { day: 'thu', opens: '11:00', closes: '21:00' },
+      { day: 'fri', opens: '11:00', closes: '21:30' },
+      { day: 'sat', opens: '11:00', closes: '21:30' },
+      { day: 'sun', opens: '11:00', closes: '21:00' },
+    ],
+    special_hours: [],
+    operating_days: [],
+    departure_times: [],
+    duration_minutes: 0,
+    seasonal: { from: '', to: '' },
+    event_dates: { start: '', end: '' },
+    sessions: [],
+    recurrence: '',
+    min_nights: 0,
+    checkin_time: '',
+    checkout_time: '',
+    advance_booking_required: false,
+    typical_duration_minutes: 45,
+  },
+
+  pricing: {
+    from: 8,
+    to: 25,
+    currency: 'AUD',
+    band: '$',
+    is_free: false,
+    unit: 'per_person',
+    concessions: [],
+    inclusions: [],
+    exclusions: [],
+    cancellation_policy: null, // not applicable — walk-in dining, no reservation to cancel
+  },
+
+  faqs: [
+    { question: 'Do you take reservations?', answer: "No, Mother Chu's is walk-in only." },
+    { question: 'Is there parking nearby?', answer: 'Metered street parking and the Sussex Street car park are both within a short walk.' },
+  ],
+
+  place_ref: 'chinatown-sydney',
+  operator_ref: null, // independent business, no separate operator entity
+  parent_ref: null,
+  last_verified: '2026-08-01',
+
+  extension: {
+    cuisine: ['Taiwanese'],
+    meal_services: ['lunch', 'dinner'],
+    dietary: ['vegetarian'],
+    menu_url: 'https://mychumama.com/menu',
+    dress_code: null,
+    bookings_required: false,
+    licensed: false,
+  },
+};
