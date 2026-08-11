@@ -1,0 +1,39 @@
+{
+  "id": "underbridge-walk",
+  "type": "tour",
+  "title": "UnderBridge Walk",
+  "overview": "Weave beneath the Bridge's immense structure before ascending a short section of simple stairs to a lower vantage point on the Bridge, looking up at the awe-inspiring 'cathedral of steel' above you.\n\nA 2-hour total experience, with one hour on the Bridge, this experience is designed for curious explorers. You may not reach the Summit, but you'll still uncover a side of the Bridge few ever get to see — one that celebrates its incredible scale, hidden stories, and striking beauty from beneath.",
+  "highlights": null,
+  "gallery": [],
+  "address": {
+    "line": "3 Cumberland Street",
+    "suburb": "The Rocks",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": null
+  },
+  "contact": {
+    "phone": null,
+    "email": null
+  },
+  "socials": [],
+  "links": {
+    "booking": "https://www.bridgeclimb.com/experiences/underbridge-walk",
+    "website": null
+  },
+  "accessibility": {
+    "status": "does_not_cater",
+    "detail": "Does not cater for people with access needs.",
+    "features": [],
+    "operator_access_url": null
+  },
+  "availability": null,
+  "pricing": null,
+  "faqs": [],
+  "place_ref": null,
+  "operator_ref": null,
+  "parent_ref": "bridgeclimb-sydney",
+  "last_verified": null,
+  "extension": null
+}

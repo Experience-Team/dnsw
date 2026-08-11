@@ -1,0 +1,47 @@
+{
+  "id": "bridgeclimb-sydney",
+  "type": "tour",
+  "title": "BridgeClimb Sydney",
+  "overview": "BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.\n\nAs you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and…",
+  "highlights": {
+    "items": [
+      "Climb to the summit of the iconic Sydney Harbour Bridge",
+      "Enjoy 360° views with expert commentary on history and engineering",
+      "Safe, guided adventure offering a unique and memorable experience"
+    ],
+    "provenance": "generated",
+    "generated_at": null
+  },
+  "gallery": [],
+  "address": {
+    "line": "3 Cumberland Street",
+    "suburb": "The Rocks",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": null
+  },
+  "contact": {
+    "phone": null,
+    "email": null
+  },
+  "socials": [],
+  "links": {
+    "booking": null,
+    "website": null
+  },
+  "accessibility": {
+    "status": "not_stated",
+    "features": [],
+    "detail": null,
+    "operator_access_url": null
+  },
+  "availability": null,
+  "pricing": null,
+  "faqs": [],
+  "place_ref": null,
+  "operator_ref": null,
+  "parent_ref": null,
+  "last_verified": null,
+  "extension": null
+}

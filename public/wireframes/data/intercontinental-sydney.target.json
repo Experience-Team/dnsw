@@ -1,0 +1,180 @@
+{
+  "id": "intercontinental-sydney",
+  "type": "accommodation",
+  "title": "InterContinental Sydney",
+  "overview": "Welcome the height of luxury, where heritage wonder and contemporary flair collide. Centrally positioned in the heart of Circular Quay, InterContinental Sydney extends breathtaking panoramic views of the Sydney Opera House and Sydney Harbour Bridge.\n\nSet within the beautifully restored Treasury Building of 1851, InterContinental Sydney is renowned as one of the city's prized icons with 509 guest rooms including 28 luxury suites, an award-winning and world-class Club InterContinental lounge and vibrant dining venues.\n\nWith an AUD120 million refurbishment in 2022, the elevating rooms, public spaces, bars and restaurants, provide a new era of luxury.",
+  "highlights": {
+    "items": [
+      "Stunning views of the Sydney Opera House and Harbour Bridge.",
+      "Luxurious rooms and award-winning Club InterContinental lounge.",
+      "Centrally located in Circular Quay, close to major attractions."
+    ],
+    "provenance": "approved",
+    "generated_at": "2026-07-15"
+  },
+  "gallery": [
+    {
+      "url": "https://images.sydney.com/products/intercontinental-sydney/exterior.jpg",
+      "alt": "InterContinental Sydney Treasury Building exterior",
+      "credit": "InterContinental Hotels Group"
+    },
+    {
+      "url": "https://images.sydney.com/products/intercontinental-sydney/lobby.jpg",
+      "alt": "Hotel lobby beneath the heritage sandstone atrium",
+      "credit": "InterContinental Hotels Group"
+    },
+    {
+      "url": "https://images.sydney.com/products/intercontinental-sydney/suite.jpg",
+      "alt": "Harbour-view suite bedroom",
+      "credit": "InterContinental Hotels Group"
+    },
+    {
+      "url": "https://images.sydney.com/products/intercontinental-sydney/lounge.jpg",
+      "alt": "Club InterContinental lounge",
+      "credit": "InterContinental Hotels Group"
+    }
+  ],
+  "address": {
+    "line": "117 Macquarie Street",
+    "suburb": "Sydney",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": {
+      "lat": -33.8622,
+      "lng": 151.2119
+    }
+  },
+  "contact": {
+    "phone": "(02) 9253 9000",
+    "email": "intercontinental.sydney@ihg.com"
+  },
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/InterContinentalSydney"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/intercontinentalsydney/"
+    }
+  ],
+  "links": {
+    "booking": "https://www.ihg.com/intercontinental/hotels/us/en/find-hotels/select-roomrate?fromRedirect=true&qSrt=sBR&qSlH=SYDHA&qRms=1&qAdlt=2&qCiD=21&qCiMy=052021&qCoD=24&qCoMy=052021&qAAR=IYAPE&qRtP=IYAPE&setPMCookies=true&qSHBrC=IC&qDest=117%20Macquarie%20Street%2c%20Sydney%2c%20NSW%2c%20AU&srb_u=1&qChAge=",
+    "website": "https://www.sydney.intercontinental.com/"
+  },
+  "accessibility": {
+    "status": "welcomes",
+    "detail": "Actively welcomes people with access needs. Caters for people who use a wheelchair. Caters for people with allergies and intolerances.",
+    "features": [
+      "wheelchair_access",
+      "accessible_parking",
+      "accessible_bathroom",
+      "step_free_entry"
+    ],
+    "operator_access_url": "https://www.ihg.com/intercontinental/hotels/us/en/accessibility"
+  },
+  "availability": {
+    "kind": "stay_dates",
+    "opening_hours": [],
+    "special_hours": [],
+    "operating_days": [],
+    "departure_times": [],
+    "duration_minutes": 0,
+    "seasonal": {
+      "from": "",
+      "to": ""
+    },
+    "event_dates": {
+      "start": "",
+      "end": ""
+    },
+    "sessions": [],
+    "recurrence": "",
+    "min_nights": 1,
+    "checkin_time": "15:00",
+    "checkout_time": "11:00",
+    "advance_booking_required": false,
+    "typical_duration_minutes": 0
+  },
+  "pricing": {
+    "from": 450,
+    "to": 1200,
+    "currency": "AUD",
+    "band": "$$$$",
+    "is_free": false,
+    "unit": "per_night",
+    "concessions": [],
+    "inclusions": [
+      "Complimentary WiFi",
+      "Access to Club InterContinental lounge (select room types)"
+    ],
+    "exclusions": [
+      "Breakfast (unless selected at booking)"
+    ],
+    "cancellation_policy": "Free cancellation up to 48 hours before arrival for standard rate bookings."
+  },
+  "faqs": [
+    {
+      "question": "What time is check-in and check-out?",
+      "answer": "Check-in is from 3:00pm and check-out is by 11:00am. Early check-in and late check-out may be available on request."
+    },
+    {
+      "question": "Is parking available?",
+      "answer": "Valet parking is available on-site for an additional nightly fee."
+    },
+    {
+      "question": "Are pets allowed?",
+      "answer": "InterContinental Sydney does not accept pets, with the exception of registered assistance animals."
+    }
+  ],
+  "place_ref": "treasury-building-sydney",
+  "operator_ref": "ihg-hotels-resorts",
+  "parent_ref": null,
+  "last_verified": "2026-08-01",
+  "extension": {
+    "category": "hotel",
+    "star_rating": {
+      "value": 5,
+      "source": "self_declared"
+    },
+    "total_capacity": {
+      "rooms": 509,
+      "sites": 0,
+      "beds": 0
+    },
+    "room_types_ref": [],
+    "facilities": [
+      "Swimming pool",
+      "Fitness centre",
+      "Club InterContinental lounge",
+      "Multiple restaurants and bars"
+    ],
+    "in_room_amenities": [
+      "Air conditioning",
+      "Minibar",
+      "Smart TV",
+      "Nespresso machine"
+    ],
+    "self_catering": [],
+    "bathroom": "private",
+    "sites": {
+      "powered": 0,
+      "unpowered": 0
+    },
+    "parking": {
+      "available": true,
+      "cost": "$65 per night",
+      "type": "Valet"
+    },
+    "pets_allowed": false,
+    "smoking_allowed": false,
+    "children": {
+      "cots": true,
+      "extra_beds": true,
+      "free_under_age": 12
+    },
+    "meals_included": [],
+    "brand": "InterContinental Hotels & Resorts"
+  }
+}

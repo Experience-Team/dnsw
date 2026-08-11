@@ -1,0 +1,195 @@
+{
+  "id": "bridgeclimb-sydney",
+  "type": "tour",
+  "title": "BridgeClimb Sydney",
+  "overview": "BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.\n\nAs you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and secure every step of the way.",
+  "highlights": {
+    "items": [
+      "Climb to the summit of the iconic Sydney Harbour Bridge",
+      "Enjoy 360° views with expert commentary on history and engineering",
+      "Safe, guided adventure offering a unique and memorable experience"
+    ],
+    "provenance": "approved",
+    "generated_at": "2026-07-15"
+  },
+  "gallery": [
+    {
+      "url": "https://images.sydney.com/products/bridgeclimb-sydney/summit.jpg",
+      "alt": "Climbers at the summit of the Sydney Harbour Bridge at sunrise",
+      "credit": "BridgeClimb Sydney"
+    },
+    {
+      "url": "https://images.sydney.com/products/bridgeclimb-sydney/group.jpg",
+      "alt": "Climb group ascending the upper arch in matching climb suits",
+      "credit": "BridgeClimb Sydney"
+    },
+    {
+      "url": "https://images.sydney.com/products/bridgeclimb-sydney/harbour-view.jpg",
+      "alt": "View across Sydney Harbour and the Opera House from the Bridge",
+      "credit": "BridgeClimb Sydney"
+    }
+  ],
+  "address": {
+    "line": "3 Cumberland Street",
+    "suburb": "The Rocks",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": {
+      "lat": -33.8523,
+      "lng": 151.2108
+    }
+  },
+  "contact": {
+    "phone": "(02) 8274 7777",
+    "email": "info@bridgeclimb.com"
+  },
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/BridgeClimbSydney"
+    },
+    {
+      "platform": "x",
+      "url": "https://x.com/bridgeclimb"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/bridgeclimb/"
+    }
+  ],
+  "links": {
+    "booking": "https://www.bridgeclimb.com/book-now",
+    "website": "https://www.bridgeclimb.com/"
+  },
+  "accessibility": {
+    "status": "partial",
+    "detail": "Minimum height and weight requirements apply for all Climb experiences. Guides can discuss individual mobility, health and fitness requirements before booking.",
+    "features": [
+      "step_free_entry"
+    ],
+    "operator_access_url": "https://www.bridgeclimb.com/accessibility"
+  },
+  "availability": {
+    "kind": "operating_days",
+    "opening_hours": [],
+    "special_hours": [],
+    "operating_days": [
+      "mon",
+      "tue",
+      "wed",
+      "thu",
+      "fri",
+      "sat",
+      "sun"
+    ],
+    "departure_times": [
+      "07:15",
+      "09:55",
+      "12:35",
+      "15:15",
+      "17:55"
+    ],
+    "duration_minutes": 210,
+    "seasonal": {
+      "from": "",
+      "to": ""
+    },
+    "event_dates": {
+      "start": "",
+      "end": ""
+    },
+    "sessions": [],
+    "recurrence": "",
+    "min_nights": 0,
+    "checkin_time": "",
+    "checkout_time": "",
+    "advance_booking_required": true,
+    "typical_duration_minutes": 210
+  },
+  "pricing": {
+    "from": 168,
+    "to": 468,
+    "currency": "AUD",
+    "band": "$$$$",
+    "is_free": false,
+    "unit": "per_person",
+    "concessions": [
+      {
+        "type": "child",
+        "from": 98
+      }
+    ],
+    "inclusions": [
+      "All safety equipment",
+      "Professional Climb Leader",
+      "Certificate and group photo"
+    ],
+    "exclusions": [
+      "Personal photography during the Climb"
+    ],
+    "cancellation_policy": "Free rescheduling up to 24 hours before your Climb."
+  },
+  "faqs": [
+    {
+      "question": "What should I wear?",
+      "answer": "BridgeClimb provides a one-piece climb suit; wear comfortable enclosed shoes underneath."
+    },
+    {
+      "question": "Is there a weight or height limit?",
+      "answer": "Yes, minimum and maximum height and weight requirements apply for safety harness fitting — contact BridgeClimb directly to confirm eligibility."
+    }
+  ],
+  "place_ref": "sydney-harbour-bridge",
+  "operator_ref": "bridgeclimb-sydney-operator",
+  "parent_ref": null,
+  "last_verified": "2026-08-01",
+  "extension": {
+    "itinerary": [
+      {
+        "order": 1,
+        "title": "Breathalyser and briefing",
+        "description": "Safety briefing, breathalyser test and climb suit fitting at BridgeClimb Base.",
+        "duration_minutes": 45
+      },
+      {
+        "order": 2,
+        "title": "Ascend the upper arch",
+        "description": "Guided ascent along the upper arch catwalk to the summit.",
+        "duration_minutes": 60
+      },
+      {
+        "order": 3,
+        "title": "Summit",
+        "description": "Time at the summit for 360-degree views and photos.",
+        "duration_minutes": 20
+      },
+      {
+        "order": 4,
+        "title": "Descend",
+        "description": "Guided descent back to BridgeClimb Base.",
+        "duration_minutes": 85
+      }
+    ],
+    "meeting_point": {
+      "description": "BridgeClimb Base, 3 Cumberland Street, The Rocks",
+      "geo": {
+        "lat": -33.8523,
+        "lng": 151.2108
+      }
+    },
+    "group_size": {
+      "min": 2,
+      "max": 14
+    },
+    "languages": [
+      "English"
+    ],
+    "fitness_level": "moderate",
+    "min_age": 8,
+    "what_to_bring": [
+      "Comfortable enclosed shoes",
+      "Photo ID"
+    ]
+  }
+}
