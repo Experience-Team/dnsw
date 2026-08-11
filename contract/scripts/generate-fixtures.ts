@@ -20,12 +20,18 @@ import { motherChusLive } from '../fixtures/food-and-drink';
 import { motherChusTarget } from '../fixtures/food-and-drink-target';
 import { tourFixturesLive } from '../fixtures/tour';
 import { tourFixturesTarget } from '../fixtures/tour-target';
+import { royalBotanicGardenLive } from '../fixtures/attraction';
+import { royalBotanicGardenTarget } from '../fixtures/attraction-target';
+import { sydneyHarbourKayaksLive } from '../fixtures/hire';
+import { sydneyHarbourKayaksTarget } from '../fixtures/hire-target';
 
 const liveRecords: ProductRecord[] = [
   lionKingLive,
   interContinentalSydneyLive,
   motherChusLive,
   ...tourFixturesLive,
+  royalBotanicGardenLive,
+  sydneyHarbourKayaksLive,
 ];
 
 const targetRecords: ProductRecord[] = [
@@ -33,6 +39,8 @@ const targetRecords: ProductRecord[] = [
   interContinentalSydneyTarget,
   motherChusTarget,
   ...tourFixturesTarget,
+  royalBotanicGardenTarget,
+  sydneyHarbourKayaksTarget,
 ];
 
 // __dirname at runtime is contract/.build/scripts/ (outDir mirrors rootDir's
