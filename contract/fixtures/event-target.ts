@@ -100,6 +100,58 @@ export const lionKingTarget: EventProduct = {
     cancellation_policy: 'Tickets are non-refundable; exchanges available up to 24 hours before the performance.',
   },
 
+  trust: {
+    aggregate_rating: 4.7,
+    review_count: 3204,
+    review_excerpts: [
+      { author: 'Priya S.', text: 'Breathtaking staging — the puppetry alone is worth the ticket.', source: 'Google', date: '2026-07-20' },
+      { author: 'Callum R.', text: 'Took the kids, everyone from age 6 to 60 loved it.', source: 'TripAdvisor', date: '2026-07-02' },
+    ],
+    review_source: 'Google Reviews',
+    review_licence: 'Displayed under Google Places API terms',
+    accreditations: [],
+    aboriginal_owned: false,
+    awards: [{ name: 'Best Musical', year: 1998, awarding_body: 'Tony Awards' }],
+  },
+
+  getting_there: {
+    nearest_transport: [
+      { mode: 'train', name: 'Central Station', walking_minutes: 6 },
+      { mode: 'light_rail', name: 'Capitol Square Light Rail Stop', walking_minutes: 2 },
+    ],
+    parking: { available: true, cost: 'Secure Parking Capitol Square, from $25 evening rate', distance_minutes: 3 },
+    travel_time_from_cbd_minutes: 8,
+    pickup_point: null,
+  },
+
+  live_availability: {
+    next_sessions: [
+      { datetime: '2026-08-12T19:00:00+10:00', status: 'few_left' },
+      { datetime: '2026-08-13T13:00:00+10:00', status: 'available' },
+      { datetime: '2026-08-13T19:00:00+10:00', status: 'sold_out' },
+    ],
+    remaining_capacity: 24,
+    sold_out: false,
+    booking_partner: 'Ticketmaster',
+  },
+
+  suitability: {
+    suitable_for: ['families', 'couples', 'groups', 'school_groups'],
+    age_guidance: 'Recommended for ages 6+',
+    dietary_options: [],
+    languages_offered: ['English'],
+    fitness_level: null,
+    pet_policy: 'Assistance animals only',
+    group_size: { min: 1, max: 20 },
+    weather_dependency: 'indoor',
+  },
+
+  practical: {
+    what_to_bring: ['Printed or mobile ticket', 'Photo ID for concession tickets'],
+    on_site_facilities: ['Cloakroom', 'Bar', 'Wheelchair accessible seating'],
+    best_time_to_visit: 'Arrive 30 minutes before curtain to avoid the foyer queue',
+  },
+
   faqs: [
     {
       question: 'How long does the show run for?',

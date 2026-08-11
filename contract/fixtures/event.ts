@@ -91,6 +91,12 @@ export const lionKingLive: EventProduct = {
   // Gap on every type (contract §5).
   pricing: null,
 
+  trust: null,
+  getting_there: null,
+  live_availability: null,
+  suitability: null,
+  practical: null,
+
   // Every audited page's FAQ block holds no actual questions — accessibility
   // occupies the slot instead. Confirmed empty, not unknown.
   faqs: [],

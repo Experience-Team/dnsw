@@ -61,6 +61,11 @@
     "typical_duration_minutes": 0
   },
   "pricing": null,
+  "trust": null,
+  "getting_there": null,
+  "live_availability": null,
+  "suitability": null,
+  "practical": null,
   "faqs": [],
   "place_ref": null,
   "operator_ref": null,

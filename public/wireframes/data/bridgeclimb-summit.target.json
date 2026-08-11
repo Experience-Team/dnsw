@@ -128,6 +128,90 @@
     ],
     "cancellation_policy": "Free rescheduling up to 24 hours before your Climb."
   },
+  "trust": {
+    "aggregate_rating": 4.8,
+    "review_count": 3410,
+    "review_excerpts": [
+      {
+        "author": "Sophie K.",
+        "text": "BridgeClimb's original Climb and still the best — full Summit views.",
+        "source": "TripAdvisor",
+        "date": "2026-07-05"
+      }
+    ],
+    "review_source": "TripAdvisor",
+    "review_licence": "Displayed under TripAdvisor Content API terms",
+    "accreditations": [],
+    "aboriginal_owned": false,
+    "awards": []
+  },
+  "getting_there": {
+    "nearest_transport": [
+      {
+        "mode": "train",
+        "name": "Circular Quay Station",
+        "walking_minutes": 8
+      },
+      {
+        "mode": "ferry",
+        "name": "Circular Quay Ferry Wharf",
+        "walking_minutes": 9
+      }
+    ],
+    "parking": {
+      "available": true,
+      "cost": "The Rocks Car Park, from $18 for 2 hours",
+      "distance_minutes": 5
+    },
+    "travel_time_from_cbd_minutes": 12,
+    "pickup_point": "BridgeClimb Base, 3 Cumberland Street, The Rocks"
+  },
+  "live_availability": {
+    "next_sessions": [
+      {
+        "datetime": "2026-08-12T08:00:00+10:00",
+        "status": "few_left"
+      },
+      {
+        "datetime": "2026-08-12T11:00:00+10:00",
+        "status": "available"
+      }
+    ],
+    "remaining_capacity": 4,
+    "sold_out": false,
+    "booking_partner": "BridgeClimb Direct Booking"
+  },
+  "suitability": {
+    "suitable_for": [
+      "couples",
+      "solo",
+      "groups"
+    ],
+    "age_guidance": "Minimum age 8, with adult supervision required under 16",
+    "dietary_options": [],
+    "languages_offered": [
+      "English"
+    ],
+    "fitness_level": "moderate",
+    "pet_policy": "Not permitted",
+    "group_size": {
+      "min": 2,
+      "max": 14
+    },
+    "weather_dependency": "outdoor_weather_dependent"
+  },
+  "practical": {
+    "what_to_bring": [
+      "Comfortable enclosed shoes",
+      "Photo ID"
+    ],
+    "on_site_facilities": [
+      "Lockers",
+      "Changing rooms",
+      "Retail shop"
+    ],
+    "best_time_to_visit": "Sunrise Climbs sell out first — book at least 2 weeks ahead"
+  },
   "faqs": [
     {
       "question": "How is Summit different from other BridgeClimb experiences?",

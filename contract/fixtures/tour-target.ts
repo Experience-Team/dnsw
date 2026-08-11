@@ -105,6 +105,57 @@ export const bridgeClimbSydneyTarget: TourProduct = {
     cancellation_policy: 'Free rescheduling up to 24 hours before your Climb.',
   },
 
+  trust: {
+    aggregate_rating: 4.8,
+    review_count: 8940,
+    review_excerpts: [
+      { author: 'Marcus O.', text: 'Once-in-a-lifetime views, the Climb Leaders make it feel completely safe.', source: 'TripAdvisor', date: '2026-07-10' },
+      { author: 'Isabelle F.', text: 'Bucket list experience — sunrise climb was worth the early wake-up.', source: 'Google', date: '2026-06-22' },
+    ],
+    review_source: 'TripAdvisor',
+    review_licence: 'Displayed under TripAdvisor Content API terms',
+    accreditations: ['ISO 9001 Safety Management (self-declared, pending accreditation check)'],
+    aboriginal_owned: false,
+    awards: [{ name: 'Sydney\'s Best Tourism Experience', year: 2025, awarding_body: 'NSW Tourism Awards' }],
+  },
+
+  getting_there: {
+    nearest_transport: [
+      { mode: 'train', name: 'Circular Quay Station', walking_minutes: 8 },
+      { mode: 'ferry', name: 'Circular Quay Ferry Wharf', walking_minutes: 9 },
+    ],
+    parking: { available: true, cost: 'The Rocks Car Park, from $18 for 2 hours', distance_minutes: 5 },
+    travel_time_from_cbd_minutes: 12,
+    pickup_point: 'BridgeClimb Base, 3 Cumberland Street, The Rocks',
+  },
+
+  live_availability: {
+    next_sessions: [
+      { datetime: '2026-08-12T07:15:00+10:00', status: 'available' },
+      { datetime: '2026-08-12T09:55:00+10:00', status: 'few_left' },
+    ],
+    remaining_capacity: 6,
+    sold_out: false,
+    booking_partner: 'BridgeClimb Direct Booking',
+  },
+
+  suitability: {
+    suitable_for: ['couples', 'solo', 'groups'],
+    age_guidance: 'Minimum age 8, with adult supervision required under 16',
+    dietary_options: [],
+    languages_offered: ['English'],
+    fitness_level: 'moderate',
+    pet_policy: 'Not permitted',
+    group_size: { min: 2, max: 14 },
+    weather_dependency: 'outdoor_weather_dependent',
+  },
+
+  practical: {
+    what_to_bring: ['Comfortable enclosed shoes', 'Photo ID'],
+    on_site_facilities: ['Lockers', 'Changing rooms', 'Retail shop'],
+    best_time_to_visit: 'Sunrise and twilight Climbs sell out first — book at least 2 weeks ahead',
+  },
+
   faqs: [
     { question: 'What should I wear?', answer: 'BridgeClimb provides a one-piece climb suit; wear comfortable enclosed shoes underneath.' },
     { question: 'Is there a weight or height limit?', answer: 'Yes, minimum and maximum height and weight requirements apply for safety harness fitting — contact BridgeClimb directly to confirm eligibility.' },
@@ -221,6 +272,56 @@ export const underBridgeWalkTarget: TourProduct = {
     cancellation_policy: 'Free rescheduling up to 24 hours before your Walk.',
   },
 
+  trust: {
+    aggregate_rating: 4.6,
+    review_count: 1180,
+    review_excerpts: [
+      { author: 'Tom B.', text: 'Great alternative if you want the Bridge experience without the full Climb.', source: 'Google', date: '2026-06-15' },
+    ],
+    review_source: 'Google Reviews',
+    review_licence: 'Displayed under Google Places API terms',
+    accreditations: [],
+    aboriginal_owned: false,
+    awards: [],
+  },
+
+  getting_there: {
+    nearest_transport: [
+      { mode: 'train', name: 'Circular Quay Station', walking_minutes: 8 },
+      { mode: 'ferry', name: 'Circular Quay Ferry Wharf', walking_minutes: 9 },
+    ],
+    parking: { available: true, cost: 'The Rocks Car Park, from $18 for 2 hours', distance_minutes: 5 },
+    travel_time_from_cbd_minutes: 12,
+    pickup_point: 'BridgeClimb Base, 3 Cumberland Street, The Rocks',
+  },
+
+  live_availability: {
+    next_sessions: [
+      { datetime: '2026-08-12T10:30:00+10:00', status: 'available' },
+      { datetime: '2026-08-12T13:30:00+10:00', status: 'available' },
+    ],
+    remaining_capacity: 15,
+    sold_out: false,
+    booking_partner: 'BridgeClimb Direct Booking',
+  },
+
+  suitability: {
+    suitable_for: ['families', 'couples', 'solo', 'groups', 'school_groups'],
+    age_guidance: 'Minimum age 6, suited to first-timers and families',
+    dietary_options: [],
+    languages_offered: ['English'],
+    fitness_level: 'easy',
+    pet_policy: 'Not permitted',
+    group_size: { min: 2, max: 20 },
+    weather_dependency: 'outdoor_weather_dependent',
+  },
+
+  practical: {
+    what_to_bring: ['Comfortable enclosed walking shoes'],
+    on_site_facilities: ['Lockers', 'Retail shop'],
+    best_time_to_visit: 'Mid-morning departures have the shortest wait',
+  },
+
   faqs: [
     { question: 'How is this different from a full Climb?', answer: "UnderBridge Walk stays beneath the Bridge's lower vantage point and doesn't reach the Summit, with fewer stairs and a shorter, 2-hour experience." },
     { question: 'What should I wear?', answer: 'Comfortable enclosed walking shoes are recommended; no climb suit is required for this experience.' },
@@ -331,6 +432,56 @@ export const bridgeClimbSummitTarget: TourProduct = {
     inclusions: ['All safety equipment', 'Professional Climb Leader', 'Certificate and group photo'],
     exclusions: ['Personal photography during the Climb'],
     cancellation_policy: 'Free rescheduling up to 24 hours before your Climb.',
+  },
+
+  trust: {
+    aggregate_rating: 4.8,
+    review_count: 3410,
+    review_excerpts: [
+      { author: 'Sophie K.', text: "BridgeClimb's original Climb and still the best — full Summit views.", source: 'TripAdvisor', date: '2026-07-05' },
+    ],
+    review_source: 'TripAdvisor',
+    review_licence: 'Displayed under TripAdvisor Content API terms',
+    accreditations: [],
+    aboriginal_owned: false,
+    awards: [],
+  },
+
+  getting_there: {
+    nearest_transport: [
+      { mode: 'train', name: 'Circular Quay Station', walking_minutes: 8 },
+      { mode: 'ferry', name: 'Circular Quay Ferry Wharf', walking_minutes: 9 },
+    ],
+    parking: { available: true, cost: 'The Rocks Car Park, from $18 for 2 hours', distance_minutes: 5 },
+    travel_time_from_cbd_minutes: 12,
+    pickup_point: 'BridgeClimb Base, 3 Cumberland Street, The Rocks',
+  },
+
+  live_availability: {
+    next_sessions: [
+      { datetime: '2026-08-12T08:00:00+10:00', status: 'few_left' },
+      { datetime: '2026-08-12T11:00:00+10:00', status: 'available' },
+    ],
+    remaining_capacity: 4,
+    sold_out: false,
+    booking_partner: 'BridgeClimb Direct Booking',
+  },
+
+  suitability: {
+    suitable_for: ['couples', 'solo', 'groups'],
+    age_guidance: 'Minimum age 8, with adult supervision required under 16',
+    dietary_options: [],
+    languages_offered: ['English'],
+    fitness_level: 'moderate',
+    pet_policy: 'Not permitted',
+    group_size: { min: 2, max: 14 },
+    weather_dependency: 'outdoor_weather_dependent',
+  },
+
+  practical: {
+    what_to_bring: ['Comfortable enclosed shoes', 'Photo ID'],
+    on_site_facilities: ['Lockers', 'Changing rooms', 'Retail shop'],
+    best_time_to_visit: 'Sunrise Climbs sell out first — book at least 2 weeks ahead',
   },
 
   faqs: [

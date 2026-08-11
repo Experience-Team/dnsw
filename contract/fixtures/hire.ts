@@ -78,6 +78,11 @@ export const sydneyHarbourKayaksLive: HireProduct = {
 
   availability: null,
   pricing: null,
+  trust: null,
+  getting_there: null,
+  live_availability: null,
+  suitability: null,
+  practical: null,
 
   // Confirmed absent — the "FAQs" tab on the real page contains only the
   // accessibility content above, no Q&A pairs.
