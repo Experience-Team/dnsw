@@ -80,7 +80,10 @@ function fieldHtml(label, value) {
 
 export function mount(container, product) {
   const priceFrom = product.pricing?.from ?? null;
-  const durationMinutes = product.availability?.typical_duration_minutes ?? null;
+  // typical_duration_minutes uses 0 as the "not applicable" sentinel, same
+  // as min_nights (see contract/types/product.ts — it's a plain number,
+  // not nullable), so a falsy value is treated as absent, not zero minutes.
+  const durationMinutes = product.availability?.typical_duration_minutes || null;
   const availability = availabilityField(product.availability);
   const primaryAction = getPrimaryAction(product.links);
 
