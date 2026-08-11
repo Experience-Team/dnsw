@@ -8,6 +8,7 @@ import AdaptiveContentView from './views/AdaptiveContentView';
 import GapsDashboard from './views/GapsDashboard';
 import UserStoryMap from './views/UserStoryMap';
 import SitemapView from './views/SitemapView';
+import DecisionBlockPreview from './views/DecisionBlockPreview';
 
 function JourneyMapLayout() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="quotes"  element={<GapsDashboard />} />
           <Route path="sitemap" element={<SitemapView />} />
         </Route>
+        <Route path="/preview/decision-block" element={<DecisionBlockPreview />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>
