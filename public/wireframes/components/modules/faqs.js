@@ -22,11 +22,14 @@ export function mount(container, product) {
     return;
   }
 
+  // No page in the audit holds real FAQ content today (the block was
+  // occupied by the accessibility statement — see accessibility.js) — every
+  // rendered pair is illustrative, so each entry carries the overlay.
   container.hidden = false;
   container.innerHTML = faqs
     .map(
       (faq) => `
-    <div class="faq-item">
+    <div class="faq-item provenance-gap">
       <button class="faq-question">
         ${faq.question}
         <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>

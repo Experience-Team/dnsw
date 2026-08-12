@@ -21,8 +21,10 @@ function formatDuration(minutes) {
   return `${hours}h ${mins}min`;
 }
 
+// The whole `availability` block is "gap on every type" (contract §4) — not
+// currently held — so every field this module renders carries the overlay.
 function fieldHtml(label, value) {
-  return `<div class="detail-block-field"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
+  return `<div class="detail-block-field provenance-gap"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
 }
 
 function renderOpeningHours(availability) {
@@ -36,7 +38,7 @@ function renderOpeningHours(availability) {
     .map((s) => `<li>${s.date}: ${s.opens && s.closes ? `${s.opens}–${s.closes}` : 'Closed'}</li>`)
     .join('');
   return `
-    <div class="detail-block-field detail-block-field-wide">
+    <div class="detail-block-field detail-block-field-wide provenance-gap">
       <p class="detail-block-label">Opening hours</p>
       <table class="availability-hours-table">${rows}</table>
       ${special ? `<p class="detail-block-label" style="margin-top:.75rem;">Special hours</p><ul class="availability-special-hours">${special}</ul>` : ''}
@@ -68,7 +70,7 @@ function renderEventDates(availability) {
     .join('');
   return [
     fieldHtml('Dates', end ? `${start} – ${end}` : start),
-    sessions ? `<div class="detail-block-field detail-block-field-wide"><p class="detail-block-label">Sessions</p><ul class="availability-sessions">${sessions}</ul></div>` : '',
+    sessions ? `<div class="detail-block-field detail-block-field-wide provenance-gap"><p class="detail-block-label">Sessions</p><ul class="availability-sessions">${sessions}</ul></div>` : '',
   ].join('');
 }
 

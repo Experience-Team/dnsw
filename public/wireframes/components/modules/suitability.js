@@ -9,8 +9,10 @@ const WEATHER_LABELS = {
   all_weather: 'All weather',
 };
 
+// Every field in `suitability` is `source: atdw_proposed` (contract §13) —
+// not currently held — so all of it overlays.
 function fieldHtml(label, value) {
-  return `<div class="detail-block-field"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
+  return `<div class="detail-block-field provenance-gap"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
 }
 
 export function mount(container, product) {
