@@ -70,6 +70,12 @@
     ],
     "operator_access_url": "https://www.bridgeclimb.com/accessibility"
   },
+  "venue_facilities": [
+    "Retail store",
+    "Lockers",
+    "Showers",
+    "Café"
+  ],
   "availability": {
     "kind": "operating_days",
     "opening_hours": [],

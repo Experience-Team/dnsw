@@ -58,11 +58,12 @@ export function mount(container, product) {
   ].join('');
 
   // The structured shape this module renders is still a proposal (contract
-  // §2 — "Proposed shape") — none of it is live today, so the whole entry
-  // carries the overlay.
+  // §2), but the underlying data is already in ATDW (confirmed on Mother
+  // Chu's) — it just hasn't been checked for reliability across the wider
+  // dataset. That's `unverified`, not `gap`: the yellow overlay, not pink.
   container.hidden = false;
   container.innerHTML = `
-    <div class="faq-item provenance-gap">
+    <div class="faq-item provenance-unverified">
       <button class="faq-question">
         Accessibility
         <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>

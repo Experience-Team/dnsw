@@ -73,6 +73,7 @@ export const interContinentalSydneyTarget: AccommodationProduct = {
     operator_access_url: 'https://www.ihg.com/intercontinental/hotels/us/en/accessibility',
   },
 
+  venue_facilities: ['Concierge desk', 'Business centre', 'Valet parking', 'Lobby lounge'],
   availability: {
     kind: 'stay_dates',
     opening_hours: [],

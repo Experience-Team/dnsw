@@ -68,6 +68,11 @@
     "features": [],
     "operator_access_url": null
   },
+  "venue_facilities": [
+    "Retail store",
+    "Lockers",
+    "Café"
+  ],
   "availability": {
     "kind": "operating_days",
     "opening_hours": [],

@@ -1667,27 +1667,33 @@ button.area-map-pin:hover { color: #111; }
 .decision-block-value { font-size: .9375rem; font-weight: 600; color: #111; }
 .decision-block-value .unit { font-weight: 400; color: var(--color-text-muted); }
 
-/* ── Provenance overlay ──────────────────────────────────────────────────
-   Single reusable class, applied per field by any module — not per module —
-   to the specific element holding a field's rendered value whenever that
-   field's contract marker is not "currently held as live ATDW data" (see
-   docs/product-data-contract.md: `_status: gap|unverified` for §1-9 fields
-   with no `source` marker, or `source: atdw_proposed|third_party` for the
-   §10-14 fields that carry one explicitly; `_status: live` and
-   `source: atdw_existing|derived` fields render with no overlay).
-   Colour/opacity matches the Figma reference (node 12394-64627): a light,
-   mostly-transparent red-pink wash. Positioned via an absolutely-placed
-   pseudo-element so it never participates in layout — content keeps its
-   normal box, nothing shifts, and the text underneath stays fully legible. */
-.provenance-gap { position: relative; }
-.provenance-gap::after {
+/* ── Provenance overlays ──────────────────────────────────────────────────
+   Two reusable classes, applied per field by any module — not per module —
+   to the specific element holding a field's rendered value, matching the
+   field's `_status` in docs/product-data-contract.md:
+     .provenance-gap        `gap` — not currently held as live ATDW data,
+                             regardless of its `source` marker.
+     .provenance-unverified `unverified` — may exist in the database, but
+                             hasn't been confirmed reliable; do not build
+                             further against it until it's confirmed one
+                             way or the other (see CLAUDE.md).
+   `_status: live` fields render with no overlay.
+   .provenance-gap's colour/opacity matches the Figma reference (node
+   12394-64627): a light, mostly-transparent red-pink wash.
+   .provenance-unverified's matches node 12420-72958: the same treatment in
+   yellow. Both are positioned via an absolutely-placed pseudo-element so
+   they never participate in layout — content keeps its normal box, nothing
+   shifts, and the text underneath stays fully legible. */
+.provenance-gap, .provenance-unverified { position: relative; }
+.provenance-gap::after, .provenance-unverified::after {
   content: '';
   position: absolute;
   inset: -0.2em -0.4em;
-  background: rgba(255, 0, 0, 0.05);
   border-radius: 4px;
   pointer-events: none;
 }
+.provenance-gap::after { background: rgba(255, 0, 0, 0.05); }
+.provenance-unverified::after { background: rgba(255, 234, 0, 0.05); }
 
 /* ── Trust bar (contract-bound module) ── */
 .trust-module {

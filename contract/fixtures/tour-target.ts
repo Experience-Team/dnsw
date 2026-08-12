@@ -74,6 +74,7 @@ export const bridgeClimbSydneyTarget: TourProduct = {
     operator_access_url: 'https://www.bridgeclimb.com/accessibility',
   },
 
+  venue_facilities: ['Retail store', 'Lockers', 'Showers', 'Café'],
   availability: {
     kind: 'operating_days',
     opening_hours: [],
@@ -241,6 +242,7 @@ export const underBridgeWalkTarget: TourProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: ['Retail store', 'Lockers', 'Café'],
   availability: {
     kind: 'operating_days',
     opening_hours: [],
@@ -403,6 +405,7 @@ export const bridgeClimbSummitTarget: TourProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: ['Retail store', 'Lockers', 'Showers', 'Café'],
   availability: {
     kind: 'operating_days',
     opening_hours: [],

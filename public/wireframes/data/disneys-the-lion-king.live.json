@@ -37,6 +37,7 @@
     "features": [],
     "operator_access_url": null
   },
+  "venue_facilities": null,
   "availability": {
     "kind": "event_dates",
     "opening_hours": [],

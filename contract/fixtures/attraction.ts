@@ -72,6 +72,7 @@ export const royalBotanicGardenLive: AttractionProduct = {
     operator_access_url: 'https://www.botanicgardens.org.au/royal-botanic-garden-sydney/plan-your-visit/accessibility',
   },
 
+  venue_facilities: null,
   availability: null,
   pricing: null,
   trust: null,

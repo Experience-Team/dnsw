@@ -66,6 +66,7 @@ export const lionKingTarget: EventProduct = {
     operator_access_url: 'https://www.capitoltheatre.com.au/access',
   },
 
+  venue_facilities: ['Box office', 'Merchandise stand', 'Air conditioning', 'Public toilets'],
   availability: {
     kind: 'event_dates',
     opening_hours: [],

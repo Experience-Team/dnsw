@@ -404,6 +404,7 @@ interface ProductRecordBase {
   socials: SocialLink[];
   links: ProductLinks;
   accessibility: Accessibility;
+  venue_facilities: string[] | null; // unverified — atdw_existing data, not yet checked for reliability, contract §1
   availability: Availability | null; // gap on every type — contract §4
   pricing: Pricing | null; // gap on every type — contract §5
   trust: Trust | null; // gap on every type — contract §10

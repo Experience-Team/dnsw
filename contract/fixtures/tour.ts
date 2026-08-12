@@ -72,6 +72,7 @@ export const bridgeClimbSydneyLive: TourProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: null,
   availability: null,
   pricing: null,
   trust: null,
@@ -143,6 +144,7 @@ export const underBridgeWalkLive: TourProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: null,
   availability: null,
   pricing: null,
   trust: null,
@@ -213,6 +215,7 @@ export const bridgeClimbSummitLive: TourProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: null,
   availability: null,
   pricing: null,
   trust: null,

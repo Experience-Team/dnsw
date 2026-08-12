@@ -70,6 +70,7 @@ export const lionKingLive: EventProduct = {
   // display string — no performance time or structured RRULE, so `kind`
   // is `event_dates` and `recurrence` stays empty rather than guessing a
   // schedule the page doesn't state. See contract §4.
+  venue_facilities: null,
   availability: {
     kind: 'event_dates',
     opening_hours: [],
