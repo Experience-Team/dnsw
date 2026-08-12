@@ -1621,7 +1621,6 @@ button.area-map-pin:hover { color: #111; }
 .decision-block-label { font-size: .75rem; color: var(--color-text-muted); margin-bottom: .15rem; }
 .decision-block-value { font-size: .9375rem; font-weight: 600; color: #111; }
 .decision-block-value .unit { font-weight: 400; color: var(--color-text-muted); }
-.decision-block-action { margin-left: auto; }
 
 /* ── Provenance overlay ──────────────────────────────────────────────────
    Single reusable class, applied per field by any module — not per module —
@@ -1801,7 +1800,6 @@ body.utility-bar-body--hidden .detail-tabs { top: 3.5rem; }
   .detail-info-card { max-width: none; width: 100%; }
   .detail-meta-row { flex-direction: column; }
   .decision-block { flex-direction: column; align-items: stretch; gap: .75rem; }
-  .decision-block-action { margin-left: 0; }
   .trust-module { flex-direction: column; align-items: stretch; gap: .75rem; }
   .detail-block-grid { grid-template-columns: 1fr 1fr; }
   .newsletter-popup { left: 1rem; right: 1rem; width: auto; bottom: 1rem; }

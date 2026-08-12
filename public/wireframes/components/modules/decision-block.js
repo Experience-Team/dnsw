@@ -1,11 +1,11 @@
 // Vanilla-JS port of contract/components/DecisionBlock.tsx. Bound to the
 // shared product record's `pricing` and `availability` blocks (see
-// docs/product-data-contract.md §5/§4), plus `links` for the primary
-// action. Renders exactly four fields — price from, duration, an
-// availability field derived from the whole `availability` block, and the
-// primary action — and nothing beyond them. Every field is independently
-// nullable: if none are present, mount() hides the container; if some are
-// present, only those render.
+// docs/product-data-contract.md §5/§4). Renders exactly three fields —
+// price from, duration, and an availability field derived from the whole
+// `availability` block — and nothing beyond them. No CTA button: `links`
+// is rendered elsewhere on the page (sidebar), not duplicated here. Every
+// field is independently nullable: if none are present, mount() hides the
+// container; if some are present, only those render.
 //
 // `availability` is consumed as a whole block, switched on `kind`, not
 // read field-by-field — see availabilityField() below and
@@ -68,13 +68,6 @@ function availabilityField(availability) {
   }
 }
 
-function getPrimaryAction(links) {
-  // "Book now" is hidden here — no product's booking link goes to a real
-  // booking flow yet, so the primary action always reads "Visit website".
-  if (links.website) return { label: 'Visit website', href: links.website };
-  return null;
-}
-
 function fieldHtml(label, value, overlay = false) {
   return `<div class="decision-block-field${overlay ? ' provenance-gap' : ''}"><p class="decision-block-label">${label}</p><p class="decision-block-value">${value}</p></div>`;
 }
@@ -86,9 +79,8 @@ export function mount(container, product) {
   // not nullable), so a falsy value is treated as absent, not zero minutes.
   const durationMinutes = product.availability?.typical_duration_minutes || null;
   const availability = availabilityField(product.availability);
-  const primaryAction = getPrimaryAction(product.links);
 
-  const hasAnyField = priceFrom !== null || durationMinutes !== null || availability !== null || primaryAction !== null;
+  const hasAnyField = priceFrom !== null || durationMinutes !== null || availability !== null;
   if (!hasAnyField) {
     container.hidden = true;
     container.innerHTML = '';
@@ -99,14 +91,10 @@ export function mount(container, product) {
   container.innerHTML = [
     // pricing (§5) and availability (§4) are both "gap on every type" —
     // not currently held — so their rendered values carry the overlay.
-    // `links` (§1) is live, and the primary action is untouched.
     priceFrom !== null
       ? fieldHtml('From', `$${priceFrom}${product.pricing?.unit ? ` <span class="unit">${product.pricing.unit.replace('per_', '/ ')}</span>` : ''}`, true)
       : '',
     durationMinutes !== null ? fieldHtml('Duration', formatDuration(durationMinutes), true) : '',
     availability ? fieldHtml(availability.label, availability.value, true) : '',
-    primaryAction
-      ? `<a href="${primaryAction.href}" target="_blank" rel="noopener noreferrer" class="btn btn-primary decision-block-action">${primaryAction.label}</a>`
-      : '',
   ].join('');
 }
