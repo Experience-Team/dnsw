@@ -1,0 +1,58 @@
+<div class="wf-topbar" id="wf-topbar">
+  <div class="wf-topbar-left">
+    <a href="../index.html" class="wf-topbar-grid" aria-label="Wireframe index" title="All wireframes">
+      <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="0" y="0" width="7.083" height="7.083" rx="1.5" fill="currentColor"/>
+        <rect x="8.5" y="0" width="7.083" height="7.083" rx="1.5" fill="currentColor"/>
+        <rect x="0" y="8.5" width="7.083" height="7.083" rx="1.5" fill="currentColor"/>
+        <rect x="8.5" y="8.5" width="7.083" height="7.083" rx="1.5" fill="currentColor"/>
+      </svg>
+    </a>
+    <div class="wf-topbar-group">
+      <span class="wf-topbar-label">Product page wireframes:</span>
+      <nav class="wf-topbar-tabs" aria-label="Product page types">
+        <a href="../pages/disneys-the-lion-king.html" data-type="event">Event</a>
+        <a href="../pages/royal-botanic-garden-and-the-domain.html" data-type="attraction">Attraction</a>
+        <a href="../pages/intercontinental-sydney.html" data-type="accommodation">Accommodation</a>
+        <a href="../pages/mother-chus-taiwanese-gourmet.html" data-type="food-drink">Food &amp; drink</a>
+        <a href="../pages/bridgeclimb-sydney.html" data-type="tour-parent">Tour parent</a>
+        <a href="../pages/bridgeclimb-summit.html" data-type="tour-child">Tour child</a>
+        <a href="../pages/sydney-harbour-kayaks-middle-harbour-mosman.html" data-type="hire">Hire</a>
+      </nav>
+    </div>
+  </div>
+  <div class="wf-topbar-note">
+    <span class="wf-topbar-swatch" aria-hidden="true"></span>
+    <span class="wf-topbar-note-text">Items highlighted in pink are not available</span>
+  </div>
+</div>
+<script data-included>
+(function () {
+  var bar = document.getElementById('wf-topbar');
+  if (!bar) return;
+
+  var type = document.body.dataset.pageType;
+  if (type) {
+    var tab = bar.querySelector('.wf-topbar-tabs a[data-type="' + type + '"]');
+    if (tab) tab.classList.add('active');
+  }
+
+  // Hide-on-scroll-down, matching the utility bar's behaviour.
+  var lastY = window.scrollY;
+  var ticking = false;
+  function update() {
+    var y = window.scrollY;
+    var down = y > lastY && y > 48;
+    bar.classList.toggle('wf-topbar--hidden', down);
+    document.body.classList.toggle('utility-bar-body--hidden', down);
+    lastY = y;
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+})();
+</script>
