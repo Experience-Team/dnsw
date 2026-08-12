@@ -26,13 +26,15 @@ export function mount(container, product) {
     .map((r) => `<p class="trust-review-excerpt provenance-gap">"${r.text}" — ${r.author}, ${r.source}</p>`)
     .join('');
 
-  // accreditations/aboriginal_owned are `source: atdw_existing` (already in
-  // ATDW's schema, pending confirmation — see contract §8 item 6), so they
-  // render normally. awards is `source: atdw_proposed` — no ATDW analogue
-  // today — so it carries the overlay.
+  // accreditations/aboriginal_owned/awards are all `gap` per the contract
+  // (§10) — accreditations and aboriginal_owned are `source: atdw_existing`
+  // (already in ATDW's schema, pending confirmation — see contract §8 item
+  // 6) and awards is `source: atdw_proposed` (no ATDW analogue today), but
+  // `gap` means none of the three exist in live data yet, so all three
+  // carry the overlay.
   const badges = [
-    ...(trust?.accreditations ?? []).map((a) => `<span class="trust-badge">${a}</span>`),
-    trust?.aboriginal_owned ? '<span class="trust-badge">Aboriginal owned</span>' : '',
+    ...(trust?.accreditations ?? []).map((a) => `<span class="trust-badge provenance-gap">${a}</span>`),
+    trust?.aboriginal_owned ? '<span class="trust-badge provenance-gap">Aboriginal owned</span>' : '',
     ...(trust?.awards ?? []).map((a) => `<span class="trust-badge provenance-gap">${a.name} ${a.year}</span>`),
   ].join('');
 
