@@ -5,8 +5,10 @@
 
 const STATUS_LABELS = { available: 'Available', few_left: 'Few left', sold_out: 'Sold out' };
 
+// Every field in `live_availability` is `source: third_party` (contract
+// §12) — a real-time booking-engine feed, not ATDW — so all of it overlays.
 function fieldHtml(label, value) {
-  return `<div class="detail-info-fact"><div class="detail-info-fact-body"><p class="detail-block-label">${label}</p><p>${value}</p></div></div>`;
+  return `<div class="detail-info-fact provenance-gap"><div class="detail-info-fact-body"><p class="detail-block-label">${label}</p><p>${value}</p></div></div>`;
 }
 
 function formatSession(session) {

@@ -74,8 +74,8 @@ function getPrimaryAction(links) {
   return null;
 }
 
-function fieldHtml(label, value) {
-  return `<div class="decision-block-field"><p class="decision-block-label">${label}</p><p class="decision-block-value">${value}</p></div>`;
+function fieldHtml(label, value, overlay = false) {
+  return `<div class="decision-block-field${overlay ? ' provenance-gap' : ''}"><p class="decision-block-label">${label}</p><p class="decision-block-value">${value}</p></div>`;
 }
 
 export function mount(container, product) {
@@ -96,11 +96,14 @@ export function mount(container, product) {
 
   container.hidden = false;
   container.innerHTML = [
+    // pricing (§5) and availability (§4) are both "gap on every type" —
+    // not currently held — so their rendered values carry the overlay.
+    // `links` (§1) is live, and the primary action is untouched.
     priceFrom !== null
-      ? fieldHtml('From', `$${priceFrom}${product.pricing?.unit ? ` <span class="unit">${product.pricing.unit.replace('per_', '/ ')}</span>` : ''}`)
+      ? fieldHtml('From', `$${priceFrom}${product.pricing?.unit ? ` <span class="unit">${product.pricing.unit.replace('per_', '/ ')}</span>` : ''}`, true)
       : '',
-    durationMinutes !== null ? fieldHtml('Duration', formatDuration(durationMinutes)) : '',
-    availability ? fieldHtml(availability.label, availability.value) : '',
+    durationMinutes !== null ? fieldHtml('Duration', formatDuration(durationMinutes), true) : '',
+    availability ? fieldHtml(availability.label, availability.value, true) : '',
     primaryAction
       ? `<a href="${primaryAction.href}" target="_blank" rel="noopener noreferrer" class="btn btn-primary decision-block-action">${primaryAction.label}</a>`
       : '',

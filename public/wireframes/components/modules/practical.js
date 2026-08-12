@@ -3,8 +3,12 @@
 // field, read directly from the availability block per the contract's own
 // note (§14) rather than duplicated.
 
+// what_to_bring/on_site_facilities/best_time_to_visit are `source:
+// atdw_proposed` (contract §14); advance_booking_required is read from
+// `availability` (§4), itself "gap on every type" — none of it currently
+// held, so all of it overlays.
 function fieldHtml(label, value) {
-  return `<div class="detail-block-field"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
+  return `<div class="detail-block-field provenance-gap"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
 }
 
 export function mount(container, product) {

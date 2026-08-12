@@ -2,8 +2,10 @@
 // (contract §5). decision-block.js already shows a compact "From $X" line
 // for the summary bar — this module is the fuller detail lower on the page.
 
+// The whole `pricing` block is "gap on every type" (contract §5) — not
+// currently held — so every field this module renders carries the overlay.
 function fieldHtml(label, value) {
-  return `<div class="detail-block-field"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
+  return `<div class="detail-block-field provenance-gap"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
 }
 
 function formatUnit(unit) {
@@ -34,14 +36,14 @@ export function mount(container, product) {
   const fields = [
     priceRange ? fieldHtml('Price', priceRange) : '',
     pricing.band ? fieldHtml('Price band', pricing.band) : '',
-    concessions ? `<div class="detail-block-field"><p class="detail-block-label">Concessions</p><ul>${concessions}</ul></div>` : '',
+    concessions ? `<div class="detail-block-field provenance-gap"><p class="detail-block-label">Concessions</p><ul>${concessions}</ul></div>` : '',
     pricing.cancellation_policy ? fieldHtml('Cancellation policy', pricing.cancellation_policy) : '',
   ].join('');
 
   const inclusionsBlock = inclusions || exclusions
     ? `<div class="detail-block-grid" style="margin-top:1rem;">
-        ${inclusions ? `<div class="detail-block-field"><p class="detail-block-label">Inclusions</p><ul>${inclusions}</ul></div>` : ''}
-        ${exclusions ? `<div class="detail-block-field"><p class="detail-block-label">Exclusions</p><ul>${exclusions}</ul></div>` : ''}
+        ${inclusions ? `<div class="detail-block-field provenance-gap"><p class="detail-block-label">Inclusions</p><ul>${inclusions}</ul></div>` : ''}
+        ${exclusions ? `<div class="detail-block-field provenance-gap"><p class="detail-block-label">Exclusions</p><ul>${exclusions}</ul></div>` : ''}
       </div>`
     : '';
 

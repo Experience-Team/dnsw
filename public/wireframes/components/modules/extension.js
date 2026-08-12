@@ -4,8 +4,11 @@
 // every page mounts the same `data-module="extension"` regardless of which
 // of the six types it is.
 
+// `extension` is "empty for every type today" (contract §6) — not currently
+// held for any of the six product types — so every field this module
+// renders carries the overlay.
 function fieldHtml(label, value) {
-  return `<div class="detail-block-field"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
+  return `<div class="detail-block-field provenance-gap"><p class="detail-block-label">${label}</p><p class="detail-block-value">${value}</p></div>`;
 }
 
 function formatDuration(minutes) {
@@ -23,7 +26,7 @@ function renderTour(ext) {
     .map((i) => `<li><strong>${i.title}</strong> (${formatDuration(i.duration_minutes)}) — ${i.description}</li>`)
     .join('');
   return [
-    itinerary ? `<div class="detail-block-field detail-block-field-wide"><p class="detail-block-label">Itinerary</p><ol>${itinerary}</ol></div>` : '',
+    itinerary ? `<div class="detail-block-field detail-block-field-wide provenance-gap"><p class="detail-block-label">Itinerary</p><ol>${itinerary}</ol></div>` : '',
     ext.meeting_point?.description ? fieldHtml('Meeting point', ext.meeting_point.description) : '',
     ext.group_size ? fieldHtml('Group size', `${ext.group_size.min}–${ext.group_size.max}`) : '',
     (ext.languages ?? []).length > 0 ? fieldHtml('Languages', ext.languages.join(', ')) : '',
@@ -50,7 +53,7 @@ function renderEvent(ext) {
     .map((t) => `<li>${t.name} — from $${t.from}${t.description ? ` (${t.description})` : ''}</li>`)
     .join('');
   return [
-    tickets ? `<div class="detail-block-field detail-block-field-wide"><p class="detail-block-label">Ticket types</p><ul>${tickets}</ul></div>` : '',
+    tickets ? `<div class="detail-block-field detail-block-field-wide provenance-gap"><p class="detail-block-label">Ticket types</p><ul>${tickets}</ul></div>` : '',
     ext.seating ? fieldHtml('Seating', ext.seating.replace('_', ' ')) : '',
     ext.runtime_minutes ? fieldHtml('Runtime', formatDuration(ext.runtime_minutes)) : '',
     ext.interval !== undefined ? fieldHtml('Interval', ext.interval ? 'Yes' : 'No') : '',
@@ -75,7 +78,7 @@ function renderHire(ext) {
     .map((i) => `<li>${i.name} — from $${i.from} ${i.unit.replace('per_', '/ ')}</li>`)
     .join('');
   return [
-    items ? `<div class="detail-block-field detail-block-field-wide"><p class="detail-block-label">Items</p><ul>${items}</ul></div>` : '',
+    items ? `<div class="detail-block-field detail-block-field-wide provenance-gap"><p class="detail-block-label">Items</p><ul>${items}</ul></div>` : '',
     (ext.hire_periods ?? []).length > 0 ? fieldHtml('Hire periods', ext.hire_periods.join(', ')) : '',
     (ext.requirements ?? []).length > 0 ? fieldHtml('Requirements', ext.requirements.join(', ')) : '',
     ext.min_age ? fieldHtml('Minimum age', ext.min_age) : '',
