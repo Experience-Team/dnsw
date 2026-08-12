@@ -64,6 +64,7 @@ export const motherChusTarget: FoodAndDrinkProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: ['Air conditioning', 'Takeaway counter', 'Public toilets nearby'],
   availability: {
     kind: 'opening_hours',
     opening_hours: [

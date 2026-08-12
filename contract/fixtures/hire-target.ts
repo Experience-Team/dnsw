@@ -80,6 +80,7 @@ export const sydneyHarbourKayaksTarget: HireProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: ['Change rooms', 'Equipment storage', 'Free parking', 'Water fountain'],
   availability: {
     kind: 'opening_hours',
     opening_hours: [

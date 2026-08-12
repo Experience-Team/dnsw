@@ -59,6 +59,7 @@ export const motherChusLive: FoodAndDrinkProduct = {
     operator_access_url: null,
   },
 
+  venue_facilities: null,
   availability: null,
   pricing: null,
   trust: null,

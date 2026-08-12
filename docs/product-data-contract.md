@@ -30,6 +30,8 @@ And a `_status` marker:
 | `gap` | In the audit, not in the current model |
 | `unverified` | May exist in ATDW but is not rendered, needs checking before it is treated as either |
 
+In the wireframes, `gap` and `unverified` fields render with a coloured overlay so they read as provisional rather than as finished copy — `gap` in pink, `unverified` in yellow (`.provenance-gap` / `.provenance-unverified` in `shared.css`). `live` fields render with no overlay. `unverified` fields must not be built against until confirmed (see CLAUDE.md) — `accessibility` (§2) and `venue_facilities` (§1) are the two exceptions today, confirmed for build on 12 August 2026: the underlying data already exists in ATDW, it just hasn't been checked for reliability, so it's rendered with the yellow treatment rather than withheld.
+
 ---
 
 ## 1. Shared product record
@@ -66,6 +68,7 @@ Every product type has all of these. Confirmed against all five records.
     "website": "string | null"
   },
   "accessibility": { },
+  "venue_facilities": ["string"] | null,
   "faqs": [{ "question": "string", "answer": "string" }],
   "place_ref": "string | null",
   "operator_ref": "string | null",
@@ -88,6 +91,8 @@ Every product type has all of these. Confirmed against all five records.
 
 **`last_verified`** — `derived`, `gap`. From the ATDW sync timestamp. Nothing on any page tells a user or a crawler when the information was last checked.
 
+**`venue_facilities`** — `unverified`, `source: atdw_existing`. ATDW already carries facility data for the record, but it hasn't been checked for accuracy, so it's rendered as its own "Venue facilities" FAQ item with the yellow `unverified` treatment rather than either the `live` or `gap` treatment — confirmed for build on 12 August 2026 (see "How to read the markers" above). Distinct from `practical.on_site_facilities` (§14, `atdw_proposed`) — that field is a genuinely new ask with nothing behind it yet; this one already has data, just unconfirmed data.
+
 ---
 
 ## 2. Accessibility
@@ -108,6 +113,8 @@ Proposed shape:
   "operator_access_url": "string | null"
 }
 ```
+
+`unverified`, `source: atdw_existing`. The one free-text field is confirmed live (Mother Chu's, above); the structured breakdown proposed here is a reshaping of data ATDW already holds, not new data, but it hasn't been checked for reliability against the wider dataset — confirmed for build on 12 August 2026 with the yellow `unverified` treatment (see "How to read the markers"), not withheld as `gap`.
 
 `not_stated` becomes a visible state rather than silence. `features` becomes filterable and maps to schema.org `accessibilityFeature`. Freeing accessibility out of the FAQ repeater lets `faqs` hold actual questions, which is why the FAQ block on every page in the audit contains no FAQs.
 

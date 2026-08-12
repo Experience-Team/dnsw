@@ -74,6 +74,7 @@ export const royalBotanicGardenTarget: AttractionProduct = {
     operator_access_url: 'https://www.botanicgardens.org.au/royal-botanic-garden-sydney/plan-your-visit/accessibility',
   },
 
+  venue_facilities: ['Café', 'Gift shop', 'Public toilets', 'Picnic areas', 'Bicycle racks'],
   availability: {
     kind: 'opening_hours',
     opening_hours: [
