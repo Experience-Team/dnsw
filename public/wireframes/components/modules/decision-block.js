@@ -69,7 +69,8 @@ function availabilityField(availability) {
 }
 
 function getPrimaryAction(links) {
-  if (links.booking) return { label: 'Book now', href: links.booking };
+  // "Book now" is hidden here — no product's booking link goes to a real
+  // booking flow yet, so the primary action always reads "Visit website".
   if (links.website) return { label: 'Visit website', href: links.website };
   return null;
 }
