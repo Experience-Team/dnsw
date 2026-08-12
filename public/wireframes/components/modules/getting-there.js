@@ -24,14 +24,16 @@ export function mount(container, product) {
       ? 'Not available'
       : '';
 
-  // nearest_transport is `source: third_party` and parking/pickup_point are
-  // `source: atdw_proposed` (contract §11) — not currently held.
-  // travel_time_from_cbd_minutes is `source: derived` — computed from geo
-  // that's already live — so it renders normally.
+  // nearest_transport, parking, travel_time_from_cbd_minutes and
+  // pickup_point are all `gap` per the contract (§11) — nearest_transport is
+  // `source: third_party`, parking/pickup_point are `source: atdw_proposed`,
+  // and travel_time_from_cbd_minutes is `source: derived` (computed from geo
+  // that's already live). `gap` means none of the four exist in live data
+  // yet, so all four carry the overlay.
   const fields = [
     transport ? fieldHtml('Nearest transport', transport, true) : '',
     parking ? fieldHtml('Parking', parking, true) : '',
-    gt.travel_time_from_cbd_minutes ? fieldHtml('From the CBD', `${gt.travel_time_from_cbd_minutes} min`) : '',
+    gt.travel_time_from_cbd_minutes ? fieldHtml('From the CBD', `${gt.travel_time_from_cbd_minutes} min`, true) : '',
     gt.pickup_point ? fieldHtml('Pick-up point', gt.pickup_point, true) : '',
   ].join('');
 
