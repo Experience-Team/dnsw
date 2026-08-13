@@ -1730,10 +1730,9 @@ button.area-map-pin:hover { color: #111; }
 .detail-block-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 1.25rem 2rem; }
 .detail-block-field { padding: .25rem .5rem; border-radius: 4px; }
 .detail-block-field-wide { grid-column: 1 / -1; }
-.detail-block-label { font-size: .6875rem; color: var(--color-text-muted); margin-bottom: .125rem; }
-.detail-block-value { font-size: .875rem; color: #111; }
+.detail-block-label { margin: 0 0 .125rem; font-size: .6875rem; color: var(--color-text-muted); }
+.detail-block-value { margin: 0; font-size: .875rem; color: #111; }
 .detail-block-field ul, .detail-block-field ol { margin: 0; padding-left: 1.1rem; font-size: .875rem; color: #111; line-height: 1.6; }
-.detail-block-field p { margin: 0; font-size: .875rem; color: #111; }
 
 .availability-hours-table { border-collapse: collapse; font-size: .875rem; }
 .availability-hours-table td { padding: .2rem .75rem .2rem 0; color: #111; }
