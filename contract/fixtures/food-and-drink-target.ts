@@ -152,6 +152,7 @@ export const motherChusTarget: FoodAndDrinkProduct = {
     best_time_to_visit: 'Before 12:30pm or after 8pm to avoid the lunch and dinner queue',
   },
 
+  deals: [],
   faqs: [
     { question: 'Do you take reservations?', answer: "No, Mother Chu's is walk-in only." },
     { question: 'Is there parking nearby?', answer: 'Metered street parking and the Sussex Street car park are both within a short walk.' },

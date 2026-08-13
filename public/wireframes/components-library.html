@@ -936,7 +936,7 @@
 
     <!-- ══════════════════ EVENT / PLACE DETAIL PAGE ══════════════════ -->
     <section class="lib-section" id="detail-page">
-      <div class="lib-section-head"><h2>Event / place detail page <code>disneys-the-lion-king.html</code> + <code>intercontinental-sydney.html</code> + <code>mother-chus-taiwanese-gourmet.html</code> + <code>royal-botanic-garden-and-the-domain.html</code> + <code>sydney-harbour-kayaks-middle-harbour-mosman.html</code> + <code>bridgeclimb-sydney.html</code></h2></div>
+      <div class="lib-section-head"><h2>Event / place detail page <code>disneys-the-lion-king.html</code> + <code>ingenia-holidays-sydney-hills.html</code> + <code>mother-chus-taiwanese-gourmet.html</code> + <code>royal-botanic-garden-and-the-domain.html</code> + <code>sydney-harbour-kayaks-middle-harbour-mosman.html</code> + <code>bridgeclimb-sydney.html</code></h2></div>
       <p class="lib-section-desc">One page template, six instances across event, accommodation, food &amp; drink, attraction, hire and tour product types, reproducing their sydney.com source pages. All six reuse <code>.event-card</code>, <code>.card-bookmark</code>, <code>.card-amenity-icon</code>, <code>.card-badge</code> ("Hot Deal" — Royal Botanic Garden's "More Like This" grid), <code>.faq-list</code>, <code>.grid-3</code>, <code>.btn</code> variants and the shared newsletter banner / footer includes as-is. The template degrades cleanly per product type with no new variants needed: the meta row shows only an address when there's no event date; the "Booking details" action and the Overview accessibility badge are included or omitted entirely based on what the real page actually has; <code>.card-footer</code>/<code>.card-amenity-icon</code> is included per-card only where the source page actually shows one, and <code>.card-venue</code> is left blank (a non-breaking space, same markup) on the one Kayaks card whose source has no eyebrow label at all; <code>.detail-info-social</code> holds however many social links the real page lists (2 for Lion King/InterContinental/Mother Chu's, 3 — Facebook/X/Instagram — for Royal Botanic Garden, Kayaks and BridgeClimb). "Nearby Experiences" is the heading on event/accommodation pages; food &amp; drink and attraction/hire pages use "More Like This"; BridgeClimb Sydney — a tour operator's own product list rather than other businesses — relabels it "Our Tours" and drops <code>.card-bookmark</code>/<code>.card-venue</code>/<code>.card-footer</code> from its cards entirely, since the real page's cards are plain image+title+description. The source BridgeClimb Sydney page genuinely has no FAQ section — its <code>.detail-tabs</code>/FAQ block was added anyway at the user's explicit request for template consistency, with clearly placeholder Accessibility content rather than sourced copy. Two more component families were added for these non-event pages' own patterns: a bordered "Highlights" bullet box above the Overview, and a "Get in touch" reveal in the sidebar info card (phone-only for Mother Chu's and Royal Botanic Garden, phone + email for InterContinental and Kayaks — same component, driven by the real content).</p>
       <div class="lib-flag"><b>Note on BridgeClimb Sydney:</b> its source screenshot showed a different page (the parent tour operator) than the HTML export provided alongside it (a specific child tour product, "BridgeClimb Summit") — confirmed by the child page's own breadcrumb. Per the user's direction, the parent page shown in the screenshot was built. Three pieces of its content are not sourced copy and are flagged as placeholders: the Overview's second paragraph, completed past the screenshot's visible truncation ("...while keeping you safe and…"); the sidebar's revealed phone number; and the entire FAQs section, added afterward at the user's explicit request even though the real page has none.</div>
 
@@ -1008,25 +1008,25 @@
           <div class="detail-highlights" style="margin-bottom:0;">
             <h3>Highlights</h3>
             <ul>
-              <li>Stunning views of the Sydney Opera House and Harbour Bridge.</li>
-              <li>Luxurious rooms and award-winning Club InterContinental lounge.</li>
+              <li>Conveniently located 30km from Sydney, ideal for city escapes.</li>
+              <li>Enjoy on-site amenities like pools, tennis courts, and BBQ facilities.</li>
             </ul>
           </div>
         </div>
-        <div class="lib-caption"><code>.detail-highlights</code> — bordered bullet-point summary box, sits above the Overview heading. InterContinental Sydney only; the Lion King page has no equivalent since an event doesn't have "highlights" in the source content.</div>
+        <div class="lib-caption"><code>.detail-highlights</code> — bordered bullet-point summary box, sits above the Overview heading. Ingenia Holidays Sydney Hills only; the Lion King page has no equivalent since an event doesn't have "highlights" in the source content.</div>
       </div>
 
       <div class="lib-demo">
         <div class="lib-demo-inner">
           <div class="detail-info-card" style="max-width:22rem;">
-            <h3>InterContinental Sydney</h3>
+            <h3>Ingenia Holidays Sydney Hills</h3>
             <div class="detail-info-links" style="border-top:none; padding-top:0; margin-top:0;">
               <a href="#">↗ Booking details</a>
               <a href="#">↗ Visit website</a>
               <button type="button" style="all:unset; cursor:pointer; color:var(--color-accent); text-decoration:underline; font-size:.875rem; font-weight:600;">✉ Get in touch</button>
               <div class="detail-info-contact open">
-                <p>(02) 9253 9000</p>
-                <p><a href="#">intercontinental.sydney@ihg.com</a></p>
+                <p>(02) 9651 2555</p>
+                <p><a href="#">sydneyhills@ingeniaholidays.com.au</a></p>
               </div>
             </div>
           </div>

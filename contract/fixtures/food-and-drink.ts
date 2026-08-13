@@ -67,6 +67,7 @@ export const motherChusLive: FoodAndDrinkProduct = {
   live_availability: null,
   suitability: null,
   practical: null,
+  deals: [],
   faqs: [],
 
   place_ref: null,

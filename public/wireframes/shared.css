@@ -1740,6 +1740,37 @@ button.area-map-pin:hover { color: #111; }
 .availability-hours-table td:first-child { color: var(--color-text-muted); }
 .availability-special-hours, .availability-sessions { margin: 0; padding-left: 1.1rem; font-size: .8125rem; color: var(--color-text-muted); line-height: 1.6; }
 
+/* ── Deals (contract-bound module, interactive tabs) — contract §15, `live`
+   where present, not a proposal, so no provenance overlay ── */
+.deals-module { margin-bottom: 3rem; }
+.deals-module[hidden] { display: none; }
+.deals-module .section-title { margin-bottom: 1rem; }
+.deals-tabs { display: flex; gap: .75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.deals-tab {
+  display: flex; align-items: center; gap: .4rem;
+  padding: .5rem 1rem; border-radius: 999px; border: 1px solid var(--color-border);
+  background: #fff; color: #111; font-size: .8125rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: background .15s, border-color .15s, color .15s;
+}
+.deals-tab:hover { border-color: var(--color-accent); }
+.deals-tab.active { border-color: var(--color-accent); background: var(--color-accent); color: #fff; }
+.deals-panels { position: relative; }
+.deals-panel { display: none; background: var(--color-accent); color: #fff; border-radius: 8px; overflow: hidden; }
+.deals-panel.active { display: flex; flex-wrap: wrap; }
+.deals-panel-image { flex: 1 1 320px; min-height: 12rem; }
+.deals-panel-body { flex: 1 1 320px; padding: 1.5rem; }
+.deals-panel-type {
+  display: inline-block; font-size: .6875rem; text-transform: uppercase; letter-spacing: .04em;
+  background: rgba(255,255,255,.15); padding: .2rem .6rem; border-radius: 999px; margin-bottom: .75rem;
+}
+.deals-panel-label { font-size: 1.25rem; font-weight: 700; margin-bottom: .5rem; }
+.deals-panel-desc { font-size: .9375rem; opacity: .9; margin-bottom: .75rem; }
+.deals-panel-valid { font-size: .8125rem; opacity: .75; margin-bottom: 1rem; }
+.deals-panel-terms { margin-bottom: 1.25rem; }
+.deals-panel-terms summary { cursor: pointer; font-size: .8125rem; font-weight: 600; text-decoration: underline; }
+.deals-panel-terms p { font-size: .8125rem; opacity: .85; margin-top: .5rem; line-height: 1.5; }
+.deals-panel-body .btn-light { color: #111; text-decoration: none; }
+
 /* ── Sidebar modules: getting there / live availability ── */
 .getting-there-module, .live-availability-module {
   border-top: 1px solid var(--color-border);

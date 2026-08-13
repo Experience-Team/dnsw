@@ -383,6 +383,27 @@ export interface Practical {
   best_time_to_visit: string | null;
 }
 
+// ── Deals (contract §15) — `live` where present, observed on Ingenia Holidays
+// Sydney Hills (accommodation), not part of the original five-record audit ──
+
+export interface DealImage {
+  url: string;
+  alt: string;
+}
+
+export interface Deal {
+  id: string;
+  type: string; // e.g. 'Discount' — free string until more deal types are observed
+  label: string;
+  description: string;
+  valid_from: string | null; // date
+  valid_to: string | null; // date
+  comment: string | null;
+  terms: string | null;
+  image: DealImage | null;
+  link: string | null;
+}
+
 // ── Shared product record (contract §1) ───────────────────────────────────────
 
 export type ProductType =
@@ -412,6 +433,7 @@ interface ProductRecordBase {
   live_availability: LiveAvailability | null; // gap on every type — contract §12, distinct from `availability` (§4)
   suitability: Suitability | null; // gap on every type — contract §13
   practical: Practical | null; // gap on every type — contract §14
+  deals: Deal[]; // live where present — contract §15, not gap: empty means genuinely no deals today
   faqs: Faq[];
   place_ref: string | null;
   operator_ref: string | null;

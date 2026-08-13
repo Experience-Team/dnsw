@@ -83,6 +83,7 @@ export const royalBotanicGardenLive: AttractionProduct = {
 
   // Confirmed absent — the "FAQs" tab on the real page contains only the
   // accessibility statement above, no Q&A pairs.
+  deals: [],
   faqs: [],
 
   place_ref: null,

@@ -14,8 +14,8 @@ import type { ProductRecord } from '../types/product';
 
 import { lionKingLive } from '../fixtures/event';
 import { lionKingTarget } from '../fixtures/event-target';
-import { interContinentalSydneyLive } from '../fixtures/accommodation';
-import { interContinentalSydneyTarget } from '../fixtures/accommodation-target';
+import { ingeniaHolidaysSydneyHillsLive } from '../fixtures/accommodation';
+import { ingeniaHolidaysSydneyHillsTarget } from '../fixtures/accommodation-target';
 import { motherChusLive } from '../fixtures/food-and-drink';
 import { motherChusTarget } from '../fixtures/food-and-drink-target';
 import { tourFixturesLive } from '../fixtures/tour';
@@ -27,7 +27,7 @@ import { sydneyHarbourKayaksTarget } from '../fixtures/hire-target';
 
 const liveRecords: ProductRecord[] = [
   lionKingLive,
-  interContinentalSydneyLive,
+  ingeniaHolidaysSydneyHillsLive,
   motherChusLive,
   ...tourFixturesLive,
   royalBotanicGardenLive,
@@ -36,7 +36,7 @@ const liveRecords: ProductRecord[] = [
 
 const targetRecords: ProductRecord[] = [
   lionKingTarget,
-  interContinentalSydneyTarget,
+  ingeniaHolidaysSydneyHillsTarget,
   motherChusTarget,
   ...tourFixturesTarget,
   royalBotanicGardenTarget,

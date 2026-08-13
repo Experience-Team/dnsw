@@ -153,6 +153,7 @@ export const lionKingTarget: EventProduct = {
     best_time_to_visit: 'Arrive 30 minutes before curtain to avoid the foyer queue',
   },
 
+  deals: [],
   faqs: [
     {
       question: 'How long does the show run for?',

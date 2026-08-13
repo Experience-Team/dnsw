@@ -87,6 +87,7 @@ export const sydneyHarbourKayaksLive: HireProduct = {
 
   // Confirmed absent — the "FAQs" tab on the real page contains only the
   // accessibility content above, no Q&A pairs.
+  deals: [],
   faqs: [],
 
   place_ref: null,

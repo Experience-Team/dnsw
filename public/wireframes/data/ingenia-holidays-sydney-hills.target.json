@@ -1,0 +1,295 @@
+{
+  "id": "ingenia-holidays-sydney-hills",
+  "type": "accommodation",
+  "title": "Ingenia Holidays Sydney Hills",
+  "overview": "Escape from the city or take a break during the road trip at Ingenia Holidays Sydney Hills! Located only 30 kilometres north-west of Sydney in the suburb of Dural, Ingenia Holidays Sydney Hills offers a range of accommodation, from camping and caravanning sites to cottages or cabins, suited to every guest.\n\nIngenia Holidays Sydney Hills is the perfect option if you are going to a concert at Sydney Olympic Park, with major event buses running directly between Ingenia Sydney Hills to Olympic Park - there is even a bus stop directly at the front of the park, where you can catch a bus to Sydney City.\n\nRelax on the landscaped grounds and enjoy the tennis court, swimming pools and BBQ or camp kitchen, or go exploring and walk the trails of the Blue Mountains or picnic along the Hawkesbury River. Keen golfers can also head to the local driving range, walking distance from the park.\n\nBook your next stay at Ingenia Holidays Sydney Hills!",
+  "highlights": {
+    "items": [
+      "Conveniently located 30km from Sydney, ideal for city escapes.",
+      "Enjoy on-site amenities like pools, tennis courts, and BBQ facilities.",
+      "Easy access to Sydney Olympic Park events with direct bus services."
+    ],
+    "provenance": "approved",
+    "generated_at": "2026-07-15"
+  },
+  "gallery": [
+    {
+      "url": "https://images.sydney.com/products/ingenia-holidays-sydney-hills/pool.jpg",
+      "alt": "Shaded resort-style swimming pool with sail shades",
+      "credit": "Ingenia Holidays"
+    },
+    {
+      "url": "https://images.sydney.com/products/ingenia-holidays-sydney-hills/playground.jpg",
+      "alt": "Children's playground on the park grounds",
+      "credit": "Ingenia Holidays"
+    },
+    {
+      "url": "https://images.sydney.com/products/ingenia-holidays-sydney-hills/aerial.jpg",
+      "alt": "Aerial view of the park and surrounding bushland",
+      "credit": "Ingenia Holidays"
+    }
+  ],
+  "address": {
+    "line": "269 New Line Road",
+    "suburb": "Dural",
+    "state": "NSW",
+    "postcode": "2158",
+    "country": "Australia",
+    "geo": {
+      "lat": -33.699547,
+      "lng": 151.027894
+    }
+  },
+  "contact": {
+    "phone": "(02) 9651 2555",
+    "email": "sydneyhills@ingeniaholidays.com.au"
+  },
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/ingeniaholidays"
+    },
+    {
+      "platform": "x",
+      "url": "https://x.com/ingeniaholidays"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/ingeniaholidays/"
+    }
+  ],
+  "links": {
+    "booking": "https://www.ingeniaholidays.com.au/our-parks/new-south-wales/western-sydney/sydney-hills/?utm_source=refferal&utm_medium=atdw&utm_term=park-listing",
+    "website": "https://www.ingeniaholidays.com.au/our-parks/new-south-wales/western-sydney/sydney-hills/?utm_source=refferal&utm_medium=atdw&utm_term=park-listing"
+  },
+  "accessibility": {
+    "status": "welcomes",
+    "detail": "Actively welcomes people with access needs. Caters for people with sufficient mobility to climb a few steps but who would benefit from fixtures to aid balance (this includes people using walking frames and mobility aids). Offer multiple options for booking - web, email, phone.",
+    "features": [],
+    "operator_access_url": null
+  },
+  "venue_facilities": [
+    "Camp kitchen",
+    "BBQ areas",
+    "Tennis court",
+    "Games room"
+  ],
+  "availability": {
+    "kind": "stay_dates",
+    "opening_hours": [],
+    "special_hours": [],
+    "operating_days": [],
+    "departure_times": [],
+    "duration_minutes": 0,
+    "seasonal": {
+      "from": "",
+      "to": ""
+    },
+    "event_dates": {
+      "start": "",
+      "end": ""
+    },
+    "sessions": [],
+    "recurrence": "",
+    "min_nights": 1,
+    "checkin_time": "14:00",
+    "checkout_time": "10:00",
+    "advance_booking_required": false,
+    "typical_duration_minutes": 0
+  },
+  "pricing": {
+    "from": 65,
+    "to": 320,
+    "currency": "AUD",
+    "band": "$$",
+    "is_free": false,
+    "unit": "per_night",
+    "concessions": [],
+    "inclusions": [
+      "Access to pools, tennis court and BBQ facilities"
+    ],
+    "exclusions": [
+      "Linen hire (cabins only)"
+    ],
+    "cancellation_policy": "Free cancellation up to 7 days before arrival; deposit retained inside that window."
+  },
+  "trust": {
+    "aggregate_rating": 4.3,
+    "review_count": 612,
+    "review_excerpts": [
+      {
+        "author": "Renee T.",
+        "text": "Peaceful park, kids loved the pool and playground — we'll be back.",
+        "source": "Google",
+        "date": "2026-07-05"
+      },
+      {
+        "author": "Michael K.",
+        "text": "Great base for the Olympic Park bus, cabin was clean and well equipped.",
+        "source": "TripAdvisor",
+        "date": "2026-06-12"
+      }
+    ],
+    "review_source": "Google Reviews",
+    "review_licence": "Displayed under Google Places API terms",
+    "accreditations": [],
+    "aboriginal_owned": false,
+    "awards": []
+  },
+  "getting_there": {
+    "nearest_transport": [
+      {
+        "mode": "bus",
+        "name": "New Line Road bus stop (Sydney Olympic Park event services)",
+        "walking_minutes": 1
+      }
+    ],
+    "parking": {
+      "available": true,
+      "cost": "Free, on-site",
+      "distance_minutes": 0
+    },
+    "travel_time_from_cbd_minutes": 45,
+    "pickup_point": null
+  },
+  "live_availability": {
+    "next_sessions": [],
+    "remaining_capacity": 9,
+    "sold_out": false,
+    "booking_partner": "Ingenia Holidays Direct Booking"
+  },
+  "suitability": {
+    "suitable_for": [
+      "families",
+      "couples",
+      "groups"
+    ],
+    "age_guidance": null,
+    "dietary_options": [],
+    "languages_offered": [
+      "English"
+    ],
+    "fitness_level": null,
+    "pet_policy": "Pets welcome in select sites — contact the park to confirm",
+    "group_size": null,
+    "weather_dependency": "all_weather"
+  },
+  "practical": {
+    "what_to_bring": [
+      "Photo ID for check-in",
+      "Linen (unpowered/powered sites)"
+    ],
+    "on_site_facilities": [
+      "Swimming pools",
+      "Tennis court",
+      "BBQ and camp kitchen",
+      "Playground"
+    ],
+    "best_time_to_visit": "Spring and autumn for mild weather; book early around Sydney Olympic Park event dates"
+  },
+  "deals": [
+    {
+      "id": "DE0044599",
+      "type": "Discount",
+      "label": "Stay 4 Nights and Save 20%",
+      "description": "Save 20% on your booking when you stay 4 nights!",
+      "valid_from": "2026-03-27",
+      "valid_to": "2026-11-30",
+      "comment": "Save 20%",
+      "terms": "A first night deposit is required at booking. You may cancel or amend until 2pm the day before arrival for a full refund; after this, the deposit is retained. No-shows are cancelled without refund. The reservation name must match the payment card, which must be presented at check in. No refunds or credits apply once your stay begins.",
+      "image": null,
+      "link": "https://www.ingeniaholidays.com.au/deals"
+    },
+    {
+      "id": "DE0044600",
+      "type": "Discount",
+      "label": "Early Bird",
+      "description": "The early bird catches the best deals! Receive up to 15% off* the cost of your entire stay at any of the Ingenia Holiday Parks when you make your booking in advance.",
+      "valid_from": "2026-03-27",
+      "valid_to": "2026-11-30",
+      "comment": "Up to 15% off",
+      "terms": "Full payment is required at booking and is non-refundable. Bookings cannot be changed or cancelled. No-shows are cancelled without refund or credit. This offer cannot be combined with other discounts. The reservation name must match the payment card, and the cardholder must be present at check-in. No refunds for unused nights. Subject to availability and conditions.",
+      "image": null,
+      "link": "https://www.ingeniaholidays.com.au/deals"
+    },
+    {
+      "id": "DE0044601",
+      "type": "Discount",
+      "label": "Midweek Special",
+      "description": "Enjoy a midweek getaway and save 15% when you stay two nights or more.",
+      "valid_from": "2026-03-27",
+      "valid_to": "2026-09-24",
+      "comment": "Save 15%",
+      "terms": "A first night deposit is required at booking. Cancel or amend by 2pm the day before arrival for a full refund; after this, the deposit is retained. No-shows are cancelled without refund or credit. The reservation name must match the payment card, which must be shown at check-in. No refunds for unused nights. Blackout dates may apply.",
+      "image": null,
+      "link": "https://www.ingeniaholidays.com.au/our-parks/new-south-wales/ingenia-holidays-sydney-hills"
+    }
+  ],
+  "faqs": [
+    {
+      "question": "What time is check-in and check-out?",
+      "answer": "Check-in is from 2:00pm and check-out is by 10:00am. Early check-in and late check-out may be available on request."
+    },
+    {
+      "question": "Are pets allowed?",
+      "answer": "Pets are welcome in select sites — contact the park directly to confirm availability before booking."
+    },
+    {
+      "question": "Is there a shop on-site?",
+      "answer": "A small general store stocks essentials, ice and camp supplies during peak season."
+    }
+  ],
+  "place_ref": null,
+  "operator_ref": "ingenia-holidays",
+  "parent_ref": null,
+  "last_verified": "2026-08-01",
+  "extension": {
+    "category": "holiday_park",
+    "star_rating": {
+      "value": 4,
+      "source": "self_declared"
+    },
+    "total_capacity": {
+      "rooms": 12,
+      "sites": 84,
+      "beds": 0
+    },
+    "room_types_ref": [],
+    "facilities": [
+      "Swimming pools",
+      "Tennis court",
+      "BBQ and camp kitchen",
+      "Playground",
+      "Games room"
+    ],
+    "in_room_amenities": [
+      "Air conditioning",
+      "Kitchenette",
+      "Smart TV"
+    ],
+    "self_catering": [
+      "kitchen",
+      "kitchenette",
+      "bbq"
+    ],
+    "bathroom": "both",
+    "sites": {
+      "powered": 60,
+      "unpowered": 24
+    },
+    "parking": {
+      "available": true,
+      "cost": "Free",
+      "type": "On-site"
+    },
+    "pets_allowed": true,
+    "smoking_allowed": false,
+    "children": {
+      "cots": true,
+      "extra_beds": true,
+      "free_under_age": 4
+    },
+    "meals_included": [],
+    "brand": "Ingenia Holidays"
+  }
+}

@@ -169,6 +169,7 @@ export const sydneyHarbourKayaksTarget: HireProduct = {
     best_time_to_visit: 'Weekday mornings for calmer water and shorter waits',
   },
 
+  deals: [],
   faqs: [
     { question: 'Do I need kayaking experience?', answer: 'No, stable beginner-friendly kayaks are available and a free introductory course is offered.' },
     { question: 'What should I bring?', answer: 'Sun protection, a change of clothes and swimwear. Life jackets and safety equipment are provided.' },

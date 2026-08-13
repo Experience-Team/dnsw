@@ -83,6 +83,7 @@ export const bridgeClimbSydneyLive: TourProduct = {
 
   // The real page has no FAQ section at all (confirmed absent, not just
   // empty of questions).
+  deals: [],
   faqs: [],
 
   place_ref: null,
@@ -152,6 +153,7 @@ export const underBridgeWalkLive: TourProduct = {
   live_availability: null,
   suitability: null,
   practical: null,
+  deals: [],
   faqs: [],
 
   place_ref: null,
@@ -226,6 +228,7 @@ export const bridgeClimbSummitLive: TourProduct = {
 
   // Confirmed absent — the "FAQs" tab on this page contains only the
   // accessibility content above, no Q&A pairs.
+  deals: [],
   faqs: [],
 
   place_ref: null,

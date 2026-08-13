@@ -493,3 +493,38 @@ This is not `availability` (§4) restated. `availability` is the static shape of
 **`best_time_to_visit`** — `gap`, `source: atdw_proposed`. Genuinely new — editorial/operator judgement, no ATDW analogue.
 
 **`advance_booking_required` is not a new field.** The Practical module reads `availability.advance_booking_required` (§4) directly.
+
+---
+
+## 15. Deals
+
+`live`, `source: atdw_existing`. Not in the original five-record audit (§ Status and evidence base) — added after that audit from a sixth live record, Ingenia Holidays Sydney Hills (accommodation), which was found to already carry a working "Deals" module (Drupal fields `field_deal_type`, `field_deal_description`, `field_deal_redeem_date`, `field_deal_comment`, `field_deal_terms`) rendering as a tabbed set of offers. Unlike every other field group in this contract, this one is not proposed — it is observed live, already in ATDW, already rendering, on at least one real record. The other five audited records (Lion King, BridgeClimb, Mother Chu's, InterContinental, Royal Botanic Garden) simply don't have any deals attached today — `deals: []` there, not `null`, since the module and the data model both exist for their type.
+
+```json
+"deals": [{
+  "id": "string",
+  "type": "string",
+  "label": "string",
+  "description": "string",
+  "valid_from": "date | null",
+  "valid_to": "date | null",
+  "comment": "string | null",
+  "terms": "string | null",
+  "image": { "url": "string", "alt": "string" } | null,
+  "link": "string | null"
+}]
+```
+
+**`type`** — `live`, `source: atdw_existing`. A taxonomy term on the real record (e.g. "Discount") — modelled as a free string here rather than an enum until more deal types are observed across more records.
+
+**`label`**, **`description`** — `live`, `source: atdw_existing`. The deal's headline ("Stay 4 Nights and Save 20%") and its body copy.
+
+**`valid_from`**, **`valid_to`** — `live`, `source: atdw_existing`. A date range field on the real record.
+
+**`comment`** — `live`, `source: atdw_existing`. A short badge/summary distinct from `description` (e.g. "Save 20%" vs. the full sentence) — used as the discount-corner badge on the deal image.
+
+**`terms`** — `live`, `source: atdw_existing`. Full terms and conditions, rendered as a collapsed accordion on the real page, not shown by default.
+
+**`image`** — `live`, `source: atdw_existing`. One image per deal, distinct from the product's own `gallery` (§1).
+
+**`link`** — `live`, `source: atdw_existing`. "Book the deal" CTA — on the real record this routes through an ATDW redirect to the operator's own deals or booking page, not necessarily the same URL as `links.booking` (§1).
