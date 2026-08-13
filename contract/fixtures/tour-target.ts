@@ -157,6 +157,7 @@ export const bridgeClimbSydneyTarget: TourProduct = {
     best_time_to_visit: 'Sunrise and twilight Climbs sell out first — book at least 2 weeks ahead',
   },
 
+  deals: [],
   faqs: [
     { question: 'What should I wear?', answer: 'BridgeClimb provides a one-piece climb suit; wear comfortable enclosed shoes underneath.' },
     { question: 'Is there a weight or height limit?', answer: 'Yes, minimum and maximum height and weight requirements apply for safety harness fitting — contact BridgeClimb directly to confirm eligibility.' },
@@ -324,6 +325,7 @@ export const underBridgeWalkTarget: TourProduct = {
     best_time_to_visit: 'Mid-morning departures have the shortest wait',
   },
 
+  deals: [],
   faqs: [
     { question: 'How is this different from a full Climb?', answer: "UnderBridge Walk stays beneath the Bridge's lower vantage point and doesn't reach the Summit, with fewer stairs and a shorter, 2-hour experience." },
     { question: 'What should I wear?', answer: 'Comfortable enclosed walking shoes are recommended; no climb suit is required for this experience.' },
@@ -487,6 +489,7 @@ export const bridgeClimbSummitTarget: TourProduct = {
     best_time_to_visit: 'Sunrise Climbs sell out first — book at least 2 weeks ahead',
   },
 
+  deals: [],
   faqs: [
     { question: 'How is Summit different from other BridgeClimb experiences?', answer: "Summit is BridgeClimb's original route, taking you all the way to the top of the Bridge via the upper arch." },
     { question: 'What should I wear?', answer: 'BridgeClimb provides a one-piece climb suit; wear comfortable enclosed shoes underneath.' },

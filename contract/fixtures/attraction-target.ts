@@ -162,6 +162,7 @@ export const royalBotanicGardenTarget: AttractionProduct = {
     best_time_to_visit: 'Early morning or late afternoon to avoid midday heat and tour groups',
   },
 
+  deals: [],
   faqs: [
     { question: 'Is entry to the Garden free?', answer: 'Yes, general entry is free. Some guided tours and special events may have a charge.' },
     { question: 'Are dogs allowed?', answer: 'Only assistance animals are permitted within the Garden.' },

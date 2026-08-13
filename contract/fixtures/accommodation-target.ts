@@ -4,76 +4,78 @@
 // real number should be — if one of these values ends up quoted in a deck
 // or a ticket, that's this comment failing, not the number being right.
 //
-// Target fixture — InterContinental Sydney (accommodation).
+// Target fixture — Ingenia Holidays Sydney Hills (accommodation).
 //
 // Parallels accommodation.ts. Every field that was null there because it's
 // marked `gap` in docs/product-data-contract.md is filled here with a
-// realistic value. These values are illustrative, not sourced — do not
-// treat any URL, price, id or date below as real, except where noted as
-// carried over from the confirmed live record (e.g. `total_capacity.rooms`).
+// realistic value. `id`, `title`, `overview`, `address`, `contact`,
+// `socials`, `links`, `accessibility` and `deals` are carried over
+// unchanged from the live fixture, since those values were already
+// confirmed, not a gap. These other values are illustrative, not sourced —
+// do not treat any URL, price, id or date below as real.
 
 import type { AccommodationProduct } from '../types/product';
 
-export const interContinentalSydneyTarget: AccommodationProduct = {
-  id: 'intercontinental-sydney',
+export const ingeniaHolidaysSydneyHillsTarget: AccommodationProduct = {
+  id: 'ingenia-holidays-sydney-hills',
   type: 'accommodation',
-  title: 'InterContinental Sydney',
+  title: 'Ingenia Holidays Sydney Hills',
   overview:
-    'Welcome the height of luxury, where heritage wonder and contemporary flair collide. Centrally positioned in the heart of Circular Quay, InterContinental Sydney extends breathtaking panoramic views of the Sydney Opera House and Sydney Harbour Bridge.\n\n' +
-    "Set within the beautifully restored Treasury Building of 1851, InterContinental Sydney is renowned as one of the city's prized icons with 509 guest rooms including 28 luxury suites, an award-winning and world-class Club InterContinental lounge and vibrant dining venues.\n\n" +
-    'With an AUD120 million refurbishment in 2022, the elevating rooms, public spaces, bars and restaurants, provide a new era of luxury.',
+    'Escape from the city or take a break during the road trip at Ingenia Holidays Sydney Hills! Located only 30 kilometres north-west of Sydney in the suburb of Dural, Ingenia Holidays Sydney Hills offers a range of accommodation, from camping and caravanning sites to cottages or cabins, suited to every guest.\n\n' +
+    'Ingenia Holidays Sydney Hills is the perfect option if you are going to a concert at Sydney Olympic Park, with major event buses running directly between Ingenia Sydney Hills to Olympic Park - there is even a bus stop directly at the front of the park, where you can catch a bus to Sydney City.\n\n' +
+    'Relax on the landscaped grounds and enjoy the tennis court, swimming pools and BBQ or camp kitchen, or go exploring and walk the trails of the Blue Mountains or picnic along the Hawkesbury River. Keen golfers can also head to the local driving range, walking distance from the park.\n\n' +
+    'Book your next stay at Ingenia Holidays Sydney Hills!',
 
   highlights: {
     items: [
-      'Stunning views of the Sydney Opera House and Harbour Bridge.',
-      'Luxurious rooms and award-winning Club InterContinental lounge.',
-      'Centrally located in Circular Quay, close to major attractions.',
+      'Conveniently located 30km from Sydney, ideal for city escapes.',
+      'Enjoy on-site amenities like pools, tennis courts, and BBQ facilities.',
+      'Easy access to Sydney Olympic Park events with direct bus services.',
     ],
     provenance: 'approved',
     generated_at: '2026-07-15',
   },
 
   gallery: [
-    { url: 'https://images.sydney.com/products/intercontinental-sydney/exterior.jpg', alt: 'InterContinental Sydney Treasury Building exterior', credit: 'InterContinental Hotels Group' },
-    { url: 'https://images.sydney.com/products/intercontinental-sydney/lobby.jpg', alt: 'Hotel lobby beneath the heritage sandstone atrium', credit: 'InterContinental Hotels Group' },
-    { url: 'https://images.sydney.com/products/intercontinental-sydney/suite.jpg', alt: 'Harbour-view suite bedroom', credit: 'InterContinental Hotels Group' },
-    { url: 'https://images.sydney.com/products/intercontinental-sydney/lounge.jpg', alt: 'Club InterContinental lounge', credit: 'InterContinental Hotels Group' },
+    { url: 'https://images.sydney.com/products/ingenia-holidays-sydney-hills/pool.jpg', alt: 'Shaded resort-style swimming pool with sail shades', credit: 'Ingenia Holidays' },
+    { url: 'https://images.sydney.com/products/ingenia-holidays-sydney-hills/playground.jpg', alt: "Children's playground on the park grounds", credit: 'Ingenia Holidays' },
+    { url: 'https://images.sydney.com/products/ingenia-holidays-sydney-hills/aerial.jpg', alt: 'Aerial view of the park and surrounding bushland', credit: 'Ingenia Holidays' },
   ],
 
   address: {
-    line: '117 Macquarie Street',
-    suburb: 'Sydney',
+    line: '269 New Line Road',
+    suburb: 'Dural',
     state: 'NSW',
-    postcode: '2000',
+    postcode: '2158',
     country: 'Australia',
-    geo: { lat: -33.8622, lng: 151.2119 },
+    geo: { lat: -33.699547, lng: 151.027894 },
   },
 
   contact: {
-    phone: '(02) 9253 9000',
-    email: 'intercontinental.sydney@ihg.com',
+    phone: '(02) 9651 2555',
+    email: 'sydneyhills@ingeniaholidays.com.au',
   },
 
   socials: [
-    { platform: 'facebook', url: 'https://www.facebook.com/InterContinentalSydney' },
-    { platform: 'instagram', url: 'https://www.instagram.com/intercontinentalsydney/' },
+    { platform: 'facebook', url: 'https://www.facebook.com/ingeniaholidays' },
+    { platform: 'x', url: 'https://x.com/ingeniaholidays' },
+    { platform: 'instagram', url: 'https://www.instagram.com/ingeniaholidays/' },
   ],
 
   links: {
-    booking:
-      'https://www.ihg.com/intercontinental/hotels/us/en/find-hotels/select-roomrate?fromRedirect=true&qSrt=sBR&qSlH=SYDHA&qRms=1&qAdlt=2&qCiD=21&qCiMy=052021&qCoD=24&qCoMy=052021&qAAR=IYAPE&qRtP=IYAPE&setPMCookies=true&qSHBrC=IC&qDest=117%20Macquarie%20Street%2c%20Sydney%2c%20NSW%2c%20AU&srb_u=1&qChAge=',
-    website: 'https://www.sydney.intercontinental.com/',
+    booking: 'https://www.ingeniaholidays.com.au/our-parks/new-south-wales/western-sydney/sydney-hills/?utm_source=refferal&utm_medium=atdw&utm_term=park-listing',
+    website: 'https://www.ingeniaholidays.com.au/our-parks/new-south-wales/western-sydney/sydney-hills/?utm_source=refferal&utm_medium=atdw&utm_term=park-listing',
   },
 
   accessibility: {
     status: 'welcomes',
     detail:
-      'Actively welcomes people with access needs. Caters for people who use a wheelchair. Caters for people with allergies and intolerances.',
-    features: ['wheelchair_access', 'accessible_parking', 'accessible_bathroom', 'step_free_entry'],
-    operator_access_url: 'https://www.ihg.com/intercontinental/hotels/us/en/accessibility',
+      'Actively welcomes people with access needs. Caters for people with sufficient mobility to climb a few steps but who would benefit from fixtures to aid balance (this includes people using walking frames and mobility aids). Offer multiple options for booking - web, email, phone.',
+    features: [],
+    operator_access_url: null,
   },
 
-  venue_facilities: ['Concierge desk', 'Business centre', 'Valet parking', 'Lobby lounge'],
+  venue_facilities: ['Camp kitchen', 'BBQ areas', 'Tennis court', 'Games room'],
   availability: {
     kind: 'stay_dates',
     opening_hours: [],
@@ -86,99 +88,140 @@ export const interContinentalSydneyTarget: AccommodationProduct = {
     sessions: [],
     recurrence: '',
     min_nights: 1,
-    checkin_time: '15:00',
-    checkout_time: '11:00',
+    checkin_time: '14:00',
+    checkout_time: '10:00',
     advance_booking_required: false,
     typical_duration_minutes: 0,
   },
 
   pricing: {
-    from: 450,
-    to: 1200,
+    from: 65,
+    to: 320,
     currency: 'AUD',
-    band: '$$$$',
+    band: '$$',
     is_free: false,
     unit: 'per_night',
     concessions: [],
-    inclusions: ['Complimentary WiFi', 'Access to Club InterContinental lounge (select room types)'],
-    exclusions: ['Breakfast (unless selected at booking)'],
-    cancellation_policy: 'Free cancellation up to 48 hours before arrival for standard rate bookings.',
+    inclusions: ['Access to pools, tennis court and BBQ facilities'],
+    exclusions: ['Linen hire (cabins only)'],
+    cancellation_policy: 'Free cancellation up to 7 days before arrival; deposit retained inside that window.',
   },
 
   trust: {
-    aggregate_rating: 4.6,
-    review_count: 5108,
+    aggregate_rating: 4.3,
+    review_count: 612,
     review_excerpts: [
-      { author: 'Grace M.', text: 'The Opera House view from our room was unreal. Faultless service.', source: 'TripAdvisor', date: '2026-07-18' },
-      { author: 'David N.', text: 'Historic building, modern comfort. Club lounge breakfast alone is worth the upgrade.', source: 'Google', date: '2026-06-30' },
+      { author: 'Renee T.', text: "Peaceful park, kids loved the pool and playground — we'll be back.", source: 'Google', date: '2026-07-05' },
+      { author: 'Michael K.', text: 'Great base for the Olympic Park bus, cabin was clean and well equipped.', source: 'TripAdvisor', date: '2026-06-12' },
     ],
-    review_source: 'TripAdvisor',
-    review_licence: 'Displayed under TripAdvisor Content API terms',
-    accreditations: ['AAA Tourism 5 Star (self-declared, pending accreditation check)'],
+    review_source: 'Google Reviews',
+    review_licence: 'Displayed under Google Places API terms',
+    accreditations: [],
     aboriginal_owned: false,
-    awards: [{ name: 'Best Luxury Hotel — NSW', year: 2025, awarding_body: 'Australian Hotels Association' }],
+    awards: [],
   },
 
   getting_there: {
-    nearest_transport: [
-      { mode: 'train', name: 'Circular Quay Station', walking_minutes: 4 },
-      { mode: 'ferry', name: 'Circular Quay Ferry Wharf', walking_minutes: 5 },
-    ],
-    parking: { available: true, cost: '$65 per night valet', distance_minutes: 0 },
-    travel_time_from_cbd_minutes: 3,
+    nearest_transport: [{ mode: 'bus', name: 'New Line Road bus stop (Sydney Olympic Park event services)', walking_minutes: 1 }],
+    parking: { available: true, cost: 'Free, on-site', distance_minutes: 0 },
+    travel_time_from_cbd_minutes: 45,
     pickup_point: null,
   },
 
   live_availability: {
     next_sessions: [],
-    remaining_capacity: 14, // rooms remaining for the next 30 nights
+    remaining_capacity: 9, // sites/cabins remaining for the next 30 nights
     sold_out: false,
-    booking_partner: 'IHG Direct Booking',
+    booking_partner: 'Ingenia Holidays Direct Booking',
   },
 
   suitability: {
-    suitable_for: ['couples', 'solo', 'groups'],
+    suitable_for: ['families', 'couples', 'groups'],
     age_guidance: null,
     dietary_options: [],
-    languages_offered: ['English', 'Mandarin', 'Japanese'],
+    languages_offered: ['English'],
     fitness_level: null,
-    pet_policy: 'Not accepted, except registered assistance animals',
+    pet_policy: 'Pets welcome in select sites — contact the park to confirm',
     group_size: null,
     weather_dependency: 'all_weather',
   },
 
   practical: {
-    what_to_bring: ['Photo ID for check-in', 'Credit card for incidentals hold'],
-    on_site_facilities: ['Swimming pool', 'Fitness centre', 'Club InterContinental lounge', 'Multiple restaurants and bars'],
-    best_time_to_visit: 'Year-round; book Club InterContinental rooms early for Vivid Sydney season',
+    what_to_bring: ['Photo ID for check-in', 'Linen (unpowered/powered sites)'],
+    on_site_facilities: ['Swimming pools', 'Tennis court', 'BBQ and camp kitchen', 'Playground'],
+    best_time_to_visit: 'Spring and autumn for mild weather; book early around Sydney Olympic Park event dates',
   },
 
-  faqs: [
-    { question: 'What time is check-in and check-out?', answer: 'Check-in is from 3:00pm and check-out is by 11:00am. Early check-in and late check-out may be available on request.' },
-    { question: 'Is parking available?', answer: 'Valet parking is available on-site for an additional nightly fee.' },
-    { question: 'Are pets allowed?', answer: 'InterContinental Sydney does not accept pets, with the exception of registered assistance animals.' },
+  // Live — contract §15, carried over unchanged from the live fixture.
+  deals: [
+    {
+      id: 'DE0044599',
+      type: 'Discount',
+      label: 'Stay 4 Nights and Save 20%',
+      description: 'Save 20% on your booking when you stay 4 nights!',
+      valid_from: '2026-03-27',
+      valid_to: '2026-11-30',
+      comment: 'Save 20%',
+      terms:
+        'A first night deposit is required at booking. You may cancel or amend until 2pm the day before arrival for a full refund; after this, the deposit is retained. No-shows are cancelled without refund. The reservation name must match the payment card, which must be presented at check in. No refunds or credits apply once your stay begins.',
+      image: null,
+      link: 'https://www.ingeniaholidays.com.au/deals',
+    },
+    {
+      id: 'DE0044600',
+      type: 'Discount',
+      label: 'Early Bird',
+      description:
+        'The early bird catches the best deals! Receive up to 15% off* the cost of your entire stay at any of the Ingenia Holiday Parks when you make your booking in advance.',
+      valid_from: '2026-03-27',
+      valid_to: '2026-11-30',
+      comment: 'Up to 15% off',
+      terms:
+        'Full payment is required at booking and is non-refundable. Bookings cannot be changed or cancelled. No-shows are cancelled without refund or credit. This offer cannot be combined with other discounts. The reservation name must match the payment card, and the cardholder must be present at check-in. No refunds for unused nights. Subject to availability and conditions.',
+      image: null,
+      link: 'https://www.ingeniaholidays.com.au/deals',
+    },
+    {
+      id: 'DE0044601',
+      type: 'Discount',
+      label: 'Midweek Special',
+      description: 'Enjoy a midweek getaway and save 15% when you stay two nights or more.',
+      valid_from: '2026-03-27',
+      valid_to: '2026-09-24',
+      comment: 'Save 15%',
+      terms:
+        'A first night deposit is required at booking. Cancel or amend by 2pm the day before arrival for a full refund; after this, the deposit is retained. No-shows are cancelled without refund or credit. The reservation name must match the payment card, which must be shown at check-in. No refunds for unused nights. Blackout dates may apply.',
+      image: null,
+      link: 'https://www.ingeniaholidays.com.au/our-parks/new-south-wales/ingenia-holidays-sydney-hills',
+    },
   ],
 
-  place_ref: 'treasury-building-sydney',
-  operator_ref: 'ihg-hotels-resorts',
+  faqs: [
+    { question: 'What time is check-in and check-out?', answer: 'Check-in is from 2:00pm and check-out is by 10:00am. Early check-in and late check-out may be available on request.' },
+    { question: 'Are pets allowed?', answer: 'Pets are welcome in select sites — contact the park directly to confirm availability before booking.' },
+    { question: 'Is there a shop on-site?', answer: 'A small general store stocks essentials, ice and camp supplies during peak season.' },
+  ],
+
+  place_ref: null,
+  operator_ref: 'ingenia-holidays',
   parent_ref: null,
   last_verified: '2026-08-01',
 
   extension: {
-    category: 'hotel',
-    star_rating: { value: 5, source: 'self_declared' },
-    total_capacity: { rooms: 509, sites: 0, beds: 0 }, // room count is the confirmed live figure from the Overview copy
+    category: 'holiday_park',
+    star_rating: { value: 4, source: 'self_declared' },
+    total_capacity: { rooms: 12, sites: 84, beds: 0 },
     room_types_ref: [],
-    facilities: ['Swimming pool', 'Fitness centre', 'Club InterContinental lounge', 'Multiple restaurants and bars'],
-    in_room_amenities: ['Air conditioning', 'Minibar', 'Smart TV', 'Nespresso machine'],
-    self_catering: [],
-    bathroom: 'private',
-    sites: { powered: 0, unpowered: 0 },
-    parking: { available: true, cost: '$65 per night', type: 'Valet' },
-    pets_allowed: false,
+    facilities: ['Swimming pools', 'Tennis court', 'BBQ and camp kitchen', 'Playground', 'Games room'],
+    in_room_amenities: ['Air conditioning', 'Kitchenette', 'Smart TV'],
+    self_catering: ['kitchen', 'kitchenette', 'bbq'],
+    bathroom: 'both',
+    sites: { powered: 60, unpowered: 24 },
+    parking: { available: true, cost: 'Free', type: 'On-site' },
+    pets_allowed: true,
     smoking_allowed: false,
-    children: { cots: true, extra_beds: true, free_under_age: 12 },
+    children: { cots: true, extra_beds: true, free_under_age: 4 },
     meals_included: [],
-    brand: 'InterContinental Hotels & Resorts',
+    brand: 'Ingenia Holidays',
   },
 };

@@ -100,6 +100,7 @@ export const lionKingLive: EventProduct = {
 
   // Every audited page's FAQ block holds no actual questions — accessibility
   // occupies the slot instead. Confirmed empty, not unknown.
+  deals: [],
   faqs: [],
 
   place_ref: null,
