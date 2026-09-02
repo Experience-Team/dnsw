@@ -131,6 +131,22 @@ export interface SitemapNode {
   group:       SitemapGroup;
 }
 
+// ── Quote Bank ────────────────────────────────────────────────────────────────
+export interface QuoteEntry {
+  quote_id:     string;
+  quote:        string;
+  segment:      string;
+  sentiment:    string;
+  themes:       string;
+  stage:        string;
+  site:         string;
+  travel_party: string;
+  trip_context: string;
+  participant:  string;
+  alias:        string;
+  image_url:    string;
+}
+
 // ── Full data bundle ──────────────────────────────────────────────────────────
 export interface SheetData {
   personas:        Persona[];
@@ -141,4 +157,5 @@ export interface SheetData {
   adaptiveContent: AdaptiveContent[];
   gaps:            Gap[];
   sitemapNodes:    SitemapNode[];
+  quotes:          QuoteEntry[];
 }
