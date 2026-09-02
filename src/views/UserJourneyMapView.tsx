@@ -4,7 +4,7 @@ import InfoButton from '../components/InfoButton';
 import type { UjmEntry, UjmLayer, UjmRowType } from '../types';
 import { DeviceIcon } from '../icons/DeviceIcon';
 import { SiInstagram, SiGoogle, SiPinterest, SiBookingdotcom, SiAirbnb, SiFacebook, SiReddit, SiTripadvisor } from '@icons-pack/react-simple-icons';
-import { Star, MessageCircle, MousePointer2, Mail, SignpostBig, Home, Key, Map, Globe, Bell, Plug, Newspaper, StickyNote, Table2, Sparkles } from 'lucide-react';
+import { Star, MessageCircle, MousePointer2, Mail, SignpostBig, Home, Key, Map, Globe, Bell, Plug, Newspaper, StickyNote, Table2, Sparkles, Info } from 'lucide-react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -139,6 +139,7 @@ function getTouchpointIcon(content: string) {
   if (c.includes('signage'))                                                         return <SignpostBig size={14} />;
   if (c.includes('email'))                                                           return <Mail size={14} />;
   if (c.includes('concierge'))                                                       return <Bell size={14} />;
+  if (c.includes('visitor centre') || c.includes('visitor center'))                 return <Info size={14} />;
   if (c.includes('ev charging') || c.includes('charging app'))                      return <Plug size={14} />;
   if (c.includes('time out') || c.includes('broadsheet') || c.includes('concrete playground'))
                                                                                      return <Newspaper size={14} />;
