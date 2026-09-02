@@ -5,6 +5,7 @@ import type {
   CjmEntry, CjmRowType, UsmEntry, SupportRating,
   UjmEntry, UjmRowType, UjmLayer, UjmDevice,
   SitemapNode, SitemapGroup,
+  QuoteEntry,
 } from '../types';
 
 const CSV_BASE_URL =
@@ -323,21 +324,6 @@ function parseSitemapNodes(rows: string[][]): SitemapNode[] {
 
 // ── Quote Bank ────────────────────────────────────────────────────────────────
 
-export interface QuoteEntry {
-  quote_id:     string;
-  quote:        string;
-  segment:      string;
-  sentiment:    string;
-  themes:       string;
-  stage:        string;
-  site:         string;
-  travel_party: string;
-  trip_context: string;
-  participant:  string;
-  alias:        string;
-  image_url:    string;
-}
-
 function parseQuotes(rows: string[][]): QuoteEntry[] {
   return rowsToObjects(rows)
     .filter(r => (r.quote ?? '').trim())
@@ -384,11 +370,7 @@ function parseParticipantImages(rows: string[][]): Map<string, ParticipantInfo> 
   return map;
 }
 
-export async function fetchQuotes(): Promise<QuoteEntry[]> {
-  const [quoteRows, imageRows] = await Promise.all([
-    fetchTab(TABS.quoteBank),
-    fetchTab(TABS.participantImages),
-  ]);
+function buildQuotes(quoteRows: string[][], imageRows: string[][]): QuoteEntry[] {
   const images = parseParticipantImages(imageRows);
   return parseQuotes(quoteRows).map(q => {
     const info = images.get(normalizeName(q.participant));
@@ -419,6 +401,7 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     quoteRows,
     ujmRows,
     sitemapRows,
+    participantImageRows,
   ] = await Promise.all([
     fetchTabSafe(TABS.cjm, 'Customer Journey Map'),
     fetchTabSafe(TABS.usm, 'User Story Map'),
@@ -426,6 +409,7 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     fetchTabSafe(TABS.quoteBank, 'Quote Bank'),
     fetchTabSafe(TABS.ujm, 'User Journey Map'),
     fetchTabSafe(TABS.sitemap, 'Sitemap'),
+    fetchTabSafe(TABS.participantImages, 'Participant Images'),
   ]);
 
   return {
@@ -437,5 +421,6 @@ export async function fetchAllSheetData(): Promise<SheetData> {
     adaptiveContent: parseAdaptiveContent(adaptiveRows),
     gaps:            parseGaps(quoteRows),
     sitemapNodes:    parseSitemapNodes(sitemapRows),
+    quotes:          buildQuotes(quoteRows, participantImageRows),
   };
 }

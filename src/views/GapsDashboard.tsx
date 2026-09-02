@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import InfoButton from '../components/InfoButton';
-import LoadingState from '../components/LoadingState';
-import ErrorState from '../components/ErrorState';
-import { fetchQuotes } from '../services/sheets';
-import type { QuoteEntry } from '../services/sheets';
+import { useAppContext } from '../context/AppContext';
+import type { QuoteEntry } from '../types';
 
 const SEGMENTS = [
   'Local',
@@ -143,28 +141,15 @@ function QuoteCard({
 }
 
 export default function GapsDashboard() {
-  const [quotes, setQuotes]                 = useState<QuoteEntry[]>([]);
-  const [loading, setLoading]               = useState(true);
-  const [error, setError]                   = useState<string | null>(null);
+  const { data } = useAppContext();
+  const quotes: QuoteEntry[] = data?.quotes ?? [];
+
   const [segmentFilter, setSegmentFilter]   = useState('');
   const [sentimentFilter, setSentiment]     = useState('All');
   const [stageFilter, setStageFilter]       = useState('');
   const [travelPartyFilter, setTravelParty] = useState('');
   const [themeFilter, setThemeFilter]       = useState('');
   const [shuffleSeed, setShuffleSeed]       = useState(0);
-
-  const load = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    fetchQuotes()
-      .then(setQuotes)
-      .catch(e => setError(e instanceof Error ? e.message : 'Failed to load quotes.'))
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const stages = useMemo(() =>
     [...new Set(quotes.flatMap(q => q.stage ? [q.stage.trim()] : []))].sort(),
@@ -225,10 +210,6 @@ export default function GapsDashboard() {
     setTravelParty('');
     setThemeFilter('');
   };
-
-  if (loading) return <LoadingState />;
-
-  if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <div>
