@@ -71,16 +71,28 @@ function parseCsv(text: string): string[][] {
 
 // ── Fetch a single tab ────────────────────────────────────────────────────────
 
+const FETCH_TIMEOUT_MS = 20000;
+
 async function fetchTab(gid: number): Promise<string[][]> {
   const url = `${CSV_BASE_URL}&gid=${gid}`;
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
   let res: Response;
   try {
-    res = await fetch(url);
-  } catch {
+    res = await fetch(url, { signal: controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(
+        'Timed out loading data from Google Sheet. Please try again.'
+      );
+    }
     throw new Error(
       'Could not load data from Google Sheet. Check the sheet is published and the URL is correct.'
     );
+  } finally {
+    clearTimeout(timeout);
   }
 
   if (!res.ok) {

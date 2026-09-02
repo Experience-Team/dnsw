@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import InfoButton from '../components/InfoButton';
+import LoadingState from '../components/LoadingState';
+import ErrorState from '../components/ErrorState';
 import { fetchQuotes } from '../services/sheets';
 import type { QuoteEntry } from '../services/sheets';
 
@@ -151,12 +153,18 @@ export default function GapsDashboard() {
   const [themeFilter, setThemeFilter]       = useState('');
   const [shuffleSeed, setShuffleSeed]       = useState(0);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true);
+    setError(null);
     fetchQuotes()
       .then(setQuotes)
       .catch(e => setError(e instanceof Error ? e.message : 'Failed to load quotes.'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const stages = useMemo(() =>
     [...new Set(quotes.flatMap(q => q.stage ? [q.stage.trim()] : []))].sort(),
@@ -218,13 +226,9 @@ export default function GapsDashboard() {
     setThemeFilter('');
   };
 
-  if (loading) return (
-    <div className="py-16 text-center text-blue-90/40">Loading quotes…</div>
-  );
+  if (loading) return <LoadingState />;
 
-  if (error) return (
-    <div className="py-16 text-center text-red-60">{error}</div>
-  );
+  if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <div>
