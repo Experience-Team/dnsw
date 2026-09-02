@@ -89,7 +89,7 @@ export default function AppShell() {
       {/* ── Content ── */}
       <main className="flex-1 w-full px-10 py-6">
         {!data && loading && <LoadingState />}
-        {!data && !loading && error && <ErrorState message={error} />}
+        {!data && !loading && error && <ErrorState message={error} onRetry={refresh} />}
         {data && (
           <>
             {/* Refresh error banner (data exists but refresh failed) */}
