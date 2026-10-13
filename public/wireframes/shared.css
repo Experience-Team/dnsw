@@ -1939,12 +1939,12 @@ body.utility-bar-body--hidden .detail-tabs { top: 3.5rem; }
 .region-map-svg .region-map-land { fill: #00AE96; }
 .region-map-svg .region-leader-line { stroke: #fff; stroke-width: 1.2; }
 
-/* The zone shapes are invisible hit areas by default — clicking a card lights
-   the matching one up as a soft light-green "glow" over the real map art,
-   standing in for a highlighted vector layer without redrawing the base map. */
-.region-map-svg .region-zone { fill: transparent; opacity: 0; cursor: pointer; transition: fill .2s ease, opacity .2s ease; }
-.region-map-svg .region-zone-group:hover .region-zone { fill: #baf7d4; opacity: .35; }
-.region-map-svg .region-zone-group.active .region-zone { fill: #baf7d4; opacity: .55; }
+/* Each .region-zone IS the region's real vector shape (not an overlay) — selecting
+   a region recolours that exact path to a lighter green, matching how the Figma
+   prototype actually highlights its map layers. */
+.region-map-svg .region-zone { fill: #00AE96; cursor: pointer; transition: fill .2s ease; }
+.region-map-svg .region-zone-group:hover .region-zone { fill: #4dd0b5; }
+.region-map-svg .region-zone-group.active .region-zone { fill: #baf7d4; }
 .region-map-svg .region-marker { fill: #e7e7e7; }
 .region-map-svg .region-label {
   font-size: 14.769px; fill: #fff; text-transform: uppercase; letter-spacing: .02em;
