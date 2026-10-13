@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wireframe — Destination Page (VisitNSW)</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <link rel="stylesheet" href="../themes/nsw.css" id="theme-sheet" />
+</head>
+<body class="theme-nsw" data-site="nsw">
+
+  <div data-include="../components/utility-bar.html"></div>
+  <div data-include="../components/nav.html"></div>
+
+  <!-- Share / Save action row -->
+  <div class="page-switcher-bar" style="justify-content:flex-end;">
+    <div class="page-actions">
+      <a href="#">Share</a>
+      <a href="#">Save</a>
+    </div>
+  </div>
+
+  <!-- Heading -->
+  <section class="section" style="padding-bottom:1rem;">
+    <div class="container" style="max-width:52rem; text-align:center;">
+      <h1 style="font-size:2rem; font-weight:700; margin-bottom:1rem;">Places to visit in NSW</h1>
+      <p style="color:var(--color-text-muted); line-height:1.6;">Explore Australia&rsquo;s most geographically diverse state at any time of the year. There are many stunning NSW destinations. Whether weekend getaways, family holidays or adventure holidays, you&rsquo;ll find plenty of points of interest and amazing attractions.</p>
+    </div>
+  </section>
+
+  <!-- Destination card grid -->
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="destination-grid">
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>North Coast</h3>
+            <p>Natural beauty from headland to hinterland</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>Blue Mountains</h3>
+            <p>A world heritage site with fabulous views</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>Country NSW</h3>
+            <p>Small-town charm &amp; passionate producers</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>Central Coast</h3>
+            <p>An eco-certified destination perfect for surf &amp; sand</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>The Hunter</h3>
+            <p>World-class wines &amp; gourmet getaways</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>Lord Howe Island</h3>
+            <p>Coral reefs, crystal-clear waters &amp; island life</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>Outback NSW</h3>
+            <p>Big skies, red dirt &amp; endless adventure</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>Snowy Mountains</h3>
+            <p>Snow adventures &amp; Australia&rsquo;s highest peak</p>
+          </div>
+        </a>
+
+        <a href="#" class="destination-tile">
+          <span class="destination-tile-badge">Map</span>
+          <div class="ph-img"></div>
+          <div class="destination-tile-overlay">
+            <h3>South Coast</h3>
+            <p>Brilliant beaches &amp; pretty coastal towns</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive region map + destination carousel -->
+  <section class="region-map-section" id="region-map-section">
+    <div class="container">
+      <div class="section-header" style="margin-bottom:1.5rem; justify-content:center; text-align:center;">
+        <div>
+          <p class="section-title">Explore by region</p>
+          <p class="section-body" style="margin-left:auto; margin-right:auto;">Select a region on the map, or scroll the cards below, to see what each part of NSW is known for.</p>
+        </div>
+      </div>
+
+      <div class="region-map">
+        <svg class="region-map-svg" viewBox="0 0 1000 520" role="img" aria-label="Schematic map of New South Wales regions">
+          <!-- Simplified schematic landmass — not to scale -->
+          <path class="region-landmass" d="M300,20 C420,5 560,10 620,40 C660,55 665,90 650,120 C675,130 680,150 655,160 C645,180 600,170 585,190 C600,220 580,250 555,260 C560,290 540,320 520,340 C500,365 470,370 450,345 C420,355 380,350 360,330 C320,335 280,320 265,290 C240,260 235,220 240,180 C220,150 220,110 245,80 C255,55 275,30 300,20 Z" />
+
+          <g class="region-zone-group" data-region="outback-nsw">
+            <circle class="region-zone" cx="300" cy="150" r="70" />
+            <text class="region-label" x="300" y="150" text-anchor="middle">
+              <tspan x="300" dy="-6">Outback</tspan>
+              <tspan x="300" dy="16">NSW</tspan>
+            </text>
+          </g>
+
+          <g class="region-zone-group" data-region="north-coast">
+            <circle class="region-zone" cx="610" cy="75" r="35" />
+            <text class="region-label" x="610" y="80" text-anchor="middle">
+              <tspan x="610" dy="-5">North</tspan>
+              <tspan x="610" dy="14">Coast</tspan>
+            </text>
+          </g>
+
+          <g class="region-zone-group" data-region="lord-howe-island">
+            <path class="region-zone" d="M678,112 C690,108 698,114 696,122 C694,130 682,132 676,126 C672,120 674,114 678,112 Z" />
+            <circle class="region-zone-hit" cx="685" cy="120" r="24" />
+            <text class="region-label" x="685" y="148" text-anchor="middle" font-size="10">
+              <tspan x="685" dy="0">Lord Howe</tspan>
+              <tspan x="685" dy="12">Island</tspan>
+            </text>
+          </g>
+
+          <g class="region-zone-group" data-region="hunter">
+            <circle class="region-zone" cx="565" cy="140" r="30" />
+            <text class="region-label" x="565" y="144" text-anchor="middle">Hunter</text>
+          </g>
+
+          <g class="region-zone-group" data-region="country-nsw">
+            <circle class="region-zone" cx="460" cy="190" r="45" />
+            <text class="region-label" x="460" y="186" text-anchor="middle">
+              <tspan x="460" dy="-5">Country</tspan>
+              <tspan x="460" dy="14">NSW</tspan>
+            </text>
+          </g>
+
+          <g class="region-zone-group" data-region="central-coast">
+            <circle class="region-zone" cx="575" cy="185" r="24" />
+            <text class="region-label" x="575" y="214" text-anchor="middle" font-size="10">
+              <tspan x="575" dy="0">Central</tspan>
+              <tspan x="575" dy="11">Coast</tspan>
+            </text>
+          </g>
+
+          <g class="region-zone-group" data-region="blue-mountains">
+            <circle class="region-zone" cx="480" cy="250" r="32" />
+            <text class="region-label" x="480" y="254" text-anchor="middle" font-size="11">
+              <tspan x="480" dy="-5">Blue</tspan>
+              <tspan x="480" dy="13">Mountains</tspan>
+            </text>
+          </g>
+
+          <g class="region-zone-group" data-region="south-coast">
+            <circle class="region-zone" cx="535" cy="300" r="30" />
+            <text class="region-label" x="535" y="340" text-anchor="middle" font-size="11">
+              <tspan x="535" dy="0">South</tspan>
+              <tspan x="535" dy="12">Coast</tspan>
+            </text>
+          </g>
+
+          <g class="region-zone-group" data-region="snowy-mountains">
+            <circle class="region-zone" cx="420" cy="330" r="38" />
+            <text class="region-label" x="420" y="334" text-anchor="middle" font-size="11">
+              <tspan x="420" dy="-5">Snowy</tspan>
+              <tspan x="420" dy="13">Mountains</tspan>
+            </text>
+          </g>
+
+          <!-- Context markers — not interactive -->
+          <circle class="region-marker" cx="560" cy="215" r="4" />
+          <text class="region-marker-label" x="568" y="219">Sydney</text>
+          <circle class="region-marker" cx="498" cy="298" r="3" />
+          <text class="region-marker-label" x="488" y="312" text-anchor="middle">ACT</text>
+        </svg>
+      </div>
+
+      <div class="region-carousel-row">
+        <div class="region-carousel-wrap">
+          <div class="region-carousel" id="region-carousel">
+
+            <button type="button" class="region-card" data-region="north-coast">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>North Coast</h3>
+                <p>Natural beauty from headland to hinterland</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="blue-mountains">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>Blue Mountains</h3>
+                <p>A world heritage site with fabulous views</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="country-nsw">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>Country NSW</h3>
+                <p>Small-town charm &amp; passionate producers</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="central-coast">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>Central Coast</h3>
+                <p>An eco-certified destination perfect for surf &amp; sand</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="hunter">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>The Hunter</h3>
+                <p>World-class wines &amp; gourmet getaways</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="lord-howe-island">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>Lord Howe Island</h3>
+                <p>Coral reefs, crystal-clear waters &amp; island life</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="outback-nsw">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>Outback NSW</h3>
+                <p>Big skies, red dirt &amp; endless adventure</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="snowy-mountains">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>Snowy Mountains</h3>
+                <p>Snow adventures &amp; Australia&rsquo;s highest peak</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+            <button type="button" class="region-card" data-region="south-coast">
+              <div class="region-card-img ph-img"></div>
+              <div class="region-card-body">
+                <h3>South Coast</h3>
+                <p>Brilliant beaches &amp; pretty coastal towns</p>
+                <span class="region-card-link">Learn more</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <div class="region-carousel-controls">
+          <button type="button" id="region-carousel-prev" aria-label="Previous destination">‹</button>
+          <button type="button" id="region-carousel-next" aria-label="Next destination">›</button>
+        </div>
+      </div>
+
+      <div class="region-dots" id="region-dots"></div>
+    </div>
+  </section>
+
+  <!-- Content / Media Feature: Sydney showcase -->
+  <section class="section" id="sydney-feature">
+    <div class="container" style="max-width:40rem;">
+      <h2 style="font-size:1.75rem; font-weight:700; margin-bottom:1rem;">Sydney</h2>
+      <div class="sydney-feature-media ph-img" id="sydney-feature-media" style="aspect-ratio:16/11; border-radius:8px; margin-bottom:.75rem;"></div>
+      <div class="region-dots region-dots--on-light" id="sydney-feature-dots" style="margin:0 0 1.25rem;"></div>
+      <p style="color:#111; line-height:1.6; margin-bottom:1.5rem;" id="sydney-feature-copy">Welcome to NSW&rsquo;s cosmopolitan capital city. Enjoy the incredible waterways of the harbour, surf on some of Australia&rsquo;s best beaches, and admire the iconic Sydney Opera House and Sydney Harbour Bridge.</p>
+      <a href="#" class="btn btn-primary">Discover Sydney →</a>
+    </div>
+  </section>
+
+  <div data-include="../components/newsletter.html"></div>
+  <div data-include="../components/footer.html"></div>
+
+  <script src="../includes.js"></script>
+
+  <!-- Interactive region map + carousel -->
+  <script>
+  (function () {
+    var carousel = document.getElementById('region-carousel');
+    var dotsWrap = document.getElementById('region-dots');
+    var prevBtn = document.getElementById('region-carousel-prev');
+    var nextBtn = document.getElementById('region-carousel-next');
+    if (!carousel || !dotsWrap) return;
+
+    var cards = Array.prototype.slice.call(carousel.querySelectorAll('.region-card'));
+    var zoneGroups = Array.prototype.slice.call(document.querySelectorAll('.region-zone-group'));
+    var dots = [];
+
+    // Build one dot per card so the indicator always matches the carousel's contents.
+    cards.forEach(function (card, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'region-dot';
+      dot.setAttribute('aria-label', 'Go to ' + card.getAttribute('data-region'));
+      dot.addEventListener('click', function () {
+        setActive(card.getAttribute('data-region'), { scrollCard: true });
+      });
+      dotsWrap.appendChild(dot);
+      dots.push(dot);
+    });
+
+    // While a click/tap is driving the carousel to a specific card, the passive
+    // scroll-sync below stands down for a fixed window. Without this, it would
+    // "correct" the active card mid-animation — and for a card near either end,
+    // the scroll position gets clamped short of true centring, so the
+    // nearest-to-centre card it would land on isn't necessarily the one that was
+    // actually chosen. A fixed timeout (rather than clearing on "scrollend") is
+    // deliberate: an incidental native scroll-into-view can still be animating
+    // when its own "scrollend" fires moments after the click, which would
+    // otherwise cancel the suppression early and let the sync fire on stale data.
+    var suppressSync = false;
+    var suppressSyncTimer = null;
+    function suppressSyncFor(ms) {
+      suppressSync = true;
+      window.clearTimeout(suppressSyncTimer);
+      suppressSyncTimer = window.setTimeout(function () { suppressSync = false; }, ms);
+    }
+
+    function setActive(regionId, opts) {
+      opts = opts || {};
+
+      zoneGroups.forEach(function (g) {
+        g.classList.toggle('active', g.getAttribute('data-region') === regionId);
+      });
+      cards.forEach(function (c, i) {
+        var isActive = c.getAttribute('data-region') === regionId;
+        c.classList.toggle('active', isActive);
+        dots[i].classList.toggle('active', isActive);
+      });
+
+      if (opts.scrollCard) {
+        var card = cards.filter(function (c) { return c.getAttribute('data-region') === regionId; })[0];
+        if (card) {
+          var target = card.offsetLeft - (carousel.clientWidth - card.offsetWidth) / 2;
+          suppressSyncFor(1200);
+          carousel.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+        }
+      } else if (opts.userAction) {
+        // A direct click that doesn't move the carousel itself can still land just
+        // before/during an incidental scroll (e.g. the browser or a screen reader
+        // bringing a partly offscreen card into view, which our own CSS makes
+        // animate smoothly over several frames).
+        suppressSyncFor(1200);
+      }
+    }
+
+    // Clicking a card highlights the matching map region.
+    cards.forEach(function (card) {
+      card.addEventListener('click', function () {
+        if (card.dataset.dragSuppress === '1') return;
+        setActive(card.getAttribute('data-region'), { scrollCard: false, userAction: true });
+      });
+    });
+
+    // Clicking a map region/label scrolls the carousel to the matching card.
+    zoneGroups.forEach(function (g) {
+      g.addEventListener('click', function () {
+        setActive(g.getAttribute('data-region'), { scrollCard: true });
+      });
+    });
+
+    // Prev/next controls — step by one card.
+    function step(dir) {
+      // A fresh nav-button press is a new explicit action — it should always be
+      // free to update the active card, even if an earlier click left the passive
+      // sync suppressed for a moment longer.
+      suppressSync = false;
+      window.clearTimeout(suppressSyncTimer);
+      var card = cards[0];
+      var amount = (card ? card.offsetWidth : 240) + 16;
+      carousel.scrollBy({ left: dir * amount, behavior: 'smooth' });
+    }
+    if (prevBtn) prevBtn.addEventListener('click', function () { step(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { step(1); });
+
+    function updateControls() {
+      if (!prevBtn || !nextBtn) return;
+      prevBtn.disabled = carousel.scrollLeft <= 1;
+      nextBtn.disabled = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 1;
+    }
+
+    // Keep the map + dots in sync with whatever is currently centred, including
+    // plain touch/trackpad scrolling (not just clicks on a card or label).
+    var scrollRaf = null;
+    carousel.addEventListener('scroll', function () {
+      updateControls();
+      if (scrollRaf) return;
+      scrollRaf = window.requestAnimationFrame(function () {
+        scrollRaf = null;
+        if (suppressSync) return;
+        var center = carousel.scrollLeft + carousel.clientWidth / 2;
+        var closest = null, closestDist = Infinity;
+        cards.forEach(function (c) {
+          var mid = c.offsetLeft + c.offsetWidth / 2;
+          var dist = Math.abs(mid - center);
+          if (dist < closestDist) { closestDist = dist; closest = c; }
+        });
+        if (closest) setActive(closest.getAttribute('data-region'), { scrollCard: false });
+      });
+    });
+
+    // Mouse/pen drag-to-scroll for a smooth, non-touch "swipe". Touch already gets
+    // native momentum scrolling + scroll-snap, so it's left alone here.
+    //
+    // Pointer capture is only engaged once real movement is detected — capturing on
+    // every pointerdown would retarget the resulting "click" away from the card
+    // that was actually pressed, silently breaking plain clicks on desktop.
+    var isDown = false, dragStartX = 0, dragStartScroll = 0, dragMoved = 0, captured = false, activePointerId = null;
+    var DRAG_THRESHOLD_PX = 4;
+
+    carousel.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'touch') return;
+      isDown = true;
+      dragMoved = 0;
+      captured = false;
+      activePointerId = e.pointerId;
+      dragStartX = e.clientX;
+      dragStartScroll = carousel.scrollLeft;
+    });
+    carousel.addEventListener('pointermove', function (e) {
+      if (!isDown) return;
+      var delta = e.clientX - dragStartX;
+      dragMoved = Math.max(dragMoved, Math.abs(delta));
+      if (!captured && dragMoved > DRAG_THRESHOLD_PX) {
+        captured = true;
+        carousel.classList.add('dragging');
+        try { carousel.setPointerCapture(activePointerId); } catch (err) { /* no-op */ }
+      }
+      if (captured) carousel.scrollLeft = dragStartScroll - delta;
+    });
+    function endDrag() {
+      if (!isDown) return;
+      isDown = false;
+      if (captured) {
+        carousel.classList.remove('dragging');
+        try { carousel.releasePointerCapture(activePointerId); } catch (err) { /* no-op */ }
+      }
+      var wasDrag = dragMoved > 6;
+      cards.forEach(function (c) { c.dataset.dragSuppress = wasDrag ? '1' : '0'; });
+      window.setTimeout(function () {
+        cards.forEach(function (c) { c.dataset.dragSuppress = '0'; });
+      }, 0);
+    }
+    carousel.addEventListener('pointerup', endDrag);
+    carousel.addEventListener('pointercancel', endDrag);
+    carousel.addEventListener('pointerleave', function () { if (isDown) endDrag(); });
+
+    // Default state: first card active.
+    if (cards.length) setActive(cards[0].getAttribute('data-region'), { scrollCard: false });
+    updateControls();
+  })();
+  </script>
+
+  <!-- Sydney feature: simple tabbed image/caption carousel with its own dots -->
+  <script>
+  (function () {
+    var SLIDES = [
+      { copy: 'Welcome to NSW’s cosmopolitan capital city. Enjoy the incredible waterways of the harbour, surf on some of Australia’s best beaches, and admire the iconic Sydney Opera House and Sydney Harbour Bridge.' },
+      { copy: 'Wander Parramatta’s riverside lawns and sandstone laneways, then settle in for a long dinner where the city’s food scene spills onto the street.' },
+      { copy: 'Head to Alexandria for warehouse cafes and weekend markets — proof that Sydney’s best mornings don’t need a harbour view.' }
+    ];
+
+    var dotsWrap = document.getElementById('sydney-feature-dots');
+    var copyEl = document.getElementById('sydney-feature-copy');
+    if (!dotsWrap || !copyEl) return;
+
+    var dots = SLIDES.map(function (slide, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'region-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Show slide ' + (i + 1));
+      dot.addEventListener('click', function () { show(i); });
+      dotsWrap.appendChild(dot);
+      return dot;
+    });
+
+    function show(i) {
+      copyEl.textContent = SLIDES[i].copy;
+      dots.forEach(function (d, j) { d.classList.toggle('active', i === j); });
+    }
+  })();
+  </script>
+
+</body>
+</html>
