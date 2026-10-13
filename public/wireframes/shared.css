@@ -1925,28 +1925,33 @@ body.utility-bar-body--hidden .detail-tabs { top: 3.5rem; }
   font-size: .55rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
 }
 
-/* ── Region map (interactive destination map + horizontal card carousel) ── */
-.region-map-section { background: #2b2f33; padding: 2.75rem 0 2.25rem; color: #fff; }
+/* ── Region map (interactive destination map + horizontal card carousel) ──
+   Sea/land colours and geometry match the supplied map asset (viewBox 1542x610);
+   this is the one place on the page that carries real brand colour rather than
+   greyscale, since the map itself — not just its chrome — is what's being tested. */
+.region-map-section { background: #005A76; padding: 2.75rem 0 2.25rem; color: #fff; }
 .region-map-section .section-title { color: #fff; }
 .region-map-section .section-body { color: rgba(255,255,255,.65); }
 
 .region-map { position: relative; width: 100%; max-width: 68rem; margin: 0 auto 2rem; }
 .region-map-svg { display: block; width: 100%; height: auto; }
-.region-map-svg .region-landmass,
-.region-map-svg .region-island { fill: #52585e; }
-.region-map-svg .region-zone {
-  fill: #686f76; cursor: pointer; transition: fill .2s ease;
-}
-.region-map-svg .region-zone-hit { fill: transparent; cursor: pointer; }
-.region-map-svg .region-zone-group:hover .region-zone { fill: #80878e; }
-.region-map-svg .region-zone-group.active .region-zone { fill: #8fd9ad; }
-.region-map-svg .region-marker { fill: #c6c6c6; }
+.region-map-svg .region-map-sea { fill: #005A76; }
+.region-map-svg .region-map-land { fill: #00AE96; }
+.region-map-svg .region-leader-line { stroke: #fff; stroke-width: 1.2; }
+
+/* The zone shapes are invisible hit areas by default — clicking a card lights
+   the matching one up as a soft light-green "glow" over the real map art,
+   standing in for a highlighted vector layer without redrawing the base map. */
+.region-map-svg .region-zone { fill: transparent; opacity: 0; cursor: pointer; transition: fill .2s ease, opacity .2s ease; }
+.region-map-svg .region-zone-group:hover .region-zone { fill: #baf7d4; opacity: .35; }
+.region-map-svg .region-zone-group.active .region-zone { fill: #baf7d4; opacity: .55; }
+.region-map-svg .region-marker { fill: #e7e7e7; }
 .region-map-svg .region-label {
-  font-size: 13px; fill: #fff; text-transform: uppercase; letter-spacing: .02em;
+  font-size: 14.769px; fill: #fff; text-transform: uppercase; letter-spacing: .02em;
   cursor: pointer; user-select: none;
 }
-.region-map-svg .region-zone-group.active .region-label { font-weight: 700; fill: #8fd9ad; }
-.region-map-svg .region-marker-label { font-size: 11px; fill: rgba(255,255,255,.55); pointer-events: none; }
+.region-map-svg .region-zone-group.active .region-label { font-weight: 700; }
+.region-map-svg .region-marker-label { font-size: 11px; fill: rgba(255,255,255,.7); pointer-events: none; }
 
 .region-carousel-row { display: flex; align-items: center; gap: 1rem; max-width: 68rem; margin: 0 auto; }
 .region-carousel-wrap { flex: 1; min-width: 0; }
@@ -1995,7 +2000,8 @@ body.utility-bar-body--hidden .detail-tabs { top: 3.5rem; }
   .destination-grid { grid-template-columns: 1fr; max-width: 22rem; margin: 0 auto; }
   .region-carousel-controls { display: none; }
   .region-card { width: 13rem; }
-  /* The map shrinks a lot more than its labels should — hold a legible floor size. */
-  .region-map-svg .region-label { font-size: 14px; }
-  .region-map-svg .region-marker-label { font-size: 12px; }
+  /* Labels are left at the map's native size here (not scaled up): this map's real
+     geometry clusters several labels tightly along the east coast, so enlarging
+     them on a narrow screen causes more overlap than it fixes. The cards below
+     remain the legible, primary way to browse regions on mobile. */
 }
