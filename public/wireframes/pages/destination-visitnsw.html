@@ -128,7 +128,10 @@
         </div>
       </div>
 
-      <div class="region-map">
+      <div class="region-map" id="region-map">
+        <button type="button" class="region-map-fullscreen-btn" id="region-map-fullscreen-btn" aria-label="View map full screen" aria-pressed="false">
+          <span aria-hidden="true">⛶</span>
+        </button>
         <!-- Map geometry (sea + land paths) traced from the supplied Figma map asset,
              at its native 1542x610 coordinate space. Labels and the Sydney/ACT markers
              are live <text>, not outlined letterforms, so they stay editable/accessible
@@ -214,6 +217,8 @@
 
       <div class="region-carousel-wrap">
         <div class="region-carousel" id="region-carousel">
+
+          <div class="region-carousel-spacer" aria-hidden="true"></div>
 
           <button type="button" class="region-card" data-region="north-coast">
             <div class="region-card-img ph-img"></div>
@@ -499,6 +504,40 @@
     // Default state: first card active.
     if (cards.length) setActive(cards[0].getAttribute('data-region'), { scrollCard: false });
     updateControls();
+  })();
+  </script>
+
+  <!-- Region map full-screen toggle -->
+  <script>
+  (function () {
+    var mapEl = document.getElementById('region-map');
+    var btn = document.getElementById('region-map-fullscreen-btn');
+    if (!mapEl || !btn) return;
+
+    function setFullscreen(on) {
+      mapEl.classList.toggle('is-fullscreen', on);
+      document.body.classList.toggle('region-map-fullscreen-open', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-label', on ? 'Exit full screen map' : 'View map full screen');
+      btn.firstElementChild.textContent = on ? '✕' : '⛶';
+      if (on) {
+        // On a narrow screen the map is scaled up by height, so it's now wider
+        // than the viewport and starts scrolled to its left edge — mostly empty
+        // sea. Centre it on the landmass instead of leaving that first view blank.
+        requestAnimationFrame(function () {
+          mapEl.scrollLeft = (mapEl.scrollWidth - mapEl.clientWidth) / 2;
+          mapEl.scrollTop = Math.max(0, (mapEl.scrollHeight - mapEl.clientHeight) / 2);
+        });
+      }
+    }
+
+    btn.addEventListener('click', function () {
+      setFullscreen(!mapEl.classList.contains('is-fullscreen'));
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && mapEl.classList.contains('is-fullscreen')) setFullscreen(false);
+    });
   })();
   </script>
 
