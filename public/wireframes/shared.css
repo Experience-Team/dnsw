@@ -1946,22 +1946,36 @@ body.utility-bar-body--hidden .detail-tabs { top: 3.5rem; }
 }
 .region-map-fullscreen-btn:hover { background: rgba(0,0,0,.5); }
 
-/* Full-screen mode: the map overlays the whole viewport so it can render much
-   larger (and be pinch-zoomed) than the inline column allows, especially on
-   mobile. Toggled via JS adding/removing this class. */
-.region-map.is-fullscreen {
-  position: fixed; inset: 0; z-index: 1000; margin: 0; max-width: none;
-  background: #005A76; display: flex; align-items: center; justify-content: center;
-  padding: 3.5rem 1rem 1rem; overflow: auto;
+/* Full-screen mode: the group (map + carousel + controls + dots) overlays the
+   viewport as a column — map on top, carousel pinned below it — so the carousel
+   stays visible instead of being covered by a map that fills the whole screen.
+   Toggled via JS adding/removing this class on the group, not the map alone. */
+.region-map-fs-group.is-fullscreen {
+  position: fixed; inset: 0; z-index: 1000;
+  background: #005A76; display: flex; flex-direction: column;
 }
-.region-map.is-fullscreen .region-map-svg { width: 100%; max-width: 75rem; height: auto; }
-/* position: fixed (not absolute) here deliberately — .region-map.is-fullscreen
-   scrolls internally so the map can be panned, and an absolutely-positioned
-   child would scroll away with it. Fixed keeps the close button pinned to the
-   actual viewport corner regardless of scroll/pan position. */
-.region-map.is-fullscreen .region-map-fullscreen-btn {
+.region-map-fs-group.is-fullscreen .region-map {
+  flex: 1 1 auto; min-height: 0; width: 100%; max-width: none; margin: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 3.5rem 1rem .5rem; overflow: auto;
+}
+.region-map-fs-group.is-fullscreen .region-map-svg { width: 100%; max-width: 75rem; height: auto; flex-shrink: 0; }
+/* position: fixed (not absolute) here deliberately — the map area scrolls
+   internally so it can be panned, and an absolutely-positioned child would
+   scroll away with it. Fixed keeps the close button pinned to the actual
+   viewport corner regardless of scroll/pan position. */
+.region-map-fs-group.is-fullscreen .region-map-fullscreen-btn {
   position: fixed; top: 1rem; right: 1rem; background: rgba(0,0,0,.45);
 }
+/* The carousel/controls/dots keep their normal flow sizing and just get a
+   subtle backing so they read as a distinct panel sitting below the map. */
+.region-map-fs-group.is-fullscreen .region-carousel-wrap,
+.region-map-fs-group.is-fullscreen .region-carousel-controls,
+.region-map-fs-group.is-fullscreen .region-dots {
+  flex: 0 0 auto;
+}
+.region-map-fs-group.is-fullscreen .region-carousel-wrap { background: rgba(0,0,0,.15); padding-top: .75rem; padding-bottom: .25rem; }
+.region-map-fs-group.is-fullscreen .region-dots { margin-top: .75rem; }
 body.region-map-fullscreen-open { overflow: hidden; }
 .region-map-svg .region-map-sea { fill: #005A76; }
 .region-map-svg .region-map-land { fill: #00AE96; }
@@ -1996,7 +2010,14 @@ body.region-map-fullscreen-open { overflow: hidden; }
 }
 .region-carousel.dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; user-select: none; }
 .region-carousel::-webkit-scrollbar { display: none; }
-.region-carousel-spacer { display: none; } /* only needed on mobile — see media query below */
+/* Leading spacer: only needed on mobile, where it stands in for the wrap's
+   desktop padding-left (see media query below) — a scroll-snap-mandatory
+   container can't snap to a plain padding gap, so a real flex item is used
+   instead. Trailing spacer: a flex item after the last card, at every
+   breakpoint, so scrolling all the way to the end leaves a right-hand margin
+   instead of butting the last card against the true edge of the screen. */
+.region-carousel-spacer--start { display: none; }
+.region-carousel-spacer--end { flex-shrink: 0; width: 64px; }
 
 .region-card {
   flex-shrink: 0; width: 15.5rem; scroll-snap-align: start;
@@ -2042,18 +2063,27 @@ body.region-map-fullscreen-open { overflow: hidden; }
      remain the legible, primary way to browse regions on mobile. */
 
   /* Bigger map on mobile: bleed .region-map past .container's own padding so it
-     renders at the full device width instead of width-minus-64px. */
-  .region-map:not(.is-fullscreen) {
+     renders at the full device width, then zoom the SVG in a little further and
+     let this box pan horizontally. A flat full-width render is still quite short
+     given this map's wide, low aspect ratio, so some zoom is needed to make
+     regions big enough to read and tap comfortably; centred on load/resize by
+     the full-screen toggle's script (which centres this box regardless of
+     whether full screen is actually open). */
+  .region-map {
     width: 100vw; max-width: 100vw;
     margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw);
+    display: flex; align-items: flex-start; justify-content: flex-start;
+    overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
   }
+  .region-map::-webkit-scrollbar { display: none; }
+  .region-map-svg { width: 130vw; max-width: none; height: auto; flex-shrink: 0; }
 
-  /* On a narrow/portrait screen the map's width is already the viewport's full
-     width, so filling by width in full-screen mode wouldn't make it any bigger.
-     Fill by height instead (there's much more of it to spare) and let the
-     (already overflow: auto) wrapper pan — same idea as zooming into a real map. */
-  .region-map.is-fullscreen { align-items: flex-start; justify-content: flex-start; }
-  .region-map.is-fullscreen .region-map-svg { width: auto; height: calc(100vh - 4.5rem); max-width: none; flex-shrink: 0; }
+  /* Full screen zooms in a bit further still, but deliberately short of filling
+     the viewport's height — this map's aspect ratio means a height-filling zoom
+     comes out several times the viewport's width, so big it takes multiple
+     swipes just to see one region. 170vw keeps full screen noticeably bigger
+     than the inline map without that scramble. */
+  .region-map-fs-group.is-fullscreen .region-map-svg { width: 170vw; height: auto; max-width: none; }
 
   /* The 64px inset only belongs to the carousel's rest position — move it off
      the (non-scrolling) wrap, which would otherwise permanently narrow the
@@ -2063,5 +2093,5 @@ body.region-map-fullscreen-open { overflow: hidden; }
      browser immediately snaps straight past it to card 1 on load.) From card 1
      onward, cards reach both edges of the screen as you scroll. */
   .region-carousel-wrap { padding-left: 0; }
-  .region-carousel-spacer { display: block; width: 64px; flex-shrink: 0; scroll-snap-align: start; }
+  .region-carousel-spacer--start { display: block; width: 64px; flex-shrink: 0; scroll-snap-align: start; }
 }
