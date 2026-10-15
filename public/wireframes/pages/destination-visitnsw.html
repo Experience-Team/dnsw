@@ -120,6 +120,11 @@
 
   <!-- Interactive region map + destination carousel -->
   <section class="region-map-section" id="region-map-section">
+    <!-- Sits above the heading, pinned to the top-right corner of the section
+         itself (not just the map) at every breakpoint — see .region-map-fullscreen-btn. -->
+    <button type="button" class="region-map-fullscreen-btn" id="region-map-fullscreen-btn" aria-label="View map full screen" aria-pressed="false">
+      <span aria-hidden="true">⛶</span>
+    </button>
     <div class="container">
       <div class="section-header" style="margin-bottom:1.5rem; justify-content:center; text-align:center;">
         <div>
@@ -133,9 +138,6 @@
            map covering the whole viewport on its own. -->
       <div class="region-map-fs-group" id="region-map-fs-group">
       <div class="region-map" id="region-map">
-        <button type="button" class="region-map-fullscreen-btn" id="region-map-fullscreen-btn" aria-label="View map full screen" aria-pressed="false">
-          <span aria-hidden="true">⛶</span>
-        </button>
         <!-- Map geometry (sea + land paths) traced from the supplied Figma map asset,
              at its native 1542x610 coordinate space. Labels and the Sydney/ACT markers
              are live <text>, not outlined letterforms, so they stay editable/accessible
