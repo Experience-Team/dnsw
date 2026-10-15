@@ -128,6 +128,10 @@
         </div>
       </div>
 
+      <!-- Grouped so full-screen mode can enlarge just the map while keeping the
+           carousel (and its controls/dots) on screen underneath it, instead of the
+           map covering the whole viewport on its own. -->
+      <div class="region-map-fs-group" id="region-map-fs-group">
       <div class="region-map" id="region-map">
         <button type="button" class="region-map-fullscreen-btn" id="region-map-fullscreen-btn" aria-label="View map full screen" aria-pressed="false">
           <span aria-hidden="true">⛶</span>
@@ -218,7 +222,7 @@
       <div class="region-carousel-wrap">
         <div class="region-carousel" id="region-carousel">
 
-          <div class="region-carousel-spacer" aria-hidden="true"></div>
+          <div class="region-carousel-spacer region-carousel-spacer--start" aria-hidden="true"></div>
 
           <button type="button" class="region-card" data-region="north-coast">
             <div class="region-card-img ph-img"></div>
@@ -301,6 +305,8 @@
             </div>
           </button>
 
+          <div class="region-carousel-spacer region-carousel-spacer--end" aria-hidden="true"></div>
+
         </div>
       </div>
 
@@ -310,6 +316,7 @@
       </div>
 
       <div class="region-dots" id="region-dots"></div>
+      </div>
     </div>
   </section>
 
@@ -510,33 +517,48 @@
   <!-- Region map full-screen toggle -->
   <script>
   (function () {
+    var group = document.getElementById('region-map-fs-group');
     var mapEl = document.getElementById('region-map');
     var btn = document.getElementById('region-map-fullscreen-btn');
-    if (!mapEl || !btn) return;
+    if (!group || !mapEl || !btn) return;
+
+    // On a narrow screen the map is zoomed in past the viewport's width (both at
+    // rest and, more so, in full screen), so it starts scrolled to its left edge —
+    // mostly empty sea. Centre it on the landmass instead of leaving that first
+    // view blank. Harmless on desktop, where the map already fits its box exactly
+    // and there's nothing to scroll.
+    function centerMap() {
+      requestAnimationFrame(function () {
+        mapEl.scrollLeft = (mapEl.scrollWidth - mapEl.clientWidth) / 2;
+        mapEl.scrollTop = Math.max(0, (mapEl.scrollHeight - mapEl.clientHeight) / 2);
+      });
+    }
 
     function setFullscreen(on) {
-      mapEl.classList.toggle('is-fullscreen', on);
+      // The class toggles on the group (map + carousel + controls + dots), not the
+      // map alone, so the carousel stays visible underneath the enlarged map
+      // instead of being covered by a full-viewport map overlay.
+      group.classList.toggle('is-fullscreen', on);
       document.body.classList.toggle('region-map-fullscreen-open', on);
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       btn.setAttribute('aria-label', on ? 'Exit full screen map' : 'View map full screen');
       btn.firstElementChild.textContent = on ? '✕' : '⛶';
-      if (on) {
-        // On a narrow screen the map is scaled up by height, so it's now wider
-        // than the viewport and starts scrolled to its left edge — mostly empty
-        // sea. Centre it on the landmass instead of leaving that first view blank.
-        requestAnimationFrame(function () {
-          mapEl.scrollLeft = (mapEl.scrollWidth - mapEl.clientWidth) / 2;
-          mapEl.scrollTop = Math.max(0, (mapEl.scrollHeight - mapEl.clientHeight) / 2);
-        });
-      }
+      if (on) centerMap();
     }
 
     btn.addEventListener('click', function () {
-      setFullscreen(!mapEl.classList.contains('is-fullscreen'));
+      setFullscreen(!group.classList.contains('is-fullscreen'));
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && mapEl.classList.contains('is-fullscreen')) setFullscreen(false);
+      if (e.key === 'Escape' && group.classList.contains('is-fullscreen')) setFullscreen(false);
+    });
+
+    window.addEventListener('load', centerMap);
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(centerMap, 150);
     });
   })();
   </script>
