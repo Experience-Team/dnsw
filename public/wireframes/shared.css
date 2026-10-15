@@ -1995,14 +1995,13 @@ body.region-map-fullscreen-open { overflow: hidden; }
 .region-map-svg .region-zone-group.active .region-label { font-weight: 700; }
 .region-map-svg .region-marker-label { font-size: 11px; fill: rgba(255,255,255,.7); pointer-events: none; }
 
-/* Bleeds out of .container to the true viewport edge on both sides, then pulls
-   the left edge back in by a fixed 64px — the right edge is left untouched so
-   cards can scroll all the way to the edge of the screen. */
+/* Bleeds out of .container to the true viewport edge on both sides — fully,
+   with no static padding on either edge, so a card dragged/scrolled past
+   either end is flush with the true edge of the screen while scrolling. */
 .region-carousel-wrap {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding-left: 64px;
 }
 .region-carousel {
   display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
@@ -2010,14 +2009,15 @@ body.region-map-fullscreen-open { overflow: hidden; }
 }
 .region-carousel.dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; user-select: none; }
 .region-carousel::-webkit-scrollbar { display: none; }
-/* Leading spacer: only needed on mobile, where it stands in for the wrap's
-   desktop padding-left (see media query below) — a scroll-snap-mandatory
-   container can't snap to a plain padding gap, so a real flex item is used
-   instead. Trailing spacer: a flex item after the last card, at every
-   breakpoint, so scrolling all the way to the end leaves a right-hand margin
-   instead of butting the last card against the true edge of the screen. */
-.region-carousel-spacer--start { display: none; }
+/* The 64px gutter only belongs to the carousel's rest (first-card) and
+   end (last-card) positions — not a static padding on the wrap, which would
+   permanently inset the visible viewport and show as a margin while
+   scrolling through the middle of the carousel too. Real flex items at the
+   very start and end instead: scroll-snap-mandatory can't snap to a plain
+   padding gap, so a true flex item is needed for the leading one regardless. */
+.region-carousel-spacer--start,
 .region-carousel-spacer--end { flex-shrink: 0; width: 64px; }
+.region-carousel-spacer--start { scroll-snap-align: start; }
 
 .region-card {
   flex-shrink: 0; width: 15.5rem; scroll-snap-align: start;
@@ -2084,14 +2084,4 @@ body.region-map-fullscreen-open { overflow: hidden; }
      swipes just to see one region. 170vw keeps full screen noticeably bigger
      than the inline map without that scramble. */
   .region-map-fs-group.is-fullscreen .region-map-svg { width: 170vw; height: auto; max-width: none; }
-
-  /* The 64px inset only belongs to the carousel's rest position — move it off
-     the (non-scrolling) wrap, which would otherwise permanently narrow the
-     visible viewport, onto a real flex item at the start of the scroll content.
-     (A plain padding-left on the scrolling element doesn't work here: with
-     scroll-snap-type: mandatory, a padding gap isn't a valid snap point, so the
-     browser immediately snaps straight past it to card 1 on load.) From card 1
-     onward, cards reach both edges of the screen as you scroll. */
-  .region-carousel-wrap { padding-left: 0; }
-  .region-carousel-spacer--start { display: block; width: 64px; flex-shrink: 0; scroll-snap-align: start; }
 }
