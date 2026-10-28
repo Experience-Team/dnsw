@@ -2313,6 +2313,39 @@ body.region-map-fullscreen-open { overflow: hidden; }
   .pl-panel { max-width: none; }
 }
 
+/* Team picker: custom listbox grouped by pool. Team kit colours (--c1, --c2) are the
+   one deliberate exception to the greyscale rule; they appear only on swatches and bars. */
+.pl-team-picker { position: relative; display: inline-block; line-height: 1.5; }
+.pl-team-btn { line-height: inherit; }
+.pl-team-picker.has-team .pl-team-btn { border-bottom-color: var(--c1); }
+.pl-team-picker.has-team[data-light] .pl-team-btn { border-bottom-color: var(--c2); } /* white kits: use the trim colour */
+.pl-team-placeholder { color: #888; }
+.pl-team-value { display: inline-flex; align-items: center; gap: .4em; }
+.pl-team-swatch {
+  flex-shrink: 0; width: .9em; height: .9em; border: 1px solid #111; border-radius: 2px;
+  background: linear-gradient(135deg, var(--c1) 0 55%, var(--c2) 55% 100%);
+}
+.pl-team-pop {
+  position: absolute; top: calc(100% + .375rem); left: 0; z-index: 20;
+  width: min(36rem, calc(100vw - 2rem)); max-height: min(26rem, 70vh); overflow-y: auto;
+  background: #fff; border: 1px solid #111; padding: .75rem; font-size: .9375rem;
+}
+.pl-team-pop[hidden] { display: none; }
+.pl-team-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1rem; }
+.pl-team-group { display: flex; flex-direction: column; gap: .125rem; }
+.pl-team-pool { font-size: .75rem; font-weight: 700; color: #444; padding: 0 .5rem .25rem; border-bottom: 1px solid #ccc; margin-bottom: .25rem; }
+.pl-team-list [role="option"] {
+  display: flex; align-items: center; gap: .5rem; cursor: pointer;
+  padding: .3rem .5rem; border-left: 4px solid var(--c1);
+}
+.pl-team-list [role="option"][data-light] { border-left-color: var(--c2); }
+.pl-team-list [role="option"].is-active { background: #f0f0f0; outline: 2px solid #111; outline-offset: -2px; }
+.pl-team-list [role="option"][aria-selected="true"] { font-weight: 700; }
+.pl-team-list [role="option"][aria-selected="true"]::after { content: ''; margin-left: auto; width: .35em; height: .65em; border-right: 2px solid #111; border-bottom: 2px solid #111; transform: rotate(45deg) translate(-.1em, -.1em); }
+@container (max-width: 40rem) {
+  .pl-team-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* Entry points: full module on the RWC page, compact one on a team page. */
 .pl-entry { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; background: #f9f9f9; border: 1px solid #ccc; padding: 1.5rem; }
 .pl-entry--compact { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 1rem 1.5rem; }
