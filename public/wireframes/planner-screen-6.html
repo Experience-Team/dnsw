@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plan your 3rd half, screen 6: states and review</title>
+<link rel="stylesheet" href="shared.css" />
+</head>
+<body class="cp-page">
+
+<header class="cp-header">
+  <div class="cp-wrap cp-wrap--wide">
+    <a href="index.html" class="pl-sm">All wireframes</a>
+    <h1>Plan your 3rd half, screen 6: states and review</h1>
+    <p>Loading, not enough options, details to be confirmed, and the "How we choose options" note. Then a review of every planner screen against the brief's fidelity rules.</p>
+    <nav aria-label="Related">
+      <a href="planner-brief.md">Planner brief</a>
+      <a href="planner-components.html">Planner components</a>
+      <a href="planner-screen-2.html">Screen 2: plan view</a>
+    </nav>
+  </div>
+</header>
+
+<div class="cp-wrap cp-wrap--wide">
+  <nav class="cp-toc" aria-label="Sections">
+    <a href="#loading">1. Loading</a>
+    <a href="#few">2. Not enough options</a>
+    <a href="#tbc">3. Details to be confirmed</a>
+    <a href="#how">4. How we choose options</a>
+    <a href="#review">Fidelity review</a>
+  </nav>
+</div>
+
+<!-- ── State 1: loading ── -->
+<section class="cp-section" id="loading">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>1. Loading</h2>
+    <p>After "Show my plan". Short, plain messages say what's being checked.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header and set-up sentence</span></div>
+              <div class="cp-pad">
+                <div class="pl-marked pl-marked--gutter">
+                  <span class="pl-marker">1</span>
+                  <p class="pl-lg">Building your plan</p>
+                  <ul class="pl-loading">
+                    <li><span class="pl-sm">Done</span><span>Placing your 2 matches on the timeline</span></li>
+                    <li><span class="pl-sm"><b>Now</b></span><span><b>Checking opening hours for your dates</b></span></li>
+                    <li><span class="pl-sm">Next</span><span>Working out travel times</span></li>
+                  </ul>
+                </div>
+                <section class="pl-day">
+                  <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span><span class="pl-tag">Match day</span></header>
+                  <article class="pl-match pl-marked">
+                    <span class="pl-marker">2</span>
+                    <div class="pl-match-time"><span class="pl-sm">Sat 16 Oct</span><span class="pl-lg">2:00pm</span><span class="pl-sm">Kick-off</span></div>
+                    <div class="pl-match-body"><span class="pl-tag">Match, fixed</span><h3 class="pl-lg">Team A v Team B</h3><span class="pl-sm">Venue name, Sydney</span></div>
+                  </article>
+                  <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">Checking options…</span></div>
+                  <div class="pl-options pl-marked">
+                    <span class="pl-marker">3</span>
+                    <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Option</span></div>
+                    <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Option</span></div>
+                    <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Option</span></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="cp-stack">
+                <p class="pl-lg">Building your plan</p>
+                <ul class="pl-loading">
+                  <li><span class="pl-sm">Done</span><span>Placing your 2 matches on the timeline</span></li>
+                  <li><span class="pl-sm"><b>Now</b></span><span><b>Checking opening hours for your dates</b></span></li>
+                  <li><span class="pl-sm">Next</span><span>Working out travel times</span></li>
+                </ul>
+                <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">Checking options…</span></div>
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Option</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Three plain steps, with the current one in bold. No spinner graphic.</span></li>
+          <li><span class="pl-marker">2</span><span>Matches show straight away, because they're fixed and don't need checking.</span></li>
+          <li><span class="pl-marker">3</span><span>Options fill in gap by gap as their checks finish. Grey boxes hold their place until then.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 2: not enough options ── -->
+<section class="cp-section" id="few">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>2. Not enough options</h2>
+    <p>Very specific interests in a small area: the fan picked only nightlife, has no car, and has a Tuesday morning free in Newcastle.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above</span></div>
+              <div class="cp-pad">
+                <section class="pl-day">
+                  <header class="pl-day-head"><span class="pl-lg">Tue 19 Oct</span><span class="pl-sm">Day 5, Newcastle</span></header>
+                  <div class="pl-gap"><span class="pl-lg">Tuesday morning: 3 hrs free</span><span class="pl-sm">Around your stay, Newcastle. 9am to 12pm</span></div>
+                  <div class="pl-empty pl-marked pl-marked--gutter">
+                    <span class="pl-marker">4</span>
+                    <p class="pl-option-name">Only 1 option fits this gap</p>
+                    <p class="pl-sm">You picked nightlife only, and not much is open on a Tuesday morning within 15 min of your stay.</p>
+                    <div class="pl-quick pl-marked pl-marked--gutter">
+                      <span class="pl-marker">5</span>
+                      <button type="button" class="pl-btn">Look up to 30 min away</button>
+                      <button type="button" class="pl-btn">Add another interest</button>
+                      <button type="button" class="pl-btn">Show anything open</button>
+                    </div>
+                  </div>
+                  <div class="pl-options">
+                    <article class="pl-option pl-marked">
+                      <span class="pl-marker">6</span>
+                      <h4 class="pl-option-name">Place name</h4>
+                      <p class="pl-option-reason">Open Tuesday from 11am, 10 min from your stay</p>
+                      <dl class="pl-option-facts"><div><dt>Travel</dt><dd>10 min walk from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Tue 11am to 11pm</span></dd></div></dl>
+                      <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                    </article>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="cp-stack">
+                <div class="pl-gap"><span class="pl-lg">Tuesday morning: 3 hrs free</span><span class="pl-sm">Around your stay, Newcastle</span></div>
+                <div class="pl-empty">
+                  <p class="pl-option-name">Only 1 option fits this gap</p>
+                  <p class="pl-sm">You picked nightlife only, and not much is open on a Tuesday morning within 15 min of your stay.</p>
+                  <div class="pl-quick">
+                    <button type="button" class="pl-btn">Look up to 30 min away</button>
+                    <button type="button" class="pl-btn">Add another interest</button>
+                    <button type="button" class="pl-btn">Show anything open</button>
+                  </div>
+                </div>
+                <article class="pl-option">
+                  <h4 class="pl-option-name">Place name</h4>
+                  <p class="pl-option-reason">Open Tuesday from 11am, 10 min from your stay</p>
+                  <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="4">
+          <li><span class="pl-marker">4</span><span>Says plainly why there are few options, using the fan's own choices.</span></li>
+          <li><span class="pl-marker">5</span><span>One-tap ways to widen the search: further away, another interest, or anything open. Each one updates this gap only.</span></li>
+          <li><span class="pl-marker">6</span><span>Shows the 1 real option. The gap is never padded with poor matches to reach 3.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 3: details to be confirmed ── -->
+<section class="cp-section" id="tbc">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>3. Details to be confirmed</h2>
+    <p>Event times not announced yet, on an "Also on" card, a match and an option card.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above</span></div>
+              <div class="cp-pad">
+                <section class="pl-day">
+                  <header class="pl-day-head"><span class="pl-lg">Wed 20 Oct</span><span class="pl-sm">Day 6, Newcastle</span><span class="pl-tag">Match day</span></header>
+                  <div class="pl-also is-tbc pl-marked pl-marked--gutter">
+                    <span class="pl-marker">7</span>
+                    <span class="pl-tag">Details to be confirmed</span>
+                    <h4 class="pl-option-name">Fan zone screening: Team E v Team F</h4>
+                    <p class="pl-sm">Wed 20 Oct. Fan zone, Place name, Newcastle. <b>Times not announced yet.</b> We'll update your plan when they are.</p>
+                    <div class="pl-also-actions"><button type="button" class="pl-btn">Add to plan</button><a href="#" class="pl-sm">Visit website</a></div>
+                  </div>
+                  <div class="pl-options">
+                    <article class="pl-option is-tbc pl-marked">
+                      <span class="pl-marker">8</span>
+                      <span class="pl-tag">Details to be confirmed</span>
+                      <h4 class="pl-option-name">Place name</h4>
+                      <p class="pl-option-reason">Open Wednesday, by the harbour</p>
+                      <dl class="pl-option-facts"><div><dt>Travel</dt><dd>12 min walk from your stay</dd></div><div><dt>Open</dt><dd class="pl-option-empty">Hours to be confirmed</dd></div></dl>
+                      <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                    </article>
+                    <div class="pl-ph pl-ph--short"><span class="pl-ph-label">2 other options</span></div>
+                  </div>
+                  <article class="pl-match is-tbc pl-marked">
+                    <span class="pl-marker">9</span>
+                    <div class="pl-match-time"><span class="pl-sm">Wed 20 Oct</span><span class="pl-lg">TBC</span><span class="pl-sm">Kick-off to be confirmed</span></div>
+                    <div class="pl-match-body"><span class="pl-tag">Match, fixed</span><h3 class="pl-lg">Team A v Team C</h3><span class="pl-sm">Venue name, Newcastle</span></div>
+                    <a href="#" class="pl-match-link">Getting to the stadium</a>
+                  </article>
+                </section>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="cp-stack">
+                <div class="pl-also is-tbc">
+                  <span class="pl-tag">Details to be confirmed</span>
+                  <h4 class="pl-option-name">Fan zone screening: Team E v Team F</h4>
+                  <p class="pl-sm">Wed 20 Oct. <b>Times not announced yet.</b></p>
+                  <div class="pl-also-actions"><button type="button" class="pl-btn">Add to plan</button></div>
+                </div>
+                <article class="pl-match is-tbc">
+                  <div class="pl-match-time"><span class="pl-sm">Wed 20 Oct</span><span class="pl-lg">TBC</span><span class="pl-sm">Kick-off</span></div>
+                  <div class="pl-match-body"><span class="pl-tag">Match, fixed</span><h3 class="pl-lg">Team A v Team C</h3><span class="pl-sm">Venue name, Newcastle</span></div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="7">
+          <li><span class="pl-marker">7</span><span>An event with times not announced: dashed border, a "Details to be confirmed" tag and the reason in bold. It can still be added; the plan updates when times are announced.</span></li>
+          <li><span class="pl-marker">8</span><span>The same treatment on an option card when opening hours for the date are missing (<code>availability</code>, a <code>gap</code> field).</span></li>
+          <li><span class="pl-marker">9</span><span>A match whose kick-off isn't announced. Gaps either side show as "time to be confirmed" until it is. Exports print "TBC".</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 4: how we choose options ── -->
+<section class="cp-section" id="how">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>4. How we choose options</h2>
+    <p>A short note, opened from a link on every gap.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above</span></div>
+              <div class="cp-pad">
+                <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">Around Venue name, Sydney. 10am to 2pm</span></div>
+                <div class="pl-gap-tools">
+                  <div class="pl-quick"><button type="button" class="pl-btn" aria-pressed="false">Cheaper</button><button type="button" class="pl-btn" aria-pressed="false">Closer</button><button type="button" class="pl-btn" aria-pressed="false">Indoors</button></div>
+                  <a href="#" class="pl-sm pl-marked pl-marked--above"><span class="pl-marker">10</span>How we choose options</a>
+                </div>
+                <div class="pl-note pl-marked pl-marked--gutter">
+                  <span class="pl-marker">11</span>
+                  <p class="pl-option-name">How we choose options</p>
+                  <p class="pl-sm">Every option is a real listing on sydney.com or visitnsw.com. We choose them by:</p>
+                  <ul class="pl-sm">
+                    <li><b>Distance:</b> how close they are to your previous stop or where you're staying</li>
+                    <li><b>Opening:</b> open on your dates, at the time of the gap</li>
+                    <li><b>Interests:</b> the interests in your set-up sentence</li>
+                  </ul>
+                  <p class="pl-sm pl-marked pl-marked--gutter"><span class="pl-marker">12</span><b>No business pays to appear here, and no business is favoured.</b></p>
+                  <button type="button" class="pl-btn">Close</button>
+                </div>
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">3 options</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="pl-note">
+                <p class="pl-option-name">How we choose options</p>
+                <p class="pl-sm">Every option is a real listing on sydney.com or visitnsw.com. We choose them by:</p>
+                <ul class="pl-sm">
+                  <li><b>Distance:</b> how close they are to your previous stop or where you're staying</li>
+                  <li><b>Opening:</b> open on your dates, at the time of the gap</li>
+                  <li><b>Interests:</b> the interests in your set-up sentence</li>
+                </ul>
+                <p class="pl-sm"><b>No business pays to appear here, and no business is favoured.</b></p>
+                <button type="button" class="pl-btn">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="10">
+          <li><span class="pl-marker">10</span><span>A small link on every gap, next to the quick changes.</span></li>
+          <li><span class="pl-marker">11</span><span>The note opens in place, under the gap: three plain reasons, no long paragraph. The same wording is used everywhere.</span></li>
+          <li><span class="pl-marker">12</span><span>States clearly that no business is favoured, because DNSW is a government agency.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Fidelity review ── -->
+<section class="cp-section" id="review">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>Fidelity review: all planner screens</h2>
+    <p>Every planner page was checked against the fidelity rules in <a href="planner-brief.md">planner-brief.md</a>: the components page, screens 1 to 6, and the planner section on the Rugby World Cup page.</p>
+    <div class="pl-scope">
+      <div class="cp-stack">
+        <div class="pl-table-wrap">
+          <table class="pl-table">
+            <thead><tr><th>Rule</th><th>What the review found</th><th>Change made</th></tr></thead>
+            <tbody>
+              <tr><td>Greyscale only</td><td>Opening hours (a <code>gap</code> field in the data contract) had a faint pink wash, the only colour on any planner screen.</td><td>Changed to a faint grey wash inside planner screens, so the field still reads as provisional.</td></tr>
+              <tr><td>No icons</td><td>The "All wireframes" links on every planner page started with an arrow symbol.</td><td>Arrow removed.</td></tr>
+              <tr><td>Plain system font, 2 or 3 sizes</td><td>Field names in the notes (such as <code>availability</code>) were in a code font at a smaller fourth size.</td><td>Now plain system font at the note size. The planner CSS uses only 1.25rem, 1rem and .8125rem.</td></tr>
+              <tr><td>If in doubt, simpler</td><td>Two placeholders on the components page had one-off inline heights.</td><td>Replaced with the shared short placeholder style.</td></tr>
+              <tr><td>No gradients or shadows</td><td>None found. The X in each placeholder is a drawn line (SVG), and markers use an outline, not a shadow.</td><td>No change.</td></tr>
+              <tr><td>Images and maps as grey boxes with an X and a label</td><td>All images and maps follow this, including the print preview's map.</td><td>No change.</td></tr>
+              <tr><td>Placeholder text, no real business names</td><td>Only "Team A", "Venue name", "Place name" and similar. Real names are limited to cities, sydney.com and visitnsw.com, and Google Maps, which the brief names.</td><td>No change.</td></tr>
+              <tr><td>Numbered markers and side notes</td><td>Every section on every screen has markers with notes beside it (or below it on mobile).</td><td>No change.</td></tr>
+              <tr><td>Kept on purpose</td><td>The small down-arrow on multi-choice slots matches the arrow the browser draws on the other dropdowns. The desktop day map on screen 2 really does follow the scroll, to show the "stays visible" requirement.</td><td>Kept. Easy to remove if the UI designer prefers.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Plan your 3rd half — Components</title>
+<title>Plan your 3rd half: Components</title>
 <link rel="stylesheet" href="shared.css" />
 </head>
 <body class="cp-page">
 
 <header class="cp-header">
   <div class="cp-wrap">
-    <a href="index.html" class="pl-sm">← All wireframes</a>
+    <a href="index.html" class="pl-sm">All wireframes</a>
     <h1>Plan your 3rd half: components</h1>
     <p>Reusable low-fidelity components for the Rugby World Cup trip planner. Greyscale only, built to the fidelity rules in the brief. No full screens yet.</p>
     <nav aria-label="Related">
@@ -19,6 +19,8 @@
       <a href="planner-screen-2.html">Screen 2: plan view and maps</a>
       <a href="planner-screen-3.html">Screen 3: editing and Surprise me</a>
       <a href="planner-screen-4.html">Screen 4: Check my plan</a>
+      <a href="planner-screen-5.html">Screen 5: Take it with you</a>
+      <a href="planner-screen-6.html">Screen 6: states and review</a>
       <a href="pages/rugby-world-cup.html">Rugby World Cup page</a>
     </nav>
     <div class="cp-key">
@@ -40,6 +42,7 @@
     <a href="#plan-extras">Plan view extras</a>
     <a href="#edit-extras">Editing extras</a>
     <a href="#check-extras">Check my plan extras</a>
+    <a href="#export-extras">Export and state extras</a>
     <a href="#annotation">Annotation marker and side note</a>
   </nav>
 </div>
@@ -701,6 +704,70 @@
   </div>
 </section>
 
+<!-- ── Export and state extras ── -->
+<section class="cp-section" id="export-extras">
+  <div class="cp-wrap">
+    <h2>Export and state extras <code>.pl-sheet</code>, <code>.pl-export</code>, <code>.pl-pre</code>, <code>.pl-table</code>, <code>.pl-page</code>, <code>.pl-empty</code>, <code>.is-tbc</code>, <code>.pl-note</code></h2>
+    <p>Added for screens 5 and 6. See <a href="planner-screen-5.html">screen 5</a> and <a href="planner-screen-6.html">screen 6</a> for them in use.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame pl-scope">
+              <div class="cp-stack">
+                <div class="pl-export pl-marked">
+                  <span class="pl-marker">1</span>
+                  <h3 class="pl-option-name">Copy as text</h3>
+                  <pre class="pl-pre">Sat 16 Oct, Sydney
+10:00am  Place name
+         Address line, Suburb</pre>
+                  <button type="button" class="pl-btn">Copy text</button>
+                </div>
+                <div class="pl-empty pl-marked">
+                  <span class="pl-marker">2</span>
+                  <p class="pl-option-name">Only 1 option fits this gap</p>
+                  <div class="pl-quick"><button type="button" class="pl-btn">Look up to 30 min away</button><button type="button" class="pl-btn">Show anything open</button></div>
+                </div>
+                <article class="pl-option is-tbc pl-marked">
+                  <span class="pl-marker">3</span>
+                  <span class="pl-tag">Details to be confirmed</span>
+                  <h4 class="pl-option-name">Place name</h4>
+                </article>
+                <div class="pl-note pl-marked">
+                  <span class="pl-marker">4</span>
+                  <p class="pl-option-name">How we choose options</p>
+                  <p class="pl-sm">Distance, opening on your dates, your interests. No business is favoured.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="pl-sheet-layout">
+                <div></div>
+                <aside class="pl-sheet pl-marked" aria-label="Take it with you">
+                  <span class="pl-marker">5</span>
+                  <div class="pl-sheet-head"><h2 class="pl-lg">Take it with you</h2><button type="button" class="pl-btn">Close</button></div>
+                  <div class="pl-export"><h3 class="pl-option-name">Add to calendar</h3><button type="button" class="pl-btn">Add to calendar</button></div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Export card: title, a plain preview (text, table or page) and one action.</span></li>
+          <li><span class="pl-marker">2</span><span>Not enough options: dashed box saying why, with ways to widen the search.</span></li>
+          <li><span class="pl-marker">3</span><span>Details to be confirmed: dashed border plus a tag, on option, "Also on" and match cards.</span></li>
+          <li><span class="pl-marker">4</span><span>Note box for "How we choose options".</span></li>
+          <li><span class="pl-marker">5</span><span>Sheet: a panel beside the plan on desktop, up from the bottom on mobile.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── Annotation marker and side note ── -->
 <section class="cp-section" id="annotation">
   <div class="cp-wrap">
@@ -715,7 +782,7 @@
               <div class="pl-annotated">
                 <div class="cp-stack">
                   <div class="pl-ph pl-marked"><span class="pl-marker">1</span><span class="pl-ph-label">Section of a screen</span></div>
-                  <div class="pl-ph pl-marked" style="min-height:6rem;"><span class="pl-marker">2</span><span class="pl-ph-label">Another section</span></div>
+                  <div class="pl-ph pl-ph--short pl-marked"><span class="pl-marker">2</span><span class="pl-ph-label">Another section</span></div>
                 </div>
                 <ol class="pl-notes">
                   <li><span class="pl-marker">1</span><span>Short note about section 1.</span></li>
@@ -730,7 +797,7 @@
               <div class="pl-annotated">
                 <div class="cp-stack">
                   <div class="pl-ph pl-marked"><span class="pl-marker">1</span><span class="pl-ph-label">Section of a screen</span></div>
-                  <div class="pl-ph pl-marked" style="min-height:6rem;"><span class="pl-marker">2</span><span class="pl-ph-label">Another section</span></div>
+                  <div class="pl-ph pl-ph--short pl-marked"><span class="pl-marker">2</span><span class="pl-ph-label">Another section</span></div>
                 </div>
                 <ol class="pl-notes">
                   <li><span class="pl-marker">1</span><span>Short note about section 1.</span></li>
