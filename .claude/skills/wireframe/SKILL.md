@@ -99,6 +99,8 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | States | `.pl-loading`, `.pl-empty`, `.is-tbc` (option, also on, match), `.pl-note` | No spinner graphics; TBC = dashed border plus a tag |
 | Day, rows, chosen, also on | `.pl-day`, `.pl-day-head`, `.pl-row`, `.pl-option.is-chosen` + `.pl-option-status`, `.pl-also` | Unchosen options use a single "Add to plan" control |
 
+RWC team choice: the RWC page has a "Who are you supporting?" selector after the intro (a second `data-team-picker`). One team drives every team control (selector, planner sentence, match filter) through `window.rwcSelectTeam`, which also fires `teamchange`, shows the sticky `.rwc-supporting` bar, retargets the countdown, moves Matches in NSW above the planner, shows the Find your people placeholder and puts other stadiums under `.rwc-other-stadiums`. Kept in `sessionStorage` (`rwc-team`); `?team=Japan` / `?team=none` preview a state without saving. Before and after states, annotated: `rugby-world-cup-team.html`.
+
 Planner results prototype: `pages/rugby-world-cup-plan.html` (`.plan-*` in shared.css) is a realistic, unannotated plan built in the browser from URL params (`team`, `m` fixture indexes, `nights`, `city`, `who`, `interests`, `car`). Opened in a new tab by "Start planning" on the RWC page; no params = example plan. Nights are shared across matches with a night after each match; far-apart matches become separate short trips ("5 nights or more" covers the whole span). Add to plan copies the idea into the "Your trip" panel under its day (`.plan-added`), with Open for a native `<dialog>` modal (`.plan-modal`) that can remove it.
 
 Planner review pages (`planner-components.html`, `planner-screen-N.html`) use `body.cp-page` and the `.cp-*` chrome in shared.css: annotated desktop frames plus 375px mobile frames (`.cp-frame--screen` clips to one 375 × 667 screen).
@@ -203,3 +205,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC Matches in NSW: filter by team and stadium |
 | 2026-10-28 | RWC planner results prototype (`pages/rugby-world-cup-plan.html`); Start planning opens it in a new tab |
 | 2026-10-28 | Planner results: added ideas appear in the Your trip panel by day, each opening a simple modal |
+| 2026-10-28 | RWC page: choose your team once (selector, sticky Supporting bar, page reorder); review page `rugby-world-cup-team.html` |
