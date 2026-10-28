@@ -49,7 +49,7 @@ public/wireframes/
 
 | Component | File | Notes |
 |-----------|------|-------|
-| Nav | `nav.html` | Hamburger flyout with sub-menus; site toggle (sydney↔nsw) |
+| Nav | `nav.html` | Hamburger flyout with sub-menus; site toggle (sydney↔nsw); featured "🏉 Rugby World Cup 2027" pill button (`.nav-menu-feature`) above the menu items |
 | Hero | `hero.html` | Full-width checkerboard placeholder; headline + tagline overlay bottom-left |
 | Newsletter | `newsletter.html` | Full-width banner; heading, body, outline-white CTA |
 | Footer | `footer.html` | Social icons, acknowledgement, 5-col links, bottom bar with logo boxes |
@@ -194,3 +194,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC hero: countdown to the first NSW match (Japan v Samoa, 3 Oct 2027) |
 | 2026-10-28 | RWC planner entry: custom match picker with the chosen team's real NSW fixtures |
 | 2026-10-28 | RWC Stadiums and fan zones: landscape cards with static vector maps, pins and category toggles |
+| 2026-10-28 | Nav: featured Rugby World Cup button in the hamburger menu |
