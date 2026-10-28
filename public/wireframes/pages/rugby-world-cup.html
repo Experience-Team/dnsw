@@ -13,11 +13,24 @@
   <div data-include="../components/nav.html"></div>
 
   <!-- Hero -->
-  <div class="hero">
+  <div class="hero hero--countdown">
     <div class="ph-img" style="width:100%;height:100%;"></div>
     <div class="hero-content container">
-      <h1 class="hero-headline">Rugby World Cup<br>2027</h1>
-      <p class="hero-sub">Sydney hosts the world's best rugby nations</p>
+      <div>
+        <h1 class="hero-headline">Rugby World Cup<br>2027</h1>
+        <p class="hero-sub">Sydney hosts the world's best rugby nations</p>
+      </div>
+      <!-- Countdown to the first NSW match. Ended state (after kick-off): units are replaced by a link to Matches in NSW. -->
+      <div class="hero-countdown" data-countdown="2027-10-03T12:15:00+11:00">
+        <p class="hero-countdown-label" id="rwc-countdown-label">Countdown to the first match in NSW</p>
+        <div class="hero-countdown-units" role="timer" aria-labelledby="rwc-countdown-label">
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="days">--</span><span class="hero-countdown-unit">Days</span></span>
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="hours">--</span><span class="hero-countdown-unit">Hours</span></span>
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="minutes">--</span><span class="hero-countdown-unit">Mins</span></span>
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="seconds">--</span><span class="hero-countdown-unit">Secs</span></span>
+        </div>
+        <p class="hero-countdown-meta">Japan v Samoa, Newcastle Stadium. Sun 3 Oct 2027, 12:15pm AEDT</p>
+      </div>
     </div>
   </div>
 
@@ -436,6 +449,30 @@
         io.observe(list);
       });
     }
+  </script>
+
+  <!-- Hero countdown: ticks every second until kick-off, then shows the ended state -->
+  <script>
+    document.querySelectorAll('[data-countdown]').forEach(function (el) {
+      var target = new Date(el.dataset.countdown).getTime();
+      var nums = {};
+      el.querySelectorAll('[data-unit]').forEach(function (n) { nums[n.dataset.unit] = n; });
+      function pad(n) { return n < 10 ? '0' + n : String(n); }
+      function tick() {
+        var left = Math.floor((target - Date.now()) / 1000);
+        if (left <= 0) {
+          el.querySelector('.hero-countdown-units').outerHTML = '<p class="hero-countdown-done">The rugby is on. <a href="#rwc-matches">See every match in NSW</a></p>';
+          clearInterval(timer);
+          return;
+        }
+        nums.days.textContent = Math.floor(left / 86400);
+        nums.hours.textContent = pad(Math.floor(left % 86400 / 3600));
+        nums.minutes.textContent = pad(Math.floor(left % 3600 / 60));
+        nums.seconds.textContent = pad(left % 60);
+      }
+      var timer = setInterval(tick, 1000);
+      tick();
+    });
   </script>
 
   <!-- Team picker: select-only combobox with a pool-grouped listbox (focus stays on the button) -->

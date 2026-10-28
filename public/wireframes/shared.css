@@ -936,6 +936,17 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .page-actions { display: flex; gap: 1rem; }
 .page-actions a { color: var(--color-text-muted); text-decoration: none; font-size: .8125rem; }
 
+/* ── Hero countdown (RWC page): headline left, countdown right; stacks on mobile ── */
+.hero--countdown .hero-content { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+.hero-countdown { color: #fff; }
+.hero-countdown-label, .hero-countdown-meta { font-size: .8125rem; color: rgba(255,255,255,.85); }
+.hero-countdown-units { display: flex; gap: .5rem; margin: .5rem 0; }
+.hero-countdown-cell { display: flex; flex-direction: column; align-items: center; min-width: 4.5rem; padding: .5rem .25rem; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.5); }
+.hero-countdown-num { font-size: 2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hero-countdown-unit { font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.85); }
+.hero-countdown-done { font-size: 1rem; margin: .5rem 0; }
+.hero-countdown-done a { color: #fff; }
+
 /* ── Hero sub-content (events page hero) ── */
 .hero-sub { font-size: .9375rem; color: rgba(255,255,255,.85); margin-top: .5rem; font-weight: 400; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
 .hero-event-list { list-style: none; margin-top: .75rem; display: flex; flex-direction: column; gap: .25rem; }
@@ -1300,6 +1311,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 
   /* Full-bleed hero — shorter on mobile */
   .hero { height: 16.25rem; }
+  .hero--countdown { height: 25rem; }
+  .hero-countdown-cell { min-width: 3.75rem; }
+  .hero-countdown-num { font-size: 1.5rem; }
 
   /* Split hero — stack on mobile */
   .hero-split { grid-template-columns: 1fr; height: auto; }
