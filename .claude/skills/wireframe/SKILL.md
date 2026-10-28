@@ -80,7 +80,7 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 
 | Pattern | Classes | Notes |
 |---------|---------|-------|
-| Match block | `.pl-match` | Fixed item: heavy border, no controls. `.pl-match-list` + `.pl-match-list-more` for a fixture list with a "Show all" toggle (`data-expand-list`) |
+| Match block | `.pl-match` | Fixed item: heavy border, no controls. `.pl-match-list` + `.pl-match-list-more` for a fixture list with a "Show all" toggle (`data-expand-list`). `.pl-match-filters` (team `<select>` + stadium `.pl-filters` buttons) filter by `data-teams` / `data-venue` on each `li`; `.pl-match-empty` empty state with Clear filters |
 | Gap header | `.pl-gap` | Dashed box: length of free time + where/when |
 | Option card | `.pl-option` in `.pl-options` (row of 3) | `.is-locked` state; `.pl-option-empty` for empty states |
 | Map placeholder | `.pl-map` + `.pl-ph` | Grey box with X + label; stop list with `.pl-map-stop` / `.pl-map-leg` |
@@ -198,3 +198,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | Nav: featured Rugby World Cup button in the hamburger menu |
 | 2026-10-28 | RWC planner entry: interests slot is a multi-select with emojis |
 | 2026-10-28 | RWC Stadiums and fan zones: fan zone moved to the bottom under its own heading, shown as confirmed (Tumbalong Park) |
+| 2026-10-28 | RWC Matches in NSW: filter by team and stadium |

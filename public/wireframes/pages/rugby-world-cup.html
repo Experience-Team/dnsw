@@ -159,120 +159,126 @@
       </div>
     </div>
     <div class="container pl-scope">
+      <div class="pl-match-filters" role="group" aria-label="Filter matches">
+        <label class="pl-match-filter-team"><span class="pl-sm">Team</span><select id="rwc-filter-team"><option value="">All teams</option><optgroup label="Pool A"><option>Australia</option><option>New Zealand</option></optgroup><optgroup label="Pool B"><option>Georgia</option><option>Italy</option><option>Romania</option></optgroup><optgroup label="Pool C"><option>Fiji</option><option>Spain</option></optgroup><optgroup label="Pool D"><option>Ireland</option><option>Portugal</option><option>Uruguay</option></optgroup><optgroup label="Pool E"><option>France</option><option>Japan</option><option>Samoa</option></optgroup><optgroup label="Pool F"><option>England</option><option>Wales</option></optgroup></select></label>
+        <fieldset class="pl-filters" id="rwc-filter-venue"><legend>Stadium</legend><button type="button" class="pl-btn" aria-pressed="true" data-venue="">All stadiums</button><button type="button" class="pl-btn" aria-pressed="false" data-venue="sa">Stadium Australia</button><button type="button" class="pl-btn" aria-pressed="false" data-venue="sfs">Sydney Football Stadium</button><button type="button" class="pl-btn" aria-pressed="false" data-venue="ncl">Newcastle Stadium</button></fieldset>
+      </div>
+      <p class="pl-sm pl-match-filter-note" id="rwc-filter-note" hidden>Knockout matches show here once the teams are known.</p>
+      <div class="pl-match-empty" id="rwc-filter-empty" hidden><p>No matches for this team at this stadium.</p><button type="button" class="pl-btn" data-clear-filters>Clear filters</button></div>
       <ol class="pl-match-list" id="rwc-matches">
-        <li>
+        <li data-venue="ncl" data-teams="Japan|Samoa">
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sun 3 Oct</span><span class="pl-lg">12:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool E</span><h3 class="pl-lg">Japan v Samoa</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li>
+        <li data-venue="ncl" data-teams="Fiji|Spain">
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Mon 4 Oct</span><span class="pl-lg">2:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool C</span><h3 class="pl-lg">Fiji v Spain</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li>
+        <li data-venue="sfs" data-teams="Ireland|Portugal">
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Mon 4 Oct</span><span class="pl-lg">5:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool D</span><h3 class="pl-lg">Ireland v Portugal</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li>
+        <li data-venue="sa" data-teams="New Zealand|Australia">
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sat 9 Oct</span><span class="pl-lg">5:10pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool A</span><h3 class="pl-lg">New Zealand v Australia</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li>
+        <li data-venue="ncl" data-teams="Uruguay|Portugal">
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Mon 11 Oct</span><span class="pl-lg">5:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool D</span><h3 class="pl-lg">Uruguay v Portugal</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sfs" data-teams="Italy|Romania" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Mon 11 Oct</span><span class="pl-lg">7:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool B</span><h3 class="pl-lg">Italy v Romania</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sa" data-teams="England|Wales" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sat 16 Oct</span><span class="pl-lg">7:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool F</span><h3 class="pl-lg">England v Wales</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="ncl" data-teams="Italy|Georgia" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sun 17 Oct</span><span class="pl-lg">12:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool B</span><h3 class="pl-lg">Italy v Georgia</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sfs" data-teams="France|Samoa" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sun 17 Oct</span><span class="pl-lg">7:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Pool E</span><h3 class="pl-lg">France v Samoa</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sfs" data-teams="" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sat 23 Oct</span><span class="pl-lg">2:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Round of 16 (1)</span><h3 class="pl-lg">2nd Pool C v 2nd Pool F</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sfs" data-teams="" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sun 24 Oct</span><span class="pl-lg">4:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Round of 16 (2)</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sa" data-teams="" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sat 30 Oct</span><span class="pl-lg">4:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Quarter-final 1</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sa" data-teams="" data-extra hidden>
           <article class="pl-match is-tbc">
             <div class="pl-match-time"><span class="pl-sm">Sun 31 Oct</span><span class="pl-lg">TBC</span><span class="pl-sm">Kick-off to be confirmed</span></div>
             <div class="pl-match-body"><span class="pl-tag">Quarter-final 2</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sa" data-teams="" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Fri 5 Nov</span><span class="pl-lg">9:00am</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Semi-final 1</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sa" data-teams="" data-extra hidden>
           <article class="pl-match is-tbc">
             <div class="pl-match-time"><span class="pl-sm">Sat 6 Nov</span><span class="pl-lg">TBC</span><span class="pl-sm">Kick-off to be confirmed</span></div>
             <div class="pl-match-body"><span class="pl-tag">Semi-final 2</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sa" data-teams="" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Fri 12 Nov</span><span class="pl-lg">8:45am</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Bronze Final</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
             <a href="#" class="pl-match-link">Getting to the stadium</a>
           </article>
         </li>
-        <li data-extra hidden>
+        <li data-venue="sa" data-teams="" data-extra hidden>
           <article class="pl-match">
             <div class="pl-match-time"><span class="pl-sm">Sat 13 Nov</span><span class="pl-lg">8:00pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
             <div class="pl-match-body"><span class="pl-tag">Final</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
@@ -282,6 +288,7 @@
       </ol>
       <div class="pl-match-list-more">
         <p class="pl-sm" id="rwc-matches-count" aria-live="polite">Showing 5 of 17 matches</p>
+        <button type="button" class="pl-btn-link" data-clear-filters hidden>Clear filters</button>
         <button type="button" class="pl-btn" data-expand-list aria-controls="rwc-matches" aria-expanded="false" data-more="Show all 17 matches" data-less="Show the first 5 only" data-count="rwc-matches-count" data-total="17" data-shown="5">Show all 17 matches</button>
       </div>
     </div>
@@ -737,6 +744,52 @@
         count.textContent = 'Showing ' + (open ? btn.dataset.total : btn.dataset.shown) + ' of ' + btn.dataset.total + ' matches';
       });
     });
+  </script>
+  <!-- Match filters: team and stadium. While filtering, every match that fits shows and "Show all" steps aside. -->
+  <script>
+    (function () {
+      var list = document.getElementById('rwc-matches');
+      var team = document.getElementById('rwc-filter-team');
+      var venues = document.querySelectorAll('#rwc-filter-venue [data-venue]');
+      var expand = document.querySelector('[data-expand-list][aria-controls="rwc-matches"]');
+      var count = document.getElementById('rwc-matches-count');
+      var note = document.getElementById('rwc-filter-note');
+      var empty = document.getElementById('rwc-filter-empty');
+      var clears = document.querySelectorAll('[data-clear-filters]');
+      var items = Array.prototype.slice.call(list.children);
+      var venue = '';
+
+      function apply() {
+        var t = team.value, filtering = t || venue, shown = 0;
+        items.forEach(function (li) {
+          var fits = (!t || li.dataset.teams.split('|').indexOf(t) > -1) && (!venue || li.dataset.venue === venue);
+          li.hidden = filtering ? !fits : (li.hasAttribute('data-extra') && expand.getAttribute('aria-expanded') !== 'true');
+          if (!li.hidden) shown++;
+        });
+        expand.hidden = !!filtering;
+        clears.forEach(function (c) { c.hidden = !filtering || (!shown && !empty.contains(c)); });
+        note.hidden = !t;
+        empty.hidden = !(filtering && !shown);
+        empty.querySelector('p').textContent = 'No matches for ' + (t || 'any team') + ' at ' + (venue ? document.querySelector('#rwc-filter-venue [data-venue="' + venue + '"]').textContent : 'any stadium') + '.';
+        count.textContent = 'Showing ' + shown + ' of ' + items.length + ' matches';
+      }
+      team.addEventListener('change', apply);
+      venues.forEach(function (b) {
+        b.addEventListener('click', function () {
+          venue = b.dataset.venue;
+          venues.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+          apply();
+        });
+      });
+      clears.forEach(function (c) {
+        c.addEventListener('click', function () {
+          team.value = ''; venue = '';
+          venues.forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.venue === '')); });
+          apply();
+          team.focus();
+        });
+      });
+    })();
   </script>
 </body>
 </html>
