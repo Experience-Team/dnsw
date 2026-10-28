@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plan your 3rd half — Components</title>
+<link rel="stylesheet" href="shared.css" />
+<style>
+  /* Page chrome only, scoped to this components page. Components live in shared.css (.pl-*). */
+  body { background: #fff; }
+  .cp-header { border-bottom: 1px solid #ccc; padding: 2rem 0 1.5rem; }
+  .cp-wrap { max-width: 80rem; margin: 0 auto; padding: 0 2rem; }
+  .cp-header h1 { font-size: 1.25rem; font-weight: 700; margin: .75rem 0 .5rem; }
+  .cp-header p { font-size: 1rem; color: #444; max-width: 46rem; }
+  .cp-header nav { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: .75rem; font-size: .8125rem; }
+  .cp-key { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; font-size: .8125rem; color: #444; }
+  .cp-key span { display: inline-flex; align-items: center; gap: .5rem; }
+  .cp-section { padding: 2.5rem 0; border-bottom: 1px solid #ccc; scroll-margin-top: 1rem; }
+  .cp-section h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: .25rem; }
+  .cp-section h2 code { font-size: .8125rem; font-weight: 400; color: #444; }
+  .cp-section > .cp-wrap > p { font-size: 1rem; color: #444; max-width: 46rem; margin-bottom: 1.5rem; }
+  .cp-frames { display: flex; flex-direction: column; gap: 1.5rem; }
+  .cp-frame-label { font-size: .8125rem; color: #888; margin-bottom: .5rem; }
+  .cp-frame { border: 1px solid #ccc; background: #fff; padding: 1.5rem; }
+  .cp-frame--mobile { width: 375px; max-width: 100%; padding: 1.5rem 1rem; }
+  .cp-stack { display: flex; flex-direction: column; gap: 1rem; }
+  .cp-toc { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: .8125rem; padding: 1rem 0; border-bottom: 1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<header class="cp-header">
+  <div class="cp-wrap">
+    <a href="index.html" class="pl-sm">← All wireframes</a>
+    <h1>Plan your 3rd half: components</h1>
+    <p>Reusable low-fidelity components for the Rugby World Cup trip planner. Greyscale only, built to the fidelity rules in the brief. No full screens yet.</p>
+    <nav aria-label="Related">
+      <a href="planner-brief.md">Planner brief</a>
+      <a href="pages/rugby-world-cup.html">Rugby World Cup page</a>
+    </nav>
+    <div class="cp-key">
+      <span><span class="pl-marker">1</span> Annotation marker, see matching note</span>
+      <span><span class="provenance-gap">Faint wash</span> = <code>gap</code> field in the product data contract</span>
+      <span><b>Not in contract</b> = needs a data decision before build</span>
+    </div>
+  </div>
+</header>
+
+<div class="cp-wrap">
+  <nav class="cp-toc" aria-label="Components">
+    <a href="#match">Match block</a>
+    <a href="#gap">Gap header</a>
+    <a href="#option">Option card</a>
+    <a href="#map">Map placeholder</a>
+    <a href="#setup">Set-up sentence</a>
+    <a href="#annotation">Annotation marker and side note</a>
+  </nav>
+</div>
+
+<!-- ── Match block ── -->
+<section class="cp-section" id="match">
+  <div class="cp-wrap">
+    <h2>Match block <code>.pl-match</code></h2>
+    <p>One of the fan's matches on the timeline. Matches are fixed: everything else in the plan is arranged around them.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame pl-scope">
+              <article class="pl-match pl-marked">
+                <span class="pl-marker">1</span>
+                <div class="pl-match-time">
+                  <span class="pl-sm">Sat 16 Oct</span>
+                  <span class="pl-lg">7:45pm</span>
+                  <span class="pl-sm">Kick-off</span>
+                </div>
+                <div class="pl-match-body pl-marked pl-marked--gutter">
+                  <span class="pl-marker">2</span>
+                  <span class="pl-tag">Match, fixed</span>
+                  <h3 class="pl-lg">Team A v Team B</h3>
+                  <span class="pl-sm">Venue name, Sydney</span>
+                </div>
+                <a href="#" class="pl-match-link pl-marked pl-marked--gutter"><span class="pl-marker">3</span>Getting to the stadium</a>
+              </article>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <article class="pl-match">
+                <div class="pl-match-time">
+                  <span class="pl-sm">Sat 16 Oct</span>
+                  <span class="pl-lg">7:45pm</span>
+                  <span class="pl-sm">Kick-off</span>
+                </div>
+                <div class="pl-match-body">
+                  <span class="pl-tag">Match, fixed</span>
+                  <h3 class="pl-lg">Team A v Team B</h3>
+                  <span class="pl-sm">Venue name, Sydney</span>
+                </div>
+                <a href="#" class="pl-match-link">Getting to the stadium</a>
+              </article>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Fixed. No swap, remove or lock controls. The heavier border sets it apart from anything the fan can change.</span></li>
+          <li><span class="pl-marker">2</span><span>Teams, date, kick-off and venue come from the match schedule. <b>Not in contract:</b> source to confirm. If kick-off isn't announced, show "Kick-off to be confirmed".</span></li>
+          <li><span class="pl-marker">3</span><span>Links to transport advice for this venue. Target page to confirm.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Gap header ── -->
+<section class="cp-section" id="gap">
+  <div class="cp-wrap">
+    <h2>Gap header <code>.pl-gap</code></h2>
+    <p>Labels a stretch of free time between fixed items. Three option cards sit underneath each gap.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: hours before a match, and days between cities</p>
+            <div class="cp-frame pl-scope">
+              <div class="cp-stack">
+                <div class="pl-gap pl-marked">
+                  <span class="pl-marker">1</span>
+                  <span class="pl-lg">4 hrs before kick-off</span>
+                  <span class="pl-sm pl-marked pl-marked--gutter"><span class="pl-marker">2</span>Around Venue name, Sydney. 3:45pm to 7:45pm</span>
+                </div>
+                <div class="pl-gap pl-marked">
+                  <span class="pl-marker">3</span>
+                  <span class="pl-lg">2 free days between Sydney and Newcastle</span>
+                  <span class="pl-sm">Sun 17 to Mon 18 Oct. 2 hrs 10 min between cities</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="cp-stack">
+                <div class="pl-gap">
+                  <span class="pl-lg">4 hrs before kick-off</span>
+                  <span class="pl-sm">Around Venue name, Sydney. 3:45pm to 7:45pm</span>
+                </div>
+                <div class="pl-gap">
+                  <span class="pl-lg">2 free days between Sydney and Newcastle</span>
+                  <span class="pl-sm">Sun 17 to Mon 18 Oct. 2 hrs 10 min between cities</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Length first, in plain words. The dashed border means open time, not a fixed item.</span></li>
+          <li><span class="pl-marker">2</span><span>Where and when, so the fan can judge the options below by distance and time.</span></li>
+          <li><span class="pl-marker">3</span><span>Multi-day variant for days between cities. Worked out from the fan's matches and set-up, not from listing data.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Option card ── -->
+<section class="cp-section" id="option">
+  <div class="cp-wrap">
+    <h2>Option card <code>.pl-option</code> in a row of three <code>.pl-options</code></h2>
+    <p>A real listing that fits the gap above it. Shown as a row of three under each gap: default, locked, and details to be confirmed.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: default, locked, details to be confirmed</p>
+            <div class="cp-frame pl-scope">
+              <div class="pl-options">
+
+                <article class="pl-option">
+                  <h4 class="pl-option-name pl-marked pl-marked--gutter"><span class="pl-marker">1</span>Place name</h4>
+                  <p class="pl-option-reason pl-marked pl-marked--gutter"><span class="pl-marker">2</span>Open Saturday, free, 10 min from the stadium</p>
+                  <dl class="pl-option-facts">
+                    <div class="pl-marked pl-marked--gutter"><span class="pl-marker">3</span><dt>Travel</dt><dd>10 min walk from previous stop</dd></div>
+                    <div class="pl-marked pl-marked--gutter"><span class="pl-marker">4</span><dt>Open</dt><dd><span class="provenance-gap">Sat 9am to 5pm</span></dd></div>
+                  </dl>
+                  <a href="#" class="pl-sm pl-marked pl-marked--gutter"><span class="pl-marker">5</span>Visit website</a>
+                  <div class="pl-option-controls pl-marked pl-marked--gutter">
+                    <span class="pl-marker">6</span>
+                    <button type="button" class="pl-btn">Swap</button>
+                    <button type="button" class="pl-btn">Remove</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Lock</button>
+                  </div>
+                </article>
+
+                <article class="pl-option is-locked">
+                  <h4 class="pl-option-name">Place name</h4>
+                  <p class="pl-option-reason">Open Saturday, under $20, 5 min from previous stop</p>
+                  <dl class="pl-option-facts">
+                    <div><dt>Travel</dt><dd>5 min walk from previous stop</dd></div>
+                    <div><dt>Open</dt><dd><span class="provenance-gap">Sat 11am to 10pm</span></dd></div>
+                  </dl>
+                  <a href="#" class="pl-sm">Visit website</a>
+                  <div class="pl-option-controls">
+                    <button type="button" class="pl-btn" disabled>Swap</button>
+                    <button type="button" class="pl-btn" disabled>Remove</button>
+                    <button type="button" class="pl-btn" aria-pressed="true">Locked</button>
+                  </div>
+                </article>
+
+                <article class="pl-option pl-marked">
+                  <span class="pl-marker">7</span>
+                  <h4 class="pl-option-name">Place name</h4>
+                  <p class="pl-option-reason">Indoors, 15 min from previous stop</p>
+                  <dl class="pl-option-facts">
+                    <div><dt>Travel</dt><dd>15 min train from previous stop</dd></div>
+                    <div><dt>Open</dt><dd class="pl-option-empty">Hours to be confirmed</dd></div>
+                  </dl>
+                  <span class="pl-sm pl-option-empty">No website listed</span>
+                  <div class="pl-option-controls">
+                    <button type="button" class="pl-btn">Swap</button>
+                    <button type="button" class="pl-btn">Remove</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Lock</button>
+                  </div>
+                </article>
+
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px: options stack, controls fill the width</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="pl-options">
+                <article class="pl-option">
+                  <h4 class="pl-option-name">Place name</h4>
+                  <p class="pl-option-reason">Open Saturday, free, 10 min from the stadium</p>
+                  <dl class="pl-option-facts">
+                    <div><dt>Travel</dt><dd>10 min walk from previous stop</dd></div>
+                    <div><dt>Open</dt><dd><span class="provenance-gap">Sat 9am to 5pm</span></dd></div>
+                  </dl>
+                  <a href="#" class="pl-sm">Visit website</a>
+                  <div class="pl-option-controls">
+                    <button type="button" class="pl-btn">Swap</button>
+                    <button type="button" class="pl-btn">Remove</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Lock</button>
+                  </div>
+                </article>
+                <article class="pl-option is-locked">
+                  <h4 class="pl-option-name">Place name</h4>
+                  <p class="pl-option-reason">Open Saturday, under $20, 5 min from previous stop</p>
+                  <dl class="pl-option-facts">
+                    <div><dt>Travel</dt><dd>5 min walk from previous stop</dd></div>
+                    <div><dt>Open</dt><dd><span class="provenance-gap">Sat 11am to 10pm</span></dd></div>
+                  </dl>
+                  <a href="#" class="pl-sm">Visit website</a>
+                  <div class="pl-option-controls">
+                    <button type="button" class="pl-btn" disabled>Swap</button>
+                    <button type="button" class="pl-btn" disabled>Remove</button>
+                    <button type="button" class="pl-btn" aria-pressed="true">Locked</button>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Place name: listing <code>title</code> (live).</span></li>
+          <li><span class="pl-marker">2</span><span>One-line reason, built from opening hours, price and travel time. <b>Not in contract:</b> wording rules to confirm.</span></li>
+          <li><span class="pl-marker">3</span><span>Travel time from the previous stop. <b>Not in contract:</b> the contract only has travel time from the CBD (<code>gap</code>). Needs a routing source.</span></li>
+          <li><span class="pl-marker">4</span><span>Hours on that day: <code>availability</code> (<code>gap</code>), read as a whole block, including special hours for the date.</span></li>
+          <li><span class="pl-marker">5</span><span>Opens the partner's own site: <code>links.website</code> (live, can be empty). No booking on our site.</span></li>
+          <li><span class="pl-marker">6</span><span>Swap, remove and lock. A locked card gets a heavy border and stays put when the plan changes.</span></li>
+          <li><span class="pl-marker">7</span><span>Empty state: no hours for the date shows "Hours to be confirmed" and the reason line drops "Open". No website shows "No website listed".</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Map placeholder ── -->
+<section class="cp-section" id="map">
+  <div class="cp-wrap">
+    <h2>Map placeholder <code>.pl-map</code></h2>
+    <p>Grey box with an X and a label, plus a plain list beside it. Trip map for the whole stay, day map for each day.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: trip map</p>
+            <div class="cp-frame pl-scope">
+              <figure class="pl-map pl-marked">
+                <span class="pl-marker">1</span>
+                <div class="pl-ph"><span class="pl-ph-label">Map: whole trip, Sydney and Newcastle</span></div>
+                <ol class="pl-map-list">
+                  <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Days 1 to 3: Sydney</li>
+                  <li class="pl-map-leg">2 hrs 10 min drive</li>
+                  <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Days 4 to 5: Newcastle</li>
+                </ol>
+              </figure>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Desktop: day map</p>
+            <div class="cp-frame pl-scope">
+              <figure class="pl-map pl-marked">
+                <span class="pl-marker">2</span>
+                <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops</span></div>
+                <div class="pl-marked pl-marked--above">
+                  <span class="pl-marker">3</span>
+                  <ol class="pl-map-list">
+                    <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Place name</li>
+                    <li class="pl-map-leg">10 min walk</li>
+                    <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Place name</li>
+                    <li class="pl-map-leg">25 min train</li>
+                    <li class="pl-map-stop"><span class="pl-map-stop-n">3</span>Venue name, kick-off 7:45pm</li>
+                  </ol>
+                </div>
+              </figure>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px: day map</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <figure class="pl-map pl-marked">
+                <span class="pl-marker">4</span>
+                <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops</span></div>
+                <ol class="pl-map-list">
+                  <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Place name</li>
+                  <li class="pl-map-leg">10 min walk</li>
+                  <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Place name</li>
+                  <li class="pl-map-leg">25 min train</li>
+                  <li class="pl-map-stop"><span class="pl-map-stop-n">3</span>Venue name, kick-off 7:45pm</li>
+                </ol>
+              </figure>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Trip map: the whole stay across both cities, with days and the drive between them listed beside it.</span></li>
+          <li><span class="pl-marker">2</span><span>Day map: stops numbered in the same order as that day's timeline, with travel time between each.</span></li>
+          <li><span class="pl-marker">3</span><span>Pins use the listing's <code>address.geo</code> (live). Travel legs need the same routing source as the option card.</span></li>
+          <li><span class="pl-marker">4</span><span>Mobile: the map sits above the stop list, so it's always visible. The plan view screen can decide whether it moves behind a single tap.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Set-up sentence ── -->
+<section class="cp-section" id="setup">
+  <div class="cp-wrap">
+    <h2>Set-up sentence <code>.pl-setup</code></h2>
+    <p>The fan builds a sentence instead of filling in a form. Each part in a box is a dropdown. The same sentence stays pinned at the top of the plan.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: set-up</p>
+            <div class="cp-frame pl-scope">
+              <form class="pl-setup pl-marked" onsubmit="return false;">
+                <span class="pl-marker">1</span>
+                <p class="pl-setup-sentence">
+                  I'm following
+                  <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                  to
+                  <label class="pl-slot pl-marked pl-marked--above"><span class="pl-marker">2</span><span class="visually-hidden">Matches</span><select><option>2 matches</option><option>1 match</option><option>3 matches</option></select></label>,
+                  staying
+                  <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
+                  in
+                  <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney</option><option>Newcastle</option><option>Sydney and Newcastle</option></select></label>,
+                  travelling
+                  <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
+                  into
+                  <label class="pl-slot"><span class="visually-hidden">Interests</span><select><option>food and beaches</option><option>food and drink</option><option>beaches</option><option>nature</option></select></label>,
+                  <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
+                </p>
+                <button type="submit" class="pl-btn pl-btn-primary">Show my plan</button>
+              </form>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Desktop: pinned at the top of the plan</p>
+            <div class="cp-frame pl-scope">
+              <form class="pl-setup pl-setup--pinned pl-marked" onsubmit="return false;">
+                <span class="pl-marker">3</span>
+                <p class="pl-setup-sentence">
+                  I'm following
+                  <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                  to
+                  <label class="pl-slot"><span class="visually-hidden">Matches</span><select><option>2 matches</option><option>1 match</option><option>3 matches</option></select></label>,
+                  staying
+                  <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
+                  in
+                  <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney</option><option>Newcastle</option><option>Sydney and Newcastle</option></select></label>,
+                  travelling
+                  <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
+                  into
+                  <label class="pl-slot"><span class="visually-hidden">Interests</span><select><option>food and beaches</option><option>food and drink</option><option>beaches</option><option>nature</option></select></label>,
+                  <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
+                </p>
+              </form>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px: set-up</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <form class="pl-setup" onsubmit="return false;">
+                <p class="pl-setup-sentence">
+                  I'm following
+                  <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                  to
+                  <label class="pl-slot"><span class="visually-hidden">Matches</span><select><option>2 matches</option><option>1 match</option><option>3 matches</option></select></label>,
+                  staying
+                  <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
+                  in
+                  <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney</option><option>Newcastle</option><option>Sydney and Newcastle</option></select></label>,
+                  travelling
+                  <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
+                  into
+                  <label class="pl-slot"><span class="visually-hidden">Interests</span><select><option>food and beaches</option><option>food and drink</option><option>beaches</option><option>nature</option></select></label>,
+                  <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
+                </p>
+                <button type="submit" class="pl-btn pl-btn-primary">Show my plan</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Every boxed part is a dropdown. No account and no free-text box.</span></li>
+          <li><span class="pl-marker">2</span><span>Matches and interests open a checklist, so the fan can pick several. Team and match lists come from the match schedule (<b>not in contract</b>, same question as the match block).</span></li>
+          <li><span class="pl-marker">3</span><span>Pinned version at the top of the plan. Changing any part updates the plan and keeps locked items.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Annotation marker and side note ── -->
+<section class="cp-section" id="annotation">
+  <div class="cp-wrap">
+    <h2>Annotation marker and side note <code>.pl-marker</code>, <code>.pl-notes</code>, <code>.pl-annotated</code></h2>
+    <p>Used on every planner screen and throughout this page. Wrap the screen and its notes in <code>.pl-annotated</code>, add <code>.pl-marked</code> to a section and put a numbered <code>.pl-marker</code> inside it.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: notes in a side column</p>
+            <div class="cp-frame pl-scope">
+              <div class="pl-annotated">
+                <div class="cp-stack">
+                  <div class="pl-ph pl-marked"><span class="pl-marker">1</span><span class="pl-ph-label">Section of a screen</span></div>
+                  <div class="pl-ph pl-marked" style="min-height:6rem;"><span class="pl-marker">2</span><span class="pl-ph-label">Another section</span></div>
+                </div>
+                <ol class="pl-notes">
+                  <li><span class="pl-marker">1</span><span>Short note about section 1.</span></li>
+                  <li><span class="pl-marker">2</span><span>Short note about section 2.</span></li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px: notes drop below</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="pl-annotated">
+                <div class="cp-stack">
+                  <div class="pl-ph pl-marked"><span class="pl-marker">1</span><span class="pl-ph-label">Section of a screen</span></div>
+                  <div class="pl-ph pl-marked" style="min-height:6rem;"><span class="pl-marker">2</span><span class="pl-ph-label">Another section</span></div>
+                </div>
+                <ol class="pl-notes">
+                  <li><span class="pl-marker">1</span><span>Short note about section 1.</span></li>
+                  <li><span class="pl-marker">2</span><span>Short note about section 2.</span></li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Marker: a numbered black circle on the top-left corner of the section it describes.</span></li>
+          <li><span class="pl-marker">2</span><span>Note: the same number and one or two short sentences. Side column on desktop, below the screen on mobile.</span></li>
+          <li><span class="pl-marker">3</span><span>Numbering restarts on each screen.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -71,6 +71,19 @@ public/wireframes/
 | Text block | `.text-block` | 2-col text with heading |
 | Breadcrumb bar | `.page-switcher-bar` | Inner pages only: breadcrumb left + Share/Save right |
 
+### RWC planner ("Plan your 3rd half") components
+
+Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in `planner-brief.md`; live examples on `planner-components.html`. Wrap every planner screen in `.pl-scope` (layout switches on its width via container queries, so desktop and mobile frames can sit side by side).
+
+| Pattern | Classes | Notes |
+|---------|---------|-------|
+| Match block | `.pl-match` | Fixed item: heavy border, no controls |
+| Gap header | `.pl-gap` | Dashed box: length of free time + where/when |
+| Option card | `.pl-option` in `.pl-options` (row of 3) | `.is-locked` state; `.pl-option-empty` for empty states |
+| Map placeholder | `.pl-map` + `.pl-ph` | Grey box with X + label; stop list with `.pl-map-stop` / `.pl-map-leg` |
+| Set-up sentence | `.pl-setup` (+ `--pinned`) | Each `.pl-slot` wraps a `<select>` |
+| Annotation | `.pl-annotated`, `.pl-marked` + `.pl-marker`, `.pl-notes` | `--gutter` / `--above` keep markers off text |
+
 ### Grids
 - `.grid-5` — 5 equal columns (Discover the best / Places sections)
 - `.grid-4` — 4 equal columns (Season sections)
@@ -151,3 +164,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 |------|---------------|
 | 2026-06-25 | Skill scaffolded from Figma audit of Page 64 (sydney.com category page) |
 | 2026-06-25 | Homepage built (Sydney/NSW switchable); all component CSS in shared.css |
+| 2026-10-28 | RWC planner brief + reusable planner components (`planner-components.html`, `.pl-*` in shared.css) |
