@@ -72,7 +72,7 @@ public/wireframes/
 | Text block | `.text-block` | 2-col text with heading |
 | Hero countdown | `.hero--countdown` + `.hero-countdown` (`data-countdown="ISO date"`) | Days, hours, mins, secs ticking in the hero, right of the headline (stacks on mobile). `role="timer"`; after the date it shows an ended state linking to the matches |
 | Breadcrumb bar | `.page-switcher-bar` | Inner pages only: breadcrumb left + Share/Save right |
-| Location tiles | `.loc-tiles` > `.loc-tile` = `.loc-map` (`data-map`) + `.loc-tile-body` (`.loc-facts`, `.loc-tbc`, `.loc-stay` + `.loc-stay-card`, `.loc-more`) | Landscape cards, one per row (stacked on mobile). Static schematic SVG map (`.m-*` classes): stadium, dashed likely fan zone, stations, product pins grouped by `.m-pins[data-cat]`. `.loc-chip` toggles (`aria-pressed`) show stay (on by default), food and drink, attractions, events. `data-reveal` rises the cards in once on scroll |
+| Location tiles | `.loc-tiles` > `.loc-tile` = `.loc-map` (`data-map`) + `.loc-tile-body` (`.loc-facts`, `.loc-tbc`, `.loc-stay` + `.loc-stay-card`, `.loc-more`) | Landscape cards, one per row (stacked on mobile). Static schematic SVG map (`.m-*` classes): stadium, dashed likely fan zone, stations, product pins grouped by `.m-pins[data-cat]`. `.loc-chip` toggles (`aria-pressed`) show stay (on by default), food and drink, attractions, events. `data-reveal` rises the cards in once on scroll. Fan zone sits last under `.loc-group-head` > `.loc-group-title`; `.loc-tile--fan` + `.loc-confirmed` pill and `.m-fan--confirmed` (solid) for a confirmed zone |
 
 ### RWC planner ("Plan your 3rd half") components
 
@@ -197,3 +197,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC Stadiums and fan zones: landscape cards with static vector maps, pins and category toggles |
 | 2026-10-28 | Nav: featured Rugby World Cup button in the hamburger menu |
 | 2026-10-28 | RWC planner entry: interests slot is a multi-select with emojis |
+| 2026-10-28 | RWC Stadiums and fan zones: fan zone moved to the bottom under its own heading, shown as confirmed (Tumbalong Park) |
