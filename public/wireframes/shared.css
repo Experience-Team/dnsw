@@ -2695,6 +2695,21 @@ body.cp-page code { font: inherit; }
 .plan-stop circle { fill: var(--color-accent); stroke: #fff; stroke-width: 1.5; }
 .plan-stop text { font: 700 9px system-ui, sans-serif; fill: #fff; }
 .plan-map-toggle { display: none; margin-bottom: 1rem; }
+.plan-trip-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; border-top: 1px solid #ccc; padding-top: .75rem; }
+.plan-added-empty[hidden] { display: none; }
+.plan-map .pl-map-stop { flex-wrap: wrap; align-items: flex-start; }
+.plan-map .pl-map-stop > span:nth-child(2) { flex: 1; min-width: 0; }
+.plan-added { list-style: none; flex-basis: 100%; display: flex; flex-direction: column; gap: .25rem; padding-left: 2rem; }
+.plan-added:empty { display: none; }
+.plan-added-item { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; padding: .25rem .5rem; border: 1px solid #111; background: #f9f9f9; font-size: .8125rem; }
+.plan-added-item .pl-btn-link { font-size: .8125rem; flex-shrink: 0; }
+.plan-modal { margin: auto; width: min(30rem, calc(100vw - 2rem)); padding: 0; border: 2px solid #111; border-radius: 0; }
+.plan-modal::backdrop { background: rgba(0, 0, 0, .5); }
+.plan-modal-img { aspect-ratio: 16 / 9; }
+.plan-modal-body { display: flex; flex-direction: column; align-items: flex-start; gap: .5rem; padding: 1rem 1.25rem 1.25rem; }
+.plan-modal-when { font-size: .875rem; font-weight: 700; }
+.plan-modal-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-top: .5rem; }
+.plan-modal-actions .pl-btn { text-decoration: none; }
 @container (max-width: 40rem) {
   .plan-title { font-size: 1.625rem; }
   .plan-map-toggle { display: inline-block; }
