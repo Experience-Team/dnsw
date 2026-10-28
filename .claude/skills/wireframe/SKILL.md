@@ -78,7 +78,7 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 
 | Pattern | Classes | Notes |
 |---------|---------|-------|
-| Match block | `.pl-match` | Fixed item: heavy border, no controls |
+| Match block | `.pl-match` | Fixed item: heavy border, no controls. `.pl-match-list` + `.pl-match-list-more` for a fixture list with a "Show all" toggle (`data-expand-list`) |
 | Gap header | `.pl-gap` | Dashed box: length of free time + where/when |
 | Option card | `.pl-option` in `.pl-options` (row of 3) | `.is-locked` state; `.pl-option-empty` for empty states |
 | Map placeholder | `.pl-map` + `.pl-ph` | Grey box with X + label; stop list with `.pl-map-stop` / `.pl-map-leg` |
@@ -183,3 +183,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | Planner screen 4: Check my plan (`planner-screen-4.html`) |
 | 2026-10-28 | Planner screens 5 (Take it with you) and 6 (states and fidelity review); `gap` wash is grey on planner pages |
 | 2026-10-28 | Randomiser site component (`components/randomiser.html`), added to the bottom of the RWC page |
+| 2026-10-28 | Real RWC fixtures on the RWC page ("Matches in NSW", `.pl-match-list`, first 5 shown, "Show all" toggle); replaces the placeholder match carousel |
