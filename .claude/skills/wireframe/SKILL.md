@@ -88,6 +88,7 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | Annotation | `.pl-annotated`, `.pl-marked` + `.pl-marker`, `.pl-notes` | `--gutter` / `--above` keep markers off text |
 | Team picker | `.pl-team-picker` (`data-team-picker`) > `.pl-team-btn` (`role="combobox"`) + `.pl-team-pop` > `.pl-team-list` (`role="listbox"`, groups per pool) | Custom select-only combobox: arrows, Home/End, type-ahead, Enter, Escape. Team kit colours via `--c1`/`--c2` on swatches and bars only (`data-light` for white kits), the one exception to greyscale |
 | Match picker | `.pl-match-picker` (`data-match-picker`) > `.pl-slot-btn` + `.pl-match-pop` > `.pl-match-set` (fieldset) > `.pl-match-opt` | Custom multi-select fed by `#rwc-fixtures` JSON and the team picker's `teamchange` event: the team's NSW pool matches (ticked) plus knockouts they could reach. Empty states: no team yet; team with no NSW pool matches |
+| Multi-select slot | `.pl-multi` (`data-multi-picker`, `data-placeholder`) > `.pl-slot-btn` + `.pl-multi-pop` > `.pl-multi-grid` > `.pl-multi-opt` (checkbox + `data-emoji`/`data-label`) | Emoji option cards, pick any number. Slot shows up to two picks, then "+ N more"; placeholder when none. Done, Escape or outside click closes |
 | Multi-choice slot + panel | `.pl-slot-btn` (`aria-expanded`), `.pl-panel`, `.pl-checklist` | Panel opens below the sentence, full width on mobile |
 | Filled slot + category filters | `.pl-slot-text`, `.pl-filters` (`.pl-btn` with `aria-pressed`) | Dashed slot reflects the chosen filters |
 | Entry modules | `.pl-entry`, `.pl-entry--compact` | RWC page (full sentence) and team pages (team pre-filled) |
@@ -195,3 +196,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC planner entry: custom match picker with the chosen team's real NSW fixtures |
 | 2026-10-28 | RWC Stadiums and fan zones: landscape cards with static vector maps, pins and category toggles |
 | 2026-10-28 | Nav: featured Rugby World Cup button in the hamburger menu |
+| 2026-10-28 | RWC planner entry: interests slot is a multi-select with emojis |
