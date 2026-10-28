@@ -85,6 +85,7 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | Map placeholder | `.pl-map` + `.pl-ph` | Grey box with X + label; stop list with `.pl-map-stop` / `.pl-map-leg` |
 | Set-up sentence | `.pl-setup` (+ `--pinned`) | Each `.pl-slot` wraps a `<select>` |
 | Annotation | `.pl-annotated`, `.pl-marked` + `.pl-marker`, `.pl-notes` | `--gutter` / `--above` keep markers off text |
+| Team picker | `.pl-team-picker` (`data-team-picker`) > `.pl-team-btn` (`role="combobox"`) + `.pl-team-pop` > `.pl-team-list` (`role="listbox"`, groups per pool) | Custom select-only combobox: arrows, Home/End, type-ahead, Enter, Escape. Team kit colours via `--c1`/`--c2` on swatches and bars only (`data-light` for white kits), the one exception to greyscale |
 | Multi-choice slot + panel | `.pl-slot-btn` (`aria-expanded`), `.pl-panel`, `.pl-checklist` | Panel opens below the sentence, full width on mobile |
 | Filled slot + category filters | `.pl-slot-text`, `.pl-filters` (`.pl-btn` with `aria-pressed`) | Dashed slot reflects the chosen filters |
 | Entry modules | `.pl-entry`, `.pl-entry--compact` | RWC page (full sentence) and team pages (team pre-filled) |
@@ -187,3 +188,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | Real RWC fixtures on the RWC page ("Matches in NSW", `.pl-match-list`, first 5 shown, "Show all" toggle); replaces the placeholder match carousel |
 | 2026-10-28 | RWC Host venues: real venue data (location, matches, capacity) using `.img-card-meta` lines; Newcastle Stadium labelled Broadmeadow |
 | 2026-10-28 | RWC "Stadiums and fan zones": location tiles replace Host venues (`.loc-*`, reveal on scroll); fan zone FAQ rewritten |
+| 2026-10-28 | RWC planner entry: custom team picker with all 24 teams grouped by pool, in team colours |
