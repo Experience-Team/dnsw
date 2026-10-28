@@ -673,6 +673,14 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .loc-link { font-size: .8125rem; color: var(--color-accent); }
 .loc-more { font-size: .8125rem; color: var(--color-text-muted); display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin-top: auto; }
 
+/* Fan zone group: its own prominent heading under the stadium cards; confirmed state */
+.loc-group-head { margin: 2.5rem 0 1rem; padding-left: 1rem; border-left: 6px solid var(--color-accent); }
+.loc-group-title { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+.loc-group-body { font-size: .9375rem; color: #444; margin-top: .25rem; }
+.loc-tile--fan { border: 2px solid #111; }
+.loc-confirmed { display: inline-flex; align-items: center; gap: .3rem; margin-left: .375rem; padding: .05rem .5rem; border-radius: 999px; background: #111; color: #fff; font-size: .6875rem; font-weight: 700; vertical-align: middle; }
+.loc-confirmed::before { content: ''; width: .3em; height: .6em; border-right: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(45deg) translateY(-.1em); }
+
 /* Static schematic map (placeholder vector until a real map is wired in) */
 .loc-map { background: #f9f9f9; border-right: 1px solid var(--color-border); padding: .75rem; display: flex; flex-direction: column; gap: .625rem; }
 .loc-map-svg { display: block; width: 100%; height: auto; border: 1px solid var(--color-border); border-radius: .5rem; background: #f4f4f4; }
@@ -691,6 +699,8 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .m-label--small { font-size: 8px; }
 .m-label--fan { font-size: 8px; font-weight: 700; fill: #444; }
 .m-fan { fill: rgba(0, 0, 0, .04); stroke: #444; stroke-width: 1.25; stroke-dasharray: 4 3; }
+.m-fan--confirmed { fill: rgba(0, 0, 0, .1); stroke: #111; stroke-width: 2; stroke-dasharray: none; }
+.m-label--confirmed { font-size: 10px; fill: #111; }
 .m-stadium rect { fill: #111; }
 .m-stadium .m-stadium-pitch { fill: none; stroke: #fff; stroke-width: 1.5; }
 .m-stop rect { fill: #fff; stroke: #111; stroke-width: 1.5; }
@@ -708,6 +718,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .loc-key-stadium { display: inline-block; width: 1.1rem; height: .75rem; border-radius: .4rem; background: #111; margin-left: .25rem; }
 .loc-key-stadium:first-child { margin-left: 0; }
 .loc-key-fan { display: inline-block; width: 1.1rem; height: .75rem; border-radius: 50%; border: 1px dashed #444; margin-left: .5rem; }
+.loc-key-fan--confirmed { border: 2px solid #111; background: rgba(0, 0, 0, .1); }
 .loc-key-stop { display: inline-flex; align-items: center; justify-content: center; width: .9rem; height: .9rem; border: 1.5px solid #111; border-radius: 2px; font-size: .5625rem; font-weight: 700; margin-left: .5rem; }
 @media (max-width: 48rem) {
   .loc-tile { grid-template-columns: 1fr; }
