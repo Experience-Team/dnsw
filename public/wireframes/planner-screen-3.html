@@ -362,7 +362,7 @@
 <section class="cp-section" id="surprise">
   <div class="cp-wrap cp-wrap--wide">
     <h2>4. Surprise me</h2>
-    <p>The fan pressed "Surprise me" on the 2 free days between Sydney and Newcastle. The randomiser returns one unexpected option on the way.</p>
+    <p>The fan pressed "Surprise me" on the 2 free days between Sydney and Newcastle. The site's randomiser deals 3 cards with cryptic headings, and the one the fan opens is an unexpected stop on the way.</p>
     <div class="pl-scope">
       <div class="pl-annotated">
         <div class="cp-frames">
@@ -385,12 +385,24 @@
                         </div>
                         <button type="button" class="pl-btn pl-marked pl-marked--above" aria-pressed="true"><span class="pl-marker">10</span>Surprise me</button>
                       </div>
-                      <div class="pl-randomiser pl-marked">
+                      <div class="pl-randomiser pl-marked pl-marked--gutter">
                         <span class="pl-marker">11</span>
-                        <p class="pl-sm">Existing randomiser component (placeholder)</p>
+                        <p class="pl-sm"><b>Step 1.</b> Three cards appear as a stack.</p>
+                        <div class="pl-deck">
+                          <div class="pl-deck-card"></div>
+                          <div class="pl-deck-card"></div>
+                          <div class="pl-deck-card"><span class="pl-option-name">3 surprises for these 2 days</span><span class="pl-sm">Tap to reveal</span></div>
+                        </div>
+                        <p class="pl-sm"><b>Step 2.</b> They spread out and each reveals a cryptic heading.</p>
+                        <div class="pl-reveal">
+                          <div class="pl-deck-card is-picked"><span class="pl-sm">1 of 3</span><span class="pl-option-name">Where the train meets the lake</span><span class="pl-sm">Tap to see where</span></div>
+                          <div class="pl-deck-card"><span class="pl-sm">2 of 3</span><span class="pl-option-name">More pelicans than people</span><span class="pl-sm">Tap to see where</span></div>
+                          <div class="pl-deck-card"><span class="pl-sm">3 of 3</span><span class="pl-option-name">A lookout nobody posts about</span><span class="pl-sm">Tap to see where</span></div>
+                        </div>
+                        <p class="pl-sm"><b>Step 3.</b> The fan taps a card, and it opens to show the place.</p>
                         <article class="pl-option pl-marked pl-marked--gutter">
                           <span class="pl-marker">12</span>
-                          <span class="pl-tag">Surprise</span>
+                          <span class="pl-tag">Where the train meets the lake</span>
                           <h4 class="pl-option-name">Place name, regional NSW</h4>
                           <p class="pl-option-reason">A lakeside town on the way to Newcastle, open Monday, most fans miss it</p>
                           <dl class="pl-option-facts">
@@ -400,7 +412,7 @@
                           <a href="#" class="pl-sm">Visit website</a>
                           <div class="pl-option-controls">
                             <button type="button" class="pl-btn">Add to plan</button>
-                            <button type="button" class="pl-btn">Surprise me again</button>
+                            <button type="button" class="pl-btn">Back to the cards</button>
                           </div>
                         </article>
                       </div>
@@ -438,15 +450,21 @@
                   <button type="button" class="pl-btn" aria-pressed="true">Surprise me</button>
                 </div>
                 <div class="pl-randomiser">
-                  <p class="pl-sm">Existing randomiser component (placeholder)</p>
+                  <p class="pl-sm"><b>Step 2.</b> The stack spreads into a column of cryptic headings.</p>
+                  <div class="pl-reveal">
+                    <div class="pl-deck-card is-picked"><span class="pl-option-name">Where the train meets the lake</span><span class="pl-sm">Tap to see where</span></div>
+                    <div class="pl-deck-card"><span class="pl-option-name">More pelicans than people</span><span class="pl-sm">Tap to see where</span></div>
+                    <div class="pl-deck-card"><span class="pl-option-name">A lookout nobody posts about</span><span class="pl-sm">Tap to see where</span></div>
+                  </div>
+                  <p class="pl-sm"><b>Step 3.</b> The tapped card opens.</p>
                   <article class="pl-option">
-                    <span class="pl-tag">Surprise</span>
+                    <span class="pl-tag">Where the train meets the lake</span>
                     <h4 class="pl-option-name">Place name, regional NSW</h4>
                     <p class="pl-option-reason">A lakeside town on the way to Newcastle, open Monday, most fans miss it</p>
                     <dl class="pl-option-facts"><div><dt>Travel</dt><dd>1 hr 20 min by train from Sydney, then 50 min on to Newcastle</dd></div></dl>
                     <div class="pl-option-controls">
                       <button type="button" class="pl-btn">Add to plan</button>
-                      <button type="button" class="pl-btn">Surprise me again</button>
+                      <button type="button" class="pl-btn">Back to the cards</button>
                     </div>
                   </article>
                 </div>
@@ -456,8 +474,8 @@
         </div>
         <ol class="pl-notes" start="10">
           <li><span class="pl-marker">10</span><span>Surprise me sits on every gap, next to the quick changes.</span></li>
-          <li><span class="pl-marker">11</span><span>Uses the existing randomiser component. <b>Placeholder:</b> that component isn't in this repo yet, so the dashed frame only marks where it sits.</span></li>
-          <li><span class="pl-marker">12</span><span>One real listing, often regional NSW, with its reason and travel time. Add to plan or try again. It shows on the day map as an unnumbered stop until it's added.</span></li>
+          <li><span class="pl-marker">11</span><span>The site's existing randomiser: 3 cards start as a stack, then spread out to reveal cryptic headings. On the site the cards link to "feel new" articles. Here each card is a real listing that fits this gap, often in regional NSW. <b>To confirm:</b> that the planner version links to listings, not articles.</span></li>
+          <li><span class="pl-marker">12</span><span>The tapped card opens into a normal option card, with its cryptic heading kept as the tag, plus the reason and travel time. Add to plan, or go back to the other two cards. Until it's added, it shows on the day map as an unnumbered stop.</span></li>
         </ol>
       </div>
     </div>

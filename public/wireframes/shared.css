@@ -2270,10 +2270,26 @@ body.region-map-fullscreen-open { overflow: hidden; }
 .pl-swap { display: flex; flex-direction: column; gap: .75rem; background: #f9f9f9; border: 2px solid #111; padding: 1rem; }
 .pl-swap-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem 1rem; flex-wrap: wrap; }
 .pl-row--notice { background: #f0f0f0; border-color: #888; color: #111; }
-/* Stand-in for the site's existing randomiser component: the dashed frame
-   marks where it sits; only the result card inside is planner content. */
-.pl-randomiser { display: flex; flex-direction: column; gap: .75rem; border: 2px dashed #888; padding: 1rem; }
+/* The site's existing randomiser, reused for Surprise me: 3 cards start as a
+   stack (.pl-deck), spread to reveal cryptic headings (.pl-reveal), and one
+   opens to show the place. The stack is offset borders, not shadows. */
+.pl-randomiser { display: flex; flex-direction: column; gap: .75rem; align-items: flex-start; border: 1px solid #ccc; background: #f9f9f9; padding: 1rem; }
 .pl-randomiser > .pl-option { max-width: 24rem; }
+.pl-deck { position: relative; width: 15rem; height: 9rem; }
+.pl-deck-card {
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .35rem; text-align: center;
+  background: #fff; border: 1px solid #111; padding: 1rem; min-height: 8rem;
+}
+.pl-deck > .pl-deck-card { position: absolute; width: 14rem; height: 8rem; }
+.pl-deck > .pl-deck-card:nth-child(1) { top: 1rem; left: 1rem; }
+.pl-deck > .pl-deck-card:nth-child(2) { top: .5rem; left: .5rem; }
+.pl-deck > .pl-deck-card:nth-child(3) { top: 0; left: 0; }
+.pl-reveal { align-self: stretch; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.pl-deck-card.is-picked { border-width: 2px; }
+@container (max-width: 40rem) {
+  .pl-reveal { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+  .pl-reveal .pl-deck-card { min-height: 0; }
+}
 
 /* Check my plan (screen 4): add places, then a flagged card per place. */
 .pl-add { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }

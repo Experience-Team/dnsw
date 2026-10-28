@@ -601,8 +601,16 @@
                 </div>
                 <div class="pl-randomiser pl-marked">
                   <span class="pl-marker">4</span>
-                  <p class="pl-sm">Existing randomiser component (placeholder)</p>
-                  <div class="pl-ph pl-ph--short"><span class="pl-ph-label">One surprise option card</span></div>
+                  <div class="pl-deck">
+                    <div class="pl-deck-card"></div>
+                    <div class="pl-deck-card"></div>
+                    <div class="pl-deck-card"><span class="pl-option-name">3 surprises</span><span class="pl-sm">Tap to reveal</span></div>
+                  </div>
+                  <div class="pl-reveal">
+                    <div class="pl-deck-card is-picked"><span class="pl-option-name">Cryptic heading</span><span class="pl-sm">Tap to see where</span></div>
+                    <div class="pl-deck-card"><span class="pl-option-name">Cryptic heading</span><span class="pl-sm">Tap to see where</span></div>
+                    <div class="pl-deck-card"><span class="pl-option-name">Cryptic heading</span><span class="pl-sm">Tap to see where</span></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -628,7 +636,7 @@
           <li><span class="pl-marker">1</span><span>Gap tools: quick changes (on/off, can combine) and Surprise me, under each gap header.</span></li>
           <li><span class="pl-marker">2</span><span>Notice row: says what changed, with Undo, Reset or Turn off.</span></li>
           <li><span class="pl-marker">3</span><span>Swap panel: opens in place of a chosen card with 3 alternatives.</span></li>
-          <li><span class="pl-marker">4</span><span>Randomiser slot: marks where the existing randomiser component sits. Placeholder until that component is in this repo.</span></li>
+          <li><span class="pl-marker">4</span><span>Randomiser (the site's existing component): 3 cards start as a stack (<code>.pl-deck</code>) and spread out to reveal cryptic headings (<code>.pl-reveal</code>). The tapped card opens as an option card.</span></li>
         </ol>
       </div>
     </div>
