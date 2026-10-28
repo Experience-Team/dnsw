@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plan your 3rd half, screen 4: Check my plan</title>
+<link rel="stylesheet" href="shared.css" />
+</head>
+<body class="cp-page">
+
+<header class="cp-header">
+  <div class="cp-wrap cp-wrap--wide">
+    <a href="index.html" class="pl-sm">All wireframes</a>
+    <h1>Plan your 3rd half, screen 4: Check my plan</h1>
+    <p>For fans who already have a list of places. They add them, and each one is checked against their dates, their matches and where they're staying.</p>
+    <nav aria-label="Related">
+      <a href="planner-brief.md">Planner brief</a>
+      <a href="planner-components.html">Planner components</a>
+      <a href="planner-screen-1.html#setup">Screen 1: set-up (links here)</a>
+      <a href="planner-screen-2.html">Screen 2: plan view</a>
+    </nav>
+  </div>
+</header>
+
+<div class="cp-wrap cp-wrap--wide">
+  <nav class="cp-toc" aria-label="Sections">
+    <a href="#check">Check my plan</a>
+    <a href="#after">After adding to the plan</a>
+  </nav>
+</div>
+
+<section class="cp-section" id="check">
+  <div class="cp-wrap cp-wrap--wide">
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+
+          <!-- ════════ Desktop ════════ -->
+          <div>
+            <p class="cp-frame-label">Desktop: places added and checked</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header</span></div>
+              <div class="cp-pad">
+
+                <div class="pl-marked pl-marked--gutter">
+                  <span class="pl-marker">1</span>
+                  <h1 class="pl-lg">Check my plan</h1>
+                  <p>Already have a list? Add your places and we'll check them against your dates and matches.</p>
+                </div>
+
+                <form class="pl-setup pl-setup--pinned pl-marked" onsubmit="return false;">
+                  <span class="pl-marker">2</span>
+                  <p class="pl-setup-sentence">
+                    I'm following
+                    <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option></select></label>
+                    to
+                    <button type="button" class="pl-slot-btn" aria-expanded="false">2 matches</button>,
+                    from
+                    <label class="pl-slot"><span class="visually-hidden">Dates</span><select><option>Fri 15 to Wed 20 Oct</option><option>Fri 15 to Sun 17 Oct</option></select></label>
+                    in
+                    <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney and Newcastle</option><option>Sydney</option><option>Newcastle</option></select></label>.
+                  </p>
+                </form>
+                <div class="pl-row pl-marked pl-marked--gutter"><span class="pl-marker">3</span><span>Where you're staying: Place name, Sydney (Fri to Sun). Place name, Newcastle (Mon and Tue)</span><a href="#">Change</a></div>
+
+                <div class="pl-add">
+                  <div class="pl-field pl-marked">
+                    <span class="pl-marker">4</span>
+                    <label for="search-desktop">Search for a place</label>
+                    <input id="search-desktop" class="pl-input" type="text" value="Place na" />
+                    <ul class="pl-results">
+                      <li><span><b>Place name</b>, Sydney</span><button type="button" class="pl-btn">Add</button></li>
+                      <li><span><b>Place name</b>, Newcastle</span><button type="button" class="pl-btn">Add</button></li>
+                      <li><span><b>Place name</b>, regional NSW</span><button type="button" class="pl-btn">Add</button></li>
+                    </ul>
+                  </div>
+                  <div class="pl-field pl-marked">
+                    <span class="pl-marker">5</span>
+                    <label for="paste-desktop">Or paste a list, one place per line</label>
+                    <textarea id="paste-desktop" class="pl-input">Place name, Monday
+Place name, Saturday lunch
+Place name
+Place name, Sunday
+Place name
+Place name from a friend</textarea>
+                    <button type="button" class="pl-btn">Check these</button>
+                  </div>
+                </div>
+
+                <div class="pl-plan">
+                  <div class="pl-plan-timeline">
+                    <div class="pl-row pl-marked pl-marked--gutter"><span class="pl-marker">6</span><span><b>6 places checked:</b> 2 need a change, 1 is far from your stay, 2 fit well, 1 not found. Changes first.</span></div>
+
+                    <div class="pl-check-list">
+                      <article class="pl-check is-problem pl-marked pl-marked--gutter">
+                        <span class="pl-marker">7</span>
+                        <div class="pl-check-head"><span class="pl-map-stop-n">1</span><h4 class="pl-option-name">Place name</h4><span class="pl-tag pl-tag--solid">Change needed</span></div>
+                        <p class="pl-flag">Closed Mondays: you're there on Monday</p>
+                        <p class="pl-sm">You listed it for Mon 18 Oct. It opens Tuesday to Sunday, <span class="provenance-gap">9am to 5pm</span>.</p>
+                        <div class="pl-row pl-row--notice"><span>Try Tue 19 Oct: open, and 40 min from your Newcastle stay.</span><a href="#">Use this day</a></div>
+                        <div class="pl-option-controls"><button type="button" class="pl-btn">Remove from list</button><a href="#" class="pl-sm">Visit website</a></div>
+                      </article>
+
+                      <article class="pl-check is-problem pl-marked pl-marked--gutter">
+                        <span class="pl-marker">8</span>
+                        <div class="pl-check-head"><span class="pl-map-stop-n">2</span><h4 class="pl-option-name">Place name</h4><span class="pl-tag pl-tag--solid">Change needed</span></div>
+                        <p class="pl-flag">Clashes with kick-off</p>
+                        <p class="pl-sm">You listed it for Saturday lunch. Team A v Team B kicks off at 2pm, and it's 40 min from the stadium.</p>
+                        <div class="pl-row pl-row--notice"><span>Try Sun 17 Oct: open <span class="provenance-gap">10am to 5pm</span>, no match that day.</span><a href="#">Use this day</a></div>
+                        <div class="pl-option-controls"><button type="button" class="pl-btn">Remove from list</button><a href="#" class="pl-sm">Visit website</a></div>
+                      </article>
+
+                      <article class="pl-check pl-marked pl-marked--gutter">
+                        <span class="pl-marker">9</span>
+                        <div class="pl-check-head"><span class="pl-map-stop-n">3</span><h4 class="pl-option-name">Place name</h4><span class="pl-tag">Far</span></div>
+                        <p class="pl-flag">2 hrs from where you're staying</p>
+                        <p class="pl-sm">2 hrs 5 min by train from your Sydney stay. It works as a day trip on Sun 17 Oct, your free day.</p>
+                        <div class="pl-option-controls"><button type="button" class="pl-btn">Remove from list</button><a href="#" class="pl-sm">Visit website</a></div>
+                      </article>
+
+                      <article class="pl-check pl-marked pl-marked--gutter">
+                        <span class="pl-marker">10</span>
+                        <div class="pl-check-head"><span class="pl-map-stop-n">4</span><h4 class="pl-option-name">Place name</h4><span class="pl-tag">Fits well</span></div>
+                        <p class="pl-flag">Fits well: open, 15 min from the stadium</p>
+                        <p class="pl-sm">Open Sat 16 Oct <span class="provenance-gap">9am to 5pm</span>. A 15 min walk to Venue name, Sydney, before the 2pm kick-off.</p>
+                        <div class="pl-option-controls"><button type="button" class="pl-btn">Remove from list</button><a href="#" class="pl-sm">Visit website</a></div>
+                      </article>
+
+                      <article class="pl-check pl-marked pl-marked--gutter">
+                        <span class="pl-marker">11</span>
+                        <div class="pl-check-head"><span class="pl-map-stop-n">5</span><h4 class="pl-option-name">Place name</h4><span class="pl-tag">Fits well</span><span class="pl-tag">Also on</span></div>
+                        <p class="pl-flag">Also on nearby: fan zone screening</p>
+                        <p class="pl-sm">Fits your Sunday. A fan zone screening of Team C v Team D is on at 4pm, 5 min walk away. Free.</p>
+                        <div class="pl-option-controls"><button type="button" class="pl-btn">Add the screening too</button><button type="button" class="pl-btn">Remove from list</button></div>
+                      </article>
+
+                      <article class="pl-check is-unmatched pl-marked pl-marked--gutter">
+                        <span class="pl-marker">12</span>
+                        <div class="pl-check-head"><h4 class="pl-option-name">"Place name from a friend"</h4><span class="pl-tag">Not found</span></div>
+                        <p class="pl-flag">We couldn't find this in our listings</p>
+                        <p class="pl-sm">Line 6 of your list. We can only check places we list, so this one won't go into your plan.</p>
+                        <div class="pl-option-controls"><button type="button" class="pl-btn">Search for it</button><button type="button" class="pl-btn">Remove from list</button></div>
+                      </article>
+                    </div>
+
+                    <div>
+                      <button type="button" class="pl-btn pl-btn-primary pl-marked"><span class="pl-marker">14</span>Add these to my 3rd half plan</button>
+                    </div>
+                  </div>
+
+                  <aside class="pl-plan-map pl-marked pl-marked--gutter" aria-label="Map of your places">
+                    <span class="pl-marker">13</span>
+                    <figure class="pl-map">
+                      <p class="pl-sm"><b>Your places, venues and stays</b></p>
+                      <div class="pl-ph"><span class="pl-ph-label">Map: your 5 places, 2 venues, 2 stays</span></div>
+                      <ol class="pl-map-list">
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Place name, Newcastle area</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Place name, Sydney</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">3</span>Place name, regional NSW</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">4</span>Place name, Sydney</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">5</span>Place name, Sydney</li>
+                      </ol>
+                      <p class="pl-sm"><b>Venues:</b> Venue name, Sydney (Sat). Venue name, Newcastle (Wed).</p>
+                      <p class="pl-sm"><b>Where you're staying:</b> Place name, Sydney. Place name, Newcastle.</p>
+                    </figure>
+                  </aside>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ Mobile ════════ -->
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header</span></div>
+              <div class="cp-pad">
+                <div>
+                  <h1 class="pl-lg">Check my plan</h1>
+                  <p>Already have a list? Add your places and we'll check them against your dates and matches.</p>
+                </div>
+                <form class="pl-setup pl-setup--pinned" onsubmit="return false;">
+                  <p class="pl-setup-sentence">
+                    I'm following
+                    <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option></select></label>
+                    to
+                    <button type="button" class="pl-slot-btn" aria-expanded="false">2 matches</button>,
+                    from
+                    <label class="pl-slot"><span class="visually-hidden">Dates</span><select><option>Fri 15 to Wed 20 Oct</option></select></label>
+                    in
+                    <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney and Newcastle</option></select></label>.
+                  </p>
+                </form>
+                <div class="pl-row"><span>Staying: Place name, Sydney. Place name, Newcastle</span><a href="#">Change</a></div>
+                <div class="pl-add pl-marked">
+                  <span class="pl-marker">15</span>
+                  <div class="pl-field">
+                    <label for="search-mobile">Search for a place</label>
+                    <input id="search-mobile" class="pl-input" type="text" placeholder="Place name" />
+                  </div>
+                  <div class="pl-field">
+                    <label for="paste-mobile">Or paste a list, one place per line</label>
+                    <textarea id="paste-mobile" class="pl-input" placeholder="Paste from your notes"></textarea>
+                    <button type="button" class="pl-btn">Check these</button>
+                  </div>
+                </div>
+                <div class="pl-row"><span><b>6 places checked:</b> 2 need a change, 1 far, 2 fit well, 1 not found.</span></div>
+                <details class="pl-toggle">
+                  <summary><span class="when-closed">Show map</span><span class="when-open">Hide map</span></summary>
+                  <div class="pl-ph"><span class="pl-ph-label">Map: your places, venues and stays</span></div>
+                </details>
+                <div class="pl-check-list">
+                  <article class="pl-check is-problem">
+                    <div class="pl-check-head"><span class="pl-map-stop-n">1</span><h4 class="pl-option-name">Place name</h4><span class="pl-tag pl-tag--solid">Change needed</span></div>
+                    <p class="pl-flag">Closed Mondays: you're there on Monday</p>
+                    <div class="pl-row pl-row--notice"><span>Try Tue 19 Oct instead.</span><a href="#">Use this day</a></div>
+                  </article>
+                  <article class="pl-check is-problem">
+                    <div class="pl-check-head"><span class="pl-map-stop-n">2</span><h4 class="pl-option-name">Place name</h4><span class="pl-tag pl-tag--solid">Change needed</span></div>
+                    <p class="pl-flag">Clashes with kick-off</p>
+                    <div class="pl-row pl-row--notice"><span>Try Sun 17 Oct instead.</span><a href="#">Use this day</a></div>
+                  </article>
+                  <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Places 3 to 5 and "Not found", same cards</span></div>
+                </div>
+                <button type="button" class="pl-btn pl-btn-primary">Add these to my 3rd half plan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Title and intro. Fans reach this page from "Already have a plan? Check it against your dates" on the set-up page.</span></li>
+          <li><span class="pl-marker">2</span><span>The same set-up sentence, cut down to team, matches, dates and city. Dates default to the span of the chosen matches.</span></li>
+          <li><span class="pl-marker">3</span><span>Where the fan is staying. Needed for the "far from your stay" check.</span></li>
+          <li><span class="pl-marker">4</span><span>Search: type a name, pick from real listings, Add. Matches on listing <code>title</code> (live).</span></li>
+          <li><span class="pl-marker">5</span><span>Or paste a list from notes or a chat. Each line is matched to a listing, and a day or time in the line ("Monday", "Saturday lunch") is used for the check. <b>To confirm:</b> how lines are matched to listings.</span></li>
+          <li><span class="pl-marker">6</span><span>Summary of the checks. Places that need a change come first.</span></li>
+          <li><span class="pl-marker">7</span><span>Closed on the day the fan listed. Suggests a day that works, with "Use this day". Opening hours come from <code>availability</code> (<code>gap</code>).</span></li>
+          <li><span class="pl-marker">8</span><span>Clashes with a match, allowing for travel time to the stadium. Match times are <b>not in contract</b>.</span></li>
+          <li><span class="pl-marker">9</span><span>Far from where they're staying, with the travel time and a free day it suits. Travel time is <b>not in contract</b>.</span></li>
+          <li><span class="pl-marker">10</span><span>Fits well: the reason the check passed, in one line.</span></li>
+          <li><span class="pl-marker">11</span><span>Also on nearby: a fan zone screening or event near this place on that day, with a button to add it as well.</span></li>
+          <li><span class="pl-marker">12</span><span>Not found: a line we couldn't match. It can't be checked and won't go into the plan unless the fan finds it with search.</span></li>
+          <li><span class="pl-marker">13</span><span>Map: the fan's places, numbered to match the cards, plus both venues and both stays.</span></li>
+          <li><span class="pl-marker">14</span><span>Puts the places into the plan's gaps on their days, or on the suggested day where "Use this day" was chosen. Flags stay on the cards. "Not found" places are left out.</span></li>
+          <li><span class="pl-marker">15</span><span>Mobile: search and paste stack, the map is one tap away, and the cards are shorter.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── After adding ── -->
+<section class="cp-section" id="after">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>After "Add these to my 3rd half plan"</h2>
+    <p>The fan lands on the plan view (screen 2) with their places in the gaps.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: plan view, Saturday</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above: header, set-up sentence, trip map</span></div>
+              <div class="cp-pad">
+                <div class="pl-row pl-row--notice pl-marked pl-marked--gutter"><span class="pl-marker">16</span><span>5 places from your list added to your plan. 1 left out (not found).</span><a href="#">Undo</a></div>
+                <section class="pl-day">
+                  <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span><span class="pl-tag">Match day</span></header>
+                  <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">Around Venue name, Sydney. 10am to 2pm. 1 chosen, 2 hrs still free</span></div>
+                  <div class="pl-options">
+                    <article class="pl-option is-chosen pl-marked">
+                      <span class="pl-marker">17</span>
+                      <span class="pl-tag">From your list</span>
+                      <p class="pl-option-status">In your plan, 10am to 11:30am</p>
+                      <h4 class="pl-option-name">Place name</h4>
+                      <p class="pl-option-reason">Fits well: open, 15 min from the stadium</p>
+                      <div class="pl-option-controls">
+                        <button type="button" class="pl-btn">Swap</button>
+                        <button type="button" class="pl-btn">Remove</button>
+                        <button type="button" class="pl-btn" aria-pressed="false">Lock</button>
+                      </div>
+                    </article>
+                    <div class="pl-ph pl-ph--short"><span class="pl-ph-label">2 other options</span></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="16">
+          <li><span class="pl-marker">16</span><span>A notice says how many places went in and how many were left out, with Undo.</span></li>
+          <li><span class="pl-marker">17</span><span>Places from the list are tagged "From your list" and keep their check result as the reason line. They can be swapped, removed or locked like any other item.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
