@@ -86,6 +86,8 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | Multi-choice slot + panel | `.pl-slot-btn` (`aria-expanded`), `.pl-panel`, `.pl-checklist` | Panel opens below the sentence, full width on mobile |
 | Filled slot + category filters | `.pl-slot-text`, `.pl-filters` (`.pl-btn` with `aria-pressed`) | Dashed slot reflects the chosen filters |
 | Entry modules | `.pl-entry`, `.pl-entry--compact` | RWC page (full sentence) and team pages (team pre-filled) |
+| Plan layout | `.pl-plan` > `.pl-plan-timeline` + `.pl-plan-map` | Sticky day map on wide; hidden on narrow, where `.pl-toggle` shows per-day maps |
+| Day, rows, chosen, also on | `.pl-day`, `.pl-day-head`, `.pl-row`, `.pl-option.is-chosen` + `.pl-option-status`, `.pl-also` | Unchosen options use a single "Add to plan" control |
 
 Planner review pages (`planner-components.html`, `planner-screen-N.html`) use `body.cp-page` and the `.cp-*` chrome in shared.css: annotated desktop frames plus 375px mobile frames (`.cp-frame--screen` clips to one 375 × 667 screen).
 
@@ -171,3 +173,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-06-25 | Homepage built (Sydney/NSW switchable); all component CSS in shared.css |
 | 2026-10-28 | RWC planner brief + reusable planner components (`planner-components.html`, `.pl-*` in shared.css) |
 | 2026-10-28 | Planner screen 1: entry points and set-up (`planner-screen-1.html`); entry section added to the RWC page |
+| 2026-10-28 | Planner screen 2: plan view and maps (`planner-screen-2.html`) |

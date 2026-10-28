@@ -16,6 +16,7 @@
     <nav aria-label="Related">
       <a href="planner-brief.md">Planner brief</a>
       <a href="planner-screen-1.html">Screen 1: entry points and set-up</a>
+      <a href="planner-screen-2.html">Screen 2: plan view and maps</a>
       <a href="pages/rugby-world-cup.html">Rugby World Cup page</a>
     </nav>
     <div class="cp-key">
@@ -34,6 +35,7 @@
     <a href="#map">Map placeholder</a>
     <a href="#setup">Set-up sentence</a>
     <a href="#setup-extras">Set-up extras</a>
+    <a href="#plan-extras">Plan view extras</a>
     <a href="#annotation">Annotation marker and side note</a>
   </nav>
 </div>
@@ -491,6 +493,71 @@
           <li><span class="pl-marker">4</span><span>Category filters: toggle buttons, black when chosen.</span></li>
           <li><span class="pl-marker">5</span><span>Full entry module, used on the Rugby World Cup page.</span></li>
           <li><span class="pl-marker">6</span><span>Compact entry module for team pages; stacks on mobile.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Plan view extras ── -->
+<section class="cp-section" id="plan-extras">
+  <div class="cp-wrap">
+    <h2>Plan view extras <code>.pl-day</code>, <code>.pl-row</code>, <code>.pl-option.is-chosen</code>, <code>.pl-also</code>, <code>.pl-toggle</code>, <code>.pl-plan</code></h2>
+    <p>Added for screen 2. See <a href="planner-screen-2.html">screen 2</a> for them in use, including the timeline and day map layout.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame pl-scope">
+              <section class="pl-day">
+                <header class="pl-day-head pl-marked pl-marked--end"><span class="pl-marker">1</span><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span><span class="pl-tag">Match day</span></header>
+                <div class="pl-row pl-marked"><span class="pl-marker">2</span><span>Your stay: Place name, Sydney</span><a href="#">Change</a></div>
+                <div class="pl-options">
+                  <article class="pl-option is-chosen pl-marked">
+                    <span class="pl-marker">3</span>
+                    <p class="pl-option-status">In your plan, 10am to 11:30am</p>
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Open Saturday, free, 12 min walk to the stadium</p>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Swap</button><button type="button" class="pl-btn">Remove</button><button type="button" class="pl-btn" aria-pressed="false">Lock</button></div>
+                  </article>
+                  <article class="pl-option pl-marked">
+                    <span class="pl-marker">4</span>
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Open Saturday, under $20, indoors</p>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                  </article>
+                  <div class="pl-also pl-marked">
+                    <span class="pl-marker">5</span>
+                    <span class="pl-tag">Also on</span>
+                    <h4 class="pl-option-name">Fan zone, Place name</h4>
+                    <p class="pl-sm">Sat 16 Oct, from 9am. Free.</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <section class="pl-day">
+                <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span></header>
+                <details class="pl-toggle">
+                  <summary class="pl-marked pl-marked--end"><span class="pl-marker">6</span><span class="when-closed">Show map</span><span class="when-open">Hide map</span></summary>
+                  <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops</span></div>
+                </details>
+                <div class="pl-row"><span>Your stay: Place name, Sydney</span><a href="#">Change</a></div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Day header: date, day number, city, and a tag on match days.</span></li>
+          <li><span class="pl-marker">2</span><span>Plain row for fixed details such as where the fan is staying or a train between cities.</span></li>
+          <li><span class="pl-marker">3</span><span>Chosen option: heavy border, "In your plan" with a time, then swap, remove and lock.</span></li>
+          <li><span class="pl-marker">4</span><span>Option not yet chosen: a single "Add to plan" button.</span></li>
+          <li><span class="pl-marker">5</span><span>Also on: a fan zone screening or event near the gap on that date.</span></li>
+          <li><span class="pl-marker">6</span><span>"Show map" toggle: only appears in narrow layouts, where the side map is hidden. Try it here.</span></li>
         </ol>
       </div>
     </div>
