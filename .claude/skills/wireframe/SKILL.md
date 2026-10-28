@@ -184,3 +184,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | Planner screens 5 (Take it with you) and 6 (states and fidelity review); `gap` wash is grey on planner pages |
 | 2026-10-28 | Randomiser site component (`components/randomiser.html`), added to the bottom of the RWC page |
 | 2026-10-28 | Real RWC fixtures on the RWC page ("Matches in NSW", `.pl-match-list`, first 5 shown, "Show all" toggle); replaces the placeholder match carousel |
+| 2026-10-28 | RWC Host venues: real venue data (location, matches, capacity) using `.img-card-meta` lines; Newcastle Stadium labelled Broadmeadow |
