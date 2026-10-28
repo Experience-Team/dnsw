@@ -1,0 +1,65 @@
+<section class="section randomiser" aria-labelledby="randomiser-title">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <p class="section-title" id="randomiser-title">Feel new in Sydney</p>
+        <p class="section-body">Three cards, three things you haven't tried yet. Tap the stack to reveal them.</p>
+      </div>
+    </div>
+
+    <div class="randomiser-deck">
+      <article class="randomiser-card">
+        <div class="randomiser-cover" aria-hidden="true"><span class="randomiser-cover-title">Feel new</span><span>Tap to reveal</span></div>
+        <div class="randomiser-img ph-img"></div>
+        <div class="randomiser-body">
+          <p class="randomiser-label">1 of 3</p>
+          <h3 class="randomiser-heading">Where the city wakes up first</h3>
+          <a href="#">Read the article</a>
+        </div>
+      </article>
+      <article class="randomiser-card">
+        <div class="randomiser-cover" aria-hidden="true"><span class="randomiser-cover-title">Feel new</span><span>Tap to reveal</span></div>
+        <div class="randomiser-img ph-img"></div>
+        <div class="randomiser-body">
+          <p class="randomiser-label">2 of 3</p>
+          <h3 class="randomiser-heading">A swim without the sand</h3>
+          <a href="#">Read the article</a>
+        </div>
+      </article>
+      <article class="randomiser-card">
+        <div class="randomiser-cover" aria-hidden="true"><span class="randomiser-cover-title">Feel new</span><span>Tap to reveal</span></div>
+        <div class="randomiser-img ph-img"></div>
+        <div class="randomiser-body">
+          <p class="randomiser-label">3 of 3</p>
+          <h3 class="randomiser-heading">The bar behind the bookshelf</h3>
+          <a href="#">Read the article</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="randomiser-actions">
+      <button type="button" class="btn btn-primary btn-sm randomiser-reveal">Reveal the cards</button>
+      <button type="button" class="btn btn-outline-dark btn-sm randomiser-shuffle" hidden>Shuffle again</button>
+    </div>
+  </div>
+</section>
+<script data-included>
+(function () {
+  document.querySelectorAll('.randomiser:not([data-bound])').forEach(function (r) {
+    r.dataset.bound = '1';
+    var deck = r.querySelector('.randomiser-deck');
+    var reveal = r.querySelector('.randomiser-reveal');
+    var shuffle = r.querySelector('.randomiser-shuffle');
+    function setRevealed(open) {
+      r.classList.toggle('is-revealed', open);
+      reveal.hidden = open;
+      shuffle.hidden = !open;
+    }
+    deck.addEventListener('click', function () {
+      if (!r.classList.contains('is-revealed')) setRevealed(true);
+    });
+    reveal.addEventListener('click', function () { setRevealed(true); });
+    shuffle.addEventListener('click', function () { setRevealed(false); });
+  });
+})();
+</script>

@@ -53,6 +53,7 @@ public/wireframes/
 | Hero | `hero.html` | Full-width checkerboard placeholder; headline + tagline overlay bottom-left |
 | Newsletter | `newsletter.html` | Full-width banner; heading, body, outline-white CTA |
 | Footer | `footer.html` | Social icons, acknowledgement, 5-col links, bottom bar with logo boxes |
+| Randomiser | `randomiser.html` | "Feel new in Sydney": 3 cards start as a stack, tap to spread and reveal cryptic headings linking to articles; "Shuffle again" restacks. Sits at the bottom of a page, above the newsletter |
 
 ### CSS class components (inline in page HTML)
 
@@ -181,3 +182,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | Planner screen 3: editing and Surprise me (`planner-screen-3.html`) |
 | 2026-10-28 | Planner screen 4: Check my plan (`planner-screen-4.html`) |
 | 2026-10-28 | Planner screens 5 (Take it with you) and 6 (states and fidelity review); `gap` wash is grey on planner pages |
+| 2026-10-28 | Randomiser site component (`components/randomiser.html`), added to the bottom of the RWC page |

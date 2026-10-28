@@ -2109,6 +2109,43 @@ body.region-map-fullscreen-open { overflow: hidden; }
   .region-map-fs-group.is-fullscreen .region-map-svg { width: 170vw; height: auto; max-width: none; }
 }
 
+/* ── Randomiser: "Feel new" cards (components/randomiser.html) ──
+   Site component that sits at the bottom of a page. Three cards start as a
+   stack; tapping the stack (or "Reveal the cards") spreads them out to show
+   a cryptic heading and an article link on each. Below 960px the revealed
+   cards drop into a single column. Flat boxes only: the stack is offsets. */
+.randomiser-deck { position: relative; height: 19.5rem; margin-top: 1.5rem; cursor: pointer; }
+.randomiser.is-revealed .randomiser-deck { cursor: default; }
+.randomiser-card {
+  position: absolute; top: 0; left: 50%; width: 17rem; height: 18rem; margin-left: -8.5rem;
+  background: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;
+  transition: transform .45s ease;
+}
+.randomiser-card:nth-child(1) { z-index: 1; transform: translate(1rem, 1rem); }
+.randomiser-card:nth-child(2) { z-index: 2; transform: translate(.5rem, .5rem); }
+.randomiser-card:nth-child(3) { z-index: 3; }
+.randomiser.is-revealed .randomiser-card:nth-child(1) { transform: translateX(calc(-100% - 1.5rem)); }
+.randomiser.is-revealed .randomiser-card:nth-child(2) { transform: none; }
+.randomiser.is-revealed .randomiser-card:nth-child(3) { transform: translateX(calc(100% + 1.5rem)); }
+.randomiser-cover {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem;
+  background: #444; color: #fff; font-size: .875rem; transition: opacity .3s ease;
+}
+.randomiser-cover-title { font-size: 1.375rem; font-weight: 700; }
+.randomiser.is-revealed .randomiser-cover { opacity: 0; pointer-events: none; }
+.randomiser-img { height: 9rem; }
+.randomiser-body { display: flex; flex-direction: column; gap: .4rem; padding: 1rem; }
+.randomiser-label { font-size: .75rem; color: var(--color-text-muted); }
+.randomiser-heading { font-size: 1.0625rem; font-weight: 700; line-height: 1.3; }
+.randomiser-body a { font-size: .875rem; font-weight: 600; color: var(--color-accent); }
+.randomiser-actions { display: flex; justify-content: center; gap: .75rem; margin-top: 1.25rem; }
+.randomiser-actions [hidden] { display: none; }
+@media (max-width: 960px) {
+  .randomiser.is-revealed .randomiser-deck { height: auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .randomiser.is-revealed .randomiser-card:nth-child(n) { position: relative; left: 0; margin-left: 0; transform: none; }
+}
+
 /* ── Plan your 3rd half: RWC trip planner ─────────────────────────────
    Low-fidelity, greyscale only (see planner-brief.md). Three type sizes:
    1.25rem, 1rem, .8125rem. Layout switches on the width of the nearest
