@@ -99,6 +99,8 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | States | `.pl-loading`, `.pl-empty`, `.is-tbc` (option, also on, match), `.pl-note` | No spinner graphics; TBC = dashed border plus a tag |
 | Day, rows, chosen, also on | `.pl-day`, `.pl-day-head`, `.pl-row`, `.pl-option.is-chosen` + `.pl-option-status`, `.pl-also` | Unchosen options use a single "Add to plan" control |
 
+Planner results prototype: `pages/rugby-world-cup-plan.html` (`.plan-*` in shared.css) is a realistic, unannotated plan built in the browser from URL params (`team`, `m` fixture indexes, `nights`, `city`, `who`, `interests`, `car`). Opened in a new tab by "Start planning" on the RWC page; no params = example plan. Nights are shared across matches with a night after each match; far-apart matches become separate short trips ("5 nights or more" covers the whole span).
+
 Planner review pages (`planner-components.html`, `planner-screen-N.html`) use `body.cp-page` and the `.cp-*` chrome in shared.css: annotated desktop frames plus 375px mobile frames (`.cp-frame--screen` clips to one 375 × 667 screen).
 
 ### Grids
@@ -199,3 +201,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC planner entry: interests slot is a multi-select with emojis |
 | 2026-10-28 | RWC Stadiums and fan zones: fan zone moved to the bottom under its own heading, shown as confirmed (Tumbalong Park) |
 | 2026-10-28 | RWC Matches in NSW: filter by team and stadium |
+| 2026-10-28 | RWC planner results prototype (`pages/rugby-world-cup-plan.html`); Start planning opens it in a new tab |

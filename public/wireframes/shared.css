@@ -2657,3 +2657,49 @@ body.cp-page code { font: inherit; }
 .pl-ph--short { min-height: 6rem; }
 .cp-stack { display: flex; flex-direction: column; gap: 1rem; }
 .cp-toc { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: .8125rem; padding: 1rem 0; border-bottom: 1px solid #ccc; }
+
+/* ── 3rd half planner results (pages/rugby-world-cup-plan.html) ──
+   A realistic prototype of the plan, built from the planner sentence answers. */
+.plan-head { display: flex; flex-direction: column; gap: .5rem; align-items: flex-start; margin-bottom: 2rem; }
+.plan-kicker { font-size: .8125rem; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: .06em; }
+.plan-title { font-size: 2.25rem; font-weight: 800; line-height: 1.15; }
+.plan-summary { font-size: 1rem; color: #444; max-width: 48rem; }
+.plan-notice { width: 100%; }
+.plan-notice[hidden], .plan-take-menu[hidden] { display: none; }
+.plan-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .5rem; }
+.plan-actions .pl-btn { font-size: .875rem; padding: .375rem .875rem; text-decoration: none; }
+.plan-actions .pl-btn-primary { font-size: .875rem; }
+.plan-take { position: relative; }
+.plan-take-menu { position: absolute; top: calc(100% + .25rem); left: 0; z-index: 20; display: flex; flex-direction: column; align-items: flex-start; gap: .5rem; min-width: 15rem; background: #fff; border: 1px solid #111; padding: .75rem; }
+.plan-status { min-height: 1em; }
+.plan-stay { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+.plan-section-head { display: flex; flex-direction: column; gap: .25rem; }
+.plan-stay-group { display: flex; flex-direction: column; gap: .5rem; }
+.plan-stay-city { font-weight: 700; color: #111; }
+.plan-option { padding: 0 0 1rem; overflow: hidden; }
+.plan-option > *:not(.plan-option-img) { margin: 0 1rem; }
+.plan-option-img { aspect-ratio: 16 / 9; }
+.plan-option > .pl-option-controls { margin-top: auto; }
+.plan-option .pl-tag { align-self: flex-start; }
+.plan-gap-label { font-size: 1.0625rem; }
+.plan-stay-option { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 0; padding: 0; overflow: hidden; }
+.plan-stay-img { min-height: 7.5rem; height: 100%; }
+.plan-stay-img::after { content: none; }
+.plan-stay-body { display: flex; flex-direction: column; gap: .375rem; padding: .75rem; min-width: 0; }
+.plan-stay-body .pl-tag { align-self: flex-start; }
+.plan-between { text-align: center; font-size: .875rem; color: #444; border-top: 1px dashed #888; border-bottom: 1px dashed #888; padding: .75rem 1rem; }
+.plan-row-fan { display: block; background: #f0f0f0; border-color: #888; color: #111; }
+.plan-layout .pl-plan-map { top: 5rem; }
+.plan-map { display: flex; flex-direction: column; gap: 1rem; border: 1px solid #ccc; background: #fff; padding: 1rem; }
+.plan-map-svg { width: 100%; height: auto; border: 1px solid #ddd; }
+.plan-stop circle { fill: var(--color-accent); stroke: #fff; stroke-width: 1.5; }
+.plan-stop text { font: 700 9px system-ui, sans-serif; fill: #fff; }
+.plan-map-toggle { display: none; margin-bottom: 1rem; }
+@container (max-width: 40rem) {
+  .plan-title { font-size: 1.625rem; }
+  .plan-map-toggle { display: inline-block; }
+  .plan-layout .plan-map { display: none; }
+  .plan-day .pl-options { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: .25rem; }
+  .plan-day .pl-option { scroll-snap-align: start; }
+  .plan-layout .plan-map.is-open { display: flex; position: static; order: -1; }
+}
