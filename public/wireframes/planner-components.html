@@ -5,29 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Plan your 3rd half — Components</title>
 <link rel="stylesheet" href="shared.css" />
-<style>
-  /* Page chrome only, scoped to this components page. Components live in shared.css (.pl-*). */
-  body { background: #fff; }
-  .cp-header { border-bottom: 1px solid #ccc; padding: 2rem 0 1.5rem; }
-  .cp-wrap { max-width: 80rem; margin: 0 auto; padding: 0 2rem; }
-  .cp-header h1 { font-size: 1.25rem; font-weight: 700; margin: .75rem 0 .5rem; }
-  .cp-header p { font-size: 1rem; color: #444; max-width: 46rem; }
-  .cp-header nav { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: .75rem; font-size: .8125rem; }
-  .cp-key { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; font-size: .8125rem; color: #444; }
-  .cp-key span { display: inline-flex; align-items: center; gap: .5rem; }
-  .cp-section { padding: 2.5rem 0; border-bottom: 1px solid #ccc; scroll-margin-top: 1rem; }
-  .cp-section h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: .25rem; }
-  .cp-section h2 code { font-size: .8125rem; font-weight: 400; color: #444; }
-  .cp-section > .cp-wrap > p { font-size: 1rem; color: #444; max-width: 46rem; margin-bottom: 1.5rem; }
-  .cp-frames { display: flex; flex-direction: column; gap: 1.5rem; }
-  .cp-frame-label { font-size: .8125rem; color: #888; margin-bottom: .5rem; }
-  .cp-frame { border: 1px solid #ccc; background: #fff; padding: 1.5rem; }
-  .cp-frame--mobile { width: 375px; max-width: 100%; padding: 1.5rem 1rem; }
-  .cp-stack { display: flex; flex-direction: column; gap: 1rem; }
-  .cp-toc { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: .8125rem; padding: 1rem 0; border-bottom: 1px solid #ccc; }
-</style>
 </head>
-<body>
+<body class="cp-page">
 
 <header class="cp-header">
   <div class="cp-wrap">
@@ -36,6 +15,7 @@
     <p>Reusable low-fidelity components for the Rugby World Cup trip planner. Greyscale only, built to the fidelity rules in the brief. No full screens yet.</p>
     <nav aria-label="Related">
       <a href="planner-brief.md">Planner brief</a>
+      <a href="planner-screen-1.html">Screen 1: entry points and set-up</a>
       <a href="pages/rugby-world-cup.html">Rugby World Cup page</a>
     </nav>
     <div class="cp-key">
@@ -53,6 +33,7 @@
     <a href="#option">Option card</a>
     <a href="#map">Map placeholder</a>
     <a href="#setup">Set-up sentence</a>
+    <a href="#setup-extras">Set-up extras</a>
     <a href="#annotation">Annotation marker and side note</a>
   </nav>
 </div>
@@ -430,6 +411,86 @@
           <li><span class="pl-marker">1</span><span>Every boxed part is a dropdown. No account and no free-text box.</span></li>
           <li><span class="pl-marker">2</span><span>Matches and interests open a checklist, so the fan can pick several. Team and match lists come from the match schedule (<b>not in contract</b>, same question as the match block).</span></li>
           <li><span class="pl-marker">3</span><span>Pinned version at the top of the plan. Changing any part updates the plan and keeps locked items.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Set-up extras ── -->
+<section class="cp-section" id="setup-extras">
+  <div class="cp-wrap">
+    <h2>Set-up extras <code>.pl-slot-btn</code>, <code>.pl-panel</code>, <code>.pl-filters</code>, <code>.pl-entry</code></h2>
+    <p>Added for screen 1. A multi-choice slot opens a panel below the sentence; interests are category filters; two entry modules for other pages.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame pl-scope">
+              <div class="cp-stack">
+                <p class="pl-setup-sentence">… to <button type="button" class="pl-slot-btn pl-marked pl-marked--above" aria-expanded="true"><span class="pl-marker">1</span>2 matches</button>, … into <span class="pl-slot-text pl-marked pl-marked--above"><span class="pl-marker">2</span>food and drink, beaches</span>, …</p>
+                <div class="pl-panel pl-marked">
+                  <span class="pl-marker">3</span>
+                  <p class="pl-sm">Team A's matches in NSW</p>
+                  <ul class="pl-checklist">
+                    <li><label><input type="checkbox" checked><span><b>Team A v Team B</b><span class="pl-sm">Sat 16 Oct, 7:45pm. Venue name, Sydney</span></span></label></li>
+                    <li><label><input type="checkbox"><span><b>Team A v Team C</b><span class="pl-sm">Sat 23 Oct, 5:00pm. Venue name, Newcastle</span></span></label></li>
+                  </ul>
+                  <button type="button" class="pl-btn">Done</button>
+                </div>
+                <fieldset class="pl-filters pl-marked pl-marked--above">
+                  <legend>Into</legend>
+                  <span class="pl-marker">4</span>
+                  <button type="button" class="pl-btn" aria-pressed="true">Food and drink</button>
+                  <button type="button" class="pl-btn" aria-pressed="false">Beaches</button>
+                  <button type="button" class="pl-btn" aria-pressed="false">Nature</button>
+                </fieldset>
+                <div class="pl-entry pl-marked">
+                  <span class="pl-marker">5</span>
+                  <h2 class="pl-lg">Plan your 3rd half</h2>
+                  <p>Set-up sentence and "Start planning" go here.</p>
+                </div>
+                <div class="pl-entry pl-entry--compact pl-marked">
+                  <span class="pl-marker">6</span>
+                  <h3 class="pl-lg">Plan your 3rd half around Team A's matches</h3>
+                  <a href="planner-screen-1.html#entry-team" class="pl-btn pl-btn-primary">Start planning</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="cp-stack">
+                <div class="pl-panel">
+                  <p class="pl-sm">Team A's matches in NSW</p>
+                  <ul class="pl-checklist">
+                    <li><label><input type="checkbox" checked><span><b>Team A v Team B</b><span class="pl-sm">Sat 16 Oct, 7:45pm. Venue name, Sydney</span></span></label></li>
+                  </ul>
+                  <button type="button" class="pl-btn">Done</button>
+                </div>
+                <fieldset class="pl-filters">
+                  <legend>Into</legend>
+                  <button type="button" class="pl-btn" aria-pressed="true">Food and drink</button>
+                  <button type="button" class="pl-btn" aria-pressed="false">Beaches</button>
+                  <button type="button" class="pl-btn" aria-pressed="false">Nature</button>
+                </fieldset>
+                <div class="pl-entry pl-entry--compact">
+                  <h3 class="pl-lg">Plan your 3rd half around Team A's matches</h3>
+                  <a href="planner-screen-1.html#entry-team" class="pl-btn pl-btn-primary">Start planning</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Multi-choice slot: a button that looks like the other slots and opens a panel.</span></li>
+          <li><span class="pl-marker">2</span><span>Dashed slot: filled from controls below the sentence, not a dropdown itself.</span></li>
+          <li><span class="pl-marker">3</span><span>Panel opens under the sentence (full width on mobile) with a checklist and Done.</span></li>
+          <li><span class="pl-marker">4</span><span>Category filters: toggle buttons, black when chosen.</span></li>
+          <li><span class="pl-marker">5</span><span>Full entry module, used on the Rugby World Cup page.</span></li>
+          <li><span class="pl-marker">6</span><span>Compact entry module for team pages; stacks on mobile.</span></li>
         </ol>
       </div>
     </div>
