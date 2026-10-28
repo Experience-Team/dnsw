@@ -113,7 +113,12 @@
                 </span>
             </span>
             to
-            <label class="pl-slot"><span class="visually-hidden">Matches</span><select><option>all their NSW matches</option><option>1 match</option><option>2 matches</option></select></label>,
+            <span class="pl-slot pl-match-picker" data-match-picker><button type="button" class="pl-slot-btn" aria-expanded="false" aria-controls="rwc-match-pop" aria-describedby="rwc-match-hint"><span class="visually-hidden">Matches: </span><span class="pl-match-picker-value"><span class="pl-team-placeholder">their NSW matches</span></span></button>
+                <span class="pl-match-pop" id="rwc-match-pop" hidden>
+                  <span class="pl-match-pop-body"></span>
+                  <span class="pl-match-pop-foot"><span class="pl-sm" id="rwc-match-hint">Kick-off times are local (AEDT).</span><button type="button" class="pl-btn" data-done>Done</button></span>
+                </span>
+            </span>,
             staying
             <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
             in
@@ -516,6 +521,7 @@
         picker.style.setProperty('--c2', o.style.getPropertyValue('--c2'));
         picker.classList.add('has-team');
         picker.toggleAttribute('data-light', o.hasAttribute('data-light'));
+        picker.dispatchEvent(new CustomEvent('teamchange', { bubbles: true, detail: { team: o.dataset.team } }));
         value.innerHTML = '<span class="pl-team-swatch" aria-hidden="true"></span>' + o.dataset.team;
         close();
         btn.focus();
@@ -549,6 +555,82 @@
         o.addEventListener('mousemove', function () { if (active !== i) setActive(i); });
       });
       document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
+    });
+  </script>
+
+  <!-- NSW fixtures for the planner entry (same data as Matches in NSW) -->
+  <script type="application/json" id="rwc-fixtures">[{"date": "Sun 3 Oct", "teams": "Japan v Samoa", "stage": "Pool E", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "12:15pm", "pool": true}, {"date": "Mon 4 Oct", "teams": "Fiji v Spain", "stage": "Pool C", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "2:15pm", "pool": true}, {"date": "Mon 4 Oct", "teams": "Ireland v Portugal", "stage": "Pool D", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "5:15pm", "pool": true}, {"date": "Sat 9 Oct", "teams": "New Zealand v Australia", "stage": "Pool A", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "5:10pm", "pool": true}, {"date": "Mon 11 Oct", "teams": "Uruguay v Portugal", "stage": "Pool D", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "5:15pm", "pool": true}, {"date": "Mon 11 Oct", "teams": "Italy v Romania", "stage": "Pool B", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "7:45pm", "pool": true}, {"date": "Sat 16 Oct", "teams": "England v Wales", "stage": "Pool F", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "7:45pm", "pool": true}, {"date": "Sun 17 Oct", "teams": "Italy v Georgia", "stage": "Pool B", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "12:15pm", "pool": true}, {"date": "Sun 17 Oct", "teams": "France v Samoa", "stage": "Pool E", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "7:45pm", "pool": true}, {"date": "Sat 23 Oct", "teams": "2nd Pool C v 2nd Pool F", "stage": "Round of 16 (1)", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "2:15pm", "pool": false}, {"date": "Sun 24 Oct", "teams": null, "stage": "Round of 16 (2)", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "4:45pm", "pool": false}, {"date": "Sat 30 Oct", "teams": null, "stage": "Quarter-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "4:45pm", "pool": false}, {"date": "Sun 31 Oct", "teams": null, "stage": "Quarter-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": null, "pool": false}, {"date": "Fri 5 Nov", "teams": null, "stage": "Semi-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "9:00am", "pool": false}, {"date": "Sat 6 Nov", "teams": null, "stage": "Semi-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": null, "pool": false}, {"date": "Fri 12 Nov", "teams": null, "stage": "Bronze Final", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "8:45am", "pool": false}, {"date": "Sat 13 Nov", "teams": null, "stage": "Final", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "8:00pm", "pool": false}]</script>
+
+  <!-- Match picker: the chosen team's NSW pool matches, plus the knockouts they could reach.
+       Empty states: no team yet ("Pick a team first"); team with no NSW pool matches (knockouts only). -->
+  <script>
+    document.querySelectorAll('[data-match-picker]').forEach(function (picker) {
+      var fixtures = JSON.parse(document.getElementById('rwc-fixtures').textContent);
+      var btn = picker.querySelector('.pl-slot-btn');
+      var pop = picker.querySelector('.pl-match-pop');
+      var body = picker.querySelector('.pl-match-pop-body');
+      var value = picker.querySelector('.pl-match-picker-value');
+      var team = null, poolCount = 0;
+
+      function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function row(f, i, checked) {
+        var title = f.teams || f.stage;
+        var meta = (f.teams && !f.pool ? f.stage + ', ' : '') + f.venue + ', ' + (f.kickoff || 'kick-off TBC');
+        return '<label class="pl-match-opt"><input type="checkbox" value="' + i + '"' + (checked ? ' checked' : '') + '>' +
+          '<span class="pl-match-opt-date">' + esc(f.date) + '</span>' +
+          '<span><span class="pl-match-opt-title">' + esc(title) + '</span><span class="pl-match-opt-meta">' + esc(meta) + '</span></span></label>';
+      }
+      function render() {
+        if (!team) {
+          body.innerHTML = '<span class="pl-match-empty">Pick a team first to see their matches in NSW.</span>';
+          return;
+        }
+        var pool = [], ko = [];
+        fixtures.forEach(function (f, i) {
+          if (f.pool && f.teams.split(' v ').indexOf(team) > -1) pool.push(row(f, i, true));
+          else if (!f.pool) ko.push(row(f, i, false));
+        });
+        poolCount = pool.length;
+        body.innerHTML =
+          '<fieldset class="pl-match-set"><legend>' + esc(team) + '\u2019s pool matches in NSW</legend>' +
+          (pool.length ? pool.join('') : '<span class="pl-match-empty">' + esc(team) + ' have no pool matches in NSW. They could still play here in the knockouts.</span>') +
+          '</fieldset>' +
+          '<fieldset class="pl-match-set"><legend>Knockout matches in NSW, if they get through</legend>' + ko.join('') + '</fieldset>';
+        update();
+      }
+      function update() {
+        if (!team) return;
+        var boxes = body.querySelectorAll('input:checked');
+        var poolTicked = 0;
+        boxes.forEach(function (b) { if (fixtures[b.value].pool) poolTicked++; });
+        var label = !boxes.length ? '<span class="pl-team-placeholder">pick their matches</span>'
+          : (poolCount > 1 && poolTicked === poolCount && boxes.length === poolCount) ? 'all their NSW matches'
+          : boxes.length === 1 ? '1 match' : boxes.length + ' matches';
+        value.innerHTML = label;
+      }
+      function open() {
+        pop.hidden = false;
+        pop.style.left = '';
+        btn.setAttribute('aria-expanded', 'true');
+        var overflow = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
+        if (overflow > 0) pop.style.left = -overflow + 'px';
+      }
+      function close(focus) {
+        pop.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        if (focus) btn.focus();
+      }
+
+      document.addEventListener('teamchange', function (e) {
+        team = e.detail.team;
+        render();
+      });
+      btn.addEventListener('click', function () { pop.hidden ? open() : close(); });
+      body.addEventListener('change', update);
+      picker.querySelector('[data-done]').addEventListener('click', function () { close(true); });
+      picker.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); close(true); } });
+      document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
+      render();
     });
   </script>
 
