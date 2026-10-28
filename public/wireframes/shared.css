@@ -2360,6 +2360,32 @@ body.region-map-fullscreen-open { overflow: hidden; }
   .pl-team-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* Match picker: the chosen team's NSW matches as checkboxes in a panel under the slot. */
+.pl-match-picker { position: relative; display: inline-block; line-height: 1.5; }
+.pl-match-pop {
+  position: absolute; top: calc(100% + .375rem); left: 0; z-index: 20;
+  width: min(30rem, calc(100vw - 2rem)); max-height: min(30rem, 75vh); overflow-y: auto;
+  background: #fff; border: 1px solid #111; padding: .75rem; font-size: .9375rem;
+  display: flex; flex-direction: column; gap: .75rem;
+}
+.pl-match-pop[hidden] { display: none; }
+.pl-match-pop-body { display: flex; flex-direction: column; gap: .75rem; }
+.pl-match-set { border: 0; display: flex; flex-direction: column; gap: .25rem; min-width: 0; }
+.pl-match-set legend { font-size: .75rem; font-weight: 700; color: #444; padding: 0 .5rem .25rem; margin-bottom: .25rem; border-bottom: 1px solid #ccc; width: 100%; }
+.pl-match-opt { display: grid; grid-template-columns: auto 5.5rem minmax(0, 1fr); gap: .25rem .625rem; align-items: start; padding: .375rem .5rem; cursor: pointer; }
+.pl-match-opt:hover { background: #f0f0f0; }
+.pl-match-opt input { margin-top: .3rem; }
+.pl-match-opt-date { font-size: .8125rem; color: #444; padding-top: .1rem; }
+.pl-match-opt-title { display: block; font-weight: 700; }
+.pl-match-opt-meta { display: block; font-size: .8125rem; color: #444; }
+.pl-match-empty { display: block; font-size: .875rem; color: #444; padding: .25rem .5rem; }
+.pl-match-pop-foot { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border-top: 1px solid #ccc; padding-top: .75rem; }
+@container (max-width: 40rem) {
+  .pl-match-opt { grid-template-columns: auto minmax(0, 1fr); }
+  .pl-match-opt-date { grid-column: 2; }
+  .pl-match-opt > span:last-child { grid-column: 2; }
+}
+
 /* Entry points: full module on the RWC page, compact one on a team page. */
 .pl-entry { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; background: #f9f9f9; border: 1px solid #ccc; padding: 1.5rem; }
 .pl-entry--compact { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 1rem 1.5rem; }
