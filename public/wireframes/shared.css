@@ -636,6 +636,7 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 }
 .img-card-body { padding: .5rem 0 0; }
 .img-card-title { font-size: .875rem; font-weight: 700; color: var(--color-text); line-height: 1.3; }
+.img-card-meta { font-size: .875rem; color: var(--color-text-muted); margin-top: .25rem; }
 
 /* ── News / article grid ── */
 .news-grid {
