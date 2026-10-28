@@ -71,6 +71,7 @@ public/wireframes/
 | Editorial / promo banner | `.promo-banner` | ~16rem tall; full-width image bg; white text + CTA overlay |
 | Text block | `.text-block` | 2-col text with heading |
 | Breadcrumb bar | `.page-switcher-bar` | Inner pages only: breadcrumb left + Share/Save right |
+| Location tiles | `.loc-tiles` > `.loc-tile` (`.loc-facts`, `.loc-tbc`, `.loc-stay` + `.loc-stay-card`, `.loc-more`) | Static place tiles, no map: stadium, fan zone, getting there, accommodation products only (food and drink, nature as links). 4 across, 2 on tablet, swipe row on mobile. `data-reveal` rises the tiles in once on scroll (skipped with reduced motion) |
 
 ### RWC planner ("Plan your 3rd half") components
 
@@ -185,3 +186,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | Randomiser site component (`components/randomiser.html`), added to the bottom of the RWC page |
 | 2026-10-28 | Real RWC fixtures on the RWC page ("Matches in NSW", `.pl-match-list`, first 5 shown, "Show all" toggle); replaces the placeholder match carousel |
 | 2026-10-28 | RWC Host venues: real venue data (location, matches, capacity) using `.img-card-meta` lines; Newcastle Stadium labelled Broadmeadow |
+| 2026-10-28 | RWC "Stadiums and fan zones": location tiles replace Host venues (`.loc-*`, reveal on scroll); fan zone FAQ rewritten |

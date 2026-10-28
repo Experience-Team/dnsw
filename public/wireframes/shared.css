@@ -636,7 +636,45 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 }
 .img-card-body { padding: .5rem 0 0; }
 .img-card-title { font-size: .875rem; font-weight: 700; color: var(--color-text); line-height: 1.3; }
-.img-card-meta { font-size: .875rem; color: var(--color-text-muted); margin-top: .25rem; }
+
+/* ── Location tiles (stadiums and fan zones) ──
+   Static tiles in a row, no map. 4 across on wide, 2 on tablet, a swipeable row on mobile.
+   [data-reveal] lists get .is-pending from JS until they scroll into view. */
+.loc-tiles { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.loc-tile { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: .75rem; overflow: hidden; display: flex; flex-direction: column; transition: opacity .5s ease, transform .5s ease; }
+.loc-tiles > .loc-tile:nth-child(2) { transition-delay: .1s; }
+.loc-tiles > .loc-tile:nth-child(3) { transition-delay: .2s; }
+.loc-tiles > .loc-tile:nth-child(4) { transition-delay: .3s; }
+.loc-tiles.is-pending > .loc-tile { opacity: 0; transform: translateY(1.5rem); }
+.loc-tile-img { aspect-ratio: 16 / 10; }
+.loc-tile-body { padding: 1rem; display: flex; flex-direction: column; gap: .875rem; flex: 1; }
+.loc-tile-kicker { font-size: .75rem; color: var(--color-text-muted); }
+.loc-tile-title { font-size: 1.125rem; font-weight: 700; line-height: 1.3; margin-top: -.625rem; }
+.loc-facts { display: flex; flex-direction: column; gap: .5rem; font-size: .875rem; }
+.loc-facts dt { font-size: .75rem; font-weight: 700; }
+.loc-facts dd { color: #444; }
+.loc-tbc { display: inline-block; font-size: .75rem; line-height: 1.4; color: #444; border: 1px dashed #888; border-radius: 2px; padding: 0 .3rem; white-space: nowrap; }
+.loc-stay { display: flex; flex-direction: column; gap: .5rem; border-top: 1px solid var(--color-border); padding-top: .875rem; }
+.loc-stay-title { font-size: .75rem; font-weight: 700; }
+.loc-stay-card { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: .625rem; align-items: center; color: inherit; text-decoration: none; }
+.loc-stay-card .ph-img { aspect-ratio: 1; border-radius: .375rem; }
+.loc-stay-card .ph-img::after { content: none; }
+.loc-stay-name { display: block; font-size: .875rem; font-weight: 700; }
+.loc-stay-meta { display: block; font-size: .75rem; color: var(--color-text-muted); }
+.loc-stay-empty { font-size: .875rem; color: #444; }
+.loc-link { font-size: .8125rem; color: var(--color-accent); }
+.loc-more { font-size: .8125rem; color: var(--color-text-muted); display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin-top: auto; }
+@media (max-width: 64rem) {
+  .loc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 48rem) {
+  .loc-tiles { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 85%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: .5rem; }
+  .loc-tile { scroll-snap-align: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loc-tile { transition: none; }
+  .loc-tiles.is-pending > .loc-tile { opacity: 1; transform: none; }
+}
 
 /* ── News / article grid ── */
 .news-grid {

@@ -209,33 +209,96 @@
     </div>
   </section>
 
-  <!-- Host venues -->
-  <section class="section" style="background:#f9f9f9;">
+  <!-- Stadiums and fan zones: static location tiles, no map. Each tile carries the stadium,
+       the likely fan zone (to be confirmed), wayfinding, and accommodation products only.
+       Accommodation: title, gallery and address.suburb are live; category is gap (wash).
+       Empty state: when no accommodation is listed near a location, "Stay nearby" shows
+       "No places to stay listed near here yet." plus the "All places to stay" link. -->
+  <section class="section" style="background:#f9f9f9;" aria-labelledby="rwc-locations-title">
     <div class="container">
       <div class="section-header">
         <div>
-          <p class="section-title">Host venues</p>
-          <p class="section-body">Three NSW stadiums host 17 matches, from the pool stage to the final</p>
+          <p class="section-title" id="rwc-locations-title">Stadiums and fan zones</p>
+          <p class="section-body">Where to watch, how to get there and where to stay. Fan zone locations are still to be confirmed.</p>
         </div>
       </div>
-      <div class="grid-3">
-
-        <div class="img-card">
-          <div class="img-card-img ph-img"></div>
-          <div class="img-card-body"><p class="img-card-title">Stadium Australia</p><p class="img-card-meta">Sydney Olympic Park, Sydney</p><p class="img-card-meta">8 matches: two pool games, two quarter-finals, both semi-finals, Bronze Final and the Final</p><p class="img-card-meta">Capacity 82,000</p></div>
-        </div>
-
-        <div class="img-card">
-          <div class="img-card-img ph-img"></div>
-          <div class="img-card-body"><p class="img-card-title">Sydney Football Stadium</p><p class="img-card-meta">Moore Park, Sydney</p><p class="img-card-meta">5 matches: three pool games and two Round-of-16 games</p><p class="img-card-meta">Capacity 42,500</p></div>
-        </div>
-
-        <div class="img-card">
-          <div class="img-card-img ph-img"></div>
-          <div class="img-card-body"><p class="img-card-title">Newcastle Stadium</p><p class="img-card-meta">Broadmeadow, Newcastle</p><p class="img-card-meta">4 matches across three weeks</p><p class="img-card-meta">Capacity 30,000</p></div>
-        </div>
-
-      </div>
+      <ul class="loc-tiles" data-reveal>
+        <li class="loc-tile">
+          <div class="loc-tile-img ph-img"></div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Sydney &middot; Stadium and fan zone</p>
+            <h3 class="loc-tile-title">Sydney Olympic Park</h3>
+            <dl class="loc-facts">
+            <div><dt>Stadium</dt><dd>Stadium Australia. 8 matches, including both semi-finals, the Bronze Final and the Final. Capacity 82,000.</dd></div>
+            <div><dt>Fan zone</dt><dd>Likely around the station precinct and Cathy Freeman Park. <span class="loc-tbc">To be confirmed</span></dd></div>
+            <div><dt>Getting there</dt><dd>Train to Olympic Park station on the T7 line from Lidcombe.</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Sydney Olympic Park</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Wentworth Point</span></span></a>
+              <a href="#" class="loc-link">All places to stay near Sydney Olympic Park</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+        <li class="loc-tile">
+          <div class="loc-tile-img ph-img"></div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Sydney &middot; Stadium and fan zone</p>
+            <h3 class="loc-tile-title">Moore Park</h3>
+            <dl class="loc-facts">
+            <div><dt>Stadium</dt><dd>Sydney Football Stadium. 5 matches: three pool games and two Round-of-16 games. Capacity 42,500.</dd></div>
+            <div><dt>Fan zone</dt><dd>Likely a match-day zone in the Entertainment Quarter or Moore Park's open spaces. <span class="loc-tbc">To be confirmed</span></dd></div>
+            <div><dt>Getting there</dt><dd>Light rail (L2 or L3) to Moore Park, or a bus from Central.</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Surry Hills</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Paddington</span></span></a>
+              <a href="#" class="loc-link">All places to stay near Moore Park</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+        <li class="loc-tile">
+          <div class="loc-tile-img ph-img"></div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Sydney &middot; Fan zone</p>
+            <h3 class="loc-tile-title">Sydney city centre</h3>
+            <dl class="loc-facts">
+            <div><dt>Fan festival</dt><dd>Likely at Tumbalong Park in Darling Harbour or The Domain, with big screens for matches and finals weekend. <span class="loc-tbc">To be confirmed</span></dd></div>
+            <div><dt>Getting there</dt><dd>A short walk from Town Hall station (Darling Harbour) or St James station (The Domain).</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Haymarket</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Pyrmont</span></span></a>
+              <a href="#" class="loc-link">All places to stay near Sydney city centre</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+        <li class="loc-tile">
+          <div class="loc-tile-img ph-img"></div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Newcastle &middot; Stadium and fan zone</p>
+            <h3 class="loc-tile-title">Newcastle</h3>
+            <dl class="loc-facts">
+            <div><dt>Stadium</dt><dd>Newcastle Stadium, Broadmeadow. 4 pool matches on 3, 4, 11 and 17 October. Capacity 30,000.</dd></div>
+            <div><dt>Fan zone</dt><dd>Likely in the city centre or on the harbour foreshore: Civic Park, Wheeler Place or Honeysuckle. A smaller zone at the stadium on match days. <span class="loc-tbc">To be confirmed</span></dd></div>
+            <div><dt>Getting there</dt><dd>Train to Broadmeadow station for the stadium. Newcastle Light Rail runs through the city centre.</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle West</span></span></a>
+              <a href="#" class="loc-link">All places to stay near Newcastle</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+      </ul>
     </div>
   </section>
 
@@ -285,10 +348,10 @@
 
         <div class="faq-item">
           <button class="faq-question">
-            Are there free fan zones in Sydney?
+            Will there be fan zones in NSW?
             <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <div class="faq-answer">Yes — free public fan zones with big screens, food and live entertainment will run throughout the tournament, including at Sydney Olympic Park.</div>
+          <div class="faq-answer">Fan zone locations haven't been announced yet. Expect big screens, food and drink stalls, live entertainment, merchandise and family-friendly activities, with a festival atmosphere on weekends when supporters of several nations are in town. See Stadiums and fan zones above for the likely locations.</div>
         </div>
 
       </div>
@@ -309,6 +372,23 @@
         item.classList.toggle('open');
       });
     });
+  </script>
+
+  <!-- Reveal on scroll: tiles rise in, staggered, the first time the list enters the viewport -->
+  <script>
+    if ('IntersectionObserver' in window) {
+      document.querySelectorAll('[data-reveal]').forEach(function (list) {
+        list.classList.add('is-pending');
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            list.classList.remove('is-pending');
+            io.disconnect();
+          });
+        }, { threshold: 0.15 });
+        io.observe(list);
+      });
+    }
   </script>
 
   <!-- Expandable lists: show the first few, toggle the rest -->
