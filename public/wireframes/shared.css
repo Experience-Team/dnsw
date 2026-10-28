@@ -2275,6 +2275,28 @@ body.region-map-fullscreen-open { overflow: hidden; }
 .pl-randomiser { display: flex; flex-direction: column; gap: .75rem; border: 2px dashed #888; padding: 1rem; }
 .pl-randomiser > .pl-option { max-width: 24rem; }
 
+/* Check my plan (screen 4): add places, then a flagged card per place. */
+.pl-add { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
+.pl-field { display: flex; flex-direction: column; gap: .5rem; background: #fff; border: 1px solid #ccc; padding: 1rem; }
+.pl-field label { font-size: .8125rem; color: #444; }
+.pl-input { font: inherit; font-size: 1rem; width: 100%; color: #111; background: #fff; border: 1px solid #888; border-radius: 0; padding: .5rem .75rem; }
+textarea.pl-input { min-height: 10rem; resize: vertical; }
+.pl-field > .pl-btn { align-self: flex-start; }
+.pl-results { list-style: none; border: 1px solid #ccc; }
+.pl-results li { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .5rem .75rem; font-size: .8125rem; color: #444; }
+.pl-results li + li { border-top: 1px solid #f0f0f0; }
+.pl-check-list { display: flex; flex-direction: column; gap: 1rem; }
+.pl-check { display: flex; flex-direction: column; gap: .5rem; align-items: flex-start; background: #fff; border: 1px solid #888; padding: 1rem; }
+.pl-check.is-problem { border: 2px solid #111; }
+.pl-check.is-unmatched { border-style: dashed; }
+.pl-check-head { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.pl-check > .pl-row, .pl-check > .pl-option-controls { align-self: stretch; }
+.pl-flag { font-size: 1rem; font-weight: 700; }
+.pl-tag--solid { background: #111; border-color: #111; color: #fff; }
+@container (max-width: 40rem) {
+  .pl-add { grid-template-columns: minmax(0, 1fr); }
+}
+
 .pl-toggle { display: none; }
 .pl-toggle summary { cursor: pointer; font-size: .8125rem; text-decoration: underline; list-style: none; }
 .pl-toggle summary::-webkit-details-marker { display: none; }

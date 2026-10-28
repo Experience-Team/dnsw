@@ -88,6 +88,7 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | Entry modules | `.pl-entry`, `.pl-entry--compact` | RWC page (full sentence) and team pages (team pre-filled) |
 | Plan layout | `.pl-plan` > `.pl-plan-timeline` + `.pl-plan-map` | Sticky day map on wide; hidden on narrow, where `.pl-toggle` shows per-day maps |
 | Editing | `.pl-gap-tools` + `.pl-quick`, `.pl-swap` + `.pl-swap-head`, `.pl-row--notice`, `.pl-randomiser` | `.pl-randomiser` is a placeholder slot for the site's existing randomiser (not in this repo) |
+| Check my plan | `.pl-add` > `.pl-field` + `.pl-input`, `.pl-results`, `.pl-check-list` > `.pl-check` (`.is-problem`, `.is-unmatched`), `.pl-flag`, `.pl-tag--solid` | Problem cards come first; solid tag for "Change needed" only |
 | Day, rows, chosen, also on | `.pl-day`, `.pl-day-head`, `.pl-row`, `.pl-option.is-chosen` + `.pl-option-status`, `.pl-also` | Unchosen options use a single "Add to plan" control |
 
 Planner review pages (`planner-components.html`, `planner-screen-N.html`) use `body.cp-page` and the `.cp-*` chrome in shared.css: annotated desktop frames plus 375px mobile frames (`.cp-frame--screen` clips to one 375 × 667 screen).
@@ -176,3 +177,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | Planner screen 1: entry points and set-up (`planner-screen-1.html`); entry section added to the RWC page |
 | 2026-10-28 | Planner screen 2: plan view and maps (`planner-screen-2.html`) |
 | 2026-10-28 | Planner screen 3: editing and Surprise me (`planner-screen-3.html`) |
+| 2026-10-28 | Planner screen 4: Check my plan (`planner-screen-4.html`) |
