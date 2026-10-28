@@ -17,6 +17,7 @@
       <a href="planner-brief.md">Planner brief</a>
       <a href="planner-screen-1.html">Screen 1: entry points and set-up</a>
       <a href="planner-screen-2.html">Screen 2: plan view and maps</a>
+      <a href="planner-screen-3.html">Screen 3: editing and Surprise me</a>
       <a href="pages/rugby-world-cup.html">Rugby World Cup page</a>
     </nav>
     <div class="cp-key">
@@ -36,6 +37,7 @@
     <a href="#setup">Set-up sentence</a>
     <a href="#setup-extras">Set-up extras</a>
     <a href="#plan-extras">Plan view extras</a>
+    <a href="#edit-extras">Editing extras</a>
     <a href="#annotation">Annotation marker and side note</a>
   </nav>
 </div>
@@ -558,6 +560,70 @@
           <li><span class="pl-marker">4</span><span>Option not yet chosen: a single "Add to plan" button.</span></li>
           <li><span class="pl-marker">5</span><span>Also on: a fan zone screening or event near the gap on that date.</span></li>
           <li><span class="pl-marker">6</span><span>"Show map" toggle: only appears in narrow layouts, where the side map is hidden. Try it here.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Editing extras ── -->
+<section class="cp-section" id="edit-extras">
+  <div class="cp-wrap">
+    <h2>Editing extras <code>.pl-gap-tools</code>, <code>.pl-quick</code>, <code>.pl-swap</code>, <code>.pl-row--notice</code>, <code>.pl-randomiser</code></h2>
+    <p>Added for screen 3. See <a href="planner-screen-3.html">screen 3</a> for every editing state.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame pl-scope">
+              <div class="cp-stack">
+                <div class="pl-gap-tools pl-marked pl-marked--above">
+                  <span class="pl-marker">1</span>
+                  <div class="pl-quick">
+                    <span class="pl-quick-label">Quick changes</span>
+                    <button type="button" class="pl-btn" aria-pressed="true">Cheaper</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Closer</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Indoors</button>
+                  </div>
+                  <button type="button" class="pl-btn">Surprise me</button>
+                </div>
+                <div class="pl-row pl-row--notice pl-marked"><span class="pl-marker">2</span><span>Plan updated: Place name swapped in.</span><a href="#">Undo</a></div>
+                <div class="pl-swap pl-marked">
+                  <span class="pl-marker">3</span>
+                  <div class="pl-swap-head"><span class="pl-option-name">Swap Place name for one of these</span><button type="button" class="pl-btn">Cancel</button></div>
+                  <div class="pl-ph pl-ph--short"><span class="pl-ph-label">3 alternative option cards, each with "Choose"</span></div>
+                </div>
+                <div class="pl-randomiser pl-marked">
+                  <span class="pl-marker">4</span>
+                  <p class="pl-sm">Existing randomiser component (placeholder)</p>
+                  <div class="pl-ph pl-ph--short"><span class="pl-ph-label">One surprise option card</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="cp-stack">
+                <div class="pl-gap-tools">
+                  <div class="pl-quick">
+                    <button type="button" class="pl-btn" aria-pressed="true">Cheaper</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Closer</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Indoors</button>
+                  </div>
+                  <button type="button" class="pl-btn">Surprise me</button>
+                </div>
+                <div class="pl-row pl-row--notice"><span>Plan updated.</span><a href="#">Undo</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Gap tools: quick changes (on/off, can combine) and Surprise me, under each gap header.</span></li>
+          <li><span class="pl-marker">2</span><span>Notice row: says what changed, with Undo, Reset or Turn off.</span></li>
+          <li><span class="pl-marker">3</span><span>Swap panel: opens in place of a chosen card with 3 alternatives.</span></li>
+          <li><span class="pl-marker">4</span><span>Randomiser slot: marks where the existing randomiser component sits. Placeholder until that component is in this repo.</span></li>
         </ol>
       </div>
     </div>
