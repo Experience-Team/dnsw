@@ -70,6 +70,7 @@ public/wireframes/
 | Deals card | `.deals-card` | Horizontal: image left + text body right |
 | Editorial / promo banner | `.promo-banner` | ~16rem tall; full-width image bg; white text + CTA overlay |
 | Text block | `.text-block` | 2-col text with heading |
+| Hero countdown | `.hero--countdown` + `.hero-countdown` (`data-countdown="ISO date"`) | Days, hours, mins, secs ticking in the hero, right of the headline (stacks on mobile). `role="timer"`; after the date it shows an ended state linking to the matches |
 | Breadcrumb bar | `.page-switcher-bar` | Inner pages only: breadcrumb left + Share/Save right |
 | Location tiles | `.loc-tiles` > `.loc-tile` (`.loc-facts`, `.loc-tbc`, `.loc-stay` + `.loc-stay-card`, `.loc-more`) | Static place tiles, no map: stadium, fan zone, getting there, accommodation products only (food and drink, nature as links). 4 across, 2 on tablet, swipe row on mobile. `data-reveal` rises the tiles in once on scroll (skipped with reduced motion) |
 
@@ -189,3 +190,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC Host venues: real venue data (location, matches, capacity) using `.img-card-meta` lines; Newcastle Stadium labelled Broadmeadow |
 | 2026-10-28 | RWC "Stadiums and fan zones": location tiles replace Host venues (`.loc-*`, reveal on scroll); fan zone FAQ rewritten |
 | 2026-10-28 | RWC planner entry: custom team picker with all 24 teams grouped by pool, in team colours |
+| 2026-10-28 | RWC hero: countdown to the first NSW match (Japan v Samoa, 3 Oct 2027) |
