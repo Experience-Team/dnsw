@@ -87,7 +87,7 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | Filled slot + category filters | `.pl-slot-text`, `.pl-filters` (`.pl-btn` with `aria-pressed`) | Dashed slot reflects the chosen filters |
 | Entry modules | `.pl-entry`, `.pl-entry--compact` | RWC page (full sentence) and team pages (team pre-filled) |
 | Plan layout | `.pl-plan` > `.pl-plan-timeline` + `.pl-plan-map` | Sticky day map on wide; hidden on narrow, where `.pl-toggle` shows per-day maps |
-| Editing | `.pl-gap-tools` + `.pl-quick`, `.pl-swap` + `.pl-swap-head`, `.pl-row--notice`, `.pl-randomiser` | `.pl-randomiser` is a placeholder slot for the site's existing randomiser (not in this repo) |
+| Editing | `.pl-gap-tools` + `.pl-quick`, `.pl-swap` + `.pl-swap-head`, `.pl-row--notice`, `.pl-randomiser` > `.pl-deck` / `.pl-reveal` > `.pl-deck-card` | Randomiser = the site's existing component: 3 stacked cards that spread to reveal cryptic headings (on the site they link to "feel new" articles; in the planner, to listings) |
 | Check my plan | `.pl-add` > `.pl-field` + `.pl-input`, `.pl-results`, `.pl-check-list` > `.pl-check` (`.is-problem`, `.is-unmatched`), `.pl-flag`, `.pl-tag--solid` | Problem cards come first; solid tag for "Change needed" only |
 | Take it with you | `.pl-sheet-layout` > `.pl-sheet`, `.pl-export`, `.pl-pre`, `.pl-table`, `.pl-page` + `.pl-ticks`, `.pl-linkbox` | Panel beside the plan on wide, sheet from the bottom on narrow |
 | States | `.pl-loading`, `.pl-empty`, `.is-tbc` (option, also on, match), `.pl-note` | No spinner graphics; TBC = dashed border plus a tag |
