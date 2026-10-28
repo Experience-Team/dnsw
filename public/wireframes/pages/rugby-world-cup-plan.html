@@ -74,12 +74,30 @@
             <text x="110" y="290" class="m-label m-label--strong" text-anchor="middle">Sydney</text>
             <g id="plan-map-stops"></g>
           </svg>
+          <div class="plan-trip-head"><h2 class="pl-lg">Your trip</h2><span class="pl-sm" id="plan-added-count">Nothing added yet</span></div>
+          <p class="pl-sm plan-added-empty" id="plan-added-empty">Ideas you add show here, under their day.</p>
           <ol class="pl-map-list" id="plan-map-list"></ol>
         </aside>
       </div>
 
     </div>
   </main>
+
+  <!-- Added idea, opened from the trip list: a simple modal (native dialog: Escape and focus return built in) -->
+  <dialog class="plan-modal" id="plan-modal" aria-labelledby="plan-modal-title">
+    <div class="ph-img plan-modal-img"></div>
+    <div class="plan-modal-body">
+      <span class="pl-tag" id="plan-modal-tag"></span>
+      <h2 class="pl-lg" id="plan-modal-title"></h2>
+      <p class="pl-sm" id="plan-modal-meta"></p>
+      <p class="plan-modal-when" id="plan-modal-when"></p>
+      <div class="plan-modal-actions">
+        <a class="pl-btn pl-btn-primary" href="#">See full details</a>
+        <button type="button" class="pl-btn" data-modal-remove>Remove from plan</button>
+        <button type="button" class="pl-btn-link" data-modal-close>Close</button>
+      </div>
+    </div>
+  </dialog>
 
   <div data-include="../components/footer.html"></div>
   <script src="../includes.js"></script>
@@ -168,13 +186,13 @@
       if (slot === 'before') list = ['food'].concat(list);
       return list;
     }
-    var cardId = 0;
+    var cardId = 0, curDay = 0, curSlot = '';
     function option(cat, area, why, used) {
       var c0 = CAT[cat], nm = pick(c0.items), tries = 0;
       while (used && used.indexOf(nm) > -1 && tries++ < c0.items.length) nm = c0.items[(c0.items.indexOf(nm) + 1) % c0.items.length];
       if (used) used.push(nm);
       var c = CAT[cat], id = 'opt-' + (++cardId);
-      return '<article class="pl-option plan-option" id="' + id + '" data-cat="' + cat + '" data-area="' + esc(area) + '">' +
+      return '<article class="pl-option plan-option" id="' + id + '" data-cat="' + cat + '" data-area="' + esc(area) + '" data-day="' + curDay + '" data-slot="' + esc(curSlot) + '">' +
         '<div class="ph-img plan-option-img"></div>' +
         '<span class="pl-tag">' + c.e + ' ' + c.l + '</span>' +
         '<h4 class="pl-option-name">' + esc(nm) + '</h4>' +
@@ -184,6 +202,7 @@
     }
     function gap(label, sub, slot, area, why) {
       var cats = catsFor(slot), cards = '', used = [];
+      curSlot = label;
       for (var j = 0; j < 3; j++) cards += option(cats[j % cats.length], area, why, used);
       return '<div class="pl-gap"><span class="pl-lg plan-gap-label">' + label + '</span><span class="pl-sm">' + sub + '</span></div><div class="pl-options">' + cards + '</div>';
     }
@@ -195,6 +214,7 @@
 
     var html = '', stops = [], prevBase = null;
     days.forEach(function (d, n) {
+      curDay = n;
       var m = matchOn(d), base = baseFor(d), parts = '';
       var isFirst = n === 0 || tripOf[n] !== tripOf[n - 1], isLast = n === days.length - 1 || tripOf[n] !== tripOf[n + 1];
       if (isFirst && n > 0) {
@@ -268,26 +288,68 @@
     });
     document.getElementById('plan-map-stops').innerHTML = svg;
     document.getElementById('plan-map-list').innerHTML = stops.map(function (s, n) {
-      return '<li class="pl-map-stop"><span class="pl-map-stop-n">' + (n + 1) + '</span><span><strong>' + fmt(s.d) + '</strong> ' + CITY_NAME[s.city] + ' &middot; ' + esc(s.label) + '</span></li>';
+      return '<li class="pl-map-stop"><span class="pl-map-stop-n">' + (n + 1) + '</span><span><strong>' + fmt(s.d) + '</strong> ' + CITY_NAME[s.city] + ' &middot; ' + esc(s.label) + '</span><ul class="plan-added" data-day="' + n + '"></ul></li>';
     }).join('');
 
     // Interactions
     var status = document.getElementById('plan-status');
+    var modal = document.getElementById('plan-modal'), modalCard = null;
+    function tripCount() {
+      var n = document.querySelectorAll('.plan-added-item').length;
+      document.getElementById('plan-added-count').textContent = n ? n + ' added' : 'Nothing added yet';
+      document.getElementById('plan-added-empty').hidden = n > 0;
+    }
+    function addToTrip(card) {
+      var li = document.createElement('li');
+      li.className = 'plan-added-item';
+      li.dataset.card = card.id;
+      li.innerHTML = '<span class="plan-added-text"><span aria-hidden="true">' + CAT[card.dataset.cat].e + '</span> <span class="plan-added-name"></span></span>' +
+        '<button type="button" class="pl-btn-link" data-open="' + card.id + '">Open</button>';
+      li.querySelector('.plan-added-name').textContent = card.querySelector('.pl-option-name').textContent;
+      document.querySelector('.plan-added[data-day="' + card.dataset.day + '"]').appendChild(li);
+      tripCount();
+    }
+    function removeFromTrip(id) {
+      var li = document.querySelector('.plan-added-item[data-card="' + id + '"]');
+      if (li) li.remove();
+      tripCount();
+    }
+    function openModal(card) {
+      modalCard = card;
+      document.getElementById('plan-modal-tag').textContent = card.querySelector('.pl-tag').textContent;
+      document.getElementById('plan-modal-title').textContent = card.querySelector('.pl-option-name').textContent;
+      document.getElementById('plan-modal-meta').textContent = card.querySelector('.pl-sm').textContent;
+      document.getElementById('plan-modal-when').textContent = 'Day ' + (+card.dataset.day + 1) + ' · ' + card.dataset.slot;
+      modal.showModal();
+    }
+    modal.addEventListener('click', function (e) { if (e.target === modal) modal.close(); });
     function say(t) { status.textContent = t; }
     document.addEventListener('click', function (e) {
       var b = e.target.closest('button');
       if (!b) return;
-      if (b.hasAttribute('data-add')) {
+      if (b.dataset.open) {
+        openModal(document.getElementById(b.dataset.open));
+      } else if (b.hasAttribute('data-modal-close')) {
+        modal.close();
+      } else if (b.hasAttribute('data-modal-remove')) {
+        var addBtn = modalCard.querySelector('[data-add]');
+        modal.close();
+        addBtn.click();
+      } else if (b.hasAttribute('data-add')) {
         var on = b.getAttribute('aria-pressed') !== 'true';
         b.setAttribute('aria-pressed', String(on));
         b.textContent = on ? 'Added' : 'Add to plan';
-        b.closest('.pl-option').classList.toggle('is-chosen', on);
-        say(document.querySelectorAll('[data-add][aria-pressed="true"]').length + ' added to your plan');
+        var added = b.closest('.pl-option');
+        added.classList.toggle('is-chosen', on);
+        if (on) addToTrip(added); else removeFromTrip(added.id);
+        say(on ? 'Added to Day ' + (+added.dataset.day + 1) + ' in your trip.' : 'Removed from your trip.');
       } else if (b.hasAttribute('data-another')) {
         var card = b.closest('.pl-option'), c = CAT[card.dataset.cat];
         var nameEl = card.querySelector('.pl-option-name');
         nameEl.textContent = c.items[(c.items.indexOf(nameEl.textContent) + 1) % c.items.length];
         card.querySelector('.plan-area').textContent = pick(AREAS[card.dataset.area] || AREAS.sydney);
+        var inTrip = document.querySelector('.plan-added-item[data-card="' + card.id + '"] .plan-added-name');
+        if (inTrip) inTrip.textContent = nameEl.textContent;
       } else if (b.hasAttribute('data-stay')) {
         var group = b.closest('.pl-options');
         group.querySelectorAll('[data-stay]').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); x.textContent = 'Choose'; x.closest('.pl-option').classList.remove('is-chosen'); });
