@@ -126,7 +126,20 @@
             travelling
             <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
             into
-            <label class="pl-slot"><span class="visually-hidden">Interests</span><select><option>food and drink</option><option>beaches</option><option>nature</option><option>nightlife</option><option>culture</option><option>sport</option></select></label>,
+            <span class="pl-slot pl-multi" data-multi-picker data-placeholder="pick your interests"><button type="button" class="pl-slot-btn" aria-expanded="false" aria-controls="rwc-interests-pop"><span class="visually-hidden">Interests: </span><span class="pl-multi-value">🍽️ food and drink</span></button>
+                <span class="pl-multi-pop" id="rwc-interests-pop" hidden>
+                  <span class="pl-multi-head">Pick as many as you like</span>
+                  <span class="pl-multi-grid" role="group" aria-label="Interests">
+                    <label class="pl-multi-opt"><input type="checkbox" value="food" data-emoji="🍽️" data-label="food and drink" checked><span class="pl-multi-emoji" aria-hidden="true">🍽️</span><span>food and drink</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="beaches" data-emoji="🏖️" data-label="beaches"><span class="pl-multi-emoji" aria-hidden="true">🏖️</span><span>beaches</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="nature" data-emoji="🌿" data-label="nature"><span class="pl-multi-emoji" aria-hidden="true">🌿</span><span>nature</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="nightlife" data-emoji="🌃" data-label="nightlife"><span class="pl-multi-emoji" aria-hidden="true">🌃</span><span>nightlife</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="culture" data-emoji="🎭" data-label="culture"><span class="pl-multi-emoji" aria-hidden="true">🎭</span><span>culture</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="sport" data-emoji="🏟️" data-label="sport"><span class="pl-multi-emoji" aria-hidden="true">🏟️</span><span>sport</span></label>
+                  </span>
+                  <span class="pl-match-pop-foot"><span class="pl-sm" data-multi-count>1 selected</span><button type="button" class="pl-btn" data-done>Done</button></span>
+                </span>
+            </span>,
             <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
           </p>
           <a href="../planner-screen-1.html#setup" class="pl-btn pl-btn-primary">Start planning</a>
@@ -661,6 +674,45 @@
           group.classList.toggle('is-off', !on);
         });
       });
+    });
+  </script>
+
+  <!-- Multi-select slots (e.g. interests): checkboxes in a panel; the slot lists up to two picks, then "+ N more" -->
+  <script>
+    document.querySelectorAll('[data-multi-picker]').forEach(function (picker) {
+      var btn = picker.querySelector('.pl-slot-btn');
+      var pop = picker.querySelector('.pl-multi-pop');
+      var value = picker.querySelector('.pl-multi-value');
+      var count = picker.querySelector('[data-multi-count]');
+      var boxes = Array.prototype.slice.call(pop.querySelectorAll('input[type="checkbox"]'));
+
+      function update() {
+        var picked = boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.dataset.emoji + '\u00a0' + b.dataset.label; });
+        value.textContent = !picked.length ? '' : picked.length === 1 ? picked[0]
+          : picked.length === 2 ? picked[0] + ' and ' + picked[1]
+          : picked[0] + ' + ' + (picked.length - 1) + ' more';
+        if (!picked.length) value.innerHTML = '<span class="pl-team-placeholder">' + picker.dataset.placeholder + '</span>';
+        count.textContent = picked.length + ' selected';
+      }
+      function open() {
+        pop.hidden = false;
+        pop.style.left = '';
+        btn.setAttribute('aria-expanded', 'true');
+        var overflow = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
+        if (overflow > 0) pop.style.left = -overflow + 'px';
+      }
+      function close(focus) {
+        pop.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        if (focus) btn.focus();
+      }
+
+      btn.addEventListener('click', function () { pop.hidden ? open() : close(); });
+      pop.addEventListener('change', update);
+      picker.querySelector('[data-done]').addEventListener('click', function () { close(true); });
+      picker.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); close(true); } });
+      document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
+      update();
     });
   </script>
 
