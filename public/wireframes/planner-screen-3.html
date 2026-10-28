@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plan your 3rd half — Screen 3: editing and Surprise me</title>
+<link rel="stylesheet" href="shared.css" />
+</head>
+<body class="cp-page">
+
+<header class="cp-header">
+  <div class="cp-wrap cp-wrap--wide">
+    <a href="index.html" class="pl-sm">← All wireframes</a>
+    <h1>Plan your 3rd half, screen 3: editing and Surprise me</h1>
+    <p>Six editing states on top of the plan view from screen 2. Each frame shows one day of the plan; the header, set-up sentence and trip map sit above it.</p>
+    <nav aria-label="Related">
+      <a href="planner-brief.md">Planner brief</a>
+      <a href="planner-components.html">Planner components</a>
+      <a href="planner-screen-2.html">Screen 2: plan view and maps</a>
+    </nav>
+  </div>
+</header>
+
+<div class="cp-wrap cp-wrap--wide">
+  <nav class="cp-toc" aria-label="States">
+    <a href="#controls">1. Swap, remove, lock</a>
+    <a href="#swap">2. After Swap</a>
+    <a href="#quick">3. Quick changes</a>
+    <a href="#surprise">4. Surprise me</a>
+    <a href="#rain">5. Rain plan</a>
+    <a href="#updated">6. Day map updated</a>
+  </nav>
+</div>
+
+<!-- ── State 1: controls ── -->
+<section class="cp-section" id="controls">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>1. Swap, remove and lock on a chosen option</h2>
+    <p>Every chosen item in the plan carries the same three controls.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above: header, set-up sentence, trip map</span></div>
+              <div class="cp-pad">
+                <div class="pl-plan">
+                  <div class="pl-plan-timeline">
+                    <section class="pl-day">
+                      <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span><span class="pl-tag">Match day</span></header>
+                      <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">Around Venue name, Sydney. 10am to 2pm. 1 chosen, 2 hrs still free</span></div>
+                      <div class="pl-options">
+                        <article class="pl-option is-chosen pl-marked">
+                          <span class="pl-marker">2</span>
+                          <p class="pl-option-status">In your plan, 10am to 11:30am</p>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Open Saturday, free, 12 min walk to the stadium</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>15 min by train from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 9am to 5pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls pl-marked pl-marked--gutter">
+                            <span class="pl-marker">1</span>
+                            <button type="button" class="pl-btn">Swap</button>
+                            <button type="button" class="pl-btn">Remove</button>
+                            <button type="button" class="pl-btn" aria-pressed="false">Lock</button>
+                          </div>
+                        </article>
+                        <article class="pl-option is-chosen is-locked pl-marked">
+                          <span class="pl-marker">3</span>
+                          <p class="pl-option-status">Locked, 11:45am to 12:30pm</p>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Open Saturday, under $20, 5 min from the stadium</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>8 min walk from Place name</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 11am to 10pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls">
+                            <button type="button" class="pl-btn" disabled>Swap</button>
+                            <button type="button" class="pl-btn" disabled>Remove</button>
+                            <button type="button" class="pl-btn" aria-pressed="true">Locked</button>
+                          </div>
+                        </article>
+                        <article class="pl-option">
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Open Saturday, free, by the water</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>20 min walk from Place name</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Open 24 hours</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                        </article>
+                      </div>
+                    </section>
+                  </div>
+                  <aside class="pl-plan-map" aria-label="Day map">
+                    <figure class="pl-map">
+                      <p class="pl-sm"><b>Day 2 map, Sat 16 Oct</b></p>
+                      <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops</span></div>
+                      <ol class="pl-map-list">
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Your stay, Sydney</li>
+                        <li class="pl-map-leg">15 min by train</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Place name, 10am</li>
+                        <li class="pl-map-leg">8 min walk</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">3</span>Place name, 11:45am</li>
+                        <li class="pl-map-leg">5 min walk</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">4</span>Venue name, kick-off 2pm</li>
+                      </ol>
+                    </figure>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <section class="pl-day">
+                <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span></header>
+                <details class="pl-toggle"><summary><span class="when-closed">Show map</span><span class="when-open">Hide map</span></summary><div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops</span></div></details>
+                <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">10am to 2pm. 1 chosen, 2 hrs still free</span></div>
+                <div class="pl-options">
+                  <article class="pl-option is-chosen">
+                    <p class="pl-option-status">In your plan, 10am to 11:30am</p>
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Open Saturday, free, 12 min walk to the stadium</p>
+                    <dl class="pl-option-facts"><div><dt>Travel</dt><dd>15 min by train from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 9am to 5pm</span></dd></div></dl>
+                    <div class="pl-option-controls">
+                      <button type="button" class="pl-btn">Swap</button>
+                      <button type="button" class="pl-btn">Remove</button>
+                      <button type="button" class="pl-btn" aria-pressed="false">Lock</button>
+                    </div>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Swap shows 3 alternatives for the same slot (state 2). Remove takes it out of the plan and frees the time, with Undo. Lock keeps it through any other change.</span></li>
+          <li><span class="pl-marker">2</span><span>Only chosen items have these controls. Options not yet chosen have "Add to plan".</span></li>
+          <li><span class="pl-marker">3</span><span>A locked item: heavy border, Swap and Remove switched off until it's unlocked.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 2: after Swap ── -->
+<section class="cp-section" id="swap">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>2. After Swap: 3 alternatives for that gap</h2>
+    <p>The fan pressed Swap on the 10am stop. Three alternatives that fit the same slot open in its place.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above: header, set-up sentence, trip map</span></div>
+              <div class="cp-pad">
+                <div class="pl-plan">
+                  <div class="pl-plan-timeline">
+                    <section class="pl-day">
+                      <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span><span class="pl-tag">Match day</span></header>
+                      <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">Around Venue name, Sydney. 10am to 2pm</span></div>
+                      <div class="pl-swap pl-marked">
+                        <span class="pl-marker">4</span>
+                        <div class="pl-swap-head">
+                          <span class="pl-option-name">Swap Place name (10am to 11:30am) for one of these</span>
+                          <button type="button" class="pl-btn pl-marked pl-marked--gutter"><span class="pl-marker">6</span>Cancel</button>
+                        </div>
+                        <div class="pl-options">
+                          <article class="pl-option">
+                            <h4 class="pl-option-name">Place name</h4>
+                            <p class="pl-option-reason">Open Saturday, free, 6 min walk to the stadium</p>
+                            <dl class="pl-option-facts"><div><dt>Travel</dt><dd>18 min by train from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 8am to 4pm</span></dd></div></dl>
+                            <a href="#" class="pl-sm">Visit website</a>
+                            <div class="pl-option-controls pl-marked pl-marked--gutter"><span class="pl-marker">5</span><button type="button" class="pl-btn">Choose</button></div>
+                          </article>
+                          <article class="pl-option">
+                            <h4 class="pl-option-name">Place name</h4>
+                            <p class="pl-option-reason">Open Saturday, under $15, indoors</p>
+                            <dl class="pl-option-facts"><div><dt>Travel</dt><dd>15 min by train from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 10am to 6pm</span></dd></div></dl>
+                            <a href="#" class="pl-sm">Visit website</a>
+                            <div class="pl-option-controls"><button type="button" class="pl-btn">Choose</button></div>
+                          </article>
+                          <article class="pl-option">
+                            <h4 class="pl-option-name">Place name</h4>
+                            <p class="pl-option-reason">Open Saturday, free, 15 min walk to the stadium</p>
+                            <dl class="pl-option-facts"><div><dt>Travel</dt><dd>12 min by bus from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Open 24 hours</span></dd></div></dl>
+                            <a href="#" class="pl-sm">Visit website</a>
+                            <div class="pl-option-controls"><button type="button" class="pl-btn">Choose</button></div>
+                          </article>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                  <aside class="pl-plan-map" aria-label="Day map">
+                    <figure class="pl-map">
+                      <p class="pl-sm"><b>Day 2 map, Sat 16 Oct</b></p>
+                      <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops and 3 alternatives</span></div>
+                      <ol class="pl-map-list">
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Your stay, Sydney</li>
+                        <li class="pl-map-leg">15 min by train</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Place name, 10am (swapping)</li>
+                        <li class="pl-map-leg">12 min walk</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">3</span>Venue name, kick-off 2pm</li>
+                      </ol>
+                    </figure>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <div class="pl-swap">
+                <div class="pl-swap-head">
+                  <span class="pl-option-name">Swap Place name for one of these</span>
+                  <button type="button" class="pl-btn">Cancel</button>
+                </div>
+                <div class="pl-options">
+                  <article class="pl-option">
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Open Saturday, free, 6 min walk to the stadium</p>
+                    <dl class="pl-option-facts"><div><dt>Travel</dt><dd>18 min by train from your stay</dd></div></dl>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Choose</button></div>
+                  </article>
+                  <article class="pl-option">
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Open Saturday, under $15, indoors</p>
+                    <dl class="pl-option-facts"><div><dt>Travel</dt><dd>15 min by train from your stay</dd></div></dl>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Choose</button></div>
+                  </article>
+                  <article class="pl-option">
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Open Saturday, free, 15 min walk to the stadium</p>
+                    <dl class="pl-option-facts"><div><dt>Travel</dt><dd>12 min by bus from your stay</dd></div></dl>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Choose</button></div>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="4">
+          <li><span class="pl-marker">4</span><span>The swap panel opens where the card was. All three alternatives fit the same time slot and keep the walk to the stadium short.</span></li>
+          <li><span class="pl-marker">5</span><span>Choose puts it into the plan and redraws the day map (state 6).</span></li>
+          <li><span class="pl-marker">6</span><span>Cancel closes the panel and keeps the current choice.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 3: quick changes ── -->
+<section class="cp-section" id="quick">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>3. Quick changes on a gap: Cheaper, Closer, Indoors</h2>
+    <p>Shown after the fan pressed "Cheaper" on the Saturday evening gap.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: "Cheaper" on, options updated</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above: header, set-up sentence, trip map, match block</span></div>
+              <div class="cp-pad">
+                <div class="pl-plan">
+                  <div class="pl-plan-timeline">
+                    <section class="pl-day">
+                      <div class="pl-gap"><span class="pl-lg">Saturday evening: your 3rd half</span><span class="pl-sm">After the final whistle, from 4pm. Between Venue name and your stay</span></div>
+                      <div class="pl-gap-tools">
+                        <div class="pl-quick pl-marked pl-marked--gutter">
+                          <span class="pl-marker">7</span>
+                          <span class="pl-quick-label">Quick changes</span>
+                          <button type="button" class="pl-btn" aria-pressed="true">Cheaper</button>
+                          <button type="button" class="pl-btn" aria-pressed="false">Closer</button>
+                          <button type="button" class="pl-btn" aria-pressed="false">Indoors</button>
+                        </div>
+                        <button type="button" class="pl-btn">Surprise me</button>
+                      </div>
+                      <div class="pl-row pl-row--notice pl-marked pl-marked--gutter"><span class="pl-marker">8</span><span>Showing cheaper options. 2 updated; chosen and locked items stay.</span><a href="#">Reset</a></div>
+                      <div class="pl-options">
+                        <article class="pl-option pl-marked">
+                          <span class="pl-marker">9</span>
+                          <span class="pl-tag">Updated</span>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Free, open Saturday night, 8 min walk from the stadium</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>8 min walk from Venue name</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 4pm to 11pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                        </article>
+                        <article class="pl-option">
+                          <span class="pl-tag">Updated</span>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Under $15, open late Saturday, on your way home</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>15 min by train from Venue name</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 5pm to 12am</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                        </article>
+                        <article class="pl-option">
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Free, open Saturday, 5 min from your stay</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>20 min by train from Venue name</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 4pm to 10pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                        </article>
+                      </div>
+                    </section>
+                  </div>
+                  <aside class="pl-plan-map" aria-label="Day map">
+                    <figure class="pl-map">
+                      <p class="pl-sm"><b>Day 2 map, Sat 16 Oct</b></p>
+                      <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops and cheaper options</span></div>
+                    </figure>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <section class="pl-day">
+                <div class="pl-gap"><span class="pl-lg">Saturday evening: your 3rd half</span><span class="pl-sm">From 4pm. Between Venue name and your stay</span></div>
+                <div class="pl-gap-tools">
+                  <div class="pl-quick">
+                    <button type="button" class="pl-btn" aria-pressed="true">Cheaper</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Closer</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Indoors</button>
+                  </div>
+                  <button type="button" class="pl-btn">Surprise me</button>
+                </div>
+                <div class="pl-row pl-row--notice"><span>Showing cheaper options. 2 updated.</span><a href="#">Reset</a></div>
+                <div class="pl-options">
+                  <article class="pl-option">
+                    <span class="pl-tag">Updated</span>
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Free, open Saturday night, 8 min walk from the stadium</p>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                  </article>
+                  <article class="pl-option">
+                    <span class="pl-tag">Updated</span>
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Under $15, open late Saturday, on your way home</p>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="7">
+          <li><span class="pl-marker">7</span><span>Quick changes sit on every gap. Each is an on/off button and they can be combined. Cheaper uses the listing's price band. Closer uses distance from the previous stop. <b>Indoors is not in the contract:</b> listings have no indoor or outdoor field.</span></li>
+          <li><span class="pl-marker">8</span><span>A one-line notice says what changed, with Reset. Chosen and locked items never move.</span></li>
+          <li><span class="pl-marker">9</span><span>New cards are tagged "Updated", and the reason line leads with what changed (here, the price).</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 4: Surprise me ── -->
+<section class="cp-section" id="surprise">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>4. Surprise me</h2>
+    <p>The fan pressed "Surprise me" on the 2 free days between Sydney and Newcastle. The randomiser returns one unexpected option on the way.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above: header, set-up sentence, trip map, days 1 to 3</span></div>
+              <div class="cp-pad">
+                <div class="pl-plan">
+                  <div class="pl-plan-timeline">
+                    <section class="pl-day">
+                      <header class="pl-day-head"><span class="pl-lg">Mon 18 to Tue 19 Oct</span><span class="pl-sm">Days 4 and 5, Sydney to Newcastle</span></header>
+                      <div class="pl-gap"><span class="pl-lg">2 free days between Sydney and Newcastle</span><span class="pl-sm">Go straight there, or stop on the way</span></div>
+                      <div class="pl-gap-tools">
+                        <div class="pl-quick">
+                          <span class="pl-quick-label">Quick changes</span>
+                          <button type="button" class="pl-btn" aria-pressed="false">Cheaper</button>
+                          <button type="button" class="pl-btn" aria-pressed="false">Closer</button>
+                          <button type="button" class="pl-btn" aria-pressed="false">Indoors</button>
+                        </div>
+                        <button type="button" class="pl-btn pl-marked pl-marked--above" aria-pressed="true"><span class="pl-marker">10</span>Surprise me</button>
+                      </div>
+                      <div class="pl-randomiser pl-marked">
+                        <span class="pl-marker">11</span>
+                        <p class="pl-sm">Existing randomiser component (placeholder)</p>
+                        <article class="pl-option pl-marked pl-marked--gutter">
+                          <span class="pl-marker">12</span>
+                          <span class="pl-tag">Surprise</span>
+                          <h4 class="pl-option-name">Place name, regional NSW</h4>
+                          <p class="pl-option-reason">A lakeside town on the way to Newcastle, open Monday, most fans miss it</p>
+                          <dl class="pl-option-facts">
+                            <div><dt>Travel</dt><dd>1 hr 20 min by train from Sydney, then 50 min on to Newcastle</dd></div>
+                            <div><dt>Open</dt><dd><span class="provenance-gap">Mon 9am to 5pm</span></dd></div>
+                          </dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls">
+                            <button type="button" class="pl-btn">Add to plan</button>
+                            <button type="button" class="pl-btn">Surprise me again</button>
+                          </div>
+                        </article>
+                      </div>
+                      <div class="pl-ph pl-ph--short"><span class="pl-ph-label">The gap's 3 usual options continue below</span></div>
+                    </section>
+                  </div>
+                  <aside class="pl-plan-map" aria-label="Day map">
+                    <figure class="pl-map">
+                      <p class="pl-sm"><b>Days 4 and 5 map</b></p>
+                      <div class="pl-ph"><span class="pl-ph-label">Map: Sydney to Newcastle, surprise stop shown</span></div>
+                      <ol class="pl-map-list">
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Your stay, Sydney</li>
+                        <li class="pl-map-leg">1 hr 20 min by train</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">?</span>Place name, regional NSW (not added yet)</li>
+                        <li class="pl-map-leg">50 min by train</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Your stay, Newcastle</li>
+                      </ol>
+                    </figure>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <section class="pl-day">
+                <div class="pl-gap"><span class="pl-lg">2 free days between Sydney and Newcastle</span><span class="pl-sm">Go straight there, or stop on the way</span></div>
+                <div class="pl-gap-tools">
+                  <div class="pl-quick">
+                    <button type="button" class="pl-btn" aria-pressed="false">Cheaper</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Closer</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Indoors</button>
+                  </div>
+                  <button type="button" class="pl-btn" aria-pressed="true">Surprise me</button>
+                </div>
+                <div class="pl-randomiser">
+                  <p class="pl-sm">Existing randomiser component (placeholder)</p>
+                  <article class="pl-option">
+                    <span class="pl-tag">Surprise</span>
+                    <h4 class="pl-option-name">Place name, regional NSW</h4>
+                    <p class="pl-option-reason">A lakeside town on the way to Newcastle, open Monday, most fans miss it</p>
+                    <dl class="pl-option-facts"><div><dt>Travel</dt><dd>1 hr 20 min by train from Sydney, then 50 min on to Newcastle</dd></div></dl>
+                    <div class="pl-option-controls">
+                      <button type="button" class="pl-btn">Add to plan</button>
+                      <button type="button" class="pl-btn">Surprise me again</button>
+                    </div>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="10">
+          <li><span class="pl-marker">10</span><span>Surprise me sits on every gap, next to the quick changes.</span></li>
+          <li><span class="pl-marker">11</span><span>Uses the existing randomiser component. <b>Placeholder:</b> that component isn't in this repo yet, so the dashed frame only marks where it sits.</span></li>
+          <li><span class="pl-marker">12</span><span>One real listing, often regional NSW, with its reason and travel time. Add to plan or try again. It shows on the day map as an unnumbered stop until it's added.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 5: rain plan ── -->
+<section class="cp-section" id="rain">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>5. Rain plan on an outdoor day</h2>
+    <p>Sunday's options are mostly outdoors. The fan switched the rain plan on, and indoor options replace them.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: rain plan on</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above: header, set-up sentence, trip map, days 1 and 2</span></div>
+              <div class="cp-pad">
+                <div class="pl-plan">
+                  <div class="pl-plan-timeline">
+                    <section class="pl-day">
+                      <header class="pl-day-head">
+                        <span class="pl-lg">Sun 17 Oct</span><span class="pl-sm">Day 3, Sydney</span><span class="pl-tag">Mostly outdoors</span>
+                        <button type="button" class="pl-btn pl-marked pl-marked--above" aria-pressed="true"><span class="pl-marker">13</span>Rain plan: on</button>
+                      </header>
+                      <div class="pl-gap"><span class="pl-lg">Sunday: the day after</span><span class="pl-sm">Whole day free in Sydney. Starting from your stay</span></div>
+                      <div class="pl-row pl-row--notice pl-marked pl-marked--gutter"><span class="pl-marker">14</span><span>Rain plan: showing indoor options. Your outdoor picks are saved for a dry day.</span><a href="#">Turn off</a></div>
+                      <div class="pl-options">
+                        <article class="pl-option pl-marked">
+                          <span class="pl-marker">15</span>
+                          <span class="pl-tag">Indoors</span>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Indoors, open Sunday, free, 15 min from your stay</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>15 min by train from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sun 10am to 5pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                        </article>
+                        <article class="pl-option">
+                          <span class="pl-tag">Indoors</span>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Indoors, under $20, slow brunch near your stay</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>6 min walk from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sun 8am to 3pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                        </article>
+                        <article class="pl-option">
+                          <span class="pl-tag">Indoors</span>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Indoors, open Sunday, a big-screen fan zone</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>20 min by train from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sun 12pm to 10pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                        </article>
+                      </div>
+                    </section>
+                  </div>
+                  <aside class="pl-plan-map" aria-label="Day map">
+                    <figure class="pl-map">
+                      <p class="pl-sm"><b>Day 3 map, Sun 17 Oct</b></p>
+                      <div class="pl-ph"><span class="pl-ph-label">Map: day 3 indoor options</span></div>
+                      <ol class="pl-map-list">
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Your stay, Sydney</li>
+                      </ol>
+                      <p class="pl-sm pl-option-empty">No stops chosen yet. The map shows today's indoor options.</p>
+                    </figure>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <section class="pl-day">
+                <header class="pl-day-head"><span class="pl-lg">Sun 17 Oct</span><span class="pl-sm">Day 3, Sydney</span><span class="pl-tag">Mostly outdoors</span></header>
+                <button type="button" class="pl-btn" aria-pressed="true">Rain plan: on</button>
+                <div class="pl-row pl-row--notice"><span>Rain plan: showing indoor options.</span><a href="#">Turn off</a></div>
+                <div class="pl-options">
+                  <article class="pl-option">
+                    <span class="pl-tag">Indoors</span>
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Indoors, open Sunday, free, 15 min from your stay</p>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                  </article>
+                  <article class="pl-option">
+                    <span class="pl-tag">Indoors</span>
+                    <h4 class="pl-option-name">Place name</h4>
+                    <p class="pl-option-reason">Indoors, under $20, slow brunch near your stay</p>
+                    <div class="pl-option-controls"><button type="button" class="pl-btn">Add to plan</button></div>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="13">
+          <li><span class="pl-marker">13</span><span>Rain plan only shows on days whose options are mostly outdoors. The fan switches it on; there's no weather forecast.</span></li>
+          <li><span class="pl-marker">14</span><span>A notice explains the switch. Outdoor picks aren't lost, and turning it off brings them back.</span></li>
+          <li><span class="pl-marker">15</span><span>Indoor options for the same gap. <b>Not in contract:</b> indoor or outdoor isn't a listing field (same gap as the Indoors quick change).</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── State 6: day map updated ── -->
+<section class="cp-section" id="updated">
+  <div class="cp-wrap cp-wrap--wide">
+    <h2>6. Day map and travel times updated after a change</h2>
+    <p>After the fan chose an alternative in state 2: the timeline, the travel times and the day map all update.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">Plan view above: header, set-up sentence, trip map</span></div>
+              <div class="cp-pad">
+                <div class="pl-plan">
+                  <div class="pl-plan-timeline">
+                    <section class="pl-day">
+                      <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span><span class="pl-tag">Match day</span></header>
+                      <div class="pl-row pl-row--notice pl-marked pl-marked--gutter"><span class="pl-marker">16</span><span>Plan updated: Place name swapped in. Your walk to the stadium is now 6 min.</span><a href="#">Undo</a></div>
+                      <div class="pl-row"><span>Start: Your stay, Place name, Sydney</span></div>
+                      <p class="pl-map-leg pl-marked pl-marked--gutter"><span class="pl-marker">17</span><b>18 min by train</b> (was 15 min)</p>
+                      <div class="pl-gap"><span class="pl-lg">Saturday morning: 4 hrs before kick-off</span><span class="pl-sm">10am to 2pm. 1 chosen, 2 hrs still free</span></div>
+                      <div class="pl-options">
+                        <article class="pl-option is-chosen">
+                          <span class="pl-tag">Updated</span>
+                          <p class="pl-option-status">In your plan, 10am to 11:30am</p>
+                          <h4 class="pl-option-name">Place name</h4>
+                          <p class="pl-option-reason">Open Saturday, free, 6 min walk to the stadium</p>
+                          <dl class="pl-option-facts"><div><dt>Travel</dt><dd>18 min by train from your stay</dd></div><div><dt>Open</dt><dd><span class="provenance-gap">Sat 8am to 4pm</span></dd></div></dl>
+                          <a href="#" class="pl-sm">Visit website</a>
+                          <div class="pl-option-controls">
+                            <button type="button" class="pl-btn">Swap</button>
+                            <button type="button" class="pl-btn">Remove</button>
+                            <button type="button" class="pl-btn" aria-pressed="false">Lock</button>
+                          </div>
+                        </article>
+                        <div class="pl-ph pl-ph--short"><span class="pl-ph-label">2 other options</span></div>
+                      </div>
+                      <p class="pl-map-leg"><b>6 min walk</b> (was 12 min)</p>
+                      <article class="pl-match">
+                        <div class="pl-match-time"><span class="pl-sm">Sat 16 Oct</span><span class="pl-lg">2:00pm</span><span class="pl-sm">Kick-off</span></div>
+                        <div class="pl-match-body"><span class="pl-tag">Match, fixed</span><h3 class="pl-lg">Team A v Team B</h3><span class="pl-sm">Venue name, Sydney</span></div>
+                        <a href="#" class="pl-match-link">Getting to the stadium</a>
+                      </article>
+                    </section>
+                  </div>
+                  <aside class="pl-plan-map pl-marked pl-marked--gutter" aria-label="Day map">
+                    <span class="pl-marker">18</span>
+                    <figure class="pl-map">
+                      <p class="pl-sm"><b>Day 2 map, Sat 16 Oct</b> <span class="pl-tag">Updated</span></p>
+                      <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops, new route</span></div>
+                      <ol class="pl-map-list">
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Your stay, Sydney</li>
+                        <li class="pl-map-leg"><b>18 min by train</b> (was 15 min)</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Place name, 10am <span class="pl-tag">Changed</span></li>
+                        <li class="pl-map-leg"><b>6 min walk</b> (was 12 min)</li>
+                        <li class="pl-map-stop"><span class="pl-map-stop-n">3</span>Venue name, kick-off 2pm</li>
+                      </ol>
+                    </figure>
+                  </aside>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px: day map open after the change</p>
+            <div class="cp-frame cp-frame--mobile pl-scope">
+              <section class="pl-day">
+                <header class="pl-day-head"><span class="pl-lg">Sat 16 Oct</span><span class="pl-sm">Day 2, Sydney</span></header>
+                <div class="pl-row pl-row--notice"><span>Plan updated: Place name swapped in.</span><a href="#">Undo</a></div>
+                <details class="pl-toggle" open>
+                  <summary><span class="when-closed">Show map</span><span class="when-open">Hide map</span></summary>
+                  <figure class="pl-map">
+                    <div class="pl-ph"><span class="pl-ph-label">Map: day 2 stops, new route</span></div>
+                    <ol class="pl-map-list">
+                      <li class="pl-map-stop"><span class="pl-map-stop-n">1</span>Your stay, Sydney</li>
+                      <li class="pl-map-leg"><b>18 min by train</b> (was 15 min)</li>
+                      <li class="pl-map-stop"><span class="pl-map-stop-n">2</span>Place name, 10am <span class="pl-tag">Changed</span></li>
+                      <li class="pl-map-leg"><b>6 min walk</b> (was 12 min)</li>
+                      <li class="pl-map-stop"><span class="pl-map-stop-n">3</span>Venue name, kick-off 2pm</li>
+                    </ol>
+                  </figure>
+                </details>
+              </section>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes" start="16">
+          <li><span class="pl-marker">16</span><span>After any change, a one-line notice says what changed, with Undo.</span></li>
+          <li><span class="pl-marker">17</span><span>Travel times in the timeline are recalculated. New times are bold, with the old time in brackets until the next change. <b>Not in contract</b> (routing source still to confirm).</span></li>
+          <li><span class="pl-marker">18</span><span>The day map redraws the route. The changed stop is tagged, and the times match the timeline. On mobile, the open map shows the same.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

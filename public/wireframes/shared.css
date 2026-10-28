@@ -2259,9 +2259,22 @@ body.region-map-fullscreen-open { overflow: hidden; }
   background: #fff; border: 1px solid #ccc; padding: .5rem 1rem; font-size: .8125rem; color: #444;
 }
 .pl-option.is-chosen { border: 2px solid #111; }
+.pl-option > .pl-tag, .pl-day > .pl-btn { align-self: flex-start; }
 .pl-option-status { font-size: .8125rem; font-weight: 700; }
 .pl-also { display: flex; flex-direction: column; gap: .35rem; align-items: flex-start; background: #f9f9f9; border: 1px solid #ccc; padding: 1rem; }
 .pl-also-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+/* Editing (screen 3): gap tools, swap panel, change notice, randomiser slot. */
+.pl-gap-tools { display: flex; justify-content: space-between; align-items: center; gap: .5rem 1rem; flex-wrap: wrap; }
+.pl-quick { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.pl-quick-label { font-size: .8125rem; color: #444; }
+.pl-swap { display: flex; flex-direction: column; gap: .75rem; background: #f9f9f9; border: 2px solid #111; padding: 1rem; }
+.pl-swap-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem 1rem; flex-wrap: wrap; }
+.pl-row--notice { background: #f0f0f0; border-color: #888; color: #111; }
+/* Stand-in for the site's existing randomiser component: the dashed frame
+   marks where it sits; only the result card inside is planner content. */
+.pl-randomiser { display: flex; flex-direction: column; gap: .75rem; border: 2px dashed #888; padding: 1rem; }
+.pl-randomiser > .pl-option { max-width: 24rem; }
+
 .pl-toggle { display: none; }
 .pl-toggle summary { cursor: pointer; font-size: .8125rem; text-decoration: underline; list-style: none; }
 .pl-toggle summary::-webkit-details-marker { display: none; }
