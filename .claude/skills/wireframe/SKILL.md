@@ -72,7 +72,7 @@ public/wireframes/
 | Text block | `.text-block` | 2-col text with heading |
 | Hero countdown | `.hero--countdown` + `.hero-countdown` (`data-countdown="ISO date"`) | Days, hours, mins, secs ticking in the hero, right of the headline (stacks on mobile). `role="timer"`; after the date it shows an ended state linking to the matches |
 | Breadcrumb bar | `.page-switcher-bar` | Inner pages only: breadcrumb left + Share/Save right |
-| Location tiles | `.loc-tiles` > `.loc-tile` (`.loc-facts`, `.loc-tbc`, `.loc-stay` + `.loc-stay-card`, `.loc-more`) | Static place tiles, no map: stadium, fan zone, getting there, accommodation products only (food and drink, nature as links). 4 across, 2 on tablet, swipe row on mobile. `data-reveal` rises the tiles in once on scroll (skipped with reduced motion) |
+| Location tiles | `.loc-tiles` > `.loc-tile` = `.loc-map` (`data-map`) + `.loc-tile-body` (`.loc-facts`, `.loc-tbc`, `.loc-stay` + `.loc-stay-card`, `.loc-more`) | Landscape cards, one per row (stacked on mobile). Static schematic SVG map (`.m-*` classes): stadium, dashed likely fan zone, stations, product pins grouped by `.m-pins[data-cat]`. `.loc-chip` toggles (`aria-pressed`) show stay (on by default), food and drink, attractions, events. `data-reveal` rises the cards in once on scroll |
 
 ### RWC planner ("Plan your 3rd half") components
 
@@ -193,3 +193,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC planner entry: custom team picker with all 24 teams grouped by pool, in team colours |
 | 2026-10-28 | RWC hero: countdown to the first NSW match (Japan v Samoa, 3 Oct 2027) |
 | 2026-10-28 | RWC planner entry: custom match picker with the chosen team's real NSW fixtures |
+| 2026-10-28 | RWC Stadiums and fan zones: landscape cards with static vector maps, pins and category toggles |
