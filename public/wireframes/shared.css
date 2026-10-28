@@ -323,6 +323,14 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
   cursor: pointer;
   color: var(--color-text);
 }
+.nav-menu-feature {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  margin: .5rem 1.25rem 1rem; padding: .75rem 1rem;
+  background: var(--color-accent); color: #fff; border-radius: 999px;
+  font-size: 1rem; font-weight: 700; text-decoration: none;
+}
+.nav-menu-feature:hover { filter: brightness(1.1); }
+.nav-menu-feature:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 .nav-menu-item .expand-icon { color: var(--color-text-muted); font-size: .8rem; }
 .nav-submenu {
   display: none;
