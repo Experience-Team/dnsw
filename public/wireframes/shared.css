@@ -2192,6 +2192,11 @@ body.region-map-fullscreen-open { overflow: hidden; }
   .pl-match-time { flex-direction: row; align-items: baseline; gap: .5rem; border-right: 0; padding-right: 0; border-bottom: 1px solid #ccc; padding-bottom: .5rem; }
 }
 
+/* A list of match blocks, e.g. all fixtures on the RWC page, with a
+   "Show all" toggle; extra items carry [data-extra] and start hidden. */
+.pl-match-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+.pl-match-list-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem 1rem; flex-wrap: wrap; margin-top: 1rem; }
+
 /* Gap header: the free time the fan plans. Dashed = open, not fixed. */
 .pl-gap {
   display: flex; justify-content: space-between; align-items: baseline; gap: .25rem 1rem; flex-wrap: wrap;
