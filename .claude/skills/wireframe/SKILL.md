@@ -83,6 +83,11 @@ Greyscale-only, low-fidelity set for the Rugby World Cup trip planner. Rules in 
 | Map placeholder | `.pl-map` + `.pl-ph` | Grey box with X + label; stop list with `.pl-map-stop` / `.pl-map-leg` |
 | Set-up sentence | `.pl-setup` (+ `--pinned`) | Each `.pl-slot` wraps a `<select>` |
 | Annotation | `.pl-annotated`, `.pl-marked` + `.pl-marker`, `.pl-notes` | `--gutter` / `--above` keep markers off text |
+| Multi-choice slot + panel | `.pl-slot-btn` (`aria-expanded`), `.pl-panel`, `.pl-checklist` | Panel opens below the sentence, full width on mobile |
+| Filled slot + category filters | `.pl-slot-text`, `.pl-filters` (`.pl-btn` with `aria-pressed`) | Dashed slot reflects the chosen filters |
+| Entry modules | `.pl-entry`, `.pl-entry--compact` | RWC page (full sentence) and team pages (team pre-filled) |
+
+Planner review pages (`planner-components.html`, `planner-screen-N.html`) use `body.cp-page` and the `.cp-*` chrome in shared.css: annotated desktop frames plus 375px mobile frames (`.cp-frame--screen` clips to one 375 × 667 screen).
 
 ### Grids
 - `.grid-5` — 5 equal columns (Discover the best / Places sections)
@@ -165,3 +170,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-06-25 | Skill scaffolded from Figma audit of Page 64 (sydney.com category page) |
 | 2026-06-25 | Homepage built (Sydney/NSW switchable); all component CSS in shared.css |
 | 2026-10-28 | RWC planner brief + reusable planner components (`planner-components.html`, `.pl-*` in shared.css) |
+| 2026-10-28 | Planner screen 1: entry points and set-up (`planner-screen-1.html`); entry section added to the RWC page |

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plan your 3rd half — Screen 1: entry points and set-up</title>
+<link rel="stylesheet" href="shared.css" />
+</head>
+<body class="cp-page">
+
+<header class="cp-header">
+  <div class="cp-wrap">
+    <a href="index.html" class="pl-sm">← All wireframes</a>
+    <h1>Plan your 3rd half, screen 1: entry points and set-up</h1>
+    <p>How fans find the planner from the Rugby World Cup page or a team page, and the set-up page where they describe their trip in one sentence.</p>
+    <nav aria-label="Related">
+      <a href="planner-brief.md">Planner brief</a>
+      <a href="planner-components.html">Planner components</a>
+      <a href="pages/rugby-world-cup.html">Rugby World Cup page (live entry point)</a>
+    </nav>
+  </div>
+</header>
+
+<div class="cp-wrap">
+  <nav class="cp-toc" aria-label="Sections">
+    <a href="#entry-rwc">Entry point: Rugby World Cup page</a>
+    <a href="#entry-team">Entry point: team page</a>
+    <a href="#setup">Set-up page</a>
+  </nav>
+</div>
+
+<!-- ── Entry point: RWC page ── -->
+<section class="cp-section" id="entry-rwc">
+  <div class="cp-wrap">
+    <h2>Entry point: Rugby World Cup page</h2>
+    <p>A "Plan your 3rd half" section near the top of the existing page. Also added to the <a href="pages/rugby-world-cup.html">Rugby World Cup page</a> itself.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header</span></div>
+              <div class="cp-pad">
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Hero, breadcrumb and intro</span></div>
+                <div class="pl-entry pl-marked">
+                  <span class="pl-marker">1</span>
+                  <h2 class="pl-lg">Plan your 3rd half</h2>
+                  <p>In rugby, the third half is the social part after the game. Plan yours around your team's matches.</p>
+                  <div class="pl-setup">
+                    <p class="pl-setup-sentence pl-marked pl-marked--gutter">
+                      <span class="pl-marker">2</span>
+                      I'm following
+                      <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                      to
+                      <label class="pl-slot"><span class="visually-hidden">Matches</span><select><option>all their NSW matches</option><option>1 match</option><option>2 matches</option></select></label>,
+                      staying
+                      <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
+                      in
+                      <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney</option><option>Newcastle</option><option>Sydney and Newcastle</option></select></label>,
+                      travelling
+                      <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
+                      into
+                      <label class="pl-slot"><span class="visually-hidden">Interests</span><select><option>food and drink</option><option>beaches</option><option>nature</option><option>nightlife</option><option>culture</option><option>sport</option></select></label>,
+                      <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
+                    </p>
+                    <a href="#setup" class="pl-btn pl-btn-primary pl-marked pl-marked--gutter"><span class="pl-marker">3</span>Start planning</a>
+                  </div>
+                </div>
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Rest of page: matches, venues, FAQs</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header</span></div>
+              <div class="cp-pad">
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Hero, breadcrumb and intro</span></div>
+                <div class="pl-entry">
+                  <h2 class="pl-lg">Plan your 3rd half</h2>
+                  <p>In rugby, the third half is the social part after the game. Plan yours around your team's matches.</p>
+                  <div class="pl-setup">
+                    <p class="pl-setup-sentence">
+                      I'm following
+                      <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                      to
+                      <label class="pl-slot"><span class="visually-hidden">Matches</span><select><option>all their NSW matches</option><option>1 match</option><option>2 matches</option></select></label>,
+                      staying
+                      <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
+                      in
+                      <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney</option><option>Newcastle</option><option>Sydney and Newcastle</option></select></label>,
+                      travelling
+                      <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
+                      into
+                      <label class="pl-slot"><span class="visually-hidden">Interests</span><select><option>food and drink</option><option>beaches</option><option>nature</option><option>nightlife</option><option>culture</option><option>sport</option></select></label>,
+                      <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
+                    </p>
+                    <a href="#setup" class="pl-btn pl-btn-primary">Start planning</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Near the top of the page, straight after the intro. The page has no team selector yet; once it does, this section sits below it.</span></li>
+          <li><span class="pl-marker">2</span><span>The same set-up sentence as the planner, so fans can start from here. Interests is one dropdown here; the set-up page has the full filters.</span></li>
+          <li><span class="pl-marker">3</span><span>Opens the set-up page with these choices carried over. Nothing is saved and no sign-in is needed.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Entry point: team page ── -->
+<section class="cp-section" id="entry-team">
+  <div class="cp-wrap">
+    <h2>Entry point: team page</h2>
+    <p>A smaller version for each team's page, with the team already filled in.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header</span></div>
+              <div class="cp-pad">
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Team page: Team A hero and intro</span></div>
+                <div class="pl-entry pl-entry--compact pl-marked">
+                  <span class="pl-marker">1</span>
+                  <div>
+                    <h3 class="pl-lg">Plan your 3rd half around Team A's matches</h3>
+                    <p class="pl-sm pl-marked pl-marked--gutter"><span class="pl-marker">2</span>3 matches in Sydney and Newcastle. See what fits around them.</p>
+                  </div>
+                  <a href="#setup" class="pl-btn pl-btn-primary pl-marked pl-marked--gutter"><span class="pl-marker">3</span>Start planning</a>
+                </div>
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Rest of team page</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="cp-frame-label">Mobile, 375px</p>
+            <div class="cp-frame cp-frame--mobile cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header</span></div>
+              <div class="cp-pad">
+                <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Team page: Team A hero and intro</span></div>
+                <div class="pl-entry pl-entry--compact">
+                  <div>
+                    <h3 class="pl-lg">Plan your 3rd half around Team A's matches</h3>
+                    <p class="pl-sm">3 matches in Sydney and Newcastle. See what fits around them.</p>
+                  </div>
+                  <a href="#setup" class="pl-btn pl-btn-primary">Start planning</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Compact module for team pages. The team comes from the page, so the heading names it.</span></li>
+          <li><span class="pl-marker">2</span><span>Match count and host cities come from the match schedule (<b>not in contract</b>, as flagged on the components page).</span></li>
+          <li><span class="pl-marker">3</span><span>Opens the set-up page with Team A filled in and their NSW matches ticked.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Set-up page ── -->
+<section class="cp-section" id="setup">
+  <div class="cp-wrap">
+    <h2>Set-up page</h2>
+    <p>The fan describes their trip in one sentence. Desktop shows the matches dropdown open.</p>
+    <div class="pl-scope">
+      <div class="pl-annotated">
+        <div class="cp-frames">
+          <div>
+            <p class="cp-frame-label">Desktop: matches dropdown open</p>
+            <div class="cp-frame cp-frame--bleed pl-scope">
+              <div class="pl-ph pl-ph--bar pl-marked"><span class="pl-marker">1</span><span class="pl-ph-label">sydney.com header</span></div>
+              <div class="cp-pad">
+                <div class="pl-marked pl-marked--gutter">
+                  <span class="pl-marker">2</span>
+                  <h1 class="pl-lg">Plan your 3rd half</h1>
+                  <p class="pl-sm">The third half is the social part after the game. Your matches are fixed, and we show what fits around them.</p>
+                </div>
+                <form class="pl-setup" onsubmit="return false;">
+                  <p class="pl-setup-sentence pl-marked pl-marked--gutter">
+                    <span class="pl-marker">3</span>
+                    I'm following
+                    <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                    to
+                    <button type="button" class="pl-slot-btn" aria-expanded="true" aria-controls="matches-desktop">2 matches</button>,
+                    staying
+                    <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
+                    in
+                    <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney and Newcastle</option><option>Sydney</option><option>Newcastle</option></select></label>,
+                    travelling
+                    <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
+                    into
+                    <span class="pl-slot-text">food and drink, beaches</span>,
+                    <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
+                  </p>
+
+                  <div class="pl-panel pl-marked pl-marked--gutter" id="matches-desktop">
+                    <span class="pl-marker">4</span>
+                    <p class="pl-sm">Team A's matches in NSW</p>
+                    <ul class="pl-checklist">
+                      <li><label><input type="checkbox" checked><span><b>Team A v Team B</b><span class="pl-sm">Sat 16 Oct, 7:45pm. Venue name, Sydney</span></span></label></li>
+                      <li><label><input type="checkbox" checked><span><b>Team A v Team C</b><span class="pl-sm">Sat 23 Oct, 5:00pm. Venue name, Newcastle</span></span></label></li>
+                      <li><label><input type="checkbox"><span><b>Team A v Team D</b><span class="pl-sm">Sun 31 Oct, 3:00pm. Venue name, Sydney</span></span></label></li>
+                    </ul>
+                    <button type="button" class="pl-btn">Done</button>
+                  </div>
+
+                  <fieldset class="pl-filters pl-marked pl-marked--gutter">
+                    <legend>Into</legend>
+                    <span class="pl-marker">5</span>
+                    <button type="button" class="pl-btn" aria-pressed="true">Food and drink</button>
+                    <button type="button" class="pl-btn" aria-pressed="true">Beaches</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Nature</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Nightlife</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Culture</button>
+                    <button type="button" class="pl-btn" aria-pressed="false">Sport</button>
+                  </fieldset>
+
+                  <button type="submit" class="pl-btn pl-btn-primary pl-marked pl-marked--gutter"><span class="pl-marker">6</span>Show my plan</button>
+                  <p class="pl-sm">No sign-in needed.</p>
+                  <a href="#" class="pl-sm pl-marked pl-marked--gutter"><span class="pl-marker">7</span>Already have a plan? Check it against your dates</a>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="cp-frames-row">
+            <div>
+              <p class="cp-frame-label">Mobile, one 375 × 667 screen</p>
+              <div class="cp-frame cp-frame--mobile cp-frame--screen pl-scope" id="setup-mobile-screen">
+                <div class="pl-ph pl-ph--bar"><span class="pl-ph-label">sydney.com header</span></div>
+                <div class="cp-pad pl-marked">
+                  <span class="pl-marker">8</span>
+                  <div>
+                    <h1 class="pl-lg">Plan your 3rd half</h1>
+                    <p class="pl-sm">The third half is the social part after the game. Your matches are fixed, and we show what fits around them.</p>
+                  </div>
+                  <form class="pl-setup" onsubmit="return false;">
+                    <p class="pl-setup-sentence">
+                      I'm following
+                      <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                      to
+                      <button type="button" class="pl-slot-btn" aria-expanded="false">2 matches</button>,
+                      staying
+                      <label class="pl-slot"><span class="visually-hidden">Nights</span><select><option>4 nights</option><option>1 night</option><option>2 nights</option><option>3 nights</option><option>5 nights or more</option></select></label>
+                      in
+                      <label class="pl-slot"><span class="visually-hidden">City</span><select><option>Sydney and Newcastle</option><option>Sydney</option><option>Newcastle</option></select></label>,
+                      travelling
+                      <label class="pl-slot"><span class="visually-hidden">Who</span><select><option>with friends</option><option>solo</option><option>as a couple</option><option>with family</option></select></label>,
+                      into
+                      <span class="pl-slot-text">food and drink, beaches</span>,
+                      <label class="pl-slot"><span class="visually-hidden">Car</span><select><option>no car</option><option>with a car</option></select></label>.
+                    </p>
+                    <fieldset class="pl-filters">
+                      <legend>Into</legend>
+                      <button type="button" class="pl-btn" aria-pressed="true">Food and drink</button>
+                      <button type="button" class="pl-btn" aria-pressed="true">Beaches</button>
+                      <button type="button" class="pl-btn" aria-pressed="false">Nature</button>
+                      <button type="button" class="pl-btn" aria-pressed="false">Nightlife</button>
+                      <button type="button" class="pl-btn" aria-pressed="false">Culture</button>
+                      <button type="button" class="pl-btn" aria-pressed="false">Sport</button>
+                    </fieldset>
+                    <button type="submit" class="pl-btn pl-btn-primary">Show my plan</button>
+                    <p class="pl-sm">No sign-in needed.</p>
+                    <a href="#" class="pl-sm">Already have a plan? Check it against your dates</a>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p class="cp-frame-label">Mobile: matches dropdown open</p>
+              <div class="cp-frame cp-frame--mobile cp-frame--bleed pl-scope">
+                <div class="cp-pad">
+                  <form class="pl-setup" onsubmit="return false;">
+                    <p class="pl-setup-sentence">
+                      I'm following
+                      <label class="pl-slot"><span class="visually-hidden">Team</span><select><option>Team A</option><option>Team B</option><option>Team C</option></select></label>
+                      to
+                      <button type="button" class="pl-slot-btn" aria-expanded="true" aria-controls="matches-mobile">2 matches</button>,
+                      staying …
+                    </p>
+                    <div class="pl-panel pl-marked" id="matches-mobile">
+                      <span class="pl-marker">9</span>
+                      <p class="pl-sm">Team A's matches in NSW</p>
+                      <ul class="pl-checklist">
+                        <li><label><input type="checkbox" checked><span><b>Team A v Team B</b><span class="pl-sm">Sat 16 Oct, 7:45pm. Venue name, Sydney</span></span></label></li>
+                        <li><label><input type="checkbox" checked><span><b>Team A v Team C</b><span class="pl-sm">Sat 23 Oct, 5:00pm. Venue name, Newcastle</span></span></label></li>
+                        <li><label><input type="checkbox"><span><b>Team A v Team D</b><span class="pl-sm">Sun 31 Oct, 3:00pm. Venue name, Sydney</span></span></label></li>
+                      </ul>
+                      <button type="button" class="pl-btn">Done</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="pl-notes">
+          <li><span class="pl-marker">1</span><span>Standard sydney.com header, the same as the rest of the site.</span></li>
+          <li><span class="pl-marker">2</span><span>Title, plus one line explaining the name.</span></li>
+          <li><span class="pl-marker">3</span><span>The set-up sentence. Each underlined part is a dropdown. Anything chosen on an entry point arrives already filled in.</span></li>
+          <li><span class="pl-marker">4</span><span>Matches, open: the team's NSW matches with dates and venues. Tick any; at least one stays ticked. Match data is <b>not in contract</b>.</span></li>
+          <li><span class="pl-marker">5</span><span>Interests as category filters. Pick any; the choices fill the dashed part of the sentence. <b>Not in contract:</b> these categories need tags, as the contract only has product <code>type</code>.</span></li>
+          <li><span class="pl-marker">6</span><span>Builds the plan view (screen 2). No sign-in needed.</span></li>
+          <li><span class="pl-marker">7</span><span>Goes to Check my plan (screen 4, built later).</span></li>
+          <li><span class="pl-marker">8</span><span>Mobile: the sentence wraps onto several lines, and the whole set-up fits one screen.</span></li>
+          <li><span class="pl-marker">9</span><span>Mobile, matches open: the list opens full width under the sentence and pushes the rest down. Done closes it.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
