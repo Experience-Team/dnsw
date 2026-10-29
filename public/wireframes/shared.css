@@ -1002,6 +1002,8 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 .breadcrumb { display: flex; gap: .4rem; align-items: center; color: var(--color-text-muted); font-size: 14px; }
 .breadcrumb .crumb-active { color: var(--color-accent); font-weight: 600; text-decoration: none; }
 .breadcrumb .sep { color: #ccc; }
+/* Contained: lines the breadcrumb and actions up with .container content on wide screens */
+.page-switcher-bar--contained { padding-inline: max(2rem, calc((100% - 76rem) / 2)); }
 .page-actions { display: flex; gap: 1rem; }
 .page-actions a { color: var(--color-text-muted); text-decoration: none; font-size: .8125rem; }
 
