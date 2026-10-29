@@ -656,6 +656,12 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 #rwc-find-people [hidden] { display: none; }
 .rwc-people-grid { align-items: start; }
 .rwc-people-grid + .rwc-people-grid { margin-top: 1rem; }
+#rwc-team-view [hidden], .rwc-back-team[hidden] { display: none; }
+.rwc-team-times { margin-bottom: .75rem; }
+.rwc-team-line { margin-top: .75rem; }
+.rwc-back-team { margin-bottom: .75rem; }
+#rwc-fan-zone, #rwc-people-watch { scroll-margin-top: 9rem; }
+.pl-team-where { display: block; font-size: .75rem; font-weight: 400; color: #444; }
 
 /* ── Location tiles (stadiums and fan zones) ──
    Landscape cards, one per row: static schematic map (left) + details (right); stacked on mobile.
