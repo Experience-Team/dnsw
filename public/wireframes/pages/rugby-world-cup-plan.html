@@ -23,7 +23,10 @@
   </div>
 
   <!-- 3rd half planner results: built in the browser from the answers in the URL
-       (team, m = match indexes, nights, city, who, interests, car). No answers = example plan. -->
+       (team, m = match indexes, nights, city, who, interests, car, mode). No answers = example plan.
+       mode=watching: match blocks become watch blocks at the fan zone (Sydney) or a venue where the team's
+       fans watch (Newcastle), at kick-off time, and the free time is planned around them. Matches outside
+       NSW are always watch blocks. -->
   <main class="section plan-page">
     <div class="container pl-scope">
 
@@ -102,7 +105,7 @@
   <div data-include="../components/footer.html"></div>
   <script src="../includes.js"></script>
 
-  <script type="application/json" id="plan-fixtures">[{"iso": "2027-10-03", "teams": "Japan v Samoa", "stage": "Pool E", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "12:15pm", "pool": true}, {"iso": "2027-10-04", "teams": "Fiji v Spain", "stage": "Pool C", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "2:15pm", "pool": true}, {"iso": "2027-10-04", "teams": "Ireland v Portugal", "stage": "Pool D", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "5:15pm", "pool": true}, {"iso": "2027-10-09", "teams": "New Zealand v Australia", "stage": "Pool A", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "5:10pm", "pool": true}, {"iso": "2027-10-11", "teams": "Uruguay v Portugal", "stage": "Pool D", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "5:15pm", "pool": true}, {"iso": "2027-10-11", "teams": "Italy v Romania", "stage": "Pool B", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-16", "teams": "England v Wales", "stage": "Pool F", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-17", "teams": "Italy v Georgia", "stage": "Pool B", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "12:15pm", "pool": true}, {"iso": "2027-10-17", "teams": "France v Samoa", "stage": "Pool E", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-23", "teams": "2nd Pool C v 2nd Pool F", "stage": "Round of 16 (1)", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "2:15pm", "pool": false}, {"iso": "2027-10-24", "teams": null, "stage": "Round of 16 (2)", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "4:45pm", "pool": false}, {"iso": "2027-10-30", "teams": null, "stage": "Quarter-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "4:45pm", "pool": false}, {"iso": "2027-10-31", "teams": null, "stage": "Quarter-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": null, "pool": false}, {"iso": "2027-11-05", "teams": null, "stage": "Semi-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "9:00am", "pool": false}, {"iso": "2027-11-06", "teams": null, "stage": "Semi-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": null, "pool": false}, {"iso": "2027-11-12", "teams": null, "stage": "Bronze Final", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "8:45am", "pool": false}, {"iso": "2027-11-13", "teams": null, "stage": "Final", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "8:00pm", "pool": false}]</script>
+  <script type="application/json" id="plan-fixtures">[{"iso": "2027-10-03", "teams": "Japan v Samoa", "stage": "Pool E", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "12:15pm", "pool": true}, {"iso": "2027-10-04", "teams": "Fiji v Spain", "stage": "Pool C", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "2:15pm", "pool": true}, {"iso": "2027-10-04", "teams": "Ireland v Portugal", "stage": "Pool D", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "5:15pm", "pool": true}, {"iso": "2027-10-09", "teams": "New Zealand v Australia", "stage": "Pool A", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "5:10pm", "pool": true}, {"iso": "2027-10-11", "teams": "Uruguay v Portugal", "stage": "Pool D", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "5:15pm", "pool": true}, {"iso": "2027-10-11", "teams": "Italy v Romania", "stage": "Pool B", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-16", "teams": "England v Wales", "stage": "Pool F", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-17", "teams": "Italy v Georgia", "stage": "Pool B", "venue": "Newcastle Stadium, Broadmeadow", "v": "ncl", "kickoff": "12:15pm", "pool": true}, {"iso": "2027-10-17", "teams": "France v Samoa", "stage": "Pool E", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-23", "teams": "2nd Pool C v 2nd Pool F", "stage": "Round of 16 (1)", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "2:15pm", "pool": false}, {"iso": "2027-10-24", "teams": null, "stage": "Round of 16 (2)", "venue": "Sydney Football Stadium, Moore Park", "v": "sfs", "kickoff": "4:45pm", "pool": false}, {"iso": "2027-10-30", "teams": null, "stage": "Quarter-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "4:45pm", "pool": false}, {"iso": "2027-10-31", "teams": null, "stage": "Quarter-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": null, "pool": false}, {"iso": "2027-11-05", "teams": null, "stage": "Semi-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "9:00am", "pool": false}, {"iso": "2027-11-06", "teams": null, "stage": "Semi-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": null, "pool": false}, {"iso": "2027-11-12", "teams": null, "stage": "Bronze Final", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "8:45am", "pool": false}, {"iso": "2027-11-13", "teams": null, "stage": "Final", "venue": "Stadium Australia, Sydney Olympic Park", "v": "sa", "kickoff": "8:00pm", "pool": false}, {"iso": "2027-10-01", "teams": "Australia v Hong Kong China", "stage": "Pool A", "venue": "Perth Stadium, Perth", "v": "away", "city": "Perth", "kickoff": "9:00pm", "pool": true}, {"iso": "2027-10-02", "teams": "Scotland v Uruguay", "stage": "Pool D", "venue": "Townsville Stadium, Townsville", "v": "away", "city": "Townsville", "kickoff": "3:00pm", "pool": true}, {"iso": "2027-10-02", "teams": "Argentina v Canada", "stage": "Pool C", "venue": "Adelaide Oval, Adelaide", "v": "away", "city": "Adelaide", "kickoff": "4:30pm", "pool": true}, {"iso": "2027-10-02", "teams": "New Zealand v Chile", "stage": "Pool A", "venue": "Brisbane Stadium, Brisbane", "v": "away", "city": "Brisbane", "kickoff": "6:30pm", "pool": true}, {"iso": "2027-10-02", "teams": "France v USA", "stage": "Pool E", "venue": "Melbourne Stadium, Melbourne", "v": "away", "city": "Melbourne", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-03", "teams": "Wales v Zimbabwe", "stage": "Pool F", "venue": "Brisbane Stadium, Brisbane", "v": "away", "city": "Brisbane", "kickoff": "3:00pm", "pool": true}, {"iso": "2027-10-03", "teams": "South Africa v Italy", "stage": "Pool B", "venue": "Melbourne Stadium, Melbourne", "v": "away", "city": "Melbourne", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-03", "teams": "England v Tonga", "stage": "Pool F", "venue": "Perth Stadium, Perth", "v": "away", "city": "Perth", "kickoff": "9:00pm", "pool": true}, {"iso": "2027-10-05", "teams": "Georgia v Romania", "stage": "Pool B", "venue": "Adelaide Oval, Adelaide", "v": "away", "city": "Adelaide", "kickoff": "7:30pm", "pool": true}, {"iso": "2027-10-07", "teams": "Chile v Hong Kong China", "stage": "Pool A", "venue": "Townsville Stadium, Townsville", "v": "away", "city": "Townsville", "kickoff": "5:15pm", "pool": true}, {"iso": "2027-10-08", "teams": "Spain v Canada", "stage": "Pool C", "venue": "Adelaide Oval, Adelaide", "v": "away", "city": "Adelaide", "kickoff": "7:30pm", "pool": true}, {"iso": "2027-10-08", "teams": "Wales v Tonga", "stage": "Pool F", "venue": "Melbourne Stadium, Melbourne", "v": "away", "city": "Melbourne", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-09", "teams": "England v Zimbabwe", "stage": "Pool F", "venue": "Adelaide Oval, Adelaide", "v": "away", "city": "Adelaide", "kickoff": "7:30pm", "pool": true}, {"iso": "2027-10-09", "teams": "Ireland v Scotland", "stage": "Pool D", "venue": "Melbourne Stadium, Melbourne", "v": "away", "city": "Melbourne", "kickoff": "8:00pm", "pool": true}, {"iso": "2027-10-09", "teams": "France v Japan", "stage": "Pool E", "venue": "Brisbane Stadium, Brisbane", "v": "away", "city": "Brisbane", "kickoff": "8:00pm", "pool": true}, {"iso": "2027-10-09", "teams": "South Africa v Georgia", "stage": "Pool B", "venue": "Perth Stadium, Perth", "v": "away", "city": "Perth", "kickoff": "9:30pm", "pool": true}, {"iso": "2027-10-10", "teams": "USA v Samoa", "stage": "Pool E", "venue": "Adelaide Oval, Adelaide", "v": "away", "city": "Adelaide", "kickoff": "4:30pm", "pool": true}, {"iso": "2027-10-10", "teams": "Argentina v Fiji", "stage": "Pool C", "venue": "Melbourne Stadium, Melbourne", "v": "away", "city": "Melbourne", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-13", "teams": "Tonga v Zimbabwe", "stage": "Pool F", "venue": "Adelaide Oval, Adelaide", "v": "away", "city": "Adelaide", "kickoff": "7:30pm", "pool": true}, {"iso": "2027-10-14", "teams": "Fiji v Canada", "stage": "Pool C", "venue": "Brisbane Stadium, Brisbane", "v": "away", "city": "Brisbane", "kickoff": "7:00pm", "pool": true}, {"iso": "2027-10-14", "teams": "Japan v USA", "stage": "Pool E", "venue": "Townsville Stadium, Townsville", "v": "away", "city": "Townsville", "kickoff": "7:00pm", "pool": true}, {"iso": "2027-10-14", "teams": "New Zealand v Hong Kong China", "stage": "Pool A", "venue": "Melbourne Stadium, Melbourne", "v": "away", "city": "Melbourne", "kickoff": "7:45pm", "pool": true}, {"iso": "2027-10-15", "teams": "South Africa v Romania", "stage": "Pool B", "venue": "Brisbane Stadium, Brisbane", "v": "away", "city": "Brisbane", "kickoff": "8:00pm", "pool": true}, {"iso": "2027-10-15", "teams": "Ireland v Uruguay", "stage": "Pool D", "venue": "Perth Stadium, Perth", "v": "away", "city": "Perth", "kickoff": "9:30pm", "pool": true}, {"iso": "2027-10-16", "teams": "Australia v Chile", "stage": "Pool A", "venue": "Brisbane Stadium, Brisbane", "v": "away", "city": "Brisbane", "kickoff": "8:00pm", "pool": true}, {"iso": "2027-10-16", "teams": "Argentina v Spain", "stage": "Pool C", "venue": "Perth Stadium, Perth", "v": "away", "city": "Perth", "kickoff": "9:30pm", "pool": true}, {"iso": "2027-10-17", "teams": "Scotland v Portugal", "stage": "Pool D", "venue": "Adelaide Oval, Adelaide", "v": "away", "city": "Adelaide", "kickoff": "3:30pm", "pool": true}]</script>
 
   <script>
   (function () {
@@ -111,7 +114,10 @@
     var example = !q.get('team');
     var team = q.get('team') || 'Samoa';
     var picked = (q.get('m') || '').split(',').filter(Boolean).map(Number).filter(function (i) { return FIX[i]; });
-    if (example || !picked.length) picked = FIX.map(function (f, i) { return i; }).filter(function (i) { return FIX[i].pool && FIX[i].teams.split(' v ').indexOf(team) > -1; });
+    var mode = q.get('mode') === 'watching' ? 'watching' : 'going';
+    function mine(i) { return FIX[i].pool && FIX[i].teams.split(' v ').indexOf(team) > -1; }
+    if (example || !picked.length) picked = FIX.map(function (f, i) { return i; }).filter(function (i) { return mine(i) && FIX[i].v !== 'away'; });
+    if (!picked.length) { picked = FIX.map(function (f, i) { return i; }).filter(mine); mode = 'watching'; }
     var nights = Math.min(5, Math.max(1, parseInt(q.get('nights') || '4', 10)));
     var city = q.get('city') || 'both';
     var who = q.get('who') || 'friends';
@@ -132,9 +138,13 @@
       newcastle: ['Newcastle', 'Honeysuckle', 'Merewether', 'Hamilton', 'Bar Beach', 'Cooks Hill'],
       sa: ['Sydney Olympic Park', 'Wentworth Point', 'Homebush'],
       sfs: ['Moore Park', 'Paddington', 'Surry Hills'],
-      ncl: ['Broadmeadow', 'Hamilton', 'Newcastle']
+      ncl: ['Broadmeadow', 'Hamilton', 'Newcastle'],
+      fz: ['Darling Harbour', 'Haymarket', 'Pyrmont']
     };
     var VENUE_CITY = { sa: 'sydney', sfs: 'sydney', ncl: 'newcastle' };
+    function watching(m) { return mode === 'watching' || m.v === 'away'; }
+    // Where the match happens for this fan: the stadium, or (watching) the city they're staying in.
+    function cityOf(m) { return watching(m) ? (city === 'newcastle' ? 'newcastle' : 'sydney') : VENUE_CITY[m.v]; }
     var CITY_NAME = { sydney: 'Sydney', newcastle: 'Newcastle' };
     var WHO = { friends: 'with friends', solo: 'solo', couple: 'as a couple', family: 'with family' };
 
@@ -173,7 +183,7 @@
     function nearestCity(d) {
       var best = null, gap = 1e9;
       matches.forEach(function (m) { var g = Math.abs(day(m.iso) - d); if (g < gap || (g === gap && day(m.iso) > d)) { gap = g; best = m; } });
-      return VENUE_CITY[best.v];
+      return cityOf(best);
     }
     function baseFor(d) { return city === 'both' ? nearestCity(d) : city; }
 
@@ -225,16 +235,19 @@
       if (prevBase && base !== prevBase) parts += row(travel(prevBase, base));
       if (isFirst) parts += row(isLast ? 'Day trip: no overnight stay' : 'Arrive and check in to your stay in ' + CITY_NAME[base]);
       if (m) {
-        var mc = VENUE_CITY[m.v], h = hour(m.kickoff);
+        var mc = cityOf(m), h = hour(m.kickoff), w = watching(m);
+        var spot = w ? (mc === 'sydney' ? 'fz' : 'newcastle') : m.v;
         if (mc !== base) parts += row('Day trip to ' + CITY_NAME[mc] + ': ' + (car ? 'about 2 hours each way by car' : 'about 3 hours each way by train') + '. Head back after the match.');
-        parts += gap(h !== null && h < 13 ? 'Before kick-off: breakfast nearby' : 'Before kick-off', h !== null && h < 13 ? 'Morning' : 'Afternoon', 'before', m.v, 'near the stadium');
+        parts += gap(h !== null && h < 13 ? 'Before kick-off: breakfast nearby' : 'Before kick-off', h !== null && h < 13 ? 'Morning' : 'Afternoon', 'before', spot, w ? (mc === 'sydney' ? 'near the fan zone' : 'near the screening') : 'near the stadium');
+        // Watch block: same fixed block, but where you'll watch it rather than the stadium.
         parts += '<article class="pl-match' + (m.kickoff ? '' : ' is-tbc') + '"><div class="pl-match-time"><span class="pl-sm">' + fmt(d) + '</span><span class="pl-lg">' + (m.kickoff || 'TBC') + '</span><span class="pl-sm">' + (m.kickoff ? 'Kick-off, AEDT' : 'Kick-off to be confirmed') + '</span></div>' +
-          '<div class="pl-match-body"><span class="pl-tag">' + esc(m.stage) + '</span><h3 class="pl-lg">' + esc(m.teams || 'Teams to be confirmed') + '</h3><span class="pl-sm">' + esc(m.venue) + '</span></div>' +
-          '<a href="#" class="pl-match-link">Getting to the stadium</a></article>';
-        parts += mc === 'sydney'
+          '<div class="pl-match-body"><span class="pl-tag">' + (w ? 'Watch &middot; ' : '') + esc(m.stage) + '</span><h3 class="pl-lg">' + esc(m.teams || 'Teams to be confirmed') + '</h3><span class="pl-sm">' +
+          (w ? (m.v === 'away' ? 'Played in ' + esc(m.city) + '. ' : 'Played at ' + esc(m.venue.split(',')[0]) + '. ') + (mc === 'sydney' ? 'Watch at the fan zone, Tumbalong Park, Darling Harbour' : 'Watch at Venue name, Newcastle, where ' + esc(team) + ' fans watch') : esc(m.venue)) + '</span></div>' +
+          '<a href="#" class="pl-match-link">' + (w ? 'Where else to watch' : 'Getting to the stadium') + '</a></article>';
+        if (!w) parts += mc === 'sydney'
           ? row('<strong>Fan zone:</strong> Tumbalong Park, Darling Harbour is open all day with big screens, food and live music.', 'plan-row-fan')
           : row('<strong>Match-day zone</strong> at Newcastle Stadium (to be confirmed).', 'plan-row-fan');
-        parts += m.kickoff ? gap('Your 3rd half', 'After the match', 'after', m.v, 'after the game')
+        parts += m.kickoff ? gap('Your 3rd half', 'After the match', 'after', spot, 'after the game')
                            : row('We\'ll suggest your 3rd half once the kick-off time is confirmed.');
         stops.push({ d: d, city: mc, label: (m.teams || m.stage) });
       } else {
@@ -245,20 +258,21 @@
       }
       if (isLast && !isFirst) parts += row('Check out and head home');
       html += '<section class="pl-day plan-day" aria-labelledby="day-' + n + '"><div class="pl-day-head"><h2 class="pl-lg" id="day-' + n + '">Day ' + (n + 1) + ' &middot; ' + fmt(d) + '</h2>' +
-        '<span class="pl-sm">' + (m ? 'Match day in ' + CITY_NAME[VENUE_CITY[m.v]] : 'In ' + CITY_NAME[base]) + '</span></div>' + parts + '</section>';
+        '<span class="pl-sm">' + (m ? (watching(m) ? 'Watch day in ' : 'Match day in ') + CITY_NAME[cityOf(m)] : 'In ' + CITY_NAME[base]) + '</span></div>' + parts + '</section>';
       prevBase = base;
     });
     document.getElementById('plan-days').innerHTML = html;
 
     // Header
-    var cities = days.map(baseFor).concat(matches.map(function (m) { return VENUE_CITY[m.v]; })).filter(function (c, i, a) { return a.indexOf(c) === i; });
+    var cities = days.map(baseFor).concat(matches.map(cityOf)).filter(function (c, i, a) { return a.indexOf(c) === i; });
     document.getElementById('plan-title').textContent = team + ' in ' + cities.map(function (c) { return CITY_NAME[c]; }).join(' and ');
     var ints = interests.map(function (c) { return CAT[c] ? CAT[c].e + ' ' + CAT[c].l.toLowerCase() : c; });
     document.getElementById('plan-summary').textContent =
       trips.map(function (t) { return t.n ? fmt(t.start) + ' to ' + fmt(addDays(t.start, t.n)) : fmt(t.start); }).join(' and ') + ' 2027 · ' + nights + (nights === 1 ? ' night' : ' nights') + ' · ' +
-      matches.length + (matches.length === 1 ? ' match' : ' matches') + ' · ' + WHO[who] + ' · into ' + ints.join(', ') + ' · ' + (car ? 'with a car' : 'no car');
+      matches.length + (matches.length === 1 ? ' match' : ' matches') + (mode === 'watching' ? ' to watch' : '') + ' · ' + WHO[who] + ' · into ' + ints.join(', ') + ' · ' + (car ? 'with a car' : 'no car');
     var notice = document.getElementById('plan-notice');
     if (example) { notice.hidden = false; notice.textContent = 'This is an example plan for Samoa fans. Change your answers to build your own.'; }
+    else if (mode === 'watching') { notice.hidden = false; notice.textContent = 'You\'re watching, so each match is a watch block at the fan zone or a venue where ' + team + ' fans watch, at kick-off time. Your free time is planned around them.'; }
     else if (trips.length > 1) { notice.hidden = false; notice.textContent = 'Your matches are ' + span + ' days apart, so we\'ve planned ' + trips.length + ' short trips. To stay the whole time, choose 5 nights or more.'; }
 
     // Where you'll stay: one group per city you sleep in
