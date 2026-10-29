@@ -35,7 +35,7 @@
   </div>
 
   <!-- Breadcrumb + page actions bar -->
-  <div class="page-switcher-bar page-switcher-bar--contained">
+  <div class="page-switcher-bar">
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="#" class="crumb">Home</a>
       <span class="sep">›</span>
@@ -181,7 +181,7 @@
                   </span>
                   </span>
                 </span>
-            </span>&rsquo;s matches
+            </span> matches
             <span class="pl-slot pl-match-picker" data-match-picker><button type="button" class="pl-slot-btn" aria-expanded="false" aria-controls="rwc-match-pop" aria-describedby="rwc-match-hint"><span class="visually-hidden">Matches: </span><span class="pl-match-picker-value"><span class="pl-team-placeholder">on which dates?</span></span></button>
                 <span class="pl-match-pop" id="rwc-match-pop" hidden>
                   <span class="pl-match-pop-body"></span>
@@ -402,7 +402,7 @@
 
   <!-- Stadiums and fan zones: static location tiles, no map. Each tile carries the stadium,
        the likely fan zone (to be confirmed), wayfinding, and accommodation products only.
-       Accommodation: title, gallery and address.suburb are live; category is gap (wash).
+       Accommodation: title, gallery and address.suburb are live; category and distance_to_venue are gap (wash).
        Empty state: when no accommodation is listed near a location, "Stay nearby" shows
        "No places to stay listed near here yet." plus the "All places to stay" link. -->
   <section class="section" style="background:#f9f9f9;" aria-labelledby="rwc-locations-title">
@@ -412,6 +412,10 @@
           <p class="section-title" id="rwc-locations-title">Stadiums and fan zones</p>
           <p class="section-body">Where to watch, how to get there and where to stay. Match-day zones at the stadiums are still to be confirmed.</p>
         </div>
+      </div>
+      <!-- Stadiums heading: only shown when the fan zone comes first (teams with no NSW matches) -->
+      <div class="loc-group-head" id="rwc-stadiums-head" hidden>
+        <h3 class="loc-group-title">Stadiums in NSW</h3>
       </div>
       <ul class="loc-tiles" data-reveal>
         <li class="loc-tile" data-venue="sa">
@@ -430,8 +434,8 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Sydney Olympic Park</span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Wentworth Point</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Sydney Olympic Park</span><span class="loc-stay-meta"><span class="provenance-gap">0.6 km from the stadium</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Wentworth Point</span><span class="loc-stay-meta"><span class="provenance-gap">2.5 km from the stadium</span></span></span></a>
               <a href="#" class="loc-link">All places to stay near Sydney Olympic Park</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
@@ -453,8 +457,8 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Surry Hills</span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Paddington</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Surry Hills</span><span class="loc-stay-meta"><span class="provenance-gap">1.4 km from the stadium</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Paddington</span><span class="loc-stay-meta"><span class="provenance-gap">1.1 km from the stadium</span></span></span></a>
               <a href="#" class="loc-link">All places to stay near Moore Park</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
@@ -476,19 +480,14 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle</span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle West</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle</span><span class="loc-stay-meta"><span class="provenance-gap">3.5 km from the stadium</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle West</span><span class="loc-stay-meta"><span class="provenance-gap">2.4 km from the stadium</span></span></span></a>
               <a href="#" class="loc-link">All places to stay near Newcastle</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
           </div>
         </li>
       </ul>
-
-      <details class="rwc-other-stadiums" id="rwc-other-stadiums" hidden>
-        <summary class="pl-btn">Other stadiums</summary>
-        <ul class="loc-tiles" id="rwc-other-tiles"></ul>
-      </details>
 
       <!-- Fan zone: shown as confirmed (fixture for visualisation). Comes first for teams with no NSW matches. -->
       <div class="loc-group-head" id="rwc-fan-zone">
@@ -511,8 +510,8 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Haymarket</span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Pyrmont</span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Haymarket</span><span class="loc-stay-meta"><span class="provenance-gap">0.5 km from the fan zone</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Pyrmont</span><span class="loc-stay-meta"><span class="provenance-gap">0.8 km from the fan zone</span></span></span></a>
               <a href="#" class="loc-link">All places to stay near Darling Harbour</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
@@ -978,8 +977,7 @@
       var findPeople = document.getElementById('rwc-find-people');
       var stadiumList = document.querySelector('#rwc-locations-title').closest('section').querySelector('.loc-tiles');
       var stadiums = Array.prototype.slice.call(stadiumList.querySelectorAll('.loc-tile[data-venue]'));
-      var other = document.getElementById('rwc-other-stadiums');
-      var otherList = document.getElementById('rwc-other-tiles');
+      var stadiumsHead = document.getElementById('rwc-stadiums-head');
       var countdown = document.querySelector('[data-countdown]');
       var cd = { target: countdown.dataset.countdown, label: document.getElementById('rwc-countdown-label').textContent, meta: document.getElementById('rwc-countdown-meta').textContent };
       var VENUE = { 'Stadium Australia': 'sa', 'Sydney Football Stadium': 'sfs', 'Newcastle Stadium': 'ncl' };
@@ -996,36 +994,26 @@
       }
       function layout(team) {
         // Order: matches before plan once a team is chosen, find your people straight after the plan.
-        // Teams with no NSW pool matches see find your people first: watching with other fans is how they join in.
         // No NSW pool matches: [Team]'s matches, find your people, plan (watching), then the fan zone first.
         var none = team && !teamMatches(team).length;
         if (team) plan.parentNode.insertBefore(matches, plan); else matches.parentNode.insertBefore(plan, matches);
         plan.parentNode.insertBefore(findPeople, none ? plan : plan.nextElementSibling);
         renderPeople(team);
         renderMatches(team);
-        other.parentNode.insertBefore(fanHead, other.nextSibling);
-        other.parentNode.insertBefore(fanList, fanHead.nextSibling);
-        locTitle.textContent = locTitleText;
+        // Stadium and fan zone cards always stay open: they're the most reliable information on the page.
+        // Only the order changes: the team's stadiums first; with no NSW matches, the fan zone first.
+        stadiumList.parentNode.insertBefore(fanHead, stadiumList.nextSibling);
+        stadiumList.parentNode.insertBefore(fanList, fanHead.nextSibling);
+        stadiumsHead.hidden = !none;
+        locTitle.textContent = none ? 'Fan zone and stadiums' : locTitleText;
         if (none) {
-          stadiumList.parentNode.insertBefore(fanHead, stadiumList);
-          stadiumList.parentNode.insertBefore(fanList, stadiumList);
-          stadiums.forEach(function (li) { otherList.appendChild(li); });
-          other.hidden = false;
-          other.open = false;
-          other.querySelector('summary').textContent = 'Stadiums in NSW (' + stadiums.length + ')';
-          locTitle.textContent = 'Fan zone and stadiums';
-          return;
+          stadiumsHead.parentNode.insertBefore(fanHead, stadiumsHead);
+          stadiumsHead.parentNode.insertBefore(fanList, stadiumsHead);
         }
-        // Stadiums: the team's first, the rest under "Other stadiums"; no team = unchanged.
         var venues = team ? teamMatches(team).map(function (f) { return VENUE[f.venue.split(',')[0]]; }) : [];
-        var mine = stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) > -1; });
-        var rest = stadiums.filter(function (li) { return mine.indexOf(li) === -1; });
-        if (!mine.length) { stadiums.forEach(function (li) { stadiumList.appendChild(li); }); other.hidden = true; return; }
-        mine.forEach(function (li) { stadiumList.appendChild(li); });
-        rest.forEach(function (li) { otherList.appendChild(li); });
-        other.hidden = !rest.length;
-        other.open = false;
-        other.querySelector('summary').textContent = 'Other stadiums (' + rest.length + ')';
+        stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) > -1; })
+          .concat(stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) === -1; }))
+          .forEach(function (li) { stadiumList.appendChild(li); });
       }
       var PEOPLE = {
         Japan: {

@@ -648,11 +648,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 /* ── RWC team choice: layout only, reusing existing component styles ── */
 .rwc-supporting { position: sticky; top: calc(var(--topbar-h) + 3.5rem); z-index: 90; background: #fff; transition: top .18s ease; }
 body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
-.rwc-supporting[hidden], .rwc-other-stadiums[hidden] { display: none; }
+.rwc-supporting[hidden], #rwc-stadiums-head[hidden] { display: none; }
 .rwc-supporting .pl-row { display: block; }
 .rwc-team-note { display: flex; gap: .5rem; align-items: center; }
-.rwc-other-stadiums { margin-top: 1.25rem; }
-.rwc-other-stadiums > .loc-tiles { margin-top: 1rem; }
 #rwc-find-people [hidden] { display: none; }
 .rwc-people-grid { align-items: start; }
 .rwc-people-grid + .rwc-people-grid { margin-top: 1rem; }
@@ -996,20 +994,21 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 }
 
 /* ── Page switcher (utility bar, inner pages only) ── */
+/* Side padding lines the breadcrumb and actions up with .container content (80rem, 2rem padding) on wide screens. */
 .page-switcher-bar {
   background: #fff;
   border-bottom: 1px solid var(--color-border);
-  padding: .5rem 2rem;
+  padding: .5rem max(2rem, calc((100% - 76rem) / 2));
   display: flex;
+  flex-wrap: wrap;
+  gap: .25rem 1rem;
   align-items: center;
   justify-content: space-between;
   font-size: .8125rem;
 }
-.breadcrumb { display: flex; gap: .4rem; align-items: center; color: var(--color-text-muted); font-size: 14px; }
+.breadcrumb { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; color: var(--color-text-muted); font-size: 14px; }
 .breadcrumb .crumb-active { color: var(--color-accent); font-weight: 600; text-decoration: none; }
 .breadcrumb .sep { color: #ccc; }
-/* Contained: lines the breadcrumb and actions up with .container content on wide screens */
-.page-switcher-bar--contained { padding-inline: max(2rem, calc((100% - 76rem) / 2)); }
 .page-actions { display: flex; gap: 1rem; }
 .page-actions a { color: var(--color-text-muted); text-decoration: none; font-size: .8125rem; }
 
