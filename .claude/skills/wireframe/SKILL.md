@@ -208,3 +208,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-28 | RWC page: choose your team once (selector, sticky Supporting bar, page reorder); review page `rugby-world-cup-team.html` |
 | 2026-10-29 | RWC page: Find your people section, and the no-NSW-matches team state |
 | 2026-10-29 | RWC page: Clear team (selector and Supporting bar) resets the page to its default and forgets the choice |
+| 2026-10-29 | RWC pages: `.page-switcher-bar--contained` lines the breadcrumb and Share/Save up with the content on wide screens |
