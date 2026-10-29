@@ -47,10 +47,10 @@
     </div>
   </div>
 
-  <!-- Supporting bar: sticks under the nav once a team is chosen; Change reopens the team selector -->
+  <!-- Supporting bar: sticks under the nav once a team is chosen; Change reopens the team selector, Clear resets the page -->
   <div class="rwc-supporting" id="rwc-supporting" hidden>
     <div class="container">
-      <p class="pl-row" role="status">Supporting&nbsp;<strong id="rwc-supporting-team"></strong>&nbsp;&middot;&nbsp;<button type="button" class="pl-btn-link" id="rwc-supporting-change">Change</button></p>
+      <p class="pl-row" role="status">Supporting&nbsp;<strong id="rwc-supporting-team"></strong>&nbsp;&middot;&nbsp;<button type="button" class="pl-btn-link" id="rwc-supporting-change">Change</button>&nbsp;&middot;&nbsp;<button type="button" class="pl-btn-link" id="rwc-supporting-clear">Clear</button></p>
     </div>
   </div>
 
@@ -117,8 +117,9 @@
                   </span>
                 </span>
             </span>
+            <button type="button" class="pl-btn-link" id="rwc-pick-clear" hidden>Clear team</button>
         </p>
-        <p class="pl-sm rwc-team-note"><span class="pl-marker">1</span> Choosing a team changes the page: their matches, plan and stadiums move to the top and fill in with that team. Everything else stays, lower down.</p>
+        <p class="pl-sm rwc-team-note"><span class="pl-marker">1</span> Choosing a team changes the page: their matches, plan and stadiums move to the top and fill in with that team. Everything else stays, lower down. Clear team puts the page back to how it was.</p>
       </div>
     </div>
   </section>
@@ -624,6 +625,7 @@
       var pop = picker.querySelector('.pl-team-pop');
       var value = picker.querySelector('.pl-team-value');
       var options = Array.prototype.slice.call(picker.querySelectorAll('[role="option"]'));
+      var placeholder = value.innerHTML;
       var active = -1, typed = '', typedAt = 0;
 
       function setActive(i) {
@@ -661,6 +663,14 @@
         value.innerHTML = '<span class="pl-team-swatch" aria-hidden="true"></span>' + team;
       }
       picker.rwcShow = show;
+      picker.rwcClear = function () {
+        options.forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+        picker.style.removeProperty('--c1');
+        picker.style.removeProperty('--c2');
+        picker.classList.remove('has-team');
+        picker.removeAttribute('data-light');
+        value.innerHTML = placeholder;
+      };
       picker.rwcOpen = function () { open(); btn.focus(); };
       function choose(i) {
         var team = options[i].dataset.team;
@@ -714,7 +724,7 @@
       var pop = picker.querySelector('.pl-match-pop');
       var body = picker.querySelector('.pl-match-pop-body');
       var value = picker.querySelector('.pl-match-picker-value');
-      var team = null, poolCount = 0;
+      var team = null, poolCount = 0, initial = value.innerHTML;
 
       function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
       function row(f, i, checked) {
@@ -726,6 +736,7 @@
       }
       function render() {
         if (!team) {
+          value.innerHTML = initial;
           body.innerHTML = '<span class="pl-match-empty">Pick a team first to see their matches in NSW.</span>';
           return;
         }
@@ -1035,11 +1046,32 @@
         if (filter.value !== team) { filter.value = team; filter.dispatchEvent(new Event('change')); }
         document.getElementById('rwc-supporting-team').textContent = team;
         bar.hidden = false;
+        pickClear.hidden = false;
         layout(team);
         retargetCountdown(team);
         if (save) try { sessionStorage.setItem(KEY, team); } catch (e) {}
       }
       window.rwcSelectTeam = function (team) { select(team, true); };
+      // Clear: back to the default page (no team, all matches and stadiums, general countdown), and forget the choice.
+      function clear() {
+        current = null;
+        pickers.forEach(function (p) { p.rwcClear(); });
+        document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: null } }));
+        filter.value = '';
+        document.querySelector('#rwc-filter-venue [data-venue=""]').click();
+        var expand = document.querySelector('[data-expand-list][aria-controls="rwc-matches"]');
+        if (expand.getAttribute('aria-expanded') === 'true') expand.click();
+        bar.hidden = true;
+        pickClear.hidden = true;
+        layout(null);
+        retargetCountdown(null);
+        try { sessionStorage.removeItem(KEY); } catch (e) {}
+        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelector('#team [role="combobox"]').focus({ preventScroll: true });
+      }
+      var pickClear = document.getElementById('rwc-pick-clear');
+      pickClear.addEventListener('click', clear);
+      document.getElementById('rwc-supporting-clear').addEventListener('click', clear);
       filter.addEventListener('change', function () { if (filter.value && filter.value !== current) select(filter.value, true); });
       document.getElementById('rwc-supporting-change').addEventListener('click', function () {
         var picker = document.querySelector('#team [data-team-picker]');
