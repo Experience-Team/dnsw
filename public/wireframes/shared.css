@@ -645,6 +645,15 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 .img-card-body { padding: .5rem 0 0; }
 .img-card-title { font-size: .875rem; font-weight: 700; color: var(--color-text); line-height: 1.3; }
 
+/* ── RWC team choice: layout only, reusing existing component styles ── */
+.rwc-supporting { position: sticky; top: calc(var(--topbar-h) + 3.5rem); z-index: 90; background: #fff; transition: top .18s ease; }
+body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
+.rwc-supporting[hidden], .rwc-other-stadiums[hidden] { display: none; }
+.rwc-supporting .pl-row { display: block; }
+.rwc-team-note { display: flex; gap: .5rem; align-items: center; }
+.rwc-other-stadiums { margin-top: 1.25rem; }
+.rwc-other-stadiums > .loc-tiles { margin-top: 1rem; }
+
 /* ── Location tiles (stadiums and fan zones) ──
    Landscape cards, one per row: static schematic map (left) + details (right); stacked on mobile.
    [data-reveal] lists get .is-pending from JS until they scroll into view. */
