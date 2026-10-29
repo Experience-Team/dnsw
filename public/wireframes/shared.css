@@ -653,6 +653,9 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 .rwc-team-note { display: flex; gap: .5rem; align-items: center; }
 .rwc-other-stadiums { margin-top: 1.25rem; }
 .rwc-other-stadiums > .loc-tiles { margin-top: 1rem; }
+#rwc-find-people [hidden] { display: none; }
+.rwc-people-grid { align-items: start; }
+.rwc-people-grid + .rwc-people-grid { margin-top: 1rem; }
 
 /* ── Location tiles (stadiums and fan zones) ──
    Landscape cards, one per row: static schematic map (left) + details (right); stacked on mobile.

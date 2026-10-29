@@ -363,10 +363,23 @@
     </div>
   </section>
 
-  <!-- Find your people: placeholder for the next step; only in the team order -->
-  <section class="section" id="rwc-find-people" hidden>
+  <!-- Find your people: where the chosen team's fans meet, watch and celebrate. Up to four parts
+       (country house, where fans watch, team moments, travelling with other fans); each part only shows
+       when there's content for that team. Before a team is chosen: one line linking to the selector.
+       Annotated in ../rugby-world-cup-team.html. -->
+  <section class="section" id="rwc-find-people" aria-labelledby="rwc-people-title">
     <div class="container pl-scope">
-      <div class="pl-ph pl-ph--short"><span class="pl-ph-label">Find your people (next step)</span></div>
+      <p class="pl-row" id="rwc-people-pick"><span>Pick your team to see where its fans gather in NSW. <a href="#team" id="rwc-people-pick-link">Choose your team</a></span></p>
+      <div id="rwc-people" hidden>
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="rwc-people-title">Find your people</h2>
+            <p class="section-body" id="rwc-people-intro"></p>
+          </div>
+        </div>
+        <div class="grid-2 rwc-people-grid" id="rwc-people-top"></div>
+        <div class="grid-2 rwc-people-grid" id="rwc-people-bottom"></div>
+      </div>
     </div>
   </section>
 
@@ -734,7 +747,7 @@
         var boxes = body.querySelectorAll('input:checked');
         var poolTicked = 0;
         boxes.forEach(function (b) { if (fixtures[b.value].pool) poolTicked++; });
-        var label = !boxes.length ? '<span class="pl-team-placeholder">pick their matches</span>'
+        var label = !boxes.length ? '<span class="pl-team-placeholder">' + (poolCount ? 'pick their matches' : 'no matches yet') + '</span>'
           : (poolCount > 1 && poolTicked === poolCount && boxes.length === poolCount) ? 'all their NSW matches'
           : boxes.length === 1 ? '1 match' : boxes.length + ' matches';
         value.innerHTML = label;
@@ -886,10 +899,13 @@
         });
         expand.hidden = !!filtering;
         clears.forEach(function (c) { c.hidden = !filtering || (!shown && !empty.contains(c)); });
-        note.hidden = !t;
         empty.hidden = !(filtering && !shown);
+        var noNsw = t && !venue && !shown;
+        empty.querySelector('button').textContent = noNsw ? 'Show all 17 matches' : 'Clear filters';
+        empty.querySelector('button').toggleAttribute('data-show-all', !!noNsw);
+        note.hidden = !t || !!noNsw;
         empty.querySelector('p').textContent = t && !venue
-          ? t + ' have no pool matches in NSW. They could still play here in the knockouts.'
+          ? t + ' doesn\u2019t play in NSW in the pool stage. Knockout matches will show here if they qualify.'
           : 'No matches for ' + (t || 'any team') + ' at ' + (venue ? document.querySelector('#rwc-filter-venue [data-venue="' + venue + '"]').textContent : 'any stadium') + '.';
         count.textContent = 'Showing ' + shown + ' of ' + items.length + ' matches';
       }
@@ -941,9 +957,12 @@
         return fixtures.filter(function (f) { return f.pool && f.teams.split(' v ').indexOf(team) > -1; });
       }
       function layout(team) {
-        // Order: matches before plan once a team is chosen; find your people (already before stadiums) only then.
+        // Order: matches before plan once a team is chosen, find your people straight after the plan.
+        // Teams with no NSW pool matches see find your people first: watching with other fans is how they join in.
         if (team) plan.parentNode.insertBefore(matches, plan); else matches.parentNode.insertBefore(plan, matches);
-        findPeople.hidden = !team;
+        plan.parentNode.insertBefore(findPeople, plan.nextElementSibling);
+        if (team && !teamMatches(team).length) matches.parentNode.insertBefore(findPeople, matches);
+        renderPeople(team);
         // Stadiums: the team's first, the rest under "Other stadiums"; no NSW matches = unchanged.
         var venues = team ? teamMatches(team).map(function (f) { return VENUE[f.venue.split(',')[0]]; }) : [];
         var mine = stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) > -1; });
@@ -955,6 +974,46 @@
         other.open = false;
         other.querySelector('summary').textContent = 'Other stadiums (' + rest.length + ')';
       }
+      var PEOPLE = {
+        Japan: {
+          house: { name: 'Japan House', where: 'Place name, Sydney', open: 'Daily during the tournament', on: 'Match screenings, Japanese food, music and cultural events' },
+          venues: [['Surry Hills', 'Screening all Japan matches'], ['Haymarket', 'Official supporters’ club venue'], ['Newcastle', 'Screening Japan v Samoa, near the stadium']],
+          moments: [['Wed 29 Sep', 'Time TBC', 'Team arrival', 'Sydney Airport'], ['Fri 1 Oct', '10:00am', 'Open training session', 'Place name, Newcastle'], ['Sat 2 Oct', 'From 11:00am', 'Community day with food and music', 'Place name, Sydney']]
+        },
+        'South Africa': {
+          venues: [['Bondi', 'Screening all South Africa matches'], ['Parramatta', 'Official supporters’ club venue'], ['Manly', 'Early screenings with breakfast']]
+        }
+      };
+      function peopleFor(team) {
+        return PEOPLE[team] || { venues: [['Surry Hills', 'Screening all ' + team + ' matches'], ['Newtown', 'Official supporters’ club venue'], ['Newcastle', 'Big screens for every match']] };
+      }
+      var TBC = ' <span class="loc-tbc">To be confirmed</span>';
+      function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function renderPeople(team) {
+        var pick = document.getElementById('rwc-people-pick'), box = document.getElementById('rwc-people');
+        pick.hidden = !!team; box.hidden = !team;
+        if (!team) return;
+        var d = peopleFor(team), top = '', bottom = '';
+        document.getElementById('rwc-people-title').textContent = 'Find your people: ' + team + ' fans in NSW';
+        document.getElementById('rwc-people-intro').textContent = 'Where ' + team + ' fans are meeting, watching and celebrating during the tournament.';
+        if (d.house) top += '<article class="pl-option"><span class="pl-tag">Country house</span><h3 class="pl-option-name">' + esc(d.house.name) + '</h3>' +
+          '<dl class="pl-option-facts"><div><dt>Where</dt><dd>' + esc(d.house.where) + TBC + '</dd></div><div><dt>Open</dt><dd>' + esc(d.house.open) + TBC + '</dd></div><div><dt>On</dt><dd>' + esc(d.house.on) + '</dd></div></dl>' +
+          '<a href="#" class="pl-match-link">Find out more</a></article>';
+        if (d.venues) top += '<div class="pl-option"><span class="pl-tag">Where ' + esc(team) + ' fans watch</span>' +
+          d.venues.map(function (v) { return '<p class="pl-row"><span><strong>Venue name</strong> &middot; ' + esc(v[0]) + '<br>' + esc(v[1]) + '</span><a href="#">Visit website</a></p>'; }).join('') +
+          '<a href="#" class="pl-match-link">All venues</a>' +
+          '<details><summary class="pl-sm">How venues are listed</summary><p class="pl-sm">Venues are listed because they’ve been designated by the team’s official supporters’ club, or because they meet our listing criteria. No venue is favoured.</p></details></div>';
+        if (d.moments) bottom += '<div class="pl-option"><span class="pl-tag">Team moments</span>' +
+          d.moments.map(function (m) { return '<p class="pl-row"><span><strong>' + esc(m[0]) + ' &middot; ' + esc(m[1]) + '</strong><br>' + esc(m[2]) + ', ' + esc(m[3]) + '</span>' + TBC + '</p>'; }).join('') + '</div>';
+        bottom += '<p class="pl-row"><span>Travelling with other ' + esc(team) + ' supporters? <a href="#">Find the official supporters’ club</a></span></p>';
+        document.getElementById('rwc-people-top').innerHTML = top;
+        document.getElementById('rwc-people-bottom').innerHTML = bottom;
+      }
+      document.getElementById('rwc-people-pick-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () { document.querySelector('#team [data-team-picker]').rwcOpen(); }, 0);
+      });
       function retargetCountdown(team) {
         var first = team && teamMatches(team).filter(function (f) { return f.kickoff; })[0];
         if (!first) {
