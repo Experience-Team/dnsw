@@ -2433,6 +2433,8 @@ body.region-map-fullscreen-open { overflow: hidden; }
   background: #fff; border: 1px solid #111; padding: .75rem; font-size: .9375rem;
 }
 .pl-team-pop[hidden] { display: none; }
+.pl-team-toggle { display: flex; align-items: center; gap: .5rem; font-size: .8125rem; color: #444; padding-bottom: .5rem; margin-bottom: .75rem; border-bottom: 1px solid #ccc; cursor: pointer; }
+.pl-team-list [role="option"][hidden] { display: none; }
 .pl-team-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1rem; }
 .pl-team-group { display: flex; flex-direction: column; gap: .125rem; }
 .pl-team-pool { font-size: .75rem; font-weight: 700; color: #444; padding: 0 .5rem .25rem; border-bottom: 1px solid #ccc; margin-bottom: .25rem; }
