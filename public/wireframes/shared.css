@@ -1021,6 +1021,7 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 .hero-countdown-num { font-size: 2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .hero-countdown-unit { font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.85); }
 .hero-countdown-done { font-size: 1rem; margin: .5rem 0; }
+.hero-countdown-weather { margin-top: .25rem; max-width: 26rem; }
 .hero-countdown-done a { color: #fff; }
 
 /* ── Hero sub-content (events page hero) ── */
@@ -1387,7 +1388,10 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 
   /* Full-bleed hero — shorter on mobile */
   .hero { height: 16.25rem; }
-  .hero--countdown { height: 25rem; }
+  /* Countdown hero grows with its content (headline, countdown, match, weather) so nothing is clipped */
+  .hero--countdown { height: auto; min-height: 25rem; display: flex; align-items: flex-end; }
+  .hero--countdown .ph-img { position: absolute; inset: 0; }
+  .hero--countdown .hero-content { position: relative; bottom: auto; width: 100%; padding-top: 2.5rem; padding-bottom: 2.5rem; }
   .hero-countdown-cell { min-width: 3.75rem; }
   .hero-countdown-num { font-size: 1.5rem; }
 
