@@ -648,11 +648,9 @@ body.utility-bar-body--hidden .site-nav { top: 0; }
 /* ── RWC team choice: layout only, reusing existing component styles ── */
 .rwc-supporting { position: sticky; top: calc(var(--topbar-h) + 3.5rem); z-index: 90; background: #fff; transition: top .18s ease; }
 body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
-.rwc-supporting[hidden], .rwc-other-stadiums[hidden] { display: none; }
+.rwc-supporting[hidden], #rwc-stadiums-head[hidden] { display: none; }
 .rwc-supporting .pl-row { display: block; }
 .rwc-team-note { display: flex; gap: .5rem; align-items: center; }
-.rwc-other-stadiums { margin-top: 1.25rem; }
-.rwc-other-stadiums > .loc-tiles { margin-top: 1rem; }
 #rwc-find-people [hidden] { display: none; }
 .rwc-people-grid { align-items: start; }
 .rwc-people-grid + .rwc-people-grid { margin-top: 1rem; }
@@ -996,20 +994,21 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 }
 
 /* ── Page switcher (utility bar, inner pages only) ── */
+/* Side padding lines the breadcrumb and actions up with .container content (80rem, 2rem padding) on wide screens. */
 .page-switcher-bar {
   background: #fff;
   border-bottom: 1px solid var(--color-border);
-  padding: .5rem 2rem;
+  padding: .5rem max(2rem, calc((100% - 76rem) / 2));
   display: flex;
+  flex-wrap: wrap;
+  gap: .25rem 1rem;
   align-items: center;
   justify-content: space-between;
   font-size: .8125rem;
 }
-.breadcrumb { display: flex; gap: .4rem; align-items: center; color: var(--color-text-muted); font-size: 14px; }
+.breadcrumb { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; color: var(--color-text-muted); font-size: 14px; }
 .breadcrumb .crumb-active { color: var(--color-accent); font-weight: 600; text-decoration: none; }
 .breadcrumb .sep { color: #ccc; }
-/* Contained: lines the breadcrumb and actions up with .container content on wide screens */
-.page-switcher-bar--contained { padding-inline: max(2rem, calc((100% - 76rem) / 2)); }
 .page-actions { display: flex; gap: 1rem; }
 .page-actions a { color: var(--color-text-muted); text-decoration: none; font-size: .8125rem; }
 
@@ -1022,6 +1021,7 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 .hero-countdown-num { font-size: 2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .hero-countdown-unit { font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.85); }
 .hero-countdown-done { font-size: 1rem; margin: .5rem 0; }
+.hero-countdown-weather { margin-top: .25rem; max-width: 26rem; }
 .hero-countdown-done a { color: #fff; }
 
 /* ── Hero sub-content (events page hero) ── */
@@ -1388,7 +1388,10 @@ body.utility-bar-body--hidden .rwc-supporting { top: 3.5rem; }
 
   /* Full-bleed hero — shorter on mobile */
   .hero { height: 16.25rem; }
-  .hero--countdown { height: 25rem; }
+  /* Countdown hero grows with its content (headline, countdown, match, weather) so nothing is clipped */
+  .hero--countdown { height: auto; min-height: 25rem; display: flex; align-items: flex-end; }
+  .hero--countdown .ph-img { position: absolute; inset: 0; }
+  .hero--countdown .hero-content { position: relative; bottom: auto; width: 100%; padding-top: 2.5rem; padding-bottom: 2.5rem; }
   .hero-countdown-cell { min-width: 3.75rem; }
   .hero-countdown-num { font-size: 1.5rem; }
 

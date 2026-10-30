@@ -322,11 +322,20 @@ No form control. Still bind to the wireframe, so leaving them out means the desi
 | `more_like_this` | type plus geo |
 | `our_tours` | `parent_ref` |
 | `distance_from_cbd` | geo |
+| `distance_to_venue` | geo, plus the geo of the venue the page is about |
 | `price_band` | `pricing.from` |
 | `open_now` | `availability.opening_hours` |
 | `last_verified` | ATDW sync timestamp |
 | `directions_url` | geo |
 | `appears_in_itineraries` | Drupal itineraries |
+
+**`distance_to_venue`** — `gap`, `source: derived`. How far a product is from a venue the page is about, such as a stadium or fan zone on an event page: "0.6 km from the stadium". Shown on accommodation cards near a venue, where location is usually the deciding factor. Unlike `distance_from_cbd` it depends on context: the same product has a different value on each venue's page, so it is computed at render time, not stored on the record. Straight-line distance from the two geos to start; a walking or transit time (see `getting_there`, §11) can replace it later. Shape:
+
+```json
+"distance_to_venue": { "venue_ref": "place_ref", "km": "number", "label": "string" }
+```
+
+`label` names the venue type in plain words ("the stadium", "the fan zone"). Added 29 October 2026 for the Rugby World Cup page.
 
 **Naming problem to fix.** The tour sub-nav says "Nearby" but the module it jumps to is Our Tours, which is operator siblings, not proximity. Nearby, More Like This and Our Tours are three different promises and currently two of them share a label. Pick distinct headings that match the logic, or change the logic.
 
