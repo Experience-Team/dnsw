@@ -74,32 +74,33 @@
         <p class="pl-setup-sentence"><span id="rwc-pick-label">Who are you supporting?</span>
             <span class="pl-slot pl-team-picker" data-team-picker><span class="visually-hidden" id="rwc-pick-team-label">Team</span><button type="button" class="pl-slot-btn pl-team-btn" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="rwc-pick-list" aria-labelledby="rwc-pick-label rwc-pick-value"><span class="pl-team-value" id="rwc-pick-team-value"><span class="pl-team-placeholder">choose your team</span></span></button>
                 <span class="pl-team-pop" hidden>
+                  <label class="pl-team-toggle"><input type="checkbox" data-show-all-teams> Show teams playing in other states (9)</label>
                   <span role="listbox" id="rwc-pick-team-list" aria-label="Teams by pool" class="pl-team-list">
                   <span role="group" aria-labelledby="rwc-pick-pool-a" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-a">Pool A</span>
                     <span role="option" id="rwc-pick-team-new-zealand" aria-selected="false" data-team="New Zealand" style="--c1:#000000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>New Zealand<span class="pl-team-where">Plays in Sydney</span></span></span>
                     <span role="option" id="rwc-pick-team-australia" aria-selected="false" data-team="Australia" style="--c1:#ffb81c;--c2:#00843d"><span class="pl-team-swatch" aria-hidden="true"></span><span>Australia<span class="pl-team-where">Plays in Sydney</span></span></span>
-                    <span role="option" id="rwc-pick-team-chile" aria-selected="false" data-team="Chile" style="--c1:#d52b1e;--c2:#0039a6"><span class="pl-team-swatch" aria-hidden="true"></span><span>Chile<span class="pl-team-where">Watch in NSW</span></span></span>
-                    <span role="option" id="rwc-pick-team-hong-kong-china" aria-selected="false" data-team="Hong Kong China" style="--c1:#de2910;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Hong Kong China<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-chile" aria-selected="false" data-team="Chile" data-outside style="--c1:#d52b1e;--c2:#0039a6"><span class="pl-team-swatch" aria-hidden="true"></span><span>Chile<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-hong-kong-china" aria-selected="false" data-team="Hong Kong China" data-outside style="--c1:#de2910;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Hong Kong China<span class="pl-team-where">Watch in NSW</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pick-pool-b" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-b">Pool B</span>
-                    <span role="option" id="rwc-pick-team-south-africa" aria-selected="false" data-team="South Africa" style="--c1:#007a4d;--c2:#ffb612"><span class="pl-team-swatch" aria-hidden="true"></span><span>South Africa<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-south-africa" aria-selected="false" data-team="South Africa" data-outside style="--c1:#007a4d;--c2:#ffb612"><span class="pl-team-swatch" aria-hidden="true"></span><span>South Africa<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-pick-team-italy" aria-selected="false" data-team="Italy" style="--c1:#0064b5;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Italy<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
                     <span role="option" id="rwc-pick-team-georgia" aria-selected="false" data-team="Georgia" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Georgia<span class="pl-team-where">Plays in Newcastle</span></span></span>
                     <span role="option" id="rwc-pick-team-romania" aria-selected="false" data-team="Romania" style="--c1:#fcd116;--c2:#002b7f"><span class="pl-team-swatch" aria-hidden="true"></span><span>Romania<span class="pl-team-where">Plays in Sydney</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pick-pool-c" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-c">Pool C</span>
-                    <span role="option" id="rwc-pick-team-argentina" aria-selected="false" data-team="Argentina" style="--c1:#75aadb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Argentina<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-argentina" aria-selected="false" data-team="Argentina" data-outside style="--c1:#75aadb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Argentina<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-pick-team-fiji" aria-selected="false" data-team="Fiji" data-light style="--c1:#ffffff;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Fiji<span class="pl-team-where">Plays in Newcastle</span></span></span>
                     <span role="option" id="rwc-pick-team-spain" aria-selected="false" data-team="Spain" style="--c1:#c60b1e;--c2:#ffc400"><span class="pl-team-swatch" aria-hidden="true"></span><span>Spain<span class="pl-team-where">Plays in Newcastle</span></span></span>
-                    <span role="option" id="rwc-pick-team-canada" aria-selected="false" data-team="Canada" style="--c1:#d80621;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Canada<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-canada" aria-selected="false" data-team="Canada" data-outside style="--c1:#d80621;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Canada<span class="pl-team-where">Watch in NSW</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pick-pool-d" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-d">Pool D</span>
                     <span role="option" id="rwc-pick-team-ireland" aria-selected="false" data-team="Ireland" style="--c1:#169b62;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Ireland<span class="pl-team-where">Plays in Sydney</span></span></span>
-                    <span role="option" id="rwc-pick-team-scotland" aria-selected="false" data-team="Scotland" style="--c1:#0f1e4a;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Scotland<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-scotland" aria-selected="false" data-team="Scotland" data-outside style="--c1:#0f1e4a;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Scotland<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-pick-team-uruguay" aria-selected="false" data-team="Uruguay" style="--c1:#5cbfeb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Uruguay<span class="pl-team-where">Plays in Newcastle</span></span></span>
                     <span role="option" id="rwc-pick-team-portugal" aria-selected="false" data-team="Portugal" style="--c1:#c8102e;--c2:#046a38"><span class="pl-team-swatch" aria-hidden="true"></span><span>Portugal<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
                   </span>
@@ -107,15 +108,15 @@
                     <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-e">Pool E</span>
                     <span role="option" id="rwc-pick-team-france" aria-selected="false" data-team="France" style="--c1:#002654;--c2:#ed2939"><span class="pl-team-swatch" aria-hidden="true"></span><span>France<span class="pl-team-where">Plays in Sydney</span></span></span>
                     <span role="option" id="rwc-pick-team-japan" aria-selected="false" data-team="Japan" style="--c1:#bc002d;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Japan<span class="pl-team-where">Plays in Newcastle</span></span></span>
-                    <span role="option" id="rwc-pick-team-usa" aria-selected="false" data-team="USA" style="--c1:#0a3161;--c2:#b31942"><span class="pl-team-swatch" aria-hidden="true"></span><span>USA<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-usa" aria-selected="false" data-team="USA" data-outside style="--c1:#0a3161;--c2:#b31942"><span class="pl-team-swatch" aria-hidden="true"></span><span>USA<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-pick-team-samoa" aria-selected="false" data-team="Samoa" style="--c1:#0047ab;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Samoa<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pick-pool-f" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-f">Pool F</span>
                     <span role="option" id="rwc-pick-team-england" aria-selected="false" data-team="England" data-light style="--c1:#ffffff;--c2:#ce1124"><span class="pl-team-swatch" aria-hidden="true"></span><span>England<span class="pl-team-where">Plays in Sydney</span></span></span>
                     <span role="option" id="rwc-pick-team-wales" aria-selected="false" data-team="Wales" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Wales<span class="pl-team-where">Plays in Sydney</span></span></span>
-                    <span role="option" id="rwc-pick-team-tonga" aria-selected="false" data-team="Tonga" style="--c1:#c10000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Tonga<span class="pl-team-where">Watch in NSW</span></span></span>
-                    <span role="option" id="rwc-pick-team-zimbabwe" aria-selected="false" data-team="Zimbabwe" style="--c1:#006400;--c2:#ffd200"><span class="pl-team-swatch" aria-hidden="true"></span><span>Zimbabwe<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-tonga" aria-selected="false" data-team="Tonga" data-outside style="--c1:#c10000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Tonga<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-zimbabwe" aria-selected="false" data-team="Zimbabwe" data-outside style="--c1:#006400;--c2:#ffd200"><span class="pl-team-swatch" aria-hidden="true"></span><span>Zimbabwe<span class="pl-team-where">Watch in NSW</span></span></span>
                   </span>
                   </span>
                 </span>
@@ -139,32 +140,33 @@
             <label class="pl-slot"><span class="visually-hidden">Going or watching</span><select data-key="mode" id="rwc-plan-mode"><option value="going">going to</option><option value="watching">watching</option></select></label>
             <span class="pl-slot pl-team-picker" data-team-picker><span class="visually-hidden" id="rwc-team-label">Team</span><button type="button" class="pl-slot-btn pl-team-btn" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="rwc-team-list" aria-labelledby="rwc-team-label rwc-team-value"><span class="pl-team-value" id="rwc-team-value"><span class="pl-team-placeholder">your team</span></span></button>
                 <span class="pl-team-pop" hidden>
+                  <label class="pl-team-toggle"><input type="checkbox" data-show-all-teams> Show teams playing in other states (9)</label>
                   <span role="listbox" id="rwc-team-list" aria-label="Teams by pool" class="pl-team-list">
                   <span role="group" aria-labelledby="rwc-pool-a" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pool-a">Pool A</span>
                     <span role="option" id="rwc-team-new-zealand" aria-selected="false" data-team="New Zealand" style="--c1:#000000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>New Zealand<span class="pl-team-where">Plays in Sydney</span></span></span>
                     <span role="option" id="rwc-team-australia" aria-selected="false" data-team="Australia" style="--c1:#ffb81c;--c2:#00843d"><span class="pl-team-swatch" aria-hidden="true"></span><span>Australia<span class="pl-team-where">Plays in Sydney</span></span></span>
-                    <span role="option" id="rwc-team-chile" aria-selected="false" data-team="Chile" style="--c1:#d52b1e;--c2:#0039a6"><span class="pl-team-swatch" aria-hidden="true"></span><span>Chile<span class="pl-team-where">Watch in NSW</span></span></span>
-                    <span role="option" id="rwc-team-hong-kong-china" aria-selected="false" data-team="Hong Kong China" style="--c1:#de2910;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Hong Kong China<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-chile" aria-selected="false" data-team="Chile" data-outside style="--c1:#d52b1e;--c2:#0039a6"><span class="pl-team-swatch" aria-hidden="true"></span><span>Chile<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-hong-kong-china" aria-selected="false" data-team="Hong Kong China" data-outside style="--c1:#de2910;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Hong Kong China<span class="pl-team-where">Watch in NSW</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pool-b" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pool-b">Pool B</span>
-                    <span role="option" id="rwc-team-south-africa" aria-selected="false" data-team="South Africa" style="--c1:#007a4d;--c2:#ffb612"><span class="pl-team-swatch" aria-hidden="true"></span><span>South Africa<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-south-africa" aria-selected="false" data-team="South Africa" data-outside style="--c1:#007a4d;--c2:#ffb612"><span class="pl-team-swatch" aria-hidden="true"></span><span>South Africa<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-team-italy" aria-selected="false" data-team="Italy" style="--c1:#0064b5;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Italy<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
                     <span role="option" id="rwc-team-georgia" aria-selected="false" data-team="Georgia" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Georgia<span class="pl-team-where">Plays in Newcastle</span></span></span>
                     <span role="option" id="rwc-team-romania" aria-selected="false" data-team="Romania" style="--c1:#fcd116;--c2:#002b7f"><span class="pl-team-swatch" aria-hidden="true"></span><span>Romania<span class="pl-team-where">Plays in Sydney</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pool-c" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pool-c">Pool C</span>
-                    <span role="option" id="rwc-team-argentina" aria-selected="false" data-team="Argentina" style="--c1:#75aadb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Argentina<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-argentina" aria-selected="false" data-team="Argentina" data-outside style="--c1:#75aadb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Argentina<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-team-fiji" aria-selected="false" data-team="Fiji" data-light style="--c1:#ffffff;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Fiji<span class="pl-team-where">Plays in Newcastle</span></span></span>
                     <span role="option" id="rwc-team-spain" aria-selected="false" data-team="Spain" style="--c1:#c60b1e;--c2:#ffc400"><span class="pl-team-swatch" aria-hidden="true"></span><span>Spain<span class="pl-team-where">Plays in Newcastle</span></span></span>
-                    <span role="option" id="rwc-team-canada" aria-selected="false" data-team="Canada" style="--c1:#d80621;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Canada<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-canada" aria-selected="false" data-team="Canada" data-outside style="--c1:#d80621;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Canada<span class="pl-team-where">Watch in NSW</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pool-d" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pool-d">Pool D</span>
                     <span role="option" id="rwc-team-ireland" aria-selected="false" data-team="Ireland" style="--c1:#169b62;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Ireland<span class="pl-team-where">Plays in Sydney</span></span></span>
-                    <span role="option" id="rwc-team-scotland" aria-selected="false" data-team="Scotland" style="--c1:#0f1e4a;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Scotland<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-scotland" aria-selected="false" data-team="Scotland" data-outside style="--c1:#0f1e4a;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Scotland<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-team-uruguay" aria-selected="false" data-team="Uruguay" style="--c1:#5cbfeb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Uruguay<span class="pl-team-where">Plays in Newcastle</span></span></span>
                     <span role="option" id="rwc-team-portugal" aria-selected="false" data-team="Portugal" style="--c1:#c8102e;--c2:#046a38"><span class="pl-team-swatch" aria-hidden="true"></span><span>Portugal<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
                   </span>
@@ -172,15 +174,15 @@
                     <span role="presentation" class="pl-team-pool" id="rwc-pool-e">Pool E</span>
                     <span role="option" id="rwc-team-france" aria-selected="false" data-team="France" style="--c1:#002654;--c2:#ed2939"><span class="pl-team-swatch" aria-hidden="true"></span><span>France<span class="pl-team-where">Plays in Sydney</span></span></span>
                     <span role="option" id="rwc-team-japan" aria-selected="false" data-team="Japan" style="--c1:#bc002d;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Japan<span class="pl-team-where">Plays in Newcastle</span></span></span>
-                    <span role="option" id="rwc-team-usa" aria-selected="false" data-team="USA" style="--c1:#0a3161;--c2:#b31942"><span class="pl-team-swatch" aria-hidden="true"></span><span>USA<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-usa" aria-selected="false" data-team="USA" data-outside style="--c1:#0a3161;--c2:#b31942"><span class="pl-team-swatch" aria-hidden="true"></span><span>USA<span class="pl-team-where">Watch in NSW</span></span></span>
                     <span role="option" id="rwc-team-samoa" aria-selected="false" data-team="Samoa" style="--c1:#0047ab;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Samoa<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
                   </span>
                   <span role="group" aria-labelledby="rwc-pool-f" class="pl-team-group">
                     <span role="presentation" class="pl-team-pool" id="rwc-pool-f">Pool F</span>
                     <span role="option" id="rwc-team-england" aria-selected="false" data-team="England" data-light style="--c1:#ffffff;--c2:#ce1124"><span class="pl-team-swatch" aria-hidden="true"></span><span>England<span class="pl-team-where">Plays in Sydney</span></span></span>
                     <span role="option" id="rwc-team-wales" aria-selected="false" data-team="Wales" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Wales<span class="pl-team-where">Plays in Sydney</span></span></span>
-                    <span role="option" id="rwc-team-tonga" aria-selected="false" data-team="Tonga" style="--c1:#c10000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Tonga<span class="pl-team-where">Watch in NSW</span></span></span>
-                    <span role="option" id="rwc-team-zimbabwe" aria-selected="false" data-team="Zimbabwe" style="--c1:#006400;--c2:#ffd200"><span class="pl-team-swatch" aria-hidden="true"></span><span>Zimbabwe<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-tonga" aria-selected="false" data-team="Tonga" data-outside style="--c1:#c10000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Tonga<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-zimbabwe" aria-selected="false" data-team="Zimbabwe" data-outside style="--c1:#006400;--c2:#ffd200"><span class="pl-team-swatch" aria-hidden="true"></span><span>Zimbabwe<span class="pl-team-where">Watch in NSW</span></span></span>
                   </span>
                   </span>
                 </span>
@@ -638,7 +640,8 @@
     });
   </script>
 
-  <!-- Team picker: select-only combobox with a pool-grouped listbox (focus stays on the button) -->
+  <!-- Team picker: select-only combobox with a pool-grouped listbox (focus stays on the button).
+       By default it lists only teams with NSW pool matches; "Show teams playing in other states" adds the other 9. -->
   <script>
     document.querySelectorAll('[data-team-picker]').forEach(function (picker) {
       var btn = picker.querySelector('[role="combobox"]');
@@ -646,9 +649,21 @@
       var value = picker.querySelector('.pl-team-value');
       var options = Array.prototype.slice.call(picker.querySelectorAll('[role="option"]'));
       var placeholder = value.innerHTML;
+      var toggle = pop.querySelector('[data-show-all-teams]');
       var active = -1, typed = '', typedAt = 0;
 
+      // Teams with no NSW pool matches are hidden until "Show teams playing in other states" is ticked.
+      // A chosen team always stays visible.
+      function filterTeams() {
+        options.forEach(function (o) { o.hidden = o.hasAttribute('data-outside') && !toggle.checked && o.getAttribute('aria-selected') !== 'true'; });
+      }
+      // Next visible option from i in direction d (d = 0 means i itself, or the next one down).
+      function visibleFrom(i, d) {
+        for (var j = i; j >= 0 && j < options.length; j += d || 1) if (!options[j].hidden) return j;
+        return -1;
+      }
       function setActive(i) {
+        if (i < 0) return;
         if (active > -1) options[active].classList.remove('is-active');
         active = Math.max(0, Math.min(options.length - 1, i));
         options[active].classList.add('is-active');
@@ -665,7 +680,7 @@
         btn.setAttribute('aria-expanded', 'true');
         var overflow = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
         if (overflow > 0) pop.style.left = -overflow + 'px';
-        setActive(Math.max(0, selectedIndex()));
+        setActive(visibleFrom(Math.max(0, selectedIndex()), 1));
       }
       function close() {
         pop.hidden = true;
@@ -681,6 +696,7 @@
         picker.classList.add('has-team');
         picker.toggleAttribute('data-light', o.hasAttribute('data-light'));
         value.innerHTML = '<span class="pl-team-swatch" aria-hidden="true"></span>' + team;
+        filterTeams();
       }
       picker.rwcShow = show;
       picker.rwcClear = function () {
@@ -690,6 +706,7 @@
         picker.classList.remove('has-team');
         picker.removeAttribute('data-light');
         value.innerHTML = placeholder;
+        filterTeams();
       };
       picker.rwcOpen = function () { open(); btn.focus(); };
       function choose(i) {
@@ -705,13 +722,13 @@
       btn.addEventListener('keydown', function (e) {
         var isOpen = !pop.hidden;
         switch (e.key) {
-          case 'ArrowDown': e.preventDefault(); isOpen ? setActive(active + 1) : open(); return;
-          case 'ArrowUp': e.preventDefault(); isOpen ? setActive(active - 1) : open(); return;
-          case 'Home': if (isOpen) { e.preventDefault(); setActive(0); } return;
-          case 'End': if (isOpen) { e.preventDefault(); setActive(options.length - 1); } return;
+          case 'ArrowDown': e.preventDefault(); isOpen ? setActive(visibleFrom(active + 1, 1)) : open(); return;
+          case 'ArrowUp': e.preventDefault(); isOpen ? setActive(visibleFrom(active - 1, -1)) : open(); return;
+          case 'Home': if (isOpen) { e.preventDefault(); setActive(visibleFrom(0, 1)); } return;
+          case 'End': if (isOpen) { e.preventDefault(); setActive(visibleFrom(options.length - 1, -1)); } return;
           case 'Enter': case ' ': e.preventDefault(); isOpen ? choose(active) : open(); return;
           case 'Escape': if (isOpen) { e.preventDefault(); close(); } return;
-          case 'Tab': if (isOpen) close(); return;
+          case 'Tab': if (isOpen && !e.shiftKey) { e.preventDefault(); toggle.focus(); } else if (isOpen) close(); return;
         }
         if (e.key.length === 1 && /\S/.test(e.key)) {
           var now = Date.now();
@@ -719,7 +736,7 @@
           typedAt = now;
           if (!isOpen) open();
           for (var i = 0; i < options.length; i++) {
-            if (options[i].dataset.team.toLowerCase().indexOf(typed) === 0) { setActive(i); break; }
+            if (!options[i].hidden && options[i].dataset.team.toLowerCase().indexOf(typed) === 0) { setActive(i); break; }
           }
         }
       });
@@ -729,6 +746,17 @@
         o.addEventListener('mousemove', function () { if (active !== i) setActive(i); });
       });
       document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
+      // The toggle sits in the open dropdown: Tab from the list reaches it; after a change, focus goes back to the list.
+      toggle.addEventListener('change', function () {
+        filterTeams();
+        if (active > -1 && options[active].hidden) setActive(visibleFrom(0, 1));
+        btn.focus();
+      });
+      toggle.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { e.preventDefault(); close(); btn.focus(); }
+        else if (e.key === 'Tab') close();
+      });
+      filterTeams();
     });
   </script>
 
