@@ -29,6 +29,7 @@
       transition: box-shadow .15s;
     }
     .lib-link-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .launch-links { display: flex; gap: .75rem; flex-wrap: wrap; }
     .launch-columns {
       display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem;
     }
@@ -62,7 +63,10 @@
         <h1>DNSW Wireframes</h1>
         <p>Select a page. Pages not yet built are shown but inactive.</p>
       </div>
-      <a href="components-library.html" class="lib-link-btn" target="_blank" rel="noopener">Component library ↗</a>
+      <div class="launch-links">
+        <a href="components-library.html" class="lib-link-btn" target="_blank" rel="noopener">Component library ↗</a>
+        <a href="experiments.html" class="lib-link-btn" target="_blank" rel="noopener">Experiments ↗</a>
+      </div>
     </div>
 
     <div class="launch-columns">
