@@ -1,3 +1,5 @@
+<!-- Dev toolbar: the grid opens the wireframe index; the links are the saved versions of the
+     Rugby World Cup landing page (add a link here for each new version). -->
 <div class="utility-bar" id="utility-bar">
   <div class="utility-bar-inner">
     <a href="/wireframes/index.html" class="utility-bar-grid" aria-label="Wireframe index" title="All wireframes">
@@ -8,22 +10,8 @@
         <rect x="9.5" y="9.5" width="5.5" height="5.5" rx="1" fill="currentColor"/>
       </svg>
     </a>
-    <nav class="utility-bar-variations" aria-label="Pages">
-      <a href="../pages/home.html">Home</a>
-      <a href="../pages/events.html">Events</a>
-      <a href="../pages/accommodation.html">Accommodation</a>
-      <div class="utility-bar-dropdown" id="utility-bar-western-sydney">
-        <button type="button" class="utility-bar-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-          Western Sydney <span class="utility-bar-dropdown-caret">▾</span>
-        </button>
-        <div class="utility-bar-dropdown-menu">
-          <p class="utility-bar-dropdown-label">Western Sydney</p>
-          <a href="../pages/western-sydney.html" class="utility-bar-dropdown-sub">Western Sydney V1</a>
-          <a href="../pages/western-sydney-v2.html" class="utility-bar-dropdown-sub">Western Sydney V2</a>
-          <a href="../pages/western-sydney-v3.html" class="utility-bar-dropdown-sub">Western Sydney V3</a>
-          <a href="../pages/western-sydney-airport.html">Western Sydney Airport</a>
-        </div>
-      </div>
+    <nav class="utility-bar-variations" aria-label="Rugby World Cup page versions">
+      <a href="../pages/rugby-world-cup-v1.html">Rugby World Cup V1</a>
     </nav>
   </div>
 </div>
@@ -50,30 +38,13 @@
     }
   }, { passive: true });
 
-  var dropdown = document.getElementById('utility-bar-western-sydney');
-  if (dropdown) {
-    var toggle = dropdown.querySelector('.utility-bar-dropdown-toggle');
-    toggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var open = dropdown.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', open);
-    });
-    document.addEventListener('click', function () {
-      dropdown.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-    });
-
-    // Highlight whichever Western Sydney page is currently open
-    var currentFile = window.location.pathname.split('/').pop();
-    var isCurrentInDropdown = false;
-    dropdown.querySelectorAll('.utility-bar-dropdown-menu a[href]').forEach(function (link) {
-      var linkFile = link.getAttribute('href').split('/').pop();
-      if (linkFile === currentFile) {
-        link.classList.add('active');
-        isCurrentInDropdown = true;
-      }
-    });
-    dropdown.classList.toggle('current', isCurrentInDropdown);
-  }
+  // Highlight the version that is open
+  var currentFile = window.location.pathname.split('/').pop();
+  bar.querySelectorAll('.utility-bar-variations a[href]').forEach(function (link) {
+    if (link.getAttribute('href').split('/').pop() === currentFile) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    }
+  });
 })();
 </script>
