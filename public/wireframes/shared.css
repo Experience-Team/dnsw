@@ -651,6 +651,7 @@ body.nav--hidden.utility-bar-body--hidden .rwc-team-bar { top: 0; }
 .rwc-team-bar .pl-btn-link { font-size: 1rem; margin-left: .5rem; }
 @media (max-width: 48rem) { .rwc-team-bar { padding: .5rem 0; } .rwc-team-bar .pl-setup-sentence { font-size: 1.25rem; } }
 #rwc-stadiums-head[hidden] { display: none; }
+.rwc-plan-space { min-height: 10rem; } /* Plan your 3rd half: room for the list, still to come */
 #rwc-find-people [hidden] { display: none; }
 .rwc-people-grid { align-items: start; }
 .rwc-people-grid + .rwc-people-grid { margin-top: 1rem; }
