@@ -696,6 +696,9 @@ body.nav--hidden.utility-bar-body--hidden .rwc-team-bar { top: 0; }
 .loc-stay-name { display: block; font-size: .875rem; font-weight: 700; }
 .loc-stay-meta { display: block; font-size: .75rem; color: var(--color-text-muted); }
 .loc-stay-empty { font-size: .875rem; color: #444; }
+/* Add to my 3rd half: the button sits under each hotel, and beside each venue's website link */
+.loc-stay-item { display: flex; flex-direction: column; align-items: flex-start; gap: .5rem; }
+.th-actions { display: flex; align-items: center; gap: .5rem 1rem; flex-wrap: wrap; }
 .loc-link { font-size: .8125rem; color: var(--color-accent); }
 .loc-more { font-size: .8125rem; color: var(--color-text-muted); display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin-top: auto; }
 

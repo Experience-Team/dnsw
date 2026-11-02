@@ -279,6 +279,7 @@
   <!-- Getting there and around (stadiums and fan zones): static location tiles, no map. Each tile carries the stadium,
        the likely fan zone (to be confirmed), wayfinding, and accommodation products only.
        Accommodation: title, gallery and address.suburb are live; category and distance_to_venue are gap (wash).
+       Each hotel has "Add to my 3rd half" (see the Add to my 3rd half script).
        Empty state: when no accommodation is listed near a location, "Stay nearby" shows
        "No places to stay listed near here yet." plus the "All places to stay" link. -->
   <section class="section" style="background:#f9f9f9;" aria-labelledby="rwc-locations-title">
@@ -310,8 +311,8 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Sydney Olympic Park</span><span class="loc-stay-meta"><span class="provenance-gap">0.6 km from the stadium</span></span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Wentworth Point</span><span class="loc-stay-meta"><span class="provenance-gap">2.5 km from the stadium</span></span></span></a>
+            <div class="loc-stay-item" data-th-id="stay-sa-sydney-olympic-park" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Sydney Olympic Park" data-th-address="Street name, Sydney Olympic Park NSW" data-th-distance="0.6 km from Stadium Australia" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Sydney Olympic Park</span><span class="loc-stay-meta"><span class="provenance-gap">0.6 km from the stadium</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
+            <div class="loc-stay-item" data-th-id="stay-sa-wentworth-point" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Wentworth Point" data-th-address="Street name, Wentworth Point NSW" data-th-distance="2.5 km from Stadium Australia" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Wentworth Point</span><span class="loc-stay-meta"><span class="provenance-gap">2.5 km from the stadium</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
               <a href="#" class="loc-link">All places to stay near Sydney Olympic Park</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
@@ -333,8 +334,8 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Surry Hills</span><span class="loc-stay-meta"><span class="provenance-gap">1.4 km from the stadium</span></span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Paddington</span><span class="loc-stay-meta"><span class="provenance-gap">1.1 km from the stadium</span></span></span></a>
+            <div class="loc-stay-item" data-th-id="stay-sfs-surry-hills" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Surry Hills" data-th-address="Street name, Surry Hills NSW" data-th-distance="1.4 km from Sydney Football Stadium" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Surry Hills</span><span class="loc-stay-meta"><span class="provenance-gap">1.4 km from the stadium</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
+            <div class="loc-stay-item" data-th-id="stay-sfs-paddington" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Paddington" data-th-address="Street name, Paddington NSW" data-th-distance="1.1 km from Sydney Football Stadium" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Paddington</span><span class="loc-stay-meta"><span class="provenance-gap">1.1 km from the stadium</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
               <a href="#" class="loc-link">All places to stay near Moore Park</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
@@ -356,8 +357,8 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle</span><span class="loc-stay-meta"><span class="provenance-gap">3.5 km from the stadium</span></span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle West</span><span class="loc-stay-meta"><span class="provenance-gap">2.4 km from the stadium</span></span></span></a>
+            <div class="loc-stay-item" data-th-id="stay-ncl-newcastle" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Newcastle" data-th-address="Street name, Newcastle NSW" data-th-distance="3.5 km from Newcastle Stadium" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle</span><span class="loc-stay-meta"><span class="provenance-gap">3.5 km from the stadium</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
+            <div class="loc-stay-item" data-th-id="stay-ncl-newcastle-west" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Newcastle West" data-th-address="Street name, Newcastle West NSW" data-th-distance="2.4 km from Newcastle Stadium" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle West</span><span class="loc-stay-meta"><span class="provenance-gap">2.4 km from the stadium</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
               <a href="#" class="loc-link">All places to stay near Newcastle</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
@@ -386,8 +387,8 @@
             </dl>
             <div class="loc-stay">
               <p class="loc-stay-title">Stay nearby</p>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Haymarket</span><span class="loc-stay-meta"><span class="provenance-gap">0.5 km from the fan zone</span></span></span></a>
-            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Pyrmont</span><span class="loc-stay-meta"><span class="provenance-gap">0.8 km from the fan zone</span></span></span></a>
+            <div class="loc-stay-item" data-th-id="stay-fz-haymarket" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Haymarket" data-th-address="Street name, Haymarket NSW" data-th-distance="0.5 km from the Tumbalong Park fan zone" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Haymarket</span><span class="loc-stay-meta"><span class="provenance-gap">0.5 km from the fan zone</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
+            <div class="loc-stay-item" data-th-id="stay-fz-pyrmont" data-th-name="Hotel name" data-th-type="Hotel" data-th-area="Pyrmont" data-th-address="Street name, Pyrmont NSW" data-th-distance="0.8 km from the Tumbalong Park fan zone" data-th-url="https://www.sydney.com/" data-th-section="Getting there and around"><a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Pyrmont</span><span class="loc-stay-meta"><span class="provenance-gap">0.8 km from the fan zone</span></span></span></a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>
               <a href="#" class="loc-link">All places to stay near Darling Harbour</a>
             </div>
             <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
@@ -728,6 +729,37 @@
     })();
   </script>
 
+  <!-- Add to my 3rd half: toggle buttons on venue and hotel cards. The card's data-th-* attributes hold the item for the
+       list (third-half-list.js); the button reads "Added ✓" with aria-pressed="true" while the item is in the list, and
+       follows changes made anywhere (thirdhalf:change). Details are placeholders until there's real data. -->
+  <script>
+    (function () {
+      var list = window.thirdHalfList;
+      var FIELDS = { id: 'thId', name: 'thName', type: 'thType', area: 'thArea', address: 'thAddress', distanceToStadium: 'thDistance', url: 'thUrl', section: 'thSection' };
+      function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function itemFrom(card) {
+        var item = {};
+        Object.keys(FIELDS).forEach(function (k) { item[k] = card.dataset[FIELDS[k]] || ''; });
+        return item;
+      }
+      function sync(btn) {
+        var card = btn.closest('[data-th-id]');
+        var on = !!(list && card && list.hasItem(card.dataset.thId));
+        btn.setAttribute('aria-pressed', String(on));
+        btn.innerHTML = (on ? 'Added \u2713' : 'Add to my 3rd half') +
+          (card ? '<span class="visually-hidden">: ' + esc(card.dataset.thName + ', ' + card.dataset.thArea) + '</span>' : '');
+      }
+      window.rwcSyncThirdHalf = function (root) { (root || document).querySelectorAll('[data-th-add]').forEach(sync); };
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-th-add]');
+        if (!btn || !list) return;
+        list.toggleItem(itemFrom(btn.closest('[data-th-id]')));
+      });
+      document.addEventListener('thirdhalf:change', function () { window.rwcSyncThirdHalf(); });
+      window.rwcSyncThirdHalf();
+    })();
+  </script>
+
   <!-- One team across the page. Choosing in the selector or the match filter
        sets it everywhere and fills the page for that team (countdown, matches, stadiums, find your people). The team is
        saved with the Plan your 3rd half list (third-half-list.js, localStorage) and restored on the next visit.
@@ -795,6 +827,11 @@
           venues: [['Bondi', 'Screening all South Africa matches'], ['Parramatta', 'Official supporters’ club venue'], ['Manly', 'Early screenings with breakfast']]
         }
       };
+      // Placeholder details for the 3rd half list: nearest stadium per suburb, and a venue type by position
+      var VENUE_DIST = { 'Surry Hills': '1.4 km from Sydney Football Stadium', Haymarket: '3.2 km from Sydney Football Stadium', Newcastle: '3.5 km from Newcastle Stadium',
+        Bondi: '5.5 km from Sydney Football Stadium', Parramatta: '7.5 km from Stadium Australia', Manly: '13 km from Sydney Football Stadium', Newtown: '4.5 km from Sydney Football Stadium' };
+      var VENUE_TYPE = ['Pub', 'Sports bar', 'Bar'];
+      function slug(x) { return String(x).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
       function peopleFor(team) {
         return PEOPLE[team] || { venues: [['Surry Hills', 'Screening all ' + team + ' matches'], ['Newtown', 'Official supporters’ club venue'], ['Newcastle', 'Big screens for every match']] };
       }
@@ -811,7 +848,11 @@
           '<dl class="pl-option-facts"><div><dt>Where</dt><dd>' + esc(d.house.where) + TBC + '</dd></div><div><dt>Open</dt><dd>' + esc(d.house.open) + TBC + '</dd></div><div><dt>On</dt><dd>' + esc(d.house.on) + '</dd></div></dl>' +
           '<a href="#" class="pl-match-link">Find out more</a></article>';
         if (d.venues) top += '<div class="pl-option" id="rwc-people-watch"><span class="pl-tag">Where ' + esc(team) + ' fans watch</span>' +
-          d.venues.map(function (v) { return '<p class="pl-row"><span><strong>Venue name</strong> &middot; ' + esc(v[0]) + '<br>' + esc(v[1]) + '</span><a href="#">Visit website</a></p>'; }).join('') +
+          d.venues.map(function (v, i) {
+            return '<p class="pl-row" data-th-id="venue-' + slug(team) + '-' + slug(v[0]) + '" data-th-name="Venue name" data-th-type="' + VENUE_TYPE[i % VENUE_TYPE.length] + '" data-th-area="' + esc(v[0]) +
+              '" data-th-address="Street name, ' + esc(v[0]) + ' NSW" data-th-distance="' + esc(VENUE_DIST[v[0]] || '') + '" data-th-url="https://www.sydney.com/" data-th-section="Find your people">' +
+              '<span><strong>Venue name</strong> &middot; ' + esc(v[0]) + '<br>' + esc(v[1]) + '</span><span class="th-actions"><a href="#">Visit website</a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></span></p>';
+          }).join('') +
           '<a href="#" class="pl-match-link">All venues</a>' +
           '<details><summary class="pl-sm">How venues are listed</summary><p class="pl-sm">Venues are listed because they’ve been designated by the team’s official supporters’ club, or because they meet our listing criteria. No venue is favoured.</p></details></div>';
         if (d.moments) bottom += '<div class="pl-option"><span class="pl-tag">Team moments</span>' +
@@ -819,6 +860,7 @@
         bottom += '<p class="pl-row"><span>Travelling with other ' + esc(team) + ' supporters? <a href="#">Find the official supporters’ club</a></span></p>';
         document.getElementById('rwc-people-top').innerHTML = top;
         document.getElementById('rwc-people-bottom').innerHTML = bottom;
+        if (window.rwcSyncThirdHalf) window.rwcSyncThirdHalf(document.getElementById('rwc-people'));
       }
       // [Team]'s matches: every pool match, in Sydney time. Outside NSW: where it's played and where to watch in NSW.
       var mTitle = document.getElementById('rwc-matches-title'), mIntro = document.getElementById('rwc-matches-intro');
