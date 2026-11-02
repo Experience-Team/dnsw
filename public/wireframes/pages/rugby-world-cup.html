@@ -437,6 +437,21 @@
            team, or for teams with no NSW matches); The day after is around that city; regional day trips show travel
            time from Sydney. A group with no picks shows "No picks here yet." -->
       <div class="rwc-picks" id="rwc-picks"></div>
+      <!-- Your 3rd half on the map: drawn by the map script below in the stadium cards' map style (a schematic, not a
+           map service). The team's NSW stadiums (all three with no team), the fan zone and a numbered pin per list item;
+           clicking a pin shows its name and Remove. The text list beside it holds the same places for screen reader
+           and keyboard users. -->
+      <div class="rwc-map" id="rwc-map">
+        <h3 class="rwc-picks-title" id="rwc-map-title">Your 3rd half on the map</h3>
+        <p class="rwc-picks-sub">Your stadiums, the fan zone and the places you&rsquo;ve added. Select a pin to see the place.</p>
+        <div class="rwc-map-layout">
+          <div>
+            <div class="rwc-map-frame" data-th-map="section"></div>
+            <p class="loc-map-key"><span class="loc-key-stadium" aria-hidden="true"></span>Stadium <span class="loc-key-fan loc-key-fan--confirmed" aria-hidden="true"></span>Fan zone <span class="loc-key-pin" aria-hidden="true"></span>Your places</p>
+          </div>
+          <div class="rwc-map-text" id="rwc-map-text"></div>
+        </div>
+      </div>
       <div class="rwc-picks-more">
         <button type="button" class="btn btn-dark" id="rwc-picks-open">See your 3rd half <span id="rwc-picks-count">(0)</span></button>
       </div>
@@ -529,8 +544,12 @@
           </div>
         </div>
         <p id="rwc-th-intro">Your team&rsquo;s details and the places you&rsquo;ve added, ready to take with you.</p>
-        <ul class="rwc-th-items" id="rwc-th-items"></ul>
+        <ol class="rwc-th-items" id="rwc-th-items" role="list"></ol>
         <p class="pl-sm rwc-th-empty" id="rwc-th-empty" hidden>Add places from this page to include them.</p>
+        <div class="rwc-map rwc-map--small">
+          <div class="rwc-map-frame" data-th-map="panel"></div>
+          <p class="loc-map-key"><span class="loc-key-stadium" aria-hidden="true"></span>Stadium <span class="loc-key-fan loc-key-fan--confirmed" aria-hidden="true"></span>Fan zone <span class="loc-key-pin" aria-hidden="true"></span>Your places</p>
+        </div>
         <pre class="rwc-th-preview" id="rwc-th-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre>
         <div class="rwc-th-actions">
           <div class="rwc-th-action"><button type="button" class="btn btn-dark" data-th-action="copy-ai" aria-describedby="rwc-th-ai-help">Copy for your AI assistant</button><span class="rwc-th-status" aria-live="polite"></span></div>
@@ -1297,8 +1316,8 @@
 
       function render() {
         var items = list ? list.getItems() : [];
-        itemsEl.innerHTML = items.map(function (it) {
-          return '<li class="rwc-th-item" data-id="' + esc(it.id) + '"><span><strong>' + esc(it.name) + '</strong><span class="pl-sm">' + esc(it.area) + '</span></span>' +
+        itemsEl.innerHTML = items.map(function (it, n) {
+          return '<li class="rwc-th-item" data-id="' + esc(it.id) + '"><span class="rwc-map-num" aria-hidden="true">' + (n + 1) + '</span><span><strong>' + esc(it.name) + '</strong><span class="pl-sm">' + esc(it.area) + '</span></span>' +
             '<button type="button" class="pl-btn-link" data-th-remove>Remove<span class="visually-hidden"> ' + esc(it.name + ', ' + it.area) + '</span></button></li>';
         }).join('');
         itemsEl.hidden = !items.length;
@@ -1463,6 +1482,204 @@
         if (e.shiftKey && (active === first || active === title || !panel.contains(active))) { e.preventDefault(); last.focus(); }
         else if (!e.shiftKey && (active === last || !panel.contains(active))) { e.preventDefault(); first.focus(); }
       });
+    })();
+  </script>
+  <!-- Your 3rd half map, drawn into every [data-th-map] (the Plan your 3rd half section and the summary panel).
+       A schematic in the stadium cards' map style: places sit in their true direction from the Sydney CBD, with distance
+       compressed (log scale) so inner suburbs and day trips both fit; Newcastle and the Hunter Valley sit in an inset
+       around the Newcastle CBD. Pins are placed from each item's area (placeholder lookup until items carry the
+       contract's geo). Redrawn on every list or team change. -->
+  <script>
+    (function () {
+      var list = window.thirdHalfList;
+      var fixtures = JSON.parse(document.getElementById('rwc-fixtures').textContent);
+      var SYD = [-33.8688, 151.2093], NCL = [-32.9283, 151.7817], D0 = 0.6;
+      var GEO = {
+        'Sydney Olympic Park': [-33.8476, 151.0640], 'Wentworth Point': [-33.8290, 151.0760], 'Bicentennial Park': [-33.8460, 151.0780], 'Rhodes': [-33.8300, 151.0870],
+        'Parramatta': [-33.8150, 151.0011], 'Moore Park': [-33.8930, 151.2220], 'Paddington': [-33.8840, 151.2290], 'Centennial Park': [-33.8980, 151.2340],
+        'Surry Hills': [-33.8840, 151.2110], 'Darlinghurst': [-33.8790, 151.2190], 'Haymarket': [-33.8800, 151.2040], 'Pyrmont': [-33.8700, 151.1940],
+        'Darling Harbour': [-33.8740, 151.1990], 'Barangaroo': [-33.8610, 151.2010], 'The Rocks': [-33.8590, 151.2090], 'Sydney Harbour': [-33.8560, 151.2150],
+        'Bondi': [-33.8910, 151.2770], 'Newtown': [-33.8970, 151.1790], 'Manly': [-33.7970, 151.2850],
+        'Newcastle': [-32.9270, 151.7760], 'Newcastle West': [-32.9250, 151.7600], 'Newcastle East': [-32.9290, 151.7880], 'Hamilton': [-32.9200, 151.7480],
+        'Broadmeadow': [-32.9230, 151.7320], 'Merewether': [-32.9480, 151.7430],
+        'Hunter Valley': [-32.7800, 151.2900], 'Blue Mountains': [-33.7120, 150.3110], 'South Coast': [-34.6710, 150.8540]
+      };
+      var STADIUMS = [
+        { name: 'Stadium Australia', area: 'Sydney Olympic Park', geo: [-33.8471, 151.0634], label: [0, 22, 'middle'] },
+        { name: 'Sydney Football Stadium', area: 'Moore Park', geo: [-33.8891, 151.2247], label: [22, 4, 'start'] },
+        { name: 'Newcastle Stadium', area: 'Broadmeadow', geo: [-32.9187, 151.7268], label: [0, 22, 'middle'] }
+      ];
+      var FAN = { name: 'Tumbalong Park fan zone', area: 'Darling Harbour', geo: [-33.8760, 151.2010] };
+      var W = 640, H = 400;
+      var MAIN = { s: 46, x: 290, y: 140 };
+      var INSET = { x: 432, y: 12, w: 196, h: 196, s: 32, ox: 584, oy: 118 };
+      var PIN = 'M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z';
+
+      function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function offset(p, hub) {
+        var dx = (p[1] - hub[1]) * Math.cos(hub[0] * Math.PI / 180) * 111.32, dy = (p[0] - hub[0]) * 110.57;
+        return [dx, dy, Math.sqrt(dx * dx + dy * dy)];
+      }
+      // Schematic position: true direction from the nearer CBD, distance on a log scale
+      function pt(geo) {
+        var inset = offset(geo, NCL)[2] < offset(geo, SYD)[2], o = offset(geo, inset ? NCL : SYD), r = o[2] ? Math.log(1 + o[2] / D0) / o[2] : 0;
+        var m = inset ? INSET : MAIN, ox = inset ? INSET.ox : MAIN.x, oy = inset ? INSET.oy : MAIN.y;
+        return { x: ox + o[0] * r * m.s, y: oy - o[1] * r * m.s, inset: inset };
+      }
+      function line(geos) { return 'M' + geos.map(function (g) { var p = pt(g); return p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join('L'); }
+      function label(geo, dx, dy, text, cls, anchor) {
+        var p = pt(geo);
+        return '<text x="' + (p.x + dx).toFixed(1) + '" y="' + (p.y + dy).toFixed(1) + '" class="m-label ' + cls + '" text-anchor="' + (anchor || 'middle') + '">' + esc(text) + '</text>';
+      }
+
+      // The background never changes: land, sea, harbour, train lines, place labels, the Newcastle inset
+      var COAST = [[-34.90, 150.80], [-34.671, 150.858], [-34.425, 150.905], [-34.18, 151.03], [-34.058, 151.155], [-33.99, 151.23], [-33.891, 151.277], [-33.832, 151.292], [-33.797, 151.288], [-33.70, 151.31], [-33.598, 151.325]];
+      var NCL_COAST = [[-33.09, 151.64], [-33.01, 151.71], [-32.948, 151.756], [-32.93, 151.79], [-32.917, 151.80], [-32.86, 151.86], [-32.78, 151.98]];
+      function seaPath(coast, far) {
+        var pts = coast.map(pt), first = pts[0], last = pts[pts.length - 1];
+        return 'M' + pts.map(function (p) { return p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join('L') +
+          'L' + far + ' ' + (last.y - 400) + 'L' + far + ' ' + (first.y + 400) + 'Z';
+      }
+      var BASE = '<rect class="m-land" width="' + W + '" height="' + H + '"/>' +
+        '<path class="m-water" d="' + seaPath(COAST, W + 400) + '"/>' +
+        '<path class="m-harbour" d="' + line([[-33.832, 151.292], [-33.853, 151.245], [-33.858, 151.211], [-33.853, 151.18], [-33.835, 151.13], [-33.83, 151.09], [-33.813, 151.0]]) + '"/>' +
+        '<path class="m-rail" d="' + line([SYD, [-33.873, 151.094], [-33.815, 151.003], [-33.75, 150.69], GEO['Blue Mountains']]) + '"/>' +
+        '<path class="m-rail" d="' + line([SYD, [-33.928, 151.154], [-34.03, 151.06], [-34.425, 150.89], GEO['South Coast']]) + '"/>' +
+        '<path class="m-rail" d="' + line([SYD]) + 'L' + INSET.x + ' ' + (INSET.y + INSET.h) + '"/>' +
+        label(SYD, 30, -34, 'Sydney', 'm-label--area') + label([-33.853, 151.18], 0, -8, 'Sydney Harbour', 'm-label--water m-label--small') +
+        label(GEO['Blue Mountains'], 0, 26, 'Blue Mountains', 'm-label--area') + label(GEO['South Coast'], 0, 26, 'South Coast', 'm-label--area') +
+        '<text x="' + (INSET.x + 4) + '" y="' + (INSET.y + INSET.h + 14) + '" class="m-label m-label--small" text-anchor="start">To Newcastle</text>' +
+        // Newcastle inset
+        '<clipPath id="CLIP"><rect x="' + INSET.x + '" y="' + INSET.y + '" width="' + INSET.w + '" height="' + INSET.h + '"/></clipPath>' +
+        '<rect class="m-inset" x="' + INSET.x + '" y="' + INSET.y + '" width="' + INSET.w + '" height="' + INSET.h + '"/>' +
+        '<g clip-path="url(#CLIP)"><path class="m-water" d="' + seaPath(NCL_COAST, W + 400) + '"/>' +
+        '<path class="m-rail" d="' + line([[-32.926, 151.762], [-32.923, 151.734], [-32.733, 151.556], GEO['Hunter Valley']]) + '"/></g>' +
+        '<rect class="m-inset-frame" x="' + INSET.x + '" y="' + INSET.y + '" width="' + INSET.w + '" height="' + INSET.h + '"/>' +
+        '<text x="' + (INSET.x + 10) + '" y="' + (INSET.y + 18) + '" class="m-label m-label--area" text-anchor="start">Newcastle and Hunter</text>' +
+        label(NCL, 0, -26, 'Newcastle', 'm-label--area') + label(GEO['Hunter Valley'], -10, 26, 'Hunter Valley', 'm-label--area', 'start');
+
+      function team() { return window.rwcGetTeam ? window.rwcGetTeam() : null; }
+      // The chosen team's NSW stadiums; all three when no team is chosen; none for teams with no NSW matches
+      function stadiums() {
+        var t = team();
+        if (!t) return STADIUMS;
+        var venues = fixtures.filter(function (f) { return f.pool && !f.away && f.teams.split(' v ').indexOf(t) > -1; }).map(function (f) { return f.venue.split(',')[0]; });
+        return STADIUMS.filter(function (s) { return venues.indexOf(s.name) > -1; });
+      }
+      // Pins for list items, nudged apart when they'd sit on top of each other: the spot itself, then rings around it
+      var SPOTS = [[0, 0]];
+      for (var ring = 1; ring <= 3; ring++) for (var k = 0; k < 6 * ring; k++) {
+        SPOTS.push([Math.cos(k * Math.PI / (3 * ring)) * 14 * ring, Math.sin(k * Math.PI / (3 * ring)) * 14 * ring]);
+      }
+      function pins(items, sts) {
+        var placed = sts.concat(FAN).map(function (s) { var p = pt(s.geo); return [p.x, p.y + 8]; }); // keep pins off the stadium and fan zone icons
+        return items.map(function (it, i) {
+          var geo = GEO[it.area];
+          if (!geo) return { item: it, n: i + 1 };
+          var p = pt(geo), x = p.x, y = p.y;
+          for (var c = 0; c < SPOTS.length; c++) {
+            var cx = p.x + SPOTS[c][0], cy = p.y + SPOTS[c][1];
+            if (!placed.some(function (q) { return Math.abs(q[0] - cx) < 13 && Math.abs(q[1] - cy) < 13; })) { x = cx; y = cy; break; }
+          }
+          placed.push([x, y]);
+          return { item: it, n: i + 1, x: x, y: y };
+        });
+      }
+
+      function svg(id, items, sts) {
+        var shown = items.filter(function (p) { return p.x !== undefined; }).length;
+        var desc = [sts.map(function (s) { return s.name; }).join(', '), 'the ' + FAN.name, shown ? shown + ' of your places' : 'none of your places yet']
+          .filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' and $1') + '. The same places are listed ' + (id === 'panel' ? 'above the map.' : 'next to the map.');
+        var fan = pt(FAN.geo);
+        var out = '<svg class="loc-map-svg rwc-map-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-labelledby="rwc-map-' + id + '-t rwc-map-' + id + '-d">' +
+          '<title id="rwc-map-' + id + '-t">Map of your 3rd half</title><desc id="rwc-map-' + id + '-d">' + esc(desc.charAt(0).toUpperCase() + desc.slice(1)) + '</desc>' +
+          BASE.replace(/CLIP/g, 'rwc-map-' + id + '-clip') +
+          '<ellipse cx="' + fan.x.toFixed(1) + '" cy="' + fan.y.toFixed(1) + '" rx="16" ry="10" class="m-fan m-fan--confirmed"/>' +
+          '<text x="' + (fan.x - 20).toFixed(1) + '" y="' + (fan.y + 3).toFixed(1) + '" class="m-label m-label--fan" text-anchor="end">Fan zone</text>';
+        sts.forEach(function (s) {
+          var p = pt(s.geo);
+          out += '<g class="m-stadium" transform="translate(' + (p.x - 12).toFixed(1) + ' ' + (p.y - 8).toFixed(1) + ')"><rect width="24" height="16" rx="8"/><rect x="5" y="4" width="14" height="8" rx="4" class="m-stadium-pitch"/></g>' +
+            '<text x="' + (p.x + s.label[0]).toFixed(1) + '" y="' + (p.y + s.label[1]).toFixed(1) + '" class="m-label m-label--strong" text-anchor="' + s.label[2] + '">' + esc(s.name) + '</text>';
+        });
+        items.forEach(function (p) {
+          if (p.x === undefined) return;
+          out += '<g class="m-pin m-pin--list" data-th-pin="' + esc(p.item.id) + '" transform="translate(' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ')"><g class="m-pin-body"><path d="' + PIN + '"/><text y="-12.5" text-anchor="middle">' + p.n + '</text></g></g>';
+        });
+        return out + '</svg><div class="rwc-map-pop" hidden></div>';
+      }
+
+      // The text version of the map, next to it in the section
+      function textList(items, sts) {
+        var out = '<p class="rwc-map-text-title"><strong>On the map</strong></p><ul class="rwc-map-keys" role="list">' +
+          sts.map(function (s) { return '<li><span class="loc-key-stadium" aria-hidden="true"></span>' + esc(s.name) + ', ' + esc(s.area) + '</li>'; }).join('') +
+          '<li><span class="loc-key-fan loc-key-fan--confirmed" aria-hidden="true"></span>' + esc(FAN.name) + ', ' + esc(FAN.area) + '</li></ul>' +
+          '<p class="rwc-map-text-title" id="rwc-map-places-title" tabindex="-1"><strong>Your places</strong></p>';
+        if (!items.length) return out + '<p class="pl-sm">None yet. Places you add show here and on the map.</p>';
+        return out + '<ol class="rwc-map-places" role="list">' + items.map(function (p) {
+          var name = p.item.name + ', ' + p.item.area;
+          return '<li><span class="rwc-map-num" aria-hidden="true">' + p.n + '</span><span>' + esc(name) + (p.x === undefined ? ' <span class="pl-sm">(not on the map)</span>' : '') + '</span>' +
+            '<button type="button" class="pl-btn-link" data-map-remove="' + esc(p.item.id) + '">Remove<span class="visually-hidden"> ' + esc(name) + '</span></button></li>';
+        }).join('') + '</ol>';
+      }
+
+      function draw() {
+        var sts = stadiums(), items = pins(list ? list.getItems() : [], sts);
+        document.querySelectorAll('[data-th-map]').forEach(function (frame) { frame.innerHTML = svg(frame.dataset.thMap, items, sts); });
+        var text = document.getElementById('rwc-map-text');
+        if (text) text.innerHTML = textList(items, sts);
+      }
+
+      // Click a pin: its name and Remove, above the pin (below it near the top of the map)
+      function hidePops() {
+        document.querySelectorAll('.rwc-map-pop').forEach(function (pop) { pop.hidden = true; });
+        document.querySelectorAll('.m-pin--list.is-active').forEach(function (g) { g.classList.remove('is-active'); });
+      }
+      function showPop(pin) {
+        var frame = pin.closest('[data-th-map]'), pop = frame.querySelector('.rwc-map-pop');
+        var id = pin.dataset.thPin, it = list && list.getItems().filter(function (x) { return x.id === id; })[0];
+        if (!it) return;
+        var was = pin.classList.contains('is-active');
+        hidePops();
+        if (was) return;
+        var m = pin.getAttribute('transform').match(/translate\(([-\d.]+) ([-\d.]+)\)/), x = +m[1], y = +m[2], below = y < 90;
+        pop.innerHTML = '<p><strong>' + esc(it.name) + '</strong><span class="pl-sm">' + esc(it.area) + '</span></p>' +
+          '<button type="button" class="pl-btn-link" data-map-remove="' + esc(id) + '">Remove<span class="visually-hidden"> ' + esc(it.name + ', ' + it.area) + '</span></button>' +
+          '<button type="button" class="rwc-map-pop-close" aria-label="Close">&#x2715;</button>';
+        pop.style.top = ((below ? y + 6 : y - 22) / H * 100) + '%';
+        pop.classList.toggle('is-below', below);
+        pop.hidden = false;
+        // Centred on the pin, but kept inside the map
+        var fw = frame.clientWidth, half = pop.offsetWidth / 2;
+        pop.style.left = Math.min(Math.max(x / W * fw, half), fw - half) + 'px';
+        pin.classList.add('is-active');
+      }
+      document.addEventListener('click', function (e) {
+        var pin = e.target.closest('.m-pin--list');
+        if (pin) { showPop(pin); return; }
+        var rm = e.target.closest('[data-map-remove]');
+        if (rm && list) {
+          // From the text list, focus moves to the next Remove, or to "Your places" when the list is empty
+          var li = rm.closest('.rwc-map-places li'), next = li && (li.nextElementSibling || li.previousElementSibling);
+          var nextId = next && next.querySelector('[data-map-remove]').dataset.mapRemove;
+          list.removeItem(rm.dataset.mapRemove);
+          if (li) {
+            var target = nextId && document.querySelector('#rwc-map-text [data-map-remove="' + nextId + '"]');
+            (target || document.getElementById('rwc-map-places-title')).focus();
+          }
+          return;
+        }
+        if (e.target.closest('.rwc-map-pop-close') || !e.target.closest('.rwc-map-pop')) hidePops();
+      });
+      // Escape closes an open pin first (before the panel's own Escape)
+      window.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || !document.querySelector('.rwc-map-pop:not([hidden])')) return;
+        e.stopPropagation();
+        hidePops();
+      }, true);
+
+      document.addEventListener('thirdhalf:change', draw);
+      document.addEventListener('teamchange', draw);
+      draw();
     })();
   </script>
 </body>
