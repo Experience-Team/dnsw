@@ -1,80 +1,148 @@
-<nav class="site-nav">
-  <button class="nav-hamburger" onclick="document.getElementById('nav-menu').classList.add('open')" aria-label="Open menu">☰</button>
-  <a class="nav-logo" href="../index.html">
-    <span id="nav-logo-text">sydney<span class="logo-dot">.</span>com</span>
-  </a>
-  <div class="nav-spacer"></div>
-  <div class="nav-search-pill"><svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.4987 14.1666C11.1806 14.1666 14.1654 11.1819 14.1654 7.49998C14.1654 3.81808 11.1806 0.833313 7.4987 0.833313C3.8168 0.833313 0.832031 3.81808 0.832031 7.49998C0.832031 11.1819 3.8168 14.1666 7.4987 14.1666Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.8333 15.8333L12.25 12.25" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  <div class="nav-spacer"></div>
-  <button class="nav-wishlist" aria-label="Save"><svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-</nav>
+<!-- Site nav: both sites on the left (a black tab marks the current one), sections in the middle,
+     region, search and saved on the right. Below 72rem the sections move into the hamburger menu.
+     Shows at the top, slides away when scrolling down and back on the first scroll up. -->
+<header class="site-nav" id="site-nav">
+  <button type="button" class="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">☰</button>
+  <div class="nav-sites">
+    <a class="nav-site" data-site="sydney" href="../pages/home.html"><b>sydney</b>.com</a>
+    <a class="nav-site" data-site="nsw" href="../pages/home-nsw.html">visit<b>nsw</b>.com</a>
+  </div>
+  <nav class="nav-links" aria-label="Main">
+    <div class="nav-item">
+      <button type="button" class="nav-link" aria-expanded="false" aria-controls="nav-drop-destinations" data-section="destinations">Destinations</button>
+      <div class="nav-drop" id="nav-drop-destinations" hidden>
+        <a href="#">Sydney</a><a href="#">Blue Mountains</a><a href="#">Hunter Valley</a><a href="#">Byron Bay</a><a href="#">South Coast</a><a href="#">Central West</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <button type="button" class="nav-link" aria-expanded="false" aria-controls="nav-drop-todo" data-section="todo">Things to do</button>
+      <div class="nav-drop" id="nav-drop-todo" hidden>
+        <a href="#">Beaches</a><a href="#">Food &amp; wine</a><a href="#">Arts &amp; culture</a><a href="#">Outdoors &amp; adventure</a><a href="#">Family</a><a href="#">Wellness</a>
+      </div>
+    </div>
+    <div class="nav-item"><a class="nav-link" href="#" data-section="roadtrips">NSW Road Trips</a></div>
+    <div class="nav-item"><a class="nav-link" href="../pages/accommodation.html" data-section="accommodation">Accommodation</a></div>
+    <div class="nav-item">
+      <button type="button" class="nav-link" aria-expanded="false" aria-controls="nav-drop-events" data-section="events">Events</button>
+      <div class="nav-drop" id="nav-drop-events" hidden>
+        <a class="nav-menu-feature" href="../pages/rugby-world-cup.html"><span aria-hidden="true">🏉</span> Rugby World Cup 2027</a>
+        <a href="../pages/events.html">What's on</a><a href="#">Festivals</a><a href="#">Sport</a>
+      </div>
+    </div>
+    <div class="nav-item"><a class="nav-link" href="#" data-section="deals">Deals</a></div>
+    <div class="nav-item"><a class="nav-link" href="#" data-section="inspired">Be Inspired</a></div>
+  </nav>
+  <div class="nav-tools">
+    <button type="button" class="nav-locale" aria-label="Region: Australia">AU</button>
+    <button type="button" class="nav-icon" aria-label="Search"><svg width="18" height="18" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M7.4987 14.1666C11.1806 14.1666 14.1654 11.1819 14.1654 7.49998C14.1654 3.81808 11.1806 0.833313 7.4987 0.833313C3.8168 0.833313 0.832031 3.81808 0.832031 7.49998C0.832031 11.1819 3.8168 14.1666 7.4987 14.1666Z" stroke="#0D0D0D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.8333 15.8333L12.25 12.25" stroke="#0D0D0D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="nav-icon" aria-label="Saved"><svg width="15" height="18" viewBox="0 0 14 17" fill="none" aria-hidden="true"><path d="M12.4987 15.8333L6.66536 12.5L0.832031 15.8333V2.49998C0.832031 2.05795 1.00763 1.63403 1.32019 1.32147C1.63275 1.00891 2.05667 0.833313 2.4987 0.833313H10.832C11.2741 0.833313 11.698 1.00891 12.0105 1.32147C12.3231 1.63403 12.4987 2.05795 12.4987 2.49998V15.8333Z" stroke="#0D0D0D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</header>
 
-<!-- Hamburger menu overlay -->
+<!-- Hamburger menu (below 72rem): the same sites, sections and region, in a panel from the left -->
 <div id="nav-menu" class="nav-menu-overlay">
-  <div class="nav-menu-backdrop" onclick="document.getElementById('nav-menu').classList.remove('open')"></div>
-  <div class="nav-menu-panel">
-    <button class="nav-menu-close" onclick="document.getElementById('nav-menu').classList.remove('open')">✕ Close</button>
+  <div class="nav-menu-backdrop" data-nav-close></div>
+  <div class="nav-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <button type="button" class="nav-menu-close" data-nav-close>✕ Close</button>
 
-    <!-- Site toggle -->
-    <div class="nav-menu-util" id="nav-site-btns">
-      <button id="btn-sydney" onclick="switchSite('sydney')">sydney.com</button>
-      <button id="btn-nsw" onclick="switchSite('nsw')">visitnsw.com</button>
+    <div class="nav-menu-sites">
+      <a class="nav-site" data-site="sydney" href="../pages/home.html"><b>sydney</b>.com</a>
+      <a class="nav-site" data-site="nsw" href="../pages/home-nsw.html">visit<b>nsw</b>.com</a>
     </div>
 
     <!-- Featured: Rugby World Cup 2027 (button style) -->
     <a class="nav-menu-feature" href="../pages/rugby-world-cup.html"><span aria-hidden="true">🏉</span> Rugby World Cup 2027</a>
 
-    <!-- Nav items -->
-    <div class="nav-menu-item" onclick="toggleSubmenu('sub-destinations')">
-      Destinations <span class="expand-icon">›</span>
-    </div>
+    <button type="button" class="nav-menu-item" aria-expanded="false" aria-controls="sub-destinations" data-section="destinations">Destinations <span class="expand-icon" aria-hidden="true">›</span></button>
     <div id="sub-destinations" class="nav-submenu">
-      <a href="#">Sydney</a>
-      <a href="#">Blue Mountains</a>
-      <a href="#">Hunter Valley</a>
-      <a href="#">Byron Bay</a>
-      <a href="#">South Coast</a>
-      <a href="#">Central West</a>
+      <a href="#">Sydney</a><a href="#">Blue Mountains</a><a href="#">Hunter Valley</a><a href="#">Byron Bay</a><a href="#">South Coast</a><a href="#">Central West</a>
     </div>
-
-    <div class="nav-menu-item" onclick="toggleSubmenu('sub-todo')">
-      Things to do <span class="expand-icon">›</span>
-    </div>
+    <button type="button" class="nav-menu-item" aria-expanded="false" aria-controls="sub-todo" data-section="todo">Things to do <span class="expand-icon" aria-hidden="true">›</span></button>
     <div id="sub-todo" class="nav-submenu">
-      <a href="#">Beaches</a>
-      <a href="#">Food & Wine</a>
-      <a href="#">Arts & Culture</a>
-      <a href="#">Outdoors & Adventure</a>
-      <a href="#">Family</a>
-      <a href="#">Wellness</a>
+      <a href="#">Beaches</a><a href="#">Food &amp; wine</a><a href="#">Arts &amp; culture</a><a href="#">Outdoors &amp; adventure</a><a href="#">Family</a><a href="#">Wellness</a>
     </div>
-
-    <div class="nav-menu-item">NSW Road trips</div>
-    <div class="nav-menu-item">Accommodation</div>
-    <div class="nav-menu-item">Events</div>
-    <div class="nav-menu-item">Deals</div>
-    <div class="nav-menu-item">Be inspired</div>
+    <a class="nav-menu-item" href="#" data-section="roadtrips">NSW Road Trips</a>
+    <a class="nav-menu-item" href="../pages/accommodation.html" data-section="accommodation">Accommodation</a>
+    <a class="nav-menu-item" href="../pages/events.html" data-section="events">Events</a>
+    <a class="nav-menu-item" href="#" data-section="deals">Deals</a>
+    <a class="nav-menu-item" href="#" data-section="inspired">Be Inspired</a>
+    <p class="nav-menu-region">Region: <b>AU</b></p>
   </div>
 </div>
 
-<script>
+<script data-included>
 (function () {
-  var site = document.body.dataset.site || 'sydney';
-  // Set active toggle button
-  document.getElementById(site === 'nsw' ? 'btn-nsw' : 'btn-sydney').classList.add('active');
-  // Set logo text
-  if (site === 'nsw') {
-    var logoText = document.getElementById('nav-logo-text');
-    logoText.innerHTML = 'visitnsw<span class="logo-dot">.</span>com';
+  var nav = document.getElementById('site-nav');
+  var menu = document.getElementById('nav-menu');
+  if (!nav || !menu) return;
+  var burger = nav.querySelector('.nav-hamburger');
+
+  // Current site (black tab) and current section (bold)
+  var site = document.body.dataset.site === 'nsw' ? 'nsw' : 'sydney';
+  document.querySelectorAll('.nav-site[data-site="' + site + '"]').forEach(function (a) { a.setAttribute('aria-current', 'true'); });
+  var page = location.pathname.split('/').pop().replace('.html', '');
+  var SECTION = { events: 'events', 'rugby-world-cup': 'events', 'rugby-world-cup-plan': 'events', 'disneys-the-lion-king': 'events',
+    accommodation: 'accommodation', 'ingenia-holidays-sydney-hills': 'accommodation',
+    'destination-visitnsw': 'destinations', 'western-sydney': 'destinations', 'western-sydney-v2': 'destinations', 'western-sydney-v3': 'destinations', 'western-sydney-airport': 'destinations' };
+  var section = SECTION[page] || (/bridgeclimb|kayaks|botanic|mother-chus/.test(page) ? 'todo' : null);
+  if (section) document.querySelectorAll('[data-section="' + section + '"]').forEach(function (el) { el.setAttribute('aria-current', 'page'); });
+
+  // Desktop dropdowns: one open at a time; outside click or Escape closes
+  var drops = Array.prototype.slice.call(nav.querySelectorAll('button.nav-link'));
+  function closeDrops(except) {
+    drops.forEach(function (b) {
+      if (b === except) return;
+      b.setAttribute('aria-expanded', 'false');
+      document.getElementById(b.getAttribute('aria-controls')).hidden = true;
+    });
   }
+  drops.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var open = b.getAttribute('aria-expanded') !== 'true';
+      closeDrops(b);
+      b.setAttribute('aria-expanded', String(open));
+      document.getElementById(b.getAttribute('aria-controls')).hidden = !open;
+    });
+  });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.nav-item')) closeDrops(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var open = drops.filter(function (b) { return b.getAttribute('aria-expanded') === 'true'; })[0];
+    if (open) { closeDrops(); open.focus(); }
+    if (menu.classList.contains('open')) closeMenu();
+  });
+
+  // Hamburger menu
+  function closeMenu() { menu.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); burger.focus(); }
+  burger.addEventListener('click', function () {
+    menu.classList.add('open');
+    burger.setAttribute('aria-expanded', 'true');
+    menu.querySelector('.nav-menu-close').focus();
+  });
+  menu.querySelectorAll('[data-nav-close]').forEach(function (el) { el.addEventListener('click', closeMenu); });
+  menu.querySelectorAll('button.nav-menu-item').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var open = b.getAttribute('aria-expanded') !== 'true';
+      b.setAttribute('aria-expanded', String(open));
+      document.getElementById(b.getAttribute('aria-controls')).classList.toggle('open', open);
+    });
+  });
+
+  // Hide on scroll down, show on scroll up. Small movements are ignored so it doesn't flicker,
+  // and it never hides near the top of the page, while a dropdown is open or while it has keyboard focus.
+  var lastY = window.scrollY, ticking = false;
+  function update() {
+    ticking = false;
+    var y = window.scrollY, d = y - lastY;
+    if (Math.abs(d) < 8) return;
+    var hide = d > 0 && y > nav.offsetHeight * 2 && !nav.contains(document.activeElement) &&
+      !drops.some(function (b) { return b.getAttribute('aria-expanded') === 'true'; });
+    document.body.classList.toggle('nav--hidden', hide);
+    lastY = y;
+  }
+  nav.addEventListener('focusin', function () { document.body.classList.remove('nav--hidden'); });
+  window.addEventListener('scroll', function () {
+    if (!ticking) { requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
 })();
-
-function toggleSubmenu(id) {
-  document.getElementById(id).classList.toggle('open');
-}
-
-function switchSite(site) {
-  var base = window.location.pathname.replace(/\/pages\/[^/]+$/, '');
-  window.location.href = base + '/pages/' + (site === 'sydney' ? 'home.html' : 'home-nsw.html');
-}
 </script>
