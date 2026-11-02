@@ -735,6 +735,47 @@ body.rwc-th-locked { overflow: hidden; }
 .rwc-picks-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 1.5rem; margin-top: .75rem; padding-top: .875rem; border-top: 1px solid var(--color-border); }
 .rwc-picks-group > .loc-stay-empty { margin-top: .75rem; }
 .rwc-picks-more { margin-top: 2rem; }
+/* Your 3rd half map (section and summary panel): the stadium cards' map style. Numbered black pins for list items
+   (category pins on the stadium cards are blue), a pin's name and Remove in a small box, and the text version beside
+   the map. Smaller maps (the panel, phones) drop the labels and enlarge the pins. */
+.rwc-map { margin-top: 2.5rem; }
+.rwc-map-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(15rem, 2fr); gap: 1.5rem 2rem; align-items: start; margin-top: .75rem; }
+.rwc-map-frame { position: relative; }
+.rwc-map .loc-map-key { margin-top: .5rem; }
+.m-harbour { fill: none; stroke: #d4d4d4; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.m-inset { fill: #f4f4f4; }
+.m-inset-frame { fill: none; stroke: #bbb; stroke-width: 1.5; }
+.m-pin--list { cursor: pointer; }
+.m-pin.m-pin--list path { fill: #111; stroke: #fff; stroke-width: 1.5; }
+.m-pin.m-pin--list text { fill: #fff; }
+.m-pin.m-pin--list.is-active path { fill: #fff; stroke: #111; stroke-width: 2; }
+.m-pin.m-pin--list.is-active text { fill: #111; }
+.loc-key-pin { display: inline-block; width: .7rem; height: .7rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #111; margin-left: .5rem; }
+.rwc-map-num { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 1.25rem; height: 1.25rem; padding: 0 .25rem; border-radius: 999px; background: #111; color: #fff; font-size: .6875rem; font-weight: 700; }
+.rwc-map-pop { position: absolute; z-index: 2; transform: translate(-50%, -100%); display: flex; align-items: flex-start; gap: .75rem; width: max-content; max-width: 15rem; padding: .5rem .625rem; background: #fff; border: 2px solid #111; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); font-size: .8125rem; }
+.rwc-map-pop.is-below { transform: translate(-50%, 0); }
+.rwc-map-pop[hidden] { display: none; }
+.rwc-map-pop p { display: flex; flex-direction: column; }
+.rwc-map-pop .pl-btn-link { font-size: .8125rem; }
+.rwc-map-pop-close { background: none; border: 0; cursor: pointer; color: var(--color-text-muted); font-size: .875rem; line-height: 1; padding: .125rem; }
+.rwc-map-text { display: flex; flex-direction: column; gap: .5rem; font-size: .875rem; }
+.rwc-map-text-title:focus { outline: none; }
+.rwc-map-text-title:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+.rwc-map-keys, .rwc-map-places { list-style: none; display: flex; flex-direction: column; gap: .375rem; }
+.rwc-map-keys li, .rwc-map-places li { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .5rem; }
+.rwc-map-keys .loc-key-stadium, .rwc-map-keys .loc-key-fan { margin-left: 0; flex-shrink: 0; }
+.rwc-map-places .pl-btn-link { margin-left: auto; }
+.rwc-map--small { margin-top: 0; }
+.rwc-map--small .loc-map-key { font-size: .6875rem; }
+.rwc-map--small .m-label { display: none; }
+.rwc-map--small .m-pin-body { transform: scale(1.5); }
+.rwc-th-item > span:nth-child(2) { margin-right: auto; }
+@media (max-width: 48rem) {
+  .rwc-map-layout { grid-template-columns: minmax(0, 1fr); }
+  .rwc-map .m-label { display: none; }
+  .rwc-map .m-label--area { display: inline; }
+  .rwc-map .m-pin-body { transform: scale(1.5); }
+}
 @media (max-width: 48rem) { .rwc-picks-cards { grid-template-columns: minmax(0, 1fr); } }
 #rwc-find-people [hidden] { display: none; }
 .rwc-people-grid { align-items: start; }
