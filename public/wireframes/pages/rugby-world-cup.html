@@ -50,25 +50,10 @@
     </div>
   </div>
 
-  <!-- Supporting bar: sticks under the nav once a team is chosen; Change reopens the team selector, Clear resets the page -->
-  <div class="rwc-supporting" id="rwc-supporting" hidden>
-    <div class="container">
-      <p class="pl-row" role="status">Supporting&nbsp;<strong id="rwc-supporting-team"></strong>&nbsp;&middot;&nbsp;<button type="button" class="pl-btn-link" id="rwc-supporting-change">Change</button>&nbsp;&middot;&nbsp;<button type="button" class="pl-btn-link" id="rwc-supporting-clear">Clear</button></p>
-    </div>
-  </div>
-
-  <!-- Intro block -->
-  <div class="intro-block">
-    <div class="container">
-      <h1>Rugby World Cup 2027 in Sydney</h1>
-      <p>Australia welcomes the world for Rugby World Cup 2027, and Sydney is at the heart of the action. From pool matches to knockout fixtures, catch the world's best teams at the city's iconic stadiums, then soak up the atmosphere at fan zones across the harbour.</p>
-    </div>
-  </div>
-
-
-  <!-- Team selector: fans choose once; the choice fills the planner and match filter, and reorders the page.
-       Both states are shown in ../rugby-world-cup-team.html. -->
-  <section class="section" id="team" aria-labelledby="rwc-pick-label">
+  <!-- Team chooser: straight under the breadcrumb, prominent, and sticks to the top of the screen once
+       scrolled to (under the nav while the nav shows). Fans choose once; the choice fills the planner and
+       match filter, and reorders the page. Clear team resets it. -->
+  <section class="rwc-team-bar" id="team" aria-labelledby="rwc-pick-label">
     <div class="container pl-scope">
       <div class="pl-setup">
         <p class="pl-setup-sentence"><span id="rwc-pick-label">Who are you supporting?</span>
@@ -123,7 +108,6 @@
             </span>
             <button type="button" class="pl-btn-link" id="rwc-pick-clear" hidden>Clear team</button>
         </p>
-        <p class="pl-sm rwc-team-note"><span class="pl-marker">1</span> Choosing a team changes the page: their matches, plan and stadiums move to the top and fill in with that team. Everything else stays, lower down. Clear team puts the page back to how it was.</p>
       </div>
     </div>
   </section>
@@ -1004,7 +988,6 @@
       var all = pickers[0] ? Array.prototype.map.call(pickers[0].querySelectorAll('[role="option"]'), function (o) { return o.dataset.team; }) : [];
       var fixtures = JSON.parse(document.getElementById('rwc-fixtures').textContent);
       var filter = document.getElementById('rwc-filter-team');
-      var bar = document.getElementById('rwc-supporting');
       var plan = document.getElementById('plan');
       var matches = document.querySelector('section[aria-labelledby="rwc-matches-title"]');
       var findPeople = document.getElementById('rwc-find-people');
@@ -1167,7 +1150,7 @@
 
       document.getElementById('rwc-people-pick-link').addEventListener('click', function (e) {
         e.preventDefault();
-        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         setTimeout(function () { document.querySelector('#team [data-team-picker]').rwcOpen(); }, 0);
       });
       function retargetCountdown(team) {
@@ -1192,8 +1175,6 @@
         pickers.forEach(function (p) { p.rwcShow(team); });
         document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: team } }));
         if (filter.value !== team) { filter.value = team; filter.dispatchEvent(new Event('change')); }
-        document.getElementById('rwc-supporting-team').textContent = team;
-        bar.hidden = false;
         pickClear.hidden = false;
         layout(team);
         retargetCountdown(team);
@@ -1209,23 +1190,16 @@
         document.querySelector('#rwc-filter-venue [data-venue=""]').click();
         if (expand.getAttribute('aria-expanded') === 'true') expand.click();
         modeSel.value = 'going';
-        bar.hidden = true;
         pickClear.hidden = true;
         layout(null);
         retargetCountdown(null);
         try { sessionStorage.removeItem(KEY); } catch (e) {}
-        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         document.querySelector('#team [role="combobox"]').focus({ preventScroll: true });
       }
       var pickClear = document.getElementById('rwc-pick-clear');
       pickClear.addEventListener('click', clear);
-      document.getElementById('rwc-supporting-clear').addEventListener('click', clear);
       filter.addEventListener('change', function () { if (filter.value && filter.value !== current) select(filter.value, true); });
-      document.getElementById('rwc-supporting-change').addEventListener('click', function () {
-        var picker = document.querySelector('#team [data-team-picker]');
-        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(function () { picker.rwcOpen(); }, 0);
-      });
 
       var asked = new URLSearchParams(location.search).get('team');
       var saved = null;
