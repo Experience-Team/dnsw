@@ -717,7 +717,19 @@ body.rwc-th-locked { overflow: hidden; }
 .hero-countdown-meta a { color: #fff; }
 @media (max-width: 48rem) { .rwc-hero-team .pl-setup-sentence { font-size: 1.25rem; } }
 #rwc-stadiums-head[hidden] { display: none; }
-.rwc-plan-space { min-height: 10rem; } /* Plan your 3rd half: room for the list, still to come */
+/* RWC Plan your 3rd half: the context line and "Why these?" under the heading, then picks by time around the match
+   (hotel card pattern, 3 across; 1 across on phones) and "See your 3rd half (n)" */
+.rwc-picks-context { font-weight: 600; margin-top: .75rem; }
+.rwc-picks-why { margin-top: .5rem; }
+.rwc-picks-why summary { cursor: pointer; width: fit-content; }
+.rwc-picks-why p { margin-top: .25rem; }
+.rwc-picks { display: flex; flex-direction: column; gap: 2rem; }
+.rwc-picks-title { font-size: 1.125rem; font-weight: 700; }
+.rwc-picks-sub { font-size: .875rem; color: #444; margin-top: .125rem; }
+.rwc-picks-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 1.5rem; margin-top: .75rem; padding-top: .875rem; border-top: 1px solid var(--color-border); }
+.rwc-picks-group > .loc-stay-empty { margin-top: .75rem; }
+.rwc-picks-more { margin-top: 2rem; }
+@media (max-width: 48rem) { .rwc-picks-cards { grid-template-columns: minmax(0, 1fr); } }
 #rwc-find-people [hidden] { display: none; }
 .rwc-people-grid { align-items: start; }
 .rwc-people-grid + .rwc-people-grid { margin-top: 1rem; }
