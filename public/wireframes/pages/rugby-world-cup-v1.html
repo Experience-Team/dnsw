@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wireframe — Rugby World Cup (V1)</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <link rel="stylesheet" href="../themes/sydney.css" id="theme-sheet" />
+</head>
+<body class="theme-sydney" data-site="sydney">
+
+  <div data-include="../components/utility-bar.html"></div>
+  <div data-include="../components/nav.html"></div>
+
+  <!-- Hero -->
+  <div class="hero hero--countdown">
+    <div class="ph-img" style="width:100%;height:100%;"></div>
+    <div class="hero-content container">
+      <div>
+        <h1 class="hero-headline">Rugby World Cup<br>2027</h1>
+        <p class="hero-sub">Sydney hosts the world's best rugby nations</p>
+      </div>
+      <!-- Countdown to the first NSW match. Ended state (after kick-off): units are replaced by a link to Matches in NSW. -->
+      <div class="hero-countdown" data-countdown="2027-10-03T12:15:00+11:00">
+        <p class="hero-countdown-label" id="rwc-countdown-label">Countdown to the first match in NSW</p>
+        <div class="hero-countdown-units" role="timer" aria-labelledby="rwc-countdown-label">
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="days">--</span><span class="hero-countdown-unit">Days</span></span>
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="hours">--</span><span class="hero-countdown-unit">Hours</span></span>
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="minutes">--</span><span class="hero-countdown-unit">Mins</span></span>
+          <span class="hero-countdown-cell"><span class="hero-countdown-num" data-unit="seconds">--</span><span class="hero-countdown-unit">Secs</span></span>
+        </div>
+        <p class="hero-countdown-meta" id="rwc-countdown-meta">Japan v Samoa, Newcastle Stadium. Sun 3 Oct 2027, 12:15pm AEDT</p>
+        <!-- Typical weather at kick-off: long-term climate averages for the city and month (Bureau of Meteorology),
+             adjusted for the kick-off time. Page content, not a product field, and never a forecast. Follows the countdown. -->
+        <p class="hero-countdown-meta hero-countdown-weather" id="rwc-countdown-weather"><span aria-hidden="true">🌤️</span> Usually about 21°C at kick-off, mild and mostly sunny. Rain on about 1 in 3 days in early October. Typical weather, not a forecast.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breadcrumb + page actions bar -->
+  <div class="page-switcher-bar">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="#" class="crumb">Home</a>
+      <span class="sep">›</span>
+      <span class="crumb-active">Rugby World Cup 2027</span>
+    </nav>
+    <div class="page-actions">
+      <a href="#">Share</a>
+      <a href="#">Save</a>
+    </div>
+  </div>
+
+  <!-- Supporting bar: sticks under the nav once a team is chosen; Change reopens the team selector, Clear resets the page -->
+  <div class="rwc-supporting" id="rwc-supporting" hidden>
+    <div class="container">
+      <p class="pl-row" role="status">Supporting&nbsp;<strong id="rwc-supporting-team"></strong>&nbsp;&middot;&nbsp;<button type="button" class="pl-btn-link" id="rwc-supporting-change">Change</button>&nbsp;&middot;&nbsp;<button type="button" class="pl-btn-link" id="rwc-supporting-clear">Clear</button></p>
+    </div>
+  </div>
+
+  <!-- Intro block -->
+  <div class="intro-block">
+    <div class="container">
+      <h1>Rugby World Cup 2027 in Sydney</h1>
+      <p>Australia welcomes the world for Rugby World Cup 2027, and Sydney is at the heart of the action. From pool matches to knockout fixtures, catch the world's best teams at the city's iconic stadiums, then soak up the atmosphere at fan zones across the harbour.</p>
+    </div>
+  </div>
+
+
+  <!-- Team selector: fans choose once; the choice fills the planner and match filter, and reorders the page.
+       Both states are shown in ../rugby-world-cup-team.html. -->
+  <section class="section" id="team" aria-labelledby="rwc-pick-label">
+    <div class="container pl-scope">
+      <div class="pl-setup">
+        <p class="pl-setup-sentence"><span id="rwc-pick-label">Who are you supporting?</span>
+            <span class="pl-slot pl-team-picker" data-team-picker><span class="visually-hidden" id="rwc-pick-team-label">Team</span><button type="button" class="pl-slot-btn pl-team-btn" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="rwc-pick-list" aria-labelledby="rwc-pick-label rwc-pick-value"><span class="pl-team-value" id="rwc-pick-team-value"><span class="pl-team-placeholder">choose your team</span></span></button>
+                <span class="pl-team-pop" hidden>
+                  <label class="pl-team-toggle"><input type="checkbox" data-show-all-teams> Show teams playing in other states (9)</label>
+                  <span role="listbox" id="rwc-pick-team-list" aria-label="Teams by pool" class="pl-team-list">
+                  <span role="group" aria-labelledby="rwc-pick-pool-a" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-a">Pool A</span>
+                    <span role="option" id="rwc-pick-team-new-zealand" aria-selected="false" data-team="New Zealand" style="--c1:#000000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>New Zealand<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-pick-team-australia" aria-selected="false" data-team="Australia" style="--c1:#ffb81c;--c2:#00843d"><span class="pl-team-swatch" aria-hidden="true"></span><span>Australia<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-pick-team-chile" aria-selected="false" data-team="Chile" data-outside style="--c1:#d52b1e;--c2:#0039a6"><span class="pl-team-swatch" aria-hidden="true"></span><span>Chile<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-hong-kong-china" aria-selected="false" data-team="Hong Kong China" data-outside style="--c1:#de2910;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Hong Kong China<span class="pl-team-where">Watch in NSW</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pick-pool-b" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-b">Pool B</span>
+                    <span role="option" id="rwc-pick-team-south-africa" aria-selected="false" data-team="South Africa" data-outside style="--c1:#007a4d;--c2:#ffb612"><span class="pl-team-swatch" aria-hidden="true"></span><span>South Africa<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-italy" aria-selected="false" data-team="Italy" style="--c1:#0064b5;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Italy<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
+                    <span role="option" id="rwc-pick-team-georgia" aria-selected="false" data-team="Georgia" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Georgia<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-pick-team-romania" aria-selected="false" data-team="Romania" style="--c1:#fcd116;--c2:#002b7f"><span class="pl-team-swatch" aria-hidden="true"></span><span>Romania<span class="pl-team-where">Plays in Sydney</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pick-pool-c" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-c">Pool C</span>
+                    <span role="option" id="rwc-pick-team-argentina" aria-selected="false" data-team="Argentina" data-outside style="--c1:#75aadb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Argentina<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-fiji" aria-selected="false" data-team="Fiji" data-light style="--c1:#ffffff;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Fiji<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-pick-team-spain" aria-selected="false" data-team="Spain" style="--c1:#c60b1e;--c2:#ffc400"><span class="pl-team-swatch" aria-hidden="true"></span><span>Spain<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-pick-team-canada" aria-selected="false" data-team="Canada" data-outside style="--c1:#d80621;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Canada<span class="pl-team-where">Watch in NSW</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pick-pool-d" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-d">Pool D</span>
+                    <span role="option" id="rwc-pick-team-ireland" aria-selected="false" data-team="Ireland" style="--c1:#169b62;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Ireland<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-pick-team-scotland" aria-selected="false" data-team="Scotland" data-outside style="--c1:#0f1e4a;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Scotland<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-uruguay" aria-selected="false" data-team="Uruguay" style="--c1:#5cbfeb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Uruguay<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-pick-team-portugal" aria-selected="false" data-team="Portugal" style="--c1:#c8102e;--c2:#046a38"><span class="pl-team-swatch" aria-hidden="true"></span><span>Portugal<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pick-pool-e" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-e">Pool E</span>
+                    <span role="option" id="rwc-pick-team-france" aria-selected="false" data-team="France" style="--c1:#002654;--c2:#ed2939"><span class="pl-team-swatch" aria-hidden="true"></span><span>France<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-pick-team-japan" aria-selected="false" data-team="Japan" style="--c1:#bc002d;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Japan<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-pick-team-usa" aria-selected="false" data-team="USA" data-outside style="--c1:#0a3161;--c2:#b31942"><span class="pl-team-swatch" aria-hidden="true"></span><span>USA<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-samoa" aria-selected="false" data-team="Samoa" style="--c1:#0047ab;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Samoa<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pick-pool-f" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pick-pool-f">Pool F</span>
+                    <span role="option" id="rwc-pick-team-england" aria-selected="false" data-team="England" data-light style="--c1:#ffffff;--c2:#ce1124"><span class="pl-team-swatch" aria-hidden="true"></span><span>England<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-pick-team-wales" aria-selected="false" data-team="Wales" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Wales<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-pick-team-tonga" aria-selected="false" data-team="Tonga" data-outside style="--c1:#c10000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Tonga<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-pick-team-zimbabwe" aria-selected="false" data-team="Zimbabwe" data-outside style="--c1:#006400;--c2:#ffd200"><span class="pl-team-swatch" aria-hidden="true"></span><span>Zimbabwe<span class="pl-team-where">Watch in NSW</span></span></span>
+                  </span>
+                  </span>
+                </span>
+            </span>
+            <button type="button" class="pl-btn-link" id="rwc-pick-clear" hidden>Clear team</button>
+        </p>
+        <p class="pl-sm rwc-team-note"><span class="pl-marker">1</span> Choosing a team changes the page: their matches, plan and stadiums move to the top and fill in with that team. Everything else stays, lower down. Clear team puts the page back to how it was.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Plan your 3rd half: entry point (annotated in ../planner-screen-1.html). Start planning opens the results prototype in a new tab. -->
+  <section class="section" id="plan">
+    <div class="container pl-scope">
+      <div class="pl-entry">
+        <h2 class="pl-lg">Plan your 3rd half</h2>
+        <p>In rugby, the third half is the social part after the game. Plan yours around your team's matches.</p>
+        <div class="pl-setup">
+          <p class="pl-setup-sentence">
+            I'm
+            <label class="pl-slot"><span class="visually-hidden">Going or watching</span><select data-key="mode" id="rwc-plan-mode"><option value="going">going to</option><option value="watching">watching</option></select></label>
+            <span class="pl-slot pl-team-picker" data-team-picker><span class="visually-hidden" id="rwc-team-label">Team</span><button type="button" class="pl-slot-btn pl-team-btn" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="rwc-team-list" aria-labelledby="rwc-team-label rwc-team-value"><span class="pl-team-value" id="rwc-team-value"><span class="pl-team-placeholder">your team</span></span></button>
+                <span class="pl-team-pop" hidden>
+                  <label class="pl-team-toggle"><input type="checkbox" data-show-all-teams> Show teams playing in other states (9)</label>
+                  <span role="listbox" id="rwc-team-list" aria-label="Teams by pool" class="pl-team-list">
+                  <span role="group" aria-labelledby="rwc-pool-a" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pool-a">Pool A</span>
+                    <span role="option" id="rwc-team-new-zealand" aria-selected="false" data-team="New Zealand" style="--c1:#000000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>New Zealand<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-team-australia" aria-selected="false" data-team="Australia" style="--c1:#ffb81c;--c2:#00843d"><span class="pl-team-swatch" aria-hidden="true"></span><span>Australia<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-team-chile" aria-selected="false" data-team="Chile" data-outside style="--c1:#d52b1e;--c2:#0039a6"><span class="pl-team-swatch" aria-hidden="true"></span><span>Chile<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-hong-kong-china" aria-selected="false" data-team="Hong Kong China" data-outside style="--c1:#de2910;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Hong Kong China<span class="pl-team-where">Watch in NSW</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pool-b" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pool-b">Pool B</span>
+                    <span role="option" id="rwc-team-south-africa" aria-selected="false" data-team="South Africa" data-outside style="--c1:#007a4d;--c2:#ffb612"><span class="pl-team-swatch" aria-hidden="true"></span><span>South Africa<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-italy" aria-selected="false" data-team="Italy" style="--c1:#0064b5;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Italy<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
+                    <span role="option" id="rwc-team-georgia" aria-selected="false" data-team="Georgia" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Georgia<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-team-romania" aria-selected="false" data-team="Romania" style="--c1:#fcd116;--c2:#002b7f"><span class="pl-team-swatch" aria-hidden="true"></span><span>Romania<span class="pl-team-where">Plays in Sydney</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pool-c" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pool-c">Pool C</span>
+                    <span role="option" id="rwc-team-argentina" aria-selected="false" data-team="Argentina" data-outside style="--c1:#75aadb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Argentina<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-fiji" aria-selected="false" data-team="Fiji" data-light style="--c1:#ffffff;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Fiji<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-team-spain" aria-selected="false" data-team="Spain" style="--c1:#c60b1e;--c2:#ffc400"><span class="pl-team-swatch" aria-hidden="true"></span><span>Spain<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-team-canada" aria-selected="false" data-team="Canada" data-outside style="--c1:#d80621;--c2:#000000"><span class="pl-team-swatch" aria-hidden="true"></span><span>Canada<span class="pl-team-where">Watch in NSW</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pool-d" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pool-d">Pool D</span>
+                    <span role="option" id="rwc-team-ireland" aria-selected="false" data-team="Ireland" style="--c1:#169b62;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Ireland<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-team-scotland" aria-selected="false" data-team="Scotland" data-outside style="--c1:#0f1e4a;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Scotland<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-uruguay" aria-selected="false" data-team="Uruguay" style="--c1:#5cbfeb;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Uruguay<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-team-portugal" aria-selected="false" data-team="Portugal" style="--c1:#c8102e;--c2:#046a38"><span class="pl-team-swatch" aria-hidden="true"></span><span>Portugal<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pool-e" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pool-e">Pool E</span>
+                    <span role="option" id="rwc-team-france" aria-selected="false" data-team="France" style="--c1:#002654;--c2:#ed2939"><span class="pl-team-swatch" aria-hidden="true"></span><span>France<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-team-japan" aria-selected="false" data-team="Japan" style="--c1:#bc002d;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Japan<span class="pl-team-where">Plays in Newcastle</span></span></span>
+                    <span role="option" id="rwc-team-usa" aria-selected="false" data-team="USA" data-outside style="--c1:#0a3161;--c2:#b31942"><span class="pl-team-swatch" aria-hidden="true"></span><span>USA<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-samoa" aria-selected="false" data-team="Samoa" style="--c1:#0047ab;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Samoa<span class="pl-team-where">Plays in Sydney and Newcastle</span></span></span>
+                  </span>
+                  <span role="group" aria-labelledby="rwc-pool-f" class="pl-team-group">
+                    <span role="presentation" class="pl-team-pool" id="rwc-pool-f">Pool F</span>
+                    <span role="option" id="rwc-team-england" aria-selected="false" data-team="England" data-light style="--c1:#ffffff;--c2:#ce1124"><span class="pl-team-swatch" aria-hidden="true"></span><span>England<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-team-wales" aria-selected="false" data-team="Wales" style="--c1:#c8102e;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Wales<span class="pl-team-where">Plays in Sydney</span></span></span>
+                    <span role="option" id="rwc-team-tonga" aria-selected="false" data-team="Tonga" data-outside style="--c1:#c10000;--c2:#ffffff"><span class="pl-team-swatch" aria-hidden="true"></span><span>Tonga<span class="pl-team-where">Watch in NSW</span></span></span>
+                    <span role="option" id="rwc-team-zimbabwe" aria-selected="false" data-team="Zimbabwe" data-outside style="--c1:#006400;--c2:#ffd200"><span class="pl-team-swatch" aria-hidden="true"></span><span>Zimbabwe<span class="pl-team-where">Watch in NSW</span></span></span>
+                  </span>
+                  </span>
+                </span>
+            </span> matches
+            <span class="pl-slot pl-match-picker" data-match-picker><button type="button" class="pl-slot-btn" aria-expanded="false" aria-controls="rwc-match-pop" aria-describedby="rwc-match-hint"><span class="visually-hidden">Matches: </span><span class="pl-match-picker-value"><span class="pl-team-placeholder">on which dates?</span></span></button>
+                <span class="pl-match-pop" id="rwc-match-pop" hidden>
+                  <span class="pl-match-pop-body"></span>
+                  <span class="pl-match-pop-foot"><span class="pl-sm" id="rwc-match-hint">Times shown in Sydney time (AEDT).</span><button type="button" class="pl-btn" data-done>Done</button></span>
+                </span>
+            </span>,
+            staying
+            <label class="pl-slot"><span class="visually-hidden">Nights</span><select data-key="nights"><option value="4">4 nights</option><option value="1">1 night</option><option value="2">2 nights</option><option value="3">3 nights</option><option value="5">5 nights or more</option></select></label>
+            in
+            <label class="pl-slot"><span class="visually-hidden">City</span><select data-key="city"><option value="sydney">Sydney</option><option value="newcastle">Newcastle</option><option value="both">Sydney and Newcastle</option></select></label>,
+            travelling
+            <label class="pl-slot"><span class="visually-hidden">Who</span><select data-key="who"><option value="friends">with friends</option><option value="solo">solo</option><option value="couple">as a couple</option><option value="family">with family</option></select></label>,
+            into
+            <span class="pl-slot pl-multi" data-multi-picker data-placeholder="pick your interests"><button type="button" class="pl-slot-btn" aria-expanded="false" aria-controls="rwc-interests-pop"><span class="visually-hidden">Interests: </span><span class="pl-multi-value">🍽️ food and drink</span></button>
+                <span class="pl-multi-pop" id="rwc-interests-pop" hidden>
+                  <span class="pl-multi-head">Pick as many as you like</span>
+                  <span class="pl-multi-grid" role="group" aria-label="Interests">
+                    <label class="pl-multi-opt"><input type="checkbox" value="food" data-emoji="🍽️" data-label="food and drink" checked><span class="pl-multi-emoji" aria-hidden="true">🍽️</span><span>food and drink</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="beaches" data-emoji="🏖️" data-label="beaches"><span class="pl-multi-emoji" aria-hidden="true">🏖️</span><span>beaches</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="nature" data-emoji="🌿" data-label="nature"><span class="pl-multi-emoji" aria-hidden="true">🌿</span><span>nature</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="nightlife" data-emoji="🌃" data-label="nightlife"><span class="pl-multi-emoji" aria-hidden="true">🌃</span><span>nightlife</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="culture" data-emoji="🎭" data-label="culture"><span class="pl-multi-emoji" aria-hidden="true">🎭</span><span>culture</span></label>
+                    <label class="pl-multi-opt"><input type="checkbox" value="sport" data-emoji="🏟️" data-label="sport"><span class="pl-multi-emoji" aria-hidden="true">🏟️</span><span>sport</span></label>
+                  </span>
+                  <span class="pl-match-pop-foot"><span class="pl-sm" data-multi-count>1 selected</span><button type="button" class="pl-btn" data-done>Done</button></span>
+                </span>
+            </span>,
+            <label class="pl-slot"><span class="visually-hidden">Car</span><select data-key="car"><option value="0">no car</option><option value="1">with a car</option></select></label>.
+          </p>
+          <a href="rugby-world-cup-plan.html" class="pl-btn pl-btn-primary" id="rwc-start-planning" target="_blank" rel="noopener">Start planning <span class="visually-hidden">(opens your plan in a new tab)</span></a>
+          <p class="pl-sm pl-start-hint" id="rwc-start-hint" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Matches in NSW: real fixtures, first 5 shown, the rest behind "Show all".
+       With a team chosen it becomes "[Team]'s matches": every pool match, wherever it's played, in Sydney time.
+       Rows outside NSW say where it's played and where to watch in NSW. Teams with no NSW pool matches also
+       get their possible path to NSW. "Show all 17 matches in NSW" switches back to the full NSW list. -->
+  <section class="section" aria-labelledby="rwc-matches-title">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="section-title" id="rwc-matches-title">Matches in NSW</p>
+          <p class="section-body" id="rwc-matches-intro">Every Rugby World Cup 2027 match in Sydney and Newcastle, from the pool stage to the final. Kick-off times are local (AEDT).</p>
+        </div>
+      </div>
+    </div>
+    <div class="container pl-scope">
+      <div id="rwc-team-view" hidden>
+        <p class="pl-sm rwc-team-times">Times shown in Sydney time (AEDT).</p>
+        <ol class="pl-match-list" id="rwc-team-matches"></ol>
+        <p class="pl-row rwc-team-line" id="rwc-path" hidden></p>
+        <p class="pl-row rwc-team-line" id="rwc-live" hidden></p>
+        <div class="pl-match-list-more">
+          <p class="pl-sm" id="rwc-team-count"></p>
+          <button type="button" class="pl-btn-link" id="rwc-show-nsw">Show all 17 matches in NSW</button>
+        </div>
+      </div>
+      <p class="pl-sm rwc-back-team" id="rwc-back-team" hidden><button type="button" class="pl-btn-link"></button></p>
+      <div id="rwc-nsw-view">
+      <div class="pl-match-filters" role="group" aria-label="Filter matches">
+        <label class="pl-match-filter-team"><span class="pl-sm">Team</span><select id="rwc-filter-team"><option value="">All teams</option><optgroup label="Pool A"><option>New Zealand</option><option>Australia</option><option>Chile</option><option>Hong Kong China</option></optgroup><optgroup label="Pool B"><option>South Africa</option><option>Italy</option><option>Georgia</option><option>Romania</option></optgroup><optgroup label="Pool C"><option>Argentina</option><option>Fiji</option><option>Spain</option><option>Canada</option></optgroup><optgroup label="Pool D"><option>Ireland</option><option>Scotland</option><option>Uruguay</option><option>Portugal</option></optgroup><optgroup label="Pool E"><option>France</option><option>Japan</option><option>USA</option><option>Samoa</option></optgroup><optgroup label="Pool F"><option>England</option><option>Wales</option><option>Tonga</option><option>Zimbabwe</option></optgroup></select></label>
+        <fieldset class="pl-filters" id="rwc-filter-venue"><legend>Stadium</legend><button type="button" class="pl-btn" aria-pressed="true" data-venue="">All stadiums</button><button type="button" class="pl-btn" aria-pressed="false" data-venue="sa">Stadium Australia</button><button type="button" class="pl-btn" aria-pressed="false" data-venue="sfs">Sydney Football Stadium</button><button type="button" class="pl-btn" aria-pressed="false" data-venue="ncl">Newcastle Stadium</button></fieldset>
+      </div>
+      <p class="pl-sm pl-match-filter-note" id="rwc-filter-note" hidden>Knockout matches show here once the teams are known.</p>
+      <div class="pl-match-empty" id="rwc-filter-empty" hidden><p>No matches for this team at this stadium.</p><button type="button" class="pl-btn" data-clear-filters>Clear filters</button></div>
+      <ol class="pl-match-list" id="rwc-matches">
+        <li data-venue="ncl" data-teams="Japan|Samoa">
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sun 3 Oct</span><span class="pl-lg">12:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool E</span><h3 class="pl-lg">Japan v Samoa</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="ncl" data-teams="Fiji|Spain">
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Mon 4 Oct</span><span class="pl-lg">2:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool C</span><h3 class="pl-lg">Fiji v Spain</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sfs" data-teams="Ireland|Portugal">
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Mon 4 Oct</span><span class="pl-lg">5:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool D</span><h3 class="pl-lg">Ireland v Portugal</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="New Zealand|Australia">
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sat 9 Oct</span><span class="pl-lg">5:10pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool A</span><h3 class="pl-lg">New Zealand v Australia</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="ncl" data-teams="Uruguay|Portugal">
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Mon 11 Oct</span><span class="pl-lg">5:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool D</span><h3 class="pl-lg">Uruguay v Portugal</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sfs" data-teams="Italy|Romania" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Mon 11 Oct</span><span class="pl-lg">7:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool B</span><h3 class="pl-lg">Italy v Romania</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="England|Wales" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sat 16 Oct</span><span class="pl-lg">7:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool F</span><h3 class="pl-lg">England v Wales</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="ncl" data-teams="Italy|Georgia" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sun 17 Oct</span><span class="pl-lg">12:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool B</span><h3 class="pl-lg">Italy v Georgia</h3><span class="pl-sm">Newcastle Stadium, Broadmeadow</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sfs" data-teams="France|Samoa" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sun 17 Oct</span><span class="pl-lg">7:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Pool E</span><h3 class="pl-lg">France v Samoa</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sfs" data-teams="" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sat 23 Oct</span><span class="pl-lg">2:15pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Round of 16 (1)</span><h3 class="pl-lg">2nd Pool C v 2nd Pool F</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sfs" data-teams="" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sun 24 Oct</span><span class="pl-lg">4:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Round of 16 (2)</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Sydney Football Stadium, Moore Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sat 30 Oct</span><span class="pl-lg">4:45pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Quarter-final 1</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="" data-extra hidden>
+          <article class="pl-match is-tbc">
+            <div class="pl-match-time"><span class="pl-sm">Sun 31 Oct</span><span class="pl-lg">TBC</span><span class="pl-sm">Kick-off to be confirmed</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Quarter-final 2</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Fri 5 Nov</span><span class="pl-lg">9:00am</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Semi-final 1</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="" data-extra hidden>
+          <article class="pl-match is-tbc">
+            <div class="pl-match-time"><span class="pl-sm">Sat 6 Nov</span><span class="pl-lg">TBC</span><span class="pl-sm">Kick-off to be confirmed</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Semi-final 2</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Fri 12 Nov</span><span class="pl-lg">8:45am</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Bronze Final</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+        <li data-venue="sa" data-teams="" data-extra hidden>
+          <article class="pl-match">
+            <div class="pl-match-time"><span class="pl-sm">Sat 13 Nov</span><span class="pl-lg">8:00pm</span><span class="pl-sm">Kick-off, AEDT</span></div>
+            <div class="pl-match-body"><span class="pl-tag">Final</span><h3 class="pl-lg">Teams to be confirmed</h3><span class="pl-sm">Stadium Australia, Sydney Olympic Park</span></div>
+            <a href="#" class="pl-match-link">Getting to the stadium</a>
+          </article>
+        </li>
+      </ol>
+      <div class="pl-match-list-more">
+        <p class="pl-sm" id="rwc-matches-count" aria-live="polite">Showing 5 of 17 matches</p>
+        <button type="button" class="pl-btn-link" data-clear-filters data-show-all hidden>Show all 17 matches</button>
+        <button type="button" class="pl-btn" data-expand-list aria-controls="rwc-matches" aria-expanded="false" data-more="Show all 17 matches" data-less="Show the first 5 only" data-count="rwc-matches-count" data-total="17" data-shown="5">Show all 17 matches</button>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Find your people: where the chosen team's fans meet, watch and celebrate. Up to four parts
+       (country house, where fans watch, team moments, travelling with other fans); each part only shows
+       when there's content for that team. Before a team is chosen: one line linking to the selector.
+       Annotated in ../rugby-world-cup-team.html. -->
+  <section class="section" id="rwc-find-people" aria-labelledby="rwc-people-title">
+    <div class="container pl-scope">
+      <p class="pl-row" id="rwc-people-pick"><span>Pick your team to see where its fans gather in NSW. <a href="#team" id="rwc-people-pick-link">Choose your team</a></span></p>
+      <div id="rwc-people" hidden>
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="rwc-people-title">Find your people</h2>
+            <p class="section-body" id="rwc-people-intro"></p>
+          </div>
+        </div>
+        <div class="grid-2 rwc-people-grid" id="rwc-people-top"></div>
+        <div class="grid-2 rwc-people-grid" id="rwc-people-bottom"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stadiums and fan zones: static location tiles, no map. Each tile carries the stadium,
+       the likely fan zone (to be confirmed), wayfinding, and accommodation products only.
+       Accommodation: title, gallery and address.suburb are live; category and distance_to_venue are gap (wash).
+       Empty state: when no accommodation is listed near a location, "Stay nearby" shows
+       "No places to stay listed near here yet." plus the "All places to stay" link. -->
+  <section class="section" style="background:#f9f9f9;" aria-labelledby="rwc-locations-title">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="section-title" id="rwc-locations-title">Stadiums and fan zones</p>
+          <p class="section-body">Where to watch, how to get there and where to stay. Match-day zones at the stadiums are still to be confirmed.</p>
+        </div>
+      </div>
+      <!-- Stadiums heading: only shown when the fan zone comes first (teams with no NSW matches) -->
+      <div class="loc-group-head" id="rwc-stadiums-head" hidden>
+        <h3 class="loc-group-title">Stadiums in NSW</h3>
+      </div>
+      <ul class="loc-tiles" data-reveal>
+        <li class="loc-tile" data-venue="sa">
+          <div class="loc-map" data-map>
+            <svg class="loc-map-svg" viewBox="0 0 400 260" role="img" aria-labelledby="map-sydney-olympic-park-title"><title id="map-sydney-olympic-park-title">Map of Sydney Olympic Park: Stadium Australia beside the likely fan zone and Cathy Freeman Park, Olympic Park station to the east, Parramatta River to the north.</title><rect class="m-land" width="400" height="260"/><path class="m-water" d="M0 0H400V34C330 50 280 26 220 40C160 54 90 32 0 46Z"/><path class="m-water" d="M150 38C142 66 160 92 172 108C190 98 200 70 200 40Z"/><text x="80" y="24" class="m-label m-label--water" text-anchor="middle">Parramatta River</text><rect class="m-park" x="262" y="66" width="112" height="78" rx="10"/><text x="318" y="108" class="m-label m-label--park" text-anchor="middle">Bicentennial Park</text><rect class="m-park" x="208" y="150" width="44" height="30" rx="6"/><path class="m-road" d="M232 52V260M108 70V260M0 238C120 230 260 246 400 228M108 110H262"/><path class="m-rail" d="M262 192C300 210 330 236 352 260"/><ellipse cx="230" cy="166" rx="50" ry="30" class="m-fan"/><text x="230" y="131" class="m-label m-label--fan" text-anchor="middle">Fan zone (TBC)</text><g class="m-stadium"><rect x="161" y="154" width="34" height="24" rx="12"/><rect x="169" y="161" width="18" height="10" rx="5" class="m-stadium-pitch"/></g><text x="178" y="200" class="m-label m-label--strong" text-anchor="middle">Stadium Australia</text><g class="m-stop"><rect x="255" y="185" width="14" height="14" rx="3"/><text x="262" y="196" text-anchor="middle">T</text></g><text x="274" y="196" class="m-label" text-anchor="start">Olympic Park</text><text x="342" y="252" class="m-label m-label--small" text-anchor="end">T7 to Lidcombe</text><g class="m-pins" data-cat="stay"><g class="m-pin" transform="translate(365 245)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(150 226)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(330 172)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(70 160)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g></g><g class="m-pins is-off" data-cat="food"><g class="m-pin" transform="translate(256 222)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(214 250)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(290 160)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g></g><g class="m-pins is-off" data-cat="see"><g class="m-pin" transform="translate(350 100)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(60 100)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(380 200)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g></g><g class="m-pins is-off" data-cat="events"><g class="m-pin" transform="translate(140 150)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(250 128)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(40 210)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g></g></svg>
+            <div class="loc-map-toggles" role="group" aria-label="Show nearby on the map"><button type="button" class="loc-chip" aria-pressed="true" data-cat="stay"><span class="loc-chip-pin" aria-hidden="true">S</span>Places to stay <span class="loc-chip-count">(4)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="food"><span class="loc-chip-pin" aria-hidden="true">F</span>Food and drink <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="see"><span class="loc-chip-pin" aria-hidden="true">A</span>Attractions <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="events"><span class="loc-chip-pin" aria-hidden="true">E</span>Events <span class="loc-chip-count">(3)</span></button></div>
+            <p class="loc-map-key"><span class="loc-key-stadium" aria-hidden="true"></span>Stadium <span class="loc-key-fan" aria-hidden="true"></span>Likely fan zone <span class="loc-key-stop" aria-hidden="true">T</span>Train <span class="loc-key-stop" aria-hidden="true">L</span>Light rail</p>
+          </div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Sydney &middot; Stadium and fan zone</p>
+            <h3 class="loc-tile-title">Sydney Olympic Park</h3>
+            <dl class="loc-facts">
+            <div><dt>Stadium</dt><dd>Stadium Australia. 8 matches, including both semi-finals, the Bronze Final and the Final. Capacity 82,000.</dd></div>
+            <div><dt>Fan zone</dt><dd>Likely around the station precinct and Cathy Freeman Park. <span class="loc-tbc">To be confirmed</span></dd></div>
+            <div><dt>Getting there</dt><dd>Train to Olympic Park station on the T7 line from Lidcombe.</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Sydney Olympic Park</span><span class="loc-stay-meta"><span class="provenance-gap">0.6 km from the stadium</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Wentworth Point</span><span class="loc-stay-meta"><span class="provenance-gap">2.5 km from the stadium</span></span></span></a>
+              <a href="#" class="loc-link">All places to stay near Sydney Olympic Park</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+        <li class="loc-tile" data-venue="sfs">
+          <div class="loc-map" data-map>
+            <svg class="loc-map-svg" viewBox="0 0 400 260" role="img" aria-labelledby="map-moore-park-title"><title id="map-moore-park-title">Map of Moore Park: Sydney Football Stadium next to the SCG, the Entertainment Quarter and likely fan zone to the south, Moore Park light rail stop to the west, Centennial Park to the east.</title><rect class="m-land" width="400" height="260"/><rect class="m-park" x="0" y="132" width="128" height="128"/><text x="64" y="236" class="m-label m-label--park" text-anchor="middle">Moore Park</text><path class="m-park" d="M286 56H400V260H300C292 200 296 120 286 56Z"/><text x="348" y="160" class="m-label m-label--park" text-anchor="middle">Centennial Park</text><path class="m-road" d="M146 0V260M0 52H400M146 172H286M286 56V260"/><path class="m-lrail" d="M134 0V260"/><text x="40" y="30" class="m-label m-label--area" text-anchor="middle">Surry Hills</text><text x="350" y="24" class="m-label m-label--area" text-anchor="middle">Paddington</text><circle class="m-context" cx="222" cy="140" r="18"/><text x="222" y="144" class="m-label m-label--small" text-anchor="middle">SCG</text><ellipse cx="226" cy="214" rx="52" ry="26" class="m-fan"/><text x="226" y="250" class="m-label m-label--fan" text-anchor="middle">Fan zone (TBC)</text><rect class="m-block" x="196" y="200" width="60" height="28" rx="3"/><text x="226" y="218" class="m-label m-label--small" text-anchor="middle">Ent. Quarter</text><g class="m-stadium"><rect x="189" y="80" width="34" height="24" rx="12"/><rect x="197" y="87" width="18" height="10" rx="5" class="m-stadium-pitch"/></g><text x="206" y="74" class="m-label m-label--strong" text-anchor="middle">Sydney Football Stadium</text><g class="m-stop"><rect x="127" y="105" width="14" height="14" rx="3"/><text x="134" y="116" text-anchor="middle">L</text></g><text x="124" y="100" class="m-label" text-anchor="end">Moore Park stop</text><g class="m-pins" data-cat="stay"><g class="m-pin" transform="translate(60 76)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(100 44)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(300 48)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(264 44)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g></g><g class="m-pins is-off" data-cat="food"><g class="m-pin" transform="translate(270 200)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(180 196)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(40 100)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g></g><g class="m-pins is-off" data-cat="see"><g class="m-pin" transform="translate(330 120)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(90 170)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(370 230)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g></g><g class="m-pins is-off" data-cat="events"><g class="m-pin" transform="translate(172 244)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(60 200)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(320 210)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g></g></svg>
+            <div class="loc-map-toggles" role="group" aria-label="Show nearby on the map"><button type="button" class="loc-chip" aria-pressed="true" data-cat="stay"><span class="loc-chip-pin" aria-hidden="true">S</span>Places to stay <span class="loc-chip-count">(4)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="food"><span class="loc-chip-pin" aria-hidden="true">F</span>Food and drink <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="see"><span class="loc-chip-pin" aria-hidden="true">A</span>Attractions <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="events"><span class="loc-chip-pin" aria-hidden="true">E</span>Events <span class="loc-chip-count">(3)</span></button></div>
+            <p class="loc-map-key"><span class="loc-key-stadium" aria-hidden="true"></span>Stadium <span class="loc-key-fan" aria-hidden="true"></span>Likely fan zone <span class="loc-key-stop" aria-hidden="true">T</span>Train <span class="loc-key-stop" aria-hidden="true">L</span>Light rail</p>
+          </div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Sydney &middot; Stadium and fan zone</p>
+            <h3 class="loc-tile-title">Moore Park</h3>
+            <dl class="loc-facts">
+            <div><dt>Stadium</dt><dd>Sydney Football Stadium. 5 matches: three pool games and two Round-of-16 games. Capacity 42,500.</dd></div>
+            <div><dt>Fan zone</dt><dd>Likely a match-day zone in the Entertainment Quarter or Moore Park's open spaces. <span class="loc-tbc">To be confirmed</span></dd></div>
+            <div><dt>Getting there</dt><dd>Light rail (L2 or L3) to Moore Park, or a bus from Central.</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Surry Hills</span><span class="loc-stay-meta"><span class="provenance-gap">1.4 km from the stadium</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Paddington</span><span class="loc-stay-meta"><span class="provenance-gap">1.1 km from the stadium</span></span></span></a>
+              <a href="#" class="loc-link">All places to stay near Moore Park</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+        <li class="loc-tile" data-venue="ncl">
+          <div class="loc-map" data-map>
+            <svg class="loc-map-svg" viewBox="0 0 400 260" role="img" aria-labelledby="map-newcastle-title"><title id="map-newcastle-title">Map of Newcastle: Newcastle Stadium and Broadmeadow station in the south-west, the city centre and harbour foreshore in the north-east with likely fan zones at Civic Park, Wheeler Place and Honeysuckle, and the light rail along the city centre.</title><rect class="m-land" width="400" height="260"/><path class="m-water" d="M0 0H400V40C340 56 290 40 230 50C180 58 120 40 0 52Z"/><path class="m-water" d="M376 40C384 120 380 200 392 260H400V40Z"/><text x="110" y="30" class="m-label m-label--water" text-anchor="middle">Hunter River</text><rect class="m-park" x="276" y="84" width="38" height="28" rx="4"/><path class="m-road" d="M190 78H370M0 168C80 150 140 120 210 92M90 260V120M230 50V260"/><path class="m-rail" d="M0 150C60 160 100 168 132 172C170 150 196 112 214 84"/><path class="m-lrail" d="M214 76H366"/><text x="250" y="66" class="m-label m-label--small" text-anchor="middle">Honeysuckle</text><ellipse cx="300" cy="92" rx="46" ry="24" class="m-fan"/><text x="300" y="128" class="m-label m-label--fan" text-anchor="middle">Fan zone (TBC)</text><text x="295" y="102" class="m-label m-label--small" text-anchor="middle">Civic Park</text><ellipse cx="70" cy="214" rx="34" ry="20" class="m-fan"/><text x="70" y="186" class="m-label m-label--fan" text-anchor="middle">Match-day zone (TBC)</text><g class="m-stadium"><rect x="53" y="202" width="34" height="24" rx="12"/><rect x="61" y="209" width="18" height="10" rx="5" class="m-stadium-pitch"/></g><text x="70" y="250" class="m-label m-label--strong" text-anchor="middle">Newcastle Stadium</text><g class="m-stop"><rect x="125" y="165" width="14" height="14" rx="3"/><text x="132" y="176" text-anchor="middle">T</text></g><text x="142" y="176" class="m-label" text-anchor="start">Broadmeadow</text><g class="m-stop"><rect x="207" y="77" width="14" height="14" rx="3"/><text x="214" y="88" text-anchor="middle">T</text></g><text x="204" y="68" class="m-label" text-anchor="end">Newcastle Interchange</text><text x="366" y="70" class="m-label m-label--small" text-anchor="end">Light rail</text><g class="m-pins" data-cat="stay"><g class="m-pin" transform="translate(256 104)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(340 120)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(160 214)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(40 120)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g></g><g class="m-pins is-off" data-cat="food"><g class="m-pin" transform="translate(320 70)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(246 132)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(130 248)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g></g><g class="m-pins is-off" data-cat="see"><g class="m-pin" transform="translate(360 160)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(190 150)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(262 240)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g></g><g class="m-pins is-off" data-cat="events"><g class="m-pin" transform="translate(356 200)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(120 120)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(330 220)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g></g></svg>
+            <div class="loc-map-toggles" role="group" aria-label="Show nearby on the map"><button type="button" class="loc-chip" aria-pressed="true" data-cat="stay"><span class="loc-chip-pin" aria-hidden="true">S</span>Places to stay <span class="loc-chip-count">(4)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="food"><span class="loc-chip-pin" aria-hidden="true">F</span>Food and drink <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="see"><span class="loc-chip-pin" aria-hidden="true">A</span>Attractions <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="events"><span class="loc-chip-pin" aria-hidden="true">E</span>Events <span class="loc-chip-count">(3)</span></button></div>
+            <p class="loc-map-key"><span class="loc-key-stadium" aria-hidden="true"></span>Stadium <span class="loc-key-fan" aria-hidden="true"></span>Likely fan zone <span class="loc-key-stop" aria-hidden="true">T</span>Train <span class="loc-key-stop" aria-hidden="true">L</span>Light rail</p>
+          </div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Newcastle &middot; Stadium and fan zone</p>
+            <h3 class="loc-tile-title">Newcastle</h3>
+            <dl class="loc-facts">
+            <div><dt>Stadium</dt><dd>Newcastle Stadium, Broadmeadow. 4 pool matches on 3, 4, 11 and 17 October. Capacity 30,000.</dd></div>
+            <div><dt>Fan zone</dt><dd>Likely in the city centre or on the harbour foreshore: Civic Park, Wheeler Place or Honeysuckle. A smaller zone at the stadium on match days. <span class="loc-tbc">To be confirmed</span></dd></div>
+            <div><dt>Getting there</dt><dd>Train to Broadmeadow station for the stadium. Newcastle Light Rail runs through the city centre.</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle</span><span class="loc-stay-meta"><span class="provenance-gap">3.5 km from the stadium</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Newcastle West</span><span class="loc-stay-meta"><span class="provenance-gap">2.4 km from the stadium</span></span></span></a>
+              <a href="#" class="loc-link">All places to stay near Newcastle</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+      </ul>
+
+      <!-- Fan zone: shown as confirmed (fixture for visualisation). Comes first for teams with no NSW matches. -->
+      <div class="loc-group-head" id="rwc-fan-zone">
+        <h3 class="loc-group-title">Fan zone</h3>
+        <p class="loc-group-body">Watch every match on the big screens with fans from around the world, in the heart of the city.</p>
+      </div>
+      <ul class="loc-tiles" data-reveal>
+        <li class="loc-tile loc-tile--fan">
+          <div class="loc-map" data-map>
+            <svg class="loc-map-svg" viewBox="0 0 400 260" role="img" aria-labelledby="map-sydney-city-centre-title"><title id="map-sydney-city-centre-title">Map of Sydney city centre: the fan zone at Tumbalong Park in Darling Harbour, with Town Hall station to the east.</title><rect class="m-land" width="400" height="260"/><path class="m-water" d="M0 0H400V22C300 30 200 18 120 26C110 60 108 100 104 140H44C40 100 40 50 0 30Z"/><text x="240" y="15" class="m-label m-label--water" text-anchor="middle">Sydney Harbour</text><text x="74" y="90" class="m-label m-label--water m-label--small" text-anchor="middle">Darling Harbour</text><rect class="m-park" x="56" y="150" width="58" height="40" rx="6"/><text x="85" y="214" class="m-label m-label--park" text-anchor="middle">Tumbalong Park</text><path class="m-park" d="M300 44H386V176H312C306 130 306 90 300 44Z"/><text x="343" y="186" class="m-label m-label--park" text-anchor="middle">The Domain</text><rect class="m-park" x="244" y="118" width="40" height="56" rx="4"/><text x="264" y="186" class="m-label m-label--small" text-anchor="middle">Hyde Park</text><path class="m-road" d="M178 26V260M206 26V260M236 26V260M120 112H300M120 150H300M120 196H300"/><ellipse cx="85" cy="170" rx="46" ry="30" class="m-fan m-fan--confirmed"/><text x="85" y="134" class="m-label m-label--fan m-label--confirmed" text-anchor="middle">Fan zone</text><g class="m-stop"><rect x="171" y="143" width="14" height="14" rx="3"/><text x="178" y="154" text-anchor="middle">T</text></g><text x="186" y="166" class="m-label" text-anchor="start">Town Hall</text><g class="m-stop"><rect x="251" y="97" width="14" height="14" rx="3"/><text x="258" y="108" text-anchor="middle">T</text></g><text x="252" y="94" class="m-label" text-anchor="end">St James</text><g class="m-pins" data-cat="stay"><g class="m-pin" transform="translate(150 232)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(156 96)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(222 236)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g><g class="m-pin" transform="translate(132 60)"><title>Hotel name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">S</text></g></g><g class="m-pins is-off" data-cat="food"><g class="m-pin" transform="translate(130 140)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(220 84)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g><g class="m-pin" transform="translate(40 236)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">F</text></g></g><g class="m-pins is-off" data-cat="see"><g class="m-pin" transform="translate(210 60)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(360 230)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g><g class="m-pin" transform="translate(22 170)"><title>Place name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">A</text></g></g><g class="m-pins is-off" data-cat="events"><g class="m-pin" transform="translate(96 250)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(370 150)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g><g class="m-pin" transform="translate(150 186)"><title>Event name</title><path d="M0 0 C-8 -9 -9 -12 -9 -16 A9 9 0 1 1 9 -16 C9 -12 8 -9 0 0 Z"/><text y="-12.5" text-anchor="middle">E</text></g></g></svg>
+            <div class="loc-map-toggles" role="group" aria-label="Show nearby on the map"><button type="button" class="loc-chip" aria-pressed="true" data-cat="stay"><span class="loc-chip-pin" aria-hidden="true">S</span>Places to stay <span class="loc-chip-count">(4)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="food"><span class="loc-chip-pin" aria-hidden="true">F</span>Food and drink <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="see"><span class="loc-chip-pin" aria-hidden="true">A</span>Attractions <span class="loc-chip-count">(3)</span></button><button type="button" class="loc-chip" aria-pressed="false" data-cat="events"><span class="loc-chip-pin" aria-hidden="true">E</span>Events <span class="loc-chip-count">(3)</span></button></div>
+            <p class="loc-map-key"><span class="loc-key-fan loc-key-fan--confirmed" aria-hidden="true"></span>Fan zone <span class="loc-key-stop" aria-hidden="true">T</span>Train <span class="loc-key-stop" aria-hidden="true">L</span>Light rail</p>
+          </div>
+          <div class="loc-tile-body">
+            <p class="loc-tile-kicker">Sydney &middot; Darling Harbour <span class="loc-confirmed">Confirmed</span></p>
+            <h3 class="loc-tile-title">Tumbalong Park fan zone</h3>
+            <dl class="loc-facts">
+            <div><dt>What&rsquo;s on</dt><dd>Big screens for every match, food and drink stalls, live entertainment and family activities, with the biggest crowds on finals weekend.</dd></div>
+            <div><dt>Getting there</dt><dd>A short walk from Town Hall station, or light rail (L1) to Exhibition Centre.</dd></div>
+            </dl>
+            <div class="loc-stay">
+              <p class="loc-stay-title">Stay nearby</p>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Haymarket</span><span class="loc-stay-meta"><span class="provenance-gap">0.5 km from the fan zone</span></span></span></a>
+            <a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">Hotel name</span><span class="loc-stay-meta"><span class="provenance-gap">Hotel</span> &middot; Pyrmont</span><span class="loc-stay-meta"><span class="provenance-gap">0.8 km from the fan zone</span></span></span></a>
+              <a href="#" class="loc-link">All places to stay near Darling Harbour</a>
+            </div>
+            <p class="loc-more">Around here: <a href="#" class="loc-link">Food and drink</a> <a href="#" class="loc-link">Nature</a></p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Ticketing promo banner -->
+  <section class="section promo-section">
+    <div class="container">
+      <div class="promo-banner">
+        <div class="ph-img" style="width:100%;height:100%;"></div>
+        <div class="promo-content">
+          <h2>Get Rugby World Cup ready</h2>
+          <p class="promo-sub">Tickets, travel and places to stay</p>
+          <a href="#" class="btn btn-outline-dark btn-sm">Plan your visit</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQs -->
+  <section class="section">
+    <div class="container">
+      <p class="section-title" style="margin-bottom:1.5rem;">FAQs</p>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-question">
+            When is Rugby World Cup 2027 on in NSW?
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="faq-answer">NSW hosts 17 matches from Sunday 3 October to the final on Saturday 13 November 2027, including pool matches, 2 round of 16 matches, both quarter-finals, both semi-finals, the bronze final and the final. Check Matches in NSW above for fixtures and kick-off times at each venue.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            Where can I buy tickets?
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="faq-answer">Tickets are available through the official Rugby World Cup 2027 ticketing portal. Packages covering multiple matches and hospitality options are also on sale.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            How do I get to the stadiums?
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="faq-answer">Opal Card public transport (trains, buses and light rail) runs extra services to Stadium Australia, Sydney Football Stadium and Newcastle Stadium on match days. Ticket holders can use event transport included with some match tickets.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            Will there be fan zones in NSW?
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="faq-answer">Yes. The NSW fan zone is at Tumbalong Park in Darling Harbour, with big screens, food and drink stalls, live entertainment, merchandise and family-friendly activities. Smaller match-day zones at the stadiums are still to be confirmed. See Stadiums and fan zones above.</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div data-include="../components/randomiser.html"></div>
+  <div data-include="../components/newsletter.html"></div>
+  <div data-include="../components/footer.html"></div>
+
+  <script src="../includes.js"></script>
+
+  <!-- FAQ accordion -->
+  <script>
+    document.querySelectorAll('.faq-question').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var item = btn.closest('.faq-item');
+        item.classList.toggle('open');
+      });
+    });
+  </script>
+
+  <!-- Reveal on scroll: tiles rise in, staggered, the first time the list enters the viewport -->
+  <script>
+    if ('IntersectionObserver' in window) {
+      document.querySelectorAll('[data-reveal]').forEach(function (list) {
+        list.classList.add('is-pending');
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            list.classList.remove('is-pending');
+            io.disconnect();
+          });
+        }, { threshold: 0.15 });
+        io.observe(list);
+      });
+    }
+  </script>
+
+  <!-- Hero countdown: ticks every second until kick-off, then shows the ended state -->
+  <script>
+    document.querySelectorAll('[data-countdown]').forEach(function (el) {
+      var nums = {};
+      el.querySelectorAll('[data-unit]').forEach(function (n) { nums[n.dataset.unit] = n; });
+      function pad(n) { return n < 10 ? '0' + n : String(n); }
+      function tick() {
+        var left = Math.floor((new Date(el.dataset.countdown).getTime() - Date.now()) / 1000);
+        if (left <= 0) {
+          el.querySelector('.hero-countdown-units').outerHTML = '<p class="hero-countdown-done">The rugby is on. <a href="#rwc-matches">See every match in NSW</a></p>';
+          var weather = el.querySelector('.hero-countdown-weather');
+          if (weather) weather.hidden = true;
+          clearInterval(timer);
+          return;
+        }
+        nums.days.textContent = Math.floor(left / 86400);
+        nums.hours.textContent = pad(Math.floor(left % 86400 / 3600));
+        nums.minutes.textContent = pad(Math.floor(left % 3600 / 60));
+        nums.seconds.textContent = pad(left % 60);
+      }
+      var timer = setInterval(tick, 1000);
+      tick();
+    });
+  </script>
+
+  <!-- Team picker: select-only combobox with a pool-grouped listbox (focus stays on the button).
+       By default it lists only teams with NSW pool matches; "Show teams playing in other states" adds the other 9. -->
+  <script>
+    document.querySelectorAll('[data-team-picker]').forEach(function (picker) {
+      var btn = picker.querySelector('[role="combobox"]');
+      var pop = picker.querySelector('.pl-team-pop');
+      var value = picker.querySelector('.pl-team-value');
+      var options = Array.prototype.slice.call(picker.querySelectorAll('[role="option"]'));
+      var placeholder = value.innerHTML;
+      var toggle = pop.querySelector('[data-show-all-teams]');
+      var active = -1, typed = '', typedAt = 0;
+
+      // Teams with no NSW pool matches are hidden until "Show teams playing in other states" is ticked.
+      // A chosen team always stays visible.
+      function filterTeams() {
+        options.forEach(function (o) { o.hidden = o.hasAttribute('data-outside') && !toggle.checked && o.getAttribute('aria-selected') !== 'true'; });
+      }
+      // Next visible option from i in direction d (d = 0 means i itself, or the next one down).
+      function visibleFrom(i, d) {
+        for (var j = i; j >= 0 && j < options.length; j += d || 1) if (!options[j].hidden) return j;
+        return -1;
+      }
+      function setActive(i) {
+        if (i < 0) return;
+        if (active > -1) options[active].classList.remove('is-active');
+        active = Math.max(0, Math.min(options.length - 1, i));
+        options[active].classList.add('is-active');
+        btn.setAttribute('aria-activedescendant', options[active].id);
+        options[active].scrollIntoView({ block: 'nearest' });
+      }
+      function selectedIndex() {
+        for (var i = 0; i < options.length; i++) if (options[i].getAttribute('aria-selected') === 'true') return i;
+        return -1;
+      }
+      function open() {
+        pop.hidden = false;
+        pop.style.left = '';
+        btn.setAttribute('aria-expanded', 'true');
+        var overflow = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
+        if (overflow > 0) pop.style.left = -overflow + 'px';
+        setActive(visibleFrom(Math.max(0, selectedIndex()), 1));
+      }
+      function close() {
+        pop.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        btn.removeAttribute('aria-activedescendant');
+      }
+      function show(team) {
+        var o = options.filter(function (x) { return x.dataset.team === team; })[0];
+        if (!o) return;
+        options.forEach(function (x) { x.setAttribute('aria-selected', String(x === o)); });
+        picker.style.setProperty('--c1', o.style.getPropertyValue('--c1'));
+        picker.style.setProperty('--c2', o.style.getPropertyValue('--c2'));
+        picker.classList.add('has-team');
+        picker.toggleAttribute('data-light', o.hasAttribute('data-light'));
+        value.innerHTML = '<span class="pl-team-swatch" aria-hidden="true"></span>' + team;
+        filterTeams();
+      }
+      picker.rwcShow = show;
+      picker.rwcClear = function () {
+        options.forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+        picker.style.removeProperty('--c1');
+        picker.style.removeProperty('--c2');
+        picker.classList.remove('has-team');
+        picker.removeAttribute('data-light');
+        value.innerHTML = placeholder;
+        filterTeams();
+      };
+      picker.rwcOpen = function () { open(); btn.focus(); };
+      function choose(i) {
+        var team = options[i].dataset.team;
+        show(team);
+        close();
+        btn.focus();
+        if (window.rwcSelectTeam) window.rwcSelectTeam(team);
+        else picker.dispatchEvent(new CustomEvent('teamchange', { bubbles: true, detail: { team: team } }));
+      }
+
+      btn.addEventListener('click', function () { pop.hidden ? open() : close(); });
+      btn.addEventListener('keydown', function (e) {
+        var isOpen = !pop.hidden;
+        switch (e.key) {
+          case 'ArrowDown': e.preventDefault(); isOpen ? setActive(visibleFrom(active + 1, 1)) : open(); return;
+          case 'ArrowUp': e.preventDefault(); isOpen ? setActive(visibleFrom(active - 1, -1)) : open(); return;
+          case 'Home': if (isOpen) { e.preventDefault(); setActive(visibleFrom(0, 1)); } return;
+          case 'End': if (isOpen) { e.preventDefault(); setActive(visibleFrom(options.length - 1, -1)); } return;
+          case 'Enter': case ' ': e.preventDefault(); isOpen ? choose(active) : open(); return;
+          case 'Escape': if (isOpen) { e.preventDefault(); close(); } return;
+          case 'Tab': if (isOpen && !e.shiftKey) { e.preventDefault(); toggle.focus(); } else if (isOpen) close(); return;
+        }
+        if (e.key.length === 1 && /\S/.test(e.key)) {
+          var now = Date.now();
+          typed = (now - typedAt > 600 ? '' : typed) + e.key.toLowerCase();
+          typedAt = now;
+          if (!isOpen) open();
+          for (var i = 0; i < options.length; i++) {
+            if (!options[i].hidden && options[i].dataset.team.toLowerCase().indexOf(typed) === 0) { setActive(i); break; }
+          }
+        }
+      });
+      options.forEach(function (o, i) {
+        o.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        o.addEventListener('click', function () { choose(i); });
+        o.addEventListener('mousemove', function () { if (active !== i) setActive(i); });
+      });
+      document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
+      // The toggle sits in the open dropdown: Tab from the list reaches it; after a change, focus goes back to the list.
+      toggle.addEventListener('change', function () {
+        filterTeams();
+        if (active > -1 && options[active].hidden) setActive(visibleFrom(0, 1));
+        btn.focus();
+      });
+      toggle.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { e.preventDefault(); close(); btn.focus(); }
+        else if (e.key === 'Tab') close();
+      });
+      filterTeams();
+    });
+  </script>
+
+  <!-- Fixtures: the 17 NSW matches (same data as Matches in NSW), then every other pool match ("away": true).
+       Matches outside NSW use placeholder venues and dates until the official schedule is confirmed;
+       kick-offs are already in Sydney time (AEDT). The results page keeps the same order, so indexes match. -->
+  <script type="application/json" id="rwc-fixtures">[{"date": "Sun 3 Oct", "teams": "Japan v Samoa", "stage": "Pool E", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "12:15pm", "pool": true}, {"date": "Mon 4 Oct", "teams": "Fiji v Spain", "stage": "Pool C", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "2:15pm", "pool": true}, {"date": "Mon 4 Oct", "teams": "Ireland v Portugal", "stage": "Pool D", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "5:15pm", "pool": true}, {"date": "Sat 9 Oct", "teams": "New Zealand v Australia", "stage": "Pool A", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "5:10pm", "pool": true}, {"date": "Mon 11 Oct", "teams": "Uruguay v Portugal", "stage": "Pool D", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "5:15pm", "pool": true}, {"date": "Mon 11 Oct", "teams": "Italy v Romania", "stage": "Pool B", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "7:45pm", "pool": true}, {"date": "Sat 16 Oct", "teams": "England v Wales", "stage": "Pool F", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "7:45pm", "pool": true}, {"date": "Sun 17 Oct", "teams": "Italy v Georgia", "stage": "Pool B", "venue": "Newcastle Stadium, Broadmeadow", "kickoff": "12:15pm", "pool": true}, {"date": "Sun 17 Oct", "teams": "France v Samoa", "stage": "Pool E", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "7:45pm", "pool": true}, {"date": "Sat 23 Oct", "teams": "2nd Pool C v 2nd Pool F", "stage": "Round of 16 (1)", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "2:15pm", "pool": false}, {"date": "Sun 24 Oct", "teams": null, "stage": "Round of 16 (2)", "venue": "Sydney Football Stadium, Moore Park", "kickoff": "4:45pm", "pool": false}, {"date": "Sat 30 Oct", "teams": null, "stage": "Quarter-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "4:45pm", "pool": false}, {"date": "Sun 31 Oct", "teams": null, "stage": "Quarter-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": null, "pool": false}, {"date": "Fri 5 Nov", "teams": null, "stage": "Semi-final 1", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "9:00am", "pool": false}, {"date": "Sat 6 Nov", "teams": null, "stage": "Semi-final 2", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": null, "pool": false}, {"date": "Fri 12 Nov", "teams": null, "stage": "Bronze Final", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "8:45am", "pool": false}, {"date": "Sat 13 Nov", "teams": null, "stage": "Final", "venue": "Stadium Australia, Sydney Olympic Park", "kickoff": "8:00pm", "pool": false}, {"date": "Fri 1 Oct", "teams": "Australia v Hong Kong China", "stage": "Pool A", "venue": "Perth Stadium, Perth", "kickoff": "9:00pm", "pool": true, "away": true, "city": "Perth"}, {"date": "Sat 2 Oct", "teams": "Scotland v Uruguay", "stage": "Pool D", "venue": "Townsville Stadium, Townsville", "kickoff": "3:00pm", "pool": true, "away": true, "city": "Townsville"}, {"date": "Sat 2 Oct", "teams": "Argentina v Canada", "stage": "Pool C", "venue": "Adelaide Oval, Adelaide", "kickoff": "4:30pm", "pool": true, "away": true, "city": "Adelaide"}, {"date": "Sat 2 Oct", "teams": "New Zealand v Chile", "stage": "Pool A", "venue": "Brisbane Stadium, Brisbane", "kickoff": "6:30pm", "pool": true, "away": true, "city": "Brisbane"}, {"date": "Sat 2 Oct", "teams": "France v USA", "stage": "Pool E", "venue": "Melbourne Stadium, Melbourne", "kickoff": "7:45pm", "pool": true, "away": true, "city": "Melbourne"}, {"date": "Sun 3 Oct", "teams": "Wales v Zimbabwe", "stage": "Pool F", "venue": "Brisbane Stadium, Brisbane", "kickoff": "3:00pm", "pool": true, "away": true, "city": "Brisbane"}, {"date": "Sun 3 Oct", "teams": "South Africa v Italy", "stage": "Pool B", "venue": "Melbourne Stadium, Melbourne", "kickoff": "7:45pm", "pool": true, "away": true, "city": "Melbourne"}, {"date": "Sun 3 Oct", "teams": "England v Tonga", "stage": "Pool F", "venue": "Perth Stadium, Perth", "kickoff": "9:00pm", "pool": true, "away": true, "city": "Perth"}, {"date": "Tue 5 Oct", "teams": "Georgia v Romania", "stage": "Pool B", "venue": "Adelaide Oval, Adelaide", "kickoff": "7:30pm", "pool": true, "away": true, "city": "Adelaide"}, {"date": "Thu 7 Oct", "teams": "Chile v Hong Kong China", "stage": "Pool A", "venue": "Townsville Stadium, Townsville", "kickoff": "5:15pm", "pool": true, "away": true, "city": "Townsville"}, {"date": "Fri 8 Oct", "teams": "Spain v Canada", "stage": "Pool C", "venue": "Adelaide Oval, Adelaide", "kickoff": "7:30pm", "pool": true, "away": true, "city": "Adelaide"}, {"date": "Fri 8 Oct", "teams": "Wales v Tonga", "stage": "Pool F", "venue": "Melbourne Stadium, Melbourne", "kickoff": "7:45pm", "pool": true, "away": true, "city": "Melbourne"}, {"date": "Sat 9 Oct", "teams": "England v Zimbabwe", "stage": "Pool F", "venue": "Adelaide Oval, Adelaide", "kickoff": "7:30pm", "pool": true, "away": true, "city": "Adelaide"}, {"date": "Sat 9 Oct", "teams": "Ireland v Scotland", "stage": "Pool D", "venue": "Melbourne Stadium, Melbourne", "kickoff": "8:00pm", "pool": true, "away": true, "city": "Melbourne"}, {"date": "Sat 9 Oct", "teams": "France v Japan", "stage": "Pool E", "venue": "Brisbane Stadium, Brisbane", "kickoff": "8:00pm", "pool": true, "away": true, "city": "Brisbane"}, {"date": "Sat 9 Oct", "teams": "South Africa v Georgia", "stage": "Pool B", "venue": "Perth Stadium, Perth", "kickoff": "9:30pm", "pool": true, "away": true, "city": "Perth"}, {"date": "Sun 10 Oct", "teams": "USA v Samoa", "stage": "Pool E", "venue": "Adelaide Oval, Adelaide", "kickoff": "4:30pm", "pool": true, "away": true, "city": "Adelaide"}, {"date": "Sun 10 Oct", "teams": "Argentina v Fiji", "stage": "Pool C", "venue": "Melbourne Stadium, Melbourne", "kickoff": "7:45pm", "pool": true, "away": true, "city": "Melbourne"}, {"date": "Wed 13 Oct", "teams": "Tonga v Zimbabwe", "stage": "Pool F", "venue": "Adelaide Oval, Adelaide", "kickoff": "7:30pm", "pool": true, "away": true, "city": "Adelaide"}, {"date": "Thu 14 Oct", "teams": "Fiji v Canada", "stage": "Pool C", "venue": "Brisbane Stadium, Brisbane", "kickoff": "7:00pm", "pool": true, "away": true, "city": "Brisbane"}, {"date": "Thu 14 Oct", "teams": "Japan v USA", "stage": "Pool E", "venue": "Townsville Stadium, Townsville", "kickoff": "7:00pm", "pool": true, "away": true, "city": "Townsville"}, {"date": "Thu 14 Oct", "teams": "New Zealand v Hong Kong China", "stage": "Pool A", "venue": "Melbourne Stadium, Melbourne", "kickoff": "7:45pm", "pool": true, "away": true, "city": "Melbourne"}, {"date": "Fri 15 Oct", "teams": "South Africa v Romania", "stage": "Pool B", "venue": "Brisbane Stadium, Brisbane", "kickoff": "8:00pm", "pool": true, "away": true, "city": "Brisbane"}, {"date": "Fri 15 Oct", "teams": "Ireland v Uruguay", "stage": "Pool D", "venue": "Perth Stadium, Perth", "kickoff": "9:30pm", "pool": true, "away": true, "city": "Perth"}, {"date": "Sat 16 Oct", "teams": "Australia v Chile", "stage": "Pool A", "venue": "Brisbane Stadium, Brisbane", "kickoff": "8:00pm", "pool": true, "away": true, "city": "Brisbane"}, {"date": "Sat 16 Oct", "teams": "Argentina v Spain", "stage": "Pool C", "venue": "Perth Stadium, Perth", "kickoff": "9:30pm", "pool": true, "away": true, "city": "Perth"}, {"date": "Sun 17 Oct", "teams": "Scotland v Portugal", "stage": "Pool D", "venue": "Adelaide Oval, Adelaide", "kickoff": "3:30pm", "pool": true, "away": true, "city": "Adelaide"}]</script>
+
+  <!-- Match picker: going to = the chosen team's NSW pool matches; watching = all their pool matches, wherever
+       they're played. Plus the NSW knockouts they could reach. The slot reads as dates ("on Sun 3 Oct").
+       Empty states: no team yet ("Pick a team first"); going to, with no NSW pool matches (knockouts only). -->
+  <script>
+    document.querySelectorAll('[data-match-picker]').forEach(function (picker) {
+      var fixtures = JSON.parse(document.getElementById('rwc-fixtures').textContent);
+      var btn = picker.querySelector('.pl-slot-btn');
+      var pop = picker.querySelector('.pl-match-pop');
+      var body = picker.querySelector('.pl-match-pop-body');
+      var value = picker.querySelector('.pl-match-picker-value');
+      var team = null, poolCount = 0, initial = value.innerHTML;
+      var mode = document.getElementById('rwc-plan-mode');
+      function dayNum(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + +p[1]; }
+
+      function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function row(f, i, checked) {
+        var title = f.teams || f.stage;
+        var meta = (f.teams && !f.pool ? f.stage + ', ' : '') + f.venue + ', ' + (f.kickoff || 'kick-off TBC');
+        return '<label class="pl-match-opt"><input type="checkbox" value="' + i + '"' + (checked ? ' checked' : '') + '>' +
+          '<span class="pl-match-opt-date">' + esc(f.date) + '</span>' +
+          '<span><span class="pl-match-opt-title">' + esc(title) + '</span><span class="pl-match-opt-meta">' + esc(meta) + '</span></span></label>';
+      }
+      function render() {
+        if (!team) {
+          value.innerHTML = initial;
+          body.innerHTML = '<span class="pl-match-empty">Pick a team first to see their matches in NSW.</span>';
+          return;
+        }
+        var watching = mode && mode.value === 'watching', pool = [], ko = [];
+        fixtures.forEach(function (f, i) {
+          if (f.pool && f.teams.split(' v ').indexOf(team) > -1) { if (watching || !f.away) pool.push([f, i]); }
+          else if (!f.pool) ko.push(row(f, i, false));
+        });
+        pool.sort(function (a, b) { return dayNum(a[0].date) - dayNum(b[0].date); });
+        poolCount = pool.length;
+        body.innerHTML =
+          '<fieldset class="pl-match-set"><legend>' + esc(team) + (watching ? '\u2019s pool matches, to watch in NSW' : '\u2019s pool matches in NSW') + '</legend>' +
+          (pool.length ? pool.map(function (p) { return row(p[0], p[1], true); }).join('') : '<span class="pl-match-empty">' + esc(team) + ' have no pool matches in NSW. Choose watching to plan around their matches, or pick a knockout match.</span>') +
+          '</fieldset>' +
+          '<fieldset class="pl-match-set"><legend>Knockout matches in NSW, if they get through</legend>' + ko.join('') + '</fieldset>';
+        update();
+      }
+      function update() {
+        if (!team) return;
+        var dates = [];
+        body.querySelectorAll('input:checked').forEach(function (b) { var d = fixtures[b.value].date; if (dates.indexOf(d) === -1) dates.push(d); });
+        dates.sort(function (a, b) { return dayNum(a) - dayNum(b); });
+        value.innerHTML = !dates.length ? '<span class="pl-team-placeholder">' + (poolCount ? 'on which dates?' : '(none in NSW yet)') + '</span>'
+          : dates.length === 1 ? 'on ' + dates[0] : dates.length === 2 ? 'on ' + dates[0] + ' and ' + dates[1] : 'on ' + dates.length + ' dates';
+      }
+      function open() {
+        pop.hidden = false;
+        pop.style.left = '';
+        btn.setAttribute('aria-expanded', 'true');
+        var overflow = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
+        if (overflow > 0) pop.style.left = -overflow + 'px';
+      }
+      function close(focus) {
+        pop.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        if (focus) btn.focus();
+      }
+
+      document.addEventListener('teamchange', function (e) {
+        team = e.detail.team;
+        render();
+      });
+      if (mode) mode.addEventListener('change', render);
+      btn.addEventListener('click', function () { pop.hidden ? open() : close(); });
+      body.addEventListener('change', update);
+      picker.querySelector('[data-done]').addEventListener('click', function () { close(true); });
+      picker.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); close(true); } });
+      document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
+      render();
+    });
+  </script>
+
+  <!-- Location maps: category toggles show or hide that category's pins -->
+  <script>
+    document.querySelectorAll('[data-map]').forEach(function (map) {
+      map.querySelectorAll('.loc-chip').forEach(function (chip) {
+        var group = map.querySelector('.m-pins[data-cat="' + chip.dataset.cat + '"]');
+        chip.addEventListener('click', function () {
+          var on = chip.getAttribute('aria-pressed') !== 'true';
+          chip.setAttribute('aria-pressed', String(on));
+          group.classList.toggle('is-off', !on);
+        });
+      });
+    });
+  </script>
+
+  <!-- Multi-select slots (e.g. interests): checkboxes in a panel; the slot lists up to two picks, then "+ N more" -->
+  <script>
+    document.querySelectorAll('[data-multi-picker]').forEach(function (picker) {
+      var btn = picker.querySelector('.pl-slot-btn');
+      var pop = picker.querySelector('.pl-multi-pop');
+      var value = picker.querySelector('.pl-multi-value');
+      var count = picker.querySelector('[data-multi-count]');
+      var boxes = Array.prototype.slice.call(pop.querySelectorAll('input[type="checkbox"]'));
+
+      function update() {
+        var picked = boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.dataset.emoji + '\u00a0' + b.dataset.label; });
+        value.textContent = !picked.length ? '' : picked.length === 1 ? picked[0]
+          : picked.length === 2 ? picked[0] + ' and ' + picked[1]
+          : picked[0] + ' + ' + (picked.length - 1) + ' more';
+        if (!picked.length) value.innerHTML = '<span class="pl-team-placeholder">' + picker.dataset.placeholder + '</span>';
+        count.textContent = picked.length + ' selected';
+      }
+      function open() {
+        pop.hidden = false;
+        pop.style.left = '';
+        btn.setAttribute('aria-expanded', 'true');
+        var overflow = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
+        if (overflow > 0) pop.style.left = -overflow + 'px';
+      }
+      function close(focus) {
+        pop.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        if (focus) btn.focus();
+      }
+
+      btn.addEventListener('click', function () { pop.hidden ? open() : close(); });
+      pop.addEventListener('change', update);
+      picker.querySelector('[data-done]').addEventListener('click', function () { close(true); });
+      picker.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); close(true); } });
+      document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
+      update();
+    });
+  </script>
+
+  <!-- Start planning: turn the sentence into a results URL and open it in a new tab.
+       Needs a team and at least one match; otherwise open that slot and say why. -->
+  <script>
+    (function () {
+      var link = document.getElementById('rwc-start-planning');
+      var hint = document.getElementById('rwc-start-hint');
+      if (!link) return;
+      link.addEventListener('click', function (e) {
+        var picked = document.querySelector('[data-team-picker] [role="option"][aria-selected="true"]');
+        var matches = Array.prototype.map.call(document.querySelectorAll('[data-match-picker] input:checked'), function (b) { return b.value; });
+        var interests = Array.prototype.map.call(document.querySelectorAll('[data-multi-picker] input:checked'), function (b) { return b.value; });
+        if (!picked) {
+          e.preventDefault();
+          hint.textContent = 'Pick your team first.';
+          setTimeout(function () { document.querySelector('[data-team-picker] .pl-slot-btn').click(); }, 0);
+          return;
+        }
+        if (!matches.length) {
+          e.preventDefault();
+          hint.textContent = 'Pick at least one match to plan around.';
+          setTimeout(function () { document.querySelector('[data-match-picker] .pl-slot-btn').click(); }, 0);
+          return;
+        }
+        var q = new URLSearchParams({ team: picked.dataset.team, m: matches.join(','), interests: interests.join(',') });
+        document.querySelectorAll('.pl-entry select[data-key]').forEach(function (sel) { q.set(sel.dataset.key, sel.value); });
+        hint.textContent = '';
+        link.href = 'rugby-world-cup-plan.html?' + q.toString();
+      });
+    })();
+  </script>
+
+  <!-- Expandable lists: show the first few, toggle the rest -->
+  <script>
+    document.querySelectorAll('[data-expand-list]').forEach(function (btn) {
+      var list = document.getElementById(btn.getAttribute('aria-controls'));
+      var count = document.getElementById(btn.dataset.count);
+      btn.addEventListener('click', function () {
+        var open = btn.getAttribute('aria-expanded') !== 'true';
+        list.querySelectorAll('[data-extra]').forEach(function (li) { li.hidden = !open; });
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? btn.dataset.less : btn.dataset.more;
+        count.textContent = 'Showing ' + (open ? btn.dataset.total : btn.dataset.shown) + ' of ' + btn.dataset.total + ' matches';
+      });
+    });
+  </script>
+  <!-- Match filters: team and stadium. While filtering, every match that fits shows and "Show all" steps aside. -->
+  <script>
+    (function () {
+      var list = document.getElementById('rwc-matches');
+      var team = document.getElementById('rwc-filter-team');
+      var venues = document.querySelectorAll('#rwc-filter-venue [data-venue]');
+      var expand = document.querySelector('[data-expand-list][aria-controls="rwc-matches"]');
+      var count = document.getElementById('rwc-matches-count');
+      var note = document.getElementById('rwc-filter-note');
+      var empty = document.getElementById('rwc-filter-empty');
+      var clears = document.querySelectorAll('[data-clear-filters]');
+      var items = Array.prototype.slice.call(list.children);
+      var venue = '';
+
+      function apply() {
+        var t = team.value, filtering = t || venue, shown = 0;
+        items.forEach(function (li) {
+          var fits = (!t || li.dataset.teams.split('|').indexOf(t) > -1) && (!venue || li.dataset.venue === venue);
+          li.hidden = filtering ? !fits : (li.hasAttribute('data-extra') && expand.getAttribute('aria-expanded') !== 'true');
+          if (!li.hidden) shown++;
+        });
+        expand.hidden = !!filtering;
+        clears.forEach(function (c) { c.hidden = !filtering || (!shown && !empty.contains(c)); });
+        empty.hidden = !(filtering && !shown);
+        var noNsw = t && !venue && !shown;
+        empty.querySelector('button').textContent = noNsw ? 'Show all 17 matches' : 'Clear filters';
+        empty.querySelector('button').toggleAttribute('data-show-all', !!noNsw);
+        note.hidden = !t || !!noNsw;
+        empty.querySelector('p').textContent = t && !venue
+          ? t + ' doesn\u2019t play in NSW in the pool stage. Knockout matches will show here if they qualify.'
+          : 'No matches for ' + (t || 'any team') + ' at ' + (venue ? document.querySelector('#rwc-filter-venue [data-venue="' + venue + '"]').textContent : 'any stadium') + '.';
+        count.textContent = 'Showing ' + shown + ' of ' + items.length + ' matches';
+      }
+      team.addEventListener('change', apply);
+      venues.forEach(function (b) {
+        b.addEventListener('click', function () {
+          venue = b.dataset.venue;
+          venues.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+          apply();
+        });
+      });
+      clears.forEach(function (c) {
+        c.addEventListener('click', function () {
+          team.value = ''; venue = '';
+          venues.forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.venue === '')); });
+          apply();
+          if (c.hasAttribute('data-show-all') && expand.getAttribute('aria-expanded') !== 'true') expand.click();
+          team.focus();
+        });
+      });
+    })();
+  </script>
+
+  <!-- One team across the page. Choosing in the selector, the planner sentence or the match filter
+       sets it everywhere, reorders the page (matches, plan, find your people, stadiums) and is kept
+       for the session. ?team=Japan previews a team without saving it; ?team=none previews the default page;
+       &mode=watching previews the planner set to watching. -->
+  <script>
+    (function () {
+      var KEY = 'rwc-team';
+      var pickers = Array.prototype.slice.call(document.querySelectorAll('[data-team-picker]'));
+      var all = pickers[0] ? Array.prototype.map.call(pickers[0].querySelectorAll('[role="option"]'), function (o) { return o.dataset.team; }) : [];
+      var fixtures = JSON.parse(document.getElementById('rwc-fixtures').textContent);
+      var filter = document.getElementById('rwc-filter-team');
+      var bar = document.getElementById('rwc-supporting');
+      var plan = document.getElementById('plan');
+      var matches = document.querySelector('section[aria-labelledby="rwc-matches-title"]');
+      var findPeople = document.getElementById('rwc-find-people');
+      var stadiumList = document.querySelector('#rwc-locations-title').closest('section').querySelector('.loc-tiles');
+      var stadiums = Array.prototype.slice.call(stadiumList.querySelectorAll('.loc-tile[data-venue]'));
+      var stadiumsHead = document.getElementById('rwc-stadiums-head');
+      var countdown = document.querySelector('[data-countdown]');
+      var cd = { target: countdown.dataset.countdown, label: document.getElementById('rwc-countdown-label').textContent, meta: document.getElementById('rwc-countdown-meta').textContent, weather: document.getElementById('rwc-countdown-weather').innerHTML };
+      // Typical weather at kick-off: average daily max and min (°C) by city and month, and how often it rains.
+      var CLIMATE = { sydney: { Oct: [22, 14], Nov: [24, 16] }, newcastle: { Oct: [22, 14], Nov: [24, 16] } };
+      var DAY_CURVE = [[6, 0], [9, .5], [12, .85], [15, 1], [18, .7], [21, .4], [24, .2]];
+      function weatherLine(f) {
+        var p = f.date.split(' '), k = f.kickoff.match(/(\d+):(\d+)(am|pm)/), h = +k[1] % 12 + (k[3] === 'pm' ? 12 : 0) + k[2] / 60;
+        var mm = CLIMATE[/^Newcastle/.test(f.venue) ? 'newcastle' : 'sydney'][p[2]], t = 0;
+        for (var i = 1; i < DAY_CURVE.length; i++) if (h <= DAY_CURVE[i][0]) { var a = DAY_CURVE[i - 1], b = DAY_CURVE[i]; t = a[1] + (b[1] - a[1]) * Math.max(0, h - a[0]) / (b[0] - a[0]); break; }
+        var temp = Math.round(mm[1] + (mm[0] - mm[1]) * t), evening = h >= 18;
+        var when = (+p[1] <= 10 ? 'early ' : +p[1] <= 20 ? 'mid ' : 'late ') + (p[2] === 'Nov' ? 'November' : 'October');
+        return '<span aria-hidden="true">' + (evening ? '🌙' : '🌤️') + '</span> Usually about ' + temp + '°C at kick-off, ' +
+          (evening ? 'cooling after dark, so bring a layer' : 'mild and mostly sunny') + '. Rain on about 1 in 3 days in ' + when + '. Typical weather, not a forecast.';
+      }
+      var VENUE = { 'Stadium Australia': 'sa', 'Sydney Football Stadium': 'sfs', 'Newcastle Stadium': 'ncl' };
+      var fanHead = document.getElementById('rwc-fan-zone'), fanList = fanHead.nextElementSibling;
+      var locTitle = document.getElementById('rwc-locations-title'), locTitleText = locTitle.textContent;
+      var modeSel = document.getElementById('rwc-plan-mode');
+      var expand = document.querySelector('[data-expand-list][aria-controls="rwc-matches"]');
+      var MONTH = { Oct: '10', Nov: '11' };
+      var current = null;
+
+      // NSW pool matches only; allMatches() adds the team's pool matches outside NSW.
+      function teamMatches(team) {
+        return fixtures.filter(function (f) { return f.pool && !f.away && f.teams.split(' v ').indexOf(team) > -1; });
+      }
+      function layout(team) {
+        // Order: matches before plan once a team is chosen, find your people straight after the plan.
+        // No NSW pool matches: [Team]'s matches, find your people, plan (watching), then the fan zone first.
+        var none = team && !teamMatches(team).length;
+        if (team) plan.parentNode.insertBefore(matches, plan); else matches.parentNode.insertBefore(plan, matches);
+        plan.parentNode.insertBefore(findPeople, none ? plan : plan.nextElementSibling);
+        renderPeople(team);
+        renderMatches(team);
+        // Stadium and fan zone cards always stay open: they're the most reliable information on the page.
+        // Only the order changes: the team's stadiums first; with no NSW matches, the fan zone first.
+        stadiumList.parentNode.insertBefore(fanHead, stadiumList.nextSibling);
+        stadiumList.parentNode.insertBefore(fanList, fanHead.nextSibling);
+        stadiumsHead.hidden = !none;
+        locTitle.textContent = none ? 'Fan zone and stadiums' : locTitleText;
+        if (none) {
+          stadiumsHead.parentNode.insertBefore(fanHead, stadiumsHead);
+          stadiumsHead.parentNode.insertBefore(fanList, stadiumsHead);
+        }
+        var venues = team ? teamMatches(team).map(function (f) { return VENUE[f.venue.split(',')[0]]; }) : [];
+        stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) > -1; })
+          .concat(stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) === -1; }))
+          .forEach(function (li) { stadiumList.appendChild(li); });
+      }
+      var PEOPLE = {
+        Japan: {
+          house: { name: 'Japan House', where: 'Place name, Sydney', open: 'Daily during the tournament', on: 'Match screenings, Japanese food, music and cultural events' },
+          venues: [['Surry Hills', 'Screening all Japan matches'], ['Haymarket', 'Official supporters’ club venue'], ['Newcastle', 'Screening Japan v Samoa, near the stadium']],
+          moments: [['Wed 29 Sep', 'Time TBC', 'Team arrival', 'Sydney Airport'], ['Fri 1 Oct', '10:00am', 'Open training session', 'Place name, Newcastle'], ['Sat 2 Oct', 'From 11:00am', 'Community day with food and music', 'Place name, Sydney']]
+        },
+        'South Africa': {
+          venues: [['Bondi', 'Screening all South Africa matches'], ['Parramatta', 'Official supporters’ club venue'], ['Manly', 'Early screenings with breakfast']]
+        }
+      };
+      function peopleFor(team) {
+        return PEOPLE[team] || { venues: [['Surry Hills', 'Screening all ' + team + ' matches'], ['Newtown', 'Official supporters’ club venue'], ['Newcastle', 'Big screens for every match']] };
+      }
+      var TBC = ' <span class="loc-tbc">To be confirmed</span>';
+      function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function renderPeople(team) {
+        var pick = document.getElementById('rwc-people-pick'), box = document.getElementById('rwc-people');
+        pick.hidden = !!team; box.hidden = !team;
+        if (!team) return;
+        var d = peopleFor(team), top = '', bottom = '';
+        document.getElementById('rwc-people-title').textContent = 'Find your people: ' + team + ' fans in NSW';
+        document.getElementById('rwc-people-intro').textContent = 'Where ' + team + ' fans are meeting, watching and celebrating during the tournament.';
+        if (d.house) top += '<article class="pl-option"><span class="pl-tag">Country house</span><h3 class="pl-option-name">' + esc(d.house.name) + '</h3>' +
+          '<dl class="pl-option-facts"><div><dt>Where</dt><dd>' + esc(d.house.where) + TBC + '</dd></div><div><dt>Open</dt><dd>' + esc(d.house.open) + TBC + '</dd></div><div><dt>On</dt><dd>' + esc(d.house.on) + '</dd></div></dl>' +
+          '<a href="#" class="pl-match-link">Find out more</a></article>';
+        if (d.venues) top += '<div class="pl-option" id="rwc-people-watch"><span class="pl-tag">Where ' + esc(team) + ' fans watch</span>' +
+          d.venues.map(function (v) { return '<p class="pl-row"><span><strong>Venue name</strong> &middot; ' + esc(v[0]) + '<br>' + esc(v[1]) + '</span><a href="#">Visit website</a></p>'; }).join('') +
+          '<a href="#" class="pl-match-link">All venues</a>' +
+          '<details><summary class="pl-sm">How venues are listed</summary><p class="pl-sm">Venues are listed because they’ve been designated by the team’s official supporters’ club, or because they meet our listing criteria. No venue is favoured.</p></details></div>';
+        if (d.moments) bottom += '<div class="pl-option"><span class="pl-tag">Team moments</span>' +
+          d.moments.map(function (m) { return '<p class="pl-row"><span><strong>' + esc(m[0]) + ' &middot; ' + esc(m[1]) + '</strong><br>' + esc(m[2]) + ', ' + esc(m[3]) + '</span>' + TBC + '</p>'; }).join('') + '</div>';
+        bottom += '<p class="pl-row"><span>Travelling with other ' + esc(team) + ' supporters? <a href="#">Find the official supporters’ club</a></span></p>';
+        document.getElementById('rwc-people-top').innerHTML = top;
+        document.getElementById('rwc-people-bottom').innerHTML = bottom;
+      }
+      // [Team]'s matches: every pool match, in Sydney time. Outside NSW: where it's played and where to watch in NSW.
+      var mTitle = document.getElementById('rwc-matches-title'), mIntro = document.getElementById('rwc-matches-intro');
+      var mDefault = [mTitle.textContent, mIntro.textContent];
+      var teamView = document.getElementById('rwc-team-view'), nswView = document.getElementById('rwc-nsw-view'), backTeam = document.getElementById('rwc-back-team');
+      var DAYS = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' };
+      function dayNum(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + +p[1]; }
+      function longDate(d) { var p = d.split(' '); return DAYS[p[0]] + ' ' + p[1] + (p[2] === 'Nov' ? ' November' : ' October'); }
+      function allMatches(team) {
+        return fixtures.filter(function (f) { return f.pool && f.teams.split(' v ').indexOf(team) > -1; })
+          .sort(function (a, b) { return dayNum(a.date) - dayNum(b.date); });
+      }
+      // Possible path to NSW for teams with no NSW pool matches. Depends on the official knockout draw: check before launch.
+      var PATH = {
+        'Pool A': 'finish top of Pool A, their round of 16 match is at Sydney Football Stadium on Sunday 24 October.',
+        'Pool B': 'finish top of Pool B and win their round of 16 match, their quarter-final is at Stadium Australia on Saturday 30 October.',
+        'Pool C': 'finish second in Pool C, their round of 16 match is at Sydney Football Stadium on Saturday 23 October.',
+        'Pool D': 'finish top of Pool D and win their round of 16 match, their quarter-final is at Stadium Australia on Sunday 31 October.',
+        'Pool E': 'finish top of Pool E and reach the semi-finals, they play at Stadium Australia on Friday 5 November.',
+        'Pool F': 'finish second in Pool F, their round of 16 match is at Sydney Football Stadium on Saturday 23 October.'
+      };
+      function matchRow(f, team) {
+        var end = f.away
+          ? '<div class="pl-match-body"><span class="pl-sm">Played in ' + esc(f.city) + '</span><span class="pl-sm">Watch in NSW: <a href="#rwc-fan-zone">Fan zone</a> &middot; <a href="#rwc-people-watch">Where ' + esc(team) + ' fans watch</a></span></div>'
+          : '<a href="#" class="pl-match-link">Getting to the stadium</a>';
+        return '<li><article class="pl-match"><div class="pl-match-time"><span class="pl-sm">' + esc(f.date) + '</span><span class="pl-lg">' + esc(f.kickoff || 'TBC') + '</span><span class="pl-sm">Kick-off, AEDT</span></div>' +
+          '<div class="pl-match-body"><span class="pl-tag">' + esc(f.stage) + '</span><h3 class="pl-lg">' + esc(f.teams) + '</h3><span class="pl-sm">' + esc(f.venue) + '</span></div>' + end + '</article></li>';
+      }
+      // A live match to see: the next NSW match after the dates picked in the planner (or today), not one of the team's own.
+      // Knockouts count too, so teams whose last pool match is late still get one.
+      function renderLive(team) {
+        var live = document.getElementById('rwc-live');
+        if (!team) { live.hidden = true; return; }
+        var picked = Array.prototype.map.call(document.querySelectorAll('[data-match-picker] input:checked'), function (b) { return dayNum(fixtures[b.value].date); });
+        var now = new Date(), from = now < new Date('2027-10-01T00:00:00+10:00') ? 0 : now > new Date('2027-11-14T00:00:00+11:00') ? 99 : (now.getMonth() === 10 ? 31 : 0) + now.getDate() - 1;
+        if (picked.length) from = Math.max.apply(null, picked);
+        var next = fixtures.filter(function (f) { return !f.away && dayNum(f.date) > from && !(f.pool && f.teams.split(' v ').indexOf(team) > -1); })[0];
+        live.hidden = !next;
+        if (!next) return;
+        var name = next.pool ? next.teams : next.stage.replace(/ \(\d\)$/, '') + (next.teams ? ', ' + next.teams : '');
+        live.innerHTML = '<span>Want to see a match live? <strong>' + esc(name) + '</strong> is at ' + esc(next.venue.split(',')[0]) + ' on ' + longDate(next.date) + '.</span><a href="#" class="pl-match-link">Getting to the stadium</a>';
+      }
+      function renderMatches(team) {
+        teamView.hidden = !team; nswView.hidden = !!team; backTeam.hidden = true;
+        mTitle.textContent = team ? team + '\u2019s matches' : mDefault[0];
+        mIntro.textContent = team ? 'All of ' + team + '\u2019s pool matches, wherever they\u2019re played in Australia.' : mDefault[1];
+        if (!team) return;
+        var list = allMatches(team), inNsw = list.filter(function (f) { return !f.away; }).length;
+        document.getElementById('rwc-team-matches').innerHTML = list.map(function (f) { return matchRow(f, team); }).join('');
+        document.getElementById('rwc-team-count').textContent = list.length + ' pool matches, ' + (inNsw ? inNsw + ' in NSW' : 'none in NSW');
+        var path = document.getElementById('rwc-path');
+        path.hidden = !!inNsw || !list.length;
+        if (!path.hidden) path.innerHTML = '<span>Possible path to NSW: if ' + esc(team) + ' ' + PATH[list[0].stage] + '</span>';
+        renderLive(team);
+      }
+      document.getElementById('rwc-show-nsw').addEventListener('click', function () {
+        teamView.hidden = true; nswView.hidden = false; backTeam.hidden = false;
+        backTeam.querySelector('button').textContent = 'Back to ' + current + '\u2019s matches';
+        mTitle.textContent = mDefault[0]; mIntro.textContent = mDefault[1];
+        filter.value = '';
+        document.querySelector('#rwc-filter-venue [data-venue=""]').click();
+        if (expand.getAttribute('aria-expanded') !== 'true') expand.click();
+        backTeam.querySelector('button').focus();
+      });
+      backTeam.querySelector('button').addEventListener('click', function () {
+        renderMatches(current);
+        document.getElementById('rwc-show-nsw').focus();
+      });
+      document.querySelector('[data-match-picker]').addEventListener('change', function () { renderLive(current); });
+      modeSel.addEventListener('change', function () { renderLive(current); });
+
+      document.getElementById('rwc-people-pick-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () { document.querySelector('#team [data-team-picker]').rwcOpen(); }, 0);
+      });
+      function retargetCountdown(team) {
+        var first = team && teamMatches(team).filter(function (f) { return f.kickoff; })[0];
+        if (!first) {
+          countdown.dataset.countdown = cd.target;
+          document.getElementById('rwc-countdown-label').textContent = cd.label;
+          document.getElementById('rwc-countdown-meta').textContent = cd.meta;
+          document.getElementById('rwc-countdown-weather').innerHTML = cd.weather;
+          return;
+        }
+        var p = first.date.split(' '), k = first.kickoff.match(/(\d+):(\d+)(am|pm)/), h = +k[1] % 12 + (k[3] === 'pm' ? 12 : 0);
+        countdown.dataset.countdown = '2027-' + MONTH[p[2]] + '-' + ('0' + p[1]).slice(-2) + 'T' + ('0' + h).slice(-2) + ':' + k[2] + ':00+11:00';
+        document.getElementById('rwc-countdown-label').textContent = 'Countdown to ' + first.teams + ', ' + first.venue.split(',')[0];
+        document.getElementById('rwc-countdown-meta').textContent = first.date + ' 2027, ' + first.kickoff + ' AEDT';
+        document.getElementById('rwc-countdown-weather').innerHTML = weatherLine(first);
+      }
+      function select(team, save) {
+        if (all.indexOf(team) === -1) return;
+        current = team;
+        modeSel.value = teamMatches(team).length ? 'going' : 'watching';
+        pickers.forEach(function (p) { p.rwcShow(team); });
+        document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: team } }));
+        if (filter.value !== team) { filter.value = team; filter.dispatchEvent(new Event('change')); }
+        document.getElementById('rwc-supporting-team').textContent = team;
+        bar.hidden = false;
+        pickClear.hidden = false;
+        layout(team);
+        retargetCountdown(team);
+        if (save) try { sessionStorage.setItem(KEY, team); } catch (e) {}
+      }
+      window.rwcSelectTeam = function (team) { select(team, true); };
+      // Clear: back to the default page (no team, all matches and stadiums, general countdown), and forget the choice.
+      function clear() {
+        current = null;
+        pickers.forEach(function (p) { p.rwcClear(); });
+        document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: null } }));
+        filter.value = '';
+        document.querySelector('#rwc-filter-venue [data-venue=""]').click();
+        if (expand.getAttribute('aria-expanded') === 'true') expand.click();
+        modeSel.value = 'going';
+        bar.hidden = true;
+        pickClear.hidden = true;
+        layout(null);
+        retargetCountdown(null);
+        try { sessionStorage.removeItem(KEY); } catch (e) {}
+        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelector('#team [role="combobox"]').focus({ preventScroll: true });
+      }
+      var pickClear = document.getElementById('rwc-pick-clear');
+      pickClear.addEventListener('click', clear);
+      document.getElementById('rwc-supporting-clear').addEventListener('click', clear);
+      filter.addEventListener('change', function () { if (filter.value && filter.value !== current) select(filter.value, true); });
+      document.getElementById('rwc-supporting-change').addEventListener('click', function () {
+        var picker = document.querySelector('#team [data-team-picker]');
+        document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () { picker.rwcOpen(); }, 0);
+      });
+
+      var asked = new URLSearchParams(location.search).get('team');
+      var saved = null;
+      try { saved = sessionStorage.getItem(KEY); } catch (e) {}
+      if (asked === 'none') layout(null);
+      else if (asked) select(asked, false);
+      else if (saved) select(saved, false);
+      else layout(null);
+      if (asked && new URLSearchParams(location.search).get('mode') === 'watching') { modeSel.value = 'watching'; modeSel.dispatchEvent(new Event('change')); }
+    })();
+  </script>
+</body>
+</html>
