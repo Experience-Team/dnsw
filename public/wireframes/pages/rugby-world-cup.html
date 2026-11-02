@@ -421,18 +421,30 @@
     </div>
   </section>
 
-  <!-- Plan your 3rd half: fans build a list of things to do from across the page. Empty shell for now. -->
+  <!-- Plan your 3rd half: picks by time around the match, each with "Add to my 3rd half", and a button to the list panel. -->
   <section class="section" id="plan" aria-labelledby="rwc-plan-title">
     <div class="container">
       <div class="section-header">
         <div>
           <h2 class="section-title" id="rwc-plan-title">Plan your 3rd half</h2>
           <p class="section-body">In rugby, the 3rd half is the social part after the game. Pick a few things to do around your match, then take your list with you.</p>
+          <p class="rwc-picks-context" id="rwc-picks-context"></p>
+          <details class="rwc-picks-why"><summary class="pl-sm">Why these?</summary><p class="pl-sm">Picked for being close to your match and open at the right times. We don&rsquo;t accept payment for placement.</p></details>
         </div>
       </div>
-      <div class="rwc-plan-space" id="rwc-plan-list"></div>
+      <!-- Picks by time around the match, rendered by the team controller from #rwc-picks-data (placeholders):
+           Before kick-off and After the match are near the stadium of the team's first NSW match (the fan zone with no
+           team, or for teams with no NSW matches); The day after is around that city; regional day trips show travel
+           time from Sydney. A group with no picks shows "No picks here yet." -->
+      <div class="rwc-picks" id="rwc-picks"></div>
+      <div class="rwc-picks-more">
+        <button type="button" class="btn btn-dark" id="rwc-picks-open">See your 3rd half <span id="rwc-picks-count">(0)</span></button>
+      </div>
     </div>
   </section>
+  <!-- Plan your 3rd half fixtures (placeholders). Rows: [type, area, km to the venue | km from the city centre |
+       minutes from Sydney]. type uses the data contract's product types. -->
+  <script type="application/json" id="rwc-picks-data">{"near": {"sa": {"name": "Stadium Australia", "near": "Near Stadium Australia", "before": [["food_and_drink", "Sydney Olympic Park", 0.4], ["food_and_drink", "Sydney Olympic Park", 0.9], ["attraction", "Bicentennial Park", 1.3]], "after": [["food_and_drink", "Rhodes", 3.1], ["food_and_drink", "Parramatta", 7.5], ["event", "Parramatta", 7.8]]}, "sfs": {"name": "Sydney Football Stadium", "near": "Near Sydney Football Stadium", "before": [["food_and_drink", "Moore Park", 0.5], ["food_and_drink", "Paddington", 1.6], ["attraction", "Centennial Park", 1.2]], "after": [["food_and_drink", "Surry Hills", 1.4], ["food_and_drink", "Paddington", 1.8], ["event", "Darlinghurst", 2.2]]}, "ncl": {"name": "Newcastle Stadium", "near": "Near Newcastle Stadium", "before": [["food_and_drink", "Broadmeadow", 0.6], ["food_and_drink", "Hamilton", 1.5], ["attraction", "Newcastle", 3.4]], "after": [["food_and_drink", "Hamilton", 1.5], ["food_and_drink", "Newcastle", 3.5], ["event", "Newcastle", 3.6]]}, "fz": {"name": "the Tumbalong Park fan zone", "near": "Near the fan zone in Darling Harbour", "before": [["food_and_drink", "Darling Harbour", 0.2], ["food_and_drink", "Haymarket", 0.6], ["attraction", "Darling Harbour", 0.4]], "after": [["food_and_drink", "Pyrmont", 0.8], ["food_and_drink", "Haymarket", 0.7], ["event", "Barangaroo", 1.5]]}}, "dayAfter": {"sydney": {"name": "Sydney", "items": [["attraction", "The Rocks", 1.0], ["tour", "Sydney Harbour", 1.2], ["food_and_drink", "Bondi", 7.0]]}, "newcastle": {"name": "Newcastle", "items": [["attraction", "Newcastle East", 0.8], ["tour", "Newcastle", 0.5], ["food_and_drink", "Merewether", 4.0]]}}, "regional": [["tour", "Hunter Valley", 120], ["attraction", "Blue Mountains", 100], ["attraction", "South Coast", 100]]}</script>
 
   <!-- Ticketing promo banner -->
   <section class="section promo-section">
@@ -791,11 +803,11 @@
           (card ? '<span class="visually-hidden">: ' + esc(card.dataset.thName + ', ' + card.dataset.thArea) + '</span>' : '');
       }
       window.rwcSyncThirdHalf = function (root) { (root || document).querySelectorAll('[data-th-add]').forEach(sync); };
-      // An item from its id, for shared links: a card on the page, or any team's venue (rwcVenueItem, in the team controller)
+      // An item from its id, for shared links: a card on the page, or any team's venue or any pick (team controller)
       window.rwcThItemById = function (id) {
         var card = Array.prototype.filter.call(document.querySelectorAll('[data-th-id]'), function (el) { return el.dataset.thId === id; })[0];
         if (card) return itemFrom(card);
-        return window.rwcVenueItem ? window.rwcVenueItem(id) : null;
+        return (window.rwcVenueItem && window.rwcVenueItem(id)) || (window.rwcPickItem && window.rwcPickItem(id)) || null;
       };
       document.addEventListener('click', function (e) {
         var btn = e.target.closest('[data-th-add]');
@@ -813,8 +825,9 @@
     (function () {
       var list = window.thirdHalfList;
       var count = document.getElementById('rwc-th-count');
+      var picksCount = document.getElementById('rwc-picks-count'); // "See your 3rd half (n)" under the picks
       var timer;
-      function render(n) { count.textContent = '(' + n + ')'; }
+      function render(n) { count.textContent = '(' + n + ')'; if (picksCount) picksCount.textContent = '(' + n + ')'; }
       function bump() {
         clearTimeout(timer);
         count.classList.remove('is-bumped');
@@ -877,6 +890,7 @@
         var none = team && !teamMatches(team).length;
         renderPeople(team);
         renderMatches(team);
+        renderPicks(team);
         // Stadium and fan zone cards always stay open: they're the most reliable information on the page.
         // Only the order changes: the team's stadiums first; with no NSW matches, the fan zone first.
         stadiumList.parentNode.insertBefore(fanHead, stadiumList.nextSibling);
@@ -890,6 +904,71 @@
         stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) > -1; })
           .concat(stadiums.filter(function (li) { return venues.indexOf(li.dataset.venue) === -1; }))
           .forEach(function (li) { stadiumList.appendChild(li); });
+      }
+      // Plan your 3rd half picks. Near: the stadium of the team's first NSW match, or the fan zone (no team, or no NSW
+      // matches). Each card is a 3rd half item; type, distance and travel time are contract `gap` fields (pink marker).
+      var PICKS = JSON.parse(document.getElementById('rwc-picks-data').textContent);
+      var TYPE_LABEL = { tour: 'Tour', food_and_drink: 'Food and drink', event: 'Event', attraction: 'Attraction', hire: 'Hire', accommodation: 'Accommodation' };
+      var TYPE_NAME = { tour: 'Tour name', food_and_drink: 'Venue name', event: 'Event name', attraction: 'Attraction name', hire: 'Business name', accommodation: 'Hotel name' };
+      function km(n) { return (n < 10 ? n.toFixed(1) : Math.round(n)) + ' km'; }
+      function mins(n) { var h = Math.floor(n / 60), m = n % 60; return (h ? h + ' hr' : '') + (h && m ? ' ' : '') + (m ? m + ' min' : ''); }
+      // One pick as a 3rd half item; `shown` is what the card says (the item says which venue, for the summary)
+      function pickItem(id, row, distance, shown) {
+        return { id: id, name: TYPE_NAME[row[0]], type: TYPE_LABEL[row[0]], area: row[1], address: 'Street name, ' + row[1] + ' NSW',
+          distanceToStadium: distance, url: 'https://www.sydney.com/', section: 'Plan your 3rd half', shown: shown };
+      }
+      function pickGroups(key) {
+        var near = PICKS.near[key], day = PICKS.dayAfter[key === 'ncl' ? 'newcastle' : 'sydney'];
+        var label = key === 'fz' ? 'the fan zone' : 'the stadium';
+        function nearRows(when) {
+          return near[when].map(function (r, i) { return pickItem('pick-' + key + '-' + when + '-' + (i + 1), r, km(r[2]) + ' from ' + near.name, km(r[2]) + ' from ' + label); });
+        }
+        return [
+          { title: 'Before kick-off', sub: near.near, gap: true, items: nearRows('before') },
+          { title: 'After the match', sub: 'The 3rd half', gap: true, items: nearRows('after') },
+          { title: 'The day after', sub: 'Around ' + day.name, gap: false, items: day.items.map(function (r, i) {
+            return pickItem('pick-day-' + slug(day.name) + '-' + (i + 1), r, km(r[2]) + ' from ' + day.name + ' city centre', km(r[2]) + ' from the city centre');
+          }) },
+          { title: 'Make a day of it in regional NSW', sub: 'Day trips from the city', gap: true, items: PICKS.regional.map(function (r, i) {
+            return pickItem('pick-region-' + (i + 1), r, mins(r[2]) + ' from Sydney', mins(r[2]) + ' from Sydney');
+          }) }
+        ];
+      }
+      // Any pick from its id, whichever venue it belongs to (for shared links)
+      window.rwcPickItem = function (id) {
+        var keys = Object.keys(PICKS.near);
+        for (var k = 0; k < keys.length; k++) {
+          var groups = pickGroups(keys[k]);
+          for (var g = 0; g < groups.length; g++) for (var i = 0; i < groups[g].items.length; i++) {
+            var it = groups[g].items[i];
+            if (it.id === id) { var out = Object.assign({}, it); delete out.shown; return out; }
+          }
+        }
+        return null;
+      };
+      function renderPicks(team) {
+        var nsw = team ? teamMatches(team) : [], any = team ? allMatches(team) : [];
+        var first = nsw[0], key = first ? VENUE[first.venue.split(',')[0]] : 'fz';
+        var context = document.getElementById('rwc-picks-context');
+        if (first) context.textContent = 'Around ' + first.teams + ', ' + first.date + ', ' + first.venue.split(',')[0];
+        else if (any.length) context.textContent = 'Around ' + any[0].teams + ', ' + any[0].date + ', watching at the Tumbalong Park fan zone';
+        else context.textContent = 'Around the Tumbalong Park fan zone in Darling Harbour. Choose your team to match these to your game.';
+        var box = document.getElementById('rwc-picks');
+        box.innerHTML = pickGroups(key).map(function (g, n) {
+          var cards = g.items.map(function (it) {
+            var dist = g.gap ? '<span class="provenance-gap">' + esc(it.shown) + '</span>' : esc(it.shown);
+            return '<div class="loc-stay-item" data-th-id="' + esc(it.id) + '" data-th-name="' + esc(it.name) + '" data-th-type="' + esc(it.type) + '" data-th-area="' + esc(it.area) +
+              '" data-th-address="' + esc(it.address) + '" data-th-distance="' + esc(it.distanceToStadium) + '" data-th-url="' + esc(it.url) + '" data-th-section="' + esc(it.section) + '">' +
+              '<a href="#" class="loc-stay-card"><span class="ph-img" aria-hidden="true"></span><span><span class="loc-stay-name">' + esc(it.name) + '</span>' +
+              '<span class="loc-stay-meta"><span class="provenance-gap">' + esc(it.type) + '</span> &middot; ' + esc(it.area) + '</span>' +
+              (it.shown ? '<span class="loc-stay-meta">' + dist + '</span>' : '') + '</span></a>' +
+              '<button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></div>';
+          }).join('');
+          return '<div class="rwc-picks-group" role="group" aria-labelledby="rwc-picks-g' + n + '"><h3 class="rwc-picks-title" id="rwc-picks-g' + n + '">' + esc(g.title) + '</h3>' +
+            '<p class="rwc-picks-sub">' + esc(g.sub) + '</p>' +
+            (cards ? '<div class="rwc-picks-cards">' + cards + '</div>' : '<p class="loc-stay-empty">No picks here yet.</p>') + '</div>';
+        }).join('');
+        if (window.rwcSyncThirdHalf) window.rwcSyncThirdHalf(box);
       }
       var PEOPLE = {
         Japan: {
@@ -1228,12 +1307,14 @@
         shared.hidden = !pending;
       }
 
-      function open(focusOn) {
+      var returnTo = opener; // the button that opened the panel gets focus back
+      function open(focusOn, from) {
         render();
         clearStatus();
+        returnTo = from || opener;
         overlay.classList.add('is-open');
         document.body.classList.add('rwc-th-locked');
-        opener.setAttribute('aria-expanded', 'true');
+        returnTo.setAttribute('aria-expanded', 'true');
         (focusOn && !focusOn.hidden ? focusOn : title).focus();
       }
       function close() {
@@ -1241,14 +1322,18 @@
         clearStatus();
         overlay.classList.remove('is-open');
         document.body.classList.remove('rwc-th-locked');
-        opener.setAttribute('aria-expanded', 'false');
-        opener.focus();
+        returnTo.setAttribute('aria-expanded', 'false');
+        returnTo.focus();
       }
 
-      opener.setAttribute('aria-haspopup', 'dialog');
-      opener.setAttribute('aria-expanded', 'false');
-      opener.setAttribute('aria-controls', 'rwc-th-panel');
-      opener.addEventListener('click', function () { open(pending ? shared : null); });
+      // Opened from the Supporting bar and from "See your 3rd half (n)" under the picks
+      [opener, document.getElementById('rwc-picks-open')].forEach(function (btn) {
+        if (!btn) return;
+        btn.setAttribute('aria-haspopup', 'dialog');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-controls', 'rwc-th-panel');
+        btn.addEventListener('click', function () { open(pending ? shared : null, btn); });
+      });
       overlay.querySelectorAll('[data-th-close]').forEach(function (el) { el.addEventListener('click', close); });
 
       // Remove one item; focus moves to the next Remove (or the previous, or the heading when the list is empty)
