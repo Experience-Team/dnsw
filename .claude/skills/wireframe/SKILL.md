@@ -22,7 +22,7 @@ public/wireframes/
   shared.css            ← all wireframe styles and component CSS classes
   includes.js           ← fetches [data-include] partials; no build step needed
   components/
-    nav.html            ← sticky nav: hamburger | logo+toggle | search | wishlist
+    nav.html            ← sticky nav: sydney.com | visitnsw.com | sections | AU, search, saved; hides on scroll down
     hero.html           ← full-width hero with text overlay bottom-left
     newsletter.html     ← "Discover Somewhere New" full-width banner
     footer.html         ← social icons + acknowledgement + 5-col links + bottom bar
@@ -49,7 +49,7 @@ public/wireframes/
 
 | Component | File | Notes |
 |-----------|------|-------|
-| Nav | `nav.html` | Hamburger flyout with sub-menus; site toggle (sydney↔nsw); featured "🏉 Rugby World Cup 2027" pill button (`.nav-menu-feature`) above the menu items |
+| Nav | `nav.html` | Both sites left (black tab on the current one, from `data-site`), sections centred (current one bold; Destinations, Things to do and Events open `.nav-drop` dropdowns; Events leads with the "🏉 Rugby World Cup 2027" pill `.nav-menu-feature`), AU + search + saved right. Below 72rem: hamburger flyout with the same sites, pill, sections and region. Hides on scroll down, back on scroll up (`body.nav--hidden`); size and motion in `--nav-h` / `--nav-ease` |
 | Hero | `hero.html` | Full-width checkerboard placeholder; headline + tagline overlay bottom-left |
 | Newsletter | `newsletter.html` | Full-width banner; heading, body, outline-white CTA |
 | Footer | `footer.html` | Social icons, acknowledgement, 5-col links, bottom bar with logo boxes |
@@ -214,3 +214,4 @@ The nav toggle switches both the body class and `#theme-sheet` href. Nav, button
 | 2026-10-30 | RWC hero: typical weather at kick-off under the countdown (`#rwc-countdown-weather`, climate averages, emoji, "not a forecast"); countdown hero grows with its content on phones |
 | 2026-10-30 | RWC team dropdowns: "Show teams playing in other states" checkbox (`.pl-team-toggle`, off by default) hides the 9 teams with no NSW pool matches (`data-outside`); a chosen team always stays listed |
 | 2026-11-01 | `experiments.html`: a page for trying component ideas away from the page (cp-page shell, one `cp-section` per experiment). First experiment: a working copy of the Plan your 3rd half planner. Linked from the index |
+| 2026-11-02 | Site nav restyled (components/nav.html): both sites left with a black tab on the current one, sections centred (current bold, dropdowns for Destinations / Things to do / Events), AU + search + saved right; hamburger below 72rem. Hides on scroll down, slides back on scroll up (`body.nav--hidden`, `--nav-h`, `--nav-ease`); sticky bars under it follow |
