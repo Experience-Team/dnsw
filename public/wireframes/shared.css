@@ -640,16 +640,31 @@ body.nav--hidden .site-nav { transform: translateY(-100%); }
 .img-card-title { font-size: .875rem; font-weight: 700; color: var(--color-text); line-height: 1.3; }
 
 /* ── RWC team choice: layout only, reusing existing component styles ── */
-/* RWC Supporting bar: a grey band under the breadcrumb, shown once a team is chosen. Sticks under the nav once
-   scrolled to, and to the top of the screen while the nav is hidden (same timing as the nav). */
-.rwc-team-bar { position: sticky; top: calc(var(--topbar-h) + var(--nav-h)); z-index: 90; background: #f5f5f5; border-bottom: 1px solid var(--color-border); padding: .75rem 0; transition: top var(--nav-ease); }
-body.utility-bar-body--hidden .rwc-team-bar { top: var(--nav-h); }
-body.nav--hidden .rwc-team-bar { top: var(--topbar-h); }
-body.nav--hidden.utility-bar-body--hidden .rwc-team-bar { top: 0; }
-.rwc-team-bar[hidden] { display: none; }
-.rwc-supporting-line { font-size: 1rem; }
+/* RWC Supporting bar: a grey band under the breadcrumb, shown from page load. Left: the team (or "Choose your team"),
+   right: the "Your 3rd half (n)" list button. From 768px it sticks under the nav once scrolled to, and to the top
+   of the screen while the nav is hidden (same timing as the nav). Below 768px it's fixed to the bottom of the screen. */
+.rwc-team-bar { z-index: 90; background: #f5f5f5; border-bottom: 1px solid var(--color-border); padding: .75rem 0; }
+.rwc-team-bar-inner { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; }
+.rwc-supporting-line { font-size: 1rem; min-width: 0; }
+.rwc-supporting-line[hidden] { display: none; }
 .rwc-supporting-line .pl-btn-link { font-size: 1rem; }
-@media (max-width: 48rem) { .rwc-team-bar { padding: .5rem 0; } }
+.rwc-th-open { flex: none; white-space: nowrap; }
+/* The count briefly fills in when something is added (instant on and off with reduced motion) */
+.rwc-th-count { display: inline-block; padding: 0 .2em; border-radius: 3px; }
+.rwc-th-count.is-bumped { animation: rwc-th-bump 1.2s ease-out; }
+@keyframes rwc-th-bump { 0%, 25% { background: #111; color: #fff; } 100% { background: transparent; color: inherit; } }
+@media (prefers-reduced-motion: reduce) { .rwc-th-count.is-bumped { animation: none; background: #111; color: #fff; } }
+@media (min-width: 48rem) {
+  .rwc-team-bar { position: sticky; top: calc(var(--topbar-h) + var(--nav-h)); transition: top var(--nav-ease); }
+  body.utility-bar-body--hidden .rwc-team-bar { top: var(--nav-h); }
+  body.nav--hidden .rwc-team-bar { top: var(--topbar-h); }
+  body.nav--hidden.utility-bar-body--hidden .rwc-team-bar { top: 0; }
+}
+@media (max-width: 47.99rem) {
+  .rwc-team-bar { position: fixed; left: 0; right: 0; bottom: 0; border-bottom: 0; border-top: 1px solid var(--color-border); padding: .5rem 0 calc(.5rem + env(safe-area-inset-bottom)); }
+  .rwc-supporting-line, .rwc-supporting-line .pl-btn-link { font-size: .875rem; }
+  body:has(.rwc-team-bar) { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); }
+}
 /* RWC team chooser in the hero, below the subheading: white text on the dark hero; the hero lets the dropdown
    hang over the content below it */
 .hero--team { overflow: visible; z-index: 95; }
