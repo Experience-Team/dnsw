@@ -494,6 +494,33 @@
   <div data-include="../components/newsletter.html"></div>
   <div data-include="../components/footer.html"></div>
 
+  <!-- Your 3rd half panel: opens from the Supporting bar button. Slides in from the right (about 480px); below 768px
+       it's a bottom sheet. Shows the added places (with Remove), a read-only preview of buildAiSummary(), the copy and
+       share buttons (not wired up yet) and Clear list. Closes with the close button, Escape or the backdrop; focus
+       moves in on open, stays inside while open, and goes back to the bar button on close. -->
+  <div class="rwc-th-overlay" id="rwc-th-panel">
+    <div class="rwc-th-backdrop" data-th-close></div>
+    <div class="rwc-th-panel" role="dialog" aria-modal="true" aria-labelledby="rwc-th-title" aria-describedby="rwc-th-intro">
+      <div class="rwc-th-head">
+        <h2 class="section-title" id="rwc-th-title" tabindex="-1">Your 3rd half</h2>
+        <button type="button" class="rwc-th-close" data-th-close aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="rwc-th-body">
+        <p id="rwc-th-intro">Your team&rsquo;s details and the places you&rsquo;ve added, ready to take with you.</p>
+        <ul class="rwc-th-items" id="rwc-th-items"></ul>
+        <p class="pl-sm rwc-th-empty" id="rwc-th-empty" hidden>Add places from this page to include them.</p>
+        <pre class="rwc-th-preview" id="rwc-th-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre>
+        <div class="rwc-th-actions">
+          <button type="button" class="btn btn-dark" data-th-action="copy-ai" aria-describedby="rwc-th-ai-help">Copy for your AI assistant</button>
+          <p class="pl-sm" id="rwc-th-ai-help">Paste into ChatGPT, Gemini, Claude or another assistant.</p>
+          <button type="button" class="btn btn-outline-dark" data-th-action="copy-list">Copy as a plain list</button>
+          <button type="button" class="btn btn-outline-dark" data-th-action="share">Share link</button>
+        </div>
+        <button type="button" class="pl-btn-link rwc-th-clear" id="rwc-th-clear">Clear list</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../includes.js"></script>
   <!-- Plan your 3rd half list: storage and events (window.thirdHalfList, "thirdhalf:change"). Loaded before the
        page scripts so it hears the first teamchange. -->
@@ -764,11 +791,10 @@
   </script>
 
   <!-- Your 3rd half (n): the list button in the Supporting bar. The count follows every list change; adding an item
-       briefly highlights it (no fade with reduced motion). Opens the summary later; for now it logs the list. -->
+       briefly highlights it (no fade with reduced motion). Clicking it opens the Your 3rd half panel (script below). -->
   <script>
     (function () {
       var list = window.thirdHalfList;
-      var btn = document.getElementById('rwc-th-open');
       var count = document.getElementById('rwc-th-count');
       var timer;
       function render(n) { count.textContent = '(' + n + ')'; }
@@ -782,9 +808,6 @@
       document.addEventListener('thirdhalf:change', function (e) {
         render(e.detail.count);
         if (e.detail.action === 'add') bump();
-      });
-      btn.addEventListener('click', function () {
-        console.log('Your 3rd half', { team: list ? list.getTeam() : null, items: list ? list.getItems() : [] });
       });
       render(list ? list.count() : 0);
     })();
@@ -1003,6 +1026,7 @@
         retargetCountdown(team);
       }
       window.rwcSelectTeam = function (team) { select(team, true); };
+      window.rwcGetTeam = function () { return current; }; // the team the page is showing (includes ?team= previews)
       // Clear: back to the default page (no team, all matches and stadiums, general countdown), and forget the choice.
       function clear() {
         current = null;
@@ -1034,6 +1058,181 @@
       else if (asked) select(asked, false);
       else if (saved) select(saved, false);
       else layout(null);
+    })();
+  </script>
+
+  <!-- Your 3rd half summary text (no UI yet): window.buildAiSummary() returns Markdown to paste into an AI assistant,
+       window.buildPlainList() a short version for Notes or WhatsApp. Both use the team the page is showing, that team's
+       NSW matches (or their interstate matches, watched at the fan zone, if they have none) and the saved list.
+       Transport lines come from the stadium cards' "Getting there". Both are logged on page load for checking. -->
+  <script>
+    (function () {
+      var fixtures = JSON.parse(document.getElementById('rwc-fixtures').textContent);
+      var STADIUMS = { sa: 'Stadium Australia', sfs: 'Sydney Football Stadium', ncl: 'Newcastle Stadium' };
+      var DAYS = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' };
+      var TITLE = 'My Rugby World Cup 2027 trip';
+      var FAN_ZONE = 'Tumbalong Park, Darling Harbour';
+      var WATCH = 'Watching in NSW at the fan zone';
+
+      function team() { return window.rwcGetTeam ? window.rwcGetTeam() : null; }
+      function items() { return window.thirdHalfList ? window.thirdHalfList.getItems() : []; }
+      function dayNum(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + +p[1]; }
+      function longDate(d) { var p = d.split(' '); return DAYS[p[0]] + ' ' + p[1] + (p[2] === 'Nov' ? ' November' : ' October'); }
+      function kickoff(f) { return f.kickoff ? f.kickoff + ' AEDT' : 'kick-off time TBC'; }
+      // The team's NSW pool matches; if none, their pool matches elsewhere (flagged interstate)
+      function matches(t) {
+        if (!t) return { list: [], interstate: false };
+        var mine = fixtures.filter(function (f) { return f.pool && f.teams.split(' v ').indexOf(t) > -1; })
+          .sort(function (a, b) { return dayNum(a.date) - dayNum(b.date); });
+        var nsw = mine.filter(function (f) { return !f.away; });
+        return nsw.length ? { list: nsw, interstate: false } : { list: mine, interstate: true };
+      }
+      // "Getting there" from each stadium card, for the stadiums in play (all three when no team is chosen)
+      function transport(list) {
+        var lines = [];
+        Object.keys(STADIUMS).forEach(function (code) {
+          if (list && !list.some(function (f) { return f.venue.indexOf(STADIUMS[code]) === 0; })) return;
+          var tile = document.querySelector('.loc-tile[data-venue="' + code + '"]');
+          var dd = tile && Array.prototype.filter.call(tile.querySelectorAll('.loc-facts dt'), function (dt) { return dt.textContent.trim() === 'Getting there'; })[0];
+          if (dd) lines.push(STADIUMS[code] + ': ' + dd.nextElementSibling.textContent.trim());
+        });
+        return lines;
+      }
+      function cell(x) { return String(x || '').replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim(); }
+
+      window.buildAiSummary = function () {
+        var t = team(), m = matches(t), saved = items(), out = [];
+        out.push('# ' + TITLE + (t ? ': ' + t + ' fan' : ''), '');
+        out.push('Planning help request: build a day-by-day plan around my match times, with realistic travel between places. Show the places on a map if you can.', '');
+        out.push('## My details');
+        if (t) {
+          out.push('- Supporting: ' + t);
+          out.push('- Matches:');
+          m.list.forEach(function (f) {
+            out.push('  - ' + f.teams + ', ' + longDate(f.date) + ', ' + kickoff(f) + ', ' + f.venue);
+          });
+          if (m.interstate) out.push('- ' + WATCH);
+        }
+        var getting = m.interstate ? [] : transport(t ? m.list : null);
+        if (getting.length) {
+          out.push('- Getting to the stadium:');
+          getting.forEach(function (l) { out.push('  - ' + l); });
+        }
+        out.push('- Fan zone: ' + FAN_ZONE, '');
+        out.push("## Places I've saved");
+        if (saved.length) {
+          out.push('| Name | Type | Area | Address | Distance to stadium | Link |', '|---|---|---|---|---|---|');
+          saved.forEach(function (it) {
+            out.push('| ' + [it.name, it.type, it.area, it.address, it.distanceToStadium, it.url].map(cell).join(' | ') + ' |');
+          });
+        } else {
+          out.push('No places added yet.');
+        }
+        out.push('', '## Useful official info', '- Times are Sydney time (AEDT). Check sydney.com for updates.', '');
+        out.push('Source: sydney.com, the official tourism site of Destination NSW.');
+        return out.join('\n');
+      };
+
+      window.buildPlainList = function () {
+        var t = team(), m = matches(t), saved = items(), out = [];
+        out.push(TITLE + (t ? ': ' + t + ' fan' : ''));
+        if (t && m.list.length) {
+          out.push('');
+          m.list.forEach(function (f) {
+            out.push(f.date + ', ' + kickoff(f) + ': ' + f.teams + ', ' + f.venue.split(',')[0]);
+          });
+          if (m.interstate) out.push(WATCH);
+        }
+        out.push('');
+        if (saved.length) {
+          saved.forEach(function (it) { out.push(it.name + ', ' + it.area + ': ' + it.url); });
+        } else {
+          out.push('No places added yet.');
+        }
+        return out.join('\n');
+      };
+
+      console.log(window.buildAiSummary());
+      console.log(window.buildPlainList());
+    })();
+  </script>
+
+  <!-- Your 3rd half panel: open, close, focus and content. Content is rebuilt on open and on every list change. -->
+  <script>
+    (function () {
+      var list = window.thirdHalfList;
+      var overlay = document.getElementById('rwc-th-panel');
+      var panel = overlay.querySelector('.rwc-th-panel');
+      var opener = document.getElementById('rwc-th-open');
+      var title = document.getElementById('rwc-th-title');
+      var itemsEl = document.getElementById('rwc-th-items');
+      var empty = document.getElementById('rwc-th-empty');
+      var preview = document.getElementById('rwc-th-preview');
+      var clearBtn = document.getElementById('rwc-th-clear');
+      var FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+      function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function isOpen() { return overlay.classList.contains('is-open'); }
+
+      function render() {
+        var items = list ? list.getItems() : [];
+        itemsEl.innerHTML = items.map(function (it) {
+          return '<li class="rwc-th-item" data-id="' + esc(it.id) + '"><span><strong>' + esc(it.name) + '</strong><span class="pl-sm">' + esc(it.area) + '</span></span>' +
+            '<button type="button" class="pl-btn-link" data-th-remove>Remove<span class="visually-hidden"> ' + esc(it.name + ', ' + it.area) + '</span></button></li>';
+        }).join('');
+        itemsEl.hidden = !items.length;
+        empty.hidden = !!items.length;
+        clearBtn.hidden = !items.length;
+        preview.textContent = window.buildAiSummary ? window.buildAiSummary() : '';
+      }
+
+      function open() {
+        render();
+        overlay.classList.add('is-open');
+        document.body.classList.add('rwc-th-locked');
+        opener.setAttribute('aria-expanded', 'true');
+        title.focus();
+      }
+      function close() {
+        if (!isOpen()) return;
+        overlay.classList.remove('is-open');
+        document.body.classList.remove('rwc-th-locked');
+        opener.setAttribute('aria-expanded', 'false');
+        opener.focus();
+      }
+
+      opener.setAttribute('aria-haspopup', 'dialog');
+      opener.setAttribute('aria-expanded', 'false');
+      opener.setAttribute('aria-controls', 'rwc-th-panel');
+      opener.addEventListener('click', open);
+      overlay.querySelectorAll('[data-th-close]').forEach(function (el) { el.addEventListener('click', close); });
+
+      // Remove one item; focus moves to the next Remove (or the previous, or the heading when the list is empty)
+      itemsEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-th-remove]');
+        if (!btn || !list) return;
+        var li = btn.closest('li'), lis = Array.prototype.slice.call(itemsEl.children), i = lis.indexOf(li);
+        list.removeItem(li.dataset.id);
+        var next = itemsEl.children[i] || itemsEl.children[i - 1];
+        (next ? next.querySelector('[data-th-remove]') : title).focus();
+      });
+      clearBtn.addEventListener('click', function () {
+        if (list) list.clearItems();
+        title.focus();
+      });
+
+      document.addEventListener('thirdhalf:change', function () { if (isOpen()) render(); });
+
+      // Escape closes; Tab and Shift+Tab stay inside the panel
+      document.addEventListener('keydown', function (e) {
+        if (!isOpen()) return;
+        if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+        if (e.key !== 'Tab') return;
+        var f = Array.prototype.filter.call(panel.querySelectorAll(FOCUSABLE), function (el) { return el.offsetParent !== null; });
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1], active = document.activeElement;
+        if (e.shiftKey && (active === first || active === title || !panel.contains(active))) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && (active === last || !panel.contains(active))) { e.preventDefault(); first.focus(); }
+      });
     })();
   </script>
 </body>
