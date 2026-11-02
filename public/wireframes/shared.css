@@ -666,6 +666,12 @@ body.nav--hidden .site-nav { transform: translateY(-100%); }
   .rwc-supporting-line, .rwc-supporting-line .pl-btn-link { font-size: .875rem; }
   body:has(.rwc-team-bar) { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); }
 }
+/* Keyboard focus and in-page links stay clear of the sticky bars: the utility bar and nav (which come back when
+   scrolling up), and the Supporting bar (under the nav from 768px, fixed to the bottom below 768px) */
+html:has(.rwc-team-bar) { scroll-padding-top: calc(var(--topbar-h) + var(--nav-h) + 4.5rem); }
+@media (max-width: 47.99rem) {
+  html:has(.rwc-team-bar) { scroll-padding-top: calc(var(--topbar-h) + var(--nav-h) + 1rem); scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+}
 /* RWC "Your 3rd half" panel: slides in from the right, about 480px wide, over a backdrop; below 768px a bottom
    sheet covering most of the screen. Hidden (and out of the tab order) until opened; no slide with reduced motion. */
 .rwc-th-overlay { position: fixed; inset: 0; z-index: 300; visibility: hidden; transition: visibility 0s linear .25s; }

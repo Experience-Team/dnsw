@@ -1179,8 +1179,8 @@
   </script>
 
   <!-- Your 3rd half summary text (no UI yet): window.buildAiSummary() returns Markdown to paste into an AI assistant,
-       window.buildPlainList() a short version for Notes or WhatsApp. Both use the team the page is showing, that team's
-       NSW matches (or their interstate matches, watched at the fan zone, if they have none) and the saved list.
+       window.buildPlainList() a short version for Notes or WhatsApp. Both use the team the page is showing, all of that
+       team's pool matches (matches outside NSW are marked as watched at the fan zone) and the saved list.
        Transport lines come from the stadium cards' "Getting there". Both are logged on page load for checking. -->
   <script>
     (function () {
@@ -1196,14 +1196,15 @@
       function dayNum(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + +p[1]; }
       function longDate(d) { var p = d.split(' '); return DAYS[p[0]] + ' ' + p[1] + (p[2] === 'Nov' ? ' November' : ' October'); }
       function kickoff(f) { return f.kickoff ? f.kickoff + ' AEDT' : 'kick-off time TBC'; }
-      // The team's NSW pool matches; if none, their pool matches elsewhere (flagged interstate)
+      // All the team's pool matches by date. interstate: none in NSW. Each match outside NSW has f.away.
       function matches(t) {
         if (!t) return { list: [], interstate: false };
         var mine = fixtures.filter(function (f) { return f.pool && f.teams.split(' v ').indexOf(t) > -1; })
           .sort(function (a, b) { return dayNum(a.date) - dayNum(b.date); });
-        var nsw = mine.filter(function (f) { return !f.away; });
-        return nsw.length ? { list: nsw, interstate: false } : { list: mine, interstate: true };
+        return { list: mine, interstate: !mine.some(function (f) { return !f.away; }) };
       }
+      // Teams with some NSW matches: their matches elsewhere are marked; teams with none get one line instead
+      function awayNote(m, f, text) { return f.away && !m.interstate ? ' (' + text + ')' : ''; }
       // "Getting there" from each stadium card, for the stadiums in play (all three when no team is chosen)
       function transport(list) {
         var lines = [];
@@ -1226,7 +1227,7 @@
           out.push('- Supporting: ' + t);
           out.push('- Matches:');
           m.list.forEach(function (f) {
-            out.push('  - ' + f.teams + ', ' + longDate(f.date) + ', ' + kickoff(f) + ', ' + f.venue);
+            out.push('  - ' + f.teams + ', ' + longDate(f.date) + ', ' + kickoff(f) + ', ' + f.venue + awayNote(m, f, 'interstate: watching in NSW at the fan zone'));
           });
           if (m.interstate) out.push('- ' + WATCH);
         }
@@ -1256,7 +1257,7 @@
         if (t && m.list.length) {
           out.push('');
           m.list.forEach(function (f) {
-            out.push(f.date + ', ' + kickoff(f) + ': ' + f.teams + ', ' + f.venue.split(',')[0]);
+            out.push(f.date + ', ' + kickoff(f) + ': ' + f.teams + ', ' + f.venue.split(',')[0] + awayNote(m, f, 'watching at the fan zone'));
           });
           if (m.interstate) out.push(WATCH);
         }
