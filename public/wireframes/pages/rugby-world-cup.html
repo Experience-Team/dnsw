@@ -496,7 +496,8 @@
 
   <!-- Your 3rd half panel: opens from the Supporting bar button. Slides in from the right (about 480px); below 768px
        it's a bottom sheet. Shows the added places (with Remove), a read-only preview of buildAiSummary(), the copy and
-       share buttons (not wired up yet) and Clear list. Closes with the close button, Escape or the backdrop; focus
+       share buttons (inline confirmation next to each) and Clear list. Opened from a shared link when the visitor
+       already has a list, it first asks whether to replace it or add to it. Closes with the close button, Escape or the backdrop; focus
        moves in on open, stays inside while open, and goes back to the bar button on close. -->
   <div class="rwc-th-overlay" id="rwc-th-panel">
     <div class="rwc-th-backdrop" data-th-close></div>
@@ -506,16 +507,26 @@
         <button type="button" class="rwc-th-close" data-th-close aria-label="Close">&#x2715;</button>
       </div>
       <div class="rwc-th-body">
+        <!-- Shown when the page opens from a shared link and the visitor already has a list of their own -->
+        <div class="rwc-th-shared" id="rwc-th-shared" tabindex="-1" role="group" aria-labelledby="rwc-th-shared-msg" hidden>
+          <p id="rwc-th-shared-msg"></p>
+          <div class="rwc-th-shared-actions">
+            <button type="button" class="btn btn-dark btn-sm" data-th-shared="replace">Replace my list</button>
+            <button type="button" class="btn btn-outline-dark btn-sm" data-th-shared="add">Add to my list</button>
+            <button type="button" class="pl-btn-link" data-th-shared="keep">Keep my list as it is</button>
+          </div>
+        </div>
         <p id="rwc-th-intro">Your team&rsquo;s details and the places you&rsquo;ve added, ready to take with you.</p>
         <ul class="rwc-th-items" id="rwc-th-items"></ul>
         <p class="pl-sm rwc-th-empty" id="rwc-th-empty" hidden>Add places from this page to include them.</p>
         <pre class="rwc-th-preview" id="rwc-th-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre>
         <div class="rwc-th-actions">
-          <button type="button" class="btn btn-dark" data-th-action="copy-ai" aria-describedby="rwc-th-ai-help">Copy for your AI assistant</button>
+          <div class="rwc-th-action"><button type="button" class="btn btn-dark" data-th-action="copy-ai" aria-describedby="rwc-th-ai-help">Copy for your AI assistant</button><span class="rwc-th-status" aria-live="polite"></span></div>
           <p class="pl-sm" id="rwc-th-ai-help">Paste into ChatGPT, Gemini, Claude or another assistant.</p>
-          <button type="button" class="btn btn-outline-dark" data-th-action="copy-list">Copy as a plain list</button>
-          <button type="button" class="btn btn-outline-dark" data-th-action="share">Share link</button>
+          <div class="rwc-th-action"><button type="button" class="btn btn-outline-dark" data-th-action="copy-list">Copy as a plain list</button><span class="rwc-th-status" aria-live="polite"></span></div>
+          <div class="rwc-th-action"><button type="button" class="btn btn-outline-dark" data-th-action="share">Share link</button><span class="rwc-th-status" aria-live="polite"></span></div>
         </div>
+        <p class="visually-hidden" id="rwc-th-announce" aria-live="polite"></p>
         <button type="button" class="pl-btn-link rwc-th-clear" id="rwc-th-clear">Clear list</button>
       </div>
     </div>
@@ -780,6 +791,12 @@
           (card ? '<span class="visually-hidden">: ' + esc(card.dataset.thName + ', ' + card.dataset.thArea) + '</span>' : '');
       }
       window.rwcSyncThirdHalf = function (root) { (root || document).querySelectorAll('[data-th-add]').forEach(sync); };
+      // An item from its id, for shared links: a card on the page, or any team's venue (rwcVenueItem, in the team controller)
+      window.rwcThItemById = function (id) {
+        var card = Array.prototype.filter.call(document.querySelectorAll('[data-th-id]'), function (el) { return el.dataset.thId === id; })[0];
+        if (card) return itemFrom(card);
+        return window.rwcVenueItem ? window.rwcVenueItem(id) : null;
+      };
       document.addEventListener('click', function (e) {
         var btn = e.target.closest('[data-th-add]');
         if (!btn || !list) return;
@@ -894,6 +911,18 @@
       }
       var TBC = ' <span class="loc-tbc">To be confirmed</span>';
       function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      // A venue row as a 3rd half item (placeholders). Also rebuilds any team's venue from its id, for shared links.
+      function venueItem(team, v, i) {
+        return { id: 'venue-' + slug(team) + '-' + slug(v[0]), name: 'Venue name', type: VENUE_TYPE[i % VENUE_TYPE.length], area: v[0],
+          address: 'Street name, ' + v[0] + ' NSW', distanceToStadium: VENUE_DIST[v[0]] || '', url: 'https://www.sydney.com/', section: 'Find your people' };
+      }
+      window.rwcVenueItem = function (id) {
+        for (var t = 0; t < all.length; t++) {
+          var venues = id.indexOf('venue-' + slug(all[t]) + '-') === 0 && peopleFor(all[t]).venues;
+          for (var i = 0; venues && i < venues.length; i++) if (venueItem(all[t], venues[i], i).id === id) return venueItem(all[t], venues[i], i);
+        }
+        return null;
+      };
       function renderPeople(team) {
         var pick = document.getElementById('rwc-people-pick'), box = document.getElementById('rwc-people');
         pick.hidden = !!team; box.hidden = !team;
@@ -906,8 +935,9 @@
           '<a href="#" class="pl-match-link">Find out more</a></article>';
         if (d.venues) top += '<div class="pl-option" id="rwc-people-watch"><span class="pl-tag">Where ' + esc(team) + ' fans watch</span>' +
           d.venues.map(function (v, i) {
-            return '<p class="pl-row" data-th-id="venue-' + slug(team) + '-' + slug(v[0]) + '" data-th-name="Venue name" data-th-type="' + VENUE_TYPE[i % VENUE_TYPE.length] + '" data-th-area="' + esc(v[0]) +
-              '" data-th-address="Street name, ' + esc(v[0]) + ' NSW" data-th-distance="' + esc(VENUE_DIST[v[0]] || '') + '" data-th-url="https://www.sydney.com/" data-th-section="Find your people">' +
+            var it = venueItem(team, v, i);
+            return '<p class="pl-row" data-th-id="' + esc(it.id) + '" data-th-name="' + esc(it.name) + '" data-th-type="' + esc(it.type) + '" data-th-area="' + esc(it.area) +
+              '" data-th-address="' + esc(it.address) + '" data-th-distance="' + esc(it.distanceToStadium) + '" data-th-url="' + esc(it.url) + '" data-th-section="' + esc(it.section) + '">' +
               '<span><strong>Venue name</strong> &middot; ' + esc(v[0]) + '<br>' + esc(v[1]) + '</span><span class="th-actions"><a href="#">Visit website</a><button type="button" class="btn btn-outline-dark btn-sm" data-th-add aria-pressed="false">Add to my 3rd half</button></span></p>';
           }).join('') +
           '<a href="#" class="pl-match-link">All venues</a>' +
@@ -1014,8 +1044,14 @@
         document.getElementById('rwc-countdown-meta').textContent = first.date + ' 2027, ' + first.kickoff + ' AEDT';
         document.getElementById('rwc-countdown-weather').innerHTML = weatherLine(first);
       }
+      // A team from a name or a link slug ('Wales', 'wales', 'new-zealand'); null if it isn't one of the 24
+      function findTeam(x) {
+        for (var i = 0; x && i < all.length; i++) if (slug(all[i]) === slug(x)) return all[i];
+        return null;
+      }
       function select(team, save) {
-        if (all.indexOf(team) === -1) return;
+        team = findTeam(team);
+        if (!team) return;
         current = team;
         pickers.forEach(function (p) { p.rwcShow(team); });
         document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: team, save: !!save } }));
@@ -1027,6 +1063,8 @@
       }
       window.rwcSelectTeam = function (team) { select(team, true); };
       window.rwcGetTeam = function () { return current; }; // the team the page is showing (includes ?team= previews)
+      window.rwcFindTeam = findTeam;
+      window.rwcTeamSlug = slug;
       // Clear: back to the default page (no team, all matches and stadiums, general countdown), and forget the choice.
       function clear() {
         current = null;
@@ -1157,7 +1195,8 @@
     })();
   </script>
 
-  <!-- Your 3rd half panel: open, close, focus and content. Content is rebuilt on open and on every list change. -->
+  <!-- Your 3rd half panel: open, close, focus and content (rebuilt on open and on every list change); the copy and share
+       actions; and restoring a shared link (?team=wales&items=id1,id2). -->
   <script>
     (function () {
       var list = window.thirdHalfList;
@@ -1169,6 +1208,9 @@
       var empty = document.getElementById('rwc-th-empty');
       var preview = document.getElementById('rwc-th-preview');
       var clearBtn = document.getElementById('rwc-th-clear');
+      var shared = document.getElementById('rwc-th-shared');
+      var announce = document.getElementById('rwc-th-announce');
+      var pending = null; // a shared link waiting for the visitor to choose: { team, items, savedTeam }
       var FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
       function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
       function isOpen() { return overlay.classList.contains('is-open'); }
@@ -1183,17 +1225,20 @@
         empty.hidden = !!items.length;
         clearBtn.hidden = !items.length;
         preview.textContent = window.buildAiSummary ? window.buildAiSummary() : '';
+        shared.hidden = !pending;
       }
 
-      function open() {
+      function open(focusOn) {
         render();
+        clearStatus();
         overlay.classList.add('is-open');
         document.body.classList.add('rwc-th-locked');
         opener.setAttribute('aria-expanded', 'true');
-        title.focus();
+        (focusOn && !focusOn.hidden ? focusOn : title).focus();
       }
       function close() {
         if (!isOpen()) return;
+        clearStatus();
         overlay.classList.remove('is-open');
         document.body.classList.remove('rwc-th-locked');
         opener.setAttribute('aria-expanded', 'false');
@@ -1203,7 +1248,7 @@
       opener.setAttribute('aria-haspopup', 'dialog');
       opener.setAttribute('aria-expanded', 'false');
       opener.setAttribute('aria-controls', 'rwc-th-panel');
-      opener.addEventListener('click', open);
+      opener.addEventListener('click', function () { open(pending ? shared : null); });
       overlay.querySelectorAll('[data-th-close]').forEach(function (el) { el.addEventListener('click', close); });
 
       // Remove one item; focus moves to the next Remove (or the previous, or the heading when the list is empty)
@@ -1221,6 +1266,105 @@
       });
 
       document.addEventListener('thirdhalf:change', function () { if (isOpen()) render(); });
+
+      // Inline confirmation next to a button (announced politely); hidden after a few seconds unless it's an instruction
+      function say(btn, msg, keep) {
+        var st = btn.parentNode.querySelector('.rwc-th-status');
+        clearTimeout(st.timer);
+        st.textContent = msg;
+        if (!keep) st.timer = setTimeout(function () { st.textContent = ''; }, 4000);
+      }
+      function clearStatus() {
+        panel.querySelectorAll('.rwc-th-status').forEach(function (st) { clearTimeout(st.timer); st.textContent = ''; });
+      }
+      function plural(n) { return n + (n === 1 ? ' place' : ' places'); }
+      function copied() {
+        var n = list ? list.count() : 0;
+        return n ? 'Copied ' + plural(n) : (window.rwcGetTeam && window.rwcGetTeam() ? 'Copied your team details' : 'Copied');
+      }
+      function writeClipboard(text) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) return navigator.clipboard.writeText(text);
+        } catch (e) {}
+        return Promise.reject(new Error('Clipboard not available'));
+      }
+      // No clipboard: put the text in the preview box, select it and say how to copy it
+      function selectInPreview(btn, text) {
+        preview.textContent = text;
+        preview.scrollTop = 0;
+        preview.focus();
+        var range = document.createRange(), sel = window.getSelection();
+        range.selectNodeContents(preview);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        say(btn, 'Press Ctrl+C or Cmd+C to copy', true);
+      }
+      function copy(btn, text, done) {
+        writeClipboard(text).then(function () { say(btn, done); }, function () { selectInPreview(btn, text); });
+      }
+      // This page with the team and item ids, e.g. ?team=wales&items=stay-sa-wentworth-point,venue-wales-newtown
+      function shareUrl() {
+        var team = window.rwcGetTeam && window.rwcGetTeam(), q = [];
+        if (team) q.push('team=' + encodeURIComponent(window.rwcTeamSlug(team)));
+        q.push('items=' + (list ? list.getItems() : []).map(function (it) { return encodeURIComponent(it.id); }).join(','));
+        return location.origin + location.pathname + '?' + q.join('&');
+      }
+      panel.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-th-action]');
+        if (!btn) return;
+        var action = btn.dataset.thAction;
+        if (action === 'copy-ai') copy(btn, window.buildAiSummary(), copied());
+        if (action === 'copy-list') copy(btn, window.buildPlainList(), copied());
+        if (action === 'share') {
+          var url = shareUrl();
+          // Phones: the native share sheet. Elsewhere, or if sharing fails: copy the link.
+          if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
+            navigator.share({ title: 'My Rugby World Cup 2027 trip', url: url }).catch(function (err) {
+              if (!err || err.name !== 'AbortError') copy(btn, url, 'Link copied');
+            });
+          } else {
+            copy(btn, url, 'Link copied');
+          }
+        }
+      });
+
+      // Shared link: restore the team and the list. A visitor with no list gets it straight away; a visitor with their
+      // own list is asked in the panel whether to replace it or add to it (closing the panel leaves the question open).
+      function useTeam(team) { if (team && window.rwcSelectTeam) window.rwcSelectTeam(team); }
+      function settle(choice) {
+        var p = pending;
+        pending = null;
+        if (choice === 'replace') { useTeam(p.team); list.clearItems(); p.items.forEach(list.addItem); }
+        if (choice === 'add') { useTeam(p.savedTeam || p.team); p.items.forEach(list.addItem); }
+        if (choice === 'keep') useTeam(p.savedTeam);
+        history.replaceState(null, '', location.pathname + location.hash); // so a reload doesn't ask again
+        render();
+        if (isOpen()) title.focus();
+        announce.textContent = choice === 'keep' ? 'Your list hasn\u2019t changed.' : 'Your list now has ' + plural(list.count()) + '.';
+      }
+      shared.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-th-shared]');
+        if (btn && pending) settle(btn.dataset.thShared);
+      });
+      (function restore() {
+        var params = new URLSearchParams(location.search);
+        if (!params.has('items') || !list) return;
+        var ids = params.get('items').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+        var items = [], missing = 0;
+        ids.forEach(function (id) {
+          var it = window.rwcThItemById(id);
+          if (!it) missing++;
+          else if (!items.some(function (x) { return x.id === it.id; })) items.push(it);
+        });
+        pending = { team: window.rwcFindTeam(params.get('team')), items: items, savedTeam: list.getTeam() };
+        var mine = list.count(), fresh = items.filter(function (it) { return !list.hasItem(it.id); }).length;
+        if (!mine) return settle('replace');
+        if (!fresh) return settle('add');
+        document.getElementById('rwc-th-shared-msg').textContent = 'Someone shared their 3rd half with you: ' + plural(items.length) +
+          (pending.team ? ' for a ' + pending.team + ' fan' : '') + '. You already have ' + plural(mine) + ' in your list. Replace your list with theirs, or add their places to yours?' +
+          (missing ? ' (' + plural(missing) + ' in the link ' + (missing === 1 ? 'isn\u2019t' : 'aren\u2019t') + ' on this page any more.)' : '');
+        open(shared);
+      })();
 
       // Escape closes; Tab and Shift+Tab stay inside the panel
       document.addEventListener('keydown', function (e) {
