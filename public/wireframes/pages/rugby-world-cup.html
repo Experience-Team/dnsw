@@ -1241,6 +1241,8 @@
         var t = team(), m = matches(t), saved = items(), out = [];
         out.push('# ' + TITLE + (t ? ': ' + t + ' fan' : ''), '');
         out.push('Planning help request: build a day-by-day plan around my match times, with realistic travel between places. Show the places on a map if you can.', '');
+        // Assistants tend to scatter questions through a long answer; ask for them up front, one at a time, with options
+        out.push('How to ask me questions: if you need anything from me before planning, ask one question at a time, with a few short options I can pick from, and wait for my answer before asking the next. Don\u2019t put questions inside the plan. When you have what you need, give me the whole plan in one go.', '');
         out.push('## My details');
         if (t) {
           out.push('- Supporting: ' + t);
