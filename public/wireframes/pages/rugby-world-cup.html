@@ -491,6 +491,9 @@
   <div data-include="../components/footer.html"></div>
 
   <script src="../includes.js"></script>
+  <!-- Plan your 3rd half list: storage and events (window.thirdHalfList, "thirdhalf:change"). Loaded before the
+       page scripts so it hears the first teamchange. -->
+  <script src="../third-half-list.js"></script>
 
   <!-- FAQ accordion -->
   <script>
@@ -726,11 +729,11 @@
   </script>
 
   <!-- One team across the page. Choosing in the selector or the match filter
-       sets it everywhere, fills the page for that team (countdown, matches, stadiums, find your people) and is kept
-       for the session. ?team=Japan previews a team without saving it; ?team=none previews the default page. -->
+       sets it everywhere and fills the page for that team (countdown, matches, stadiums, find your people). The team is
+       saved with the Plan your 3rd half list (third-half-list.js, localStorage) and restored on the next visit.
+       ?team=Japan previews a team without saving it; ?team=none previews the default page. -->
   <script>
     (function () {
-      var KEY = 'rwc-team';
       var pickers = Array.prototype.slice.call(document.querySelectorAll('[data-team-picker]'));
       var all = pickers[0] ? Array.prototype.map.call(pickers[0].querySelectorAll('[role="option"]'), function (o) { return o.dataset.team; }) : [];
       var fixtures = JSON.parse(document.getElementById('rwc-fixtures').textContent);
@@ -916,27 +919,25 @@
         if (all.indexOf(team) === -1) return;
         current = team;
         pickers.forEach(function (p) { p.rwcShow(team); });
-        document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: team } }));
+        document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: team, save: !!save } }));
         if (filter.value !== team) { filter.value = team; filter.dispatchEvent(new Event('change')); }
         document.getElementById('rwc-supporting-team').textContent = team;
         bar.hidden = false;
         layout(team);
         retargetCountdown(team);
-        if (save) try { sessionStorage.setItem(KEY, team); } catch (e) {}
       }
       window.rwcSelectTeam = function (team) { select(team, true); };
       // Clear: back to the default page (no team, all matches and stadiums, general countdown), and forget the choice.
       function clear() {
         current = null;
         pickers.forEach(function (p) { p.rwcClear(); });
-        document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: null } }));
+        document.dispatchEvent(new CustomEvent('teamchange', { detail: { team: null, save: true } }));
         filter.value = '';
         document.querySelector('#rwc-filter-venue [data-venue=""]').click();
         if (expand.getAttribute('aria-expanded') === 'true') expand.click();
         bar.hidden = true;
         layout(null);
         retargetCountdown(null);
-        try { sessionStorage.removeItem(KEY); } catch (e) {}
         document.getElementById('team').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         document.querySelector('#team [role="combobox"]').focus({ preventScroll: true });
       }
@@ -950,7 +951,7 @@
 
       var asked = new URLSearchParams(location.search).get('team');
       var saved = null;
-      try { saved = sessionStorage.getItem(KEY); } catch (e) {}
+      if (window.thirdHalfList) saved = window.thirdHalfList.getTeam();
       if (asked === 'none') layout(null);
       else if (asked) select(asked, false);
       else if (saved) select(saved, false);
