@@ -216,8 +216,6 @@
             </span>,
             <label class="pl-slot"><span class="visually-hidden">Car</span><select data-key="car"><option value="0">no car</option><option value="1">with a car</option></select></label>.
           </p>
-          <a href="rugby-world-cup-plan.html" class="pl-btn pl-btn-primary" id="rwc-start-planning" target="_blank" rel="noopener">Start planning <span class="visually-hidden">(opens your plan in a new tab)</span></a>
-          <p class="pl-sm pl-start-hint" id="rwc-start-hint" role="status"></p>
         </div>
       </div>
     </div>
@@ -893,37 +891,6 @@
       document.addEventListener('click', function (e) { if (!pop.hidden && !picker.contains(e.target)) close(); });
       update();
     });
-  </script>
-
-  <!-- Start planning: turn the sentence into a results URL and open it in a new tab.
-       Needs a team and at least one match; otherwise open that slot and say why. -->
-  <script>
-    (function () {
-      var link = document.getElementById('rwc-start-planning');
-      var hint = document.getElementById('rwc-start-hint');
-      if (!link) return;
-      link.addEventListener('click', function (e) {
-        var picked = document.querySelector('[data-team-picker] [role="option"][aria-selected="true"]');
-        var matches = Array.prototype.map.call(document.querySelectorAll('[data-match-picker] input:checked'), function (b) { return b.value; });
-        var interests = Array.prototype.map.call(document.querySelectorAll('[data-multi-picker] input:checked'), function (b) { return b.value; });
-        if (!picked) {
-          e.preventDefault();
-          hint.textContent = 'Pick your team first.';
-          setTimeout(function () { document.querySelector('[data-team-picker] .pl-slot-btn').click(); }, 0);
-          return;
-        }
-        if (!matches.length) {
-          e.preventDefault();
-          hint.textContent = 'Pick at least one match to plan around.';
-          setTimeout(function () { document.querySelector('[data-match-picker] .pl-slot-btn').click(); }, 0);
-          return;
-        }
-        var q = new URLSearchParams({ team: picked.dataset.team, m: matches.join(','), interests: interests.join(',') });
-        document.querySelectorAll('.pl-entry select[data-key]').forEach(function (sel) { q.set(sel.dataset.key, sel.value); });
-        hint.textContent = '';
-        link.href = 'rugby-world-cup-plan.html?' + q.toString();
-      });
-    })();
   </script>
 
   <!-- Expandable lists: show the first few, toggle the rest -->

@@ -81,7 +81,7 @@
   var site = document.body.dataset.site === 'nsw' ? 'nsw' : 'sydney';
   document.querySelectorAll('.nav-site[data-site="' + site + '"]').forEach(function (a) { a.setAttribute('aria-current', 'true'); });
   var page = location.pathname.split('/').pop().replace('.html', '');
-  var SECTION = { events: 'events', 'rugby-world-cup': 'events', 'rugby-world-cup-v1': 'events', 'rugby-world-cup-plan': 'events', 'disneys-the-lion-king': 'events',
+  var SECTION = { events: 'events', 'rugby-world-cup': 'events', 'rugby-world-cup-v1': 'events', 'disneys-the-lion-king': 'events',
     accommodation: 'accommodation', 'ingenia-holidays-sydney-hills': 'accommodation',
     'destination-visitnsw': 'destinations', 'western-sydney': 'destinations', 'western-sydney-v2': 'destinations', 'western-sydney-v3': 'destinations', 'western-sydney-airport': 'destinations' };
   var section = SECTION[page] || (/bridgeclimb|kayaks|botanic|mother-chus/.test(page) ? 'todo' : null);
