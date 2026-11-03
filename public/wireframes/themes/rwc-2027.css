@@ -1,0 +1,326 @@
+/* ── Rugby World Cup 2027 visual style (latest RWC page only) ───────────────────────────────────────────────────
+   Loaded by pages/rugby-world-cup.html alone and scoped to body.theme-rwc, so shared.css and every other wireframe
+   keep the greyscale wireframe look. Style only: no behaviour lives here.
+   From the "Rugby World Cup 2027: NSW Visitor Page" design: deep teal, coral accent and sand ground; Fraunces for
+   headings, Work Sans for text; rounded cards with a soft shadow; pill buttons and chips. */
+
+.theme-rwc {
+  --ink: #142420; --ink-soft: #4E5D59; --ink-faint: #6B7A73;
+  --teal-900: #0B3734; --teal-800: #0F4642; --teal-700: #13554F; --teal-600: #17685F;
+  --teal-500: #1C8276; --teal-300: #78B8AC; --teal-150: #D7ECE6; --teal-100: #EBF5F2;
+  --coral-600: #C9472B; --coral-500: #FF7A54; --coral-100: #FFE6DC;
+  --sand-50: #FBF8F2; --sand-100: #F4EDE0; --line: #E6DFD0;
+  --radius-l: 20px; --radius-m: 14px; --radius-s: 10px;
+  --shadow: 0 1px 2px rgba(20,36,32,.06), 0 8px 24px rgba(20,36,32,.08);
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Work Sans', system-ui, sans-serif;
+
+  /* The wireframe's own tokens, mapped onto the design's */
+  --color-primary: var(--teal-700);
+  --color-accent: var(--teal-700);
+  --color-bg: var(--sand-50);
+  --color-surface: #fff;
+  --color-border: var(--line);
+  --color-text: var(--ink);
+  --color-text-muted: var(--ink-soft);
+  --color-placeholder: var(--sand-100);
+
+  font-family: var(--sans);
+  background: var(--sand-50);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.theme-rwc h1, .theme-rwc h2, .theme-rwc h3 { font-family: var(--serif); font-weight: 500; }
+
+/* Placeholder images: sand to pale teal, no "Image" label */
+.theme-rwc .ph-img { background: linear-gradient(135deg, var(--sand-100), var(--teal-150)); }
+.theme-rwc .ph-img::after { content: none; }
+
+/* ── Buttons, links, chips ─────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .btn { border-radius: 999px; border: 1px solid transparent; font-family: var(--sans); font-weight: 600; font-size: .875rem; padding: .6875rem 1.25rem; transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+.theme-rwc .btn-sm { padding: .5rem .875rem; font-size: .8125rem; }
+.theme-rwc .btn-outline-dark { background: #fff; border-color: var(--line); color: var(--ink); }
+.theme-rwc .btn-outline-dark:hover { border-color: var(--teal-500); color: var(--teal-700); }
+.theme-rwc .btn-dark { background: var(--teal-900); border-color: var(--teal-900); color: #fff; }
+.theme-rwc .btn-dark:hover { background: var(--teal-800); border-color: var(--teal-800); }
+.theme-rwc .btn-primary { background: var(--coral-500); border-color: var(--coral-500); color: #111; }
+.theme-rwc .btn-primary:hover { background: #FF8F6E; }
+.theme-rwc [data-th-add][aria-pressed="true"] { background: var(--teal-100); border-color: var(--teal-300); color: var(--teal-700); }
+.theme-rwc .pl-btn-link { font-family: var(--sans); color: var(--teal-700); font-weight: 600; text-decoration: none; }
+.theme-rwc .pl-btn-link:hover { color: var(--coral-600); text-decoration: underline; }
+.theme-rwc .loc-link, .theme-rwc .pl-match-link, .theme-rwc .pl-row a, .theme-rwc .section-body a, .theme-rwc .rwc-picks-why summary,
+.theme-rwc .pl-match-list-more a, .theme-rwc .hero-countdown-done a { color: var(--teal-700); font-weight: 600; text-decoration: none; }
+.theme-rwc .pl-scope a:not(.pl-btn):not(.btn) { color: var(--teal-700); font-weight: 600; text-decoration: none; }
+.theme-rwc .pl-scope a:not(.pl-btn):not(.btn):hover { color: var(--coral-600); text-decoration: underline; }
+.theme-rwc .loc-link:hover, .theme-rwc .pl-match-link:hover, .theme-rwc .pl-row a:hover, .theme-rwc .pl-match-list-more a:hover { color: var(--coral-600); text-decoration: underline; }
+.theme-rwc .pl-btn { border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-weight: 600; padding: .375rem .875rem; }
+.theme-rwc .pl-btn[aria-pressed="true"] { background: var(--teal-700); border-color: var(--teal-700); color: #fff; }
+.theme-rwc .pl-match-filter-team select { border: 1px solid var(--line); border-radius: 999px; padding: .375rem .875rem; background: #fff; }
+
+/* ── Dev toolbar and site nav ──────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .utility-bar { background: var(--teal-900); }
+.theme-rwc .utility-bar-variations a { color: rgba(255,255,255,.75); }
+.theme-rwc .utility-bar-variations a.active { color: #fff; box-shadow: inset 0 -2px 0 var(--coral-500); }
+.theme-rwc .site-nav { border-bottom-color: var(--line); }
+.theme-rwc .nav-site { font-family: var(--serif); color: var(--teal-900); }
+.theme-rwc .nav-site[aria-current="true"]::before { background: var(--coral-500); height: 3px; }
+.theme-rwc .nav-link { font-weight: 500; }
+.theme-rwc .nav-link[aria-current="page"] { color: var(--coral-600); font-weight: 600; }
+
+/* ── Hero ──────────────────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .hero .ph-img {
+  background: radial-gradient(1100px 500px at 15% -10%, rgba(255,122,84,.20), transparent 60%),
+              radial-gradient(480px 480px at 92% 110%, rgba(120,184,172,.22), transparent 70%),
+              linear-gradient(160deg, var(--teal-800) 0%, var(--teal-900) 65%, #082522 100%);
+}
+.theme-rwc .hero-headline { font-family: var(--serif); font-weight: 500; font-size: 3.5rem; line-height: 1.02; letter-spacing: -.01em; text-transform: none; text-shadow: none; }
+.theme-rwc .hero-sub { font-size: 1.0625rem; color: rgba(255,255,255,.78); text-shadow: none; margin-top: .875rem; }
+.theme-rwc .rwc-hero-team { margin-top: 1.375rem; }
+.theme-rwc .rwc-hero-team .pl-setup-sentence {
+  display: inline-flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; width: fit-content; max-width: 100%;
+  font-size: .9375rem; line-height: 1.5; color: rgba(255,255,255,.75);
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: .375rem .5rem .375rem 1.125rem;
+}
+.theme-rwc .rwc-hero-team #rwc-pick-label { font-weight: 500; }
+.theme-rwc .rwc-hero-team .pl-slot-btn { color: #fff; background: transparent; border: 0; font-weight: 600; font-size: 1rem; padding: .25rem .625rem; border-radius: 999px; }
+.theme-rwc .rwc-hero-team .pl-slot-btn::after { border-color: #fff; }
+.theme-rwc .rwc-hero-team .pl-slot-btn[aria-expanded="true"], .theme-rwc .rwc-hero-team .pl-slot-btn:hover { background: rgba(255,255,255,.12); }
+.theme-rwc .rwc-hero-team .pl-team-placeholder { color: #fff; }
+.theme-rwc .pl-team-list [role="option"].is-active { background: var(--teal-100); outline-color: var(--teal-700); }
+.theme-rwc .pl-team-list [role="option"][aria-selected="true"]::after { border-color: var(--teal-700); }
+.theme-rwc .pl-team-pop { border: 1px solid var(--line); border-radius: var(--radius-m); box-shadow: var(--shadow); color: var(--ink); font-size: .9375rem; }
+.theme-rwc .hero-countdown-label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--teal-300); }
+.theme-rwc .hero-countdown-units { gap: .625rem; margin: .625rem 0; }
+.theme-rwc .hero-countdown-cell { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: var(--radius-m); min-width: 4.75rem; padding: .875rem 1.125rem; }
+.theme-rwc .hero-countdown-num { font-family: var(--serif); font-weight: 600; font-size: 1.875rem; }
+.theme-rwc .hero-countdown-unit { color: rgba(255,255,255,.65); letter-spacing: .07em; }
+.theme-rwc .hero-countdown-meta, .theme-rwc .hero-countdown-weather { color: rgba(255,255,255,.7); }
+
+/* ── Breadcrumb and the Supporting bar ─────────────────────────────────────────────────────────────────────── */
+.theme-rwc .page-switcher-bar { background: #fff; border-bottom-color: var(--line); color: var(--ink-soft); font-size: .84rem; }
+.theme-rwc .breadcrumb, .theme-rwc .breadcrumb a { color: var(--ink-soft); text-decoration: none; }
+.theme-rwc .breadcrumb a:hover { color: var(--teal-700); text-decoration: underline; }
+.theme-rwc .breadcrumb .crumb-active { color: var(--ink); font-weight: 500; }
+.theme-rwc .page-switcher-bar a { color: var(--ink-soft); font-weight: 500; }
+.theme-rwc .rwc-team-bar { background: #fff; border-bottom: 1px solid var(--line); box-shadow: 0 4px 16px rgba(20,36,32,.05); }
+.theme-rwc .rwc-supporting-line { font-family: var(--serif); font-size: 1.375rem; color: var(--ink); }
+.theme-rwc .rwc-supporting-line strong { font-weight: 600; }
+.theme-rwc .rwc-supporting-line .pl-btn-link { font-family: var(--sans); font-size: .875rem; margin: 0 .25rem; }
+.theme-rwc .rwc-th-open { background: var(--teal-900); border-color: var(--teal-900); color: #fff; }
+.theme-rwc .rwc-th-open:hover { background: var(--teal-800); color: #fff; }
+.theme-rwc .rwc-th-count { opacity: .8; }
+@keyframes rwc-th-bump-coral { 0%, 25% { background: var(--coral-500); color: #111; opacity: 1; } 100% { background: transparent; color: inherit; } }
+.theme-rwc .rwc-th-count.is-bumped { animation-name: rwc-th-bump-coral; }
+@media (prefers-reduced-motion: reduce) { .theme-rwc .rwc-th-count.is-bumped { background: var(--coral-500); color: #111; opacity: 1; } }
+@media (max-width: 47.99rem) {
+  .theme-rwc .rwc-team-bar { border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(20,36,32,.08); }
+  .theme-rwc .rwc-supporting-line { font-size: 1rem; line-height: 1.35; }
+  .theme-rwc .rwc-supporting-line .pl-btn-link { font-size: .8125rem; margin: 0 .125rem; }
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .section { background: transparent; padding: 4.5rem 0; }
+.theme-rwc .section + .section { border-top: 0; }
+.theme-rwc section[aria-labelledby="rwc-locations-title"], .theme-rwc #plan { background: var(--teal-100) !important; }
+.theme-rwc .section-header { margin-bottom: 2.5rem; }
+.theme-rwc .section-title { font-family: var(--serif); font-weight: 500; font-size: 2.125rem; line-height: 1.15; color: var(--ink); }
+.theme-rwc .section-body { font-size: 1rem; line-height: 1.55; color: var(--ink-soft); max-width: 38.75rem; margin-top: .5rem; }
+
+/* ── Matches ───────────────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .pl-match-list { gap: .75rem; }
+.theme-rwc .pl-match { grid-template-columns: 7rem minmax(0, 1fr) auto; gap: 1.75rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); padding: 1.375rem 1.625rem; }
+.theme-rwc .pl-match.is-tbc { border-style: dashed; box-shadow: none; }
+.theme-rwc .pl-match-time { border-right: 0; padding-right: 0; align-items: center; text-align: center; }
+.theme-rwc .pl-match-time .pl-sm:first-child { font-size: .6875rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--coral-600); }
+.theme-rwc .pl-match-time .pl-lg { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; line-height: 1.1; color: var(--ink); }
+.theme-rwc .pl-match-time .pl-sm:last-child { font-size: .6875rem; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-soft); white-space: nowrap; }
+.theme-rwc .pl-match .pl-tag { border: 0; padding: 0; font-size: .75rem; font-weight: 600; color: var(--teal-600); background: none; }
+.theme-rwc .pl-match h3.pl-lg { font-family: var(--serif); font-weight: 500; font-size: 1.3125rem; }
+.theme-rwc .pl-match .pl-sm { color: var(--ink-soft); font-size: .84rem; }
+.theme-rwc .pl-match-link { font-size: .8125rem; }
+/* "Want to see a match live?": the design's coral call-out */
+.theme-rwc #rwc-live { background: var(--coral-100); border: 1px dashed var(--coral-500); border-radius: var(--radius-m); padding: 1.25rem 1.625rem; font-size: .9rem; color: var(--teal-900); align-items: center; }
+.theme-rwc #rwc-live strong { color: var(--coral-600); }
+.theme-rwc #rwc-live a.pl-match-link { background: var(--coral-500); color: #111; border-radius: 999px; padding: .5rem .875rem; text-decoration: none; }
+.theme-rwc #rwc-live a.pl-match-link:hover { background: #FF8F6E; color: #111; }
+.theme-rwc .pl-match-list-more { color: var(--ink-soft); font-size: .875rem; }
+.theme-rwc .pl-filters legend { color: var(--ink-soft); }
+
+/* ── Getting there and around: stadium and fan zone cards ──────────────────────────────────────────────────── */
+.theme-rwc .loc-group-head { border-left: 0; padding-left: 0; }
+.theme-rwc .loc-group-title { font-family: var(--sans); font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--teal-600); }
+.theme-rwc .loc-group-body { font-family: var(--serif); font-size: 1.375rem; color: var(--ink); margin-top: .625rem; }
+.theme-rwc .loc-tiles { gap: 1.375rem; }
+.theme-rwc .loc-tile { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); }
+.theme-rwc .loc-tile--fan { border: 2px solid var(--teal-500); }
+.theme-rwc .loc-map { background: var(--teal-100); border-right-color: var(--line); padding: 1rem; }
+.theme-rwc .loc-tile-body { padding: 1.75rem 1.875rem; }
+.theme-rwc .loc-tile-kicker { font-size: .75rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
+.theme-rwc .loc-tile-title { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; }
+.theme-rwc .loc-facts dt { font-size: .8125rem; color: var(--ink); }
+.theme-rwc .loc-facts dd { font-size: .875rem; color: var(--ink-soft); line-height: 1.5; }
+.theme-rwc .loc-tbc { border: 1px dashed var(--teal-300); border-radius: 999px; color: var(--teal-700); padding: 0 .5rem; }
+.theme-rwc .loc-stay { border-top-color: var(--line); }
+.theme-rwc .loc-stay-title { font-size: .8125rem; color: var(--ink); }
+.theme-rwc .loc-tile .loc-stay-item { border: 1px solid var(--line); border-radius: var(--radius-s); padding: .625rem; }
+.theme-rwc .loc-stay-card .ph-img { border-radius: 8px; }
+.theme-rwc .loc-stay-name { font-family: var(--sans); font-size: .8125rem; font-weight: 600; color: var(--ink); }
+.theme-rwc .loc-stay-meta { color: var(--ink-soft); }
+.theme-rwc .loc-more { color: var(--ink-soft); }
+.theme-rwc .loc-chip { border: 0; background: var(--teal-100); color: var(--teal-700); font-weight: 600; }
+.theme-rwc .loc-chip-pin { background: var(--teal-600); }
+.theme-rwc .loc-chip[aria-pressed="true"] { background: var(--teal-700); color: #fff; }
+.theme-rwc .loc-chip[aria-pressed="true"] .loc-chip-pin { background: #fff; color: var(--teal-700); }
+.theme-rwc .loc-chip[aria-pressed="true"] .loc-chip-count { color: rgba(255,255,255,.8); }
+
+/* Map shapes (stadium cards and the 3rd half map): sand land, pale teal water, coral stadiums, teal fan zones */
+.theme-rwc .loc-map-svg { background: var(--sand-100); border-color: var(--line); border-radius: var(--radius-m); }
+.theme-rwc .m-land { fill: var(--sand-100); }
+.theme-rwc .m-water { fill: #CDE4DD; }
+.theme-rwc .m-park { fill: #DFEBDF; }
+.theme-rwc .m-block, .theme-rwc .m-context { fill: #EAE2D2; stroke: #D8CDB7; }
+.theme-rwc .m-road { stroke: #fff; }
+.theme-rwc .m-rail, .theme-rwc .m-lrail { stroke: var(--teal-300); }
+.theme-rwc .m-harbour { stroke: #CDE4DD; }
+.theme-rwc .m-label { fill: var(--ink-soft); font-family: var(--sans); }
+.theme-rwc .m-label--strong, .theme-rwc .m-label--confirmed { fill: var(--ink); }
+.theme-rwc .m-label--water { fill: var(--teal-700); }
+.theme-rwc .m-label--area { fill: var(--ink-faint); }
+.theme-rwc .m-label--fan { fill: var(--teal-700); }
+.theme-rwc .m-fan { fill: rgba(28,130,118,.08); stroke: var(--teal-500); }
+.theme-rwc .m-fan--confirmed { fill: rgba(28,130,118,.18); stroke: var(--teal-600); }
+.theme-rwc .m-stadium rect { fill: var(--coral-500); }
+.theme-rwc .m-stop rect { stroke: var(--teal-900); }
+.theme-rwc .m-stop text { fill: var(--teal-900); }
+.theme-rwc .m-pin path { fill: var(--teal-600); }
+.theme-rwc .m-inset { fill: var(--sand-50); }
+.theme-rwc .m-inset-frame { stroke: var(--line); }
+.theme-rwc .m-pin.m-pin--list path { fill: var(--ink-soft); }
+.theme-rwc .m-pin.m-pin--list.is-active path { fill: #fff; stroke: var(--ink); }
+.theme-rwc .m-pin.m-pin--list.is-active text { fill: var(--ink); }
+.theme-rwc .loc-map-key { color: var(--ink-soft); }
+.theme-rwc .loc-key-stadium { background: var(--coral-500); }
+.theme-rwc .loc-key-fan { border-color: var(--teal-500); }
+.theme-rwc .loc-key-fan--confirmed { border-color: var(--teal-600); background: rgba(28,130,118,.18); }
+.theme-rwc .loc-key-stop { border-color: var(--teal-900); color: var(--teal-900); }
+.theme-rwc .loc-key-pin { background: var(--ink-soft); }
+
+/* ── Find your people ──────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .pl-option { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); padding: 1.375rem 1.625rem; gap: .75rem; }
+.theme-rwc .pl-option > .pl-tag { border: 0; padding: 0; background: none; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--teal-600); }
+.theme-rwc .pl-option-name { font-family: var(--serif); font-weight: 500; font-size: 1.25rem; }
+.theme-rwc .pl-option .pl-row { background: none; border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: .875rem 0; font-size: .9rem; color: var(--ink-soft); }
+.theme-rwc .pl-option .pl-row strong { color: var(--ink); }
+.theme-rwc .pl-option details summary { color: var(--teal-700); font-weight: 600; cursor: pointer; }
+.theme-rwc .pl-row { border-color: var(--line); border-radius: var(--radius-s); }
+.theme-rwc #rwc-people-bottom > .pl-row { background: #fff; padding: .875rem 1.25rem; }
+
+/* ── Plan your 3rd half: picks as cards with a picture on top ──────────────────────────────────────────────── */
+.theme-rwc .rwc-picks-context { font-size: .875rem; font-weight: 600; margin-top: .75rem; color: var(--ink); }
+.theme-rwc .rwc-picks-why summary { font-size: .875rem; }
+.theme-rwc .rwc-picks-why p { color: var(--ink-soft); }
+.theme-rwc .rwc-picks { gap: 2.375rem; }
+.theme-rwc .rwc-picks-title { font-family: var(--serif); font-weight: 500; font-size: 1.25rem; }
+.theme-rwc .rwc-picks-sub { color: var(--ink-soft); font-size: .875rem; }
+.theme-rwc .rwc-picks-cards { border-top: 0; padding-top: 0; margin-top: 1rem; gap: 1.125rem; }
+.theme-rwc .rwc-picks-cards .loc-stay-item { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); overflow: hidden; gap: .75rem; padding-bottom: 1rem; }
+.theme-rwc .rwc-picks-cards .loc-stay-card { display: block; width: 100%; }
+.theme-rwc .rwc-picks-cards .loc-stay-card .ph-img { width: 100%; height: 6.875rem; aspect-ratio: auto; border-radius: 0; }
+.theme-rwc .rwc-picks-cards .loc-stay-card > span:last-child { display: block; padding: .875rem 1rem 0; }
+.theme-rwc .rwc-picks-cards .loc-stay-name { font-size: .9375rem; }
+.theme-rwc .rwc-picks-cards .loc-stay-meta { font-size: .78rem; margin-top: .125rem; }
+.theme-rwc .rwc-picks-cards [data-th-add] { margin: 0 1rem; }
+.theme-rwc .rwc-picks-group > .loc-stay-empty { color: var(--ink-soft); }
+
+/* ── Your 3rd half on the map ──────────────────────────────────────────────────────────────────────────────── */
+/* No overflow clipping on the card: a pin's name box can rise above the map */
+.theme-rwc .rwc-map-layout { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); gap: 0; align-items: stretch; }
+.theme-rwc .rwc-map-layout > div:first-child { background: var(--teal-100); padding: 1rem; border-radius: var(--radius-l) 0 0 var(--radius-l); }
+.theme-rwc .rwc-map-text { padding: 1.75rem 1.625rem; }
+.theme-rwc .rwc-map-text-title { font-size: .8125rem; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
+.theme-rwc .rwc-map-text-title strong { font-weight: 700; }
+.theme-rwc .rwc-map-places { gap: 0; }
+.theme-rwc .rwc-map-places li { padding: .6875rem 0; border-bottom: 1px solid var(--line); font-size: .875rem; }
+.theme-rwc .rwc-map-places .pl-btn-link { font-size: .78rem; color: var(--ink-faint); }
+.theme-rwc .rwc-map-places .pl-btn-link:hover { color: var(--coral-600); }
+.theme-rwc .rwc-map-num { background: var(--ink-soft); }
+.theme-rwc .rwc-map-pop { border: 1px solid var(--line); border-radius: var(--radius-s); box-shadow: var(--shadow); }
+.theme-rwc .rwc-picks-more .btn-dark { padding: .75rem 1.5rem; }
+@media (max-width: 48rem) {
+  .theme-rwc .rwc-map-text { padding: 1.25rem 1rem; }
+  .theme-rwc .rwc-map-layout > div:first-child { border-radius: var(--radius-l) var(--radius-l) 0 0; }
+}
+
+/* ── Your 3rd half panel ───────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .rwc-th-panel { background: var(--sand-50); }
+.theme-rwc .rwc-th-head { background: #fff; border-bottom-color: var(--line); }
+.theme-rwc .rwc-th-head .section-title { font-size: 1.625rem; }
+.theme-rwc .rwc-th-items { border-top-color: var(--line); }
+.theme-rwc .rwc-th-item { border-bottom-color: var(--line); }
+.theme-rwc .rwc-th-empty { border: 1px dashed var(--teal-300); border-radius: var(--radius-s); background: #fff; color: var(--ink-soft); }
+.theme-rwc .rwc-th-preview { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-s); color: var(--ink); }
+.theme-rwc .rwc-th-status { color: var(--teal-700); }
+.theme-rwc .rwc-th-shared { background: var(--teal-100); border: 1px solid var(--teal-300); border-radius: var(--radius-m); }
+@media (max-width: 47.99rem) { .theme-rwc .rwc-th-panel { border-radius: var(--radius-l) var(--radius-l) 0 0; } }
+
+/* ── Get Rugby World Cup ready ─────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .promo-section { background: transparent; padding-top: 1rem; }
+.theme-rwc .promo-banner { height: auto; border-radius: var(--radius-l); background: linear-gradient(120deg, var(--teal-800), var(--teal-900)); padding: 3rem 3.5rem; }
+.theme-rwc .promo-banner > .ph-img { display: none; }
+.theme-rwc .promo-banner .promo-content { position: static; color: #fff; }
+.theme-rwc .promo-banner .promo-content h2 { font-family: var(--serif); font-weight: 500; font-size: 1.75rem; color: #fff; }
+.theme-rwc .promo-banner .promo-sub { color: rgba(255,255,255,.75); font-size: .9375rem; }
+.theme-rwc .promo-banner .btn { background: var(--coral-500); border-color: var(--coral-500); color: #111; }
+.theme-rwc .promo-banner .btn:hover { background: #FF8F6E; }
+
+/* ── FAQs ──────────────────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .faq-list, .theme-rwc .faq-item { border-color: var(--line); }
+.theme-rwc .faq-question { font-family: var(--serif); font-weight: 600; font-size: 1rem; padding: 1.25rem .125rem; color: var(--ink); }
+.theme-rwc .faq-answer { font-size: .9rem; color: var(--ink-soft); line-height: 1.6; max-width: 45rem; }
+
+/* ── Feel new in Sydney ────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .randomiser-card { border-color: var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); }
+.theme-rwc .randomiser-cover { background: linear-gradient(150deg, var(--teal-800), var(--teal-900)); }
+.theme-rwc .randomiser-cover-title { font-family: var(--serif); font-weight: 500; }
+.theme-rwc .randomiser-heading { font-family: var(--serif); font-weight: 600; }
+.theme-rwc .randomiser-label { color: var(--ink-faint); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+.theme-rwc .randomiser-body a { color: var(--teal-700); }
+
+/* ── Newsletter ────────────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .newsletter-banner { width: min(76rem, calc(100% - 2rem)); margin: 0 auto 4.5rem; border-radius: var(--radius-l); background: linear-gradient(120deg, var(--teal-100), var(--sand-100)); padding: 3rem 0; }
+.theme-rwc .newsletter-banner .ph-img { display: none; }
+.theme-rwc .newsletter-banner h2 { font-family: var(--serif); font-weight: 500; font-size: 1.75rem; color: var(--ink); }
+.theme-rwc .newsletter-banner p { color: var(--ink-soft); }
+.theme-rwc .newsletter-banner .btn { background: var(--coral-500); border-color: var(--coral-500); color: #111; }
+
+/* ── Footer ────────────────────────────────────────────────────────────────────────────────────────────────── */
+.theme-rwc .site-footer { background: var(--teal-900); border-top: 0; color: rgba(255,255,255,.72); padding-top: 3rem; }
+.theme-rwc .footer-social span { background: rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.theme-rwc .footer-acknowledgement { color: rgba(255,255,255,.6); border-bottom-color: rgba(255,255,255,.14); }
+.theme-rwc .footer-col h4 { color: #fff; }
+.theme-rwc .footer-col a { color: rgba(255,255,255,.7); }
+.theme-rwc .footer-col a:hover { color: #fff; }
+.theme-rwc .footer-bottom { border-top-color: rgba(255,255,255,.14); color: rgba(255,255,255,.6); }
+.theme-rwc .footer-logo-box { background: rgba(255,255,255,.12); }
+
+/* ── Phones ────────────────────────────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 48rem) {
+  .theme-rwc .hero-headline { font-size: 2.375rem; }
+  .theme-rwc .section { padding: 3rem 0; }
+  .theme-rwc .section-title { font-size: 1.75rem; }
+  .theme-rwc .loc-tile-body { padding: 1.25rem; }
+  .theme-rwc .promo-banner { padding: 2rem 1.5rem; }
+  .theme-rwc #rwc-live { padding: 1rem 1.125rem; }
+  .theme-rwc .hero-countdown { width: 100%; }
+  .theme-rwc .hero-countdown-units { gap: .5rem; }
+  .theme-rwc .hero-countdown-cell { flex: 1; min-width: 0; padding: .75rem .25rem; }
+  .theme-rwc .hero-countdown-num { font-size: 1.5rem; }
+}
+
+/* Match cards stack when their area is narrow (same container query as shared.css): date and time on one line above
+   the match */
+@container (max-width: 40rem) {
+  .theme-rwc .pl-match { grid-template-columns: minmax(0, 1fr); gap: .625rem; padding: 1.125rem 1.25rem; }
+  .theme-rwc .pl-match-time { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: .25rem .625rem; text-align: left; border-bottom: 1px solid var(--line); padding-bottom: .625rem; }
+  .theme-rwc .pl-match-time .pl-lg { font-size: 1.25rem; }
+}
