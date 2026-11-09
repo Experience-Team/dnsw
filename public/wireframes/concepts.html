@@ -26,15 +26,26 @@
   </nav>
 </div>
 
-<!-- Concept: M1 - Itinerary list view (Figma node 42:41). One 390 x 844 phone screen.
-     Placeholder content comes from the Figma frame. Timeline, close, reorder and Save and share are
-     not wired yet: only the List state is designed. -->
+<!-- Concept: itinerary list and Save and share, five Figma screens in one 390 x 844 phone window:
+     M1 Itinerary list view (42:41), M2 Save and share sheet (42:98), M3 Format copied (43:40),
+     M4 Email sent (43:141), M5 Open in maps (43:242). The sheet, toast and states are drawn once and
+     switched by data-screen on .cn-phone. Linked as in the Figma file: Save and share opens M2,
+     Spreadsheet goes to M3, Send itinerary to M4, Open in maps to M5, back and close return.
+     Placeholder content comes from the Figma frames. Timeline, close on the list, reorder, Copy link,
+     AI assistant, Group chat, Calendar, the map buttons and Download a file are not wired. -->
 <section class="cp-section" id="itinerary-list">
   <div class="cp-wrap cn-wrap">
-    <h2>Itinerary list view</h2>
-    <p>The starting screen. A day-by-day list of the places and matches a fan has added, with anything not yet planned underneath. Phone size only.</p>
+    <h2>Itinerary list and Save and share</h2>
+    <p>The starting screen is the itinerary list. Save and share opens a sheet in the same window, and the sheet leads to the format copied, email sent and open in maps screens. Phone size only.</p>
+    <div class="cn-screens" role="group" aria-label="Jump to a screen">
+      <button type="button" class="btn btn-sm btn-dark" data-go="m1" aria-pressed="true">M1 Itinerary list</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m2" aria-pressed="false">M2 Save and share</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m3" aria-pressed="false">M3 Format copied</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m4" aria-pressed="false">M4 Email sent</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m5" aria-pressed="false">M5 Open in maps</button>
+    </div>
     <p class="cp-frame-label">Phone, 390 x 844</p>
-    <div class="cn-phone" role="group" aria-label="Itinerary list view, phone screen">
+    <div class="cn-phone" id="cn-phone" data-screen="m1" role="group" aria-label="Itinerary, phone screen">
       <div class="cn-bar">
         <button type="button" class="cn-close" aria-label="Close">&times;</button>
         <h3 class="cn-bar-title">Your itinerary</h3>
@@ -66,11 +77,119 @@
       </div>
       <div class="cn-foot">
         <p class="cn-status">Saved on this device only</p>
-        <button type="button" class="cn-save">Save and share</button>
+        <button type="button" class="cn-save" id="cn-open-share">Save and share</button>
+      </div>
+
+      <div class="cn-backdrop" data-close></div>
+      <div class="cn-sheet" id="cn-sheet" role="dialog" aria-modal="true" aria-labelledby="cn-sheet-title" tabindex="-1" data-view="form" inert>
+        <span class="cn-grabber" aria-hidden="true"></span>
+        <div class="cn-sheet-head">
+          <button type="button" class="cn-back" aria-label="Back to Save and share" data-back>&lsaquo;</button>
+          <h3 class="cn-sheet-title" id="cn-sheet-title">Save and share</h3>
+          <button type="button" class="cn-close" aria-label="Close" data-close>&times;</button>
+        </div>
+
+        <div class="cn-view" data-for="form">
+          <div class="cn-note" role="status"><span class="cn-note-dot" aria-hidden="true"></span><span data-note>Saved on this device only. Send it to yourself so you do not lose it.</span></div>
+          <h4 class="cn-sub">Send to my email</h4>
+          <label class="visually-hidden" for="cn-email">Email address</label>
+          <input class="cn-field" id="cn-email" type="email" autocomplete="email" placeholder="name@example.com" />
+          <label class="cn-check"><input type="checkbox" id="cn-news" /><span>Also send me travel ideas and news from Destination NSW (optional)</span></label>
+          <p class="cn-legal">We will use your email to send this itinerary. Privacy policy</p>
+          <button type="button" class="cn-pill cn-pill--dark" id="cn-send">Send itinerary</button>
+          <button type="button" class="cn-pill cn-pill--sent" id="cn-sent" tabindex="-1" aria-disabled="true"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Sent. Check your inbox</button>
+          <div class="cn-or"><span class="cn-or-text" aria-hidden="true">or</span><button type="button" class="cn-again" id="cn-again">Send again</button></div>
+          <button type="button" class="cn-pill cn-pill--outline">Copy link</button>
+          <h4 class="cn-sub cn-sub--copy">Copy as</h4>
+          <div class="cn-tiles">
+            <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">AI assistant</span><span class="cn-tile-meta">Copy text</span></span></button>
+            <button type="button" class="cn-tile" id="cn-tile-sheet" data-go="m3"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Spreadsheet</span><span class="cn-tile-meta">Paste into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Plain text</span></span></button>
+            <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Calendar</span><span class="cn-tile-meta">Download .ics</span></span></button>
+            <button type="button" class="cn-tile cn-tile--wide" data-go="m5"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Open in maps</span><span class="cn-tile-meta">Google Maps, Apple Maps, or a file</span></span></button>
+          </div>
+        </div>
+
+        <div class="cn-view" data-for="maps" hidden>
+          <p class="cn-maps-intro">Open a day as a route, stop by stop.</p>
+          <div class="cn-day-card"><h4>Fri 8 Oct &middot; 2 stops</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>
+          <div class="cn-day-card"><h4>Sat 9 Oct &middot; 1 stop</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>
+          <div class="cn-day-card"><h4>Sun 10 Oct &middot; 1 stop</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>
+          <p class="cn-maps-note">For a single stop, tap the map icon on any item in your list.</p>
+          <p class="cn-maps-note">Items in Not yet planned are not included in day routes.</p>
+          <button type="button" class="cn-tile cn-tile--wide cn-tile--file"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Download a file</span><span class="cn-tile-meta">KML or GPX, for Google My Maps and other map apps</span></span></button>
+        </div>
+
+        <p class="cn-toast" id="cn-toast" role="status" hidden>Copied for your spreadsheet. Paste into cells.</p>
       </div>
     </div>
   </div>
 </section>
 
+
+<script>
+(function () {
+  var phone = document.getElementById('cn-phone');
+  var sheet = document.getElementById('cn-sheet');
+  var opener = document.getElementById('cn-open-share');
+  var email = document.getElementById('cn-email');
+  var news = document.getElementById('cn-news');
+  var toast = document.getElementById('cn-toast');
+  var note = sheet.querySelector('[data-note]');
+  var sheetTile = document.getElementById('cn-tile-sheet');
+  var jumps = document.querySelectorAll('[data-go].btn');
+  var behind = phone.querySelectorAll('.cn-bar, .cn-body, .cn-foot');
+  var NOTE_DEFAULT = 'Saved on this device only. Send it to yourself so you do not lose it.';
+  var NOTE_SENT = 'Itinerary sent. It is still saved on this device too.';
+  var screen = 'm1';
+
+  // One function draws every screen: m1 list, m2 sheet, m3 format copied, m4 email sent, m5 open in maps.
+  function show(next, opts) {
+    opts = opts || {};
+    screen = next;
+    var open = next !== 'm1';
+    phone.dataset.screen = next;
+    sheet.inert = !open;
+    for (var i = 0; i < behind.length; i++) behind[i].inert = open;
+    sheet.dataset.view = next === 'm5' ? 'maps' : 'form';
+    sheet.querySelector('[data-for="form"]').hidden = next === 'm5';
+    sheet.querySelector('[data-for="maps"]').hidden = next !== 'm5';
+    document.getElementById('cn-sheet-title').textContent = next === 'm5' ? 'Open in maps' : 'Save and share';
+    sheet.classList.toggle('is-sent', next === 'm4');
+    sheetTile.classList.toggle('is-copied', next === 'm3');
+    sheetTile.setAttribute('aria-pressed', next === 'm3' ? 'true' : 'false');
+    toast.hidden = next !== 'm3';
+    note.textContent = next === 'm4' ? NOTE_SENT : NOTE_DEFAULT;
+    if (next === 'm4' && opts.preset) { if (!email.value) email.value = 'name@example.com'; news.checked = true; }
+    document.getElementById('cn-send').disabled = false;
+    jumps.forEach(function (b) {
+      var on = b.dataset.go === next;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.classList.toggle('btn-dark', on);
+      b.classList.toggle('btn-outline-dark', !on);
+    });
+    if (opts.focus) { if (open) sheet.focus(); else opener.focus(); }
+  }
+
+  opener.addEventListener('click', function () { show('m2', { focus: true }); });
+  document.getElementById('cn-send').addEventListener('click', function () {
+    if (!email.value) email.value = 'name@example.com';
+    show('m4', { focus: false });
+    document.getElementById('cn-again').focus();
+  });
+  document.getElementById('cn-again').addEventListener('click', function () { show('m2', { focus: false }); email.focus(); });
+  phone.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-close],[data-back],[data-go]');
+    if (!t || !phone.contains(t)) return;
+    if (t.hasAttribute('data-close')) show('m1', { focus: true });
+    else if (t.hasAttribute('data-back')) { show('m2', { focus: false }); document.querySelector('[data-go="m5"]:not(.btn)').focus(); }
+    else if (t.dataset.go === 'm3') { show('m3'); sheetTile.focus(); }
+    else if (t.dataset.go === 'm5') { show('m5'); sheet.focus(); }
+  });
+  phone.addEventListener('keydown', function (e) { if (e.key === 'Escape' && screen !== 'm1') show('m1', { focus: true }); });
+  jumps.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.go, { preset: true }); }); });
+  show('m1');
+})();
+</script>
 </body>
 </html>

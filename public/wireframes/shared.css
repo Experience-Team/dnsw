@@ -2869,7 +2869,7 @@ body.cp-page code { font: inherit; }
 /* ── Concepts page (concepts.html) ──
    Component prototypes at phone size only. .cn-phone is one 390 x 844 screen; its body scrolls,
    the header and footer stay put. Greyscale, built from the Figma "Rugby World Cup" file. */
-.cn-phone { line-height: 1.3; width: 390px; max-width: 100%; height: 844px; display: flex; flex-direction: column; background: #fff; border: 1px solid #ccc; overflow: hidden; color: #1a1a1a; }
+.cn-phone { position: relative; line-height: 1.3; width: 390px; max-width: 100%; height: 844px; display: flex; flex-direction: column; background: #fff; border: 1px solid #ccc; overflow: hidden; color: #1a1a1a; }
 .cn-bar { flex: none; display: flex; align-items: center; gap: 16px; height: 52px; padding: 0 12px; border-bottom: 1px solid #e6e6e6; }
 .cn-close { flex: none; width: 36px; height: 36px; display: inline-grid; place-items: center; border: 1.5px solid #1a1a1a; border-radius: 50%; background: #fff; color: #1a1a1a; font: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
 .cn-bar-title { font-size: .875rem; font-weight: 600; }
@@ -2899,4 +2899,71 @@ body.cp-page code { font: inherit; }
 @media (max-width: 30rem) {
   .cp-wrap.cn-wrap { padding: 0; }
   .cn-phone { border-left: 0; border-right: 0; }
+}
+
+/* Concepts: Save and share sheet (M2 to M5). A bottom sheet inside .cn-phone; state comes from
+   .is-sent (M4), .is-copied on the Spreadsheet tile (M3) and data-view="maps" (M5). */
+.cn-screens { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
+.cn-backdrop { position: absolute; inset: 0; background: rgba(31,31,31,.45); opacity: 0; pointer-events: none; transition: opacity .2s; }
+.cn-phone:not([data-screen="m1"]) .cn-backdrop { opacity: 1; pointer-events: auto; }
+.cn-sheet { position: absolute; left: 0; right: 0; bottom: 0; height: 748px; max-height: calc(100% - 96px); display: flex; flex-direction: column; background: #fff; border-radius: 16px 16px 0 0; overflow-y: auto; padding: 22px 16px 24px; transform: translateY(100%); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; }
+.cn-phone:not([data-screen="m1"]) .cn-sheet { transform: none; visibility: visible; transition: transform .25s ease; }
+.cn-sheet:focus { outline: none; }
+.cn-sheet:focus-visible { outline: 2px solid #005EA2; outline-offset: -2px; }
+.cn-grabber { position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #ccc; }
+.cn-sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; height: 36px; }
+.cn-sheet-title { flex: 1; font-size: 1.125rem; font-weight: 600; }
+.cn-back { display: none; flex: none; width: 32px; height: 36px; padding: 0 0 4px; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: 28px; line-height: 1; text-align: left; cursor: pointer; }
+.cn-sheet[data-view="maps"] .cn-back { display: block; }
+.cn-back:focus-visible, .cn-field:focus-visible, .cn-pill:focus-visible, .cn-tile:focus-visible, .cn-again:focus-visible, .cn-check input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.cn-view { flex: none; display: flex; flex-direction: column; }
+.cn-view[hidden] { display: none; }
+.cn-note { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; min-height: 60px; padding: 12px; border-radius: 8px; background: #f5f5f5; font-size: .75rem; color: #737373; }
+.cn-note-dot { flex: none; width: 16px; height: 16px; margin-top: 10px; border-radius: 50%; background: #b3b3b3; }
+.cn-sheet.is-sent .cn-note-dot { background: #2666d9; margin-top: 10px; }
+.cn-sub { margin-top: 16px; font-size: .875rem; font-weight: 600; }
+.cn-field { width: 100%; height: 48px; margin-top: 8px; padding: 0 14px; border: 1px solid #a6a6a6; border-radius: 8px; background: #fff; color: #1a1a1a; font: inherit; font-size: .875rem; }
+.cn-field::placeholder { color: #999; }
+.cn-check { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; font-size: .75rem; color: #1a1a1a; cursor: pointer; }
+.cn-check input { flex: none; appearance: none; -webkit-appearance: none; width: 20px; height: 20px; margin: 0; border: 1.5px solid #1a1a1a; border-radius: 4px; background: #fff; cursor: pointer; display: grid; place-items: center; }
+.cn-check input:checked { background: #1f1f1f; }
+.cn-check input:checked::after { content: ""; width: 10px; height: 5px; margin-top: -2px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
+.cn-check span { padding-top: 1px; }
+.cn-legal { margin-top: 14px; font-size: .6875rem; color: #737373; }
+.cn-pill { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 48px; border-radius: 24px; border: 1.5px solid #1f1f1f; font: inherit; font-size: .9375rem; font-weight: 600; cursor: pointer; }
+.cn-pill--dark { margin-top: 16px; background: #1f1f1f; color: #fff; }
+.cn-pill--outline { background: #fff; color: #1a1a1a; }
+.cn-pill--sm { height: 38px; font-size: .8125rem; }
+.cn-pill--sent { display: none; margin-top: 16px; background: #fff; color: #1a1a1a; cursor: default; }
+.cn-pill--sent svg { color: #2666d9; }
+.cn-sheet.is-sent .cn-pill--sent { display: flex; }
+.cn-sheet.is-sent #cn-send { display: none; }
+.cn-or { position: relative; flex: none; height: 44px; }
+.cn-or-text { position: absolute; left: 0; right: 0; top: 22px; text-align: center; font-size: .75rem; color: #737373; }
+.cn-again { display: none; position: absolute; left: 50%; top: 8px; transform: translateX(-50%); padding: 0; border: 0; background: none; color: #2666d9; font: inherit; font-size: .75rem; font-weight: 600; text-decoration: underline; cursor: pointer; white-space: nowrap; }
+.cn-sheet.is-sent .cn-again { display: block; }
+.cn-sheet.is-sent .cn-or-text { display: none; }
+.cn-sub--copy { margin-bottom: 10px; }
+.cn-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+.cn-tile { position: relative; display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 0 12px; border: 1px solid #d1d1d1; border-radius: 8px; background: #fff; color: #1a1a1a; font: inherit; text-align: left; cursor: pointer; }
+.cn-tile--wide { grid-column: 1 / -1; min-height: 56px; }
+.cn-tile--file { margin-top: 28px; min-height: 64px; width: 100%; }
+.cn-tile-icon { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #ededed; }
+.cn-tile-text { min-width: 0; }
+.cn-tile-name { display: block; font-size: .8125rem; font-weight: 600; line-height: 1.3; }
+.cn-tile-meta { display: block; margin-top: 4px; font-size: .6875rem; color: #737373; line-height: 1.3; }
+.cn-tile-tick { display: none; position: absolute; top: 10px; right: 14px; color: #2666d9; }
+.cn-tile.is-copied { border-color: #2666d9; box-shadow: inset 0 0 0 1px #2666d9; }
+.cn-tile.is-copied .cn-tile-tick { display: block; }
+.cn-toast { position: absolute; left: 16px; right: 16px; bottom: 20px; display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; background: #1f1f1f; color: #fff; font-size: .8125rem; }
+.cn-toast[hidden] { display: none; }
+.cn-maps-intro { margin-top: 14px; font-size: .75rem; color: #737373; }
+.cn-day-card { margin-top: 12px; padding: 12px; border: 1px solid #d1d1d1; border-radius: 8px; }
+.cn-maps-intro + .cn-day-card { margin-top: 0; }
+.cn-day-card h4 { margin-bottom: 9px; font-size: .8125rem; font-weight: 600; line-height: 1.3; }
+.cn-day-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cn-maps-note { margin-top: 18px; font-size: .75rem; color: #737373; }
+.cn-day-card + .cn-maps-note { margin-top: 18px; }
+@media (prefers-reduced-motion: reduce) {
+  .cn-backdrop, .cn-sheet, .cn-phone:not([data-screen="m1"]) .cn-sheet { transition: none; }
 }
