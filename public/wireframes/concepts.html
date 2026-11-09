@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Concepts</title>
+<link rel="stylesheet" href="shared.css" />
+</head>
+<body class="cp-page">
+
+<header class="cp-header">
+  <div class="cp-wrap">
+    <a href="index.html" class="pl-sm">All wireframes</a>
+    <h1>Concepts</h1>
+    <p>Prototypes of individual components, shown at phone size only. Each one is built from the Rugby World Cup Figma file and kept away from the live pages.</p>
+    <nav aria-label="Related">
+      <a href="experiments.html">Experiments</a>
+      <a href="components-library.html">Component library</a>
+    </nav>
+  </div>
+</header>
+
+<div class="cp-wrap">
+  <nav class="cp-toc" aria-label="Concepts">
+    <a href="#itinerary-list">Itinerary list view</a>
+  </nav>
+</div>
+
+<!-- Concept: M1 - Itinerary list view (Figma node 42:41). One 390 x 844 phone screen.
+     Placeholder content comes from the Figma frame. Timeline, close, reorder and Save and share are
+     not wired yet: only the List state is designed. -->
+<section class="cp-section" id="itinerary-list">
+  <div class="cp-wrap cn-wrap">
+    <h2>Itinerary list view</h2>
+    <p>The starting screen. A day-by-day list of the places and matches a fan has added, with anything not yet planned underneath. Phone size only.</p>
+    <p class="cp-frame-label">Phone, 390 x 844</p>
+    <div class="cn-phone" role="group" aria-label="Itinerary list view, phone screen">
+      <div class="cn-bar">
+        <button type="button" class="cn-close" aria-label="Close">&times;</button>
+        <h3 class="cn-bar-title">Your itinerary</h3>
+      </div>
+      <div class="cn-body">
+        <div class="cn-seg" role="group" aria-label="View">
+          <button type="button" aria-pressed="false" aria-disabled="true">Timeline</button>
+          <button type="button" aria-pressed="true">List</button>
+        </div>
+        <p class="cn-meta">26 Sep to 11 Oct · 5 items</p>
+          <h3 class="cn-day">Fri 8 Oct</h3>
+          <ul class="cn-items">
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+          </ul>
+          <h3 class="cn-day">Sat 9 Oct</h3>
+          <ul class="cn-items">
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+          </ul>
+          <h3 class="cn-day">Sun 10 Oct</h3>
+          <ul class="cn-items">
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+          </ul>
+          <h3 class="cn-day">Not yet planned</h3>
+          <p class="cn-hint">Drag onto a day, or leave them here.</p>
+          <ul class="cn-items">
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+          </ul>
+      </div>
+      <div class="cn-foot">
+        <p class="cn-status">Saved on this device only</p>
+        <button type="button" class="cn-save">Save and share</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
