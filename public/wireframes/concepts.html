@@ -102,12 +102,13 @@
           <button type="button" class="cn-pill cn-pill--outline">Copy link</button>
           <h4 class="cn-sub cn-sub--copy">Copy as</h4>
           <div class="cn-tiles">
-            <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">AI assistant</span><span class="cn-tile-meta">Copy text</span></span></button>
+            <button type="button" class="cn-tile" id="cn-tile-ai"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">AI assistant</span><span class="cn-tile-meta">Copy text</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile" id="cn-tile-sheet" data-go="m3"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Spreadsheet</span><span class="cn-tile-meta">Paste into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Plain text</span></span></button>
             <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Calendar</span><span class="cn-tile-meta">Download .ics</span></span></button>
             <button type="button" class="cn-tile cn-tile--wide" data-go="m5"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Open in maps</span><span class="cn-tile-meta">Google Maps, Apple Maps, or a file</span></span></button>
           </div>
+          <details class="cn-peek" id="cn-peek"><summary>Preview what you&rsquo;ll copy</summary><pre class="cn-preview" id="cn-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre></details>
         </div>
 
         <div class="cn-view" data-for="maps" hidden>
@@ -137,6 +138,9 @@
   var toast = document.getElementById('cn-toast');
   var note = sheet.querySelector('[data-note]');
   var sheetTile = document.getElementById('cn-tile-sheet');
+  var aiTile = document.getElementById('cn-tile-ai');
+  var peek = document.getElementById('cn-peek');
+  var preview = document.getElementById('cn-preview');
   var jumps = document.querySelectorAll('[data-go].btn');
   var behind = phone.querySelectorAll('.cn-bar, .cn-body, .cn-foot');
   var NOTE_DEFAULT = 'Saved on this device only. Send it to yourself so you do not lose it.';
@@ -156,9 +160,14 @@
     sheet.querySelector('[data-for="maps"]').hidden = next !== 'm5';
     document.getElementById('cn-sheet-title').textContent = next === 'm5' ? 'Open in maps' : 'Save and share';
     sheet.classList.toggle('is-sent', next === 'm4');
-    sheetTile.classList.toggle('is-copied', next === 'm3');
-    sheetTile.setAttribute('aria-pressed', next === 'm3' ? 'true' : 'false');
+    var which = opts.tile || sheetTile; // M3 is the Spreadsheet tile as designed; the AI assistant tile reuses the same state
+    [sheetTile, aiTile].forEach(function (tl) {
+      var on = next === 'm3' && tl === which;
+      tl.classList.toggle('is-copied', on);
+      tl.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
     toast.hidden = next !== 'm3';
+    if (next === 'm3') toast.textContent = which === aiTile ? opts.message : 'Copied for your spreadsheet. Paste into cells.';
     note.textContent = next === 'm4' ? NOTE_SENT : NOTE_DEFAULT;
     if (next === 'm4' && opts.preset) { if (!email.value) email.value = 'name@example.com'; news.checked = true; }
     document.getElementById('cn-send').disabled = false;
@@ -170,6 +179,159 @@
     });
     if (opts.focus) { if (open) sheet.focus(); else opener.focus(); }
   }
+
+
+  /* ---- AI assistant tile: copy the itinerary as a prompt ----
+     Built in the browser from the list on screen M1. Nothing is sent anywhere. The same template as the RWC page's
+     "Copy for your AI assistant" (pages/rugby-world-cup.html). */
+  // Placeholder trip setup, prototype only (not in the data contract). Change from the console, e.g. cnTripSetup.car = true.
+  window.cnTripSetup = window.cnTripSetup || { team: 'Australia', group: '2 adults, 1 child', car: false, budget: 'Mid-range', arrive: 'Sun 26 Sep', leave: 'Mon 11 Oct' };
+  // Made-up placeholder details for the list's items (not on the list yet): type, suburb, coordinates, opening hours, typical cost
+  var FIX = {
+    'Centennial Parklands': { type: 'Attraction', area: 'Centennial Park', geo: [-33.8980, 151.2340], hours: 'Daily, sunrise to sunset', cost: 'Free' },
+    'Fan zone': { type: 'Event', area: 'Darling Harbour', geo: [-33.8760, 151.2010], cost: 'Free entry' },
+    'New Zealand v Australia': { type: 'Match', area: 'Sydney Olympic Park', geo: [-33.8471, 151.0634], cost: '$85 to $320 per ticket' },
+    'Patonga Beach': { type: 'Attraction', area: 'Patonga', geo: [-33.5486, 151.2762], hours: 'Open all day', cost: 'Free' },
+    'Newcastle Ocean Baths': { type: 'Attraction', area: 'Newcastle East', geo: [-32.9290, 151.7880], hours: 'Daily, 6:00 to 20:00', cost: 'Free' }
+  };
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var MONTH = { Sep: 'September', Oct: 'October', Nov: 'November' };
+  var WDAY = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' };
+  var ASSISTANTS = ['ChatGPT', 'Claude', 'Copilot', 'Gemini'].sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; }); // alphabetical: no brand first
+  var MAX = 8000, FAN_ZONE = 'Tumbalong Park, Darling Harbour';
+  function longDate(d) { var p = d.split(' '); return WDAY[p[0]] + ' ' + p[1] + ' ' + (MONTH[p[2]] || p[2]); }
+  function ord(d) { var p = d.split(' '); return Date.UTC(2027, MON.indexOf(p[2]), +p[1]); }
+  function mins(t) { var m = /(\d{1,2}):(\d{2})\s*([ap])m/i.exec(t || ''); return m ? ((+m[1] % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0)) * 60 + +m[2] : null; }
+  function ll(g) { return g[0].toFixed(4) + ',' + g[1].toFixed(4); }
+  // One Google Maps directions link per 11 stops (origin, up to 9 waypoints, destination); a longer day gets more links
+  function mapLinks(points) {
+    var mode = window.cnTripSetup.car ? 'driving' : 'transit', out = [], base = 'https://www.google.com/maps/dir/?api=1';
+    if (points.length === 1) return [base + '&destination=' + ll(points[0]) + '&travelmode=' + mode];
+    for (var i = 0; i < points.length - 1; i += 10) {
+      var seg = points.slice(i, i + 11), mid = seg.slice(1, -1).map(ll).join('|');
+      out.push(base + '&origin=' + ll(seg[0]) + '&destination=' + ll(seg[seg.length - 1]) + (mid ? '&waypoints=' + mid : '') + '&travelmode=' + mode);
+    }
+    return out;
+  }
+  // The list on screen M1: days with their items, then "Not yet planned"
+  function readList() {
+    var days = [], unplaced = [];
+    phone.querySelectorAll('.cn-body .cn-day').forEach(function (h) {
+      var label = h.textContent.trim(), ul = h.nextElementSibling;
+      while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
+      var rows = Array.prototype.map.call(ul ? ul.querySelectorAll('.cn-item') : [], function (li, i) {
+        var meta = li.querySelector('.cn-item-meta').textContent.trim(), name = li.querySelector('.cn-item-name').textContent.trim();
+        return { name: name, meta: meta, time: mins(meta), i: i, fix: FIX[name] || {} };
+      });
+      if (/^[A-Z][a-z]{2} \d+ [A-Z][a-z]{2}$/.test(label)) days.push({ label: label, rows: rows }); else unplaced = unplaced.concat(rows);
+    });
+    return { days: days, unplaced: unplaced };
+  }
+  // level 0: everything. 1: no when / hours / cost lines. 2: no Good to know. 3: no addresses. keep: how many places to include
+  function buildPrompt(level, keep) {
+    var list = readList(), trip = window.cnTripSetup, out = [], left = keep, total = 0, shown = 0;
+    list.days.forEach(function (d) { total += d.rows.length; });
+    total += list.unplaced.length;
+    function take(rows) { var r = rows.slice(0, Math.max(0, left)); left -= r.length; shown += r.length; return r; }
+    out.push("Hi! I'm a Rugby World Cup 2027 fan visiting New South Wales, Australia. Please turn what I've saved below into a practical trip plan.", '');
+    out.push('ABOUT MY TRIP', '- Supporting: ' + (trip.team || 'Not chosen yet'), '- Travelling: ' + trip.group);
+    out.push('- Getting around: ' + (trip.car ? 'I have a car' : 'No car (public transport and walking)'), '- Budget: ' + trip.budget);
+    out.push('- In NSW from ' + longDate(trip.arrive) + ' to ' + longDate(trip.leave), '');
+    out.push('MY MATCHES');
+    var matches = [];
+    list.days.forEach(function (d) { d.rows.forEach(function (r) { if (/ v /.test(r.name)) matches.push({ day: d.label, r: r }); }); });
+    if (matches.length) {
+      matches.forEach(function (m) {
+        var t = m.r.name.split(' v '), parts = m.r.meta.split('·').map(function (x) { return x.trim(); });
+        out.push('- ' + t[0] + ' v ' + t[1] + ', ' + longDate(m.day) + ', ' + (m.r.time !== null ? 'kick-off ' + parts[1] + ' AEDT' : 'kick-off time to be confirmed') + ', ' + parts[0] + ', ' + (m.r.fix.geo && m.r.fix.geo[0] > -34 && m.r.fix.geo[1] > 151.5 ? 'Newcastle' : 'Sydney'));
+      });
+    } else {
+      out.push('No match selected yet. Please ask me which match I am going to before you plan around kick-off.');
+    }
+    out.push('');
+    function lines(r, when) {
+      var f = r.fix, l = ['- ' + r.name + ' (' + (f.type || 'Place') + ')' + (f.area ? ', ' + f.area : '')];
+      if (level < 1 && when && r.time !== null) l.push('  When it fits: ' + r.meta.split('·').pop().trim());
+      var where = [f.area && level < 3 ? 'Address: Street name, ' + f.area + ' NSW' : '', f.geo ? 'Coordinates: ' + ll(f.geo).replace(',', ', ') : ''].filter(Boolean);
+      if (where.length) l.push('  ' + where.join(' | '));
+      if (level < 1 && f.hours) l.push('  Opening hours: ' + f.hours);
+      if (level < 1 && f.cost) l.push('  Typical cost: ' + f.cost);
+      return l;
+    }
+    out.push("PLACES I'VE SAVED");
+    list.days.slice().sort(function (a, b) { return ord(a.label) - ord(b.label); }).forEach(function (d) {
+      var rows = take(d.rows.slice().sort(function (a, b) { return (a.time === null ? -1 : a.time) - (b.time === null ? -1 : b.time) || a.i - b.i; }));
+      if (!rows.length) return;
+      out.push(longDate(d.label) + (matches.some(function (m) { return m.day === d.label; }) ? ' (match day)' : ''));
+      var pts = [];
+      rows.forEach(function (r) { lines(r, true).forEach(function (x) { out.push(x); }); if (r.fix.geo) pts.push(r.fix.geo); });
+      var links = pts.length ? mapLinks(pts) : [];
+      links.forEach(function (u, n) { out.push('Map for this day' + (links.length > 1 ? ' (' + (n + 1) + ' of ' + links.length + ')' : '') + ': ' + u); });
+    });
+    var rest = take(list.unplaced);
+    if (rest.length) { out.push('Not yet placed'); rest.forEach(function (r) { lines(r, false).forEach(function (x) { out.push(x); }); }); }
+    if (shown < total) out.push((total - shown) + ' more saved places are left out to keep this short.');
+    out.push('');
+    if (level < 2) {
+      out.push('GOOD TO KNOW', '- Public transport in Sydney uses Opal or contactless cards. Trip planning: https://transportnsw.info', '- The Rugby World Cup fan zone is at ' + FAN_ZONE + '.', '');
+    }
+    var today = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Australia/Sydney' });
+    out.push('Source: place details from sydney.com and visitnsw.com (Destination NSW). Verified on ' + today + '. Times and prices can change, so check before you go.', '');
+    out.push("WHAT I'D LIKE FROM YOU");
+    out.push('1. A day-by-day plan built around my matches. On match days, get me to the stadium 60 to 90 minutes before kick-off, and allow for crowds afterwards.');
+    out.push("2. Use my saved places as the core of the plan. Put places that are close to each other on the same day, and check each one against its opening hours. If something doesn't fit, say so and suggest where else it could go.");
+    out.push("3. For each stop, give the time, the place, how to get there from the previous stop, an estimated travel time, and the link exactly as I've given it.");
+    out.push("4. A map: if you can make an interactive map or a map image, plot each day's stops with pins. If you can't, list the daily map links above and the coordinates so I can open them myself.");
+    out.push('5. Logistics: transport between stops, what to book ahead, anything to bring, and accessibility notes if relevant.');
+    out.push("6. A rough budget using the cost ranges I've given. Don't invent prices that aren't listed; say \"check price\" instead.");
+    out.push("7. You can suggest up to three extra ideas if there are gaps, but label them clearly as your suggestions, not from my list, and tell me to check them.", '');
+    out.push("Keep it practical and easy to read on a phone: a short summary first, then a table or list for each day. If something important is missing, make a sensible assumption and tell me what you assumed, rather than asking lots of questions. Reply in English unless I ask otherwise.");
+    return out.join('\n');
+  }
+  // Under 8,000 characters: drop the place details, then Good to know, then addresses, then the last places
+  function buildAiText() {
+    var n = phone.querySelectorAll('.cn-body .cn-item').length, text = buildPrompt(0, n), level, keep;
+    for (level = 1; text.length > MAX && level <= 3; level++) text = buildPrompt(level, n);
+    for (keep = n - 1; text.length > MAX && keep > 0; keep--) text = buildPrompt(3, keep);
+    return text;
+  }
+  window.cnBuildAiText = buildAiText;
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea'), ok = false;
+    ta.value = text; ta.setAttribute('readonly', ''); ta.setAttribute('aria-hidden', 'true');
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+  function writeClipboard(text) {
+    try { if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) return navigator.clipboard.writeText(text); } catch (e) {}
+    return Promise.reject(new Error('Clipboard not available'));
+  }
+  function copyForAi() {
+    var text = buildAiText();
+    preview.textContent = text;
+    function done() {
+      var ev = { event: 'copy_for_ai', saved_count: phone.querySelectorAll('.cn-body .cn-item').length, has_match: /\nMY MATCHES\n- /.test(text) };
+      (window.dataLayer = window.dataLayer || []).push(ev);
+      console.log('dataLayer', ev);
+      show('m3', { tile: aiTile, message: 'Copied. Paste it into ' + ASSISTANTS.join(', ') + ' or any AI assistant.' });
+      aiTile.focus();
+    }
+    writeClipboard(text).then(done, function () {
+      if (legacyCopy(text)) { aiTile.focus(); done(); return; }
+      // Neither worked: open the preview, select the text and say how to copy it
+      show('m3', { tile: aiTile, message: 'Press Ctrl+C or Cmd+C to copy' });
+      peek.open = true;
+      preview.textContent = text;
+      preview.focus();
+      var range = document.createRange(), sel = window.getSelection();
+      range.selectNodeContents(preview); sel.removeAllRanges(); sel.addRange(range);
+    });
+  }
+  aiTile.addEventListener('click', copyForAi);
+  peek.addEventListener('toggle', function () { var t = buildAiText(); if (peek.open && preview.textContent !== t) preview.textContent = t; }); // not when unchanged: it would clear a selection
 
   opener.addEventListener('click', function () { show('m2', { focus: true }); });
   document.getElementById('cn-send').addEventListener('click', function () {
