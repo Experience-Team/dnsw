@@ -2967,3 +2967,6 @@ body.cp-page code { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .cn-backdrop, .cn-sheet, .cn-phone:not([data-screen="m1"]) .cn-sheet { transition: none; }
 }
+.rwc-th-peek { margin-top: .25rem; }
+.rwc-th-peek .rwc-th-preview { margin-top: .5rem; }
+.rwc-th-action .btn:disabled { opacity: .5; cursor: not-allowed; }
