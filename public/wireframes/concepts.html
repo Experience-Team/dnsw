@@ -44,7 +44,11 @@
       <button type="button" class="btn btn-sm btn-outline-dark" data-go="m4" aria-pressed="false">M4 Email sent</button>
       <button type="button" class="btn btn-sm btn-outline-dark" data-go="m5" aria-pressed="false">M5 Open in maps</button>
     </div>
-    <p class="cp-frame-label">Phone, 390 x 844</p>
+    <div class="cn-tools">
+      <button type="button" class="cn-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+      <span class="cp-frame-label">Phone, 390 x 844</span>
+    </div>
+    <div class="cn-stage" id="cn-stage">
     <div class="cn-phone" id="cn-phone" data-screen="m1" role="group" aria-label="Itinerary, phone screen">
       <div class="cn-bar">
         <button type="button" class="cn-close" aria-label="Close">&times;</button>
@@ -125,6 +129,12 @@
         <p class="cn-toast" id="cn-toast" role="status" hidden>Copied for your spreadsheet. Paste into cells.</p>
       </div>
     </div>
+    <aside class="cn-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
+      <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
+      <ol class="cn-notes-list" id="cn-notes-list"></ol>
+      <p class="cn-notes-todo" id="cn-notes-todo"></p>
+    </aside>
+    </div>
   </div>
 </section>
 
@@ -178,6 +188,7 @@
       b.classList.toggle('btn-dark', on);
       b.classList.toggle('btn-outline-dark', !on);
     });
+    if (typeof renderNotes === 'function') renderNotes();
     if (opts.focus) { if (open) sheet.focus({ preventScroll: true }); else opener.focus(); }
   }
 
@@ -365,6 +376,79 @@
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
   jumps.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.go, { preset: true }); }); });
+
+  /* ---- Annotation layer ----
+     Switch it on to see a numbered badge on each part of the screen with complex behaviour, and the matching numbered
+     list on the right. Not every interactive thing: standard controls (checkbox, close, toggles) are left out.
+     Edit the NOTES table to change the copy. Badges are added to the target elements, so they move with them. */
+  var NAMES = { m1: 'M1 Itinerary list view', m2: 'M2 Save and share sheet', m3: 'M3 Format copied', m4: 'M4 Email sent', m5: 'M5 Open in maps' };
+  var NOTES = {
+    m1: { items: [
+      { sel: '#cn-open-share', title: 'Save and share', text: 'Opens the Save and share sheet (M2). Inspect the slide up, the list behind the sheet going inert, focus moving into the sheet and returning here when it closes.' }
+    ], todo: 'Not wired: Timeline, close, reorder handles.' },
+    m2: { items: [
+      { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
+      { sel: '#cn-send', title: 'Send itinerary', text: 'Checks the email address. A typed address that does not look right shows an inline error; an empty field is filled with an example so you can click through. A good address goes to Email sent (M4).' },
+      { sel: '#cn-tile-ai', title: 'Copy for your AI assistant', text: 'Builds a prompt from this itinerary (trip details, match, places by day, one Google Maps link per day, under 8,000 characters), copies it and shows Format copied (M3). Inspect the pasted text, and window.dataLayer for the copy_for_ai event.' },
+      { sel: '#cn-tile-sheet', title: 'Spreadsheet', text: 'Shows the Format copied state (M3): selected tile with a tick and a confirmation. Nothing is copied yet.' },
+      { sel: '.cn-tile--wide[data-go="m5"]', title: 'Open in maps', text: 'Swaps the sheet to Open in maps (M5). The back arrow there returns here.' },
+      { sel: '#cn-peek summary', title: 'Preview what you will copy', text: 'Opens a read-only, scrollable preview of the exact text the AI assistant tile copies. Inspect that it matches what lands on the clipboard.' }
+    ], todo: 'Not wired: Copy link, Group chat, Calendar.' },
+    m3: { items: [
+      { sel: '.cn-tile.is-copied', title: 'Copied state', text: 'Blue border and tick on the tile you used. The AI assistant tile also copies the prompt; Spreadsheet only shows this state.' },
+      { sel: '#cn-toast', at: 'tl', title: 'Confirmation', text: 'Announced to screen readers. If the clipboard is blocked it asks you to press Ctrl+C or Cmd+C and selects the preview text instead.' }
+    ], todo: 'Try the AI assistant tile for the real copy.' },
+    m4: { items: [
+      { sel: '.cn-pill--sent', title: 'Sent state', text: 'The status line above turns blue and the button reads Sent. Check your inbox. The email and the news tick are kept.' },
+      { sel: '#cn-again', title: 'Send again', text: 'Returns to the form (M2) with the email kept, ready to send again.' }
+    ], todo: 'Not wired: Copy link, the format tiles other than Open in maps.' },
+    m5: { items: [
+      { sel: '.cn-back', at: 'tl', title: 'Back', text: 'Returns to Save and share (M2).' },
+      { sel: '.cn-day-card', title: 'Day routes', text: 'One card per day, each with a Google Maps and an Apple Maps route. Inspect the stop counts and the note that Not yet planned items are left out.' }
+    ], todo: 'Not wired: the Google Maps and Apple Maps buttons, Download a file.' }
+  };
+  var stage = document.getElementById('cn-stage');
+  var notesBox = document.getElementById('cn-notes');
+  var notesList = document.getElementById('cn-notes-list');
+  var notesTitle = document.getElementById('cn-notes-title');
+  var notesTodo = document.getElementById('cn-notes-todo');
+  var notesToggle = document.getElementById('cn-notes-toggle');
+  var notesOn = false;
+  try { notesOn = localStorage.getItem('cn-annotations') === 'on'; } catch (e) {}
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function renderNotes() {
+    phone.querySelectorAll('.cn-badge').forEach(function (b) { b.remove(); });
+    notesToggle.setAttribute('aria-checked', notesOn ? 'true' : 'false');
+    notesBox.hidden = !notesOn;
+    stage.classList.toggle('has-notes', notesOn);
+    if (!notesOn) return;
+    var set = NOTES[screen], n = 0, html = '';
+    notesTitle.textContent = 'Annotations: ' + NAMES[screen];
+    set.items.forEach(function (it) {
+      var el = phone.querySelector(it.sel);
+      if (!el || el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return; // not on screen in this state
+      n++;
+      var b = document.createElement('span');
+      b.className = 'cn-badge' + (it.at ? ' cn-badge--' + it.at : '');
+      b.setAttribute('aria-hidden', 'true');
+      b.dataset.n = n;
+      b.textContent = n;
+      el.appendChild(b);
+      html += '<li data-n="' + n + '"><span class="cn-num" aria-hidden="true">' + n + '</span><span><strong>' + esc(it.title) + '</strong> ' + esc(it.text) + '</span></li>';
+    });
+    notesList.innerHTML = html;
+    notesTodo.textContent = set.todo || '';
+    notesTodo.hidden = !set.todo;
+  }
+  notesToggle.addEventListener('click', function () {
+    notesOn = !notesOn;
+    try { localStorage.setItem('cn-annotations', notesOn ? 'on' : 'off'); } catch (e) {}
+    renderNotes();
+  });
+  // Hovering a note lifts its badge, and the other way round
+  function lift(n, on) { var b = phone.querySelector('.cn-badge[data-n="' + n + '"]'), li = notesList.querySelector('li[data-n="' + n + '"]'); if (b) b.classList.toggle('is-active', on); if (li) li.classList.toggle('is-active', on); }
+  notesList.addEventListener('mouseover', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, true); });
+  notesList.addEventListener('mouseout', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, false); });
   show('m1');
 })();
 </script>
