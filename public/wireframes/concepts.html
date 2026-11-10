@@ -93,7 +93,8 @@
           <div class="cn-note" role="status"><span class="cn-note-dot" aria-hidden="true"></span><span data-note>Saved on this device only. Send it to yourself so you do not lose it.</span></div>
           <h4 class="cn-sub">Send to my email</h4>
           <label class="visually-hidden" for="cn-email">Email address</label>
-          <input class="cn-field" id="cn-email" type="email" autocomplete="email" placeholder="name@example.com" />
+          <input class="cn-field" id="cn-email" type="email" autocomplete="email" placeholder="name@example.com" aria-describedby="cn-email-error" />
+          <p class="cn-error" id="cn-email-error" role="alert" hidden>Enter an email like name@example.com</p>
           <label class="cn-check"><input type="checkbox" id="cn-news" /><span>Also send me travel ideas and news from Destination NSW (optional)</span></label>
           <p class="cn-legal">We will use your email to send this itinerary. Privacy policy</p>
           <button type="button" class="cn-pill cn-pill--dark" id="cn-send">Send itinerary</button>
@@ -334,7 +335,12 @@
   peek.addEventListener('toggle', function () { var t = buildAiText(); if (peek.open && preview.textContent !== t) preview.textContent = t; }); // not when unchanged: it would clear a selection
 
   opener.addEventListener('click', function () { show('m2', { focus: true }); });
+  var emailError = document.getElementById('cn-email-error');
+  function emailOk(v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v); }
+  email.addEventListener('input', function () { email.removeAttribute('aria-invalid'); emailError.hidden = true; });
   document.getElementById('cn-send').addEventListener('click', function () {
+    // An empty field is filled with an example so the prototype can be clicked through; a typed address must look right
+    if (email.value && !emailOk(email.value)) { email.setAttribute('aria-invalid', 'true'); emailError.hidden = false; email.focus(); return; }
     if (!email.value) email.value = 'name@example.com';
     show('m4', { focus: false });
     document.getElementById('cn-again').focus();
@@ -348,7 +354,16 @@
     else if (t.dataset.go === 'm3') { show('m3'); sheetTile.focus(); }
     else if (t.dataset.go === 'm5') { show('m5'); sheet.focus(); }
   });
-  phone.addEventListener('keydown', function (e) { if (e.key === 'Escape' && screen !== 'm1') show('m1', { focus: true }); });
+  phone.addEventListener('keydown', function (e) {
+    if (screen === 'm1') return;
+    if (e.key === 'Escape') { show('m1', { focus: true }); return; }
+    if (e.key !== 'Tab') return;
+    // Keep Tab inside the open sheet (the list behind it is inert)
+    var stops = Array.prototype.filter.call(sheet.querySelectorAll('button, input, summary, pre[tabindex]'), function (el) { var d = el.closest('details'); return !el.disabled && el.offsetParent !== null && (el.tagName === 'SUMMARY' || (el.tabIndex >= 0 && !(d && !d.open))); });
+    var first = stops[0], last = stops[stops.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === sheet)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   jumps.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.go, { preset: true }); }); });
   show('m1');
 })();
