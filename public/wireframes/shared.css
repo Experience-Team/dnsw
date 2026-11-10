@@ -2883,7 +2883,7 @@ body.cp-page code { font: inherit; }
 /* ── Concepts page (concepts.html) ──
    Component prototypes at phone size only. .cn-phone is one 390 x 844 screen; its body scrolls,
    the header and footer stay put. Greyscale, built from the Figma "Rugby World Cup" file. */
-.cn-phone { position: relative; line-height: 1.3; width: 390px; max-width: 100%; height: 844px; display: flex; flex-direction: column; background: #fff; border: 1px solid #ccc; overflow: hidden; color: #1a1a1a; }
+.cn-phone { position: relative; line-height: 1.3; width: 390px; max-width: 100%; height: 844px; display: flex; flex-direction: column; background: #fff; border: 1px solid #ccc; overflow: hidden; overflow: clip; color: #1a1a1a; } /* clip: nothing can scroll the phone, so focus() cannot jump the sheet into view */
 .cn-bar { flex: none; display: flex; align-items: center; gap: var(--space-4); height: 52px; padding: 0 var(--space-3); border-bottom: 1px solid #e6e6e6; }
 .cn-close { flex: none; width: 36px; height: 36px; display: inline-grid; place-items: center; border: 1.5px solid #1a1a1a; border-radius: 50%; background: #fff; color: #1a1a1a; font: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
 .cn-bar-title { font-size: .875rem; font-weight: 600; }
