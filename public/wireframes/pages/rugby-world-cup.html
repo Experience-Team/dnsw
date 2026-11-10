@@ -527,7 +527,7 @@
   <div data-include="../components/footer.html"></div>
 
   <!-- Your 3rd half panel: opens from the Supporting bar button. Slides in from the right (about 480px); below 768px
-       it's a bottom sheet. Shows the added places (with Remove), a read-only preview of buildAiSummary(), the copy and
+       it's a bottom sheet. Shows the added places (with Remove), a read-only preview of buildAiSummary() (behind "Preview what you'll copy"), the copy and
        share buttons (inline confirmation next to each) and Clear list. Opened from a shared link when the visitor
        already has a list, it first asks whether to replace it or add to it. Closes with the close button, Escape or the backdrop; focus
        moves in on open, stays inside while open, and goes back to the bar button on close. -->
@@ -555,10 +555,10 @@
           <div class="rwc-map-frame" data-th-map="panel"></div>
           <p class="loc-map-key"><span class="loc-key-stadium" aria-hidden="true"></span>Stadium <span class="loc-key-fan loc-key-fan--confirmed" aria-hidden="true"></span>Fan zone <span class="loc-key-pin" aria-hidden="true"></span>Your places</p>
         </div>
-        <pre class="rwc-th-preview" id="rwc-th-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre>
         <div class="rwc-th-actions">
           <div class="rwc-th-action"><button type="button" class="btn btn-dark" data-th-action="copy-ai" aria-describedby="rwc-th-ai-help">Copy for your AI assistant</button><span class="rwc-th-status" aria-live="polite"></span></div>
-          <p class="pl-sm" id="rwc-th-ai-help">Paste into ChatGPT, Gemini, Claude or another assistant.</p>
+          <p class="pl-sm" id="rwc-th-ai-help" hidden>Save a few places first, then copy your plan.</p>
+          <details class="rwc-picks-why rwc-th-peek" id="rwc-th-peek"><summary class="pl-sm">Preview what you&rsquo;ll copy</summary><pre class="rwc-th-preview" id="rwc-th-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre></details>
           <div class="rwc-th-action"><button type="button" class="btn btn-outline-dark" data-th-action="copy-list">Copy as a plain list</button><span class="rwc-th-status" aria-live="polite"></span></div>
           <div class="rwc-th-action"><button type="button" class="btn btn-outline-dark" data-th-action="share">Share link</button><span class="rwc-th-status" aria-live="polite"></span></div>
         </div>
@@ -1218,7 +1218,7 @@
       function team() { return window.rwcGetTeam ? window.rwcGetTeam() : null; }
       function items() { return window.thirdHalfList ? window.thirdHalfList.getItems() : []; }
       function dayNum(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + +p[1]; }
-      function longDate(d) { var p = d.split(' '); return DAYS[p[0]] + ' ' + p[1] + (p[2] === 'Nov' ? ' November' : ' October'); }
+      function longDate(d) { var p = d.split(' '); return DAYS[p[0]] + ' ' + p[1] + ' ' + (MONTH[p[2]] || p[2]); }
       function kickoff(f) { return f.kickoff ? f.kickoff + ' AEDT' : 'kick-off time TBC'; }
       // All the team's pool matches by date. interstate: none in NSW. Each match outside NSW has f.away.
       function matches(t) {
@@ -1229,53 +1229,171 @@
       }
       // Teams with some NSW matches: their matches elsewhere are marked; teams with none get one line instead
       function awayNote(m, f, text) { return f.away && !m.interstate ? ' (' + text + ')' : ''; }
-      // "Getting there" from each stadium card, for the stadiums in play (all three when no team is chosen)
-      function transport(list) {
-        var lines = [];
-        Object.keys(STADIUMS).forEach(function (code) {
-          if (list && !list.some(function (f) { return f.venue.indexOf(STADIUMS[code]) === 0; })) return;
-          var tile = document.querySelector('.loc-tile[data-venue="' + code + '"]');
-          var dd = tile && Array.prototype.filter.call(tile.querySelectorAll('.loc-facts dt'), function (dt) { return dt.textContent.trim() === 'Getting there'; })[0];
-          if (dd) lines.push(STADIUMS[code] + ': ' + dd.nextElementSibling.textContent.trim());
-        });
-        return lines;
+      // "Getting there" from a stadium's card (placeholder text on the page), or '' when the card has none
+      function stadiumNote(name) {
+        var code = Object.keys(STADIUMS).filter(function (c) { return STADIUMS[c] === name; })[0];
+        var tile = code && document.querySelector('.loc-tile[data-venue="' + code + '"]');
+        var dd = tile && Array.prototype.filter.call(tile.querySelectorAll('.loc-facts dt'), function (dt) { return dt.textContent.trim() === 'Getting there'; })[0];
+        return dd ? dd.nextElementSibling.textContent.trim().replace(/\s+/g, ' ') : '';
       }
       function cell(x) { return String(x || '').replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim(); }
 
-      window.buildAiSummary = function () {
-        var t = team(), m = matches(t), saved = items(), out = [];
-        out.push('# ' + TITLE + (t ? ': ' + t + ' fan' : ''), '');
-        out.push('Planning help request: build a day-by-day plan around my match times, with realistic travel between places. Show the places on a map if you can.', '');
-        // Assistants tend to scatter questions through a long answer, or ask too many: at most two, up front, one at a time
-        out.push('How to ask me questions: ask me two questions at most before you plan, one at a time, each with a few short options I can pick from, and wait for my answer before asking the next. For anything else, make a sensible assumption, say what it is, and carry on. Don\u2019t put questions inside the plan. Then give me the whole plan in one go. I\u2019ll ask for changes after.', '');
-        out.push('## My details');
-        if (t) {
-          out.push('- Supporting: ' + t);
-          out.push('- Matches:');
+      /* ---- "Copy for your AI assistant": the prompt ----
+         Built in the browser from the saved list, the team the page is showing and the fixtures. Nothing is sent anywhere. */
+      // Placeholder trip setup (group, car, budget). Not in the data contract, prototype only: a real setup would replace it.
+      // Change it from the console to try the other branches, e.g. rwcTripSetup.car = true.
+      window.rwcTripSetup = window.rwcTripSetup || { group: '2 adults, 1 child', car: false, budget: 'Mid-range' };
+      // Made-up placeholder details by place type, for the prompt only: [opening hours, typical cost]. Items do not carry these yet.
+      var FOOD = ['Daily, 11:00 to late', '$20 to $45 per person'], STAY = [null, '$220 to $380 per night'];
+      var DETAIL = { Pub: FOOD, 'Sports bar': FOOD, Bar: FOOD, 'Food and drink': FOOD, Attraction: ['Daily, 9:00 to 17:00', '$0 to $30 per person'],
+        Event: [null, '$30 to $90 per ticket'], Tour: ['Daily, first tour at 9:30', '$60 to $120 per person'], Hotel: STAY, Accommodation: STAY };
+      var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var MONTH = { Sep: 'September', Oct: 'October', Nov: 'November' };
+      var WDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      var ASSISTANTS = ['ChatGPT', 'Claude', 'Copilot', 'Gemini'].sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; });
+      var MAX = 8000;
+      window.rwcAssistantNames = ASSISTANTS.join(', '); // alphabetical, so no brand comes first by default
+      // 'Sat 9 Oct' moved by n days ('Sun 10 Oct'). The tournament is in 2027.
+      function shift(d, n) {
+        var p = d.split(' '), t = new Date(Date.UTC(2027, MON.indexOf(p[2]), +p[1] + n));
+        return WDAY[t.getUTCDay()] + ' ' + t.getUTCDate() + ' ' + MON[t.getUTCMonth()];
+      }
+      function ord(d) { var p = d.split(' '); return Date.UTC(2027, MON.indexOf(p[2]), +p[1]); }
+      function dayLabel(d, matchDay) { return longDate(d) + (matchDay ? ' (match day)' : ''); }
+      function geoOf(area) { var g = window.rwcGeo; return g && g.area[area] ? g.area[area] : null; }
+      function stadiumGeo(name) {
+        var g = window.rwcGeo, s = g && g.stadiums.filter(function (x) { return x.name === name; })[0];
+        return s ? s.geo : null;
+      }
+      // One Google Maps directions link per 11 stops (origin, up to 9 waypoints, destination); a longer day gets more links.
+      function mapLinks(points) {
+        var mode = window.rwcTripSetup.car ? 'driving' : 'transit', out = [];
+        function ll(p) { return p[0].toFixed(4) + ',' + p[1].toFixed(4); }
+        var base = 'https://www.google.com/maps/dir/?api=1';
+        if (points.length === 1) return [base + '&destination=' + ll(points[0]) + '&travelmode=' + mode];
+        for (var i = 0; i < points.length - 1; i += 10) {
+          var seg = points.slice(i, i + 11), mid = seg.slice(1, -1).map(ll).join('|');
+          out.push(base + '&origin=' + ll(seg[0]) + '&destination=' + ll(seg[seg.length - 1]) + (mid ? '&waypoints=' + mid : '') + '&travelmode=' + mode);
+        }
+        return out;
+      }
+      // Which day and part of the day a saved place fits, read from its id. Hotels and anything unknown have no day.
+      function slotOf(it, anchor) {
+        if (!anchor) return null;
+        var d = anchor.f.date;
+        if (/^pick-(sa|sfs|ncl|fz)-before-/.test(it.id)) return { day: d, rank: 1, when: 'Before kick-off' };
+        if (/^venue-/.test(it.id)) return { day: d, rank: 2, when: 'Before or after the match' };
+        if (/^pick-(sa|sfs|ncl|fz)-after-/.test(it.id)) return { day: d, rank: 3, when: 'After the match' };
+        if (/^pick-day-/.test(it.id)) return { day: shift(d, 1), rank: 1, when: 'The day after the match' };
+        if (/^pick-region-/.test(it.id)) return { day: shift(d, 2), rank: 1, when: 'Day trip from the city' };
+        return null;
+      }
+      // level 0: everything. 1: no per-place when / hours / cost lines. 2: also no "Good to know" section.
+      // 3: also no Info links. 4: also no street addresses. keep: how many saved places to include (the rest are mentioned).
+      function buildPrompt(level, keep) {
+        var all = items(), saved = all.slice(0, keep), t = team(), m = matches(t), trip = window.rwcTripSetup, out = [];
+        var first = m.list.filter(function (f) { return !f.away; })[0] || m.list[0];
+        var anchor = first ? { f: first, nsw: !first.away } : null;
+        out.push("Hi! I'm a Rugby World Cup 2027 fan visiting New South Wales, Australia. Please turn what I've saved below into a practical trip plan.", '');
+
+        out.push('ABOUT MY TRIP');
+        out.push('- Supporting: ' + (t || 'Not chosen yet'));
+        out.push('- Travelling: ' + trip.group);
+        out.push('- Getting around: ' + (trip.car ? 'I have a car' : 'No car (public transport and walking)'));
+        out.push('- Budget: ' + trip.budget);
+        out.push(m.list.length ? '- In NSW from ' + longDate(shift(m.list[0].date, -1)) + ' to ' + longDate(shift(m.list[m.list.length - 1].date, 1)) : '- In NSW: dates not chosen yet', '');
+
+        out.push('MY MATCHES');
+        if (m.list.length) {
           m.list.forEach(function (f) {
-            out.push('  - ' + f.teams + ', ' + longDate(f.date) + ', ' + kickoff(f) + ', ' + f.venue + awayNote(m, f, 'interstate: watching in NSW at the fan zone'));
-          });
-          if (m.interstate) out.push('- ' + WATCH);
-        }
-        var getting = m.interstate ? [] : transport(t ? m.list : null);
-        if (getting.length) {
-          out.push('- Getting to the stadium:');
-          getting.forEach(function (l) { out.push('  - ' + l); });
-        }
-        out.push('- Fan zone: ' + FAN_ZONE, '');
-        out.push("## Places I've saved");
-        if (saved.length) {
-          out.push('| Name | Type | Area | Address | Distance to stadium | Link |', '|---|---|---|---|---|---|');
-          saved.forEach(function (it) {
-            out.push('| ' + [it.name, it.type, it.area, it.address, it.distanceToStadium, it.url].map(cell).join(' | ') + ' |');
+            var teams = f.teams.split(' v '), stadium = f.venue.split(',')[0];
+            var city = f.away ? f.city : (/Newcastle/.test(stadium) ? 'Newcastle' : 'Sydney');
+            out.push('- ' + teams[0] + ' v ' + teams[1] + ', ' + longDate(f.date) + ', ' + (f.kickoff ? 'kick-off ' + f.kickoff + ' AEDT' : 'kick-off time to be confirmed') + ', ' + stadium + ', ' + city);
+            var note = f.away ? 'Playing interstate, so I will watch in NSW at the fan zone, ' + FAN_ZONE : stadiumNote(stadium);
+            if (note) out.push('  Getting there: ' + note);
           });
         } else {
-          out.push('No places added yet.');
+          out.push('No match selected yet. Please ask me which match I am going to before you plan around kick-off.');
         }
-        out.push('', '## Useful official info', '- Times are Sydney time (AEDT). Check sydney.com for updates.', '');
-        out.push('Source: sydney.com, the official tourism site of Destination NSW.');
+        out.push('');
+
+        // Saved places: by day, then by part of the day. No day: "Not yet placed".
+        var days = {}, keys = [], unplaced = [];
+        saved.forEach(function (it, i) {
+          var s = slotOf(it, anchor);
+          if (!s) { unplaced.push(it); return; }
+          if (!days[s.day]) { days[s.day] = []; keys.push(s.day); }
+          days[s.day].push({ it: it, s: s, i: i });
+        });
+        keys.sort(function (a, b) { return ord(a) - ord(b); });
+        function placeLines(it, s) {
+          var l = ['- ' + it.name + ' (' + it.type + '), ' + it.area], det = DETAIL[it.type] || [], geo = geoOf(it.area);
+          if (s && level < 1) l.push('  When it fits: ' + s.when);
+          var where = [it.address && level < 4 ? 'Address: ' + it.address : '', geo ? 'Coordinates: ' + geo[0].toFixed(4) + ', ' + geo[1].toFixed(4) : ''].filter(Boolean);
+          if (where.length) l.push('  ' + where.join(' | '));
+          if (level < 1 && det[0]) l.push('  Opening hours: ' + det[0]);
+          if (level < 1 && det[1]) l.push('  Typical cost: ' + det[1]);
+          if (level < 3 && /^https:\/\/(www\.)?(sydney|visitnsw)\.com\//.test(it.url || '')) l.push('  Info: ' + it.url);
+          return l;
+        }
+        out.push("PLACES I'VE SAVED");
+        if (!saved.length) out.push('No places saved yet.');
+        keys.forEach(function (k) {
+          var rows = days[k].sort(function (a, b) { return a.s.rank - b.s.rank || a.i - b.i; });
+          var isMatchDay = anchor && k === anchor.f.date, pts = [], stadiumAdded = false;
+          out.push(dayLabel(k, isMatchDay));
+          function addStadium() {
+            var g = anchor.nsw ? stadiumGeo(first.venue.split(',')[0]) : (window.rwcGeo && window.rwcGeo.fan.geo);
+            if (g) pts.push(g);
+            stadiumAdded = true;
+          }
+          rows.forEach(function (r) {
+            if (isMatchDay && !stadiumAdded && r.s.rank >= 3) addStadium(); // the stadium sits between before kick-off and after the match
+            placeLines(r.it, r.s).forEach(function (x) { out.push(x); });
+            var g = geoOf(r.it.area);
+            if (g) pts.push(g);
+          });
+          if (isMatchDay && !stadiumAdded && pts.length) addStadium();
+          var links = pts.length ? mapLinks(pts) : [];
+          links.forEach(function (u, n) { out.push('Map for this day' + (links.length > 1 ? ' (' + (n + 1) + ' of ' + links.length + ')' : '') + ': ' + u); });
+        });
+        if (unplaced.length) {
+          out.push('Not yet placed');
+          unplaced.forEach(function (it) { placeLines(it, null).forEach(function (x) { out.push(x); }); });
+        }
+        if (saved.length < all.length) out.push((all.length - saved.length) + ' more saved places are left out to keep this short.');
+        out.push('');
+
+        if (level < 2) {
+          out.push('GOOD TO KNOW');
+          out.push('- Public transport in Sydney uses Opal or contactless cards. Trip planning: https://transportnsw.info');
+          out.push('- The Rugby World Cup fan zone is at ' + FAN_ZONE + '.');
+          if (t && m.interstate) out.push('- ' + t + ' play interstate in the pool stage, so I will watch in NSW at the fan zone.');
+          out.push('');
+        }
+
+        var today = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Australia/Sydney' });
+        out.push('Source: place details from sydney.com and visitnsw.com (Destination NSW). Verified on ' + today + '. Times and prices can change, so check before you go.', '');
+        out.push("WHAT I'D LIKE FROM YOU");
+        out.push('1. A day-by-day plan built around my matches. On match days, get me to the stadium 60 to 90 minutes before kick-off, and allow for crowds afterwards.');
+        out.push("2. Use my saved places as the core of the plan. Put places that are close to each other on the same day, and check each one against its opening hours. If something doesn't fit, say so and suggest where else it could go.");
+        out.push("3. For each stop, give the time, the place, how to get there from the previous stop, an estimated travel time, and the link exactly as I've given it.");
+        out.push("4. A map: if you can make an interactive map or a map image, plot each day's stops with pins. If you can't, list the daily map links above and the coordinates so I can open them myself.");
+        out.push('5. Logistics: transport between stops, what to book ahead, anything to bring, and accessibility notes if relevant.');
+        out.push("6. A rough budget using the cost ranges I've given. Don't invent prices that aren't listed; say \"check price\" instead.");
+        out.push("7. You can suggest up to three extra ideas if there are gaps, but label them clearly as your suggestions, not from my list, and tell me to check them.", '');
+        out.push("Keep it practical and easy to read on a phone: a short summary first, then a table or list for each day. If something important is missing, make a sensible assumption and tell me what you assumed, rather than asking lots of questions. Reply in English unless I ask otherwise.");
         return out.join('\n');
+      }
+      // Under 8,000 characters, because some assistants reject long pastes: drop the place details first, then "Good to know",
+      // then (beyond the brief, so the limit always holds) Info links, street addresses and finally the last saved places.
+      window.buildAiSummary = function () {
+        var total = items().length, text = buildPrompt(0, total), level, keep;
+        for (level = 1; text.length > MAX && level <= 4; level++) text = buildPrompt(level, total);
+        for (keep = total - 1; text.length > MAX && keep > 0; keep--) text = buildPrompt(4, keep); // last resort: fewer places
+        return text;
       };
+      window.rwcHasMatch = function () { var t = team(); return !!(t && matches(t).list.length); };
 
       window.buildPlainList = function () {
         var t = team(), m = matches(t), saved = items(), out = [];
@@ -1296,8 +1414,10 @@
         return out.join('\n');
       };
 
-      console.log(window.buildAiSummary());
-      console.log(window.buildPlainList());
+      window.addEventListener('load', function () {
+        console.log(window.buildAiSummary());
+        console.log(window.buildPlainList());
+      });
     })();
   </script>
 
@@ -1313,6 +1433,9 @@
       var itemsEl = document.getElementById('rwc-th-items');
       var empty = document.getElementById('rwc-th-empty');
       var preview = document.getElementById('rwc-th-preview');
+      var peek = document.getElementById('rwc-th-peek');
+      var aiBtn = panel.querySelector('[data-th-action="copy-ai"]');
+      var aiHelp = document.getElementById('rwc-th-ai-help');
       var clearBtn = document.getElementById('rwc-th-clear');
       var shared = document.getElementById('rwc-th-shared');
       var announce = document.getElementById('rwc-th-announce');
@@ -1331,6 +1454,11 @@
         empty.hidden = !!items.length;
         clearBtn.hidden = !items.length;
         preview.textContent = window.buildAiSummary ? window.buildAiSummary() : '';
+        // Nothing saved: nothing to copy, and the preview has nothing to show
+        aiBtn.disabled = !items.length;
+        aiHelp.hidden = !!items.length;
+        peek.hidden = !items.length;
+        if (!items.length) peek.open = false;
         shared.hidden = !pending;
       }
 
@@ -1380,11 +1508,12 @@
       document.addEventListener('thirdhalf:change', function () { if (isOpen()) render(); });
 
       // Inline confirmation next to a button (announced politely); hidden after a few seconds unless it's an instruction
+      // keep: true leaves it up (an instruction); a number is how long to leave it, in milliseconds
       function say(btn, msg, keep) {
         var st = btn.parentNode.querySelector('.rwc-th-status');
         clearTimeout(st.timer);
         st.textContent = msg;
-        if (!keep) st.timer = setTimeout(function () { st.textContent = ''; }, 4000);
+        if (keep !== true) st.timer = setTimeout(function () { st.textContent = ''; }, typeof keep === 'number' ? keep : 4000);
       }
       function clearStatus() {
         panel.querySelectorAll('.rwc-th-status').forEach(function (st) { clearTimeout(st.timer); st.textContent = ''; });
@@ -1400,8 +1529,23 @@
         } catch (e) {}
         return Promise.reject(new Error('Clipboard not available'));
       }
-      // No clipboard: put the text in the preview box, select it and say how to copy it
+      // Older route when the Clipboard API is missing or refused (an iframe, plain http): a hidden textarea and execCommand
+      function legacyCopy(text, btn) {
+        var ta = document.createElement('textarea'), ok = false;
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.setAttribute('aria-hidden', 'true');
+        ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { ok = document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        if (btn) btn.focus();
+        return ok;
+      }
+      // Neither worked: open the preview, put the text in it, select it and say how to copy it
       function selectInPreview(btn, text) {
+        peek.open = true;
         preview.textContent = text;
         preview.scrollTop = 0;
         preview.focus();
@@ -1411,8 +1555,17 @@
         sel.addRange(range);
         say(btn, 'Press Ctrl+C or Cmd+C to copy', true);
       }
-      function copy(btn, text, done) {
-        writeClipboard(text).then(function () { say(btn, done); }, function () { selectInPreview(btn, text); });
+      function copy(btn, text, done, onCopied, keep) {
+        function ok() { say(btn, done, keep); if (onCopied) onCopied(); }
+        writeClipboard(text).then(ok, function () {
+          if (legacyCopy(text, btn)) ok(); else selectInPreview(btn, text);
+        });
+      }
+      // For measurement: a dataLayer event (also logged, so it shows in testing). Nothing else leaves the page.
+      function trackCopyForAi() {
+        var ev = { event: 'copy_for_ai', saved_count: list ? list.count() : 0, has_match: !!(window.rwcHasMatch && window.rwcHasMatch()) };
+        (window.dataLayer = window.dataLayer || []).push(ev);
+        console.log('dataLayer', ev);
       }
       // This page with the team and item ids, e.g. ?team=wales&items=stay-sa-wentworth-point,venue-wales-newtown
       function shareUrl() {
@@ -1425,7 +1578,7 @@
         var btn = e.target.closest('[data-th-action]');
         if (!btn) return;
         var action = btn.dataset.thAction;
-        if (action === 'copy-ai') copy(btn, window.buildAiSummary(), copied());
+        if (action === 'copy-ai') copy(btn, window.buildAiSummary(), 'Copied. Paste it into ' + window.rwcAssistantNames + ' or any AI assistant.', trackCopyForAi, 10000);
         if (action === 'copy-list') copy(btn, window.buildPlainList(), copied());
         if (action === 'share') {
           var url = shareUrl();
@@ -1517,6 +1670,7 @@
         { name: 'Newcastle Stadium', area: 'Broadmeadow', geo: [-32.9187, 151.7268], label: [0, 22, 'middle'] }
       ];
       var FAN = { name: 'Tumbalong Park fan zone', area: 'Darling Harbour', geo: [-33.8760, 151.2010] };
+      window.rwcGeo = { area: GEO, stadiums: STADIUMS, fan: FAN }; // the Copy for your AI assistant prompt reads coordinates from here
       var W = 640, H = 400;
       var MAIN = { s: 46, x: 290, y: 140 };
       var INSET = { x: 432, y: 12, w: 196, h: 196, s: 32, ox: 584, oy: 118 };
