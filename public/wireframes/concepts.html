@@ -381,7 +381,51 @@
     else if (t.dataset.go === 'm3') { show('m3'); sheetTile.focus(); }
     else if (t.dataset.go === 'm5') { show('m5'); sheet.focus({ preventScroll: true }); }
   });
+  // Drag the handle down to close the sheet. Past a third of the way, or a quick flick, it closes; otherwise it springs back.
+  var backdrop = phone.querySelector('.cn-backdrop');
+  var grab = null;
+  function endGrab(close) {
+    var g = grab; if (!g) return;
+    grab = null;
+    sheet.classList.remove('is-dragging');
+    phone.classList.remove('is-sheet-drag');
+    sheet.style.transition = ''; backdrop.style.transition = '';
+    if (close) {
+      // The classes take over from where the finger left it, so the sheet carries on down from there
+      sheet.style.transform = ''; backdrop.style.opacity = '';
+      show('m1', { focus: true });
+    } else {
+      sheet.style.transition = 'transform var(--dur-small) var(--ease-out)';
+      sheet.style.transform = ''; backdrop.style.opacity = '';
+      setTimeout(function () { sheet.style.transition = ''; }, 260);
+    }
+  }
+  phone.addEventListener('pointerdown', function (e) {
+    var handle = e.target.closest('.cn-grabber');
+    if (!handle || screen === 'm1' || e.button > 0) return;
+    e.preventDefault();
+    grab = { id: e.pointerId, y0: e.clientY, dy: 0, last: [{ t: performance.now(), y: e.clientY }], h: sheet.offsetHeight, handle: handle };
+    handle.setPointerCapture(e.pointerId);
+    sheet.classList.add('is-dragging');
+    phone.classList.add('is-sheet-drag');
+  });
+  phone.addEventListener('pointermove', function (e) {
+    if (!grab || e.pointerId !== grab.id) return;
+    grab.dy = Math.max(0, e.clientY - grab.y0); // it only goes down
+    sheet.style.transform = 'translateY(' + grab.dy + 'px)';
+    backdrop.style.opacity = String(1 - Math.min(1, grab.dy / grab.h));
+    grab.last.push({ t: performance.now(), y: e.clientY });
+    if (grab.last.length > 6) grab.last.shift();
+  });
+  phone.addEventListener('pointerup', function (e) {
+    if (!grab || e.pointerId !== grab.id) return;
+    var a = grab.last[0], b = grab.last[grab.last.length - 1], v = (b.y - a.y) / Math.max(1, b.t - a.t); // px per ms, recent
+    endGrab(grab.dy > grab.h / 3 || (v > 0.6 && grab.dy > 24));
+  });
+  phone.addEventListener('pointercancel', function (e) { if (grab && e.pointerId === grab.id) endGrab(false); });
+
   phone.addEventListener('keydown', function (e) {
+    if (grab && e.key === 'Escape') { e.stopPropagation(); endGrab(false); return; }
     if (screen === 'm1') return;
     if (e.key === 'Escape') { show('m1', { focus: true }); return; }
     if (e.key !== 'Tab') return;
@@ -407,7 +451,7 @@
       { view: 'timeline', sel: '.cn-tl-done', title: 'Done', text: 'Returns to the list.' }
     ], todo: 'Not wired: the cross at the top left, See things to do.' },
     m2: { items: [
-      { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
+      { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Drag the handle down to close it: let go past a third of the way, or flick it, and the sheet goes; let go earlier and it springs back. It also closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
       { sel: '#cn-send', title: 'Send itinerary', text: 'Checks the email address. A typed address that does not look right shows an inline error; an empty field is filled with an example so you can click through. A good address goes to Email sent (M4).' },
       { sel: '#cn-tile-ai', title: 'Copy for your AI assistant', text: 'Builds a prompt from this itinerary (trip details, match, places by day, one Google Maps link per day, under 8,000 characters), copies it and shows Format copied (M3). Inspect the pasted text, and window.dataLayer for the copy_for_ai event.' },
       { sel: '#cn-tile-sheet', title: 'Spreadsheet', text: 'Shows the Format copied state (M3): selected tile with a tick and a confirmation. Nothing is copied yet.' },
