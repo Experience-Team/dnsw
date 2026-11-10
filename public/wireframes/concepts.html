@@ -178,7 +178,7 @@
       b.classList.toggle('btn-dark', on);
       b.classList.toggle('btn-outline-dark', !on);
     });
-    if (opts.focus) { if (open) sheet.focus(); else opener.focus(); }
+    if (opts.focus) { if (open) sheet.focus({ preventScroll: true }); else opener.focus(); }
   }
 
 
@@ -352,7 +352,7 @@
     if (t.hasAttribute('data-close')) show('m1', { focus: true });
     else if (t.hasAttribute('data-back')) { show('m2', { focus: false }); document.querySelector('[data-go="m5"]:not(.btn)').focus(); }
     else if (t.dataset.go === 'm3') { show('m3'); sheetTile.focus(); }
-    else if (t.dataset.go === 'm5') { show('m5'); sheet.focus(); }
+    else if (t.dataset.go === 'm5') { show('m5'); sheet.focus({ preventScroll: true }); }
   });
   phone.addEventListener('keydown', function (e) {
     if (screen === 'm1') return;
