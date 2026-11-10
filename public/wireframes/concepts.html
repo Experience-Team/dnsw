@@ -49,35 +49,41 @@
       <span class="cp-frame-label">Phone, 390 x 844</span>
     </div>
     <div class="cn-stage" id="cn-stage">
-    <div class="cn-phone" id="cn-phone" data-screen="m1" role="group" aria-label="Itinerary, phone screen">
+    <div class="cn-phone" id="cn-phone" data-screen="m1" data-view="list" role="group" aria-label="Itinerary, phone screen">
       <div class="cn-bar">
-        <button type="button" class="cn-close" aria-label="Close">&times;</button>
+        <button type="button" class="cn-close" aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         <h3 class="cn-bar-title">Your itinerary</h3>
       </div>
       <div class="cn-body">
-        <div class="cn-seg" role="group" aria-label="View">
-          <button type="button" aria-pressed="false" aria-disabled="true">Timeline</button>
-          <button type="button" aria-pressed="true">List</button>
+        <div class="cn-seg-wrap">
+          <div class="cn-seg" role="group" aria-label="View">
+            <button type="button" aria-pressed="false">Timeline</button>
+            <button type="button" aria-pressed="true">List</button>
+          </div>
         </div>
-        <p class="cn-meta">26 Sep to 11 Oct · 5 items</p>
+        <div class="cn-pane" data-pane="list">
+        <p class="cn-meta" id="cn-meta">26 Sep to 11 Oct · 5 items</p>
           <h3 class="cn-day">Fri 8 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><button type="button" class="cn-handle" aria-label="Reorder Centennial Parklands. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><button type="button" class="cn-handle" aria-label="Reorder Fan zone. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Sat 9 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><button type="button" class="cn-handle" aria-label="Reorder New Zealand v Australia. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Sun 10 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><button type="button" class="cn-handle" aria-label="Reorder Patonga Beach. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Not yet planned</h3>
           <p class="cn-hint">Drag onto a day, or leave them here.</p>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><span class="cn-handle" aria-hidden="true"><i></i></span></li>
+            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><button type="button" class="cn-handle" aria-label="Reorder Newcastle Ocean Baths. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
+        </div>
+        <div class="cn-pane" data-pane="timeline" hidden></div>
+        <p class="visually-hidden" id="cn-live" role="status" aria-live="polite"></p>
       </div>
       <div class="cn-foot">
         <p class="cn-status">Saved on this device only</p>
@@ -90,7 +96,7 @@
         <div class="cn-sheet-head">
           <button type="button" class="cn-back" aria-label="Back to Save and share" data-back>&lsaquo;</button>
           <h3 class="cn-sheet-title" id="cn-sheet-title">Save and share</h3>
-          <button type="button" class="cn-close" aria-label="Close" data-close>&times;</button>
+          <button type="button" class="cn-close" aria-label="Close" data-close><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         </div>
 
         <div class="cn-view" data-for="form">
@@ -157,6 +163,7 @@
   var NOTE_DEFAULT = 'Saved on this device only. Send it to yourself so you do not lose it.';
   var NOTE_SENT = 'Itinerary sent. It is still saved on this device too.';
   var screen = 'm1';
+  var toastTimer, toastHide;
 
   // One function draws every screen: m1 list, m2 sheet, m3 format copied, m4 email sent, m5 open in maps.
   function show(next, opts) {
@@ -177,8 +184,17 @@
       tl.classList.toggle('is-copied', on);
       tl.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    clearTimeout(toastTimer); clearTimeout(toastHide);
+    toast.classList.remove('is-leaving');
     toast.hidden = next !== 'm3';
-    if (next === 'm3') toast.textContent = which === aiTile ? opts.message : 'Copied for your spreadsheet. Paste into cells.';
+    if (next === 'm3') {
+      toast.textContent = which === aiTile ? opts.message : 'Copied for your spreadsheet. Paste into cells.';
+      // A confirmation fades out after 6 seconds; an instruction (press Ctrl+C) stays up
+      if (!opts.keep) toastTimer = setTimeout(function () {
+        toast.classList.add('is-leaving');
+        toastHide = setTimeout(function () { toast.hidden = true; toast.classList.remove('is-leaving'); renderNotes(); }, 320);
+      }, 6000);
+    }
     note.textContent = next === 'm4' ? NOTE_SENT : NOTE_DEFAULT;
     if (next === 'm4' && opts.preset) { if (!email.value) email.value = 'name@example.com'; news.checked = true; }
     document.getElementById('cn-send').disabled = false;
@@ -228,7 +244,7 @@
   // The list on screen M1: days with their items, then "Not yet planned"
   function readList() {
     var days = [], unplaced = [];
-    phone.querySelectorAll('.cn-body .cn-day').forEach(function (h) {
+    phone.querySelectorAll('.cn-pane[data-pane="list"] .cn-day').forEach(function (h) {
       var label = h.textContent.trim(), ul = h.nextElementSibling;
       while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
       var rows = Array.prototype.map.call(ul ? ul.querySelectorAll('.cn-item') : [], function (li, i) {
@@ -302,7 +318,7 @@
   }
   // Under 8,000 characters: drop the place details, then Good to know, then addresses, then the last places
   function buildAiText() {
-    var n = phone.querySelectorAll('.cn-body .cn-item').length, text = buildPrompt(0, n), level, keep;
+    var n = phone.querySelectorAll('.cn-pane[data-pane="list"] .cn-item').length, text = buildPrompt(0, n), level, keep;
     for (level = 1; text.length > MAX && level <= 3; level++) text = buildPrompt(level, n);
     for (keep = n - 1; text.length > MAX && keep > 0; keep--) text = buildPrompt(3, keep);
     return text;
@@ -325,7 +341,7 @@
     var text = buildAiText();
     preview.textContent = text;
     function done() {
-      var ev = { event: 'copy_for_ai', saved_count: phone.querySelectorAll('.cn-body .cn-item').length, has_match: /\nMY MATCHES\n- /.test(text) };
+      var ev = { event: 'copy_for_ai', saved_count: phone.querySelectorAll('.cn-pane[data-pane="list"] .cn-item').length, has_match: /\nMY MATCHES\n- /.test(text) };
       (window.dataLayer = window.dataLayer || []).push(ev);
       console.log('dataLayer', ev);
       show('m3', { tile: aiTile, message: 'Copied. Paste it into ' + ASSISTANTS.join(', ') + ' or any AI assistant.' });
@@ -334,7 +350,7 @@
     writeClipboard(text).then(done, function () {
       if (legacyCopy(text)) { aiTile.focus(); done(); return; }
       // Neither worked: open the preview, select the text and say how to copy it
-      show('m3', { tile: aiTile, message: 'Press Ctrl+C or Cmd+C to copy' });
+      show('m3', { tile: aiTile, message: 'Press Ctrl+C or Cmd+C to copy', keep: true });
       peek.open = true;
       preview.textContent = text;
       preview.focus();
@@ -384,8 +400,12 @@
   var NAMES = { m1: 'M1 Itinerary list view', m2: 'M2 Save and share sheet', m3: 'M3 Format copied', m4: 'M4 Email sent', m5: 'M5 Open in maps' };
   var NOTES = {
     m1: { items: [
-      { sel: '#cn-open-share', title: 'Save and share', text: 'Opens the Save and share sheet (M2). Inspect the slide up, the list behind the sheet going inert, focus moving into the sheet and returning here when it closes.' }
-    ], todo: 'Not wired: Timeline, close, reorder handles.' },
+      { sel: '#cn-open-share', title: 'Save and share', text: 'Opens the Save and share sheet (M2). Inspect the slide up, the list behind the sheet going inert, focus moving into the sheet and returning here when it closes.' },
+      { sel: '.cn-seg-wrap', title: 'Timeline and List', text: 'Switches between the day-by-day list and the timeline of every match. Both share your dates: change them on the timeline and the list heading and the AI prompt follow.' },
+      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item .cn-handle', title: 'Reorder', text: 'Drag a handle to reorder, move a place to another day, or park it in Not yet planned. Keyboard: Space to pick up, arrow keys to move, Space to drop, Escape to cancel. The order feeds the AI prompt.' },
+      { view: 'timeline', sel: '.cn-tl-handle[data-which="start"]', title: 'Your days', text: 'Drag the two handles, or focus one and use the arrow keys, to set the days you are in NSW. Matches outside the range fade, and the summary, the list heading and the AI prompt dates follow.' },
+      { view: 'timeline', sel: '.cn-tl-done', title: 'Done', text: 'Returns to the list.' }
+    ], todo: 'Not wired: the cross at the top left, See things to do.' },
     m2: { items: [
       { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
       { sel: '#cn-send', title: 'Send itinerary', text: 'Checks the email address. A typed address that does not look right shows an inline error; an empty field is filled with an example so you can click through. A good address goes to Email sent (M4).' },
@@ -396,7 +416,7 @@
     ], todo: 'Not wired: Copy link, Group chat, Calendar.' },
     m3: { items: [
       { sel: '.cn-tile.is-copied', title: 'Copied state', text: 'Blue border and tick on the tile you used. The AI assistant tile also copies the prompt; Spreadsheet only shows this state.' },
-      { sel: '#cn-toast', at: 'tl', title: 'Confirmation', text: 'Announced to screen readers. If the clipboard is blocked it asks you to press Ctrl+C or Cmd+C and selects the preview text instead.' }
+      { sel: '#cn-toast', at: 'tl', title: 'Confirmation', text: 'Announced to screen readers, and fades out after 6 seconds. If the clipboard is blocked it asks you to press Ctrl+C or Cmd+C and selects the preview text instead.' }
     ], todo: 'Try the AI assistant tile for the real copy.' },
     m4: { items: [
       { sel: '.cn-pill--sent', title: 'Sent state', text: 'The status line above turns blue and the button reads Sent. Check your inbox. The email and the news tick are kept.' },
@@ -425,6 +445,7 @@
     var set = NOTES[screen], n = 0, html = '';
     notesTitle.textContent = 'Annotations: ' + NAMES[screen];
     set.items.forEach(function (it) {
+      if (it.view && it.view !== (phone.dataset.view || 'list')) return;
       var el = phone.querySelector(it.sel);
       if (!el || el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return; // not on screen in this state
       n++;
@@ -440,6 +461,7 @@
     notesTodo.textContent = set.todo || '';
     notesTodo.hidden = !set.todo;
   }
+  phone.addEventListener('cn:view', function () { renderNotes(); });
   notesToggle.addEventListener('click', function () {
     notesOn = !notesOn;
     try { localStorage.setItem('cn-annotations', notesOn ? 'on' : 'off'); } catch (e) {}
@@ -452,5 +474,6 @@
   show('m1');
 })();
 </script>
+<script src="concepts-itinerary.js"></script>
 </body>
 </html>
