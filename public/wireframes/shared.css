@@ -2924,7 +2924,7 @@ body.cp-page code { font: inherit; }
 .cn-phone:not([data-screen="m1"]) .cn-sheet { transform: none; visibility: visible; transition: transform var(--dur-large) var(--ease-out); }
 .cn-sheet:focus { outline: none; }
 .cn-sheet:focus-visible { outline: 2px solid #005EA2; outline-offset: -2px; }
-.cn-grabber { position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #ccc; }
+.cn-grabber { position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #ccc; cursor: grab; touch-action: none; transition: background-color var(--dur-micro) var(--ease-out); } /* the ::before below is the 200 x 44 drag area */
 .cn-sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; height: 36px; }
 .cn-sheet-title { flex: 1; font-size: 1.125rem; font-weight: 600; }
 .cn-back { display: none; flex: none; width: 32px; height: 36px; padding: 0 0 var(--space-1); border: 0; background: none; color: #1a1a1a; font: inherit; font-size: 28px; line-height: 1; text-align: left; cursor: pointer; }
@@ -3112,4 +3112,10 @@ body.cp-page code { font: inherit; }
 .cn-tl-handle:focus-visible { outline: 2px solid #005EA2; outline-offset: 3px; }
 .cn-tl-foot { margin-top: var(--space-3); font-size: .75rem; color: #737373; }
 .cn-tl-swipe { margin-top: var(--space-3); }
+.cn-grabber::before { content: ""; position: absolute; inset: -20px -82px -20px; }
+@media (hover: hover) { .cn-grabber:hover { background: #999; } }
+.cn-sheet.is-dragging { transition: none; }
+.cn-phone.is-sheet-drag { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.cn-phone.is-sheet-drag .cn-backdrop { transition: none; }
+.cn-phone.is-sheet-drag .cn-grabber { background: #888; }
 
