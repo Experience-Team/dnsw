@@ -31,58 +31,57 @@
   function shortLabel(i) { var d = dayOf(i); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; }
   function xOf(i) { return PAD + COL * i; }
 
-  /* ---------- Placeholder matches: [month, day, other-team matches, team city or null] ---------- */
-  var MATCHES = [
-    ['Oct', 1, 2, 'Perth'], ['Oct', 2, 5], ['Oct', 3, 1], ['Oct', 4, 3], ['Oct', 8, 2], ['Oct', 9, 3, 'NSW (Sydney)'], ['Oct', 10, 4],
-    ['Oct', 11, 2], ['Oct', 15, 3], ['Oct', 16, 4, 'Brisbane'], ['Oct', 17, 4], ['Oct', 23, 4], ['Oct', 24, 4], ['Oct', 30, 2],
-    ['Oct', 31, 2], ['Nov', 5, 1], ['Nov', 6, 1], ['Nov', 12, 1], ['Nov', 13, 1]
-  ].map(function (m) { return { i: idx(m[0], m[1]), others: m[2], team: m[3] || null }; });
+  /* ---------- Matches: the fixture list, and the teams the fan follows ---------- */
+  var FIX = (window.cnFixtures || []).map(function (f) {
+    var p = f.d.split(' ');
+    return { i: idx(p[2], +p[1]), teams: f.t ? f.t.split(' v ') : null, stage: f.s, venue: f.v, away: f.a || null };
+  });
+  var MATCH_DAY = {};
+  FIX.forEach(function (f) { MATCH_DAY[f.i] = true; });
   var FIRST = idx('Oct', 1), LAST = idx('Nov', 13);
+  var ALL_TEAMS = [];
+  FIX.forEach(function (f) { (f.teams || []).forEach(function (t) { if (ALL_TEAMS.indexOf(t) < 0) ALL_TEAMS.push(t); }); });
+  ALL_TEAMS.sort();
+  // The fan chose their team earlier in the journey: it comes from the trip setup. They can add, change or remove teams here.
+  var state = { teams: window.cnTripSetup && window.cnTripSetup.team ? [window.cnTripSetup.team] : [], showMine: true };
+  var IMG_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="5.5" cy="6" r="1.2" fill="currentColor"/><path d="M2 12l4-3.5 3 2.5 2-1.5 3 2.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+  var TICKET = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+  function isMine(f) { return !!f.teams && f.teams.some(function (t) { return state.teams.indexOf(t) > -1; }); }
+  function cityOf(f) { return f.away ? f.away : /Newcastle/.test(f.venue) ? 'NSW (Newcastle)' : 'NSW (Sydney)'; }
   var range = { start: idx('Sep', 26), end: idx('Oct', 11) };
 
   /* ---------- Timeline view ---------- */
-  var team = (window.cnTripSetup && window.cnTripSetup.team) || 'Australia';
-  var refs = { ticks: [], labels: [], markers: [], leaders: [] };
   var el = {};
 
   function buildTimeline() {
     var h = '';
     h += '<h3 class="cn-tl-title">All matches, 1 Oct to 13 Nov 2027</h3>';
-    h += '<ul class="cn-tl-key"><li><span class="cn-tl-dot cn-tl-dot--team" aria-hidden="true"></span>Team supported (' + team + ')</li><li><span class="cn-tl-dot" aria-hidden="true"></span>Other teams</li></ul>';
+    h += '<ul class="cn-tl-key"><li><span class="cn-tl-dot cn-tl-dot--team" aria-hidden="true"></span><span id="cn-tl-key-team"></span></li><li><span class="cn-tl-emoji" aria-hidden="true">\ud83c\udfc9</span>Other matches</li><li><span class="cn-tl-imgkey" aria-hidden="true">' + IMG_ICON + '</span>Your places</li></ul>';
     h += '<div class="cn-tl-row"><p class="cn-tl-summary"><strong id="cn-tl-range"></strong><span id="cn-tl-days"></span></p><button type="button" class="cn-tl-done">Done</button></div>';
+    h += '<div class="cn-tl-controls"><button type="button" class="cn-switch cn-switch--sm" id="cn-tl-mine" role="switch" aria-checked="true"><span class="cn-switch-track" aria-hidden="true"></span>Show my teams\u2019 matches</button>';
+    h += '<button type="button" class="cn-tl-teams-btn" id="cn-tl-teams-btn" aria-expanded="false" aria-controls="cn-tl-teams-panel"><span id="cn-tl-teams-label"></span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+    h += '<div class="cn-tl-teams-panel" id="cn-tl-teams-panel" role="group" aria-label="Choose your teams" hidden><div class="cn-tl-teams-head"><strong>Your teams</strong><button type="button" class="cn-tl-clear" id="cn-tl-clear">Clear all</button></div><ul class="cn-tl-teams-list">';
+    ALL_TEAMS.forEach(function (t) { h += '<li><label><input type="checkbox" value="' + t + '"><span>' + t + '</span></label></li>'; });
+    h += '</ul></div><ul class="cn-tl-chips" id="cn-tl-chips"></ul></div>';
     h += '<div class="cn-tl-scroll" tabindex="0" role="region" aria-label="Timeline of all matches. Scrolls sideways."><div class="cn-tl-canvas" style="width:' + (PAD * 2 + COL * (DAYS - 1)) + 'px">';
     h += '<div class="cn-tl-band" id="cn-tl-band"></div>';
     h += '<span class="cn-tl-tag" id="cn-tl-tag-start"></span><span class="cn-tl-tag" id="cn-tl-tag-end"></span>';
     h += '<div class="cn-tl-axis" style="left:' + PAD + 'px;width:' + (COL * (DAYS - 1)) + 'px"></div>';
-    var matchDays = {};
-    MATCHES.forEach(function (m) { matchDays[m.i] = m; });
     for (var i = 0; i < DAYS; i++) {
-      var inTournament = i >= FIRST && i <= LAST, isMatch = !!matchDays[i];
+      var inTournament = i >= FIRST && i <= LAST, isMatch = !!MATCH_DAY[i];
       var cls = isMatch ? 'is-match' : inTournament ? 'is-day' : 'is-off';
       var d = dayOf(i);
       h += '<span class="cn-tl-tick ' + cls + '" data-i="' + i + '" style="left:' + xOf(i) + 'px"></span>';
       h += '<span class="cn-tl-date ' + cls + '" data-i="' + i + '" style="left:' + xOf(i) + 'px">' + d.getUTCDate() + '</span>';
       if (i === 0 || d.getUTCDate() === 1) h += '<span class="cn-tl-month" style="left:' + xOf(i) + 'px">' + MON[d.getUTCMonth()] + ' 2027</span>';
     }
-    // Matches: a stack of markers above the axis for each day, the team's own match larger and at the bottom
-    MATCHES.forEach(function (m) {
-      var x = xOf(m.i), y = 189, top = 189;
-      if (m.team) { h += '<span class="cn-tl-marker cn-tl-marker--team" data-i="' + m.i + '" style="left:' + x + 'px;top:' + (y - 13) + 'px"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></span>'; top = y - 13; }
-      for (var k = 0; k < m.others; k++) {
-        var cy = m.team ? y - 26 - 21 * k : y - 21 * k;
-        h += '<span class="cn-tl-marker" data-i="' + m.i + '" style="left:' + x + 'px;top:' + (cy - 8) + 'px"></span>';
-        top = cy - 8;
-      }
-      if (m.team) {
-        h += '<span class="cn-tl-leader" data-i="' + m.i + '" style="left:' + x + 'px;top:71px;height:' + (top - 4 - 71) + 'px"></span>';
-        h += '<span class="cn-tl-city" data-i="' + m.i + '" style="left:' + x + 'px">' + m.team + '</span>';
-      }
-    });
+    h += '<div class="cn-tl-markers" id="cn-tl-markers"></div>';
     h += '<span class="cn-tl-bracket" style="left:' + (xOf(FIRST) - 18) + 'px;width:' + (xOf(LAST) - xOf(FIRST) + 36) + 'px"></span>';
     h += '<span class="cn-tl-bracket-label" style="left:' + (xOf(FIRST) - 12) + 'px">Rugby World Cup 2027, 1 Oct to 13 Nov</span>';
     h += '<button type="button" class="cn-tl-handle" data-which="start" role="slider" aria-label="First day in NSW" aria-valuemin="0" aria-valuemax="' + (DAYS - 1) + '"></button>';
     h += '<button type="button" class="cn-tl-handle" data-which="end" role="slider" aria-label="Last day in NSW" aria-valuemin="0" aria-valuemax="' + (DAYS - 1) + '"></button>';
     h += '</div></div>';
+    h += '<p class="visually-hidden" id="cn-tl-sr"></p>';
     h += '<p class="cn-tl-foot" id="cn-tl-foot"></p>';
     h += '<p class="cn-hint cn-tl-swipe">Swipe sideways for later dates</p>';
     tlPane.innerHTML = h;
@@ -97,7 +96,102 @@
     el.days = document.getElementById('cn-tl-days');
     el.foot = document.getElementById('cn-tl-foot');
     el.done = tlPane.querySelector('.cn-tl-done');
-    el.items = tlPane.querySelectorAll('[data-i]');
+    el.markers = document.getElementById('cn-tl-markers');
+    el.mine = document.getElementById('cn-tl-mine');
+    el.teamsBtn = document.getElementById('cn-tl-teams-btn');
+    el.teamsLabel = document.getElementById('cn-tl-teams-label');
+    el.teamsPanel = document.getElementById('cn-tl-teams-panel');
+    el.chips = document.getElementById('cn-tl-chips');
+    el.keyTeam = document.getElementById('cn-tl-key-team');
+    el.sr = document.getElementById('cn-tl-sr');
+  }
+
+  function applyOut() {
+    Array.prototype.forEach.call(tlPane.querySelectorAll('[data-i]'), function (n) {
+      var i = +n.dataset.i;
+      n.classList.toggle('is-out', i < range.start || i > range.end);
+    });
+  }
+  // Markers above the axis, one stack a day: the followed teams' matches (large), other rugby matches (a rugby ball),
+  // then anything that is not a rugby match, such as a place on the itinerary (an image placeholder).
+  function renderMarkers() {
+    var days = {}, h = '', lastLabelX = -999, sr = [];
+    function day(i) { return days[i] || (days[i] = { mine: [], other: [], places: [] }); }
+    FIX.forEach(function (f) { var mineF = isMine(f); if (mineF && !state.showMine) return; (mineF ? day(f.i).mine : day(f.i).other).push(f); });
+    // Itinerary places that are not rugby matches
+    Array.prototype.forEach.call(listPane.querySelectorAll('.cn-day'), function (hd) {
+      var m = /^[A-Z][a-z]{2} (\d+) ([A-Z][a-z]{2})$/.exec(hd.textContent.trim());
+      if (!m) return;
+      var ul = hd.nextElementSibling; while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
+      Array.prototype.forEach.call(ul ? ul.querySelectorAll('.cn-item-name') : [], function (nm) {
+        if (/ v /.test(nm.textContent)) return;
+        day(idx(m[2], +m[1])).places.push(nm.textContent.trim());
+      });
+    });
+    Object.keys(days).map(Number).sort(function (a, b) { return a - b; }).forEach(function (i) {
+      var d = days[i], x = xOf(i), cy = 189, prev = 0, top = 189;
+      function put(size) { cy = prev ? cy - (prev / 2 + 5 + size / 2) : 189; prev = size; top = cy - size / 2; return cy - size / 2; }
+      d.mine.forEach(function (f) {
+        h += '<span class="cn-tl-marker cn-tl-marker--team" data-i="' + i + '" title="' + f.teams.join(' v ') + ', ' + cityOf(f) + '" style="left:' + x + 'px;top:' + put(26) + 'px">' + TICKET + '</span>';
+        sr.push(longLabel(i) + ': ' + f.teams.join(' v ') + ', ' + cityOf(f));
+      });
+      d.other.forEach(function (f) {
+        h += '<span class="cn-tl-marker cn-tl-marker--ball" data-i="' + i + '" title="' + (f.teams ? f.teams.join(' v ') : f.stage) + '" style="left:' + x + 'px;top:' + put(16) + 'px" aria-hidden="true">\ud83c\udfc9</span>';
+      });
+      d.places.forEach(function (name) {
+        h += '<span class="cn-tl-marker cn-tl-marker--img" data-i="' + i + '" title="' + name + '" style="left:' + x + 'px;top:' + put(16) + 'px">' + IMG_ICON + '</span>';
+        sr.push(longLabel(i) + ': ' + name + ' (your itinerary)');
+      });
+      if (d.mine.length && top - 4 > 78) {
+        h += '<span class="cn-tl-leader" data-i="' + i + '" style="left:' + x + 'px;top:71px;height:' + (top - 4 - 71) + 'px"></span>';
+        if (x - lastLabelX >= 84) { h += '<span class="cn-tl-city" data-i="' + i + '" style="left:' + x + 'px">' + cityOf(d.mine[0]) + '</span>'; lastLabelX = x; }
+      }
+    });
+    el.markers.innerHTML = h;
+    el.sr.textContent = sr.length ? 'On the timeline: ' + sr.join('. ') + '.' : '';
+    applyOut();
+  }
+  function teamsLabel() { var t = state.teams; return !t.length ? 'Choose your teams' : 'Teams: ' + (t.length <= 2 ? t.join(', ') : t[0] + ', ' + t[1] + ' +' + (t.length - 2)); }
+  function syncTeams() {
+    el.teamsLabel.textContent = teamsLabel();
+    el.keyTeam.textContent = state.teams.length ? 'Your teams (' + (state.teams.length <= 2 ? state.teams.join(', ') : state.teams.length + ' teams') + ')' : 'Your teams';
+    Array.prototype.forEach.call(el.teamsPanel.querySelectorAll('input'), function (c) { c.checked = state.teams.indexOf(c.value) > -1; });
+    el.chips.innerHTML = state.teams.length ? state.teams.map(function (t) { return '<li><button type="button" class="cn-tl-chip" data-team="' + t + '" aria-label="Remove ' + t + '">' + t + '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></li>'; }).join('') : '<li class="cn-tl-nochip">No teams chosen. Open the list to add one.</li>';
+    if (window.cnTripSetup) window.cnTripSetup.team = state.teams.join(', ');
+    renderMarkers();
+    updateRange();
+  }
+  function setTeams(list, msg) { state.teams = list; if (list.length && !state.showMine) { state.showMine = true; el.mine.setAttribute('aria-checked', 'true'); } syncTeams(); if (msg) say(msg); }
+  function bindTeams() {
+    el.mine.addEventListener('click', function () {
+      state.showMine = !state.showMine;
+      el.mine.setAttribute('aria-checked', state.showMine ? 'true' : 'false');
+      renderMarkers();
+      say(state.showMine ? 'Showing your teams\u2019 matches.' : 'Your teams\u2019 matches are hidden.');
+    });
+    el.teamsBtn.addEventListener('click', function () {
+      var open = el.teamsPanel.hidden;
+      el.teamsPanel.hidden = !open;
+      el.teamsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    el.teamsPanel.addEventListener('change', function (e) {
+      var c = e.target; if (!c.matches('input')) return;
+      var t = c.value, list = state.teams.filter(function (x) { return x !== t; });
+      if (c.checked) list.push(t);
+      list.sort();
+      setTeams(list, c.checked ? 'Added ' + t + '.' : 'Removed ' + t + '.');
+    });
+    document.getElementById('cn-tl-clear').addEventListener('click', function () { setTeams([], 'All teams removed.'); });
+    el.chips.addEventListener('click', function (e) {
+      var b = e.target.closest('.cn-tl-chip'); if (!b) return;
+      var t = b.dataset.team, items = el.chips.querySelectorAll('.cn-tl-chip'), k = Array.prototype.indexOf.call(items, b);
+      setTeams(state.teams.filter(function (x) { return x !== t; }), 'Removed ' + t + '.');
+      var left = el.chips.querySelectorAll('.cn-tl-chip');
+      (left[Math.min(k, left.length - 1)] || el.teamsBtn).focus();
+    });
+    tlPane.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !el.teamsPanel.hidden) { e.stopPropagation(); el.teamsPanel.hidden = true; el.teamsBtn.setAttribute('aria-expanded', 'false'); el.teamsBtn.focus(); }
+    });
   }
 
   function itemCount() { return listPane.querySelectorAll('.cn-item').length; }
@@ -115,13 +209,10 @@
     });
     el.range.textContent = shortLabel(s) + ' to ' + shortLabel(e);
     el.days.textContent = plural(e - s + 1, 'day', 'days') + ' in NSW';
-    Array.prototype.forEach.call(el.items, function (n) {
-      var i = +n.dataset.i;
-      n.classList.toggle('is-out', i < s || i > e);
-    });
-    // "5 days before your first match": the team's first match inside the range
-    var mine = MATCHES.filter(function (m) { return m.team && m.i >= s && m.i <= e; })[0];
-    el.foot.textContent = !mine ? 'None of ' + team + '’s matches fall in these days.' : mine.i === s ? 'Your first match is on your first day.' : plural(mine.i - s, 'day', 'days') + ' before your first match.';
+    applyOut();
+    // "5 days before your first match": the followed teams' first match inside the range
+    var mine = FIX.filter(function (f) { return isMine(f) && f.i >= s && f.i <= e; }).sort(function (x, y) { return x.i - y.i; })[0];
+    el.foot.textContent = !state.teams.length ? 'Choose a team to see how long it is before your first match.' : !mine ? 'None of your teams\u2019 matches fall in these days.' : mine.i === s ? 'Your first match is on your first day.' : plural(mine.i - s, 'day', 'days') + ' before your first match.';
     meta.textContent = shortLabel(s) + ' to ' + shortLabel(e) + ' · ' + plural(itemCount(), 'item', 'items');
     if (window.cnTripSetup) { window.cnTripSetup.arrive = longLabel(s); window.cnTripSetup.leave = longLabel(e); }
   }
@@ -186,7 +277,7 @@
     segBtns[1].setAttribute('aria-pressed', tl ? 'false' : 'true');
     phone.dataset.view = v;
     body.scrollTop = 0;
-    if (tl) el.scroll.scrollLeft = 0;
+    if (tl) { el.scroll.scrollLeft = 0; renderMarkers(); }
     phone.dispatchEvent(new CustomEvent('cn:view', { detail: v }));
   }
   segBtns[0].addEventListener('click', function () { setView('timeline'); });
@@ -323,6 +414,8 @@
 
   buildTimeline();
   bindRange();
-  updateRange();
+  bindTeams();
+  syncTeams();
+  phone.addEventListener('cn:reorder', renderMarkers);
   refreshEmpty();
 })();
