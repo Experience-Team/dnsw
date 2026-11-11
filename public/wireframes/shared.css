@@ -3068,7 +3068,14 @@ body.cp-page code { font: inherit; }
 .cn-items.is-empty.is-over { border-color: #888; }
 
 /* Concepts: the timeline (the fan's own trip). Matches above the axis, places below, one axis; --axis is set by the script */
-.cn-tl-title { margin-top: var(--space-3); font-size: .875rem; font-weight: 600; }
+.cn-tl-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-1); }
+.cn-tl-title { font-size: .875rem; font-weight: 600; }
+/* Edit: a text link with a pencil. Pressed, it reads Done editing */
+.cn-tl-edit { position: relative; flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 2px; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.cn-tl-edit[aria-pressed="true"] { color: #2666d9; }
+.cn-tl-edit:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.cn-tl-edit-hint { margin-top: 0; }
+.cn-tl-edit-hint[hidden] { display: none; }
 .cn-tl-key { position: relative; list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-2); font-size: .75rem; }
 .cn-tl-key li { display: flex; align-items: center; gap: var(--space-2); }
 .cn-tl-key .cn-tl-sym--ticket { margin: 0 2px; }
@@ -3077,9 +3084,8 @@ body.cp-page code { font: inherit; }
 .cn-tl-sym--ticket { width: 28px; height: 28px; border-radius: 50%; background: #1f1f1f; color: #fff; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2666d9; }
 .cn-tl-sym--match { border-radius: 50%; border: 1.5px solid #737373; background: #fff; color: #4d4d4d; }
 .cn-tl-sym--place { border-radius: 5px; border: 1.5px dashed #9e9e9e; background: #f2f2f2; color: #737373; }
-.cn-tl-row { position: relative; display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-3); }
-.cn-tl-summary { flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 12px; border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); font-size: .75rem; white-space: nowrap; }
-.cn-tl-summary strong { font-weight: 600; }
+.cn-tl-row { position: relative; display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-2); }
+.cn-tl-row .cn-tl-done { margin-left: auto; }
 .cn-tl-done { flex: none; min-width: 76px; height: 44px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill); background: #1f1f1f; color: #fff; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
 .cn-tl-done.is-saved { background: #2666d9; }
 .cn-tl-done:active { transform: scale(.98); }
@@ -3109,6 +3115,7 @@ body.cp-page code { font: inherit; }
 @media (hover: hover) { .cn-tl-mk:hover .cn-tl-sym--match, .cn-tl-mk:hover .cn-tl-sym--place { box-shadow: 0 0 0 3px rgba(0,0,0,.08); } }
 .cn-tl-mk.is-out, .cn-tl-lbl.is-out { opacity: .45; }
 .cn-tl-lbl { width: 76px; margin-left: -38px; text-align: center; font-size: .6875rem; line-height: 1.2; color: #4d4d4d; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; transition: opacity var(--dur-small) var(--ease-out); }
+.cn-tl-lbl[hidden] { display: none; }
 .cn-tl-lbl--up { transform: translateY(-100%); }
 .cn-tl-lbl.is-ticket { color: #1a1a1a; font-weight: 700; }
 .cn-tl-bracket { top: 352px; height: 0; border-top: 1px solid #9e9e9e; }
@@ -3131,12 +3138,12 @@ body.cp-page code { font: inherit; }
 .cn-phone.is-sheet-drag .cn-backdrop { transition: none; }
 .cn-phone.is-sheet-drag .cn-grabber { background: #888; }
 .cn-switch { position: relative; }
-.cn-tl-teams-btn { flex: none; max-width: 10rem; display: inline-flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: 44px; padding: 0 12px; border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
-.cn-tl-teams-btn #cn-tl-teams-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn-tl-teams-btn svg { flex: none; transition: transform var(--dur-small) var(--ease-in-out); }
-.cn-tl-teams-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
-.cn-tl-teams-btn:active { transform: scale(.98); }
-.cn-tl-teams-btn:focus-visible, .cn-tl-chip:focus-visible, .cn-tl-clear:focus-visible, .cn-tl-teams-list input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.cn-tl-pick { position: relative; flex: 0 1 auto; min-width: 0; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .875rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: opacity var(--dur-micro) var(--ease-out); }
+.cn-tl-pick > span:not(.visually-hidden) { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cn-tl-chev { flex: none; transition: transform var(--dur-small) var(--ease-in-out); }
+.cn-tl-pick[aria-expanded="true"] .cn-tl-chev { transform: rotate(180deg); }
+.cn-tl-pick:active { opacity: .7; }
+.cn-tl-pick:focus-visible, .cn-tl-chip:focus-visible, .cn-tl-clear:focus-visible, .cn-tl-teams-list input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 /* The team list opens over the chart, so it never pushes the chart down */
 .cn-tl-teams-panel { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 6; border: 1px solid #d1d1d1; border-radius: var(--radius-md); background: #fff; box-shadow: var(--shadow-2); animation: cn-fade var(--dur-small) var(--ease-out); }
 .cn-tl-teams-panel[hidden] { display: none; }
@@ -3154,6 +3161,18 @@ body.cp-page code { font: inherit; }
 .cn-tl-chip:active { transform: scale(.96); }
 @media (hover: hover) { .cn-tl-chip:hover { background: #f2f2f2; } }
 .cn-tl-nochip { font-size: .75rem; color: #737373; }
+/* Typed dates, in the same overlay as the teams */
+.cn-tl-dates-count { font-size: .75rem; color: #737373; }
+.cn-tl-dates { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); padding: var(--space-3); }
+.cn-tl-date-field span { display: block; font-size: .75rem; color: #4d4d4d; }
+.cn-tl-date-field .cn-field { height: 44px; margin-top: var(--space-1); padding: 0 var(--space-2); }
+.cn-tl-dates-error { margin-top: 0; padding: 0 var(--space-3) var(--space-3); }
+/* Edit mode: the date handles hide and places lift, ready to drag */
+[data-pane="timeline"].is-editing .cn-tl-handle { display: none; }
+[data-pane="timeline"].is-editing .cn-tl-mk--place { touch-action: none; cursor: grab; }
+[data-pane="timeline"].is-editing .cn-tl-sym--place { border-style: solid; border-color: #1a1a1a; background: #fff; box-shadow: var(--shadow-1); }
+.cn-tl-mk.is-dragging { z-index: 3; cursor: grabbing; transition: none; }
+.cn-tl-drop { width: 24px; height: 24px; margin: 10px 0 0 -12px; border: 1.5px dashed #2666d9; border-radius: 5px; background: rgba(38,102,217,.08); pointer-events: none; }
 
 /* Concepts: the product page modal, full screen inside the phone. Reuses .cn-bar, .cn-close, .ph-img and the
    .plan-modal-img / .plan-modal-body / .plan-modal-when / .pl-option-facts pieces */
