@@ -33,6 +33,8 @@
   function dayOf(i) { return new Date(AXIS0 + i * 864e5); }
   function idx(mon, d) { return Math.round((Date.UTC(2027, MON.indexOf(mon), d) - AXIS0) / 864e5); }
   function longLabel(i) { var d = dayOf(i); return WD[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; }
+  function iso(i) { return dayOf(i).toISOString().slice(0, 10); }
+  function fromIso(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ''); return m ? Math.round((Date.UTC(+m[1], +m[2] - 1, +m[3]) - AXIS0) / 864e5) : null; }
   function shortLabel(i) { var d = dayOf(i); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; }
   function xOf(i) { return PAD + COL * i; }
   // Today in Sydney, as a day on the axis (negative before 24 Sep 2027)
@@ -92,10 +94,16 @@
 
   function buildTimeline() {
     var h = '';
-    h += '<h3 class="cn-tl-title">Your matches and places</h3>';
+    h += '<div class="cn-tl-head"><h3 class="cn-tl-title">Your matches and places</h3><button type="button" class="cn-tl-edit" id="cn-tl-edit" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9.6 2.1l2.3 2.3-7 7-2.9.6.6-2.9z M8.4 3.3l2.3 2.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span id="cn-tl-edit-label">Edit</span></button></div>';
+    h += '<p class="cn-hint cn-tl-edit-hint" id="cn-tl-edit-hint" hidden>Drag a place to another day, or up or down to change the order. Keyboard: arrow keys on a place.</p>';
     h += '<ul class="cn-tl-key"><li>' + sym('ticket') + 'Match with your ticket</li><li>' + sym('match') + 'Your teams’ matches</li><li>' + sym('place') + 'Your places</li></ul>';
-    h += '<div class="cn-tl-row"><p class="cn-tl-summary"><span class="visually-hidden">Your days in NSW: </span><strong id="cn-tl-range"></strong></p>';
-    h += '<button type="button" class="cn-tl-teams-btn" id="cn-tl-teams-btn" aria-expanded="false" aria-controls="cn-tl-teams-panel"><span class="visually-hidden">Your teams: </span><span id="cn-tl-teams-label"></span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+    // One row of plain text pickers: the dates (type them in) and the teams, each opening a list over the chart
+    h += '<div class="cn-tl-row"><button type="button" class="cn-tl-pick" id="cn-tl-dates-btn" aria-expanded="false" aria-controls="cn-tl-dates-panel"><span class="visually-hidden">Your days in NSW: </span><span id="cn-tl-range"></span><svg class="cn-tl-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+    h += '<div class="cn-tl-teams-panel" id="cn-tl-dates-panel" role="group" aria-labelledby="cn-tl-dates-h" hidden><div class="cn-tl-teams-head"><strong id="cn-tl-dates-h">Your days in NSW</strong><span class="cn-tl-dates-count" id="cn-tl-dates-count"></span></div><div class="cn-tl-dates">';
+    h += '<label class="cn-tl-date-field"><span>First day</span><input class="cn-field" type="date" id="cn-tl-in-start" min="' + iso(0) + '" max="' + iso(DAYS - 1) + '" aria-describedby="cn-tl-dates-error"></label>';
+    h += '<label class="cn-tl-date-field"><span>Last day</span><input class="cn-field" type="date" id="cn-tl-in-end" min="' + iso(0) + '" max="' + iso(DAYS - 1) + '" aria-describedby="cn-tl-dates-error"></label>';
+    h += '</div><p class="cn-error cn-tl-dates-error" id="cn-tl-dates-error" role="alert" hidden></p></div>';
+    h += '<button type="button" class="cn-tl-pick" id="cn-tl-teams-btn" aria-expanded="false" aria-controls="cn-tl-teams-panel"><span class="visually-hidden">Your teams: </span><span id="cn-tl-teams-label"></span><svg class="cn-tl-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
     h += '<div class="cn-tl-teams-panel" id="cn-tl-teams-panel" role="group" aria-labelledby="cn-tl-teams-h" hidden><div class="cn-tl-teams-head"><strong id="cn-tl-teams-h">Your teams</strong><button type="button" class="cn-tl-clear" id="cn-tl-clear">Clear all</button></div><ul class="cn-tl-teams-list">';
     ALL_TEAMS.forEach(function (t) { h += '<li><label><input type="checkbox" value="' + esc(t) + '"><span>' + esc(t) + '</span></label></li>'; });
     h += '</ul></div>';
@@ -131,6 +139,15 @@
     el.hS = tlPane.querySelector('[data-which="start"]');
     el.hE = tlPane.querySelector('[data-which="end"]');
     el.range = document.getElementById('cn-tl-range');
+    el.datesBtn = document.getElementById('cn-tl-dates-btn');
+    el.datesPanel = document.getElementById('cn-tl-dates-panel');
+    el.inS = document.getElementById('cn-tl-in-start');
+    el.inE = document.getElementById('cn-tl-in-end');
+    el.datesCount = document.getElementById('cn-tl-dates-count');
+    el.datesErr = document.getElementById('cn-tl-dates-error');
+    el.edit = document.getElementById('cn-tl-edit');
+    el.editLabel = document.getElementById('cn-tl-edit-label');
+    el.editHint = document.getElementById('cn-tl-edit-hint');
     el.foot = document.getElementById('cn-tl-foot');
     el.done = tlPane.querySelector('.cn-tl-done');
     el.markers = document.getElementById('cn-tl-markers');
@@ -166,6 +183,7 @@
     Object.keys(up).forEach(function (i) { upRows = Math.max(upRows, up[i].length); });
     Object.keys(down).forEach(function (i) { downRows = Math.max(downRows, down[i].length); });
     var A = 130 + (upRows - 1) * ROW;                 // the axis
+    el.A = A;
     var bottom = A + 64 + downRows * ROW - 4;          // the end of the place lane
     el.canvas.style.setProperty('--axis', A + 'px');
     el.canvas.style.height = (bottom + 50) + 'px';
@@ -201,8 +219,8 @@
         var p = it.p;
         aria = p.name + ', ' + longLabel(it.i) + ', your place';
         top = A + 64 + it.row * ROW;
-        h += '<button type="button" class="cn-tl-mk cn-tl-mk--place" data-key="' + esc(p.key) + '" data-i="' + it.i + '" style="left:' + x + 'px;top:' + top + 'px" aria-label="' + esc(aria) + '">' + sym('place') + '</button>';
-        if (it.label) h += '<span class="cn-tl-lbl cn-tl-lbl--down" data-i="' + it.i + '" aria-hidden="true" style="left:' + x + 'px;top:' + (top + 44) + 'px">' + esc(p.name) + '</span>';
+        h += '<button type="button" class="cn-tl-mk cn-tl-mk--place" data-key="' + esc(p.key) + '" data-stop="' + esc(p.id) + '" data-i="' + it.i + '" data-row="' + it.row + '" style="left:' + x + 'px;top:' + top + 'px" aria-label="' + esc(aria + (editing ? '. Arrow keys move it' : '')) + '">' + sym('place') + '</button>';
+        if (it.label) h += '<span class="cn-tl-lbl cn-tl-lbl--down" data-i="' + it.i + '" data-for="' + esc(p.key) + '" aria-hidden="true" style="left:' + x + 'px;top:' + (top + 44) + 'px">' + esc(p.name) + '</span>';
       }
     });
     el.markers.innerHTML = h;
@@ -222,14 +240,27 @@
     updateRange();
   }
   function setTeams(list, msg) { state.teams = list; syncTeams(); if (msg) say(msg); }
-  function openTeams(open, focusBack) {
-    el.teamsPanel.hidden = !open;
-    el.teamsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) { var c = el.teamsPanel.querySelector('input:checked') || el.teamsPanel.querySelector('input'); c.focus({ preventScroll: true }); c.scrollIntoView({ block: 'nearest' }); }
-    else if (focusBack) el.teamsBtn.focus({ preventScroll: true });
+  // The dates and the teams open as lists over the chart, one at a time. A tap outside, Escape, or moving focus
+  // away closes them.
+  var POPS = [];
+  function openPop(pop, open, focusBack) {
+    if (open) POPS.forEach(function (o) { if (o !== pop) openPop(o, false); });
+    pop.panel.hidden = !open;
+    pop.btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) { var c = pop.first(); c.focus({ preventScroll: true }); if (c.scrollIntoView) c.scrollIntoView({ block: 'nearest' }); }
+    else if (focusBack) pop.btn.focus({ preventScroll: true });
   }
+  function openTeams(open, focusBack) { openPop(POPS[1], open, focusBack); }
+  function closePops() { POPS.forEach(function (o) { if (!o.panel.hidden) openPop(o, false); }); }
   function bindTeams() {
-    el.teamsBtn.addEventListener('click', function () { openTeams(el.teamsPanel.hidden, false); });
+    POPS.push({ btn: el.datesBtn, panel: el.datesPanel, first: function () { return el.inS; } });
+    POPS.push({ btn: el.teamsBtn, panel: el.teamsPanel, first: function () { return el.teamsPanel.querySelector('input:checked') || el.teamsPanel.querySelector('input'); } });
+    POPS.forEach(function (o) {
+      o.btn.addEventListener('click', function () { openPop(o, o.panel.hidden, false); });
+      o.panel.addEventListener('focusout', function (e) {
+        if (!o.panel.hidden && e.relatedTarget && !o.panel.contains(e.relatedTarget) && e.relatedTarget !== o.btn) openPop(o, false);
+      });
+    });
     document.getElementById('cn-tl-empty-btn').addEventListener('click', function () { openTeams(true); });
     el.teamsPanel.addEventListener('change', function (e) {
       var c = e.target; if (!c.matches('input')) return;
@@ -239,16 +270,29 @@
       setTeams(list, c.checked ? 'Added ' + t + '.' : 'Removed ' + t + '.');
     });
     document.getElementById('cn-tl-clear').addEventListener('click', function () { setTeams([], 'All teams removed.'); });
-    // The list sits over the chart: a tap outside it, Escape, or moving focus away closes it
     document.addEventListener('pointerdown', function (e) {
-      if (!el.teamsPanel.hidden && !el.teamsPanel.contains(e.target) && !el.teamsBtn.contains(e.target)) openTeams(false);
+      POPS.forEach(function (o) { if (!o.panel.hidden && !o.panel.contains(e.target) && !o.btn.contains(e.target)) openPop(o, false); });
     });
     tlPane.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !el.teamsPanel.hidden) { e.stopPropagation(); openTeams(false, true); }
+      if (e.key !== 'Escape') return;
+      POPS.forEach(function (o) { if (!o.panel.hidden) { e.stopPropagation(); openPop(o, false, true); } });
     });
-    el.teamsPanel.addEventListener('focusout', function (e) {
-      if (!el.teamsPanel.hidden && e.relatedTarget && !el.teamsPanel.contains(e.relatedTarget) && e.relatedTarget !== el.teamsBtn) openTeams(false);
-    });
+    // Typed dates: a date the browser accepts as complete fires change. Outside the timeline it is refused with a
+    // message; a first day after the last day moves the last day with it, and the other way round.
+    function typed(which) {
+      var inp = which === 'start' ? el.inS : el.inE, i = fromIso(inp.value);
+      if (i === null || i < 0 || i > DAYS - 1) {
+        el.datesErr.textContent = 'Enter a date from ' + shortLabel(0) + ' to ' + shortLabel(DAYS - 1) + ' 2027.';
+        el.datesErr.hidden = false; inp.setAttribute('aria-invalid', 'true');
+        return;
+      }
+      el.datesErr.hidden = true; el.inS.removeAttribute('aria-invalid'); el.inE.removeAttribute('aria-invalid');
+      if (which === 'start') { range.start = i; if (range.end < i) range.end = i; }
+      else { range.end = i; if (range.start > i) range.start = i; }
+      updateRange();
+    }
+    el.inS.addEventListener('change', function () { typed('start'); });
+    el.inE.addEventListener('change', function () { typed('end'); });
   }
 
   function itemCount() { return listPane.querySelectorAll('.cn-item').length; }
@@ -265,6 +309,9 @@
       a[0].setAttribute('aria-valuetext', longLabel(a[1]));
     });
     el.range.textContent = shortLabel(s) + ' to ' + shortLabel(e);
+    el.datesCount.textContent = plural(e - s + 1, 'day', 'days');
+    if (document.activeElement !== el.inS) el.inS.value = iso(s);
+    if (document.activeElement !== el.inE) el.inE.value = iso(e);
     applyOut();
     // "13 days before your first match in NSW": the range is days in NSW, so matches elsewhere (Perth) do not count
     var first = FIX.filter(function (f) { return onTrip(f) && !f.away && f.i >= s && f.i <= e; }).sort(function (x, y) { return x.i - y.i; })[0];
@@ -434,8 +481,123 @@
   }
   tlPane.addEventListener('click', function (e) {
     var b = e.target.closest('[data-key]');
-    if (b && tlPane.contains(b)) openModal(b.dataset.key, b);
+    if (!b || !tlPane.contains(b)) return;
+    if (editing && b.classList.contains('cn-tl-mk--place')) return; // in edit mode a place is moved, not opened
+    openModal(b.dataset.key, b);
   });
+
+  /* ---------- Edit mode: move places on the timeline ----------
+     Edit hides the date handles and lets the fan drag a place to another day, or up and down within its day.
+     The list is the source of truth, so a move is made in the list and the timeline redraws from it. */
+  var editing = false;
+  function setEditing(on) {
+    editing = on;
+    tlPane.classList.toggle('is-editing', on);
+    el.edit.setAttribute('aria-pressed', on ? 'true' : 'false');
+    el.editLabel.textContent = on ? 'Done editing' : 'Edit';
+    el.editHint.hidden = !on;
+    closePops();
+    renderMarkers();
+    say(on ? 'Editing. Drag a place to another day, or use the arrow keys on a place. The date handles are hidden.' : 'Finished editing.');
+    phone.dispatchEvent(new CustomEvent('cn:view', { detail: phone.dataset.view })); // redraw the annotation badges
+  }
+  // Finds the list's heading for a day, adding the day in date order if the fan has nothing on it yet
+  function dayList(i) {
+    var label = longLabel(i), heads = Array.prototype.slice.call(listPane.querySelectorAll('.cn-day')), after = null;
+    for (var k = 0; k < heads.length; k++) {
+      var t = heads[k].textContent.trim(), m = /^[A-Z][a-z]{2} (\d+) ([A-Z][a-z]{2})$/.exec(t);
+      if (t === label) { var ul = heads[k].nextElementSibling; while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling; return ul; }
+      if (!m || idx(m[2], +m[1]) > i) { after = heads[k]; break; }
+    }
+    var h = document.createElement('h3'); h.className = 'cn-day'; h.textContent = label;
+    var list = document.createElement('ul'); list.className = 'cn-items';
+    listPane.insertBefore(h, after); listPane.insertBefore(list, after);
+    return list;
+  }
+  function placeItems(ul, skip) { return itemsOf(ul, skip).filter(function (li) { return !/ v /.test(nameOf(li)); }); }
+  // Moves a place to day i, as the row-th place of that day, then animates every marker from where it was
+  function movePlace(id, i, row) {
+    var li = listPane.querySelector('.cn-item[data-stop="' + id + '"]');
+    if (!li) return;
+    i = Math.max(0, Math.min(DAYS - 1, i));
+    var ul = dayList(i), sibs = placeItems(ul, li);
+    row = Math.max(0, Math.min(sibs.length, row));
+    var before = {};
+    Array.prototype.forEach.call(el.markers.querySelectorAll('.cn-tl-mk'), function (b) { before[b.dataset.key] = b.getBoundingClientRect(); });
+    ul.insertBefore(li, sibs[row] || null);
+    refreshEmpty();
+    phone.dispatchEvent(new CustomEvent('cn:reorder')); // redraws the timeline and the counts
+    if (!reduce.matches) Array.prototype.forEach.call(el.markers.querySelectorAll('.cn-tl-mk'), function (b) {
+      var a = before[b.dataset.key], n = b.getBoundingClientRect();
+      if (a && (a.left !== n.left || a.top !== n.top)) b.animate([{ transform: 'translate(' + (a.left - n.left) + 'px,' + (a.top - n.top) + 'px)' }, { transform: 'none' }], { duration: 220, easing: EASE });
+    });
+    var mk = el.markers.querySelector('[data-stop="' + id + '"]');
+    if (mk) mk.focus({ preventScroll: true });
+    var n = placeItems(ul).indexOf(li) + 1, of = placeItems(ul).length;
+    say(nameOf(li) + ' moved to ' + longLabel(i) + ', place ' + n + ' of ' + of + '.');
+  }
+  function bindEdit() {
+    el.edit.addEventListener('click', function () { setEditing(!editing); });
+    var mv = null;
+    el.markers.addEventListener('pointerdown', function (e) {
+      var b = editing && e.target.closest('.cn-tl-mk--place');
+      if (!b || e.button > 0 || mv) return;
+      e.preventDefault();
+      b.setPointerCapture(e.pointerId);
+      b.focus({ preventScroll: true });
+      mv = { b: b, id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, s0: el.scroll.scrollLeft, left: parseFloat(b.style.left), top: parseFloat(b.style.top), raf: 0, ghost: document.createElement('span') };
+      mv.ghost.className = 'cn-tl-drop';
+      el.markers.appendChild(mv.ghost);
+      b.classList.add('is-dragging');
+      mv.label = el.markers.querySelector('.cn-tl-lbl[data-for="' + b.dataset.key + '"]');
+      if (mv.label) mv.label.hidden = true; // the label stays behind while the place moves
+      update();
+      (function loop() { // keep scrolling while the pointer rests near an edge
+        if (!mv) return;
+        var r = el.scroll.getBoundingClientRect(), near = 40, dx = 0;
+        if (mv.x < r.left + near) dx = -Math.ceil((r.left + near - mv.x) / near * 12);
+        else if (mv.x > r.right - near) dx = Math.ceil((mv.x - (r.right - near)) / near * 12);
+        if (dx) { el.scroll.scrollLeft += dx; update(); }
+        mv.raf = requestAnimationFrame(loop);
+      })();
+    });
+    function target() {
+      var x = mv.left + (mv.x - mv.x0) + (el.scroll.scrollLeft - mv.s0), y = mv.top + (mv.y - mv.y0);
+      return { dx: x - mv.left, dy: y - mv.top, i: Math.max(0, Math.min(DAYS - 1, Math.round((x - PAD) / COL))), row: Math.max(0, Math.round((y - (el.A + 64)) / ROW)) };
+    }
+    function update() {
+      var t = target(), cap = el.markers.querySelectorAll('.cn-tl-mk--place[data-i="' + t.i + '"]:not(.is-dragging)').length;
+      t.row = Math.min(t.row, cap);
+      mv.b.style.transform = 'translate(' + t.dx + 'px,' + t.dy + 'px) scale(1.1)';
+      mv.ghost.style.left = xOf(t.i) + 'px';
+      mv.ghost.style.top = (el.A + 64 + t.row * ROW) + 'px';
+    }
+    el.markers.addEventListener('pointermove', function (e) { if (mv && e.pointerId === mv.id) { mv.x = e.clientX; mv.y = e.clientY; update(); } });
+    function end(e, commit) {
+      if (!mv || e.pointerId !== mv.id) return;
+      var m = mv, t = target(); mv = null;
+      cancelAnimationFrame(m.raf); m.ghost.remove(); m.b.classList.remove('is-dragging');
+      var moved = Math.abs(m.x - m.x0) + Math.abs(m.y - m.y0) > 4;
+      if (m.label) m.label.hidden = false;
+      if (!commit || !moved) { m.b.style.transform = ''; if (commit === false) say('Move cancelled.'); return; }
+      movePlace(m.b.dataset.stop, t.i, t.row);
+    }
+    el.markers.addEventListener('pointerup', function (e) { end(e, true); });
+    el.markers.addEventListener('pointercancel', function (e) { end(e, false); });
+    // Keyboard: left and right move a day, up and down change the order within the day
+    el.markers.addEventListener('keydown', function (e) {
+      var b = editing && e.target.closest('.cn-tl-mk--place');
+      if (!b) return;
+      var i = +b.dataset.i, row = +b.dataset.row;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); movePlace(b.dataset.stop, i + (e.key === 'ArrowLeft' ? -1 : 1), row); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        var count = el.markers.querySelectorAll('.cn-tl-mk--place[data-i="' + i + '"]').length, to = row + (e.key === 'ArrowUp' ? -1 : 1);
+        if (to < 0 || to >= count) { say(to < 0 ? 'Already first on this day.' : 'Already last on this day.'); return; }
+        movePlace(b.dataset.stop, i, to);
+      }
+    });
+  }
 
   /* ---------- Toggle ---------- */
   // Each view keeps its own scroll position. The first time the timeline opens it scrolls to the fan's first day
@@ -453,7 +615,7 @@
     var cur = phone.dataset.view || 'list', tl = v === 'timeline';
     if (cur === v) return;
     if (cur === 'timeline') memo.timeline = { left: el.scroll.scrollLeft, top: body.scrollTop }; else memo.list = body.scrollTop;
-    if (!tl) openTeams(false);
+    if (!tl) closePops();
     listPane.hidden = tl;
     tlPane.hidden = !tl;
     segBtns[0].setAttribute('aria-pressed', tl ? 'true' : 'false');
@@ -601,6 +763,7 @@
 
   buildTimeline();
   buildModal();
+  bindEdit();
   bindRange();
   bindTeams();
   syncTeams();
