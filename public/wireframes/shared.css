@@ -3148,3 +3148,10 @@ body.cp-page code { font: inherit; }
 @media (hover: hover) { .cn-tl-chip:hover { background: #eef3ff; } }
 .cn-tl-nochip { font-size: .75rem; color: #737373; }
 
+/* Concepts: the box to copy from when the clipboard is blocked */
+.cn-fallback { margin-top: var(--space-4); }
+.cn-fallback[hidden] { display: none; }
+.cn-fallback-label { display: block; margin-bottom: var(--space-2); font-size: .75rem; font-weight: 600; }
+.cn-fallback-text { display: block; width: 100%; padding: 10px; border: 1px solid #d1d1d1; border-radius: var(--radius-md); background: #f5f5f5; color: #1a1a1a; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .6875rem; line-height: 1.5; resize: vertical; }
+.cn-fallback-text:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+

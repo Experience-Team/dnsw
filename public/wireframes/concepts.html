@@ -65,21 +65,21 @@
         <p class="cn-meta" id="cn-meta">26 Sep to 11 Oct · 5 items</p>
           <h3 class="cn-day">Fri 8 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><button type="button" class="cn-handle" aria-label="Reorder Centennial Parklands. Press Space to pick up, then use the arrow keys."><i></i></button></li>
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><button type="button" class="cn-handle" aria-label="Reorder Fan zone. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="centennial-parklands"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><button type="button" class="cn-handle" aria-label="Reorder Centennial Parklands. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="fan-zone"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><button type="button" class="cn-handle" aria-label="Reorder Fan zone. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Sat 9 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><button type="button" class="cn-handle" aria-label="Reorder New Zealand v Australia. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="nz-v-australia"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><button type="button" class="cn-handle" aria-label="Reorder New Zealand v Australia. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Sun 10 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><button type="button" class="cn-handle" aria-label="Reorder Patonga Beach. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="patonga-beach"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><button type="button" class="cn-handle" aria-label="Reorder Patonga Beach. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Not yet planned</h3>
           <p class="cn-hint">Drag onto a day, or leave them here.</p>
           <ul class="cn-items">
-            <li class="cn-item"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><button type="button" class="cn-handle" aria-label="Reorder Newcastle Ocean Baths. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="newcastle-ocean-baths"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><button type="button" class="cn-handle" aria-label="Reorder Newcastle Ocean Baths. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
         </div>
         <div class="cn-pane" data-pane="timeline" hidden></div>
@@ -114,11 +114,14 @@
           <h4 class="cn-sub cn-sub--copy">Copy as</h4>
           <div class="cn-tiles">
             <button type="button" class="cn-tile" id="cn-tile-ai"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">AI assistant</span><span class="cn-tile-meta">Copy text</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
-            <button type="button" class="cn-tile" id="cn-tile-sheet" data-go="m3"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Spreadsheet</span><span class="cn-tile-meta">Paste into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
-            <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Plain text</span></span></button>
+            <button type="button" class="cn-tile" id="cn-tile-sheet" aria-describedby="cn-desc-sheet"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Spreadsheet</span><span class="cn-tile-meta">Paste into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile" id="cn-tile-chat" aria-describedby="cn-desc-chat"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Plain text</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Calendar</span><span class="cn-tile-meta">Download .ics</span></span></button>
             <button type="button" class="cn-tile cn-tile--wide" data-go="m5"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Open in maps</span><span class="cn-tile-meta">Google Maps, Apple Maps, or a file</span></span></button>
           </div>
+          <div class="cn-fallback" id="cn-fallback" hidden><label for="cn-fallback-text" class="cn-fallback-label">Select the text and copy it yourself</label><textarea id="cn-fallback-text" class="cn-fallback-text" readonly rows="8"></textarea></div>
+          <span class="visually-hidden" id="cn-desc-chat">Copies the whole itinerary as rich text and plain text, for notes, email, documents and chats.</span>
+          <span class="visually-hidden" id="cn-desc-sheet">Copies the stops as a table with ten columns, for Excel, Google Sheets and Numbers.</span>
           <details class="cn-peek" id="cn-peek"><summary>Preview what you&rsquo;ll copy</summary><pre class="cn-preview" id="cn-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre></details>
         </div>
 
@@ -156,6 +159,7 @@
   var note = sheet.querySelector('[data-note]');
   var sheetTile = document.getElementById('cn-tile-sheet');
   var aiTile = document.getElementById('cn-tile-ai');
+  var chatTile = document.getElementById('cn-tile-chat');
   var peek = document.getElementById('cn-peek');
   var preview = document.getElementById('cn-preview');
   var jumps = document.querySelectorAll('[data-go].btn');
@@ -179,7 +183,7 @@
     document.getElementById('cn-sheet-title').textContent = next === 'm5' ? 'Open in maps' : 'Save and share';
     sheet.classList.toggle('is-sent', next === 'm4');
     var which = opts.tile || sheetTile; // M3 is the Spreadsheet tile as designed; the AI assistant tile reuses the same state
-    [sheetTile, aiTile].forEach(function (tl) {
+    [sheetTile, aiTile, chatTile].forEach(function (tl) {
       var on = next === 'm3' && tl === which;
       tl.classList.toggle('is-copied', on);
       tl.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -188,7 +192,7 @@
     toast.classList.remove('is-leaving');
     toast.hidden = next !== 'm3';
     if (next === 'm3') {
-      toast.textContent = which === aiTile ? opts.message : 'Copied for your spreadsheet. Paste into cells.';
+      toast.textContent = opts.message || 'Copied for your spreadsheet. Paste into cells.';
       // A confirmation fades out after 6 seconds; an instruction (press Ctrl+C) stays up
       if (!opts.keep) toastTimer = setTimeout(function () {
         toast.classList.add('is-leaving');
@@ -205,6 +209,7 @@
       b.classList.toggle('btn-outline-dark', !on);
     });
     if (typeof renderNotes === 'function') renderNotes();
+    phone.dispatchEvent(new CustomEvent('cn:screen', { detail: next }));
     if (opts.focus) { if (open) sheet.focus({ preventScroll: true }); else opener.focus(); }
   }
 
@@ -359,6 +364,8 @@
     });
   }
   aiTile.addEventListener('click', copyForAi);
+  // The Group chat and Spreadsheet tiles are wired in concepts-copy.js, which asks for the copied state through this
+  window.cnShowCopied = function (tile, message, keep) { show('m3', { tile: tile, message: message, keep: !!keep }); tile.focus({ preventScroll: true }); };
   peek.addEventListener('toggle', function () { var t = buildAiText(); if (peek.open && preview.textContent !== t) preview.textContent = t; }); // not when unchanged: it would clear a selection
 
   opener.addEventListener('click', function () { show('m2', { focus: true }); });
@@ -378,7 +385,6 @@
     if (!t || !phone.contains(t)) return;
     if (t.hasAttribute('data-close')) show('m1', { focus: true });
     else if (t.hasAttribute('data-back')) { show('m2', { focus: false }); document.querySelector('[data-go="m5"]:not(.btn)').focus(); }
-    else if (t.dataset.go === 'm3') { show('m3'); sheetTile.focus(); }
     else if (t.dataset.go === 'm5') { show('m5'); sheet.focus({ preventScroll: true }); }
   });
   // Drag the handle down to close the sheet. Past a third of the way, or a quick flick, it closes; otherwise it springs back.
@@ -455,12 +461,13 @@
       { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Drag the handle down to close it: let go past a third of the way, or flick it, and the sheet goes; let go earlier and it springs back. It also closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
       { sel: '#cn-send', title: 'Send itinerary', text: 'Checks the email address. A typed address that does not look right shows an inline error; an empty field is filled with an example so you can click through. A good address goes to Email sent (M4).' },
       { sel: '#cn-tile-ai', title: 'Copy for your AI assistant', text: 'Builds a prompt from this itinerary (trip details, match, places by day, one Google Maps link per day, under 8,000 characters), copies it and shows Format copied (M3). Inspect the pasted text, and window.dataLayer for the copy_for_ai event.' },
-      { sel: '#cn-tile-sheet', title: 'Spreadsheet', text: 'Shows the Format copied state (M3): selected tile with a tick and a confirmation. Nothing is copied yet.' },
+      { sel: '#cn-tile-chat', title: 'Group chat: copy the page', text: 'Copies the whole itinerary as rich text and plain text in one go, so notes, email and documents keep the headings and live links, and a plain-text editor or chat gets full web addresses on their own lines. Inspect the paste in Apple Notes, Google Docs, Gmail and WhatsApp web. If the clipboard is blocked it falls back to plain text, then to a box you copy from.' },
+      { sel: '#cn-tile-sheet', title: 'Spreadsheet: copy a table', text: 'Copies the stops as a table with ten columns (Day, Theme, Time of day, Order, Name, Type, Area, Address, Details, Link), one row per stop in your order. Inspect the paste in Excel, Google Sheets and Numbers: Order is a number and names are links.' },
       { sel: '.cn-tile--wide[data-go="m5"]', title: 'Open in maps', text: 'Swaps the sheet to Open in maps (M5). The back arrow there returns here.' },
       { sel: '#cn-peek summary', title: 'Preview what you will copy', text: 'Opens a read-only, scrollable preview of the exact text the AI assistant tile copies. Inspect that it matches what lands on the clipboard.' }
-    ], todo: 'Not wired: Copy link, Group chat, Calendar.' },
+    ], todo: 'Not wired: Copy link, Calendar.' },
     m3: { items: [
-      { sel: '.cn-tile.is-copied', title: 'Copied state', text: 'Blue border and tick on the tile you used. The AI assistant tile also copies the prompt; Spreadsheet only shows this state.' },
+      { sel: '.cn-tile.is-copied', title: 'Copied state', text: 'Blue border and tick on the tile you used. The AI assistant, Group chat and Spreadsheet tiles all copy and then show this state.' },
       { sel: '#cn-toast', at: 'tl', title: 'Confirmation', text: 'Announced to screen readers, and fades out after 6 seconds. If the clipboard is blocked it asks you to press Ctrl+C or Cmd+C and selects the preview text instead.' }
     ], todo: 'Try the AI assistant tile for the real copy.' },
     m4: { items: [
@@ -521,5 +528,6 @@
 </script>
 <script src="concepts-fixtures.js"></script>
 <script src="concepts-itinerary.js"></script>
+<script src="concepts-copy.js"></script>
 </body>
 </html>
