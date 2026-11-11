@@ -451,11 +451,12 @@
   var NOTES = {
     m1: { items: [
       { sel: '#cn-open-share', title: 'Save and share', text: 'Opens the Save and share sheet (M2). Inspect the slide up, the list behind the sheet going inert, focus moving into the sheet and returning here when it closes.' },
-      { sel: '.cn-seg-wrap', title: 'Timeline and List', text: 'Switches between the day-by-day list and the timeline of every match. Both share your dates: change them on the timeline and the list heading and the AI prompt follow.' },
+      { sel: '.cn-seg-wrap', title: 'Timeline and List', text: 'Switches between the day-by-day list and the timeline of your own trip. Both share your dates: change them on the timeline and the list heading and the AI prompt follow.' },
       { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item .cn-handle', title: 'Reorder', text: 'Drag a handle to reorder, move a place to another day, or park it in Not yet planned. Keyboard: Space to pick up, arrow keys to move, Space to drop, Escape to cancel. The order feeds the AI prompt.' },
-      { view: 'timeline', sel: '#cn-tl-mine', title: 'Your teams', text: 'The switch hides and shows the matches of the teams you follow (the large markers). The Teams list has every team: tick to add, untick or use the chips to remove, and a team you chose earlier in the journey is already ticked. Your teams also set Supporting in the AI prompt. Other matches are a rugby ball; anything that is not a rugby match, such as a place from your list, is an image placeholder.' },
-      { view: 'timeline', sel: '.cn-tl-handle[data-which="start"]', title: 'Your days', text: 'Drag the two handles, or focus one and use the arrow keys, to set the days you are in NSW. Matches outside the range fade, and the summary, the list heading and the AI prompt dates follow.' },
-      { view: 'timeline', sel: '.cn-tl-done', title: 'Done', text: 'Returns to the list.' }
+      { view: 'timeline', sel: '#cn-tl-teams-btn', title: 'Your teams', text: 'Opens the team list over the chart, so the chart stays put. Tick to add a team, untick to remove it, or Clear all. Only your teams\u2019 matches show, plus any match you have a ticket for; with no teams the view asks you to choose some. A team you chose earlier in the journey is already ticked, and your teams set Supporting in the AI prompt.' },
+      { view: 'timeline', sel: '.cn-tl-key', title: 'Markers and the product page', text: 'Matches sit above the line, places below it. The filled ticket is the match you have a ticket for and is always labelled; other labels show where there is room. Every marker, and every place in Not yet planned, opens the product page full screen. Inspect Escape and the cross, Tab staying inside, focus going back to the marker and the timeline keeping its scroll position. Pink fields are gaps in the data contract.' },
+      { view: 'timeline', sel: '.cn-tl-handle[data-which="start"]', title: 'Your days', text: 'Drag the two handles, or focus one and use the arrow keys, to set the days you are in NSW. On touch, dragging a handle does not scroll the chart and swiping the chart does not move a handle. Items outside the range fade, the status line counts only matches in NSW, and the list heading and the AI prompt dates follow.' },
+      { view: 'timeline', sel: '.cn-tl-done', title: 'Done', text: 'Confirms your dates and stays on the timeline. Switch to List and back: each view keeps its own scroll position.' }
     ], todo: 'Not wired: the cross at the top left, See things to do.' },
     m2: { items: [
       { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Drag the handle down to close it: let go past a third of the way, or flick it, and the sheet goes; let go earlier and it springs back. It also closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
@@ -527,6 +528,7 @@
 })();
 </script>
 <script src="concepts-fixtures.js"></script>
+<script src="concepts-products.js"></script>
 <script src="concepts-itinerary.js"></script>
 <script src="concepts-copy.js"></script>
 </body>
