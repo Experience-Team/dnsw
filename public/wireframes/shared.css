@@ -3406,7 +3406,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-notes .cn-notes:not([hidden]) ~ .pv-notes-empty { display: none; }
 .pv-page .pv-phone > .cn-phone { height: 844px; }
 .pv-page .cn-body { overscroll-behavior: contain; } /* reaching the end of the prototype never hands the scroll to the page */
-.pv-spare { height: 844px; border: 1px dashed #b3b3b3; }
+.pv-spare { height: 844px; border: 1px dashed #b3b3b3; } /* placeholder for another prototype */
+.pv-screens { margin: var(--space-4) 0 0; }
 /* Without room for both the intro and the spare frame, the spare frame goes; narrower still, the columns stack */
 @media (max-width: 1400px) { .pv-main { grid-template-columns: minmax(0, 1fr) 390px; } .pv-spare { display: none; } }
 @media (max-width: 1100px) { .pv-page { --pv-gutter: 48px; } }

@@ -30,6 +30,14 @@
   <div class="pv-intro">
     <h2 class="pv-h2">Itinerary list and Save and share</h2>
     <p class="pv-p">The starting screen is the itinerary list. Save and share opens a sheet in the same window, and the sheet leads to the format copied, email sent and open in maps screens. Phone size only.</p>
+    <!-- Jump straight to any of the five screens; the itinerary script wires these ([data-go].btn) -->
+    <div class="cn-screens pv-screens" role="group" aria-label="Jump to a screen">
+      <button type="button" class="btn btn-sm btn-dark" data-go="m1" aria-pressed="true">M1 Itinerary list</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m2" aria-pressed="false">M2 Save and share</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m3" aria-pressed="false">M3 Format copied</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m4" aria-pressed="false">M4 Email sent</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m5" aria-pressed="false">M5 Open in maps</button>
+    </div>
     <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
     <div class="pv-notes">
       <aside class="cn-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
@@ -134,6 +142,7 @@
       </div>
     </div>
   </div>
+  <!-- Placeholder for another prototype, as in the Figma layout -->
   <div class="pv-spare" aria-hidden="true"></div>
 </main>
 
