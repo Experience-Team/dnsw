@@ -1,4 +1,4 @@
-/* Concepts: "Group chat" (copy the page) and "Spreadsheet" (copy a table) on the Save and share sheet.
+/* Concepts: "Group chat" (copy the page), "Spreadsheet" (copy a table), Print and the two downloads on the Save and share sheet.
    Both are built from one structured data object per stop, not from the page, and write rich and plain text to the
    clipboard in a single operation. Nothing is sent anywhere. */
 (function () {
@@ -107,13 +107,14 @@
   function awayLine(a) { return a.day + ' 2027: ' + a.match + ' in ' + a.city + ', ' + a.venue + '. Kick-off ' + a.kick + '.'; }
 
   /* ---------- Copy page: text/html and text/plain ---------- */
-  function buildPage(data, stops, cfg) {
+  // stamp: the word before the date in the plain text, 'Copied on' unless the text is saved as a file
+  function buildPage(data, stops, cfg, stamp) {
     cfg = cfg || CONFIG;
     var g = group(stops), ov = overview(g, stops), src = link(data.page.sourceUrl, cfg);
     var h = '<h1>' + esc(data.page.title) + '</h1>';
     h += '<p>Source: <a href="' + esc(src) + '">' + esc(data.page.sourceName) + '</a></p>';
     h += '<p>' + esc(ov) + '</p>';
-    var t = [data.page.title.toUpperCase(), 'Source: ' + src, 'Copied on ' + copiedOn(cfg), '', ov];
+    var t = [data.page.title.toUpperCase(), 'Source: ' + src, (stamp || 'Copied on') + ' ' + copiedOn(cfg), '', ov];
     var away = awayMatches();
     if (away.length) {
       h += '<h2>Away from NSW</h2><ul>' + away.map(function (a) { return '<li>' + esc(awayLine(a)) + '</li>'; }).join('') + '</ul>';
@@ -164,6 +165,8 @@
     // Matches outside NSW come last, with no order number, so the fan's own order stays as it is
     awayMatches().forEach(function (a) { rows.push([a.day + ' 2027', '', a.kick, '', a.match, 'Match (outside NSW)', a.city, a.venue, 'Outside NSW, during your days in NSW', '']); });
     var text = [COLUMNS.map(tsvField).join('\t')].concat(rows.map(function (r) { return r.map(tsvField).join('\t'); })).join('\n');
+    // The same rows as a .csv file: every field quoted, with the same leading-character guard
+    var csv = [COLUMNS].concat(rows).map(function (r) { return r.map(function (v) { return '"' + tsvField(v).replace(/"/g, '""') + '"'; }).join(','); }).join('\r\n');
     var html = '<table><thead><tr>' + COLUMNS.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
     rows.forEach(function (r) {
       html += '<tr>' + r.map(function (v, c) {
@@ -172,7 +175,7 @@
       }).join('') + '</tr>';
     });
     html += '</tbody></table>';
-    return { html: html, text: text, count: stops.length };
+    return { html: html, text: text, csv: csv, count: stops.length };
   }
 
   /* ---------- Clipboard: both formats in one write, then plain text, then a box to copy from ---------- */
@@ -214,9 +217,8 @@
     copyBoth(c).then(function (how) {
       // success: both formats written. fallback: plain text only, or a box to copy from.
       track(opts.event(c.count, how === 'success' ? 'success' : 'fallback'));
-      if (how === 'manual') window.cnShowCopied(tile, 'Press Cmd+C or Ctrl+C to copy', true);
+      if (how === 'manual') { window.cnShowBlocked(tile); fallbackText.focus(); fallbackText.select(); }
       else window.cnShowCopied(tile, opts.done);
-      if (how === 'manual') fallbackText.focus();
     });
   }
   chatTile.addEventListener('click', function () {
@@ -230,6 +232,55 @@
       done: 'Copied for your spreadsheet. Paste into cells.',
       event: function (n, outcome) { return { event: 'copy_for_spreadsheet', stop_count: n, outcome: outcome }; }
     });
+  });
+
+  // The AI assistant tile (concepts.html) uses the same box when the browser blocks copying
+  window.cnShowManual = function (tile, text) {
+    fallbackText.value = text;
+    fallbackBox.hidden = false;
+    window.cnShowBlocked(tile);
+    fallbackText.focus();
+    fallbackText.select();
+  };
+
+  /* ---------- Print and download: the whole plan, built from the same copy text ---------- */
+  var printTile = document.getElementById('cn-tile-print');
+  var txtTile = document.getElementById('cn-tile-txt');
+  var csvTile = document.getElementById('cn-tile-csv');
+  // "rwc-2027-itinerary-26-sep-to-11-oct", from the trip dates when they are set
+  function fileName(ext) {
+    var t = window.cnTripSetup || {}, d = function (x) { return String(x || '').split(' ').slice(1).join('-').toLowerCase(); };
+    return 'rwc-2027-itinerary' + (t.arrive && t.leave ? '-' + d(t.arrive) + '-to-' + d(t.leave) : '') + '.' + ext;
+  }
+  function download(tile, body, type, ext, event) {
+    hideFallback();
+    var name = fileName(ext), a = document.createElement('a');
+    // A byte order mark so Excel reads the .csv as UTF-8
+    a.href = URL.createObjectURL(new Blob([ext === 'csv' ? '\ufeff' + body : body], { type: type + ';charset=utf-8' }));
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    track({ event: event, stop_count: currentStops(DATA).length });
+    window.cnShowCopied(tile, 'Downloaded ' + name);
+  }
+  if (txtTile) txtTile.addEventListener('click', function () { var c = buildPage(DATA, currentStops(DATA), CONFIG, 'Downloaded on'); download(txtTile, c.text, 'text/plain', 'txt', 'download_txt'); });
+  if (csvTile) csvTile.addEventListener('click', function () { var c = buildSheet(DATA, currentStops(DATA)); download(csvTile, c.csv, 'text/csv', 'csv', 'download_csv'); });
+  // Print lays out the Group chat page on its own, in a hidden frame, so the wireframe around the phone is not printed
+  if (printTile) printTile.addEventListener('click', function () {
+    hideFallback();
+    var c = buildPage(DATA, currentStops(DATA)), old = document.getElementById('cn-print-frame');
+    if (old) old.remove();
+    var f = document.createElement('iframe');
+    f.id = 'cn-print-frame'; f.title = 'Itinerary for printing'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+    f.style.cssText = 'position:fixed;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(f);
+    var doc = f.contentDocument;
+    doc.open();
+    doc.write('<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><title>' + esc(DATA.page.title) + '</title><style>body{font:11pt/1.5 system-ui,sans-serif;color:#111;margin:1.5cm}h1{font-size:18pt;margin:0 0 6pt}h2{font-size:13pt;margin:16pt 0 4pt;break-after:avoid}ul{margin:0;padding-left:16pt}li{margin:3pt 0;break-inside:avoid}a{color:#111}a[href]::after{content:" (" attr(href) ")";font-size:9pt;color:#444;word-break:break-all}p{margin:0 0 6pt}</style></head><body>' + c.html + '<p style="margin-top:16pt;font-size:9pt;color:#444">Printed on ' + esc(copiedOn()) + '. Times and prices can change, so check before you go.</p></body></html>');
+    doc.close();
+    track({ event: 'print_plan', stop_count: c.count });
+    f.contentWindow.focus();
+    f.contentWindow.print();
   });
 
   // For testing and for swapping in the real stop data: window.cnCopy.data, .config, .buildPage(data, stops), .buildSheet(data, stops)
