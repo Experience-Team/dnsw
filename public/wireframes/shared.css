@@ -3266,6 +3266,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    the title, the countdown to the opening match and the tournament dates. Greyscale and the system font, as every
    wireframe; no Rugby World Cup theme. */
 .tp-body { padding: 0; }
+/* Reset prototype: a reviewer tool at the right of the top bar, quiet so it is not read as part of the design */
+.tp-reset { margin-left: auto; min-height: 44px; padding: 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tp-reset:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+@media (hover: hover) { .tp-reset:hover { color: #111; } }
 .tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 360px; color: #fff; isolation: isolate; }
 .tp-hero-img { position: absolute; inset: 0; z-index: -1; background: #595959; }
 .tp-hero-img::after { align-items: flex-start; padding-top: var(--space-5); font-size: .875rem; color: rgba(255,255,255,.55); }
