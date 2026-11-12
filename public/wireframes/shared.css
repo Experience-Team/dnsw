@@ -2914,6 +2914,8 @@ body.cp-page code { font: inherit; }
 .cn-close:focus-visible, .cn-seg button:focus-visible, .cn-save:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 @media (max-width: 30rem) {
   .cp-wrap.cn-wrap { padding: 0; }
+  /* The phone goes edge to edge; the heading, intro, jump buttons and notes keep a 16px gutter */
+  .cp-wrap.cn-wrap > :not(.cn-stage), .cn-stage > .cn-notes { margin-inline: var(--space-4); }
   .cn-phone { border-left: 0; border-right: 0; }
 }
 
@@ -2934,12 +2936,12 @@ body.cp-page code { font: inherit; }
 .cn-back:focus-visible, .cn-field:focus-visible, .cn-pill:focus-visible, .cn-tile:focus-visible, .cn-again:focus-visible, .cn-check input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 .cn-view { flex: none; display: flex; flex-direction: column; }
 .cn-view[hidden] { display: none; }
-.cn-note { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; min-height: 60px; padding: var(--space-3); border-radius: var(--radius-md); background: #f5f5f5; font-size: .75rem; color: #737373; }
+.cn-note { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; min-height: 60px; padding: var(--space-3); border-radius: var(--radius-md); background: #f5f5f5; font-size: .75rem; color: #5c5c5c; } /* 6:1 on the grey panel */
 .cn-note-dot { flex: none; width: 16px; height: 16px; margin-top: 10px; border-radius: 50%; background: #b3b3b3; }
 .cn-sheet.is-sent .cn-note-dot { background: #2666d9; margin-top: 10px; }
 .cn-sub { margin-top: var(--space-4); font-size: .875rem; font-weight: 600; }
 .cn-field { width: 100%; height: 48px; margin-top: var(--space-2); padding: 0 14px; border: 1px solid #a6a6a6; border-radius: var(--radius-md); background: #fff; color: #1a1a1a; font: inherit; font-size: .875rem; }
-.cn-field::placeholder { color: #999; }
+.cn-field::placeholder { color: #737373; } /* 4.7:1 on white */
 .cn-check { display: flex; align-items: flex-start; gap: 10px; margin-top: var(--space-3); font-size: .75rem; color: #1a1a1a; cursor: pointer; }
 .cn-check input { flex: none; appearance: none; -webkit-appearance: none; width: 20px; height: 20px; margin: 0; border: 1.5px solid #1a1a1a; border-radius: var(--radius-sm); background: #fff; cursor: pointer; display: grid; place-items: center; }
 .cn-check input:checked { background: #1f1f1f; }
@@ -3235,3 +3237,13 @@ body.cp-page code { font: inherit; }
 .cn-tl-keybtn[aria-expanded="true"] { color: #1a1a1a; }
 .cn-tl-key[hidden] { display: none; }
 [data-pane="timeline"].is-editing .cn-tl-done { display: none; }
+
+/* Concepts: the Timeline / List toggle keeps its 33px look but gets a 45px touch target. The pill clips with
+   rounded end buttons rather than overflow, so the invisible hit area can reach past the outline */
+.cn-seg { overflow: visible; }
+.cn-seg button { position: relative; }
+.cn-seg button:first-child { border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
+.cn-seg button:last-child { border-radius: 0 var(--radius-pill) var(--radius-pill) 0; }
+.cn-seg button::before { content: ""; position: absolute; inset: -6px 0; }
+/* Gap fields in the product page show the contract's pink marker (the page-wide grey override is for the planner) */
+body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); }
