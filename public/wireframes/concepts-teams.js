@@ -294,7 +294,7 @@
       var r = el.getBoundingClientRect(), delay = k * 70;
       if (f) {
         var dx = f.x - (r.left + r.width / 2), dy = f.y - (r.top + r.height / 2);
-        el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + f.a + 'deg) scale(' + (f.w / r.width) + ',' + (f.h / r.height) + ')' }, { transform: 'none' }], { duration: 560, delay: delay, easing: EASE, fill: 'backwards' });
+        el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + f.a + 'deg) scale(' + (f.w / r.width) + ',' + (f.h / r.height) + ')' }, { transform: 'none' }], { duration: 640, delay: delay, easing: 'cubic-bezier(.45, .05, .2, 1)', fill: 'backwards' });
       } else el.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: delay, easing: EASE, fill: 'backwards' });
       // The turn starts as the card leaves the fan and lands face up
       var a = flip.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 620, delay: delay + 80, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'both' });
@@ -309,8 +309,8 @@
   });
   document.getElementById('tp-change').addEventListener('click', function () {
     setView('pick');
-    place(false);
-    if (!reduce.matches) picker.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+    // The cards go back into the hand: the fan starts stacked and deals open again, picks still lifted
+    if (!reduce.matches) { dealt = false; place(false); fan.offsetWidth; requestAnimationFrame(deal); } else place(false);
     cards[Math.round(offset)].focus({ preventScroll: true });
   });
   // A ticket on a match is one ticket, whichever card it is marked on
