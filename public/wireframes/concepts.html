@@ -31,8 +31,9 @@
      M4 Email sent (43:141), M5 Open in maps (43:242). The sheet, toast and states are drawn once and
      switched by data-screen on .cn-phone. Linked as in the Figma file: Save and share opens M2,
      Spreadsheet goes to M3, Send itinerary to M4, Open in maps to M5, back and close return.
-     Placeholder content comes from the Figma frames. Not wired: the close cross on the list, Copy link and Calendar
-     (both marked "Not in this prototype"), the Google Maps and Apple Maps buttons, and Download a file. -->
+     Placeholder content comes from the Figma frames. The sheet puts the ways to keep a copy first (print, download,
+     copy) and the email form last. Not wired: the close cross on the list, the Google Maps and Apple Maps buttons,
+     and Download a file on M5. -->
 <section class="cp-section" id="itinerary-list">
   <div class="cp-wrap cn-wrap">
     <h2>Itinerary list and Save and share</h2>
@@ -100,30 +101,35 @@
         </div>
 
         <div class="cn-view" data-for="form">
-          <div class="cn-note" role="status"><span class="cn-note-dot" aria-hidden="true"></span><span data-note>Saved on this device only. Send it to yourself so you do not lose it.</span></div>
-          <h4 class="cn-sub">Send to my email</h4>
-          <label class="visually-hidden" for="cn-email">Email address</label>
-          <input class="cn-field" id="cn-email" type="email" autocomplete="email" placeholder="name@example.com" aria-describedby="cn-email-error" />
-          <p class="cn-error" id="cn-email-error" role="alert" hidden>Enter an email like name@example.com</p>
-          <label class="cn-check"><input type="checkbox" id="cn-news" /><span>Also send me travel ideas and news from Destination NSW (optional)</span></label>
-          <p class="cn-legal">We will use your email to send this itinerary. Privacy policy</p>
-          <button type="button" class="cn-pill cn-pill--dark" id="cn-send">Send itinerary</button>
-          <button type="button" class="cn-pill cn-pill--sent" id="cn-sent" tabindex="-1" aria-disabled="true"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Sent. Check your inbox</button>
-          <div class="cn-or"><span class="cn-or-text" aria-hidden="true">or</span><button type="button" class="cn-again" id="cn-again">Send again</button></div>
-          <h4 class="cn-sub cn-sub--copy">Other ways to keep it</h4>
+          <div class="cn-note" role="status"><span class="cn-note-dot" aria-hidden="true"></span><span data-note>Saved on this device only. Keep a copy so you do not lose it.</span></div>
+          <h4 class="cn-sub cn-sub--copy">Keep a copy</h4>
+          <div class="cn-tiles">
+            <button type="button" class="cn-tile cn-tile--wide" id="cn-tile-print"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Print or save as PDF</span><span class="cn-tile-meta">Opens your device&rsquo;s print options</span></span></button>
+            <button type="button" class="cn-tile" id="cn-tile-txt" aria-describedby="cn-desc-txt"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Download text</span><span class="cn-tile-meta">Notes app (.txt)</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile" id="cn-tile-csv" aria-describedby="cn-desc-csv"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Download table</span><span class="cn-tile-meta">Spreadsheets (.csv)</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+          </div>
+          <h4 class="cn-sub cn-sub--copy">Copy or open in another app</h4>
           <div class="cn-tiles">
             <button type="button" class="cn-tile" id="cn-tile-chat" aria-describedby="cn-desc-chat"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Notes, email or chat</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile" id="cn-tile-sheet" aria-describedby="cn-desc-sheet"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Spreadsheet</span><span class="cn-tile-meta">Paste into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile" id="cn-tile-ai"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">AI assistant</span><span class="cn-tile-meta">Copy text</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile" data-go="m5"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Open in maps</span><span class="cn-tile-meta">Google, Apple or a file</span></span></button>
-            <!-- Not in this prototype: shown so stakeholders see the intended options, marked so they are not reported as bugs -->
-            <button type="button" class="cn-tile cn-tile--todo" aria-disabled="true"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Copy link</span><span class="cn-tile-meta">Not in this prototype</span></span></button>
-            <button type="button" class="cn-tile cn-tile--todo" aria-disabled="true"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Calendar</span><span class="cn-tile-meta">Not in this prototype</span></span></button>
           </div>
-          <div class="cn-fallback" id="cn-fallback" hidden><label for="cn-fallback-text" class="cn-fallback-label">Select the text and copy it yourself</label><textarea id="cn-fallback-text" class="cn-fallback-text" readonly rows="8"></textarea></div>
+          <div class="cn-fallback" id="cn-fallback" hidden><label for="cn-fallback-text" class="cn-fallback-label">This browser blocked copying. The text below is selected: choose Copy to keep it.</label><textarea id="cn-fallback-text" class="cn-fallback-text" readonly rows="8"></textarea></div>
+          <details class="cn-peek" id="cn-peek"><summary>Preview the AI assistant text</summary><pre class="cn-preview" id="cn-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre></details>
+          <h4 class="cn-sub">Send to my email</h4>
+          <label class="visually-hidden" for="cn-email">Email address</label>
+          <input class="cn-field" id="cn-email" type="email" autocomplete="email" placeholder="name@example.com" aria-describedby="cn-email-error" />
+          <p class="cn-error" id="cn-email-error" role="alert" hidden>Enter an email like name@example.com</p>
+          <button type="button" class="cn-pill cn-pill--dark" id="cn-send">Send itinerary</button>
+          <button type="button" class="cn-pill cn-pill--sent" id="cn-sent" tabindex="-1" aria-disabled="true"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="cn-sent-text" id="cn-sent-text">Sent</span></button>
+          <button type="button" class="cn-again" id="cn-again">Send again</button>
+          <p class="cn-legal">We will use your email only to send this itinerary. Privacy policy</p>
+          <label class="cn-check cn-check--optin"><input type="checkbox" id="cn-news" /><span>Optional: also send me travel ideas and news from Destination NSW</span></label>
+          <span class="visually-hidden" id="cn-desc-txt">Downloads the whole itinerary as a plain text file.</span>
+          <span class="visually-hidden" id="cn-desc-csv">Downloads the stops as a table with ten columns, for Excel, Google Sheets and Numbers.</span>
           <span class="visually-hidden" id="cn-desc-chat">Copies the whole itinerary as rich text and plain text, for notes, email, documents and chats.</span>
           <span class="visually-hidden" id="cn-desc-sheet">Copies the stops as a table with ten columns, for Excel, Google Sheets and Numbers.</span>
-          <details class="cn-peek" id="cn-peek"><summary>Preview the AI assistant text</summary><pre class="cn-preview" id="cn-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre></details>
         </div>
 
         <div class="cn-view" data-for="maps" hidden>
@@ -158,12 +164,12 @@
   var sheetTile = document.getElementById('cn-tile-sheet');
   var aiTile = document.getElementById('cn-tile-ai');
   var chatTile = document.getElementById('cn-tile-chat');
+  var stateTiles = [sheetTile, aiTile, chatTile, document.getElementById('cn-tile-txt'), document.getElementById('cn-tile-csv')];
   var peek = document.getElementById('cn-peek');
   var preview = document.getElementById('cn-preview');
   var jumps = document.querySelectorAll('[data-go].btn');
   var behind = phone.querySelectorAll('.cn-bar, .cn-body, .cn-foot');
-  var NOTE_DEFAULT = 'Saved on this device only. Send it to yourself so you do not lose it.';
-  var NOTE_SENT = 'Itinerary sent. It is still saved on this device too.';
+  var NOTE_DEFAULT = 'Saved on this device only. Keep a copy so you do not lose it.';
   var screen = 'm1';
   var toastTimer, toastHide;
 
@@ -190,15 +196,15 @@
     document.getElementById('cn-sheet-title').textContent = next === 'm5' ? 'Open in maps' : 'Save and share';
     sheet.classList.toggle('is-sent', next === 'm4');
     var which = opts.tile || sheetTile; // M3 is the Spreadsheet tile as designed; the AI assistant tile reuses the same state
-    [sheetTile, aiTile, chatTile].forEach(function (tl) {
-      var on = next === 'm3' && tl === which;
+    stateTiles.forEach(function (tl) {
+      var on = next === 'm3' && tl === which && !opts.manual; // a blocked copy did not copy, so no tick
       tl.classList.toggle('is-copied', on);
       tl.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     clearTimeout(toastTimer); clearTimeout(toastHide);
     toast.classList.remove('is-leaving');
-    toast.hidden = next !== 'm3';
-    if (next === 'm3') {
+    toast.hidden = next !== 'm3' || !!opts.manual; // a blocked copy says so in the label above the text instead
+    if (next === 'm3' && !opts.manual) {
       toast.textContent = opts.message || 'Copied for your spreadsheet. Paste into cells.';
       // A confirmation fades out after 6 seconds; an instruction (press Ctrl+C) stays up
       if (!opts.keep) toastTimer = setTimeout(function () {
@@ -206,8 +212,11 @@
         toastHide = setTimeout(function () { toast.hidden = true; toast.classList.remove('is-leaving'); renderNotes(); }, 320);
       }, 6000);
     }
-    note.textContent = next === 'm4' ? NOTE_SENT : NOTE_DEFAULT;
     if (next === 'm4' && opts.preset) { if (!email.value) email.value = 'name@example.com'; news.checked = true; }
+    // Name the address it went to, so a typo shows up here rather than as an email that never arrives
+    var to = email.value.trim();
+    note.textContent = next === 'm4' ? 'Sent to ' + to + '. Check your inbox. It is still saved on this device too.' : NOTE_DEFAULT;
+    document.getElementById('cn-sent-text').textContent = 'Sent to ' + to;
     document.getElementById('cn-send').disabled = false;
     jumps.forEach(function (b) {
       var on = b.dataset.go === next;
@@ -309,7 +318,7 @@
       links.forEach(function (u, n) { out.push('Map for this day' + (links.length > 1 ? ' (' + (n + 1) + ' of ' + links.length + ')' : '') + ': ' + u); });
     });
     var rest = take(list.unplaced);
-    if (rest.length) { out.push('Not yet placed'); rest.forEach(function (r) { lines(r, false).forEach(function (x) { out.push(x); }); }); }
+    if (rest.length) { out.push('Not yet planned'); rest.forEach(function (r) { lines(r, false).forEach(function (x) { out.push(x); }); }); }
     if (shown < total) out.push((total - shown) + ' more saved places are left out to keep this short.');
     out.push('');
     if (level < 2) {
@@ -361,18 +370,14 @@
     }
     writeClipboard(text).then(done, function () {
       if (legacyCopy(text)) { aiTile.focus(); done(); return; }
-      // Neither worked: open the preview, select the text and say how to copy it
-      show('m3', { tile: aiTile, message: 'Press Ctrl+C or Cmd+C to copy', keep: true });
-      peek.open = true;
-      preview.textContent = text;
-      preview.focus();
-      var range = document.createRange(), sel = window.getSelection();
-      range.selectNodeContents(preview); sel.removeAllRanges(); sel.addRange(range);
+      // Neither worked: the same box as Group chat and Spreadsheet, with the text selected (concepts-copy.js)
+      window.cnShowManual(aiTile, text);
     });
   }
   aiTile.addEventListener('click', copyForAi);
   // The Group chat and Spreadsheet tiles are wired in concepts-copy.js, which asks for the copied state through this
   window.cnShowCopied = function (tile, message, keep) { show('m3', { tile: tile, message: message, keep: !!keep }); tile.focus({ preventScroll: true }); };
+  window.cnShowBlocked = function (tile) { show('m3', { tile: tile, manual: true }); };
   peek.addEventListener('toggle', function () { var t = buildAiText(); if (peek.open && preview.textContent !== t) preview.textContent = t; }); // not when unchanged: it would clear a selection
 
   opener.addEventListener('click', function () { show('m2', { focus: true }); });
@@ -472,21 +477,24 @@
     ], todo: 'Not wired: the cross at the top left.' },
     m2: { items: [
       { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Drag the handle down to close it: let go past a third of the way, or flick it, and the sheet goes; let go earlier and it springs back. It also closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
-      { sel: '#cn-send', title: 'Send itinerary', text: 'Checks the email address. A typed address that does not look right shows an inline error; an empty field is filled with an example so you can click through. A good address goes to Email sent (M4).' },
+      { sel: '#cn-tile-print', title: 'Print or save as PDF', text: 'Opens the device print options with the whole itinerary laid out as a page: headings per day, every stop with its details and full web address. Choose Save as PDF there to keep a file. Nothing else on this page is printed.' },
+      { sel: '#cn-tile-txt', title: 'Download text', text: 'Saves the same text as Group chat as a .txt file, named with the trip dates. Opens in any notes app or text editor.' },
+      { sel: '#cn-tile-csv', title: 'Download table', text: 'Saves the same ten columns as Spreadsheet as a .csv file (UTF-8). Opens in Excel, Google Sheets and Numbers.' },
       { sel: '#cn-tile-ai', title: 'Copy for your AI assistant', text: 'Builds a prompt from this itinerary (trip details, match, places by day, one Google Maps link per day, under 8,000 characters), copies it and shows Format copied (M3). Inspect the pasted text, and window.dataLayer for the copy_for_ai event.' },
       { sel: '#cn-tile-chat', title: 'Group chat: copy the page', text: 'Copies the whole itinerary as rich text and plain text in one go, so notes, email and documents keep the headings and live links, and a plain-text editor or chat gets full web addresses on their own lines. Inspect the paste in Apple Notes, Google Docs, Gmail and WhatsApp web. If the clipboard is blocked it falls back to plain text, then to a box you copy from.' },
       { sel: '#cn-tile-sheet', title: 'Spreadsheet: copy a table', text: 'Copies the stops as a table with ten columns (Day, Theme, Time of day, Order, Name, Type, Area, Address, Details, Link), one row per stop in your order. Inspect the paste in Excel, Google Sheets and Numbers: Order is a number and names are links.' },
       { sel: '.cn-tile[data-go="m5"]', title: 'Open in maps', text: 'Swaps the sheet to Open in maps (M5). The back arrow there returns here.' },
+      { sel: '#cn-send', title: 'Send itinerary', text: 'Last on the sheet, after the ways to keep a copy. Checks the email address. A typed address that does not look right shows an inline error; an empty field is filled with an example so you can click through. A good address goes to Email sent (M4). The news tick is optional and sits below the button.' },
       { sel: '#cn-peek summary', title: 'Preview the AI assistant text', text: 'Opens a read-only, scrollable preview of the exact text the AI assistant tile copies. Inspect that it matches what lands on the clipboard.' }
-    ], todo: 'Not wired: Copy link and Calendar, marked with a dashed outline and "Not in this prototype".' },
+    ] },
     m3: { items: [
-      { sel: '.cn-tile.is-copied', title: 'Copied state', text: 'Blue border and tick on the tile you used. The AI assistant, Group chat and Spreadsheet tiles all copy and then show this state.' },
-      { sel: '#cn-toast', at: 'tl', title: 'Confirmation', text: 'Announced to screen readers, and fades out after 6 seconds. If the clipboard is blocked it asks you to press Ctrl+C or Cmd+C and selects the preview text instead.' }
+      { sel: '.cn-tile.is-copied', title: 'Copied state', text: 'Blue border and tick on the tile you used. The download, Group chat, Spreadsheet and AI assistant tiles all show this state.' },
+      { sel: '#cn-toast', at: 'tl', title: 'Confirmation', text: 'Announced to screen readers, and fades out after 6 seconds. If the browser blocks copying there is no toast and no tick: a box opens under the tiles with the text selected and a label that says to choose Copy, which works on touch and keyboard alike.' }
     ], todo: 'Try the AI assistant tile for the real copy.' },
     m4: { items: [
-      { sel: '.cn-pill--sent', title: 'Sent state', text: 'The status line above turns blue and the button reads Sent. Check your inbox. The email and the news tick are kept.' },
+      { sel: '.cn-pill--sent', title: 'Sent state', text: 'The status line turns blue and names the address (Sent to …), so a typo is easy to spot. The button reads the same. The email and the news tick are kept.' },
       { sel: '#cn-again', title: 'Send again', text: 'Returns to the form (M2) with the email kept, ready to send again.' }
-    ], todo: 'Not wired: Copy link and Calendar (dashed).' },
+    ] },
     m5: { items: [
       { sel: '.cn-back', at: 'tl', title: 'Back', text: 'Returns to Save and share (M2).' },
       { sel: '.cn-day-card', title: 'Day routes', text: 'One card per planned day, built from the list each time it opens, each with a Google Maps and an Apple Maps route. Reorder the list, then come back: the days and stop counts follow. Not yet planned items are left out.' }
