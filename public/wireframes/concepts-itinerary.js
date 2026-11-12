@@ -193,7 +193,7 @@
   // The bracket label sits at the start of its bracket, and slides so it is never cut off by either edge of the view
   // Month labels stick to the left edge of the view while their month is on screen, so the dates always have a month
   function placeMonths() {
-    var view = el.scroll.scrollLeft + 12, ms = Array.prototype.slice.call(tlPane.querySelectorAll('.cn-tl-month'));
+    var view = el.scroll.scrollLeft + 16, ms = Array.prototype.slice.call(tlPane.querySelectorAll('.cn-tl-month'));
     ms.forEach(function (m, k) {
       var lo = xOf(+m.dataset.from) - 8, next = ms[k + 1], hi = next ? xOf(+next.dataset.from) - 8 - m.offsetWidth - 12 : Infinity;
       m.style.left = Math.max(lo, Math.min(hi, view)) + 'px';
