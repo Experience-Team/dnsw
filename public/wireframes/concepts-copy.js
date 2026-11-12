@@ -102,6 +102,9 @@
     return what + ' on ' + n(g.days.length, 'day', 'days') + (g.rest.length ? ', and ' + n(g.rest.length, 'place', 'places') + ' not yet planned' : '') + '.' + (setup.arrive && setup.leave ? ' In NSW from ' + setup.arrive + ' 2027 to ' + setup.leave + ' 2027.' : '');
   }
   function details(s) { return [s.kickoff, s.description].filter(Boolean).join('. '); }
+  // The fan's matches outside NSW that fall inside their days in NSW (set by the timeline), so no copy hides them
+  function awayMatches() { var a = (window.cnTripSetup || {}).away; return Array.isArray(a) ? a : []; }
+  function awayLine(a) { return a.day + ' 2027: ' + a.match + ' in ' + a.city + ', ' + a.venue + '. Kick-off ' + a.kick + '.'; }
 
   /* ---------- Copy page: text/html and text/plain ---------- */
   function buildPage(data, stops, cfg) {
@@ -111,6 +114,12 @@
     h += '<p>Source: <a href="' + esc(src) + '">' + esc(data.page.sourceName) + '</a></p>';
     h += '<p>' + esc(ov) + '</p>';
     var t = [data.page.title.toUpperCase(), 'Source: ' + src, 'Copied on ' + copiedOn(cfg), '', ov];
+    var away = awayMatches();
+    if (away.length) {
+      h += '<h2>Away from NSW</h2><ul>' + away.map(function (a) { return '<li>' + esc(awayLine(a)) + '</li>'; }).join('') + '</ul>';
+      t.push('', 'AWAY FROM NSW', new Array(25).join('-'));
+      away.forEach(function (a) { t.push('- ' + awayLine(a)); });
+    }
     function stopHtml(s) {
       var u = link(s.url, cfg);
       return '<li>' + (u ? '<a href="' + esc(u) + '">' + esc(s.name) + '</a>' : esc(s.name)) + ' [' + esc(s.type) + ']' + (details(s) ? ': ' + esc(details(s)) : '') + '</li>';
@@ -152,6 +161,8 @@
       // Theme and Time of day stay empty unless the fan set them; a match's kick-off is the one time we know
       return [s.day === 'Not yet planned' ? s.day : s.day + ' 2027', s.theme || '', s.kickoff || '', i + 1, s.name, s.type, s.area, s.address, s.description, link(s.url, cfg)];
     });
+    // Matches outside NSW come last, with no order number, so the fan's own order stays as it is
+    awayMatches().forEach(function (a) { rows.push([a.day + ' 2027', '', a.kick, '', a.match, 'Match (outside NSW)', a.city, a.venue, 'Outside NSW, during your days in NSW', '']); });
     var text = [COLUMNS.map(tsvField).join('\t')].concat(rows.map(function (r) { return r.map(tsvField).join('\t'); })).join('\n');
     var html = '<table><thead><tr>' + COLUMNS.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
     rows.forEach(function (r) {

@@ -273,15 +273,19 @@
     out.push("Hi! I'm a Rugby World Cup 2027 fan visiting New South Wales, Australia. Please turn what I've saved below into a practical trip plan.", '');
     out.push('ABOUT MY TRIP', '- Supporting: ' + (trip.team || 'Not chosen yet'), '- Travelling: ' + trip.group);
     out.push('- Getting around: ' + (trip.car ? 'I have a car' : 'No car (public transport and walking)'), '- Budget: ' + trip.budget);
-    out.push('- In NSW from ' + longDate(trip.arrive) + ' to ' + longDate(trip.leave), '');
+    var away = trip.away || []; // the fan's matches outside NSW that fall inside their days in NSW
+    out.push('- In NSW from ' + longDate(trip.arrive) + ' to ' + longDate(trip.leave));
+    if (away.length) out.push('- Away from NSW for ' + (away.length === 1 ? 'a match' : 'matches') + ' on ' + away.map(function (a) { return longDate(a.day) + ' (' + a.city + ')'; }).join(' and ') + '. Do not plan NSW stops on ' + (away.length === 1 ? 'that day' : 'those days') + '.');
+    out.push('');
     out.push('MY MATCHES');
     var matches = [];
     list.days.forEach(function (d) { d.rows.forEach(function (r) { if (/ v /.test(r.name)) matches.push({ day: d.label, r: r }); }); });
-    if (matches.length) {
+    if (matches.length || away.length) {
       matches.forEach(function (m) {
         var t = m.r.name.split(' v '), parts = m.r.meta.split('·').map(function (x) { return x.trim(); });
         out.push('- ' + t[0] + ' v ' + t[1] + ', ' + longDate(m.day) + ', ' + (m.r.time !== null ? 'kick-off ' + parts[1] + ' AEDT' : 'kick-off time to be confirmed') + ', ' + parts[0] + ', ' + (m.r.fix.geo && m.r.fix.geo[0] > -34 && m.r.fix.geo[1] > 151.5 ? 'Newcastle' : 'Sydney'));
       });
+      away.forEach(function (a) { out.push('- ' + a.match + ', ' + longDate(a.day) + ', kick-off ' + a.kick + ', ' + a.venue + ', ' + a.city + ' (outside NSW)'); });
     } else {
       out.push('No match selected yet. Please ask me which match I am going to before you plan around kick-off.');
     }
@@ -462,6 +466,8 @@
       { view: 'timeline', sel: '#cn-tl-teams-btn', title: 'Your teams', text: 'Opens the team list over the chart, so the chart stays put. Tick to add a team, untick to remove it, or Clear all. Only your teams\u2019 matches show, plus any match you have a ticket for; with no teams the view asks you to choose some. A team you chose earlier in the journey is already ticked, and your teams set Supporting in the AI prompt.' },
       { view: 'timeline', sel: '#cn-tl-key-btn', title: 'Markers and the product page', text: 'Key opens the legend of marker shapes. Matches sit above the line, places below it. The filled ticket is the match you have a ticket for and is always labelled; other labels show where there is room. Every marker, and every place in Not yet planned, opens the product page full screen. Inspect Escape and the cross, Tab staying inside, focus going back to the marker and the timeline keeping its scroll position. Pink fields are gaps in the data contract.' },
       { view: 'timeline', sel: '.cn-tl-handle[data-which="start"]', title: 'Your days', text: 'Drag the two handles, or focus one and use the arrow keys, to set the days you are in NSW. On touch, dragging a handle does not scroll the chart and swiping the chart does not move a handle. Items outside the range fade, the status line counts only matches in NSW, and the list heading and the AI prompt dates follow.' },
+      { view: 'timeline', sel: '#cn-tl-warn', title: 'Match outside NSW', text: 'When one of your matches outside NSW (Perth, Brisbane) falls inside your days in NSW, this line says which match and which day, in both views, and that day is hatched on the chart. The AI prompt, Group chat and Spreadsheet copies list it too, so nothing plans a Sydney day when you are in Perth. Try it: Australia plays in Perth on Fri 1 Oct.' },
+      { sel: '.cn-status', title: 'Saved on this device', text: 'Your list order, removed places, dates and teams are kept in this browser, so a reload keeps your changes. Add ?reset to the address to start again.' },
       { view: 'timeline', sel: '.cn-tl-done', title: 'Done', text: 'Confirms your dates and stays on the timeline. Switch to List and back: each view keeps its own scroll position.' }
     ], todo: 'Not wired: the cross at the top left.' },
     m2: { items: [

@@ -3131,6 +3131,10 @@ body.cp-page code { font: inherit; }
 .cn-tl-handle:focus-visible { outline: 2px solid #005EA2; outline-offset: 3px; }
 .cn-tl-swipe { margin-top: var(--space-1); }
 .cn-tl-foot { margin-top: var(--space-2); font-size: .75rem; color: #4d4d4d; }
+/* A match outside NSW inside the days in NSW: a plain boxed line in both views, and that day hatched on the chart */
+.cn-warn { margin: var(--space-2) 0 0; padding: var(--space-2) var(--space-3); border: 1px solid #8a8a8a; border-radius: var(--radius-md); background: #f2f2f2; color: #1a1a1a; font-size: .8125rem; line-height: 1.4; }
+.cn-warn[hidden] { display: none; }
+.cn-tl-clash { position: absolute; top: 30px; height: 312px; background: repeating-linear-gradient(135deg, rgba(0,0,0,.12) 0 3px, transparent 3px 8px); pointer-events: none; }
 .cn-tl-np { margin-top: var(--space-4); }
 .cn-tl-np .cn-day { margin-top: 0; }
 .cn-tl-np .cn-tl-chips { margin-top: var(--space-3); }

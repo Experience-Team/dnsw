@@ -5,8 +5,9 @@
       they are in NSW. Every marker opens the product page in a full-screen modal.
    3. List view: drag-to-reorder (pointer and keyboard), within a day, between days and into Not yet planned.
    Placeholder data throughout (prototype only). The list in the page is the source of truth: the timeline, the AI
-   prompt and the range read from it, so reordering and changing the range show up there. Nothing here is saved in
-   the browser; the only saved state on the page is the annotation switch. */
+   prompt and the range read from it, so reordering and changing the range show up there. The plan (the list's
+   order, removed places, the dates and the teams) is kept in this browser's storage, so a reload keeps the fan's
+   edits; add ?reset to the address to start again. */
 (function () {
   'use strict';
   var phone = document.getElementById('cn-phone');
@@ -123,9 +124,10 @@
     ALL_TEAMS.forEach(function (t) { h += '<li><label><input type="checkbox" value="' + esc(t) + '"><span>' + esc(t) + '</span></label></li>'; });
     h += '</ul></div>';
     h += '<button type="button" class="cn-tl-done">Done</button></div>';
+    h += '<p class="cn-warn" id="cn-tl-warn" hidden></p>';
     h += '<div class="cn-tl-empty" id="cn-tl-empty" hidden><p><strong>No teams chosen yet.</strong> Choose your teams to see their matches here.</p><button type="button" class="cn-pill cn-pill--outline cn-pill--sm" id="cn-tl-empty-btn">Choose teams</button></div>';
     h += '<div class="cn-tl-scroll" tabindex="0" role="region" aria-label="Your trip timeline. Scrolls sideways."><div class="cn-tl-canvas" style="width:' + (PAD * 2 + COL * (DAYS - 1)) + 'px">';
-    h += '<div class="cn-tl-band" id="cn-tl-band"></div>';
+    h += '<div class="cn-tl-band" id="cn-tl-band"></div><div id="cn-tl-clash"></div>';
     h += '<span class="cn-tl-tag" id="cn-tl-tag-start"></span><span class="cn-tl-tag" id="cn-tl-tag-end"></span>';
     h += '<div class="cn-tl-axis" style="left:' + PAD + 'px;width:' + (COL * (DAYS - 1)) + 'px"></div>';
     for (var i = 0; i < DAYS; i++) {
@@ -171,6 +173,11 @@
       phone.dispatchEvent(new CustomEvent('cn:view', { detail: phone.dataset.view })); // redraw the annotation badges
     });
     el.foot = document.getElementById('cn-tl-foot');
+    el.warn = document.getElementById('cn-tl-warn');
+    el.clash = document.getElementById('cn-tl-clash');
+    // The same warning in the list view, under the dates line, so the fan sees it whichever view they are in
+    el.listWarn = document.createElement('p'); el.listWarn.className = 'cn-warn'; el.listWarn.hidden = true;
+    meta.parentNode.insertBefore(el.listWarn, meta.nextSibling);
     el.done = tlPane.querySelector('.cn-tl-done');
     el.markers = document.getElementById('cn-tl-markers');
     el.scroll.addEventListener('scroll', function () { if (!el.raf) el.raf = requestAnimationFrame(function () { el.raf = 0; placeBracketLabel(); }); }, { passive: true });
@@ -349,8 +356,22 @@
     var first = FIX.filter(function (f) { return onTrip(f) && !f.away && f.i >= s && f.i <= e; }).sort(function (x, y) { return x.i - y.i; })[0];
     el.foot.textContent = plural(e - s + 1, 'day', 'days') + ' in NSW. ' + (!first ? (state.teams.length ? 'None of your matches in NSW fall in these days.' : 'Choose your teams to see how long it is before your first match.') : first.i === s ? 'Your first match in NSW is on your first day.' : plural(first.i - s, 'day', 'days') + ' before your first match in NSW.');
     meta.textContent = shortLabel(s) + ' to ' + shortLabel(e) + ' · ' + plural(itemCount(), 'item', 'items');
-    if (window.cnTripSetup) { window.cnTripSetup.arrive = longLabel(s); window.cnTripSetup.leave = longLabel(e); }
+    // A match outside NSW inside the days in NSW: the fan cannot be in both places, so say so in both views,
+    // hatch that day on the chart, and hand the matches to the copies (the AI prompt, Group chat, Spreadsheet)
+    var away = FIX.filter(function (f) { return onTrip(f) && f.away && f.i >= s && f.i <= e; }).sort(function (x, y) { return x.i - y.i; });
+    el.clash.innerHTML = away.map(function (f) { return '<span class="cn-tl-clash" data-i="' + f.i + '" style="left:' + (xOf(f.i) - COL / 2) + 'px;width:' + COL + 'px"></span>'; }).join('');
+    var msg = away.length ? away.map(function (f) { return matchName(f) + ' is in ' + f.away + ' on ' + longLabel(f.i) + '.'; }).join(' ') +
+      (away.length === 1 ? ' That day is inside your days in NSW. Change your dates, or plan to be away from NSW that day.' : ' Those days are inside your days in NSW. Change your dates, or plan to be away from NSW on them.') : '';
+    [el.warn, el.listWarn].forEach(function (w) { if (w.textContent !== msg) w.textContent = msg; w.hidden = !msg; });
+    if (msg && msg !== lastWarn && !loading) say(msg);
+    lastWarn = msg;
+    if (window.cnTripSetup) {
+      window.cnTripSetup.arrive = longLabel(s); window.cnTripSetup.leave = longLabel(e);
+      window.cnTripSetup.away = away.map(function (f) { return { match: matchName(f), day: longLabel(f.i), city: f.away, venue: f.venue, kick: kickTime(f) }; });
+    }
+    save();
   }
+  var lastWarn = '';
 
   // Range handles: drag, or arrow keys when focused. The handle sits on the edge of the first or last day.
   // touch-action: none on the handles, so on touch a drag on a handle moves it and never scrolls the chart; a swipe
@@ -559,6 +580,8 @@
     t.querySelector('.cn-undo-text').textContent = 'Removed ' + name + '.';
     t.hidden = false;
     undo = { li: li, home: home, timer: setTimeout(hideUndo, 6000) };
+    if (removed.indexOf(id) < 0) removed.push(id);
+    save();
     t.querySelector('.cn-undo-btn').focus({ preventScroll: true });
   }
   function restore() {
@@ -566,6 +589,7 @@
     var u = undo; hideUndo();
     var ul = u.home.ul.isConnected ? u.home.ul : lists()[lists().length - 1];
     ul.insertBefore(u.li, u.home.next && u.home.next.parentNode === ul ? u.home.next : null);
+    removed = removed.filter(function (x) { return x !== u.li.dataset.stop; });
     refreshEmpty();
     phone.dispatchEvent(new CustomEvent('cn:reorder'));
     say(nameOf(u.li) + ' is back in ' + dayName(ul) + '.');
@@ -896,6 +920,56 @@
     if (held && e.target.closest && e.target.closest('.cn-handle') === held.hd) { var h = held; setTimeout(function () { if (held === h && document.activeElement !== h.hd) release(true, h.hd); }, 0); }
   });
 
+  /* ---------- Saved in this browser ----------
+     One record: the list's days in order with their stops, the places the fan removed, the dates and the teams.
+     Storage can be missing or blocked (private windows, previews), so every read and write is wrapped and the
+     page works the same without it. Anything odd in a saved record is ignored, never half-applied. */
+  var STORE = 'cn-plan-v1', removed = [], loading = true;
+  function save() {
+    if (loading) return;
+    var days = Array.prototype.map.call(listPane.querySelectorAll('.cn-day'), function (h) {
+      var ul = h.nextElementSibling; while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
+      return { label: h.textContent.trim(), stops: Array.prototype.map.call(ul ? ul.querySelectorAll('.cn-item') : [], function (li) { return li.dataset.stop; }) };
+    });
+    try { localStorage.setItem(STORE, JSON.stringify({ v: 1, days: days, removed: removed, start: range.start, end: range.end, teams: state.teams })); } catch (e) { /* not saved: the page still works */ }
+  }
+  function load() {
+    var rec;
+    try {
+      if (/[?&]reset\b/.test(location.search)) { localStorage.removeItem(STORE); return; }
+      rec = JSON.parse(localStorage.getItem(STORE) || 'null');
+    } catch (e) { return; }
+    if (!rec || rec.v !== 1 || !Array.isArray(rec.days)) return;
+    var dateRe = /^([A-Z][a-z]{2}) (\d+) ([A-Z][a-z]{2})$/, labels = {};
+    // Places the fan removed come out first
+    (Array.isArray(rec.removed) ? rec.removed : []).forEach(function (id) {
+      var li = listPane.querySelector('.cn-item[data-stop="' + String(id).replace(/"/g, '') + '"]');
+      if (li && !/ v /.test(nameOf(li))) { li.remove(); removed.push(li.dataset.stop); }
+    });
+    // Then each saved day, in the saved order of its stops. A stop the page no longer has is skipped.
+    rec.days.forEach(function (d) {
+      if (!d || typeof d.label !== 'string' || !Array.isArray(d.stops)) return;
+      var m = dateRe.exec(d.label), ul;
+      if (d.label === 'Not yet planned') ul = lists()[lists().length - 1];
+      else if (m && idx(m[3], +m[2]) >= 0 && idx(m[3], +m[2]) < DAYS) ul = dayList(idx(m[3], +m[2]));
+      else return;
+      labels[d.label] = true;
+      d.stops.forEach(function (id) {
+        var li = listPane.querySelector('.cn-item[data-stop="' + String(id).replace(/"/g, '') + '"]');
+        if (li && !/ v /.test(nameOf(li))) ul.appendChild(li); // matches stay on their own day
+      });
+    });
+    // A dated day the fan took out of the plan, and that is now empty, goes
+    Array.prototype.slice.call(listPane.querySelectorAll('.cn-day')).forEach(function (h) {
+      var t = h.textContent.trim(), ul = h.nextElementSibling; while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
+      if (dateRe.test(t) && !labels[t] && ul && !ul.querySelector('.cn-item')) { ul.remove(); h.remove(); }
+    });
+    var a = +rec.start, b = +rec.end;
+    if (a >= 0 && b < DAYS && a <= b && a === Math.floor(a) && b === Math.floor(b)) { range.start = a; range.end = b; }
+    if (Array.isArray(rec.teams)) state.teams = rec.teams.filter(function (t) { return ALL_TEAMS.indexOf(t) > -1; }).sort();
+  }
+
+  load();
   buildTimeline();
   buildModal();
   bindEdit();
@@ -906,4 +980,6 @@
   syncTeams();
   phone.addEventListener('cn:reorder', function () { renderMarkers(); updateRange(); });
   refreshEmpty();
+  loading = false;
+  save();
 })();
