@@ -123,10 +123,13 @@
     setTimeout(function () { cards.forEach(function (b) { b.style.transitionDelay = ''; }); }, 900);
   }
   place(false);
-  if ('IntersectionObserver' in window) {
+  // The hand deals open the first time the fan comes into view (and again after Reset prototype)
+  function watchDeal() {
+    if (!('IntersectionObserver' in window)) { deal(); return; }
     var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); deal(); } }, { root: body, threshold: .4 });
     io.observe(fan);
-  } else deal();
+  }
+  watchDeal();
 
   // Drag or swipe sideways; a tap picks. Vertical swipes still scroll the phone (touch-action: pan-y).
   var drag = null, suppress = false;
@@ -375,5 +378,24 @@
 
   renderChosen();
   if (state.view === 'results') { dealt = true; place(false); showResults(false); } else setView(state.view);
+  /* ---------- Reset prototype (a reviewer tool in the section header, not part of the design) ----------
+     Back to a first visit: nothing picked, no tickets, nothing saved, the picker view, the hand stacked to deal open
+     again, and the phone scrolled to the top. */
+  var resetBtn = document.getElementById('tp-reset');
+  if (resetBtn) resetBtn.addEventListener('click', function () {
+    deck.getAnimations && deck.querySelectorAll('*').forEach(function (el) { el.getAnimations().forEach(function (a) { a.cancel(); }); });
+    cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
+    state.picked = []; state.tickets = [];
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    deck.innerHTML = ''; deck.classList.remove('is-flying');
+    offset = 3; dealt = false;
+    setView('pick');
+    renderChosen();
+    place(false);
+    body.scrollTop = 0;
+    watchDeal();
+    say('Prototype reset. No teams picked.');
+  });
+
   window.tpPicker = { teams: TEAMS, state: state };
 })();
