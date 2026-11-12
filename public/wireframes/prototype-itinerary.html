@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Share/edit itinerary · RWC prototypes</title>
+<link rel="stylesheet" href="shared.css" />
+</head>
+<body class="pv-page">
+<!-- Prototype viewer (Figma: Rugby World Cup, Prototype layout 204:12359). One prototype per page, each with its own
+     address, behind the same header and tabs. On a laptop the page is held at the window height and never scrolls:
+     the phone keeps its 390px width, shows up to its full 844px height and scrolls inside, so scrolling the prototype
+     never moves the page. Short or narrow windows fall back to an ordinary scrolling page (see .pv-page in shared.css). -->
+<header class="pv-header">
+  <h1 class="pv-title">RWC prototypes</h1>
+  <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html">Pick your team</a><a class="pv-tab is-active" href="prototype-itinerary.html" aria-current="page">Share/edit itinerary</a></nav>
+</header>
+<!-- Concept: itinerary list and Save and share, five Figma screens in one 390 x 844 phone window:
+     M1 Itinerary list view (42:41), M2 Save and share sheet (42:98), M3 Format copied (43:40),
+     M4 Email sent (43:141), M5 Open in maps (43:242). The sheet, toast and states are drawn once and
+     switched by data-screen on .cn-phone. Linked as in the Figma file: Save and share opens M2,
+     Spreadsheet goes to M3, Send itinerary to M4, Open in maps to M5, back and close return.
+     Placeholder content comes from the Figma frames. The sheet puts the ways to keep a copy first (print, download,
+     copy) and the email form last. Not wired: the close cross on the list, the Google Maps and Apple Maps buttons,
+     and Download a file on M5. -->
+<main class="pv-main" id="cn-stage">
+  <div class="pv-intro">
+    <h2 class="pv-h2">Itinerary list and Save and share</h2>
+    <p class="pv-p">The starting screen is the itinerary list. Save and share opens a sheet in the same window, and the sheet leads to the format copied, email sent and open in maps screens. Phone size only.</p>
+    <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+    <div class="pv-notes">
+      <aside class="cn-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
+      <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
+      <ol class="cn-notes-list" id="cn-notes-list"></ol>
+      <p class="cn-notes-todo" id="cn-notes-todo"></p>
+    </aside>
+      <p class="pv-notes-empty">Annotations appear here</p>
+    </div>
+  </div>
+  <div class="pv-phone">
+    <div class="cn-phone" id="cn-phone" data-screen="m1" data-view="list" role="group" aria-label="Itinerary, phone screen">
+      <div class="cn-bar">
+        <button type="button" class="cn-close" aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <h3 class="cn-bar-title">Your itinerary</h3>
+      </div>
+      <div class="cn-body">
+        <div class="cn-seg-wrap">
+          <div class="cn-seg" role="group" aria-label="View">
+            <button type="button" aria-pressed="false">Timeline</button>
+            <button type="button" aria-pressed="true">List</button>
+          </div>
+        </div>
+        <div class="cn-pane" data-pane="list">
+        <p class="cn-meta" id="cn-meta">26 Sep to 11 Oct · 5 items</p>
+          <h3 class="cn-day">Fri 8 Oct</h3>
+          <ul class="cn-items">
+            <li class="cn-item" data-stop="centennial-parklands"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><button type="button" class="cn-handle" aria-label="Reorder Centennial Parklands. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="fan-zone"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><button type="button" class="cn-handle" aria-label="Reorder Fan zone. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+          </ul>
+          <h3 class="cn-day">Sat 9 Oct</h3>
+          <ul class="cn-items">
+            <li class="cn-item" data-stop="nz-v-australia"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><span class="cn-fixed" title="Matches are fixed to their day"><svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="visually-hidden">Match, fixed to its day</span></span></li>
+          </ul>
+          <h3 class="cn-day">Sun 10 Oct</h3>
+          <ul class="cn-items">
+            <li class="cn-item" data-stop="patonga-beach"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><button type="button" class="cn-handle" aria-label="Reorder Patonga Beach. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+          </ul>
+          <h3 class="cn-day">Not yet planned</h3>
+          <p class="cn-hint">Drag onto a day, or leave them here.</p>
+          <ul class="cn-items">
+            <li class="cn-item" data-stop="newcastle-ocean-baths"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><button type="button" class="cn-handle" aria-label="Reorder Newcastle Ocean Baths. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+          </ul>
+        </div>
+        <div class="cn-pane" data-pane="timeline" hidden></div>
+        <p class="visually-hidden" id="cn-live" role="status" aria-live="polite"></p>
+      </div>
+      <div class="cn-foot">
+        <p class="cn-status">Saved on this device only</p>
+        <button type="button" class="cn-save" id="cn-open-share">Save and share</button>
+      </div>
+
+      <div class="cn-backdrop" data-close></div>
+      <div class="cn-sheet" id="cn-sheet" role="dialog" aria-modal="true" aria-labelledby="cn-sheet-title" tabindex="-1" data-view="form" inert>
+        <span class="cn-grabber" aria-hidden="true"></span>
+        <div class="cn-sheet-head">
+          <button type="button" class="cn-back" aria-label="Back to Save and share" data-back>&lsaquo;</button>
+          <h3 class="cn-sheet-title" id="cn-sheet-title">Save and share</h3>
+          <button type="button" class="cn-close" aria-label="Close" data-close><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        </div>
+
+        <div class="cn-view" data-for="form">
+          <div class="cn-note" role="status"><span class="cn-note-dot" aria-hidden="true"></span><span data-note>Saved on this device only. Keep a copy so you do not lose it.</span></div>
+          <h4 class="cn-sub cn-sub--copy">Keep a copy</h4>
+          <div class="cn-tiles">
+            <button type="button" class="cn-tile cn-tile--wide" id="cn-tile-print"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Print or save as PDF</span><span class="cn-tile-meta">Opens your device&rsquo;s print options</span></span></button>
+            <button type="button" class="cn-tile" id="cn-tile-txt" aria-describedby="cn-desc-txt"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Download text</span><span class="cn-tile-meta">Notes app (.txt)</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile" id="cn-tile-csv" aria-describedby="cn-desc-csv"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Download table</span><span class="cn-tile-meta">Spreadsheets (.csv)</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+          </div>
+          <h4 class="cn-sub cn-sub--copy">Copy or open in another app</h4>
+          <div class="cn-tiles">
+            <button type="button" class="cn-tile" id="cn-tile-chat" aria-describedby="cn-desc-chat"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Notes, email or chat</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile" id="cn-tile-sheet" aria-describedby="cn-desc-sheet"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Spreadsheet</span><span class="cn-tile-meta">Paste into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile" id="cn-tile-ai"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">AI assistant</span><span class="cn-tile-meta">Copy text</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile" data-go="m5"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Open in maps</span><span class="cn-tile-meta">Google, Apple or a file</span></span></button>
+          </div>
+          <div class="cn-fallback" id="cn-fallback" hidden><label for="cn-fallback-text" class="cn-fallback-label">This browser blocked copying. The text below is selected: choose Copy to keep it.</label><textarea id="cn-fallback-text" class="cn-fallback-text" readonly rows="8"></textarea></div>
+          <details class="cn-peek" id="cn-peek"><summary>Preview the AI assistant text</summary><pre class="cn-preview" id="cn-preview" tabindex="0" role="region" aria-label="Preview of the text for your AI assistant"></pre></details>
+          <h4 class="cn-sub">Send to my email</h4>
+          <label class="visually-hidden" for="cn-email">Email address</label>
+          <input class="cn-field" id="cn-email" type="email" autocomplete="email" placeholder="name@example.com" aria-describedby="cn-email-error" />
+          <p class="cn-error" id="cn-email-error" role="alert" hidden>Enter an email like name@example.com</p>
+          <button type="button" class="cn-pill cn-pill--dark" id="cn-send">Send itinerary</button>
+          <button type="button" class="cn-pill cn-pill--sent" id="cn-sent" tabindex="-1" aria-disabled="true"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="cn-sent-text" id="cn-sent-text">Sent</span></button>
+          <button type="button" class="cn-again" id="cn-again">Send again</button>
+          <p class="cn-legal">We will use your email only to send this itinerary. Privacy policy</p>
+          <label class="cn-check cn-check--optin"><input type="checkbox" id="cn-news" /><span>Optional: also send me travel ideas and news from Destination NSW</span></label>
+          <span class="visually-hidden" id="cn-desc-txt">Downloads the whole itinerary as a plain text file.</span>
+          <span class="visually-hidden" id="cn-desc-csv">Downloads the stops as a table with ten columns, for Excel, Google Sheets and Numbers.</span>
+          <span class="visually-hidden" id="cn-desc-chat">Copies the whole itinerary as rich text and plain text, for notes, email, documents and chats.</span>
+          <span class="visually-hidden" id="cn-desc-sheet">Copies the stops as a table with ten columns, for Excel, Google Sheets and Numbers.</span>
+        </div>
+
+        <div class="cn-view" data-for="maps" hidden>
+          <p class="cn-maps-intro">Open a day as a route, stop by stop.</p>
+          <div id="cn-day-cards"></div>
+          <p class="cn-maps-note">Items in Not yet planned are not included in day routes.</p>
+          <button type="button" class="cn-tile cn-tile--wide cn-tile--file"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Download a file</span><span class="cn-tile-meta">KML or GPX, for Google My Maps and other map apps</span></span></button>
+        </div>
+
+        <p class="cn-toast" id="cn-toast" role="status" hidden>Copied for your spreadsheet. Paste into cells.</p>
+      </div>
+    </div>
+  </div>
+  <div class="pv-spare" aria-hidden="true"></div>
+</main>
+
+<script>
+(function () {
+  var phone = document.getElementById('cn-phone');
+  var sheet = document.getElementById('cn-sheet');
+  var opener = document.getElementById('cn-open-share');
+  var email = document.getElementById('cn-email');
+  var news = document.getElementById('cn-news');
+  var toast = document.getElementById('cn-toast');
+  var note = sheet.querySelector('[data-note]');
+  var sheetTile = document.getElementById('cn-tile-sheet');
+  var aiTile = document.getElementById('cn-tile-ai');
+  var chatTile = document.getElementById('cn-tile-chat');
+  var stateTiles = [sheetTile, aiTile, chatTile, document.getElementById('cn-tile-txt'), document.getElementById('cn-tile-csv')];
+  var peek = document.getElementById('cn-peek');
+  var preview = document.getElementById('cn-preview');
+  var jumps = document.querySelectorAll('[data-go].btn');
+  var behind = phone.querySelectorAll('.cn-bar, .cn-body, .cn-foot');
+  var NOTE_DEFAULT = 'Saved on this device only. Keep a copy so you do not lose it.';
+  var screen = 'm1';
+  var toastTimer, toastHide;
+
+  // Open in maps (M5): one card per planned day, built from the list each time, so the stop counts follow any reorder
+  function renderDayCards() {
+    var box = document.getElementById('cn-day-cards'), days = readList().days.filter(function (d) { return d.rows.length; });
+    box.innerHTML = days.length ? days.map(function (d) {
+      var n = d.rows.length;
+      return '<div class="cn-day-card"><h4>' + d.label + ' &middot; ' + n + ' ' + (n === 1 ? 'stop' : 'stops') + '</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>';
+    }).join('') : '<p class="cn-maps-note">No days planned yet. Give a place a day in your list to get a route.</p>';
+  }
+  // One function draws every screen: m1 list, m2 sheet, m3 format copied, m4 email sent, m5 open in maps.
+  function show(next, opts) {
+    opts = opts || {};
+    screen = next;
+    var open = next !== 'm1';
+    phone.dataset.screen = next;
+    sheet.inert = !open;
+    for (var i = 0; i < behind.length; i++) behind[i].inert = open;
+    sheet.dataset.view = next === 'm5' ? 'maps' : 'form';
+    if (next === 'm5') renderDayCards();
+    sheet.querySelector('[data-for="form"]').hidden = next === 'm5';
+    sheet.querySelector('[data-for="maps"]').hidden = next !== 'm5';
+    document.getElementById('cn-sheet-title').textContent = next === 'm5' ? 'Open in maps' : 'Save and share';
+    sheet.classList.toggle('is-sent', next === 'm4');
+    var which = opts.tile || sheetTile; // M3 is the Spreadsheet tile as designed; the AI assistant tile reuses the same state
+    stateTiles.forEach(function (tl) {
+      var on = next === 'm3' && tl === which && !opts.manual; // a blocked copy did not copy, so no tick
+      tl.classList.toggle('is-copied', on);
+      tl.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    clearTimeout(toastTimer); clearTimeout(toastHide);
+    toast.classList.remove('is-leaving');
+    toast.hidden = next !== 'm3' || !!opts.manual; // a blocked copy says so in the label above the text instead
+    if (next === 'm3' && !opts.manual) {
+      toast.textContent = opts.message || 'Copied for your spreadsheet. Paste into cells.';
+      // A confirmation fades out after 6 seconds; an instruction (press Ctrl+C) stays up
+      if (!opts.keep) toastTimer = setTimeout(function () {
+        toast.classList.add('is-leaving');
+        toastHide = setTimeout(function () { toast.hidden = true; toast.classList.remove('is-leaving'); renderNotes(); }, 320);
+      }, 6000);
+    }
+    if (next === 'm4' && opts.preset) { if (!email.value) email.value = 'name@example.com'; news.checked = true; }
+    // Name the address it went to, so a typo shows up here rather than as an email that never arrives
+    var to = email.value.trim();
+    note.textContent = next === 'm4' ? 'Sent to ' + to + '. Check your inbox. It is still saved on this device too.' : NOTE_DEFAULT;
+    document.getElementById('cn-sent-text').textContent = 'Sent to ' + to;
+    document.getElementById('cn-send').disabled = false;
+    jumps.forEach(function (b) {
+      var on = b.dataset.go === next;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.classList.toggle('btn-dark', on);
+      b.classList.toggle('btn-outline-dark', !on);
+    });
+    if (typeof renderNotes === 'function') renderNotes();
+    phone.dispatchEvent(new CustomEvent('cn:screen', { detail: next }));
+    if (opts.focus) { if (open) sheet.focus({ preventScroll: true }); else opener.focus(); }
+  }
+
+
+  /* ---- AI assistant tile: copy the itinerary as a prompt ----
+     Built in the browser from the list on screen M1. Nothing is sent anywhere. The same template as the RWC page's
+     "Copy for your AI assistant" (pages/rugby-world-cup.html). */
+  // Placeholder trip setup, prototype only (not in the data contract). Change from the console, e.g. cnTripSetup.car = true.
+  window.cnTripSetup = window.cnTripSetup || { team: 'Australia', group: '2 adults, 1 child', car: false, budget: 'Mid-range', arrive: 'Sun 26 Sep', leave: 'Mon 11 Oct' };
+  // Area and coordinates come from the product records (concepts-products.js, contract fields address.suburb and
+  // address.geo), the same source as the Group chat and Spreadsheet copies. Nothing else is added: no prices, no hours.
+  function fixOf(id) {
+    var r = (window.cnProducts || {})[id], a = r && r.address;
+    return a ? { area: a.suburb || '', geo: a.geo ? [a.geo.lat, a.geo.lng] : null } : {};
+  }
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var MONTH = { Sep: 'September', Oct: 'October', Nov: 'November' };
+  var WDAY = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' };
+  var MAX = 8000, FAN_ZONE = 'Tumbalong Park, Darling Harbour';
+  function longDate(d) { var p = d.split(' '); return WDAY[p[0]] + ' ' + p[1] + ' ' + (MONTH[p[2]] || p[2]) + ' 2027'; }
+  function ord(d) { var p = d.split(' '); return Date.UTC(2027, MON.indexOf(p[2]), +p[1]); }
+  function mins(t) { var m = /(\d{1,2}):(\d{2})\s*([ap])m/i.exec(t || ''); return m ? ((+m[1] % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0)) * 60 + +m[2] : null; }
+  function ll(g) { return g[0].toFixed(4) + ',' + g[1].toFixed(4); }
+  // One Google Maps directions link per 11 stops (origin, up to 9 waypoints, destination); a longer day gets more links
+  function mapLinks(points) {
+    var mode = window.cnTripSetup.car ? 'driving' : 'transit', out = [], base = 'https://www.google.com/maps/dir/?api=1';
+    if (points.length === 1) return [base + '&destination=' + ll(points[0]) + '&travelmode=' + mode];
+    for (var i = 0; i < points.length - 1; i += 10) {
+      var seg = points.slice(i, i + 11), mid = seg.slice(1, -1).map(ll).join('|');
+      out.push(base + '&origin=' + ll(seg[0]) + '&destination=' + ll(seg[seg.length - 1]) + (mid ? '&waypoints=' + mid : '') + '&travelmode=' + mode);
+    }
+    return out;
+  }
+  // The list on screen M1: days with their items, then "Not yet planned"
+  function readList() {
+    var days = [], unplaced = [];
+    phone.querySelectorAll('.cn-pane[data-pane="list"] .cn-day').forEach(function (h) {
+      var label = h.textContent.trim(), ul = h.nextElementSibling;
+      while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
+      var rows = Array.prototype.map.call(ul ? ul.querySelectorAll('.cn-item') : [], function (li, i) {
+        var meta = li.querySelector('.cn-item-meta').textContent.trim(), name = li.querySelector('.cn-item-name').textContent.trim();
+        return { id: li.dataset.stop, name: name, meta: meta, time: mins(meta), i: i, fix: fixOf(li.dataset.stop) };
+      });
+      if (/^[A-Z][a-z]{2} \d+ [A-Z][a-z]{2}$/.test(label)) days.push({ label: label, rows: rows }); else unplaced = unplaced.concat(rows);
+    });
+    return { days: days, unplaced: unplaced };
+  }
+  // level 0: everything. 1: no "when it fits" lines. 2: no Good to know. 3: no addresses. keep: how many places to include
+  function buildPrompt(level, keep) {
+    var list = readList(), trip = window.cnTripSetup, out = [], left = keep, total = 0, shown = 0;
+    list.days.forEach(function (d) { total += d.rows.length; });
+    total += list.unplaced.length;
+    function take(rows) { var r = rows.slice(0, Math.max(0, left)); left -= r.length; shown += r.length; return r; }
+    out.push("Hi! I'm a Rugby World Cup 2027 fan visiting New South Wales, Australia. Please turn what I've saved below into a practical trip plan.", '');
+    out.push('ABOUT MY TRIP', '- Supporting: ' + (trip.team || 'Not chosen yet'), '- Travelling: ' + trip.group);
+    out.push('- Getting around: ' + (trip.car ? 'I have a car' : 'No car (public transport and walking)'), '- Budget: ' + trip.budget);
+    var away = trip.away || []; // the fan's matches outside NSW that fall inside their days in NSW
+    out.push('- In NSW from ' + longDate(trip.arrive) + ' to ' + longDate(trip.leave));
+    if (away.length) out.push('- Away from NSW for ' + (away.length === 1 ? 'a match' : 'matches') + ' on ' + away.map(function (a) { return longDate(a.day) + ' (' + a.city + ')'; }).join(' and ') + '. Do not plan NSW stops on ' + (away.length === 1 ? 'that day' : 'those days') + '.');
+    out.push('');
+    out.push('MY MATCHES');
+    var matches = [];
+    list.days.forEach(function (d) { d.rows.forEach(function (r) { if (/ v /.test(r.name)) matches.push({ day: d.label, r: r }); }); });
+    if (matches.length || away.length) {
+      matches.forEach(function (m) {
+        var t = m.r.name.split(' v '), parts = m.r.meta.split('·').map(function (x) { return x.trim(); });
+        out.push('- ' + t[0] + ' v ' + t[1] + ', ' + longDate(m.day) + ', ' + (m.r.time !== null ? 'kick-off ' + parts[1] + ' AEDT' : 'kick-off time to be confirmed') + ', ' + parts[0] + ', ' + (m.r.fix.geo && m.r.fix.geo[0] > -34 && m.r.fix.geo[1] > 151.5 ? 'Newcastle' : 'Sydney'));
+      });
+      away.forEach(function (a) { out.push('- ' + a.match + ', ' + longDate(a.day) + ', kick-off ' + a.kick + ', ' + a.venue + ', ' + a.city + ' (outside NSW)'); });
+    } else {
+      out.push('No match selected yet. Please ask me which match I am going to before you plan around kick-off.');
+    }
+    out.push('');
+    function lines(r, when) {
+      var f = r.fix, l = ['- ' + r.name + ' (' + window.cnStopType(r.id, r.name) + ')' + (f.area ? ', ' + f.area : '')];
+      if (level < 1 && when && r.time !== null) l.push('  ' + (/ v /.test(r.name) ? 'Kick-off: ' : 'When it fits: ') + r.meta.split('·').pop().trim() + (/ v /.test(r.name) ? ' Sydney time' : ''));
+      var addr = window.cnStopAddress(r.id);
+      var where = [addr && level < 3 ? 'Address: ' + addr : '', f.geo ? 'Coordinates: ' + ll(f.geo).replace(',', ', ') : ''].filter(Boolean);
+      if (where.length) l.push('  ' + where.join(' | '));
+      return l;
+    }
+    out.push("PLACES I'VE SAVED");
+    list.days.slice().sort(function (a, b) { return ord(a.label) - ord(b.label); }).forEach(function (d) {
+      var rows = take(d.rows.slice()); // the fan's own order, as in the list and the other copies
+      if (!rows.length) return;
+      out.push(longDate(d.label) + (matches.some(function (m) { return m.day === d.label; }) ? ' (match day)' : ''));
+      var pts = [];
+      rows.forEach(function (r) { lines(r, true).forEach(function (x) { out.push(x); }); if (r.fix.geo) pts.push(r.fix.geo); });
+      var links = pts.length ? mapLinks(pts) : [];
+      links.forEach(function (u, n) { out.push('Map for this day' + (links.length > 1 ? ' (' + (n + 1) + ' of ' + links.length + ')' : '') + ': ' + u); });
+    });
+    var rest = take(list.unplaced);
+    if (rest.length) { out.push('Not yet planned'); rest.forEach(function (r) { lines(r, false).forEach(function (x) { out.push(x); }); }); }
+    if (shown < total) out.push((total - shown) + ' more saved places are left out to keep this short.');
+    out.push('');
+    if (level < 2) {
+      out.push('GOOD TO KNOW', '- Public transport in Sydney uses Opal or contactless cards. Trip planning: https://transportnsw.info', '- The Rugby World Cup fan zone is at ' + FAN_ZONE + '.', '');
+    }
+    var today = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Australia/Sydney' });
+    out.push('Source: place details from sydney.com and visitnsw.com (Destination NSW). Copied on ' + today + '. Times and prices can change, so check before you go.', '');
+    out.push("WHAT I'D LIKE FROM YOU");
+    out.push('1. A day-by-day plan built around my matches. On match days, get me to the stadium 60 to 90 minutes before kick-off, and allow for crowds afterwards.');
+    out.push("2. Use my saved places as the core of the plan. Put places that are close to each other on the same day, and check each one's opening hours on its website. If something doesn't fit, say so and suggest where else it could go.");
+    out.push("3. For each stop, give the time, the place, how to get there from the previous stop, an estimated travel time, and the link exactly as I've given it.");
+    out.push("4. A map: if you can make an interactive map or a map image, plot each day's stops with pins. If you can't, list the daily map links above and the coordinates so I can open them myself.");
+    out.push('5. Logistics: transport between stops, what to book ahead, anything to bring, and accessibility notes if relevant.');
+    out.push("6. A rough budget. I haven't given any prices, so don't invent them: say \"check price\" instead.");
+    out.push("7. You can suggest up to three extra ideas if there are gaps, but label them clearly as your suggestions, not from my list, and tell me to check them.", '');
+    out.push("Keep it practical and easy to read on a phone: a short summary first, then a table or list for each day. If something important is missing, make a sensible assumption and tell me what you assumed, rather than asking lots of questions. Reply in English unless I ask otherwise.");
+    return out.join('\n');
+  }
+  // Under 8,000 characters: drop the place details, then Good to know, then addresses, then the last places
+  function buildAiText() {
+    var n = phone.querySelectorAll('.cn-pane[data-pane="list"] .cn-item').length, text = buildPrompt(0, n), level, keep;
+    for (level = 1; text.length > MAX && level <= 3; level++) text = buildPrompt(level, n);
+    for (keep = n - 1; text.length > MAX && keep > 0; keep--) text = buildPrompt(3, keep);
+    return text;
+  }
+  window.cnBuildAiText = buildAiText;
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea'), ok = false;
+    ta.value = text; ta.setAttribute('readonly', ''); ta.setAttribute('aria-hidden', 'true');
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+  function writeClipboard(text) {
+    try { if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) return navigator.clipboard.writeText(text); } catch (e) {}
+    return Promise.reject(new Error('Clipboard not available'));
+  }
+  function copyForAi() {
+    var text = buildAiText();
+    preview.textContent = text;
+    function done() {
+      var ev = { event: 'copy_for_ai', saved_count: phone.querySelectorAll('.cn-pane[data-pane="list"] .cn-item').length, has_match: /\nMY MATCHES\n- /.test(text) };
+      (window.dataLayer = window.dataLayer || []).push(ev);
+      console.log('dataLayer', ev);
+      show('m3', { tile: aiTile, message: 'Copied. Paste it into any AI assistant.' });
+      aiTile.focus();
+    }
+    writeClipboard(text).then(done, function () {
+      if (legacyCopy(text)) { aiTile.focus(); done(); return; }
+      // Neither worked: the same box as Group chat and Spreadsheet, with the text selected (concepts-copy.js)
+      window.cnShowManual(aiTile, text);
+    });
+  }
+  aiTile.addEventListener('click', copyForAi);
+  // The Group chat and Spreadsheet tiles are wired in concepts-copy.js, which asks for the copied state through this
+  window.cnShowCopied = function (tile, message, keep) { show('m3', { tile: tile, message: message, keep: !!keep }); tile.focus({ preventScroll: true }); };
+  window.cnShowBlocked = function (tile) { show('m3', { tile: tile, manual: true }); };
+  peek.addEventListener('toggle', function () { var t = buildAiText(); if (peek.open && preview.textContent !== t) preview.textContent = t; }); // not when unchanged: it would clear a selection
+
+  opener.addEventListener('click', function () { show('m2', { focus: true }); });
+  var emailError = document.getElementById('cn-email-error');
+  function emailOk(v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v); }
+  email.addEventListener('input', function () { email.removeAttribute('aria-invalid'); emailError.hidden = true; });
+  document.getElementById('cn-send').addEventListener('click', function () {
+    // An empty field is filled with an example so the prototype can be clicked through; a typed address must look right
+    if (email.value && !emailOk(email.value)) { email.setAttribute('aria-invalid', 'true'); emailError.hidden = false; email.focus(); return; }
+    if (!email.value) email.value = 'name@example.com';
+    show('m4', { focus: false });
+    document.getElementById('cn-again').focus();
+  });
+  document.getElementById('cn-again').addEventListener('click', function () { show('m2', { focus: false }); email.focus(); });
+  phone.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-close],[data-back],[data-go]');
+    if (!t || !phone.contains(t)) return;
+    if (t.hasAttribute('data-close')) show('m1', { focus: true });
+    else if (t.hasAttribute('data-back')) { show('m2', { focus: false }); document.querySelector('[data-go="m5"]:not(.btn)').focus(); }
+    else if (t.dataset.go === 'm5') { show('m5'); sheet.focus({ preventScroll: true }); }
+  });
+  // Drag the handle down to close the sheet. Past a third of the way, or a quick flick, it closes; otherwise it springs back.
+  var backdrop = phone.querySelector('.cn-backdrop');
+  var grab = null;
+  function endGrab(close) {
+    var g = grab; if (!g) return;
+    grab = null;
+    sheet.classList.remove('is-dragging');
+    phone.classList.remove('is-sheet-drag');
+    sheet.style.transition = ''; backdrop.style.transition = '';
+    if (close) {
+      // The classes take over from where the finger left it, so the sheet carries on down from there
+      sheet.style.transform = ''; backdrop.style.opacity = '';
+      show('m1', { focus: true });
+    } else {
+      sheet.style.transition = 'transform var(--dur-small) var(--ease-out)';
+      sheet.style.transform = ''; backdrop.style.opacity = '';
+      setTimeout(function () { sheet.style.transition = ''; }, 260);
+    }
+  }
+  phone.addEventListener('pointerdown', function (e) {
+    var handle = e.target.closest('.cn-grabber');
+    if (!handle || screen === 'm1' || e.button > 0) return;
+    e.preventDefault();
+    grab = { id: e.pointerId, y0: e.clientY, dy: 0, last: [{ t: performance.now(), y: e.clientY }], h: sheet.offsetHeight, handle: handle };
+    handle.setPointerCapture(e.pointerId);
+    sheet.classList.add('is-dragging');
+    phone.classList.add('is-sheet-drag');
+  });
+  phone.addEventListener('pointermove', function (e) {
+    if (!grab || e.pointerId !== grab.id) return;
+    grab.dy = Math.max(0, e.clientY - grab.y0); // it only goes down
+    sheet.style.transform = 'translateY(' + grab.dy + 'px)';
+    backdrop.style.opacity = String(1 - Math.min(1, grab.dy / grab.h));
+    grab.last.push({ t: performance.now(), y: e.clientY });
+    if (grab.last.length > 6) grab.last.shift();
+  });
+  phone.addEventListener('pointerup', function (e) {
+    if (!grab || e.pointerId !== grab.id) return;
+    var a = grab.last[0], b = grab.last[grab.last.length - 1], v = (b.y - a.y) / Math.max(1, b.t - a.t); // px per ms, recent
+    endGrab(grab.dy > grab.h / 3 || (v > 0.6 && grab.dy > 24));
+  });
+  phone.addEventListener('pointercancel', function (e) { if (grab && e.pointerId === grab.id) endGrab(false); });
+
+  phone.addEventListener('keydown', function (e) {
+    if (grab && e.key === 'Escape') { e.stopPropagation(); endGrab(false); return; }
+    if (screen === 'm1') return;
+    if (e.key === 'Escape') { show('m1', { focus: true }); return; }
+    if (e.key !== 'Tab') return;
+    // Keep Tab inside the open sheet (the list behind it is inert)
+    var stops = Array.prototype.filter.call(sheet.querySelectorAll('button, input, summary, pre[tabindex]'), function (el) { var d = el.closest('details'); return !el.disabled && el.offsetParent !== null && (el.tagName === 'SUMMARY' || (el.tabIndex >= 0 && !(d && !d.open))); });
+    var first = stops[0], last = stops[stops.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === sheet)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  jumps.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.go, { preset: true }); }); });
+
+  /* ---- Annotation layer ----
+     Switch it on to see a numbered badge on each part of the screen with complex behaviour, and the matching numbered
+     list on the right. Not every interactive thing: standard controls (checkbox, close, toggles) are left out.
+     Edit the NOTES table to change the copy. Badges are added to the target elements, so they move with them. */
+  var NAMES = { m1: 'M1 Itinerary list view', m2: 'M2 Save and share sheet', m3: 'M3 Format copied', m4: 'M4 Email sent', m5: 'M5 Open in maps' };
+  var NOTES = {
+    m1: { items: [
+      { sel: '#cn-open-share', title: 'Save and share', text: 'Opens the Save and share sheet (M2). Inspect the slide up, the list behind the sheet going inert, focus moving into the sheet and returning here when it closes.' },
+      { sel: '.cn-seg-wrap', title: 'Timeline and List', text: 'Switches between the day-by-day list and the timeline of your own trip. Both share your dates: change them on the timeline and the list heading and the AI prompt follow.' },
+      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item .cn-handle', title: 'Reorder', text: 'Drag a handle to reorder, move a place to another day, or park it in Not yet planned. The card lifts and follows your finger, a dashed slot shows where it will land, and the rest of the list slides to make room; on release it settles into the slot and flashes blue. Matches have no handle: they are fixed to their day, and places move around them. Keyboard: Space to pick up, arrow keys to move, Space to drop, Escape to cancel. The order feeds every copy, the AI prompt included.' },
+      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item-text', title: 'Details and Remove from plan', text: 'Tap a place or a match, or press Enter on it, to open the same product page as the timeline. A place has Remove from plan, and an Undo toast brings it back for 6 seconds. A day left empty offers Remove this day. A match has no Remove: it is fixed to its day.' },
+      { view: 'timeline', sel: '#cn-tl-dates-btn', title: 'Type your dates', text: 'Opens two date fields over the chart. Type or pick your first and last day in NSW. A date outside the timeline is refused with a message, and a first day after the last day moves the last day with it. The handles, the list heading and the AI prompt follow.' },
+      { view: 'timeline', sel: '#cn-tl-edit', title: 'Edit places', text: 'Turns on edit mode: the date handles hide and your places lift. Drag a place along the line to another day, or up and down to change the order within its day; the dashed square shows where it will land. Keyboard: arrow keys on a place. Moves are made in the list, so the List view and the AI prompt follow. Done editing turns it off; outside edit mode a place opens its page.' },
+      { view: 'timeline', sel: '#cn-tl-teams-btn', title: 'Your teams', text: 'Opens the team list over the chart, so the chart stays put. Tick to add a team, untick to remove it, or Clear all. Only your teams\u2019 matches show, plus any match you have a ticket for; with no teams the view asks you to choose some. A team you chose earlier in the journey is already ticked, and your teams set Supporting in the AI prompt.' },
+      { view: 'timeline', sel: '#cn-tl-key-btn', title: 'Markers and the product page', text: 'Key opens the legend of marker shapes. Matches sit above the line, places below it. The filled ticket is the match you have a ticket for and is always labelled; other labels show where there is room. Every marker, and every place in Not yet planned, opens the product page full screen. Inspect Escape and the cross, Tab staying inside, focus going back to the marker and the timeline keeping its scroll position. Pink fields are gaps in the data contract.' },
+      { view: 'timeline', sel: '.cn-tl-handle[data-which="start"]', title: 'Your days', text: 'Drag the two handles, or focus one and use the arrow keys, to set the days you are in NSW. On touch, dragging a handle does not scroll the chart and swiping the chart does not move a handle. Items outside the range fade, the status line counts only matches in NSW, and the list heading and the AI prompt dates follow.' },
+      { view: 'timeline', sel: '#cn-tl-warn', title: 'Match outside NSW', text: 'When one of your matches outside NSW (Perth, Brisbane) falls inside your days in NSW, this line says which match and which day, in both views, and that day is hatched on the chart. The AI prompt, Group chat and Spreadsheet copies list it too, so nothing plans a Sydney day when you are in Perth. Try it: Australia plays in Perth on Fri 1 Oct.' },
+      { sel: '.cn-status', title: 'Saved on this device', text: 'Your list order, removed places, dates and teams are kept in this browser, so a reload keeps your changes. Add ?reset to the address to start again.' },
+      { view: 'timeline', sel: '.cn-tl-done', title: 'Done', text: 'Confirms your dates and stays on the timeline. Switch to List and back: each view keeps its own scroll position.' }
+    ], todo: 'Not wired: the cross at the top left.' },
+    m2: { items: [
+      { sel: '.cn-grabber', at: 'tc', title: 'The sheet', text: 'Drag the handle down to close it: let go past a third of the way, or flick it, and the sheet goes; let go earlier and it springs back. It also closes with the cross, Escape or a tap on the dimmed list. Tab stays inside the sheet and focus returns to Save and share.' },
+      { sel: '#cn-tile-print', title: 'Print or save as PDF', text: 'Opens the device print options with the whole itinerary laid out as a page: headings per day, every stop with its details and full web address. Choose Save as PDF there to keep a file. Nothing else on this page is printed.' },
+      { sel: '#cn-tile-txt', title: 'Download text', text: 'Saves the same text as Group chat as a .txt file, named with the trip dates. Opens in any notes app or text editor.' },
+      { sel: '#cn-tile-csv', title: 'Download table', text: 'Saves the same ten columns as Spreadsheet as a .csv file (UTF-8). Opens in Excel, Google Sheets and Numbers.' },
+      { sel: '#cn-tile-ai', title: 'Copy for your AI assistant', text: 'Builds a prompt from this itinerary (trip details, match, places by day, one Google Maps link per day, under 8,000 characters), copies it and shows Format copied (M3). Inspect the pasted text, and window.dataLayer for the copy_for_ai event.' },
+      { sel: '#cn-tile-chat', title: 'Group chat: copy the page', text: 'Copies the whole itinerary as rich text and plain text in one go, so notes, email and documents keep the headings and live links, and a plain-text editor or chat gets full web addresses on their own lines. Inspect the paste in Apple Notes, Google Docs, Gmail and WhatsApp web. If the clipboard is blocked it falls back to plain text, then to a box you copy from.' },
+      { sel: '#cn-tile-sheet', title: 'Spreadsheet: copy a table', text: 'Copies the stops as a table with ten columns (Day, Theme, Time of day, Order, Name, Type, Area, Address, Details, Link), one row per stop in your order. Inspect the paste in Excel, Google Sheets and Numbers: Order is a number and names are links.' },
+      { sel: '.cn-tile[data-go="m5"]', title: 'Open in maps', text: 'Swaps the sheet to Open in maps (M5). The back arrow there returns here.' },
+      { sel: '#cn-send', title: 'Send itinerary', text: 'Last on the sheet, after the ways to keep a copy. Checks the email address. A typed address that does not look right shows an inline error; an empty field is filled with an example so you can click through. A good address goes to Email sent (M4). The news tick is optional and sits below the button.' },
+      { sel: '#cn-peek summary', title: 'Preview the AI assistant text', text: 'Opens a read-only, scrollable preview of the exact text the AI assistant tile copies. Inspect that it matches what lands on the clipboard.' }
+    ] },
+    m3: { items: [
+      { sel: '.cn-tile.is-copied', title: 'Copied state', text: 'Blue border and tick on the tile you used. The download, Group chat, Spreadsheet and AI assistant tiles all show this state.' },
+      { sel: '#cn-toast', at: 'tl', title: 'Confirmation', text: 'Announced to screen readers, and fades out after 6 seconds. If the browser blocks copying there is no toast and no tick: a box opens under the tiles with the text selected and a label that says to choose Copy, which works on touch and keyboard alike.' }
+    ], todo: 'Try the AI assistant tile for the real copy.' },
+    m4: { items: [
+      { sel: '.cn-pill--sent', title: 'Sent state', text: 'The status line turns blue and names the address (Sent to …), so a typo is easy to spot. The button reads the same. The email and the news tick are kept.' },
+      { sel: '#cn-again', title: 'Send again', text: 'Returns to the form (M2) with the email kept, ready to send again.' }
+    ] },
+    m5: { items: [
+      { sel: '.cn-back', at: 'tl', title: 'Back', text: 'Returns to Save and share (M2).' },
+      { sel: '.cn-day-card', title: 'Day routes', text: 'One card per planned day, built from the list each time it opens, each with a Google Maps and an Apple Maps route. Reorder the list, then come back: the days and stop counts follow. Not yet planned items are left out.' }
+    ], todo: 'Not wired: the Google Maps and Apple Maps buttons, Download a file.' }
+  };
+  var stage = document.getElementById('cn-stage');
+  var notesBox = document.getElementById('cn-notes');
+  var notesList = document.getElementById('cn-notes-list');
+  var notesTitle = document.getElementById('cn-notes-title');
+  var notesTodo = document.getElementById('cn-notes-todo');
+  var notesToggle = document.getElementById('cn-notes-toggle');
+  var notesOn = false;
+  try { notesOn = localStorage.getItem('cn-annotations') === 'on'; } catch (e) {}
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function renderNotes() {
+    phone.querySelectorAll('.cn-badge').forEach(function (b) { b.remove(); });
+    notesToggle.setAttribute('aria-checked', notesOn ? 'true' : 'false');
+    notesBox.hidden = !notesOn;
+    stage.classList.toggle('has-notes', notesOn);
+    if (!notesOn) return;
+    var set = NOTES[screen], n = 0, html = '';
+    notesTitle.textContent = 'Annotations: ' + NAMES[screen];
+    set.items.forEach(function (it) {
+      if (it.view && it.view !== (phone.dataset.view || 'list')) return;
+      var el = phone.querySelector(it.sel);
+      if (!el || el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return; // not on screen in this state
+      n++;
+      var b = document.createElement('span');
+      b.className = 'cn-badge' + (it.at ? ' cn-badge--' + it.at : '');
+      b.setAttribute('aria-hidden', 'true');
+      b.dataset.n = n;
+      b.textContent = n;
+      el.appendChild(b);
+      html += '<li data-n="' + n + '"><span class="cn-num" aria-hidden="true">' + n + '</span><span><strong>' + esc(it.title) + '</strong> ' + esc(it.text) + '</span></li>';
+    });
+    notesList.innerHTML = html;
+    notesTodo.textContent = set.todo || '';
+    notesTodo.hidden = !set.todo;
+  }
+  phone.addEventListener('cn:view', function () { renderNotes(); });
+  notesToggle.addEventListener('click', function () {
+    notesOn = !notesOn;
+    try { localStorage.setItem('cn-annotations', notesOn ? 'on' : 'off'); } catch (e) {}
+    renderNotes();
+  });
+  // Hovering a note lifts its badge, and the other way round
+  function lift(n, on) { var b = phone.querySelector('.cn-badge[data-n="' + n + '"]'), li = notesList.querySelector('li[data-n="' + n + '"]'); if (b) b.classList.toggle('is-active', on); if (li) li.classList.toggle('is-active', on); }
+  notesList.addEventListener('mouseover', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, true); });
+  notesList.addEventListener('mouseout', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, false); });
+  show('m1');
+})();
+</script>
+<script src="concepts-fixtures.js"></script>
+<script src="concepts-products.js"></script>
+<script src="concepts-itinerary.js"></script>
+<script src="concepts-copy.js"></script>
+</body>
+</html>

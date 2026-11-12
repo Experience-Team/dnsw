@@ -3378,3 +3378,44 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-skipped-text { margin-top: var(--space-2); font-size: .9375rem; line-height: 1.45; }
 .tp-skipped-text:focus { outline: none; }
 @media (prefers-reduced-motion: reduce) { .tp-card { transition: opacity var(--dur-small) linear, background-color var(--dur-micro) linear; } }
+
+/* Prototype viewer (Figma: Rugby World Cup, Prototype layout 204:12359): prototype-pick-your-team.html and
+   prototype-itinerary.html. A header with the two tabs, a divider, then three columns: the concept's intro (and the
+   annotations on the itinerary), the 390px phone, and a spare frame the same size. On a laptop the page is held at the
+   window height and does not scroll; the phone shows up to its full 844px and its content scrolls inside it, so
+   scrolling the prototype never moves the page. Short or narrow windows get an ordinary scrolling page. */
+.pv-page { --pv-gutter: 96px; --topbar-h: 0px; height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: #fff; color: #1a1a1a; }
+.pv-header { flex: none; padding: var(--space-5) var(--pv-gutter) var(--space-4); border-bottom: 1px solid #d1d1d1; }
+.pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.01em; }
+.pv-desc { margin-top: var(--space-1); font-size: 1rem; line-height: 1.5; color: #333; }
+.pv-tabs { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-3); }
+.pv-tab { display: inline-flex; align-items: center; min-height: 33px; padding: 0 var(--space-5); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font-size: .8125rem; font-weight: 600; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.pv-tab.is-active { background: #2666d9; color: #fff; }
+@media (hover: hover) { .pv-tab:not(.is-active):hover { background: #f2f6fd; } }
+.pv-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.pv-main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 427px) 390px 390px; grid-template-rows: minmax(0, 1fr); column-gap: var(--space-6); justify-content: start; padding: var(--space-5) var(--pv-gutter); }
+.pv-intro { min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
+.pv-h2 { font-size: 1.25rem; font-weight: 400; line-height: 1.5; }
+.pv-p { margin-top: var(--space-1); max-width: 36rem; font-size: 1rem; line-height: 1.5; color: #333; }
+.pv-switch { align-self: flex-start; margin-top: var(--space-3); }
+.pv-notes { flex: 1; min-height: 12rem; margin-top: var(--space-3); }
+.pv-notes .cn-notes { max-width: none; height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+.pv-notes-empty { display: grid; place-items: center; height: 100%; border: 1px dashed #b3b3b3; font-size: 1rem; color: #333; }
+.pv-notes .cn-notes:not([hidden]) ~ .pv-notes-empty { display: none; }
+.pv-phone { min-height: 0; }
+.pv-page .pv-phone > .cn-phone { height: min(844px, 100%); }
+.pv-page .cn-body { overscroll-behavior: contain; } /* reaching the end of the prototype never hands the scroll to the page */
+.pv-spare { height: min(844px, 100%); border: 1px dashed #b3b3b3; }
+/* Without room for both the intro and the spare frame, the spare frame goes; narrower still, the columns stack */
+@media (max-width: 1400px) { .pv-main { grid-template-columns: minmax(0, 1fr) 390px; } .pv-spare { display: none; } }
+@media (max-width: 1100px) { .pv-page { --pv-gutter: 48px; } }
+/* Too short or too narrow to hold everything: an ordinary scrolling page with the phone at full size */
+@media (max-height: 640px), (max-width: 860px) {
+  .pv-page { height: auto; overflow: visible; }
+  .pv-main { display: block; padding: var(--space-5) var(--space-4); }
+  .pv-header { padding-inline: var(--space-4); }
+  .pv-notes { min-height: 0; }
+  .pv-notes-empty { display: none; }
+  .pv-phone { margin-top: var(--space-5); }
+  .pv-page .pv-phone > .cn-phone { height: 844px; }
+}

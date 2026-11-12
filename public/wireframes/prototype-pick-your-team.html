@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pick your team · RWC prototypes</title>
+<link rel="stylesheet" href="shared.css" />
+</head>
+<body class="pv-page">
+<!-- Prototype viewer (Figma: Rugby World Cup, Prototype layout 204:12359). One prototype per page, each with its own
+     address, behind the same header and tabs. On a laptop the page is held at the window height and never scrolls:
+     the phone keeps its 390px width, shows up to its full 844px height and scrolls inside, so scrolling the prototype
+     never moves the page. Short or narrow windows fall back to an ordinary scrolling page (see .pv-page in shared.css). -->
+<header class="pv-header">
+  <h1 class="pv-title">RWC prototypes</h1>
+  <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab is-active" href="prototype-pick-your-team.html" aria-current="page">Pick your team</a><a class="pv-tab" href="prototype-itinerary.html">Share/edit itinerary</a></nav>
+</header>
+<!-- Concept: Pick your team. A new prototype in its own 390 x 844 phone window, started fresh: nothing here is shared
+     with the itinerary prototype below (its own ids and script, no data-go jump buttons). So far: the hero. -->
+<main class="pv-main" id="tp-stage">
+  <div class="pv-intro">
+    <h2 class="pv-h2">Pick your team</h2>
+    <p class="pv-p">A new prototype, started fresh. Phone size only.</p>
+  </div>
+  <div class="pv-phone">
+    <div class="cn-phone" id="tp-phone" role="group" aria-label="Pick your team, phone screen">
+      <div class="cn-bar">
+        <h3 class="cn-bar-title">Plan your 3rd half</h3>
+        <!-- For whoever is reviewing the prototype, not part of the design: puts the picker back as a first visit -->
+        <button type="button" class="tp-reset" id="tp-reset">Reset prototype</button>
+      </div>
+      <div class="cn-body tp-body">
+        <!-- Hero: a grey image placeholder with the title, a countdown to the opening match and the tournament dates.
+             The countdown runs to Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time
+             (AEST, UTC+10: daylight saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to the address
+             to see the screen at another moment. -->
+        <section class="tp-hero" aria-labelledby="tp-hero-title">
+          <span class="ph-img tp-hero-img" aria-hidden="true"></span>
+          <div class="tp-hero-content">
+            <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-hero-kicker">Rugby World Cup 2027:</span> <span class="tp-hero-name">Your 3rd half</span></h3>
+            <p class="tp-hero-sub">Two halves on the pitch. Make the third one count.</p>
+            <div class="tp-count" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">
+              <p class="tp-count-label" id="tp-count-label">Countdown to the opening match</p>
+              <div class="tp-count-units" role="timer" aria-labelledby="tp-count-label">
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="days">--</span><span class="tp-count-unit">Days</span></span>
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="hours">--</span><span class="tp-count-unit">Hours</span></span>
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="minutes">--</span><span class="tp-count-unit">Mins</span></span>
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="seconds">--</span><span class="tp-count-unit">Secs</span></span>
+              </div>
+              <p class="tp-count-done" hidden></p>
+              <p class="tp-dates"><span class="visually-hidden">Tournament dates: </span>1 October to 13 November 2027</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Team picker: a fanned hand of 24 team cards plus "Here for the rugby", built by concepts-teams.js from
+             cnFixtures. Pick one or more, then the picked cards fly out of the fan and flip to show their matches.
+             Choices follow the jobs to be done (docs/jtbd-itinerary.md, T1 to T16). -->
+        <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
+          <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
+          <div class="tp-picker" id="tp-picker">
+            <p class="tp-pick-intro">15 of the 24 teams play a pool match in NSW. Pick one or more to see when and where they play.</p>
+            <div class="tp-fan-wrap">
+              <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-fan-help"></div>
+            </div>
+            <p class="visually-hidden" id="tp-fan-help">Left and right arrow keys move through the teams. Space or Enter picks one. You can pick more than one.</p>
+            <p class="tp-fan-caption" id="tp-fan-caption" aria-hidden="true"></p>
+            <div class="tp-chosen-row">
+              <p class="tp-chosen" id="tp-chosen">No teams picked yet.</p>
+              <button type="button" class="tp-link tp-clear" id="tp-clear" hidden>Clear all</button>
+            </div>
+            <button type="button" class="tp-show" id="tp-show" aria-disabled="true">See their matches</button>
+            <div class="tp-alt">
+              <button type="button" class="tp-link" id="tp-rugby-link">No team? Here for the rugby</button>
+              <button type="button" class="tp-link" id="tp-skip">Skip this step</button>
+            </div>
+            <p class="tp-device">Saved on this device only. Your teams are only used to show their matches.</p>
+          </div>
+          <div class="tp-results" id="tp-results" hidden>
+            <p class="tp-results-sum" id="tp-results-sum" tabindex="-1"></p>
+            <p class="tp-results-note">Kick-off times are Sydney time.</p>
+            <div class="tp-deck" id="tp-deck" role="group" aria-label="Your matches"></div>
+            <p class="tp-deck-hint" id="tp-deck-hint" hidden>Swipe for your other cards.</p>
+            <button type="button" class="tp-link tp-change" id="tp-change">Change teams</button>
+          </div>
+          <div class="tp-skipped" id="tp-skipped" hidden>
+            <p class="tp-skipped-text" tabindex="-1">Skipped. Your plan will start from your dates instead of your team&rsquo;s matches.</p>
+            <button type="button" class="tp-link" id="tp-unskip">Pick a team after all</button>
+          </div>
+          <p class="visually-hidden" id="tp-live" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+    </div>
+  </div>
+  <div class="pv-spare" aria-hidden="true"></div>
+</main>
+
+<script>
+/* Pick your team: hero countdown. Counts down to the opening match, then says the tournament is under way, then that
+   it has finished. Ticks once a second, lined up to the clock, and stops while the tab is hidden. */
+(function () {
+  var box = document.querySelector('#tp-phone .tp-count');
+  if (!box) return;
+  var start = Date.parse(box.dataset.start), end = Date.parse(box.dataset.end);
+  var units = box.querySelector('.tp-count-units'), label = box.querySelector('.tp-count-label'), done = box.querySelector('.tp-count-done');
+  var nums = {};
+  box.querySelectorAll('[data-unit]').forEach(function (n) { nums[n.dataset.unit] = n; });
+  // For review: ?tp-now=<ISO date> shows the screen at that moment, and the clock runs on from there
+  var m = /[?&]tp-now=([^&]+)/.exec(location.search), offset = 0;
+  if (m) { var t = Date.parse(decodeURIComponent(m[1])); if (!isNaN(t)) offset = t - Date.now(); }
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function set(el, v) { if (el.textContent !== v) el.textContent = v; }
+  var timer;
+  function tick() {
+    var now = Date.now() + offset, left = start - now;
+    if (left > 0) {
+      var s = Math.floor(left / 1000);
+      set(nums.days, String(Math.floor(s / 86400)));
+      set(nums.hours, pad(Math.floor(s / 3600) % 24));
+      set(nums.minutes, pad(Math.floor(s / 60) % 60));
+      set(nums.seconds, pad(s % 60));
+      timer = setTimeout(tick, 1000 - (now % 1000) + 5);
+      return;
+    }
+    // After kick-off there is nothing to count down to: the timer gives way to a plain line
+    units.hidden = true; label.hidden = true; done.hidden = false;
+    done.textContent = now < end ? 'The tournament is under way. The final is on Sat 13 Nov 2027.' : 'Rugby World Cup 2027 has finished.';
+    if (now < end) timer = setTimeout(tick, Math.min(end - now + 1000, 3600000));
+  }
+  document.addEventListener('visibilitychange', function () { clearTimeout(timer); if (!document.hidden) tick(); });
+  tick();
+})();
+</script>
+<script src="concepts-fixtures.js"></script>
+<script src="concepts-teams.js"></script>
+</body>
+</html>
