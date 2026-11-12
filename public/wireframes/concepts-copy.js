@@ -15,12 +15,12 @@
     locale: 'en-AU',
     timeZone: 'Australia/Sydney'
   };
-  var TIME_SLOTS = ['Morning', 'Lunch', 'Afternoon', 'Evening'];
   var COLUMNS = ['Day', 'Theme', 'Time of day', 'Order', 'Name', 'Type', 'Area', 'Address', 'Details', 'Link'];
 
   /* ---------- Placeholder data (prototype only) ----------
-     One object per stop with the fields in the brief. Each stop's day comes from where it sits in the list, so a stop
-     dragged to another day moves with its day's theme, start point and getting there. Replace with the real stop data. */
+     Each stop's day and order come from where it sits in the list. Type, area, address and description come from the
+     product records (concepts-products.js), the same source as the AI prompt, so all three copies agree. Nothing the fan
+     has not set is filled in: no day themes and no times of day, apart from a match's kick-off. Only links stay here. */
   var DATA = {
     page: {
       title: 'Your Rugby World Cup 2027 itinerary',
@@ -28,16 +28,16 @@
       sourceUrl: 'https://www.sydney.com/'
     },
     days: {
-      'Fri 8 Oct': { theme: 'Parklands and the fan zone', startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card.' },
-      'Sat 9 Oct': { theme: 'Match day', startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card and allow time for crowds.' },
-      'Sun 10 Oct': { theme: 'A day by the water', startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card.' }
+      'Fri 8 Oct': { startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card.' },
+      'Sat 9 Oct': { startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card and allow time for crowds.' },
+      'Sun 10 Oct': { startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card.' }
     },
     stops: [
-      { id: 'centennial-parklands', timeOfDay: 'Morning', name: 'Centennial Parklands', type: 'Area', area: 'Centennial Park', address: 'Street name, Centennial Park NSW', description: 'A large park close to the city, good for a walk before the weekend.', url: 'https://www.sydney.com/' },
-      { id: 'fan-zone', timeOfDay: 'Evening', name: 'Fan zone', type: 'Event', area: 'Darling Harbour', address: 'Tumbalong Park, Darling Harbour NSW', description: 'Watch matches on the big screens with fans from around the world. Dates to be confirmed.', url: '' },
-      { id: 'nz-v-australia', timeOfDay: 'Evening', name: 'New Zealand v Australia', type: 'Event', area: 'Sydney Olympic Park', address: 'Stadium Australia, Sydney Olympic Park NSW', description: 'Pool match, kick-off 5:10 pm.', url: 'https://www.sydney.com/' },
-      { id: 'patonga-beach', timeOfDay: 'Lunch', name: 'Patonga Beach', type: 'Area', area: 'Patonga', address: 'Street name, Patonga NSW', description: 'A quiet beach on the way north. A hidden gem.', url: 'https://www.sydney.com/' },
-      { id: 'newcastle-ocean-baths', timeOfDay: '', name: 'Newcastle Ocean Baths', type: 'Attraction', area: 'Newcastle East', address: 'Street name, Newcastle East NSW', description: 'A coastal stop in Newcastle.', url: '' }
+      { id: 'centennial-parklands', url: 'https://www.sydney.com/' },
+      { id: 'fan-zone', url: '' },
+      { id: 'nz-v-australia', url: 'https://www.sydney.com/' },
+      { id: 'patonga-beach', url: 'https://www.sydney.com/' },
+      { id: 'newcastle-ocean-baths', url: '' }
     ]
   };
 
@@ -54,8 +54,17 @@
         var s = byId[li.dataset.stop];
         if (!s) return;
         var d = dated ? (data.days[label] || {}) : {};
-        out.push(Object.assign({}, s, {
-          day: dated ? label : 'Not yet planned', dayTheme: d.theme || '', startPoint: d.startPoint || '', gettingThere: d.gettingThere || ''
+        var r = (window.cnProducts || {})[s.id] || {}, name = li.querySelector('.cn-item-name').textContent.trim();
+        var kick = / v /.test(name) ? (/(\d{1,2}:\d{2}\s*[ap]m)/i.exec(li.querySelector('.cn-item-meta').textContent) || [])[1] : '';
+        out.push(Object.assign({
+          name: r.title || name,
+          type: window.cnStopType ? window.cnStopType(s.id, name) : '',
+          area: r.address ? r.address.suburb || '' : '',
+          address: window.cnStopAddress ? window.cnStopAddress(s.id) : '',
+          description: r.overview || '',
+          kickoff: kick ? 'Kick-off ' + kick : ''
+        }, s, {
+          day: dated ? label : 'Not yet planned', startPoint: d.startPoint || '', gettingThere: d.gettingThere || ''
         }));
       });
     });
@@ -78,28 +87,25 @@
     } catch (e) { return u; }
   }
   function copiedOn(cfg) { return new Date().toLocaleDateString((cfg || CONFIG).locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: (cfg || CONFIG).timeZone }); }
-  // Dated days in order, each with its stops grouped by time of day; then the stops with no day
+  // Dated days in the fan's order, each with its stops in the fan's order; then the stops with no day
   function group(stops) {
     var days = [], idx = {}, rest = [];
     stops.forEach(function (s) {
       if (s.day === 'Not yet planned') { rest.push(s); return; }
-      if (!(s.day in idx)) { idx[s.day] = days.length; days.push({ label: s.day, theme: s.dayTheme, startPoint: s.startPoint, gettingThere: s.gettingThere, stops: [] }); }
+      if (!(s.day in idx)) { idx[s.day] = days.length; days.push({ label: s.day, startPoint: s.startPoint, gettingThere: s.gettingThere, stops: [] }); }
       days[idx[s.day]].stops.push(s);
-    });
-    days.forEach(function (d) {
-      var slots = TIME_SLOTS.concat(['Anytime']);
-      d.slots = slots.map(function (name) {
-        return { name: name, stops: d.stops.filter(function (s) { return (TIME_SLOTS.indexOf(s.timeOfDay) > -1 ? s.timeOfDay : 'Anytime') === name; }) };
-      }).filter(function (sl) { return sl.stops.length; });
     });
     return { days: days, rest: rest };
   }
   function overview(g, stops) {
-    var setup = window.cnTripSetup || {};
-    return 'A ' + g.days.length + '-day plan with ' + stops.length + ' stops' + (setup.arrive && setup.leave ? ', from ' + setup.arrive + ' to ' + setup.leave : '') + '.';
+    // "4 places on 3 days, and 1 not yet planned. In NSW from Sun 26 Sep to Mon 11 Oct."
+    var setup = window.cnTripSetup || {}, planned = stops.length - g.rest.length;
+    function n(k, one, many) { return k + ' ' + (k === 1 ? one : many); }
+    return n(planned, 'place', 'places') + ' on ' + n(g.days.length, 'day', 'days') + (g.rest.length ? ', and ' + g.rest.length + ' not yet planned' : '') + '.' + (setup.arrive && setup.leave ? ' In NSW from ' + setup.arrive + ' to ' + setup.leave + '.' : '');
   }
   function noStop(x) { return String(x || 'to be confirmed').replace(/[.\s]+$/, ''); } // one full stop at the end, whatever the data has
-  function dayLine(d) { return d.label + '. Start point: ' + noStop(d.startPoint) + '. Getting there: ' + noStop(d.gettingThere) + '.'; }
+  function dayLine(d) { return 'Start point: ' + noStop(d.startPoint) + '. Getting there: ' + noStop(d.gettingThere) + '.'; }
+  function details(s) { return [s.kickoff, s.description].filter(Boolean).join('. '); }
 
   /* ---------- Copy page: text/html and text/plain ---------- */
   function buildPage(data, stops, cfg) {
@@ -111,23 +117,19 @@
     var t = [data.page.title.toUpperCase(), 'Source: ' + src, 'Copied on ' + copiedOn(cfg), '', ov];
     function stopHtml(s) {
       var u = link(s.url, cfg);
-      return '<li>' + (u ? '<a href="' + esc(u) + '">' + esc(s.name) + '</a>' : esc(s.name)) + ' [' + esc(s.type) + ']' + (s.description ? ': ' + esc(s.description) : '') + '</li>';
+      return '<li>' + (u ? '<a href="' + esc(u) + '">' + esc(s.name) + '</a>' : esc(s.name)) + ' [' + esc(s.type) + ']' + (details(s) ? ': ' + esc(details(s)) : '') + '</li>';
     }
     function stopText(s) {
       var u = link(s.url, cfg), l = ['- ' + s.name + ' [' + s.type + ']'];
-      if (s.description) l.push('  ' + s.description);
+      if (details(s)) l.push('  ' + details(s));
       if (u) l.push('  ' + u);
       return l;
     }
     g.days.forEach(function (d, n) {
-      var title = 'Day ' + (n + 1) + (d.theme ? ': ' + d.theme : '');
-      h += '<h2>' + esc(title) + '</h2><p>' + esc(dayLine(d)) + '</p>';
-      t.push('', title.toUpperCase(), new Array(Math.max(24, Math.min(60, title.length)) + 1).join('-'), dayLine(d));
-      d.slots.forEach(function (sl) {
-        h += '<h3>' + esc(sl.name) + '</h3><ul>' + sl.stops.map(stopHtml).join('') + '</ul>';
-        t.push('', sl.name.toUpperCase());
-        sl.stops.forEach(function (s) { stopText(s).forEach(function (x) { t.push(x); }); });
-      });
+      var title = 'Day ' + (n + 1) + ': ' + d.label;
+      h += '<h2>' + esc(title) + '</h2><p>' + esc(dayLine(d)) + '</p><ul>' + d.stops.map(stopHtml).join('') + '</ul>';
+      t.push('', title.toUpperCase(), new Array(Math.max(24, Math.min(60, title.length)) + 1).join('-'), dayLine(d), '');
+      d.stops.forEach(function (s) { stopText(s).forEach(function (x) { t.push(x); }); });
     });
     if (g.rest.length) {
       h += '<h2>Not yet planned</h2><ul>' + g.rest.map(stopHtml).join('') + '</ul>';
@@ -151,7 +153,8 @@
   function buildSheet(data, stops, cfg) {
     cfg = cfg || CONFIG;
     var rows = stops.map(function (s, i) {
-      return [s.day, s.dayTheme, s.timeOfDay, i + 1, s.name, s.type, s.area, s.address, s.description, link(s.url, cfg)];
+      // Theme and Time of day stay empty unless the fan set them; a match's kick-off is the one time we know
+      return [s.day, s.theme || '', s.kickoff || '', i + 1, s.name, s.type, s.area, s.address, s.description, link(s.url, cfg)];
     });
     var text = [COLUMNS.map(tsvField).join('\t')].concat(rows.map(function (r) { return r.map(tsvField).join('\t'); })).join('\n');
     var html = '<table><thead><tr>' + COLUMNS.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';

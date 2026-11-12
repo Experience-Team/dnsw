@@ -70,7 +70,7 @@
           </ul>
           <h3 class="cn-day">Sat 9 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item" data-stop="nz-v-australia"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><button type="button" class="cn-handle" aria-label="Reorder New Zealand v Australia. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="nz-v-australia"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><span class="cn-fixed" title="Matches are fixed to their day"><svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="visually-hidden">Match, fixed to its day</span></span></li>
           </ul>
           <h3 class="cn-day">Sun 10 Oct</h3>
           <ul class="cn-items">
@@ -127,10 +127,7 @@
 
         <div class="cn-view" data-for="maps" hidden>
           <p class="cn-maps-intro">Open a day as a route, stop by stop.</p>
-          <div class="cn-day-card"><h4>Fri 8 Oct &middot; 2 stops</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>
-          <div class="cn-day-card"><h4>Sat 9 Oct &middot; 1 stop</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>
-          <div class="cn-day-card"><h4>Sun 10 Oct &middot; 1 stop</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>
-          <p class="cn-maps-note">For a single stop, tap the map icon on any item in your list.</p>
+          <div id="cn-day-cards"></div>
           <p class="cn-maps-note">Items in Not yet planned are not included in day routes.</p>
           <button type="button" class="cn-tile cn-tile--wide cn-tile--file"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Download a file</span><span class="cn-tile-meta">KML or GPX, for Google My Maps and other map apps</span></span></button>
         </div>
@@ -169,6 +166,14 @@
   var screen = 'm1';
   var toastTimer, toastHide;
 
+  // Open in maps (M5): one card per planned day, built from the list each time, so the stop counts follow any reorder
+  function renderDayCards() {
+    var box = document.getElementById('cn-day-cards'), days = readList().days.filter(function (d) { return d.rows.length; });
+    box.innerHTML = days.length ? days.map(function (d) {
+      var n = d.rows.length;
+      return '<div class="cn-day-card"><h4>' + d.label + ' &middot; ' + n + ' ' + (n === 1 ? 'stop' : 'stops') + '</h4><div class="cn-day-btns"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Google Maps</button><button type="button" class="cn-pill cn-pill--outline cn-pill--sm">Apple Maps</button></div></div>';
+    }).join('') : '<p class="cn-maps-note">No days planned yet. Give a place a day in your list to get a route.</p>';
+  }
   // One function draws every screen: m1 list, m2 sheet, m3 format copied, m4 email sent, m5 open in maps.
   function show(next, opts) {
     opts = opts || {};
@@ -178,6 +183,7 @@
     sheet.inert = !open;
     for (var i = 0; i < behind.length; i++) behind[i].inert = open;
     sheet.dataset.view = next === 'm5' ? 'maps' : 'form';
+    if (next === 'm5') renderDayCards();
     sheet.querySelector('[data-for="form"]').hidden = next === 'm5';
     sheet.querySelector('[data-for="maps"]').hidden = next !== 'm5';
     document.getElementById('cn-sheet-title').textContent = next === 'm5' ? 'Open in maps' : 'Save and share';
@@ -219,13 +225,14 @@
      "Copy for your AI assistant" (pages/rugby-world-cup.html). */
   // Placeholder trip setup, prototype only (not in the data contract). Change from the console, e.g. cnTripSetup.car = true.
   window.cnTripSetup = window.cnTripSetup || { team: 'Australia', group: '2 adults, 1 child', car: false, budget: 'Mid-range', arrive: 'Sun 26 Sep', leave: 'Mon 11 Oct' };
-  // Made-up placeholder details for the list's items (not on the list yet): type, suburb, coordinates, opening hours, typical cost
+  // Made-up placeholder details for the list's items: suburb, coordinates, opening hours, typical cost. Type and address come
+  // from concepts-products.js (cnStopType, cnStopAddress), the same source as the Group chat and Spreadsheet copies.
   var FIX = {
-    'Centennial Parklands': { type: 'Attraction', area: 'Centennial Park', geo: [-33.8980, 151.2340], hours: 'Daily, sunrise to sunset', cost: 'Free' },
-    'Fan zone': { type: 'Event', area: 'Darling Harbour', geo: [-33.8760, 151.2010], cost: 'Free entry' },
-    'New Zealand v Australia': { type: 'Match', area: 'Sydney Olympic Park', geo: [-33.8471, 151.0634], cost: '$85 to $320 per ticket' },
-    'Patonga Beach': { type: 'Attraction', area: 'Patonga', geo: [-33.5486, 151.2762], hours: 'Open all day', cost: 'Free' },
-    'Newcastle Ocean Baths': { type: 'Attraction', area: 'Newcastle East', geo: [-32.9290, 151.7880], hours: 'Daily, 6:00 to 20:00', cost: 'Free' }
+    'Centennial Parklands': { area: 'Centennial Park', geo: [-33.8980, 151.2340], hours: 'Daily, sunrise to sunset', cost: 'Free' },
+    'Fan zone': { area: 'Darling Harbour', geo: [-33.8760, 151.2010], cost: 'Free entry' },
+    'New Zealand v Australia': { area: 'Sydney Olympic Park', geo: [-33.8471, 151.0634], cost: '$85 to $320 per ticket' },
+    'Patonga Beach': { area: 'Patonga', geo: [-33.5486, 151.2762], hours: 'Open all day', cost: 'Free' },
+    'Newcastle Ocean Baths': { area: 'Newcastle East', geo: [-32.9290, 151.7880], hours: 'Daily, 6:00 to 20:00', cost: 'Free' }
   };
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var MONTH = { Sep: 'September', Oct: 'October', Nov: 'November' };
@@ -254,7 +261,7 @@
       while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
       var rows = Array.prototype.map.call(ul ? ul.querySelectorAll('.cn-item') : [], function (li, i) {
         var meta = li.querySelector('.cn-item-meta').textContent.trim(), name = li.querySelector('.cn-item-name').textContent.trim();
-        return { name: name, meta: meta, time: mins(meta), i: i, fix: FIX[name] || {} };
+        return { id: li.dataset.stop, name: name, meta: meta, time: mins(meta), i: i, fix: FIX[name] || {} };
       });
       if (/^[A-Z][a-z]{2} \d+ [A-Z][a-z]{2}$/.test(label)) days.push({ label: label, rows: rows }); else unplaced = unplaced.concat(rows);
     });
@@ -283,9 +290,10 @@
     }
     out.push('');
     function lines(r, when) {
-      var f = r.fix, l = ['- ' + r.name + ' (' + (f.type || 'Place') + ')' + (f.area ? ', ' + f.area : '')];
+      var f = r.fix, l = ['- ' + r.name + ' (' + window.cnStopType(r.id, r.name) + ')' + (f.area ? ', ' + f.area : '')];
       if (level < 1 && when && r.time !== null) l.push('  When it fits: ' + r.meta.split('·').pop().trim());
-      var where = [f.area && level < 3 ? 'Address: Street name, ' + f.area + ' NSW' : '', f.geo ? 'Coordinates: ' + ll(f.geo).replace(',', ', ') : ''].filter(Boolean);
+      var addr = window.cnStopAddress(r.id);
+      var where = [addr && level < 3 ? 'Address: ' + addr : '', f.geo ? 'Coordinates: ' + ll(f.geo).replace(',', ', ') : ''].filter(Boolean);
       if (where.length) l.push('  ' + where.join(' | '));
       if (level < 1 && f.hours) l.push('  Opening hours: ' + f.hours);
       if (level < 1 && f.cost) l.push('  Typical cost: ' + f.cost);
@@ -309,7 +317,7 @@
       out.push('GOOD TO KNOW', '- Public transport in Sydney uses Opal or contactless cards. Trip planning: https://transportnsw.info', '- The Rugby World Cup fan zone is at ' + FAN_ZONE + '.', '');
     }
     var today = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Australia/Sydney' });
-    out.push('Source: place details from sydney.com and visitnsw.com (Destination NSW). Verified on ' + today + '. Times and prices can change, so check before you go.', '');
+    out.push('Source: place details from sydney.com and visitnsw.com (Destination NSW). Copied on ' + today + '. Times and prices can change, so check before you go.', '');
     out.push("WHAT I'D LIKE FROM YOU");
     out.push('1. A day-by-day plan built around my matches. On match days, get me to the stadium 60 to 90 minutes before kick-off, and allow for crowds afterwards.');
     out.push("2. Use my saved places as the core of the plan. Put places that are close to each other on the same day, and check each one against its opening hours. If something doesn't fit, say so and suggest where else it could go.");
@@ -452,7 +460,7 @@
     m1: { items: [
       { sel: '#cn-open-share', title: 'Save and share', text: 'Opens the Save and share sheet (M2). Inspect the slide up, the list behind the sheet going inert, focus moving into the sheet and returning here when it closes.' },
       { sel: '.cn-seg-wrap', title: 'Timeline and List', text: 'Switches between the day-by-day list and the timeline of your own trip. Both share your dates: change them on the timeline and the list heading and the AI prompt follow.' },
-      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item .cn-handle', title: 'Reorder', text: 'Drag a handle to reorder, move a place to another day, or park it in Not yet planned. Keyboard: Space to pick up, arrow keys to move, Space to drop, Escape to cancel. The order feeds the AI prompt.' },
+      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item .cn-handle', title: 'Reorder', text: 'Drag a handle to reorder, move a place to another day, or park it in Not yet planned. Matches have no handle: they are fixed to their day, and places move around them. Keyboard: Space to pick up, arrow keys to move, Space to drop, Escape to cancel. The order feeds the AI prompt.' },
       { view: 'timeline', sel: '#cn-tl-dates-btn', title: 'Type your dates', text: 'Opens two date fields over the chart. Type or pick your first and last day in NSW. A date outside the timeline is refused with a message, and a first day after the last day moves the last day with it. The handles, the list heading and the AI prompt follow.' },
       { view: 'timeline', sel: '#cn-tl-edit', title: 'Edit places', text: 'Turns on edit mode: the date handles hide and your places lift. Drag a place along the line to another day, or up and down to change the order within its day; the dashed square shows where it will land. Keyboard: arrow keys on a place. Moves are made in the list, so the List view and the AI prompt follow. Done editing turns it off; outside edit mode a place opens its page.' },
       { view: 'timeline', sel: '#cn-tl-teams-btn', title: 'Your teams', text: 'Opens the team list over the chart, so the chart stays put. Tick to add a team, untick to remove it, or Clear all. Only your teams\u2019 matches show, plus any match you have a ticket for; with no teams the view asks you to choose some. A team you chose earlier in the journey is already ticked, and your teams set Supporting in the AI prompt.' },
@@ -479,7 +487,7 @@
     ], todo: 'Not wired: Copy link, the format tiles other than Open in maps.' },
     m5: { items: [
       { sel: '.cn-back', at: 'tl', title: 'Back', text: 'Returns to Save and share (M2).' },
-      { sel: '.cn-day-card', title: 'Day routes', text: 'One card per day, each with a Google Maps and an Apple Maps route. Inspect the stop counts and the note that Not yet planned items are left out.' }
+      { sel: '.cn-day-card', title: 'Day routes', text: 'One card per planned day, built from the list each time it opens, each with a Google Maps and an Apple Maps route. Reorder the list, then come back: the days and stop counts follow. Not yet planned items are left out.' }
     ], todo: 'Not wired: the Google Maps and Apple Maps buttons, Download a file.' }
   };
   var stage = document.getElementById('cn-stage');
