@@ -73,6 +73,11 @@
      on top, so every card shows its code at the top left. offset is the index of the card in the middle; it moves
      with a drag and settles on a whole card. */
   var STEP = 6.5, PIVOT = 460, PX = 64, LIFT = 26;
+  // The middle card gets extra room either side (GAP degrees), so the card that is in focus is never covered by its
+  // neighbour and its pool and NSW line can be read on the card itself. It eases in over the first card of distance,
+  // so a drag stays continuous.
+  var GAP = 5;
+  function angleOf(rel) { return rel * STEP + Math.max(-1, Math.min(1, rel)) * GAP; }
   var TICK = '<svg class="tp-card-tick" width="14" height="12" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
   function front(c) {
     return '<span class="tp-card-code">' + esc(c.code) + '</span><span class="tp-card-name">' + esc(c.name) + '</span>' +
@@ -91,7 +96,7 @@
       var rel = i - offset, c = CARDS[i];
       var lift = (isPicked(c) ? LIFT : 0) + (i === mid ? 6 : 0);
       b.style.transition = !animate ? 'none' : trans || '';
-      b.style.transform = dealt ? 'rotate(' + (rel * STEP).toFixed(2) + 'deg) translateY(' + (-lift) + 'px)' : 'rotate(0deg) translateY(0)';
+      b.style.transform = dealt ? 'rotate(' + angleOf(rel).toFixed(2) + 'deg) translateY(' + (-lift) + 'px)' : 'rotate(0deg) translateY(0)';
       var far = Math.abs(rel) > 7.5;
       b.style.opacity = far ? '0' : '';
       b.style.visibility = far ? 'hidden' : '';
@@ -306,7 +311,7 @@
     var from = {};
     if (animate && !reduce.matches) pickedCards().forEach(function (c) {
       var b = cards[CARDS.indexOf(c)], r = b.getBoundingClientRect();
-      if (r.width && b.style.visibility !== 'hidden') from[c.name] = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: b.offsetWidth, h: b.offsetHeight, a: (CARDS.indexOf(c) - offset) * STEP };
+      if (r.width && b.style.visibility !== 'hidden') from[c.name] = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: b.offsetWidth, h: b.offsetHeight, a: angleOf(CARDS.indexOf(c) - offset) };
     });
     buildDeck();
     setView('results');
