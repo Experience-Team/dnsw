@@ -3346,7 +3346,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ms--cols .tp-m { position: relative; }
 .tp-ms--cols .tp-m:nth-child(3n) { border-bottom: 0; }
 .tp-ko--col { grid-row: 1 / -1; align-self: start; margin-top: var(--space-3); padding-left: var(--space-4); border-left: 1px solid #eee; }
-.tp-flip { position: relative; display: grid; transform-style: preserve-3d; }
+.tp-flip { position: relative; display: grid; height: 100%; transform-style: preserve-3d; } /* fills the card, so cards side by side end level */
 .tp-flip.is-flipped { transform: rotateY(180deg); }
 .tp-face { grid-area: 1 / 1; border: 1.5px solid #1a1a1a; border-radius: 14px; background: #fff; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 .tp-face--front { display: flex; flex-direction: column; align-items: flex-start; padding: var(--space-5); background: #1f1f1f; border-color: #1f1f1f; color: #fff; }

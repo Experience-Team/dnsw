@@ -308,6 +308,12 @@
     results.hidden = v !== 'results';
     skipped.hidden = v !== 'skipped';
   }
+  // Where the phone's content must scroll to for the section title to sit 16px below the top bar. Measured against
+  // the scrolling body itself (offsetTop would also count the bar above it).
+  function resultsTop() {
+    var t = document.getElementById('tp-pick-title');
+    return Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16));
+  }
   function showResults(animate) {
     if (!state.picked.length) return;
     // Where each picked card sits in the fan now, to fly from
@@ -318,14 +324,19 @@
     });
     buildDeck();
     setView('results');
-    // The section starts at the top of the screen, so a whole card fits below the summary
-    body.scrollTop = root.offsetTop - 8;
     deck.scrollLeft = 0;
     // Snapping would catch a card mid-flight and leave the deck scrolled part way in, so it is off until they land
     var flying = animate && !reduce.matches;
     if (flying) deck.classList.add('is-flying');
+    // The title ends up 16px below the top bar, so the whole card fits under the summary. With motion, the cards fly
+    // first and the screen glides there once they land; jumping first would snap everything round the flying cards.
+    if (!flying) body.scrollTop = resultsTop();
     var landed = 0, total = deck.children.length;
-    function land() { if (++landed < total) return; deck.scrollLeft = 0; deck.classList.remove('is-flying'); }
+    function land() {
+      if (++landed < total) return;
+      deck.scrollLeft = 0; deck.classList.remove('is-flying');
+      body.scrollTo({ top: resultsTop(), behavior: 'smooth' });
+    }
     Array.prototype.forEach.call(deck.children, function (el, k) {
       var flip = el.firstElementChild, f = from[el.dataset.name];
       if (!animate || reduce.matches) { flip.classList.add('is-flipped'); return; }
@@ -346,10 +357,15 @@
     showResults(true);
   });
   document.getElementById('tp-change').addEventListener('click', function () {
-    setView('pick');
-    // The cards go back into the hand: the fan starts stacked and deals open again, picks still lifted
-    if (!reduce.matches) { dealt = false; place(false); fan.offsetWidth; requestAnimationFrame(deal); } else place(false);
-    cards[Math.round(offset)].focus({ preventScroll: true });
+    function back() {
+      setView('pick');
+      // The cards go back into the hand: the fan starts stacked and deals open again, picks still lifted
+      if (!reduce.matches) { dealt = false; place(false); fan.offsetWidth; requestAnimationFrame(deal); } else place(false);
+      cards[Math.round(offset)].focus({ preventScroll: true });
+    }
+    // The match cards fade and drop away first, so the deck does not vanish in one frame
+    if (reduce.matches || !results.animate) { back(); return; }
+    results.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 200, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = back;
   });
   // A ticket on a match is one ticket, whichever card it is marked on
   deck.addEventListener('change', function (e) {
