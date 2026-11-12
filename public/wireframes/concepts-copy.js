@@ -234,7 +234,7 @@
     });
   });
 
-  // The AI assistant tile (concepts.html) uses the same box when the browser blocks copying
+  // The AI assistant tile (prototype-itinerary.html) uses the same box when the browser blocks copying
   window.cnShowManual = function (tile, text) {
     fallbackText.value = text;
     fallbackBox.hidden = false;

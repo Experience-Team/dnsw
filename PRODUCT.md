@@ -15,7 +15,7 @@ Two deliverables in one repository, two audiences:
 
 ## Product Purpose
 
-- **`public/wireframes/`**: static, low-fidelity HTML/CSS/JS wireframes and prototypes of DNSW's live sites (sydney.com, visitnsw.com). Used for a design-consistency audit, to prototype new page templates (event, accommodation, food and drink, attraction, hire, tour) against the product data contract, and to prototype the Rugby World Cup "Plan your 3rd half" trip planner and its phone-sized concepts (`concepts.html`). Success: stakeholders can see and click through how a page or feature behaves, and the UI designer has an unambiguous structure to design on.
+- **`public/wireframes/`**: static, low-fidelity HTML/CSS/JS wireframes and prototypes of DNSW's live sites (sydney.com, visitnsw.com). Used for a design-consistency audit, to prototype new page templates (event, accommodation, food and drink, attraction, hire, tour) against the product data contract, and to prototype the Rugby World Cup "Plan your 3rd half" trip planner and its phone-sized concepts (`prototype-pick-your-team.html` and `prototype-itinerary.html`, one per page; `concepts.html` forwards to them). Success: stakeholders can see and click through how a page or feature behaves, and the UI designer has an unambiguous structure to design on.
 - **`src/`**: the "DNSW Design and Research Hub", a React app that presents user journey maps, a customer journey map, a user story map, adaptive-content and gaps dashboards, and a sitemap view, read from a published Google Sheet. It is the CJM and research tool.
 
 The two share no code and are separate deliverables (see CLAUDE.md). Product page code never goes in `src/`.

@@ -1,4 +1,4 @@
-/* Concepts: Pick your team (concepts.html, #pick-your-team).
+/* Concepts: Pick your team (prototype-pick-your-team.html).
    A fanned hand of cards: the 24 teams, alphabetical, then "Here for the rugby". Drag or swipe the fan sideways,
    or use the arrow keys; tap or press Space to pick a card (as many as you like). "See their matches" flies the
    picked cards out of the fan and flips them to show their matches.
