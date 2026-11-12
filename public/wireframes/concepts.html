@@ -288,7 +288,7 @@
     out.push('');
     function lines(r, when) {
       var f = r.fix, l = ['- ' + r.name + ' (' + window.cnStopType(r.id, r.name) + ')' + (f.area ? ', ' + f.area : '')];
-      if (level < 1 && when && r.time !== null) l.push('  When it fits: ' + r.meta.split('·').pop().trim());
+      if (level < 1 && when && r.time !== null) l.push('  ' + (/ v /.test(r.name) ? 'Kick-off: ' : 'When it fits: ') + r.meta.split('·').pop().trim() + (/ v /.test(r.name) ? ' Sydney time' : ''));
       var addr = window.cnStopAddress(r.id);
       var where = [addr && level < 3 ? 'Address: ' + addr : '', f.geo ? 'Coordinates: ' + ll(f.geo).replace(',', ', ') : ''].filter(Boolean);
       if (where.length) l.push('  ' + where.join(' | '));

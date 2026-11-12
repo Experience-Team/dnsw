@@ -70,15 +70,19 @@
   function onTrip(f) { return f.ticket || isMine(f); }
   function matchName(f) { return f.teams ? f.teams.join(' v ') : f.stage; }
   function kickLabel(k) { return k ? k.replace(/(am|pm)$/, ' $1') : ''; }
-  // Fixture times are Sydney time (AEDT in October and November). Outside NSW, add the local time too, so a fan
-  // in Perth or Brisbane does not read a Sydney time as their own. Hours behind Sydney: Perth 3, Brisbane 1.
-  var BEHIND = { Perth: 3, Brisbane: 1 };
+  // Fixture times are Sydney time (AEDT, UTC+11, through October and November 2027), and every kick-off says so.
+  // Outside NSW the local time follows. Minutes behind Sydney in those months: Perth (AWST, UTC+8) 180,
+  // Brisbane and Townsville (AEST, no daylight saving, UTC+10) 60, Adelaide (ACDT, UTC+10:30) 30, Melbourne
+  // (AEDT) 0. A city not listed gets the Sydney time only, never a guess.
+  var BEHIND_MIN = { Perth: 180, Brisbane: 60, Townsville: 60, Adelaide: 30, Melbourne: 0 };
   function kickTime(f) {
-    var t = kickLabel(f.kick);
-    if (!f.away || !BEHIND[f.away]) return t;
-    var m = /(\d{1,2}):(\d{2}) (am|pm)/.exec(t), h = (+m[1] % 12) + (m[3] === 'pm' ? 12 : 0) - BEHIND[f.away];
-    h = (h + 24) % 24;
-    return t + ' Sydney time (' + ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'am' : 'pm') + ' in ' + f.away + ')';
+    var t = kickLabel(f.kick), m = /(\d{1,2}):(\d{2}) (am|pm)/.exec(t);
+    if (!m) return t;
+    var out = t + ' Sydney time';
+    if (!f.away || !(f.away in BEHIND_MIN)) return out;
+    if (BEHIND_MIN[f.away] === 0) return out + ' (the same in ' + f.away + ')';
+    var mins = (((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] - BEHIND_MIN[f.away] + 1440) % 1440, h = Math.floor(mins / 60), mm = mins % 60;
+    return out + ' (' + ((h % 12) || 12) + ':' + (mm < 10 ? '0' : '') + mm + ' ' + (h < 12 ? 'am' : 'pm') + ' in ' + f.away + ')';
   }
   var range = { start: idx('Sep', 26), end: idx('Oct', 11) };
 

@@ -20,17 +20,13 @@
   /* ---------- Placeholder data (prototype only) ----------
      Each stop's day and order come from where it sits in the list. Type, area, address and description come from the
      product records (concepts-products.js), the same source as the AI prompt, so all three copies agree. Nothing the fan
-     has not set is filled in: no day themes and no times of day, apart from a match's kick-off. Only links stay here. */
+     has not set is filled in: no day themes, no times of day apart from a match's kick-off, and no start point or
+     getting-there advice per day. Only links stay here. */
   var DATA = {
     page: {
       title: 'Your Rugby World Cup 2027 itinerary',
       sourceName: 'sydney.com',
       sourceUrl: 'https://www.sydney.com/'
-    },
-    days: {
-      'Fri 8 Oct': { startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card.' },
-      'Sat 9 Oct': { startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card and allow time for crowds.' },
-      'Sun 10 Oct': { startPoint: 'Sydney CBD', gettingThere: 'Use public transport with an Opal or contactless card.' }
     },
     stops: [
       { id: 'centennial-parklands', url: 'https://www.sydney.com/' },
@@ -53,7 +49,6 @@
       Array.prototype.forEach.call(ul ? ul.querySelectorAll('.cn-item') : [], function (li) {
         var s = byId[li.dataset.stop];
         if (!s) return;
-        var d = dated ? (data.days[label] || {}) : {};
         var r = (window.cnProducts || {})[s.id] || {}, name = li.querySelector('.cn-item-name').textContent.trim();
         var kick = / v /.test(name) ? (/(\d{1,2}:\d{2}\s*[ap]m)/i.exec(li.querySelector('.cn-item-meta').textContent) || [])[1] : '';
         out.push(Object.assign({
@@ -64,7 +59,7 @@
           description: r.overview || '',
           kickoff: kick ? 'Kick-off ' + kick : ''
         }, s, {
-          day: dated ? label : 'Not yet planned', startPoint: d.startPoint || '', gettingThere: d.gettingThere || ''
+          day: dated ? label : 'Not yet planned'
         }));
       });
     });
@@ -92,19 +87,20 @@
     var days = [], idx = {}, rest = [];
     stops.forEach(function (s) {
       if (s.day === 'Not yet planned') { rest.push(s); return; }
-      if (!(s.day in idx)) { idx[s.day] = days.length; days.push({ label: s.day, startPoint: s.startPoint, gettingThere: s.gettingThere, stops: [] }); }
+      if (!(s.day in idx)) { idx[s.day] = days.length; days.push({ label: s.day, stops: [] }); }
       days[idx[s.day]].stops.push(s);
     });
     return { days: days, rest: rest };
   }
   function overview(g, stops) {
-    // "4 places on 3 days, and 1 not yet planned. In NSW from Sun 26 Sep to Mon 11 Oct."
-    var setup = window.cnTripSetup || {}, planned = stops.length - g.rest.length;
+    // "1 match and 3 places on 3 days, and 1 place not yet planned. In NSW from Sun 26 Sep 2027 to Mon 11 Oct 2027."
+    var setup = window.cnTripSetup || {}, dated = [];
+    g.days.forEach(function (d) { dated = dated.concat(d.stops); });
+    var matches = dated.filter(function (s) { return s.type === 'Match'; }).length, places = dated.length - matches;
     function n(k, one, many) { return k + ' ' + (k === 1 ? one : many); }
-    return n(planned, 'place', 'places') + ' on ' + n(g.days.length, 'day', 'days') + (g.rest.length ? ', and ' + g.rest.length + ' not yet planned' : '') + '.' + (setup.arrive && setup.leave ? ' In NSW from ' + setup.arrive + ' to ' + setup.leave + '.' : '');
+    var what = [matches ? n(matches, 'match', 'matches') : '', places ? n(places, 'place', 'places') : ''].filter(Boolean).join(' and ') || 'Nothing';
+    return what + ' on ' + n(g.days.length, 'day', 'days') + (g.rest.length ? ', and ' + n(g.rest.length, 'place', 'places') + ' not yet planned' : '') + '.' + (setup.arrive && setup.leave ? ' In NSW from ' + setup.arrive + ' 2027 to ' + setup.leave + ' 2027.' : '');
   }
-  function noStop(x) { return String(x || 'to be confirmed').replace(/[.\s]+$/, ''); } // one full stop at the end, whatever the data has
-  function dayLine(d) { return 'Start point: ' + noStop(d.startPoint) + '. Getting there: ' + noStop(d.gettingThere) + '.'; }
   function details(s) { return [s.kickoff, s.description].filter(Boolean).join('. '); }
 
   /* ---------- Copy page: text/html and text/plain ---------- */
@@ -126,9 +122,9 @@
       return l;
     }
     g.days.forEach(function (d, n) {
-      var title = 'Day ' + (n + 1) + ': ' + d.label + ' 2027';
-      h += '<h2>' + esc(title) + '</h2><p>' + esc(dayLine(d)) + '</p><ul>' + d.stops.map(stopHtml).join('') + '</ul>';
-      t.push('', title.toUpperCase(), new Array(Math.max(24, Math.min(60, title.length)) + 1).join('-'), dayLine(d), '');
+      var title = d.label + ' 2027'; // the date itself: a "Day 1" count would start from the first planned day, not the trip
+      h += '<h2>' + esc(title) + '</h2><ul>' + d.stops.map(stopHtml).join('') + '</ul>';
+      t.push('', title.toUpperCase(), new Array(Math.max(24, Math.min(60, title.length)) + 1).join('-'));
       d.stops.forEach(function (s) { stopText(s).forEach(function (x) { t.push(x); }); });
     });
     if (g.rest.length) {
