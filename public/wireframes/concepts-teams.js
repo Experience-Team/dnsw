@@ -165,10 +165,25 @@
     else if (on && !c.rugby && isPicked(RUGBY)) { state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; }); note = ' Here for the rugby is cleared.'; }
     if (on) state.picked.push(c.name); else state.picked = state.picked.filter(function (n) { return n !== c.name; });
     save();
-    // The picked card glides to the middle of the hand. Longer the further it travels, on an even curve rather than a
-    // snap, so the eye can follow it; it lifts as it arrives. Reduced motion keeps the stylesheet's (no movement).
-    var dist = Math.abs(i - offset), dur = Math.round(Math.min(720, 380 + 90 * dist));
-    settle(i, false, reduce.matches || dist < .5 ? '' : 'transform ' + dur + 'ms cubic-bezier(.45, .05, .2, 1), opacity 220ms ease-out, background-color 150ms ease-out, color 150ms ease-out');
+    // The pick is a visible moment, not just a turn of the hand: the card is pulled up out of the fan above its
+    // neighbours, travels to the middle while the hand turns under it, and settles back in. A fan step is only 6.5deg,
+    // so without the pull a pick one or two cards over hardly reads. Slower the further it goes, eased in and out.
+    // Reduced motion keeps the stylesheet's (no movement); the colour and tick still change.
+    var dist = Math.abs(i - offset), dur = Math.round(Math.min(1100, 620 + 120 * dist));
+    var ease = 'cubic-bezier(.65, 0, .35, 1)';
+    settle(i, false, reduce.matches ? '' : 'transform ' + dur + 'ms ' + ease + ', opacity 220ms ease-out, background-color 200ms ease-out, color 200ms ease-out');
+    if (!reduce.matches && cards[i].animate) {
+      var card = cards[i];
+      if (card._pull) card._pull.cancel();
+      card.style.zIndex = 60; // rides above the cards it passes
+      // translate and scale are separate properties, so they add to the fan's rotate without fighting it
+      card._pull = card.animate([
+        { translate: '0 0', scale: '1', boxShadow: '-2px 0 6px rgba(0,0,0,.08)' },
+        { translate: '0 ' + (on ? -46 : -30) + 'px', scale: on ? '1.1' : '1.05', boxShadow: '0 18px 30px rgba(0,0,0,.25)', offset: .4 },
+        { translate: '0 0', scale: '1', boxShadow: '-2px 0 6px rgba(0,0,0,.08)' }
+      ], { duration: Math.max(dur, 700), easing: ease });
+      card._pull.onfinish = card._pull.oncancel = function () { card.style.zIndex = ''; card._pull = null; };
+    }
     renderChosen();
     say(c.name + (on ? ' picked.' : ' removed.') + note + ' ' + chosenText());
   }

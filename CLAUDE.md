@@ -22,3 +22,7 @@ in the same change as the fix, in general terms so it applies beyond the one cas
    and start again, shown only when something is picked.
 4. **Walk every combination before handing over.** Pick, unpick, mix, clear, change your mind, reload, keyboard only
    and reduced motion. Fix the gaps you find rather than leaving them for the user to spot.
+5. **The movement that matters is obvious, not just present.** A change the user should notice must be clear at real
+   size and speed. When a whole group moves together (a fan turning, a list shifting), the item the user acted on
+   gets lost, so single it out: lift it, scale it, bring it above its neighbours, then settle it. Judge it from a
+   strip of frames at real size, not from numbers that only prove it moved.
