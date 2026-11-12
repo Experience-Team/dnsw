@@ -3261,3 +3261,29 @@ body.cp-page code { font: inherit; }
 .cn-seg button::before { content: ""; position: absolute; inset: -6px 0; }
 /* Gap fields in the product page show the contract's pink marker (the page-wide grey override is for the planner) */
 body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); }
+
+/* Concepts: Pick your team. The hero sits edge to edge under the bar: a grey image placeholder, a scrim for the text,
+   the title, the countdown to the opening match and the tournament dates. Greyscale and the system font, as every
+   wireframe; no Rugby World Cup theme. */
+.tp-body { padding: 0; }
+.tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 560px; color: #fff; isolation: isolate; }
+.tp-hero-img { position: absolute; inset: 0; z-index: -1; background: #595959; }
+.tp-hero-img::after { align-items: flex-start; padding-top: var(--space-5); font-size: .875rem; color: rgba(255,255,255,.55); }
+/* The scrim darkens only where the text sits, so the placeholder still reads as a photo above it */
+.tp-hero::before { content: ""; position: absolute; inset: 35% 0 0; z-index: -1; background: linear-gradient(to bottom, rgba(17,17,17,0), rgba(17,17,17,.82) 45%); pointer-events: none; }
+.tp-hero-content { padding: 0 var(--space-4) var(--space-5); }
+.tp-hero-title { display: flex; flex-direction: column; gap: var(--space-1); font-weight: 800; line-height: 1.05; text-wrap: balance; }
+.tp-hero-kicker { font-size: 1rem; font-weight: 600; letter-spacing: .01em; }
+.tp-hero-name { font-size: 2.75rem; letter-spacing: -.02em; }
+.tp-hero-sub { margin-top: var(--space-3); max-width: 22rem; font-size: 1rem; line-height: 1.4; color: rgba(255,255,255,.9); text-wrap: balance; }
+.tp-count { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid rgba(255,255,255,.35); }
+.tp-count-label { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,.85); }
+.tp-count-units { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: var(--space-2); }
+.tp-count-units[hidden], .tp-count-label[hidden] { display: none; }
+.tp-count-cell { display: flex; flex-direction: column; align-items: flex-start; padding-left: var(--space-3); border-left: 1px solid rgba(255,255,255,.35); }
+.tp-count-cell:first-child { padding-left: 0; border-left: 0; }
+.tp-count-num { font-size: 2.25rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.tp-count-unit { margin-top: var(--space-1); font-size: .75rem; color: rgba(255,255,255,.8); }
+.tp-count-done { font-size: 1rem; font-weight: 600; line-height: 1.4; }
+.tp-dates { margin-top: var(--space-4); font-size: .875rem; font-weight: 600; }
+

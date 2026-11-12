@@ -28,7 +28,7 @@
 </div>
 
 <!-- Concept: Pick your team. A new prototype in its own 390 x 844 phone window, started fresh: nothing here is shared
-     with the itinerary prototype below (its own ids, no data-go jump buttons, no script yet). -->
+     with the itinerary prototype below (its own ids and script, no data-go jump buttons). So far: the hero. -->
 <section class="cp-section" id="pick-your-team">
   <div class="cp-wrap cn-wrap">
     <h2>Pick your team</h2>
@@ -41,11 +41,71 @@
       <div class="cn-bar">
         <h3 class="cn-bar-title">Pick your team</h3>
       </div>
-      <div class="cn-body"></div>
+      <div class="cn-body tp-body">
+        <!-- Hero: a grey image placeholder with the title, a countdown to the opening match and the tournament dates.
+             The countdown runs to Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time
+             (AEST, UTC+10: daylight saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to the address
+             to see the screen at another moment. -->
+        <section class="tp-hero" aria-labelledby="tp-hero-title">
+          <span class="ph-img tp-hero-img" aria-hidden="true"></span>
+          <div class="tp-hero-content">
+            <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-hero-kicker">Rugby World Cup 2027:</span> <span class="tp-hero-name">Your 3rd half</span></h3>
+            <p class="tp-hero-sub">Two halves on the pitch. Make the third one count.</p>
+            <div class="tp-count" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">
+              <p class="tp-count-label" id="tp-count-label">Countdown to the opening match</p>
+              <div class="tp-count-units" role="timer" aria-labelledby="tp-count-label">
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="days">--</span><span class="tp-count-unit">Days</span></span>
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="hours">--</span><span class="tp-count-unit">Hours</span></span>
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="minutes">--</span><span class="tp-count-unit">Mins</span></span>
+                <span class="tp-count-cell"><span class="tp-count-num" data-unit="seconds">--</span><span class="tp-count-unit">Secs</span></span>
+              </div>
+              <p class="tp-count-done" hidden></p>
+              <p class="tp-dates"><span class="visually-hidden">Tournament dates: </span>1 October to 13 November 2027</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
     </div>
   </div>
 </section>
+
+<script>
+/* Pick your team: hero countdown. Counts down to the opening match, then says the tournament is under way, then that
+   it has finished. Ticks once a second, lined up to the clock, and stops while the tab is hidden. */
+(function () {
+  var box = document.querySelector('#tp-phone .tp-count');
+  if (!box) return;
+  var start = Date.parse(box.dataset.start), end = Date.parse(box.dataset.end);
+  var units = box.querySelector('.tp-count-units'), label = box.querySelector('.tp-count-label'), done = box.querySelector('.tp-count-done');
+  var nums = {};
+  box.querySelectorAll('[data-unit]').forEach(function (n) { nums[n.dataset.unit] = n; });
+  // For review: ?tp-now=<ISO date> shows the screen at that moment, and the clock runs on from there
+  var m = /[?&]tp-now=([^&]+)/.exec(location.search), offset = 0;
+  if (m) { var t = Date.parse(decodeURIComponent(m[1])); if (!isNaN(t)) offset = t - Date.now(); }
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function set(el, v) { if (el.textContent !== v) el.textContent = v; }
+  var timer;
+  function tick() {
+    var now = Date.now() + offset, left = start - now;
+    if (left > 0) {
+      var s = Math.floor(left / 1000);
+      set(nums.days, String(Math.floor(s / 86400)));
+      set(nums.hours, pad(Math.floor(s / 3600) % 24));
+      set(nums.minutes, pad(Math.floor(s / 60) % 60));
+      set(nums.seconds, pad(s % 60));
+      timer = setTimeout(tick, 1000 - (now % 1000) + 5);
+      return;
+    }
+    // After kick-off there is nothing to count down to: the timer gives way to a plain line
+    units.hidden = true; label.hidden = true; done.hidden = false;
+    done.textContent = now < end ? 'The tournament is under way. The final is on Sat 13 Nov 2027.' : 'Rugby World Cup 2027 has finished.';
+    if (now < end) timer = setTimeout(tick, Math.min(end - now + 1000, 3600000));
+  }
+  document.addEventListener('visibilitychange', function () { clearTimeout(timer); if (!document.hidden) tick(); });
+  tick();
+})();
+</script>
 
 <!-- Concept: itinerary list and Save and share, five Figma screens in one 390 x 844 phone window:
      M1 Itinerary list view (42:41), M2 Save and share sheet (42:98), M3 Format copied (43:40),
