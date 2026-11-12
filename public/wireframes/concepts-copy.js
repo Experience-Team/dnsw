@@ -126,7 +126,7 @@
       return l;
     }
     g.days.forEach(function (d, n) {
-      var title = 'Day ' + (n + 1) + ': ' + d.label;
+      var title = 'Day ' + (n + 1) + ': ' + d.label + ' 2027';
       h += '<h2>' + esc(title) + '</h2><p>' + esc(dayLine(d)) + '</p><ul>' + d.stops.map(stopHtml).join('') + '</ul>';
       t.push('', title.toUpperCase(), new Array(Math.max(24, Math.min(60, title.length)) + 1).join('-'), dayLine(d), '');
       d.stops.forEach(function (s) { stopText(s).forEach(function (x) { t.push(x); }); });
@@ -154,7 +154,7 @@
     cfg = cfg || CONFIG;
     var rows = stops.map(function (s, i) {
       // Theme and Time of day stay empty unless the fan set them; a match's kick-off is the one time we know
-      return [s.day, s.theme || '', s.kickoff || '', i + 1, s.name, s.type, s.area, s.address, s.description, link(s.url, cfg)];
+      return [s.day === 'Not yet planned' ? s.day : s.day + ' 2027', s.theme || '', s.kickoff || '', i + 1, s.name, s.type, s.area, s.address, s.description, link(s.url, cfg)];
     });
     var text = [COLUMNS.map(tsvField).join('\t')].concat(rows.map(function (r) { return r.map(tsvField).join('\t'); })).join('\n');
     var html = '<table><thead><tr>' + COLUMNS.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';

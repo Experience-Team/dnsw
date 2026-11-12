@@ -70,6 +70,16 @@
   function onTrip(f) { return f.ticket || isMine(f); }
   function matchName(f) { return f.teams ? f.teams.join(' v ') : f.stage; }
   function kickLabel(k) { return k ? k.replace(/(am|pm)$/, ' $1') : ''; }
+  // Fixture times are Sydney time (AEDT in October and November). Outside NSW, add the local time too, so a fan
+  // in Perth or Brisbane does not read a Sydney time as their own. Hours behind Sydney: Perth 3, Brisbane 1.
+  var BEHIND = { Perth: 3, Brisbane: 1 };
+  function kickTime(f) {
+    var t = kickLabel(f.kick);
+    if (!f.away || !BEHIND[f.away]) return t;
+    var m = /(\d{1,2}):(\d{2}) (am|pm)/.exec(t), h = (+m[1] % 12) + (m[3] === 'pm' ? 12 : 0) - BEHIND[f.away];
+    h = (h + 24) % 24;
+    return t + ' Sydney time (' + ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'am' : 'pm') + ' in ' + f.away + ')';
+  }
   var range = { start: idx('Sep', 26), end: idx('Oct', 11) };
 
   /* ---------- Places: read from the list ---------- */
@@ -96,7 +106,7 @@
     var h = '';
     h += '<div class="cn-tl-head"><h3 class="cn-tl-title">Your matches and places</h3><button type="button" class="cn-tl-edit" id="cn-tl-edit" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9.6 2.1l2.3 2.3-7 7-2.9.6.6-2.9z M8.4 3.3l2.3 2.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span id="cn-tl-edit-label">Edit</span></button></div>';
     h += '<p class="cn-hint cn-tl-edit-hint" id="cn-tl-edit-hint" hidden>Drag a place to another day, or up or down to change the order. Keyboard: arrow keys on a place.</p>';
-    h += '<ul class="cn-tl-key"><li>' + sym('ticket') + 'Match with your ticket</li><li>' + sym('match') + 'Your teams’ matches</li><li>' + sym('place') + 'Your places</li></ul>';
+    h += '<ul class="cn-tl-key"><li>' + sym('ticket') + 'Match with your ticket</li><li>' + sym('match') + 'Your teams’ matches</li><li>' + sym('match').replace('cn-tl-sym--match', 'cn-tl-sym--match is-away') + 'Outside NSW</li><li>' + sym('place') + 'Your places</li></ul>';
     // One row of plain text pickers: the dates (type them in) and the teams, each opening a list over the chart
     h += '<div class="cn-tl-row"><button type="button" class="cn-tl-pick" id="cn-tl-dates-btn" aria-expanded="false" aria-controls="cn-tl-dates-panel"><span class="visually-hidden">Your days in NSW: </span><span id="cn-tl-range"></span><svg class="cn-tl-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
     h += '<div class="cn-tl-teams-panel" id="cn-tl-dates-panel" role="group" aria-labelledby="cn-tl-dates-h" hidden><div class="cn-tl-teams-head"><strong id="cn-tl-dates-h">Your days in NSW</strong><span class="cn-tl-dates-count" id="cn-tl-dates-count"></span></div><div class="cn-tl-dates">';
@@ -219,10 +229,11 @@
         var f = it.f;
         kind = f.ticket ? 'ticket' : 'match';
         name = matchName(f);
-        aria = name + ', ' + longLabel(it.i) + ', ' + f.venue + (f.ticket ? ', you have a ticket' : '');
+        aria = name + ', ' + longLabel(it.i) + ', ' + f.venue + (f.away ? ', outside NSW' : '') + (f.ticket ? ', you have a ticket' : '');
         top = A - 70 - it.row * ROW;
-        h += '<button type="button" class="cn-tl-mk cn-tl-mk--' + kind + '" data-key="' + f.key + '" data-i="' + it.i + '" style="left:' + x + 'px;top:' + top + 'px" aria-label="' + esc(aria) + '">' + sym(kind) + '</button>';
-        if (it.label) h += '<span class="cn-tl-lbl cn-tl-lbl--up' + (f.ticket ? ' is-ticket' : '') + '" data-i="' + it.i + '" aria-hidden="true" style="left:' + x + 'px;top:' + (top - 2) + 'px">' + esc(name) + '</span>';
+        h += '<button type="button" class="cn-tl-mk cn-tl-mk--' + kind + (f.away ? ' is-away' : '') + '" data-key="' + f.key + '" data-i="' + it.i + '" style="left:' + x + 'px;top:' + top + 'px" aria-label="' + esc(aria) + '">' + sym(kind) + '</button>';
+        // A match outside NSW says where it is first ("In Perth"), so it is not read as one of the fan's NSW days
+        if (it.label) h += '<span class="cn-tl-lbl cn-tl-lbl--up' + (f.ticket ? ' is-ticket' : '') + (f.away ? ' is-away' : '') + '" data-i="' + it.i + '" aria-hidden="true" style="left:' + x + 'px;top:' + (top - 2) + 'px">' + (f.away ? '<span class="cn-tl-lbl-city">In ' + esc(f.away) + '</span><span class="cn-tl-lbl-name">' + esc(name) + '</span>' : esc(name)) + '</span>';
       } else {
         var p = it.p;
         aria = p.name + ', ' + longLabel(it.i) + ', your place';
@@ -381,9 +392,9 @@
     // Done confirms the dates and stays on the timeline
     el.done.addEventListener('click', function () {
       clearTimeout(doneTimer);
-      el.done.textContent = 'Saved';
+      el.done.textContent = 'Dates set';
       el.done.classList.add('is-saved');
-      say('Dates saved: ' + el.range.textContent + ', ' + plural(range.end - range.start + 1, 'day', 'days') + ' in NSW.');
+      say('Dates set: ' + el.range.textContent + ', ' + plural(range.end - range.start + 1, 'day', 'days') + ' in NSW.');
       doneTimer = setTimeout(function () { el.done.textContent = 'Done'; el.done.classList.remove('is-saved'); }, 2000);
     });
   }
@@ -419,7 +430,7 @@
       // A match on the list has a full record; any other match is built from the fixture
       var id = Object.keys(PRODUCTS).filter(function (k) { return PRODUCTS[k].title === matchName(f); })[0];
       r = id ? PRODUCTS[id] : { title: matchName(f), overview: f.stage + ' match at Rugby World Cup 2027.', gallery: [{ alt: 'Placeholder image of ' + f.venue }], address: { line: f.venue, suburb: f.precinct }, practical: {}, getting_there: {} };
-      when = longLabel(f.i) + ' 2027, ' + (f.kick ? 'kick-off ' + kickLabel(f.kick) : 'kick-off time to be confirmed');
+      when = longLabel(f.i) + ' 2027, ' + (f.kick ? 'kick-off ' + kickTime(f) : 'kick-off time to be confirmed');
       ticket = f.ticket;
       return { r: r, match: true, when: when, ticket: ticket };
     }
@@ -460,7 +471,8 @@
     var rows = factRows(r);
     h += '<h3 class="cn-pp-h">Practical details</h3>';
     h += rows.length ? '<dl class="pl-option-facts cn-pp-facts">' + rows.map(function (x) { return '<div><dt>' + x[0] + '</dt><dd><span class="provenance-gap">' + esc(x[1]) + '</span></dd></div>'; }).join('') + '</dl>' : '<p class="cn-pp-none">No practical details yet.</p>';
-    // A place can leave the plan; a match cannot (it is fixed to its day)
+    // A place can leave the plan; a match cannot (it is fixed to its day), and its page says so
+    if (rec.match) h += '<p class="cn-pp-none cn-pp-fixed">' + sym('ticket').replace('cn-tl-sym--ticket', 'cn-tl-sym--fixed') + 'Matches are fixed to their day, so they cannot be moved or removed.</p>';
     if (!rec.match) h += '<div class="plan-modal-actions"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm cn-pp-remove" data-remove="' + esc(rec.id) + '">Remove from plan</button></div>';
     h += '</div>';
     ppBody.innerHTML = h;

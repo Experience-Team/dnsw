@@ -111,11 +111,11 @@
           <button type="button" class="cn-pill cn-pill--sent" id="cn-sent" tabindex="-1" aria-disabled="true"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Sent. Check your inbox</button>
           <div class="cn-or"><span class="cn-or-text" aria-hidden="true">or</span><button type="button" class="cn-again" id="cn-again">Send again</button></div>
           <button type="button" class="cn-pill cn-pill--outline">Copy link</button>
-          <h4 class="cn-sub cn-sub--copy">Copy as</h4>
+          <h4 class="cn-sub cn-sub--copy">Copy, download or open</h4>
           <div class="cn-tiles">
             <button type="button" class="cn-tile" id="cn-tile-ai"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">AI assistant</span><span class="cn-tile-meta">Copy text</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile" id="cn-tile-sheet" aria-describedby="cn-desc-sheet"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Spreadsheet</span><span class="cn-tile-meta">Paste into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
-            <button type="button" class="cn-tile" id="cn-tile-chat" aria-describedby="cn-desc-chat"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Plain text</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <button type="button" class="cn-tile" id="cn-tile-chat" aria-describedby="cn-desc-chat"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Group chat</span><span class="cn-tile-meta">Notes, email or chat</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
             <button type="button" class="cn-tile"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Calendar</span><span class="cn-tile-meta">Download .ics</span></span></button>
             <button type="button" class="cn-tile cn-tile--wide" data-go="m5"><span class="cn-tile-icon" aria-hidden="true"></span><span class="cn-tile-text"><span class="cn-tile-name">Open in maps</span><span class="cn-tile-meta">Google Maps, Apple Maps, or a file</span></span></button>
           </div>
@@ -235,7 +235,7 @@
   var MONTH = { Sep: 'September', Oct: 'October', Nov: 'November' };
   var WDAY = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' };
   var MAX = 8000, FAN_ZONE = 'Tumbalong Park, Darling Harbour';
-  function longDate(d) { var p = d.split(' '); return WDAY[p[0]] + ' ' + p[1] + ' ' + (MONTH[p[2]] || p[2]); }
+  function longDate(d) { var p = d.split(' '); return WDAY[p[0]] + ' ' + p[1] + ' ' + (MONTH[p[2]] || p[2]) + ' 2027'; }
   function ord(d) { var p = d.split(' '); return Date.UTC(2027, MON.indexOf(p[2]), +p[1]); }
   function mins(t) { var m = /(\d{1,2}):(\d{2})\s*([ap])m/i.exec(t || ''); return m ? ((+m[1] % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0)) * 60 + +m[2] : null; }
   function ll(g) { return g[0].toFixed(4) + ',' + g[1].toFixed(4); }
