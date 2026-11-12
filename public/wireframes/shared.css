@@ -3332,8 +3332,16 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-results-note { margin-top: var(--space-1); font-size: .75rem; color: #5c5c5c; }
 .tp-deck { display: flex; gap: var(--space-3); margin: var(--space-4) calc(var(--space-4) * -1) 0; padding: 4px var(--space-4) var(--space-3); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-4); scrollbar-width: none; }
 .tp-deck::-webkit-scrollbar { display: none; }
+.tp-deck.is-flying { scroll-snap-type: none; overflow-x: hidden; }
 .tp-rcard { flex: none; width: calc(100% - 28px); scroll-snap-align: start; perspective: 1200px; }
 .tp-deck.is-single .tp-rcard { width: 100%; }
+/* Here for the rugby lists all nine NSW matches: three to a column so the card fits the screen's height, and the card
+   grows sideways instead. The deck's own sideways swipe moves through it, so there is no scroll inside a scroll. */
+.tp-deck .tp-rcard--rugby, .tp-deck.is-single .tp-rcard--rugby { width: max-content; }
+.tp-ms--cols { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); grid-auto-columns: 220px; column-gap: var(--space-5); }
+.tp-ms--cols .tp-m { position: relative; }
+.tp-ms--cols .tp-m:nth-child(3n) { border-bottom: 0; }
+.tp-ko--col { grid-row: 1 / -1; align-self: start; margin-top: var(--space-3); padding-left: var(--space-4); border-left: 1px solid #eee; }
 .tp-flip { position: relative; display: grid; transform-style: preserve-3d; }
 .tp-flip.is-flipped { transform: rotateY(180deg); }
 .tp-face { grid-area: 1 / 1; border: 1.5px solid #1a1a1a; border-radius: 14px; background: #fff; -webkit-backface-visibility: hidden; backface-visibility: hidden; }

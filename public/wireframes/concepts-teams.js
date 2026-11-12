@@ -259,7 +259,9 @@
     var ms = c.rugby ? nswPool : c.matches;
     var head = c.rugby ? nswPool.length + ' pool matches in NSW' : c.pool + ' &middot; ' + c.matches.length + ' pool matches, ' + c.nsw + ' in NSW';
     return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div></div>' +
-      '<ol class="tp-ms">' + ms.map(function (f) { return row(f, c.name, c.rugby); }).join('') + '</ol><p class="tp-ko">' + esc(koNote(c)) + '</p>';
+      '<ol class="tp-ms' + (c.rugby ? ' tp-ms--cols' : '') + '">' + ms.map(function (f) { return row(f, c.name, c.rugby); }).join('') +
+      // On the columned card the knockout note is a column of its own, so it adds width, not height
+      (c.rugby ? '<li class="tp-ko tp-ko--col">' + esc(koNote(c)) + '</li></ol>' : '</ol><p class="tp-ko">' + esc(koNote(c)) + '</p>');
   }
   function pickedCards() {
     // Teams in the order they were picked, then Here for the rugby last
@@ -284,7 +286,11 @@
         '<div class="tp-face tp-face--front" aria-hidden="true">' + front(c) + '</div>' +
         '<div class="tp-face tp-face--back">' + back(c) + '</div></div></article>';
     }).join('');
-    document.getElementById('tp-deck-hint').hidden = cs.length < 2;
+    // The hint shows whenever there is more to the side: other cards, or the columns of Here for the rugby
+    var hint = document.getElementById('tp-deck-hint');
+    hint.textContent = cs.length > 1 ? 'Swipe for your other cards.' : 'Swipe sideways for more matches.';
+    hint.hidden = true;
+    requestAnimationFrame(function () { hint.hidden = deck.scrollWidth <= deck.clientWidth + 2; });
     sum.textContent = summary();
   }
   function setView(v) {
@@ -304,9 +310,14 @@
     });
     buildDeck();
     setView('results');
-    var top = results.offsetTop - 12;
-    if (body.scrollTop > top) body.scrollTop = top;
+    // The section starts at the top of the screen, so a whole card fits below the summary
+    body.scrollTop = root.offsetTop - 8;
     deck.scrollLeft = 0;
+    // Snapping would catch a card mid-flight and leave the deck scrolled part way in, so it is off until they land
+    var flying = animate && !reduce.matches;
+    if (flying) deck.classList.add('is-flying');
+    var landed = 0, total = deck.children.length;
+    function land() { if (++landed < total) return; deck.scrollLeft = 0; deck.classList.remove('is-flying'); }
     Array.prototype.forEach.call(deck.children, function (el, k) {
       var flip = el.firstElementChild, f = from[el.dataset.name];
       if (!animate || reduce.matches) { flip.classList.add('is-flipped'); return; }
@@ -317,7 +328,7 @@
       } else el.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: delay, easing: EASE, fill: 'backwards' });
       // The turn starts as the card leaves the fan and lands face up
       var a = flip.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 620, delay: delay + 80, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'both' });
-      a.onfinish = function () { flip.classList.add('is-flipped'); a.cancel(); };
+      a.onfinish = function () { flip.classList.add('is-flipped'); a.cancel(); land(); };
     });
     sum.focus({ preventScroll: true });
     say(summary());
