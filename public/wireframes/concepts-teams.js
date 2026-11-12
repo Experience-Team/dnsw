@@ -158,7 +158,11 @@
   }, { passive: false });
 
   function toggle(i) {
-    var c = CARDS[i], on = !isPicked(c);
+    var c = CARDS[i], on = !isPicked(c), note = '';
+    // Here for the rugby already covers every match in NSW, so it stands alone: picking it puts the team cards back in
+    // the hand, and picking a team puts it back. The cards that go drop in the same glide.
+    if (on && c.rugby && state.picked.length) { state.picked = []; note = ' Your team picks are cleared, as every NSW match is included.'; }
+    else if (on && !c.rugby && isPicked(RUGBY)) { state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; }); note = ' Here for the rugby is cleared.'; }
     if (on) state.picked.push(c.name); else state.picked = state.picked.filter(function (n) { return n !== c.name; });
     save();
     // The picked card glides to the middle of the hand. Longer the further it travels, on an even curve rather than a
@@ -166,7 +170,7 @@
     var dist = Math.abs(i - offset), dur = Math.round(Math.min(720, 380 + 90 * dist));
     settle(i, false, reduce.matches || dist < .5 ? '' : 'transform ' + dur + 'ms cubic-bezier(.45, .05, .2, 1), opacity 220ms ease-out, background-color 150ms ease-out, color 150ms ease-out');
     renderChosen();
-    say(c.name + (on ? ' picked. ' : ' removed. ') + chosenText());
+    say(c.name + (on ? ' picked.' : ' removed.') + note + ' ' + chosenText());
   }
   fan.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-card');
