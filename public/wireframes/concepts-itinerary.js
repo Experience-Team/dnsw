@@ -573,8 +573,8 @@
     if (!li) return;
     hideUndo();
     var name = nameOf(li), home = { ul: li.parentNode, next: li.nextElementSibling };
-    li.remove();
-    refreshEmpty();
+    vanish(li); // fades where it was while the rows below close the gap
+    flip(function () { li.remove(); refreshEmpty(); }, null);
     phone.dispatchEvent(new CustomEvent('cn:reorder'));
     var t = undoToast();
     t.querySelector('.cn-undo-text').textContent = 'Removed ' + name + '.';
@@ -588,9 +588,10 @@
     if (!undo) return;
     var u = undo; hideUndo();
     var ul = u.home.ul.isConnected ? u.home.ul : lists()[lists().length - 1];
-    ul.insertBefore(u.li, u.home.next && u.home.next.parentNode === ul ? u.home.next : null);
+    flip(function () { ul.insertBefore(u.li, u.home.next && u.home.next.parentNode === ul ? u.home.next : null); refreshEmpty(); }, u.li);
+    if (!reduce.matches) u.li.animate([{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: DUR, easing: EASE });
+    landed(u.li);
     removed = removed.filter(function (x) { return x !== u.li.dataset.stop; });
-    refreshEmpty();
     phone.dispatchEvent(new CustomEvent('cn:reorder'));
     say(nameOf(u.li) + ' is back in ' + dayName(ul) + '.');
     var focusTo = phone.dataset.view === 'timeline' ? tlPane.querySelector('[data-stop="' + u.li.dataset.stop + '"]') : u.li.querySelector('.cn-item-text');
@@ -776,7 +777,7 @@
   function dayName(ul) { var h = headOf(ul); return h ? h.textContent.trim() : ''; }
   function refreshEmpty(skip) {
     lists().forEach(function (ul) {
-      var empty = itemsOf(ul, skip).length === 0;
+      var empty = itemsOf(ul, skip).length === 0 && !(skip && skip.parentNode === ul); // the slot being dragged counts
       ul.classList.toggle('is-empty', empty);
       if (skip) return; // mid-drag: leave the Remove this day buttons alone
       // An empty day (not Not yet planned) can be taken out of the plan
@@ -792,53 +793,111 @@
   listPane.addEventListener('click', function (e) {
     var b = e.target.closest('.cn-day-remove'); if (!b) return;
     var ul = b.previousElementSibling, h = headOf(ul), label = dayName(ul), next = b.nextElementSibling;
-    h.remove(); ul.remove(); b.remove();
+    [h, ul].forEach(vanish);
+    flip(function () { h.remove(); ul.remove(); b.remove(); }, null);
     say('Removed ' + label + ' from your plan.');
     phone.dispatchEvent(new CustomEvent('cn:reorder'));
     if (next) { next.setAttribute('tabindex', '-1'); next.focus({ preventScroll: true }); }
   });
   function nameOf(li) { return li.querySelector('.cn-item-name').textContent.trim(); }
-  // Run a DOM change and slide every other item from where it was to where it is now
+
+  /* ---------- List motion ----------
+     One idea carries every change to the list: nothing jumps. Rows that move slide from where they were to where
+     they are now (FLIP), the day headings, hints and empty slots with them, so the list never tears. A slide that is
+     still running when the next change comes is taken over from wherever it has got to, so fast drags stay smooth.
+     Positions for decisions (where a drop lands) are read from layout, never from a row that is mid-slide. */
+  var DUR = 220, running = [];
+  // Every block that can move: the pane's own rows (meta, warning, headings, hints, lists, Remove this day) and the items
+  function movers() {
+    var top = Array.prototype.filter.call(listPane.children, function (c) { return !c.hidden; });
+    return { top: top, items: Array.prototype.slice.call(listPane.querySelectorAll('.cn-item')) };
+  }
   function flip(change, skip) {
-    var all = Array.prototype.slice.call(listPane.querySelectorAll('.cn-item')).filter(function (x) { return x !== skip; });
-    var before = all.map(function (x) { return x.getBoundingClientRect().top; });
+    var m = movers(), seen = [];
+    var before = new Map();
+    m.top.concat(m.items).forEach(function (x) { if (x !== skip) before.set(x, x.getBoundingClientRect().top); });
+    running.forEach(function (a) { a.cancel(); }); running = [];
     change();
-    if (reduce.matches) return;
-    all.forEach(function (x, k) {
-      var dy = before[k] - x.getBoundingClientRect().top;
-      if (dy) x.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 200, easing: EASE });
+    if (reduce.matches || listPane.hidden) return;
+    var after = movers(), shift = new Map();
+    after.top.forEach(function (x) {
+      if (!before.has(x)) return;
+      var dy = before.get(x) - x.getBoundingClientRect().top;
+      shift.set(x, dy);
+      if (Math.abs(dy) > .5) seen.push(x.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: DUR, easing: EASE }));
     });
+    after.items.forEach(function (x) {
+      if (x === skip || !before.has(x)) return;
+      // An item rides on its list's slide, so it only animates the difference
+      var dy = before.get(x) - x.getBoundingClientRect().top - (shift.get(x.parentNode) || 0);
+      if (Math.abs(dy) > .5) seen.push(x.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: DUR, easing: EASE }));
+    });
+    running = seen;
+    seen.forEach(function (a) { a.onfinish = function () { running = running.filter(function (r) { return r !== a; }); }; });
+  }
+  // Where a block sits in the layout, ignoring any slide in progress (offsetTop does not see transforms)
+  function layoutTop(x) { var t = 0; for (var n = x; n && n !== listPane.offsetParent; n = n.offsetParent) t += n.offsetTop; return t; }
+  function paneTop(x) { return layoutTop(x) - layoutTop(listPane) + listPane.getBoundingClientRect().top; }
+  // A short wash of state blue where a place has landed, so the eye finds it after a move. Colour only, so it stays
+  // with reduced motion.
+  function landed(li) {
+    li.animate([{ borderColor: '#2666d9', boxShadow: '0 0 0 1px #2666d9', backgroundColor: '#f2f6fd' }, { borderColor: '#dbdbdb', boxShadow: '0 0 0 0 rgba(38,102,217,0)', backgroundColor: '#fff' }], { duration: 900, easing: 'ease-out' });
+  }
+  // A copy of a row, laid over it in the phone, to lift during a drag or to fade out on remove
+  function ghostOf(x) {
+    var r = x.getBoundingClientRect(), pr = phone.getBoundingClientRect(), g = x.cloneNode(true);
+    g.classList.add('cn-ghost'); g.setAttribute('aria-hidden', 'true'); g.inert = true;
+    g.style.left = (r.left - pr.left) + 'px'; g.style.top = (r.top - pr.top) + 'px'; g.style.width = r.width + 'px'; g.style.height = r.height + 'px';
+    phone.appendChild(g);
+    return g;
+  }
+  function vanish(x) {
+    if (reduce.matches || !x.offsetParent) return; // nothing to see when the list is hidden behind the timeline
+    var g = ghostOf(x);
+    g.classList.add('is-leaving');
+    g.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.96)' }], { duration: 140, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = function () { g.remove(); };
   }
   function position(li) { var ul = li.parentNode, all = itemsOf(ul); return { day: dayName(ul), n: all.indexOf(li) + 1, of: all.length }; }
   function announceDrop(li) { var p = position(li); say(nameOf(li) + ' is now in ' + p.day + ', position ' + p.n + ' of ' + p.of + '.'); phone.dispatchEvent(new CustomEvent('cn:reorder')); }
 
+  /* ---------- Drag to reorder ----------
+     The row stays in the list as a dashed slot that shows where it will land; a lifted copy follows the pointer.
+     The two never fight over a transform, so the copy stays exactly under the finger while the list makes room. */
   var drag = null;
+  function placeGhost() {
+    var d = drag, pr = phone.getBoundingClientRect();
+    d.ghost.style.top = (d.y - d.dy - pr.top) + 'px';
+  }
   function updateDrag() {
     var d = drag, li = d.li, ls = lists();
-    var top = d.y - d.dy, center = top + li.offsetHeight / 2, target = ls[0];
-    ls.forEach(function (ul) { var h = headOf(ul); if (h && d.y >= h.getBoundingClientRect().top - 2) target = ul; });
+    placeGhost();
+    var center = d.y - d.dy + d.h / 2, target = ls[0];
+    // The day is the last heading above the pointer
+    ls.forEach(function (ul) { var h = headOf(ul); if (h && d.y >= paneTop(h) - 2) target = ul; });
     var sibs = itemsOf(target, li), n = 0;
-    sibs.forEach(function (s) { var r = s.getBoundingClientRect(); if (r.top + r.height / 2 < center) n++; });
+    sibs.forEach(function (s) { if (paneTop(s) + s.offsetHeight / 2 < center) n++; });
     var ref = sibs[n] || null;
     if (li.parentNode !== target || li.nextElementSibling !== ref) {
-      flip(function () { target.insertBefore(li, ref); refreshEmpty(li); }, li);
+      flip(function () { target.insertBefore(li, ref); refreshEmpty(li); }, null);
+      // Moving the row takes its handle out of the document for a moment, which drops pointer capture: take it back
+      try { if (!d.hd.hasPointerCapture(d.id)) d.hd.setPointerCapture(d.id); } catch (e) { /* the pointer has gone; the document listeners still end the drag */ }
     }
     ls.forEach(function (ul) { ul.classList.toggle('is-over', ul === target); });
-    li.style.transform = '';
-    var nat = li.getBoundingClientRect().top;
-    li.style.transform = 'translateY(' + (top - nat) + 'px) scale(1.02)';
   }
   listPane.addEventListener('pointerdown', function (e) {
     var hd = e.target.closest('.cn-handle');
     if (!hd || e.button > 0 || drag) return;
     e.preventDefault();
     var li = hd.closest('.cn-item'), r = li.getBoundingClientRect();
-    drag = { li: li, hd: hd, id: e.pointerId, dy: e.clientY - r.top, y: e.clientY, home: { ul: li.parentNode, next: li.nextElementSibling }, raf: 0 };
+    var ghost = ghostOf(li);
+    drag = { li: li, hd: hd, ghost: ghost, id: e.pointerId, dy: e.clientY - r.top, h: r.height, y: e.clientY, home: { ul: li.parentNode, next: li.nextElementSibling }, raf: 0 };
     hd.setPointerCapture(e.pointerId);
-    li.classList.add('is-dragging');
+    li.classList.add('is-slot');
     phone.classList.add('is-sorting');
     hd.focus({ preventScroll: true });
     say('Picked up ' + nameOf(li) + '.');
+    if (!reduce.matches) ghost.animate([{ transform: 'none', boxShadow: '0 1px 2px rgba(0,0,0,.08)' }, { transform: 'scale(1.03)', boxShadow: '0 12px 28px rgba(0,0,0,.18)' }], { duration: 150, easing: EASE, fill: 'forwards' });
+    else ghost.style.boxShadow = '0 12px 28px rgba(0,0,0,.18)';
     updateDrag();
     (function loop() { // keep scrolling the list while the pointer rests near the top or bottom
       if (!drag) return;
@@ -849,7 +908,9 @@
       drag.raf = requestAnimationFrame(loop);
     })();
   });
-  listPane.addEventListener('pointermove', function (e) {
+  // Move and release are heard on the whole document, so a drag that leaves the list (over the footer, off the phone)
+  // still follows the pointer and still ends where it is let go
+  document.addEventListener('pointermove', function (e) {
     if (!drag || e.pointerId !== drag.id) return;
     drag.y = e.clientY;
     updateDrag();
@@ -858,18 +919,27 @@
     var d = drag; if (!d) return;
     drag = null;
     cancelAnimationFrame(d.raf);
-    var li = d.li;
-    if (!commit) flip(function () { d.home.ul.insertBefore(li, d.home.next); refreshEmpty(); }, li);
-    var from = li.getBoundingClientRect().top;
-    li.style.transform = '';
-    var to = li.getBoundingClientRect().top;
-    function done() { li.classList.remove('is-dragging'); phone.classList.remove('is-sorting'); lists().forEach(function (ul) { ul.classList.remove('is-over'); }); refreshEmpty(); }
+    var li = d.li, g = d.ghost;
+    if (!commit) flip(function () { d.home.ul.insertBefore(li, d.home.next); refreshEmpty(); }, null);
+    lists().forEach(function (ul) { ul.classList.remove('is-over'); });
+    function done() {
+      g.remove();
+      phone.classList.remove('is-sorting');
+      // Remove this day can appear or go now, so that change slides too
+      flip(function () { li.classList.remove('is-slot'); refreshEmpty(); }, null);
+      if (commit) landed(li);
+    }
     if (reduce.matches) done();
-    else { var a = li.animate([{ transform: 'translateY(' + (from - to) + 'px) scale(1.02)' }, { transform: 'none' }], { duration: 180, easing: EASE }); a.onfinish = a.oncancel = done; }
+    else {
+      // The copy settles into the slot: it lands where the list has finished moving to, not where the slot is mid-slide
+      var pr = phone.getBoundingClientRect(), to = paneTop(li) - pr.top, from = parseFloat(g.style.top);
+      var a = g.animate([{ transform: 'translateY(0) scale(1.03)', boxShadow: '0 12px 28px rgba(0,0,0,.18)' }, { transform: 'translateY(' + (to - from) + 'px) scale(1)', boxShadow: '0 1px 2px rgba(0,0,0,0)' }], { duration: DUR, easing: EASE, fill: 'forwards' });
+      a.onfinish = a.oncancel = done;
+    }
     if (commit) announceDrop(li); else say('Move cancelled.');
   }
-  listPane.addEventListener('pointerup', function (e) { if (drag && e.pointerId === drag.id) finish(true); });
-  listPane.addEventListener('pointercancel', function (e) { if (drag && e.pointerId === drag.id) finish(false); });
+  document.addEventListener('pointerup', function (e) { if (drag && e.pointerId === drag.id) finish(true); });
+  document.addEventListener('pointercancel', function (e) { if (drag && e.pointerId === drag.id) finish(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && drag) { e.stopPropagation(); finish(false); } }, true);
 
   // Keyboard: Space or Enter picks up, arrow keys move, Space or Enter drops, Escape puts it back
@@ -880,7 +950,7 @@
     h.li.classList.remove('is-grabbed');
     h.hd.setAttribute('aria-pressed', 'false');
     if (!commit) { flip(function () { h.home.ul.insertBefore(h.li, h.home.next); refreshEmpty(); }, null); h.hd.focus(); say('Move cancelled.'); }
-    else announceDrop(h.li);
+    else { announceDrop(h.li); landed(h.li); }
   }
   function step(li, dir) {
     var ul = li.parentNode, ls = lists(), sib = dir < 0 ? li.previousElementSibling : li.nextElementSibling, target, ref;
@@ -956,7 +1026,8 @@
       labels[d.label] = true;
       d.stops.forEach(function (id) {
         var li = listPane.querySelector('.cn-item[data-stop="' + String(id).replace(/"/g, '') + '"]');
-        if (li && !/ v /.test(nameOf(li))) ul.appendChild(li); // matches stay on their own day
+        // A match never changes day, but it takes its saved place in the order of its own day
+        if (li && (!/ v /.test(nameOf(li)) || li.parentNode === ul)) ul.appendChild(li);
       });
     });
     // A dated day the fan took out of the plan, and that is now empty, goes
