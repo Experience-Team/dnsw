@@ -84,12 +84,13 @@
   }).join('');
   var cards = Array.prototype.slice.call(fan.children);
   var offset = 3, dealt = false;
-  function place(animate) {
+  // trans: an inline transition for this move only (the glide to a picked card); otherwise the stylesheet's
+  function place(animate, trans) {
     var mid = Math.round(offset);
     cards.forEach(function (b, i) {
       var rel = i - offset, c = CARDS[i];
       var lift = (isPicked(c) ? LIFT : 0) + (i === mid ? 6 : 0);
-      b.style.transition = animate ? '' : 'none';
+      b.style.transition = !animate ? 'none' : trans || '';
       b.style.transform = dealt ? 'rotate(' + (rel * STEP).toFixed(2) + 'deg) translateY(' + (-lift) + 'px)' : 'rotate(0deg) translateY(0)';
       var far = Math.abs(rel) > 7.5;
       b.style.opacity = far ? '0' : '';
@@ -102,9 +103,9 @@
     var c = CARDS[mid];
     caption.innerHTML = '<strong>' + esc(c.name) + '</strong> &middot; ' + esc(c.rugby ? 'No team, every match in NSW' : c.pool + ', ' + nswLine(c).replace(/^No /, 'no '));
   }
-  function settle(to, focus) {
+  function settle(to, focus, trans) {
     offset = Math.max(0, Math.min(CARDS.length - 1, Math.round(to)));
-    place(true);
+    place(true, trans);
     if (focus) cards[offset].focus({ preventScroll: true });
   }
   // The deal: the first time the fan comes into view, the hand opens from a stack. The one authored moment here.
@@ -160,7 +161,10 @@
     var c = CARDS[i], on = !isPicked(c);
     if (on) state.picked.push(c.name); else state.picked = state.picked.filter(function (n) { return n !== c.name; });
     save();
-    settle(i, false);
+    // The picked card glides to the middle of the hand. Longer the further it travels, on an even curve rather than a
+    // snap, so the eye can follow it; it lifts as it arrives. Reduced motion keeps the stylesheet's (no movement).
+    var dist = Math.abs(i - offset), dur = Math.round(Math.min(720, 380 + 90 * dist));
+    settle(i, false, reduce.matches || dist < .5 ? '' : 'transform ' + dur + 'ms cubic-bezier(.45, .05, .2, 1), opacity 220ms ease-out, background-color 150ms ease-out, color 150ms ease-out');
     renderChosen();
     say(c.name + (on ? ' picked. ' : ' removed. ') + chosenText());
   }
@@ -290,7 +294,7 @@
       var r = el.getBoundingClientRect(), delay = k * 70;
       if (f) {
         var dx = f.x - (r.left + r.width / 2), dy = f.y - (r.top + r.height / 2);
-        el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + f.a + 'deg) scale(' + (f.w / r.width) + ',' + (f.h / r.height) + ')' }, { transform: 'none' }], { duration: 560, delay: delay, easing: EASE, fill: 'backwards' });
+        el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + f.a + 'deg) scale(' + (f.w / r.width) + ',' + (f.h / r.height) + ')' }, { transform: 'none' }], { duration: 640, delay: delay, easing: 'cubic-bezier(.45, .05, .2, 1)', fill: 'backwards' });
       } else el.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: delay, easing: EASE, fill: 'backwards' });
       // The turn starts as the card leaves the fan and lands face up
       var a = flip.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 620, delay: delay + 80, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'both' });
@@ -305,8 +309,8 @@
   });
   document.getElementById('tp-change').addEventListener('click', function () {
     setView('pick');
-    place(false);
-    if (!reduce.matches) picker.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+    // The cards go back into the hand: the fan starts stacked and deals open again, picks still lifted
+    if (!reduce.matches) { dealt = false; place(false); fan.offsetWidth; requestAnimationFrame(deal); } else place(false);
     cards[Math.round(offset)].focus({ preventScroll: true });
   });
   // A ticket on a match is one ticket, whichever card it is marked on
