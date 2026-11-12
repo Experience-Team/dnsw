@@ -84,12 +84,13 @@
   }).join('');
   var cards = Array.prototype.slice.call(fan.children);
   var offset = 3, dealt = false;
-  function place(animate) {
+  // trans: an inline transition for this move only (the glide to a picked card); otherwise the stylesheet's
+  function place(animate, trans) {
     var mid = Math.round(offset);
     cards.forEach(function (b, i) {
       var rel = i - offset, c = CARDS[i];
       var lift = (isPicked(c) ? LIFT : 0) + (i === mid ? 6 : 0);
-      b.style.transition = animate ? '' : 'none';
+      b.style.transition = !animate ? 'none' : trans || '';
       b.style.transform = dealt ? 'rotate(' + (rel * STEP).toFixed(2) + 'deg) translateY(' + (-lift) + 'px)' : 'rotate(0deg) translateY(0)';
       var far = Math.abs(rel) > 7.5;
       b.style.opacity = far ? '0' : '';
@@ -102,9 +103,9 @@
     var c = CARDS[mid];
     caption.innerHTML = '<strong>' + esc(c.name) + '</strong> &middot; ' + esc(c.rugby ? 'No team, every match in NSW' : c.pool + ', ' + nswLine(c).replace(/^No /, 'no '));
   }
-  function settle(to, focus) {
+  function settle(to, focus, trans) {
     offset = Math.max(0, Math.min(CARDS.length - 1, Math.round(to)));
-    place(true);
+    place(true, trans);
     if (focus) cards[offset].focus({ preventScroll: true });
   }
   // The deal: the first time the fan comes into view, the hand opens from a stack. The one authored moment here.
@@ -160,7 +161,10 @@
     var c = CARDS[i], on = !isPicked(c);
     if (on) state.picked.push(c.name); else state.picked = state.picked.filter(function (n) { return n !== c.name; });
     save();
-    settle(i, false);
+    // The picked card glides to the middle of the hand. Longer the further it travels, on an even curve rather than a
+    // snap, so the eye can follow it; it lifts as it arrives. Reduced motion keeps the stylesheet's (no movement).
+    var dist = Math.abs(i - offset), dur = Math.round(Math.min(720, 380 + 90 * dist));
+    settle(i, false, reduce.matches || dist < .5 ? '' : 'transform ' + dur + 'ms cubic-bezier(.45, .05, .2, 1), opacity 220ms ease-out, background-color 150ms ease-out, color 150ms ease-out');
     renderChosen();
     say(c.name + (on ? ' picked. ' : ' removed. ') + chosenText());
   }
