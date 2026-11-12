@@ -5,3 +5,8 @@ dist
 .env.*.local
 *.tsbuildinfo
 contract/.build
+
+# Impeccable live-server runtime state (holds a session token; config.json in the same folder is meant to be committed)
+.impeccable/live/server.json
+.impeccable/live/sessions/
+.impeccable/live/annotations/
