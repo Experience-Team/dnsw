@@ -64,6 +64,40 @@
             </div>
           </div>
         </section>
+
+        <!-- Team picker: a fanned hand of 24 team cards plus "Here for the rugby", built by concepts-teams.js from
+             cnFixtures. Pick one or more, then the picked cards fly out of the fan and flip to show their matches.
+             Choices follow the jobs to be done (docs/jtbd-itinerary.md, T1 to T16). -->
+        <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
+          <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
+          <div class="tp-picker" id="tp-picker">
+            <p class="tp-pick-intro">15 of the 24 teams play a pool match in NSW. Pick one or more to see when and where they play.</p>
+            <div class="tp-fan-wrap">
+              <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-fan-help"></div>
+            </div>
+            <p class="visually-hidden" id="tp-fan-help">Left and right arrow keys move through the teams. Space or Enter picks one. You can pick more than one.</p>
+            <p class="tp-fan-caption" id="tp-fan-caption" aria-hidden="true"></p>
+            <p class="tp-chosen" id="tp-chosen">No teams picked yet.</p>
+            <button type="button" class="tp-show" id="tp-show" aria-disabled="true">See their matches</button>
+            <div class="tp-alt">
+              <button type="button" class="tp-link" id="tp-rugby-link">No team? Here for the rugby</button>
+              <button type="button" class="tp-link" id="tp-skip">Skip this step</button>
+            </div>
+            <p class="tp-device">Saved on this device only. Your teams are only used to show their matches.</p>
+          </div>
+          <div class="tp-results" id="tp-results" hidden>
+            <p class="tp-results-sum" id="tp-results-sum" tabindex="-1"></p>
+            <p class="tp-results-note">Kick-off times are Sydney time.</p>
+            <div class="tp-deck" id="tp-deck" role="group" aria-label="Your matches"></div>
+            <p class="tp-deck-hint" id="tp-deck-hint" hidden>Swipe for your other cards.</p>
+            <button type="button" class="tp-link tp-change" id="tp-change">Change teams</button>
+          </div>
+          <div class="tp-skipped" id="tp-skipped" hidden>
+            <p class="tp-skipped-text" tabindex="-1">Skipped. Your plan will start from your dates instead of your team&rsquo;s matches.</p>
+            <button type="button" class="tp-link" id="tp-unskip">Pick a team after all</button>
+          </div>
+          <p class="visually-hidden" id="tp-live" role="status" aria-live="polite"></p>
+        </section>
       </div>
     </div>
     </div>
@@ -632,5 +666,6 @@
 <script src="concepts-products.js"></script>
 <script src="concepts-itinerary.js"></script>
 <script src="concepts-copy.js"></script>
+<script src="concepts-teams.js"></script>
 </body>
 </html>
