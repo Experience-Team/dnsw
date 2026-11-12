@@ -3221,3 +3221,9 @@ body.cp-page code { font: inherit; }
 /* Product page: the note that a match is fixed, with the same ticket outline as the list */
 .cn-pp-fixed { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
 .cn-tl-sym--fixed { width: 24px; height: 24px; color: #737373; }
+
+/* Concepts sheet: controls not built in this prototype. Dashed outline (shape, not colour), muted, not pressable */
+.cn-tile--todo { border-style: dashed; color: #737373; cursor: default; }
+.cn-tile--todo .cn-tile-icon { opacity: .5; }
+.cn-tile--todo:active { transform: none; }
+@media (hover: hover) { .cn-tile--todo:hover { border-color: #d1d1d1; box-shadow: none; } }
