@@ -428,7 +428,7 @@
     if (!pl) return null;
     r = PRODUCTS[pl.id] || { title: pl.name };
     plan = pl.i == null ? 'Not yet planned' : 'In your plan for ' + longLabel(pl.i);
-    return { r: r, match: false, plan: plan };
+    return { r: r, match: false, plan: plan, id: pl.id };
   }
   // "Water, sunscreen": each item is stored capitalised, so lower the first letter of the ones after the first
   function listOf(a) { return a.map(function (x, k) { return k ? x.charAt(0).toLowerCase() + x.slice(1) : x; }).join(', '); }
@@ -460,6 +460,8 @@
     var rows = factRows(r);
     h += '<h3 class="cn-pp-h">Practical details</h3>';
     h += rows.length ? '<dl class="pl-option-facts cn-pp-facts">' + rows.map(function (x) { return '<div><dt>' + x[0] + '</dt><dd><span class="provenance-gap">' + esc(x[1]) + '</span></dd></div>'; }).join('') + '</dl>' : '<p class="cn-pp-none">No practical details yet.</p>';
+    // A place can leave the plan; a match cannot (it is fixed to its day)
+    if (!rec.match) h += '<div class="plan-modal-actions"><button type="button" class="cn-pill cn-pill--outline cn-pill--sm cn-pp-remove" data-remove="' + esc(rec.id) + '">Remove from plan</button></div>';
     h += '</div>';
     ppBody.innerHTML = h;
     ppBody.scrollTop = 0;
@@ -487,6 +489,73 @@
       if (back && back.isConnected) back.focus({ preventScroll: true });
     }
   }
+  // The list rows open the same product page as the timeline markers
+  function rowKey(li) {
+    var name = li.querySelector('.cn-item-name').textContent.trim();
+    if (/ v /.test(name)) { var f = FIX.filter(function (x) { return matchName(x) === name; })[0]; return f ? f.key : null; }
+    return 'p:' + li.dataset.stop;
+  }
+  function bindRows() {
+    Array.prototype.forEach.call(listPane.querySelectorAll('.cn-item-text'), function (t) {
+      var name = t.querySelector('.cn-item-name').textContent.trim();
+      t.setAttribute('role', 'button'); t.setAttribute('tabindex', '0'); t.setAttribute('aria-label', name + ', details');
+    });
+    function open(t) { var li = t.closest('.cn-item'), k = li && rowKey(li); if (k) openModal(k, t); }
+    listPane.addEventListener('click', function (e) { var t = e.target.closest('.cn-item-text'); if (t && !phone.classList.contains('is-sorting')) open(t); });
+    listPane.addEventListener('keydown', function (e) {
+      var t = e.target.closest && e.target.closest('.cn-item-text');
+      if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(t); }
+    });
+  }
+
+  /* ---------- Remove from plan, with Undo ----------
+     The place leaves the list (and so the timeline, the counts and every export). An Undo toast puts it back where
+     it was for 6 seconds; if its day has gone meanwhile, it comes back into Not yet planned. */
+  var undo = null, undoEl;
+  function undoToast() {
+    if (undoEl) return undoEl;
+    undoEl = document.createElement('div');
+    undoEl.className = 'cn-toast cn-undo'; undoEl.hidden = true;
+    undoEl.innerHTML = '<span class="cn-undo-text" role="status"></span><button type="button" class="cn-undo-btn">Undo</button>';
+    phone.appendChild(undoEl);
+    undoEl.querySelector('.cn-undo-btn').addEventListener('click', restore);
+    return undoEl;
+  }
+  function hideUndo() { if (undo) clearTimeout(undo.timer); undo = null; if (undoEl) undoEl.hidden = true; }
+  function removePlace(id) {
+    var li = listPane.querySelector('.cn-item[data-stop="' + id + '"]');
+    if (!li) return;
+    hideUndo();
+    var name = nameOf(li), home = { ul: li.parentNode, next: li.nextElementSibling };
+    li.remove();
+    refreshEmpty();
+    phone.dispatchEvent(new CustomEvent('cn:reorder'));
+    var t = undoToast();
+    t.querySelector('.cn-undo-text').textContent = 'Removed ' + name + '.';
+    t.hidden = false;
+    undo = { li: li, home: home, timer: setTimeout(hideUndo, 6000) };
+    t.querySelector('.cn-undo-btn').focus({ preventScroll: true });
+  }
+  function restore() {
+    if (!undo) return;
+    var u = undo; hideUndo();
+    var ul = u.home.ul.isConnected ? u.home.ul : lists()[lists().length - 1];
+    ul.insertBefore(u.li, u.home.next && u.home.next.parentNode === ul ? u.home.next : null);
+    refreshEmpty();
+    phone.dispatchEvent(new CustomEvent('cn:reorder'));
+    say(nameOf(u.li) + ' is back in ' + dayName(ul) + '.');
+    var focusTo = phone.dataset.view === 'timeline' ? tlPane.querySelector('[data-stop="' + u.li.dataset.stop + '"]') : u.li.querySelector('.cn-item-text');
+    (focusTo || u.li.querySelector('.cn-item-text')).focus({ preventScroll: true });
+  }
+  function ppBodyClick() {
+    ppBody.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-remove]'); if (!b) return;
+      closeModal(false);
+      removePlace(b.dataset.remove);
+    });
+  }
+  phone.addEventListener('cn:screen', function (e) { if (e.detail !== 'm1') hideUndo(); });
+
   tlPane.addEventListener('click', function (e) {
     var b = e.target.closest('[data-key]');
     if (!b || !tlPane.contains(b)) return;
@@ -656,7 +725,29 @@
   function itemsOf(ul, skip) { return Array.prototype.filter.call(ul.children, function (c) { return c.classList.contains('cn-item') && c !== skip; }); }
   function headOf(ul) { var n = ul.previousElementSibling; while (n && !n.classList.contains('cn-day')) n = n.previousElementSibling; return n; }
   function dayName(ul) { var h = headOf(ul); return h ? h.textContent.trim() : ''; }
-  function refreshEmpty(skip) { lists().forEach(function (ul) { ul.classList.toggle('is-empty', itemsOf(ul, skip).length === 0); }); }
+  function refreshEmpty(skip) {
+    lists().forEach(function (ul) {
+      var empty = itemsOf(ul, skip).length === 0;
+      ul.classList.toggle('is-empty', empty);
+      if (skip) return; // mid-drag: leave the Remove this day buttons alone
+      // An empty day (not Not yet planned) can be taken out of the plan
+      var btn = ul.nextElementSibling && ul.nextElementSibling.classList.contains('cn-day-remove') ? ul.nextElementSibling : null;
+      var dated = /^[A-Z][a-z]{2} \d+ [A-Z][a-z]{2}$/.test(dayName(ul));
+      if (empty && dated && !btn) {
+        btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cn-day-remove';
+        btn.textContent = 'Remove this day'; btn.setAttribute('aria-label', 'Remove ' + dayName(ul) + ' from your plan');
+        ul.parentNode.insertBefore(btn, ul.nextSibling);
+      } else if (btn && !(empty && dated)) btn.remove();
+    });
+  }
+  listPane.addEventListener('click', function (e) {
+    var b = e.target.closest('.cn-day-remove'); if (!b) return;
+    var ul = b.previousElementSibling, h = headOf(ul), label = dayName(ul), next = b.nextElementSibling;
+    h.remove(); ul.remove(); b.remove();
+    say('Removed ' + label + ' from your plan.');
+    phone.dispatchEvent(new CustomEvent('cn:reorder'));
+    if (next) { next.setAttribute('tabindex', '-1'); next.focus({ preventScroll: true }); }
+  });
   function nameOf(li) { return li.querySelector('.cn-item-name').textContent.trim(); }
   // Run a DOM change and slide every other item from where it was to where it is now
   function flip(change, skip) {
@@ -783,6 +874,8 @@
   buildTimeline();
   buildModal();
   bindEdit();
+  bindRows();
+  ppBodyClick();
   bindRange();
   bindTeams();
   syncTeams();
