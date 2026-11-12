@@ -108,9 +108,10 @@
 
   function buildTimeline() {
     var h = '';
-    h += '<div class="cn-tl-head"><h3 class="cn-tl-title">Your matches and places</h3><button type="button" class="cn-tl-edit" id="cn-tl-edit" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9.6 2.1l2.3 2.3-7 7-2.9.6.6-2.9z M8.4 3.3l2.3 2.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span id="cn-tl-edit-label">Edit</span></button></div>';
+    // The legend sits behind a Key button, so the chart starts higher; the ticketed match is always labelled anyway
+    h += '<div class="cn-tl-head"><h3 class="cn-tl-title">Your matches and places</h3><span class="cn-tl-head-actions"><button type="button" class="cn-tl-edit cn-tl-keybtn" id="cn-tl-key-btn" aria-expanded="false" aria-controls="cn-tl-key">Key</button><button type="button" class="cn-tl-edit" id="cn-tl-edit" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9.6 2.1l2.3 2.3-7 7-2.9.6.6-2.9z M8.4 3.3l2.3 2.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span id="cn-tl-edit-label">Edit</span></button></span></div>';
     h += '<p class="cn-hint cn-tl-edit-hint" id="cn-tl-edit-hint" hidden>Drag a place to another day, or up or down to change the order. Keyboard: arrow keys on a place.</p>';
-    h += '<ul class="cn-tl-key"><li>' + sym('ticket') + 'Match with your ticket</li><li>' + sym('match') + 'Your teams’ matches</li><li>' + sym('match').replace('cn-tl-sym--match', 'cn-tl-sym--match is-away') + 'Outside NSW</li><li>' + sym('place') + 'Your places</li></ul>';
+    h += '<ul class="cn-tl-key" id="cn-tl-key" hidden><li>' + sym('ticket') + 'Match with your ticket</li><li>' + sym('match') + 'Your teams’ matches</li><li>' + sym('match').replace('cn-tl-sym--match', 'cn-tl-sym--match is-away') + 'Outside NSW</li><li>' + sym('place') + 'Your places</li></ul>';
     // One row of plain text pickers: the dates (type them in) and the teams, each opening a list over the chart
     h += '<div class="cn-tl-row"><button type="button" class="cn-tl-pick" id="cn-tl-dates-btn" aria-expanded="false" aria-controls="cn-tl-dates-panel"><span class="visually-hidden">Your days in NSW: </span><span id="cn-tl-range"></span><svg class="cn-tl-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
     h += '<div class="cn-tl-teams-panel" id="cn-tl-dates-panel" role="group" aria-labelledby="cn-tl-dates-h" hidden><div class="cn-tl-teams-head"><strong id="cn-tl-dates-h">Your days in NSW</strong><span class="cn-tl-dates-count" id="cn-tl-dates-count"></span></div><div class="cn-tl-dates">';
@@ -161,6 +162,14 @@
     el.edit = document.getElementById('cn-tl-edit');
     el.editLabel = document.getElementById('cn-tl-edit-label');
     el.editHint = document.getElementById('cn-tl-edit-hint');
+    el.keyBtn = document.getElementById('cn-tl-key-btn');
+    el.key = document.getElementById('cn-tl-key');
+    el.keyBtn.addEventListener('click', function () {
+      var open = el.key.hidden;
+      el.key.hidden = !open;
+      el.keyBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      phone.dispatchEvent(new CustomEvent('cn:view', { detail: phone.dataset.view })); // redraw the annotation badges
+    });
     el.foot = document.getElementById('cn-tl-foot');
     el.done = tlPane.querySelector('.cn-tl-done');
     el.markers = document.getElementById('cn-tl-markers');
