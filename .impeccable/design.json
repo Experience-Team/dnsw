@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T00:05:08.288442Z",
+  "title": "Design System: DNSW wireframes",
+  "extensions": {
+    "colorMeta": {
+      "sydney-harbour-blue": {
+        "role": "primary",
+        "displayName": "Sydney Harbour Blue",
+        "tonalRamp": [
+          "#00243f",
+          "#003660",
+          "#004a83",
+          "#005ea2",
+          "#3a83bb",
+          "#76a8d1",
+          "#b3cfe6",
+          "#e6f0f8"
+        ]
+      },
+      "nsw-bush-green": {
+        "role": "primary",
+        "displayName": "NSW Bush Green",
+        "tonalRamp": [
+          "#00200f",
+          "#00331f",
+          "#00452e",
+          "#00563c",
+          "#367b64",
+          "#6fa190",
+          "#adc9bf",
+          "#e5f0ec"
+        ]
+      },
+      "state-blue": {
+        "role": "secondary",
+        "displayName": "State Blue",
+        "tonalRamp": [
+          "#0d2a63",
+          "#163f91",
+          "#1f53bd",
+          "#2666d9",
+          "#5a8ae2",
+          "#8eadeb",
+          "#c3d4f5",
+          "#eef3ff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "#111111",
+          "#1f1f1f",
+          "#444444",
+          "#737373",
+          "#888888",
+          "#cccccc",
+          "#dddddd",
+          "#f5f5f5"
+        ]
+      },
+      "muted-text": {
+        "role": "neutral",
+        "displayName": "Muted Text",
+        "tonalRamp": [
+          "#111111",
+          "#1f1f1f",
+          "#444444",
+          "#737373",
+          "#888888",
+          "#cccccc",
+          "#dddddd",
+          "#f5f5f5"
+        ]
+      },
+      "placeholder-grey": {
+        "role": "neutral",
+        "displayName": "Placeholder Grey",
+        "tonalRamp": [
+          "#111111",
+          "#1f1f1f",
+          "#444444",
+          "#737373",
+          "#888888",
+          "#cccccc",
+          "#dddddd",
+          "#f5f5f5"
+        ]
+      },
+      "page-grey": {
+        "role": "neutral",
+        "displayName": "Page Grey",
+        "tonalRamp": [
+          "#111111",
+          "#1f1f1f",
+          "#444444",
+          "#737373",
+          "#888888",
+          "#cccccc",
+          "#dddddd",
+          "#f5f5f5"
+        ]
+      },
+      "error-red": {
+        "role": "neutral",
+        "displayName": "Error Red",
+        "tonalRamp": [
+          "#3d0b07",
+          "#6b140c",
+          "#8f1b11",
+          "#b42318",
+          "#c95a51",
+          "#dc8f89",
+          "#eec3c0",
+          "#fdf0ef"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines only, uppercase over a dark placeholder."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles on site pages."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Sheet and modal titles in prototypes."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text; intros cap at 36rem."
+      },
+      "body-small": {
+        "displayName": "Body small",
+        "purpose": "Card copy, meta lines, prototype list text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, chips, legends and hints."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 2px rgba(0,0,0,.08)",
+        "purpose": "Switch thumbs, lifted items, annotation badges."
+      },
+      {
+        "name": "overlay",
+        "value": "0 4px 12px rgba(0,0,0,.12)",
+        "purpose": "Dropdown panels over a chart or list."
+      },
+      {
+        "name": "sheet",
+        "value": "0 -8px 24px rgba(0,0,0,.16)",
+        "purpose": "Bottom sheets rising from the phone's lower edge."
+      }
+    ],
+    "motion": [
+      {
+        "name": "dur-micro",
+        "value": "150ms",
+        "purpose": "Press, hover and colour changes."
+      },
+      {
+        "name": "dur-small",
+        "value": "220ms",
+        "purpose": "Small moves: fades, toggles, reordering."
+      },
+      {
+        "name": "dur-large",
+        "value": "320ms",
+        "purpose": "Sheets and full-screen modals entering."
+      },
+      {
+        "name": "dur-exit-factor",
+        "value": "0.7",
+        "purpose": "Exits run at 70% of the entry duration."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Default for things arriving or settling."
+      },
+      {
+        "name": "ease-in",
+        "value": "cubic-bezier(.4, 0, 1, 1)",
+        "purpose": "Things leaving."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(.65, 0, .35, 1)",
+        "purpose": "Rotations and on-screen moves."
+      },
+      {
+        "name": "ease-spring",
+        "value": "cubic-bezier(.34, 1.56, .64, 1)",
+        "purpose": "Switch thumbs and badges popping in; a slight overshoot."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "small-phone",
+        "value": "30rem"
+      },
+      {
+        "name": "tablet",
+        "value": "48rem"
+      },
+      {
+        "name": "wide",
+        "value": "72rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Site accent action on sydney.com and visitnsw.com pages.",
+      "html": "<button class=\"ds-btn-primary\">View all events</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.25rem;border:2px solid #005EA2;border-radius:4px;background:#005EA2;color:#fff;font:600 .875rem/1.2 system-ui,sans-serif;cursor:pointer;transition:transform 150ms cubic-bezier(.2,.8,.2,1)}.ds-btn-primary:hover{background:#004a83;border-color:#004a83}.ds-btn-primary:focus-visible{outline:2px solid #005EA2;outline-offset:2px}.ds-btn-primary:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Outline Dark Button",
+      "kind": "button",
+      "refersTo": "button-outline-dark",
+      "description": "Default neutral action and wireframe chrome.",
+      "html": "<button class=\"ds-btn-outline\">Booking details</button>",
+      "css": ".ds-btn-outline{display:inline-flex;align-items:center;padding:.6rem 1.25rem;border:2px solid #111;border-radius:4px;background:#fff;color:#111;font:600 .875rem/1.2 system-ui,sans-serif;cursor:pointer;transition:background-color 150ms,transform 150ms}.ds-btn-outline:hover{background:#f5f5f5}.ds-btn-outline:focus-visible{outline:2px solid #005EA2;outline-offset:2px}.ds-btn-outline:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Prototype Pill",
+      "kind": "button",
+      "refersTo": "prototype-pill",
+      "description": "Primary action inside phone prototypes and sheets.",
+      "html": "<button class=\"ds-pill\">Save and share</button>",
+      "css": ".ds-pill{display:flex;align-items:center;justify-content:center;width:100%;max-width:358px;height:48px;border:0;border-radius:999px;background:#1f1f1f;color:#fff;font:600 .9375rem/1 system-ui,sans-serif;cursor:pointer;transition:transform 150ms cubic-bezier(.2,.8,.2,1)}.ds-pill:focus-visible{outline:2px solid #005EA2;outline-offset:2px}.ds-pill:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "Prototype text and date fields.",
+      "html": "<input class=\"ds-field\" type=\"email\" placeholder=\"name@example.com\" aria-label=\"Email address\">",
+      "css": ".ds-field{width:100%;max-width:358px;height:48px;padding:0 14px;border:1px solid #a6a6a6;border-radius:8px;background:#fff;color:#1a1a1a;font:.875rem system-ui,sans-serif}.ds-field::placeholder{color:#999}.ds-field:hover{border-color:#737373}.ds-field:focus-visible{outline:2px solid #005EA2;outline-offset:2px}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "prototype-pill-outline",
+      "description": "Small selectable or openable item, such as a place in Not yet planned.",
+      "html": "<button class=\"ds-chip\">Newcastle Ocean Baths</button>",
+      "css": ".ds-chip{position:relative;display:inline-flex;align-items:center;height:36px;padding:0 .75rem;border:1.5px solid #1a1a1a;border-radius:999px;background:#fff;color:#1a1a1a;font:600 .75rem system-ui,sans-serif;cursor:pointer;transition:background-color 150ms,transform 150ms}.ds-chip:hover{background:#f2f2f2}.ds-chip:focus-visible{outline:2px solid #005EA2;outline-offset:2px}.ds-chip:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Event Card",
+      "kind": "card",
+      "refersTo": "event-card",
+      "description": "Listing card with a 4:3 grey image placeholder.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-img\">Image</div><div class=\"ds-card-body\"><p class=\"ds-card-meta\">Venue name</p><h3 class=\"ds-card-title\">Event name</h3></div></article>",
+      "css": ".ds-card{width:13rem;border:1px solid #e0e0e0;border-radius:6px;background:#fff;overflow:hidden;font-family:system-ui,sans-serif}.ds-card-img{aspect-ratio:4/3;display:grid;place-items:center;background:#ccc;color:#aaa;font-size:.8rem}.ds-card-body{padding:.75rem}.ds-card-meta{margin:0;font-size:.75rem;color:#737373}.ds-card-title{margin:.25rem 0 0;font-size:.9375rem;font-weight:700;color:#111}"
+    },
+    {
+      "name": "Site Navigation",
+      "kind": "nav",
+      "refersTo": "",
+      "description": "Sticky top bar; hover underlines, current page bold.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">Things to do</a><a href=\"#\">Events</a><a href=\"#\">Accommodation</a></nav>",
+      "css": ".ds-nav{display:flex;gap:2.5rem;justify-content:center;align-items:center;height:4rem;border-bottom:1px solid #ddd;background:#fff;font:.9375rem system-ui,sans-serif}.ds-nav a{color:#111;text-decoration:none}.ds-nav a:hover{text-decoration:underline;text-underline-offset:.3em}.ds-nav a[aria-current=page]{font-weight:700}.ds-nav a:focus-visible{outline:2px solid #005EA2;outline-offset:2px}"
+    },
+    {
+      "name": "Annotation Badge",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Numbered badge pinned to a prototype part with complex behaviour.",
+      "html": "<span class=\"ds-badge\">3</span>",
+      "css": ".ds-badge{display:inline-grid;place-items:center;width:20px;height:20px;border:1.5px solid #1f1f1f;border-radius:50%;background:#ffd43b;color:#1f1f1f;font:700 .6875rem system-ui,sans-serif;box-shadow:0 1px 2px rgba(0,0,0,.08)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Annotated Plan",
+    "overview": "Every screen in this repo is a working proposal, not a finished design. It shows structure, content order and behaviour plainly enough that DNSW stakeholders can click through it and a separate UI designer can design on top of it without unpicking anyone's taste. Numbered annotations sit beside the prototypes and say what each complex part does and what to inspect. Clarity and real behaviour come before styling.\n\nThe palette is greyscale, the type is the device's own system font, and images and maps are grey boxes labelled \"Image\". The only colour that is part of the system is the site accent: Sydney blue on sydney.com pages, bush green on visitnsw.com pages. A focus and state blue appears in prototypes to show selection, ranges and keyboard focus.\n\nStatic pages stay flat and plain. Prototypes (the Concepts phone screens and the trip planner) are plain too, but alive: sheets slide, toasts fade, handles drag, and every control has press, hover and focus feedback, so the behaviour reads as real when someone tries it.",
+    "keyCharacteristics": [
+      "Greyscale first, one site accent, nothing decorative.",
+      "System font, a short type scale, weight does the work.",
+      "Grey placeholder boxes for every image and map.",
+      "Numbered annotations explain behaviour beside the screen.",
+      "Flat at rest; motion and shadow only where a prototype needs to show behaviour."
+    ],
+    "rules": [
+      {
+        "name": "The One Accent Rule",
+        "body": "A page carries exactly one site accent, Sydney blue or NSW green, set by the theme. Everything else is grey.",
+        "section": "colors"
+      },
+      {
+        "name": "The Muted Team Colour Rule",
+        "body": "Team colours may be used to identify a fan's team, but only muted (low saturation, never at full strength), only as a small identifier such as a chip or marker edge, and never as a page or section background. No team colour tokens exist yet; define them before use rather than inventing values in place.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two or Three Sizes Rule",
+        "body": "Any one screen uses two or three type sizes. Add weight before adding a size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-At-Rest Rule",
+        "body": "Nothing on a static page casts a shadow. Shadow appears only when a prototype layer sits above another.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep every page greyscale plus its one site accent: Sydney Harbour Blue on sydney.com, NSW Bush Green on visitnsw.com.",
+      "Do use grey placeholder boxes for every image and map, in the real slot's aspect ratio.",
+      "Do give every prototype control a 44 x 44px target, a visible 2px focus ring and press feedback.",
+      "Do use the prototype motion tokens (150ms, 220ms, 320ms; exits at 0.7x) and honour reduced motion.",
+      "Do annotate complex prototype behaviour with numbered notes, not on-screen explanation.",
+      "Do keep team colours muted and small if a team needs identifying."
+    ],
+    "donts": [
+      "Don't use the Rugby World Cup visual style anywhere: no teal, coral or sand palette, no Fraunces or Work Sans, no rounded soft-shadow cards from `themes/rwc-2027.css`.",
+      "Don't add brand fonts, gradients, illustrations or decorative icons; visual design belongs to the UI designer.",
+      "Don't put shadows on static page elements.",
+      "Don't use team colours at full strength or as backgrounds.",
+      "Don't use State Blue on static page templates; it marks prototype state only."
+    ]
+  }
+}
