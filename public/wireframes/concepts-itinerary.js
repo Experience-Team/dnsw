@@ -118,8 +118,7 @@
       var d = dayOf(i);
       h += '<span class="cn-tl-tick ' + cls + '" data-i="' + i + '" style="left:' + xOf(i) + 'px"></span>';
       h += '<span class="cn-tl-date ' + cls + '" data-i="' + i + '" style="left:' + xOf(i) + 'px">' + d.getUTCDate() + '</span>';
-      if (i === 0) h += '<span class="cn-tl-month" style="left:' + (xOf(i) - 8) + 'px;transform:none">' + MON[d.getUTCMonth()] + ' 2027</span>'; // the first month starts at the edge, so it is never cut off
-      else if (d.getUTCDate() === 1) h += '<span class="cn-tl-month" style="left:' + xOf(i) + 'px">' + MON[d.getUTCMonth()] + ' 2027</span>';
+      if (i === 0 || d.getUTCDate() === 1) h += '<span class="cn-tl-month" data-from="' + i + '" style="left:' + (xOf(i) - 8) + 'px">' + MON[d.getUTCMonth()] + ' 2027</span>';
     }
     h += '<div class="cn-tl-markers" id="cn-tl-markers"></div>';
     h += '<span class="cn-tl-bracket" id="cn-tl-bracket" style="left:' + (xOf(FIRST) - 18) + 'px;width:' + (xOf(LAST) - xOf(FIRST) + 36) + 'px"></span>';
@@ -162,7 +161,16 @@
   }
 
   // The bracket label sits at the start of its bracket, and slides so it is never cut off by either edge of the view
+  // Month labels stick to the left edge of the view while their month is on screen, so the dates always have a month
+  function placeMonths() {
+    var view = el.scroll.scrollLeft + 12, ms = Array.prototype.slice.call(tlPane.querySelectorAll('.cn-tl-month'));
+    ms.forEach(function (m, k) {
+      var lo = xOf(+m.dataset.from) - 8, next = ms[k + 1], hi = next ? xOf(+next.dataset.from) - 8 - m.offsetWidth - 12 : Infinity;
+      m.style.left = Math.max(lo, Math.min(hi, view)) + 'px';
+    });
+  }
   function placeBracketLabel() {
+    placeMonths();
     var w = el.bracketLabel.offsetWidth, lo = xOf(FIRST) - 18, hi = xOf(LAST) + 18 - w;
     var view = el.scroll.scrollLeft + 16, right = el.scroll.scrollLeft + el.scroll.clientWidth - 16 - w;
     el.bracketLabel.style.left = Math.max(view, Math.min(right, Math.min(hi, Math.max(lo, view)))) + 'px';
