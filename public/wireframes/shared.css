@@ -3227,3 +3227,11 @@ body.cp-page code { font: inherit; }
 .cn-tile--todo .cn-tile-icon { opacity: .5; }
 .cn-tile--todo:active { transform: none; }
 @media (hover: hover) { .cn-tile--todo:hover { border-color: #d1d1d1; box-shadow: none; } }
+
+/* Concepts timeline header: Key and Edit side by side; the legend is folded behind Key. In edit mode "Done editing"
+   is the only way out, so the row's Done hides */
+.cn-tl-head-actions { display: inline-flex; align-items: center; gap: var(--space-4); }
+.cn-tl-keybtn { gap: 0; }
+.cn-tl-keybtn[aria-expanded="true"] { color: #1a1a1a; }
+.cn-tl-key[hidden] { display: none; }
+[data-pane="timeline"].is-editing .cn-tl-done { display: none; }
