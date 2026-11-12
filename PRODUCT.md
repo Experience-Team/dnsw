@@ -45,6 +45,7 @@ The trip planner does not generate a whole trip. It places the fan's matches on 
 - Fixture list for the 44 Rugby World Cup 2027 matches: `public/wireframes/pages/rugby-world-cup.html` (`#rwc-fixtures`), trimmed in `public/wireframes/concepts-fixtures.js`.
 - Research finding on saving behaviour (notes apps, spreadsheets, pen and paper): recorded in `public/wireframes/planner-brief.md`.
 - Product data contract and its audit of six live product pages: `docs/product-data-contract.md`.
+- Jobs to be done for planning an itinerary around the Rugby World Cup (T1 to T16 for teams and tickets, 1 to 16 for planning), each labelled Research, Thought starter or Gap: `docs/jtbd-itinerary.md`. Only Research items may be stated as fact.
 - Journey maps and research content for `src/`: the published Google Sheet read by `src/services/sheets.ts`.
 - Absent and not to be fabricated: real stop and listing data for the concepts prototype (placeholders today), opening hours, prices, travel times, testimonials and usage metrics.
 
