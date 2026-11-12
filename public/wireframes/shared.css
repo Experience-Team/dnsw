@@ -3212,3 +3212,12 @@ body.cp-page code { font: inherit; }
 .cn-undo-btn:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
 .cn-day-remove { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--space-1); padding: 0; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .75rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .cn-day-remove:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+
+/* Concepts timeline: a match outside NSW. Dashed ring (shape, not colour) and a label that leads with the city */
+.cn-tl-sym--match.is-away, .cn-tl-mk.is-away .cn-tl-sym--match { border-style: dashed; }
+.cn-tl-lbl.is-away { display: block; }
+.cn-tl-lbl.is-away > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn-tl-lbl-city { font-weight: 700; color: #1a1a1a; }
+/* Product page: the note that a match is fixed, with the same ticket outline as the list */
+.cn-pp-fixed { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.cn-tl-sym--fixed { width: 24px; height: 24px; color: #737373; }
