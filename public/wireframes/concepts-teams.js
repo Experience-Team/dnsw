@@ -6,7 +6,7 @@
    time. Nothing else is added: no flags, no community or home-country times, no ticket links.
    Jobs covered (docs/jtbd-itinerary.md): T1 one team, T5 and T7 more than one, T8 and T9 no team, T2 and T12
    tickets, T3 NSW or interstate, T4 knockouts, T6 a shared match noted on both cards, T15 saved on this device,
-   T16 skip. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
+   T16 skip, and Clear all to start again. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
 (function () {
   'use strict';
   var root = document.getElementById('tp-pick');
@@ -17,6 +17,7 @@
   var caption = document.getElementById('tp-fan-caption');
   var chosenEl = document.getElementById('tp-chosen');
   var showBtn = document.getElementById('tp-show');
+  var clearBtn = document.getElementById('tp-clear');
   var picker = document.getElementById('tp-picker');
   var results = document.getElementById('tp-results');
   var deck = document.getElementById('tp-deck');
@@ -191,8 +192,18 @@
     chosenEl.textContent = chosenText();
     var n = state.picked.length;
     showBtn.setAttribute('aria-disabled', n ? 'false' : 'true');
+    clearBtn.hidden = !n;
     showBtn.textContent = !n ? 'See their matches' : n === 1 && state.picked[0] === RUGBY.name ? 'See the NSW matches' : 'See their matches (' + n + ')';
   }
+  // Clear all: every card back in the hand and every ticket mark gone, so the picker starts again
+  clearBtn.addEventListener('click', function () {
+    state.picked = []; state.tickets = [];
+    save();
+    place(true);
+    renderChosen();
+    cards[Math.round(offset)].focus({ preventScroll: true }); // the button has just hidden itself
+    say('All teams and tickets cleared. No teams picked yet.');
+  });
   document.getElementById('tp-rugby-link').addEventListener('click', function () {
     deal();
     var i = CARDS.length - 1;
