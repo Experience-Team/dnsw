@@ -603,13 +603,24 @@
   // Each view keeps its own scroll position. The first time the timeline opens it scrolls to the fan's first day
   // in NSW, or to their next match once the trip has started.
   var memo = { list: 0, timeline: null };
+  // First open: lead with the fan's own trip, not the empty days before it. Once the trip has started, the next match
+  // leads; before that, the first planned item in their NSW days (a place with a day, or a match in NSW), so the
+  // days that follow it are in view too. With nothing planned it falls back to the first day in NSW.
   function startScroll() {
-    var t = todayIdx(), target = xOf(range.start) - COL / 2 - 56; // room for the date tag above the handle
-    if (t >= range.start && t <= range.end) {
+    var t = todayIdx(), lead = null, s = range.start, e = range.end;
+    if (t >= s && t <= e) {
       var next = FIX.filter(function (f) { return onTrip(f) && f.i >= t; }).sort(function (a, b) { return a.i - b.i; })[0];
-      if (next) target = xOf(next.i) - 80;
+      if (next) lead = next.i;
     }
-    return Math.max(0, target);
+    if (lead === null) {
+      var days = places().dated.map(function (p) { return p.i; })
+        .concat(FIX.filter(function (f) { return onTrip(f) && !f.away; }).map(function (f) { return f.i; }))
+        .filter(function (i) { return i >= s && i <= e; });
+      if (days.length) lead = Math.min.apply(null, days);
+    }
+    // The lead sits about a quarter in from the left; with no lead, the first day's handle and its date tag show
+    var target = lead === null ? xOf(s) - COL / 2 - 56 : xOf(lead) - Math.round(el.scroll.clientWidth / 4);
+    return Math.max(0, Math.min(target, el.scroll.scrollWidth - el.scroll.clientWidth));
   }
   function setView(v) {
     var cur = phone.dataset.view || 'list', tl = v === 'timeline';
