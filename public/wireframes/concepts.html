@@ -225,19 +225,15 @@
      "Copy for your AI assistant" (pages/rugby-world-cup.html). */
   // Placeholder trip setup, prototype only (not in the data contract). Change from the console, e.g. cnTripSetup.car = true.
   window.cnTripSetup = window.cnTripSetup || { team: 'Australia', group: '2 adults, 1 child', car: false, budget: 'Mid-range', arrive: 'Sun 26 Sep', leave: 'Mon 11 Oct' };
-  // Made-up placeholder details for the list's items: suburb, coordinates, opening hours, typical cost. Type and address come
-  // from concepts-products.js (cnStopType, cnStopAddress), the same source as the Group chat and Spreadsheet copies.
-  var FIX = {
-    'Centennial Parklands': { area: 'Centennial Park', geo: [-33.8980, 151.2340], hours: 'Daily, sunrise to sunset', cost: 'Free' },
-    'Fan zone': { area: 'Darling Harbour', geo: [-33.8760, 151.2010], cost: 'Free entry' },
-    'New Zealand v Australia': { area: 'Sydney Olympic Park', geo: [-33.8471, 151.0634], cost: '$85 to $320 per ticket' },
-    'Patonga Beach': { area: 'Patonga', geo: [-33.5486, 151.2762], hours: 'Open all day', cost: 'Free' },
-    'Newcastle Ocean Baths': { area: 'Newcastle East', geo: [-32.9290, 151.7880], hours: 'Daily, 6:00 to 20:00', cost: 'Free' }
-  };
+  // Area and coordinates come from the product records (concepts-products.js, contract fields address.suburb and
+  // address.geo), the same source as the Group chat and Spreadsheet copies. Nothing else is added: no prices, no hours.
+  function fixOf(id) {
+    var r = (window.cnProducts || {})[id], a = r && r.address;
+    return a ? { area: a.suburb || '', geo: a.geo ? [a.geo.lat, a.geo.lng] : null } : {};
+  }
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var MONTH = { Sep: 'September', Oct: 'October', Nov: 'November' };
   var WDAY = { Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday' };
-  var ASSISTANTS = ['ChatGPT', 'Claude', 'Copilot', 'Gemini'].sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; }); // alphabetical: no brand first
   var MAX = 8000, FAN_ZONE = 'Tumbalong Park, Darling Harbour';
   function longDate(d) { var p = d.split(' '); return WDAY[p[0]] + ' ' + p[1] + ' ' + (MONTH[p[2]] || p[2]); }
   function ord(d) { var p = d.split(' '); return Date.UTC(2027, MON.indexOf(p[2]), +p[1]); }
@@ -261,13 +257,13 @@
       while (ul && ul.tagName !== 'UL') ul = ul.nextElementSibling;
       var rows = Array.prototype.map.call(ul ? ul.querySelectorAll('.cn-item') : [], function (li, i) {
         var meta = li.querySelector('.cn-item-meta').textContent.trim(), name = li.querySelector('.cn-item-name').textContent.trim();
-        return { id: li.dataset.stop, name: name, meta: meta, time: mins(meta), i: i, fix: FIX[name] || {} };
+        return { id: li.dataset.stop, name: name, meta: meta, time: mins(meta), i: i, fix: fixOf(li.dataset.stop) };
       });
       if (/^[A-Z][a-z]{2} \d+ [A-Z][a-z]{2}$/.test(label)) days.push({ label: label, rows: rows }); else unplaced = unplaced.concat(rows);
     });
     return { days: days, unplaced: unplaced };
   }
-  // level 0: everything. 1: no when / hours / cost lines. 2: no Good to know. 3: no addresses. keep: how many places to include
+  // level 0: everything. 1: no "when it fits" lines. 2: no Good to know. 3: no addresses. keep: how many places to include
   function buildPrompt(level, keep) {
     var list = readList(), trip = window.cnTripSetup, out = [], left = keep, total = 0, shown = 0;
     list.days.forEach(function (d) { total += d.rows.length; });
@@ -295,13 +291,11 @@
       var addr = window.cnStopAddress(r.id);
       var where = [addr && level < 3 ? 'Address: ' + addr : '', f.geo ? 'Coordinates: ' + ll(f.geo).replace(',', ', ') : ''].filter(Boolean);
       if (where.length) l.push('  ' + where.join(' | '));
-      if (level < 1 && f.hours) l.push('  Opening hours: ' + f.hours);
-      if (level < 1 && f.cost) l.push('  Typical cost: ' + f.cost);
       return l;
     }
     out.push("PLACES I'VE SAVED");
     list.days.slice().sort(function (a, b) { return ord(a.label) - ord(b.label); }).forEach(function (d) {
-      var rows = take(d.rows.slice().sort(function (a, b) { return (a.time === null ? -1 : a.time) - (b.time === null ? -1 : b.time) || a.i - b.i; }));
+      var rows = take(d.rows.slice()); // the fan's own order, as in the list and the other copies
       if (!rows.length) return;
       out.push(longDate(d.label) + (matches.some(function (m) { return m.day === d.label; }) ? ' (match day)' : ''));
       var pts = [];
@@ -320,11 +314,11 @@
     out.push('Source: place details from sydney.com and visitnsw.com (Destination NSW). Copied on ' + today + '. Times and prices can change, so check before you go.', '');
     out.push("WHAT I'D LIKE FROM YOU");
     out.push('1. A day-by-day plan built around my matches. On match days, get me to the stadium 60 to 90 minutes before kick-off, and allow for crowds afterwards.');
-    out.push("2. Use my saved places as the core of the plan. Put places that are close to each other on the same day, and check each one against its opening hours. If something doesn't fit, say so and suggest where else it could go.");
+    out.push("2. Use my saved places as the core of the plan. Put places that are close to each other on the same day, and check each one's opening hours on its website. If something doesn't fit, say so and suggest where else it could go.");
     out.push("3. For each stop, give the time, the place, how to get there from the previous stop, an estimated travel time, and the link exactly as I've given it.");
     out.push("4. A map: if you can make an interactive map or a map image, plot each day's stops with pins. If you can't, list the daily map links above and the coordinates so I can open them myself.");
     out.push('5. Logistics: transport between stops, what to book ahead, anything to bring, and accessibility notes if relevant.');
-    out.push("6. A rough budget using the cost ranges I've given. Don't invent prices that aren't listed; say \"check price\" instead.");
+    out.push("6. A rough budget. I haven't given any prices, so don't invent them: say \"check price\" instead.");
     out.push("7. You can suggest up to three extra ideas if there are gaps, but label them clearly as your suggestions, not from my list, and tell me to check them.", '');
     out.push("Keep it practical and easy to read on a phone: a short summary first, then a table or list for each day. If something important is missing, make a sensible assumption and tell me what you assumed, rather than asking lots of questions. Reply in English unless I ask otherwise.");
     return out.join('\n');
@@ -357,7 +351,7 @@
       var ev = { event: 'copy_for_ai', saved_count: phone.querySelectorAll('.cn-pane[data-pane="list"] .cn-item').length, has_match: /\nMY MATCHES\n- /.test(text) };
       (window.dataLayer = window.dataLayer || []).push(ev);
       console.log('dataLayer', ev);
-      show('m3', { tile: aiTile, message: 'Copied. Paste it into ' + ASSISTANTS.join(', ') + ' or any AI assistant.' });
+      show('m3', { tile: aiTile, message: 'Copied. Paste it into any AI assistant.' });
       aiTile.focus();
     }
     writeClipboard(text).then(done, function () {
@@ -460,7 +454,8 @@
     m1: { items: [
       { sel: '#cn-open-share', title: 'Save and share', text: 'Opens the Save and share sheet (M2). Inspect the slide up, the list behind the sheet going inert, focus moving into the sheet and returning here when it closes.' },
       { sel: '.cn-seg-wrap', title: 'Timeline and List', text: 'Switches between the day-by-day list and the timeline of your own trip. Both share your dates: change them on the timeline and the list heading and the AI prompt follow.' },
-      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item .cn-handle', title: 'Reorder', text: 'Drag a handle to reorder, move a place to another day, or park it in Not yet planned. Matches have no handle: they are fixed to their day, and places move around them. Keyboard: Space to pick up, arrow keys to move, Space to drop, Escape to cancel. The order feeds the AI prompt.' },
+      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item .cn-handle', title: 'Reorder', text: 'Drag a handle to reorder, move a place to another day, or park it in Not yet planned. Matches have no handle: they are fixed to their day, and places move around them. Keyboard: Space to pick up, arrow keys to move, Space to drop, Escape to cancel. The order feeds every copy, the AI prompt included.' },
+      { view: 'list', sel: '.cn-pane[data-pane="list"] .cn-item-text', title: 'Details and Remove from plan', text: 'Tap a place or a match, or press Enter on it, to open the same product page as the timeline. A place has Remove from plan, and an Undo toast brings it back for 6 seconds. A day left empty offers Remove this day. A match has no Remove: it is fixed to its day.' },
       { view: 'timeline', sel: '#cn-tl-dates-btn', title: 'Type your dates', text: 'Opens two date fields over the chart. Type or pick your first and last day in NSW. A date outside the timeline is refused with a message, and a first day after the last day moves the last day with it. The handles, the list heading and the AI prompt follow.' },
       { view: 'timeline', sel: '#cn-tl-edit', title: 'Edit places', text: 'Turns on edit mode: the date handles hide and your places lift. Drag a place along the line to another day, or up and down to change the order within its day; the dashed square shows where it will land. Keyboard: arrow keys on a place. Moves are made in the list, so the List view and the AI prompt follow. Done editing turns it off; outside edit mode a place opens its page.' },
       { view: 'timeline', sel: '#cn-tl-teams-btn', title: 'Your teams', text: 'Opens the team list over the chart, so the chart stays put. Tick to add a team, untick to remove it, or Clear all. Only your teams\u2019 matches show, plus any match you have a ticket for; with no teams the view asks you to choose some. A team you chose earlier in the journey is already ticked, and your teams set Supporting in the AI prompt.' },

@@ -3202,3 +3202,13 @@ body.cp-page code { font: inherit; }
 .cn-fallback-text { display: block; width: 100%; padding: 10px; border: 1px solid #d1d1d1; border-radius: var(--radius-md); background: #f5f5f5; color: #1a1a1a; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .6875rem; line-height: 1.5; resize: vertical; }
 .cn-fallback-text:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 
+/* Concepts: list rows open the product page; Remove from plan and its Undo toast; removing an empty day */
+.cn-item-text { position: relative; cursor: pointer; border-radius: var(--radius-sm); }
+.cn-item-text:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+@media (hover: hover) { .cn-item-text:hover .cn-item-name { text-decoration: underline; text-underline-offset: 3px; } }
+.cn-pp-remove { width: auto; padding: 0 var(--space-4); }
+.cn-undo { bottom: 112px; justify-content: space-between; gap: var(--space-3); }
+.cn-undo-btn { min-height: 44px; padding: 0 var(--space-2); border: 0; background: none; color: #fff; font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.cn-undo-btn:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+.cn-day-remove { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--space-1); padding: 0; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .75rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.cn-day-remove:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
