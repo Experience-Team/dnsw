@@ -3930,3 +3930,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-seg-thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; width: 0; border-radius: var(--radius-pill); background: #1f1f1f; opacity: 0; transition: left .3s cubic-bezier(.3, .4, .3, 1), width .3s cubic-bezier(.3, .4, .3, 1), opacity .2s ease-out; }
 .tp-seg.has-sel .tp-seg-thumb { opacity: 1; }
 @media (hover: hover) { .tp-seg-btn[aria-pressed="false"]:hover { background: #f5f5f5; } }
+
+/* Pick your team: why pick (under the heading) and why a ticket is asked (by the tick) */
+.tp-pick-sub { margin-top: var(--space-1); font-size: .875rem; line-height: 1.4; color: #4d4d4d; text-wrap: pretty; }
+.tp-ticket-why { margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #5c5c5c; }
+.tp-pm-acts .tp-ticket-why { margin-top: var(--space-1); }

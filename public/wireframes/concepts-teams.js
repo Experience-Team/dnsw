@@ -529,6 +529,7 @@
     // Picked teams also in this match, other than the card it sits on
     return f.t.split(' v ').filter(function (n) { return n !== self && state.picked.indexOf(n) > -1; });
   }
+  var TICKET_WHY = 'Tick \u2018I have a ticket\u2019 for the ones you\u2019ll be at, so we skip their screenings and plan your days around them.', TICKET_WHY_P = '<p class="tp-ticket-why">' + TICKET_WHY + '</p>';
   function row(f, self, full) {
     var id = idOf(f), opp = full ? f.t : 'v ' + f.t.split(' v ').filter(function (n) { return n !== self; })[0];
     var also = full ? f.t.split(' v ').filter(function (n) { return state.picked.indexOf(n) > -1; }) : others(f, self);
@@ -555,6 +556,8 @@
     var moved = elsewhere.map(function (x) { return '<p class="tp-m-moved">' + esc(x[0].d) + ', v ' + esc(x[0].t.split(' v ').filter(function (n) { return n !== c.name; })[0]) + ': on your ' + esc(x[1]) + ' card.</p>'; }).join('');
     return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div>' +
       (isNew ? '<span class="tp-rcard-new">Just added</span>' : '') + '</div>' +
+      // Why the ticket tick is asked, once per card, under the card's head; each tick points to it (aria-describedby)
+      TICKET_WHY_P +
       '<ol class="tp-ms' + (c.rugby ? ' tp-ms--cols' : '') + '">' + own.map(function (f) { return row(f, c.name, c.rugby); }).join('') +
       // On the columned card the knockout note is a column of its own, so it adds width, not height
       (c.rugby ? '<li class="tp-ko tp-ko--col">' + esc(koNote(c)) + '</li></ol>' : '</ol>' + moved + '<p class="tp-ko">' + esc(koNote(c)) + '</p>');
@@ -566,7 +569,7 @@
     if (!ms.length) return '';
     return '<article class="tp-rcard tp-rcard--added" data-name="added" aria-label="Matches you added"><div class="tp-flip is-flipped"><div class="tp-face tp-face--back">' +
       '<div class="tp-back-head"><span class="tp-back-code">+</span><div><h4 class="tp-back-name">Matches you added</h4><p class="tp-back-meta">' + countPhrase(ms.map(function (m) { return m.f; })) + ', from All matches</p></div></div>' +
-      '<ol class="tp-ms">' + ms.map(function (m) { return m.f.t ? row(m.f, '', true) : '<li class="tp-m"><p class="tp-m-when">' + esc(m.f.d) + ', ' + esc(m.f.k || 'time to be confirmed') + '</p><p class="tp-m-teams">' + esc(m.f.s) + '</p><p class="tp-m-where">' + esc(m.f.v + ', ' + m.f.p) + '</p><span class="tp-tag">Teams to be decided</span></li>'; }).join('') + '</ol></div></div></article>';
+      TICKET_WHY_P + '<ol class="tp-ms">' + ms.map(function (m) { return m.f.t ? row(m.f, '', true) : '<li class="tp-m"><p class="tp-m-when">' + esc(m.f.d) + ', ' + esc(m.f.k || 'time to be confirmed') + '</p><p class="tp-m-teams">' + esc(m.f.s) + '</p><p class="tp-m-where">' + esc(m.f.v + ', ' + m.f.p) + '</p><span class="tp-tag">Teams to be decided</span></li>'; }).join('') + '</ol></div></div></article>';
   }
   function pickedCards() {
     // Teams in the order they were picked, then Here for the rugby last
@@ -592,6 +595,12 @@
     }).join('') + addedCard(seen);
     var keep = deck.scrollLeft;
     deck.innerHTML = html;
+    // Each card's ticks are described by that card's line on why a ticket is asked
+    [].forEach.call(deck.querySelectorAll('.tp-rcard'), function (card, i) {
+      var w = card.querySelector('.tp-ticket-why'); if (!w) return;
+      w.id = 'tp-tw-' + i;
+      [].forEach.call(card.querySelectorAll('input[data-match]'), function (inp) { inp.setAttribute('aria-describedby', w.id); });
+    });
     deck.classList.toggle('is-single', deck.children.length === 1);
     deck.scrollLeft = keep;
     // The hint shows whenever there is more to the side: other cards, or the columns of Here for the rugby
