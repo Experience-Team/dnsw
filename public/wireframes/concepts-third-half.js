@@ -73,9 +73,11 @@
         '<p class="tp-wm-teams">' + who + '</p>' + (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>') +
         '<ul class="tp-wm-spots">' + spotsFor(m).map(function (sp) {
           var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
-          ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, day: f.d, matchName: matchName(f) };
+          var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
+          ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, note: open, day: f.d, matchName: matchName(f) };
           return '<li class="tp-ws provenance-gap" data-id="' + esc(id) + '"><span class="tp-ws-text"><span class="tp-ws-name">' + esc(sp.name) + '</span>' +
-            '<span class="tp-ws-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' · ' + esc(sp.place) + '</span></span>' +
+            '<span class="tp-ws-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' · ' + esc(sp.place) + '</span>' +
+            (open ? '<span class="tp-ws-meta">' + esc(open) + '</span>' : '') + '</span>' +
             addBtn(id, sp.name + ' on ' + f.d) + '</li>';
         }).join('') + '</ul></div>';
     });
@@ -107,11 +109,19 @@
     return a.opening_hours.filter(function (o) { return o.day === wd; })[0] || null;
   }
   function openAt(o, t) { return !!o && t >= hm(o.opens) && t <= Math.min(1439, hm(o.closes)); }
+  // Walking or transit time to the stadium (fixture-only, not in the contract), preferred over km; km only as a fallback
+  function travel(dv, venue) {
+    if (!dv) return '';
+    var to = venue ? esc(venue) : (dv.label || 'the stadium');
+    if (dv.walking_minutes && dv.walking_minutes <= 20) return dv.walking_minutes + ' min walk to ' + to;
+    if (dv.transit_minutes) return dv.transit_minutes + ' min by public transport to ' + to;
+    return dv.km + ' km from ' + to;
+  }
   function reason(p, o, d) {
     var t = trip(), f = d.m.f, wd = weekdayOf(d.m.day);
     var open = t && t.mode === 'visiting' && stay() ? 'Open on ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes) : 'Open ' + WD_PLURAL[wd] + ' ' + clock(o.opens) + ' to ' + clock(o.closes);
     var price = p.pricing ? (p.pricing.is_free ? 'free' : p.pricing.band) : '';
-    var dv = p.distance_to_venue, dist = dv ? dv.km + ' km from ' + (dv.label || 'the stadium') : '';
+    var dist = travel(p.distance_to_venue);
     var parts = t && t.mode === 'local' ? [dist, open.charAt(0).toLowerCase() + open.slice(1), price] : [open, price, dist];
     parts = parts.filter(Boolean);
     return parts.join(' · ');
@@ -163,7 +173,7 @@
           '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
           addBtn(id, p.title + ' on ' + f.d) +
           '<div class="tp-pc-more" id="' + cid + '"' + (isOpen ? '' : ' hidden') + '><dl>' +
-          '<dt>Where</dt><dd>' + esc(p.address.suburb) + ', ' + p.distance_to_venue.km + ' km from ' + esc(f.v) + '</dd>' +
+          '<dt>Where</dt><dd class="provenance-gap">' + esc(p.address.suburb) + ', ' + travel(p.distance_to_venue, f.v) + ' (' + p.distance_to_venue.km + ' km)</dd>' +
           '<dt>' + esc(f.d) + '</dt><dd class="provenance-gap">Open ' + clock(x.o.opens) + ' to ' + clock(x.o.closes) + '</dd>' +
           '<dt>Price</dt><dd class="provenance-gap">' + (p.pricing.is_free ? 'Free' : esc(p.pricing.band) + ' (price band)') + '</dd></dl>' +
           '<a class="tp-out" href="' + esc(p.links.website || '#') + '" rel="external noopener">Visit their website<span class="visually-hidden"> (their own site; nothing is booked here)</span></a></div></article>';

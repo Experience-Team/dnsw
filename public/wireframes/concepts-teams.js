@@ -673,7 +673,7 @@
       if (it) {
         tlDetail.innerHTML = '<p class="tp-tl-d-when">' + esc(it.day) + (it.matchName ? ', for ' + esc(it.matchName) : '') + '</p>' +
           '<p class="tp-tl-d-teams">' + esc(it.title) + '</p><p class="tp-tl-d-stage">' + esc(it.kindLabel || '') + '</p>' +
-          (it.place ? '<p class="tp-tl-d-where">' + esc(it.place) + '</p>' : '') +
+          (it.place ? '<p class="tp-tl-d-where">' + esc(it.place) + '</p>' : '') + (it.note ? '<p class="tp-tl-d-where">' + esc(it.note) + '</p>' : '') +
           '<p class="tp-tl-d-gap provenance-gap">Placeholder: not real data yet.</p>' +
           '<button type="button" class="tp-link tp-tl-remove" data-remove="' + esc(it.id) + '">Remove from timeline</button>';
         return;
