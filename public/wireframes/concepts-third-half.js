@@ -910,6 +910,8 @@
   function renderPlan() {
     if (!planBody) return;
     var t = trip(), ms = tp.own() ? tp.userMatches() : [], n = state.added.filter(function (it) { return it.kind !== 'match'; }).length;
+    // Save & share in the timeline only shows once there is a plan to keep
+    if (ssBtn) ssBtn.hidden = !ms.length && !n;
     if (!ms.length && !n) {
       planBody.innerHTML = '<p class="tp-plan-empty">Pick a team, or add a screening or a place above, and your plan builds up here.</p>';
       return;
@@ -950,6 +952,146 @@
     }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
   });
+
+  /* ---------- Save & share: a second sheet stacked over the open timeline ----------
+     The options come from the Share/edit itinerary prototype's sheet; what they keep or send is this plan. */
+  var ssBtn = document.getElementById('tp-tl-share'), ss = document.getElementById('tp-ss'), ssScrim = document.getElementById('tp-ss-scrim');
+  var tlEl = document.getElementById('tp-tl'), ssOpen = false;
+  var KIND = { screening: 'Screening', place: 'Place', product: 'Thing to do' };
+  // One row per match or thing added, in date order: for the table, the spreadsheet and the route
+  function planRows() {
+    var rows = [];
+    if (tp.own()) tp.userMatches().forEach(function (m) {
+      var f = m.f;
+      rows.push({ at: m.day, date: f.d, time: f.k || 'To be confirmed', what: matchName(f), kind: 'Match', where: f.v + ', ' + f.p, place: f.a ? '' : f.v + ', ' + f.p,
+        note: [hasTicket(m) ? 'Ticket' : '', f.a ? 'Interstate' : ''].filter(Boolean).join(', ') });
+    });
+    state.added.forEach(function (it) {
+      if (it.kind === 'match') return;
+      var at = it.start != null ? it.start : (function () { try { return tp.dayOf(it.day); } catch (e) { return 99; } })();
+      var trip = it.kind === 'trip', c = trip && tp.clashes()[it.id];
+      rows.push({ at: at, date: trip && it.nights ? spanLabel(it.start, it.start + it.nights) : it.day, time: '', what: it.title,
+        kind: trip ? (it.nights ? 'Longer trip (' + it.nights + (it.nights === 1 ? ' night)' : ' nights)') : 'Day trip') : (KIND[it.kind] || 'Added'),
+        where: trip ? it.title + (it.place ? ' (' + it.place + ')' : '') : it.place || '', place: trip ? it.title : it.place || '', note: c ? 'Clashes with ' + c.map(function (x) { return x.name + ', ' + x.day; }).join('; ') : (it.matchName ? 'For ' + it.matchName : '') });
+    });
+    return rows.sort(function (a, b) { return a.at - b.at; });
+  }
+  var COLS = ['Date', 'Time', 'What', 'Type', 'Where', 'Notes'];
+  function rowCells(r) { return [r.date, r.time, r.what, r.kind, r.where, r.note]; }
+  function csv() {
+    var q = function (v) { v = String(v || ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    return '﻿' + [COLS].concat(planRows().map(rowCells)).map(function (r) { return r.map(q).join(','); }).join('\r\n');
+  }
+  function tsv() { return [COLS].concat(planRows().map(rowCells)).map(function (r) { return r.map(function (v) { return String(v || '').replace(/[\t\n]/g, ' '); }).join('\t'); }).join('\n'); }
+  function aiText() {
+    return 'Hi! I am a Rugby World Cup 2027 fan planning time in New South Wales, Australia. Please turn my plan below into a practical day-by-day itinerary. Keep my matches fixed, put things that are close to each other on the same day, and tell me if something does not fit.\n\n' + planText();
+  }
+  function fileName(ext) { var t = trip(); return 'rwc-2027-plan' + (t && t.mode === 'visiting' && t.from ? '-' + t.from + '-to-' + t.to : '') + '.' + ext; }
+  function download(text, type, ext) {
+    var a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: type }));
+    a.href = url; a.download = fileName(ext); document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  var toast = document.getElementById('tp-ss-toast'), toastT;
+  function ssSay(msg) {
+    toast.hidden = true; void toast.offsetWidth; toast.textContent = msg; toast.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(function () { toast.hidden = true; }, 2600);
+  }
+  function mark(tile) {
+    ss.querySelectorAll('.cn-tile.is-copied').forEach(function (t) { t.classList.remove('is-copied'); });
+    tile.classList.add('is-copied');
+    clearTimeout(tile._t); tile._t = setTimeout(function () { tile.classList.remove('is-copied'); }, 2400);
+  }
+  var fb = document.getElementById('tp-ss-fallback'), fbText = document.getElementById('tp-ss-fallback-text');
+  function copy(text, tile, msg) {
+    fb.hidden = true;
+    function fallback() { fb.hidden = false; fbText.value = text; fbText.focus(); fbText.select(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { mark(tile); ssSay(msg); }, fallback); else fallback();
+  }
+  function printPlan() {
+    var lines = planText().split('\n'), html = '', inList = false;
+    lines.forEach(function (l, i) {
+      if (/^- /.test(l)) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + esc(l.slice(2)) + '</li>'; return; }
+      if (inList) { html += '</ul>'; inList = false; }
+      if (!l) return;
+      html += i === 0 ? '<h1>' + esc(l) + '</h1>' : /:$/.test(l) ? '<h2>' + esc(l.slice(0, -1)) + '</h2>' : '<p>' + esc(l) + '</p>';
+    });
+    if (inList) html += '</ul>';
+    var fr = document.createElement('iframe');
+    fr.setAttribute('aria-hidden', 'true'); fr.style.cssText = 'position:fixed;width:0;height:0;border:0;';
+    document.body.appendChild(fr);
+    var d = fr.contentDocument;
+    d.open(); d.write('<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><title>' + esc(fileName('pdf').replace('.pdf', '')) + '</title><style>body{font:14px/1.5 system-ui,sans-serif;color:#111;margin:24px}h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:20px 0 6px}ul{padding-left:18px;margin:0}li{margin:4px 0}p{margin:4px 0}</style></head><body>' + html + '</body></html>'); d.close();
+    setTimeout(function () { fr.contentWindow.focus(); fr.contentWindow.print(); setTimeout(function () { fr.remove(); }, 1000); }, 50);
+  }
+  function mapsUrl() {
+    var stops = [];
+    planRows().forEach(function (r) { if (r.place && stops[stops.length - 1] !== r.place) stops.push(r.place); });
+    if (!stops.length) return null;
+    return stops.length === 1 ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(stops[0] + ', NSW')
+      : 'https://www.google.com/maps/dir/' + stops.map(function (x) { return encodeURIComponent(x + ', NSW'); }).join('/');
+  }
+  ss.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    switch (b.id) {
+      case 'tp-ss-close': ssSet(false); break;
+      case 'tp-ss-print': printPlan(); break;
+      case 'tp-ss-txt': download(planText(), 'text/plain;charset=utf-8', 'txt'); mark(b); ssSay('Downloaded ' + fileName('txt')); break;
+      case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(b); ssSay('Downloaded ' + fileName('csv')); break;
+      case 'tp-ss-chat': copy(planText(), b, 'Copied. Paste it into a chat, a note or an email.'); break;
+      case 'tp-ss-sheet': copy(tsv(), b, 'Copied for your spreadsheet. Paste into cells.'); break;
+      case 'tp-ss-ai': copy(aiText(), b, 'Copied. Paste it into your AI assistant.'); break;
+      case 'tp-ss-maps': var u = mapsUrl(); if (u) window.open(u, '_blank', 'noopener'); else ssSay('Nothing in your plan has a place in NSW yet.'); break;
+      case 'tp-ss-send': send(); break;
+      case 'tp-ss-again': ss.classList.remove('is-sent'); note.textContent = NOTE; email.focus(); break;
+    }
+  });
+  var email = document.getElementById('tp-ss-email'), emailErr = document.getElementById('tp-ss-email-error'), note = document.getElementById('tp-ss-note');
+  var NOTE = note.textContent;
+  function send() {
+    var to = email.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { email.setAttribute('aria-invalid', 'true'); emailErr.hidden = false; email.focus(); return; }
+    email.removeAttribute('aria-invalid'); emailErr.hidden = true;
+    document.getElementById('tp-ss-sent-text').textContent = 'Sent to ' + to;
+    note.textContent = 'Sent to ' + to + '. Check your inbox. It is still saved on this device too.';
+    ss.classList.add('is-sent');
+    document.getElementById('tp-ss-again').focus({ preventScroll: true });
+  }
+  email.addEventListener('input', function () { if (email.getAttribute('aria-invalid')) { email.removeAttribute('aria-invalid'); emailErr.hidden = true; } });
+  email.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(); } });
+  function ssSet(open) {
+    if (open === ssOpen) return;
+    ssOpen = open;
+    ss.style.transform = ''; ss.classList.remove('is-dragging');
+    ss.classList.toggle('is-open', open);
+    ssScrim.classList.toggle('is-on', open);
+    ss.inert = !open;
+    tlEl.inert = open; // the timeline waits under its own scrim while this sheet is on top
+    if (open) { ss.scrollTop = 0; fb.hidden = true; toast.hidden = true; ss.focus({ preventScroll: true }); }
+    else ssBtn.focus({ preventScroll: true });
+  }
+  ssBtn.addEventListener('click', function () { ssSet(true); });
+  ssScrim.addEventListener('click', function () { ssSet(false); });
+  phone.addEventListener('tp:tlclose', function () { if (ssOpen) ssSet(false); });
+  ss.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); ssSet(false); return; } // closes this sheet only
+    if (e.key !== 'Tab') return;
+    var f = [].filter.call(ss.querySelectorAll('button, input, textarea, [tabindex="0"]'), function (x) { return !x.disabled && x.tabIndex > -1 && x.offsetParent !== null; });
+    if (!f.length) return;
+    if (e.shiftKey && (document.activeElement === f[0] || document.activeElement === ss)) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  // Drag the handle down to close: past a third of the way, or a flick, closes; earlier springs back
+  var grab = document.getElementById('tp-ss-grab'), dy0 = null, dy = 0, t0 = 0;
+  grab.addEventListener('pointerdown', function (e) { dy0 = e.clientY; dy = 0; t0 = e.timeStamp; grab.setPointerCapture(e.pointerId); ss.classList.add('is-dragging'); });
+  grab.addEventListener('pointermove', function (e) { if (dy0 == null) return; dy = Math.max(0, e.clientY - dy0); ss.style.transform = 'translateY(' + dy + 'px)'; });
+  function let_go(e) {
+    if (dy0 == null) return;
+    var v = dy / Math.max(1, e.timeStamp - t0); dy0 = null;
+    ss.classList.remove('is-dragging');
+    if (dy > ss.offsetHeight / 3 || (v > .6 && dy > 24)) ssSet(false); else ss.style.transform = '';
+  }
+  grab.addEventListener('pointerup', let_go); grab.addEventListener('pointercancel', let_go);
 
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};
