@@ -467,7 +467,7 @@
     clearBtn.hidden = !state.picked.length;
     var r = isPicked(RUGBY);
     rugbyBtn.setAttribute('aria-pressed', r ? 'true' : 'false');
-    rugbyBtn.querySelector('.tp-rugby-text').textContent = r ? 'Here for the rugby: on' : 'Here for the rugby';
+    rugbyBtn.querySelector('.tp-rugby-text').textContent = r ? 'Just here for the rugby: on' : 'No team, just here for the rugby';
     if (!teamsPicked().length && !swapBox.hidden) swapBox.hidden = true;
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }

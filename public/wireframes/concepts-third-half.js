@@ -434,6 +434,11 @@
   pm.setAttribute('role', 'dialog'); pm.setAttribute('aria-modal', 'true'); pm.setAttribute('aria-labelledby', 'tp-pm-title');
   pm.innerHTML = '<div class="cn-bar"><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><p class="cn-bar-title" id="tp-pm-kind"></p></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
   phone.appendChild(pm);
+  // A match opens as a sheet from the bottom, over a scrim; products and places stay full-screen pages
+  var pmScrim = document.createElement('div');
+  pmScrim.className = 'tp-pm-scrim'; pmScrim.hidden = true;
+  phone.insertBefore(pmScrim, pm);
+  pmScrim.addEventListener('click', function () { closePm(); });
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
   function pmActions(id, label) {
     var on = added(id);
@@ -498,10 +503,11 @@
     if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' /><span>I have a ticket</span></label>';
     h += '</div>';
     if (teams.length) {
+      // The same toggle as Add to my timeline: pressed reads Added, with a tick; pressing it again takes the team off
       h += '<h3 class="cn-pp-h">Your teams</h3><div class="tp-pm-teams">' + teams.map(function (n) {
-        return tp.isPicked(n) ? '<p class="tp-pm-team-on">\u2713 ' + esc(n) + ' is one of your teams</p>'
-          : '<button type="button" class="tp-pm-team" data-pm-team="' + esc(n) + '">Add ' + esc(n) + ' to my teams</button>';
-      }).join('') + '</div><p class="tp-pm-note">Adding a team adds all its matches, as picking its card does.</p>';
+        var on = tp.isPicked(n);
+        return '<button type="button" class="tp-pm-team" data-pm-team="' + esc(n) + '" aria-pressed="' + on + '">' + (on ? '\u2713 ' + esc(n) + ' added to my teams' : 'Add ' + esc(n) + ' to my teams') + '</button>';
+      }).join('') + '</div><p class="tp-pm-note">Adding a team adds all its matches, as picking its card does. Press again to take it off.</p>';
     }
     h += '<p class="tp-pm-said" aria-hidden="true">' + esc(pmSaid) + '</p></div>';
     return h;
@@ -556,6 +562,8 @@
     pmKind.textContent = isMatch ? 'Match' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     pm.classList.toggle('is-match', isMatch);
+    pm.classList.toggle('is-sheet', isMatch);
+    pmScrim.hidden = !isMatch;
     // Everything behind waits; remember what was already inert so closing puts it back as it was
     pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
@@ -568,8 +576,15 @@
     if (!pmOpen) return;
     var back = pmOpen.opener; pmOpen = null;
     pmBehind.forEach(function (pair) { pair[0].inert = pair[1]; });
-    function done() { pm.hidden = true; pm.classList.remove('is-open', 'is-closing'); notesRefresh(); }
+    var sheet = pm.classList.contains('is-sheet');
+    function done() { pm.hidden = true; pmScrim.hidden = true; pm.classList.remove('is-open', 'is-closing'); notesRefresh(); }
     if (reduce.matches || !pm.animate) done();
+    else if (sheet) {
+      // The sheet slides back down the way it came; the scrim fades with it
+      pm.classList.add('is-closing');
+      pmScrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in' });
+      pm.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
+    }
     else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
     var el = back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
     if (el) el.focus({ preventScroll: true });
@@ -594,7 +609,7 @@
     var tb = e.target.closest('[data-pm-team]');
     if (tb) {
       pmSaid = tp.pickTeam(tb.dataset.pmTeam) + '.';
-      pmRefresh('[data-pm-team]');
+      pmRefresh('[data-pm-team="' + CSS.escape(tb.dataset.pmTeam) + '"]');
       return; // the pick says its own line to screen readers
     }
     var b = e.target.closest('[data-pm-add]'); if (!b) return;
