@@ -227,18 +227,18 @@
   /* ---------- The one question ---------- */
   var askEditing = false, askManual = false, askError = '';
   // From what they have already done: their first to last match in NSW (and any ticket). Nothing to go on without a pick.
-  function inferred() {
-    if (!tp.picked()) return null;
-    var ds = tp.userMatches().filter(function (m) { return !m.f.a; }).map(function (m) { return m.day; });
-    if (!ds.length) return null;
-    return { from: isoOf(Math.min.apply(null, ds)), to: isoOf(Math.max.apply(null, ds)) };
-  }
+  function inferred() { return tp.inferTrip(); }
   function fork(mode) {
     var t = trip(), cur = t ? t.mode : null;
     var B = function (m, label) { return '<button type="button" class="tp-chip tp-fork" data-mode="' + m + '" aria-pressed="' + (cur === m) + '">' + label + '</button>'; };
     return '<div class="tp-forks" role="group" aria-label="Visiting or local">' + B('visiting', 'Visiting NSW') + B('local', 'I live in NSW') + B('unsure', 'Not sure yet') + '</div>';
   }
+  // An answer given elsewhere (That's right in the open timeline) closes the question here too: never ask twice
+  var lastTrip = JSON.stringify(state.trip), askOwn = false;
   function renderAsk() {
+    var tj = JSON.stringify(state.trip);
+    if (tj !== lastTrip && !askOwn && state.trip && (state.trip.mode !== 'visiting' || (state.trip.from && state.trip.to))) { askEditing = false; askManual = false; askError = ''; }
+    lastTrip = tj; askOwn = false;
     var t = trip(), done = t && (t.mode !== 'visiting' || (t.from && t.to)) && !askEditing, h;
     if (done) {
       var what = t.mode === 'local' ? 'I’m local' : t.mode === 'unsure' ? 'Not sure yet' : 'In NSW ' + tp.isoRange(t.from, t.to);
@@ -276,12 +276,12 @@
         // Keep dates already set; otherwise the guess shows next
         // Dates already set show in the fields to adjust; otherwise the guess shows next
         askEditing = true; askManual = !!(t && t.mode === 'visiting' && t.from);
-        tp.setTrip({ mode: 'visiting', from: t && t.mode === 'visiting' ? t.from : undefined, to: t && t.mode === 'visiting' ? t.to : undefined });
+        askOwn = true; tp.setTrip({ mode: 'visiting', from: t && t.mode === 'visiting' ? t.from : undefined, to: t && t.mode === 'visiting' ? t.to : undefined });
         settle('[data-mode="visiting"]', h0);
         tp.say('Visiting NSW.');
       } else {
         askEditing = false;
-        tp.setTrip({ mode: mode });
+        askOwn = true; tp.setTrip({ mode: mode });
         settle('[data-act="change"]', h0);
         tp.say(mode === 'local' ? 'Local. Suggestions stay grouped by match day; no dates needed.' : 'Not sure yet. Nothing changes; you can answer later.');
       }
@@ -293,7 +293,7 @@
     if (act === 'confirm') {
       var inf = inferred();
       askEditing = false;
-      tp.setTrip({ mode: 'visiting', from: inf.from, to: inf.to });
+      askOwn = true; tp.setTrip({ mode: 'visiting', from: inf.from, to: inf.to });
       settle('[data-act="change"]', h0);
       tp.say('Your days in NSW are ' + tp.isoRange(inf.from, inf.to) + '. Suggestions updated.');
       return;
@@ -303,7 +303,7 @@
       if (!a || !z) { askError = 'Add both days, or leave this for later: everything works without them.'; settle(a ? '#tp-to' : '#tp-from', h0); return; }
       if (z < a) { askError = 'The last day is before the first day.'; settle('#tp-to', h0); return; }
       askError = ''; askEditing = false; askManual = false;
-      tp.setTrip({ mode: 'visiting', from: a, to: z });
+      askOwn = true; tp.setTrip({ mode: 'visiting', from: a, to: z });
       settle('[data-act="change"]', h0);
       tp.say('Your days in NSW are ' + tp.isoRange(a, z) + '. Suggestions updated.');
     }
