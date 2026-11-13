@@ -3582,6 +3582,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-hero-title { display: flex; flex-direction: column; gap: 2px; font-weight: 800; line-height: 1.05; text-wrap: balance; }
 .tp-hero-kicker { font-size: .875rem; font-weight: 600; letter-spacing: .01em; }
 .tp-hero-name { font-size: 2.25rem; letter-spacing: -.02em; }
+.tp-hero-sub { margin-top: var(--space-2); max-width: 22rem; font-size: 1rem; line-height: 1.4; color: rgba(255,255,255,.9); text-wrap: balance; }
 .tp-hero-dates { margin-top: var(--space-3); font-size: .875rem; font-weight: 700; }
 .tp-hero-tz { font-weight: 500; color: rgba(255,255,255,.85); }
 .tp-count { margin-top: 2px; font-size: .875rem; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.85); }
@@ -3617,7 +3618,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-card:not(.is-picked):hover { background: #f5f5f5; } .tp-card--rugby:not(.is-picked):hover { background: #e3e3e3; } }
 .tp-fan-caption { min-height: 1.4em; margin-top: var(--space-2); font-size: .8125rem; color: #444; text-align: center; }
 .tp-fan-caption strong { color: #111; }
-.tp-chosen-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-3); min-height: 44px; }
+.tp-clear-row { display: flex; justify-content: center; min-height: 44px; }
+.tp-chosen-row { display: flex; align-items: center; justify-content: center; margin-top: var(--space-1); min-height: 44px; }
 .tp-chosen { font-size: .875rem; font-weight: 600; line-height: 1.4; }
 .tp-clear { flex: none; }
 .tp-clear[hidden] { display: none; }

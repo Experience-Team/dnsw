@@ -46,6 +46,7 @@
           <span class="ph-img tp-hero-img" aria-hidden="true"></span>
           <div class="tp-hero-content">
             <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-hero-kicker">Rugby World Cup 2027:</span> <span class="tp-hero-name">Your 3rd half</span></h3>
+            <p class="tp-hero-sub">Two halves on the pitch. Make the third one count.</p>
             <p class="tp-hero-dates"><span class="visually-hidden">Tournament dates: </span>1 Oct to 13 Nov 2027 <span class="tp-hero-tz">· Kick-offs in Sydney time</span></p>
             <p class="tp-count" role="timer" aria-live="off" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down to the opening match</p>
           </div>
@@ -57,9 +58,9 @@
         <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
           <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
           <div class="tp-picker" id="tp-picker">
-            <!-- Finding your team: a find field (suggestions float over the hand, so nothing below moves) and a toggle that
+            <!-- Hidden for now (may come back): finding your team with a find field (suggestions float over the hand, so nothing below moves) and a toggle that
                  narrows the hand to the teams with a pool match in NSW. Wired by concepts-teams.js. -->
-            <div class="tp-find">
+            <div class="tp-find" hidden>
               <div class="tp-find-row">
                 <label class="tp-find-field"><span class="tp-find-label">Find your team</span>
                   <input type="search" id="tp-find-in" class="tp-find-in" placeholder="For example, Wales" autocomplete="off" spellcheck="false" aria-controls="tp-find-list" aria-expanded="false" aria-describedby="tp-find-help"></label>
@@ -79,9 +80,11 @@
             <!-- Here for the rugby: every NSW match, no team. A playful button, not a card in the fan. With teams picked it
                  asks before swapping them (#tp-swap, laid over the caption and this row, so nothing below moves under the
                  timeline bar), and the caption offers Undo afterwards. -->
+            <!-- Clear all sits under the caption, shown once a team is picked; its row keeps its height so the rugby
+                 button below never jumps -->
+            <div class="tp-clear-row"><button type="button" class="tp-link tp-clear" id="tp-clear" hidden>Clear all</button></div>
             <div class="tp-chosen-row">
               <button type="button" class="tp-rugby" id="tp-rugby" aria-pressed="false"><span class="tp-rugby-ball" aria-hidden="true"></span><span class="tp-rugby-text">No team, just here for the rugby</span></button>
-              <button type="button" class="tp-link tp-clear" id="tp-clear" hidden>Clear all</button>
             </div>
             <div class="tp-swap" id="tp-swap" role="group" aria-labelledby="tp-swap-q" hidden>
               <p class="tp-swap-q" id="tp-swap-q"></p>
@@ -241,12 +244,12 @@
   ];
   // The picker is always on screen; its notes are the same whether or not a team is picked
   var PICKER = [
-      { sel: '.tp-find-field', title: 'Find your team', text: 'Three ways to your team without swiping through 25 cards. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; choosing one picks it, Enter picks the first, Escape clears. In NSW narrows the hand to the 15 teams with a pool match in NSW (Here for the rugby and anything already picked stay). With the hand focused, a letter jumps to the next team starting with it. Flags now sit on every card. The hand opens on Australia, the host nation.' },
-      { sel: '.tp-count', title: 'Countdown', text: 'One plain line, so the hero stays short and the find field and fan sit above the fold: days to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says the tournament is under way (final on Sat 13 Nov), then that it has finished. The dates line above it carries the page\u2019s one note that kick-offs are Sydney time. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
+      { sel: '.tp-find-field', title: 'Find your team (hidden for now)', text: 'Hidden for now with the In NSW toggle, and may come back; the code stays wired, and the letter jump below still works. Three ways to your team without swiping through 25 cards. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; choosing one picks it, Enter picks the first, Escape clears. In NSW narrows the hand to the 15 teams with a pool match in NSW (Here for the rugby and anything already picked stay). With the hand focused, a letter jumps to the next team starting with it. Flags now sit on every card. The hand opens on Australia, the host nation.' },
+      { sel: '.tp-count', title: 'Countdown', text: 'One plain line, under the subheading (Two halves on the pitch. Make the third one count.), so the hero stays short and the fan sits above the fold: days to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says the tournament is under way (final on Sat 13 Nov), then that it has finished. The dates line above it carries the page\u2019s one note that kick-offs are Sydney time. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
       { sel: '#tp-fan-caption', title: 'What a pick did', text: 'The caption under the fan is the feedback line (it used to repeat the middle card): Wales added: 3 pool matches, 1 in NSW, or Wales removed. The first part is washed blue for a moment, then settles. The live region says the same for screen readers. At rest it says how picking works.' },
-      { sel: '#tp-clear', title: 'Clear all', text: 'Only shown once something is picked. Puts every card back in the hand (Here for the rugby off too) and clears the teams\u2019 ticket marks (a ticket on a match added on its own stays with it). The tabs go and All matches stands alone again; the bar sinks away unless something keeps it up. Focus moves to the middle card, as the button hides itself.' },
-      { sel: '#tp-rugby', title: 'No team, just here for the rugby', text: 'Every NSW match, no team: a playful button under the fan (rough on purpose: tilted, dashed, a ball), no longer a card in the fan or a link. It reads No team, just here for the rugby; pressed it reads Just here for the rugby: on; pressed again it comes off. Same feedback as a pick: the caption, one sweep of dots from the button into the timeline bar, the tab count. With teams picked it does not replace them silently: it asks Swap your 3 teams for every NSW match? with Swap and Keep my teams (Escape keeps them), laid over the caption and this row so nothing moves under the bar. After Swap the caption offers Undo for six seconds, with focus on it; Undo puts the teams back exactly. Picking a team while it is on takes it off.' },
+      { sel: '#tp-clear', title: 'Clear all', text: 'Sits centred under the caption, and only shows once at least one team is picked (Here for the rugby on its own turns itself off, so it does not bring Clear all up). Its row keeps its height, so the rugby button below never jumps. Puts every card back in the hand (Here for the rugby off too) and clears the teams\u2019 ticket marks (a ticket on a match added on its own stays with it). The tabs go and All matches stands alone again; the bar sinks away unless something keeps it up. Focus moves to the middle card, as the button hides itself.' },
+      { sel: '#tp-rugby', title: 'No team, just here for the rugby', text: 'Every NSW match, no team: a playful button, centred under Clear all (rough on purpose: tilted, dashed, a ball), no longer a card in the fan or a link. It reads No team, just here for the rugby; pressed it reads Just here for the rugby: on; pressed again it comes off. Same feedback as a pick: the caption, one sweep of dots from the button into the timeline bar, the tab count. With teams picked it does not replace them silently: it asks Swap your 3 teams for every NSW match? with Swap and Keep my teams (Escape keeps them), laid over the caption, Clear all and this row so nothing moves under the bar. After Swap the caption offers Undo for six seconds, with focus on it; Undo puts the teams back exactly. Picking a team while it is on takes it off.' },
   ];
   var NOTES = {
     pick: { items: PICKER.concat([
