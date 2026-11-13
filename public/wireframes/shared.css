@@ -3060,7 +3060,7 @@ body.cp-page code { font: inherit; }
 .cn-save, .cn-pill, .cn-sheet-title, .cn-day-card, .cn-peek summary { position: relative; }
 
 /* Pick your team: parts that carry an annotation badge need a box to hang it on */
-.tp-count, .tp-fan-caption, .tp-clear, .tp-show, .tp-link, .tp-device, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-days, .tp-ask { position: relative; }
+.tp-count, .tp-fan-caption, .tp-clear, .tp-link, .tp-device, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-days, .tp-ask { position: relative; }
 
 /* The fan's badge sits in the empty corner inside its frame (the frame clips its sides, and above it is the intro text) */
 .tp-fan-wrap > .cn-badge { top: 8px; right: 24px; }
@@ -3086,10 +3086,6 @@ body.cp-page code { font: inherit; }
 .tp-all-where { margin-top: var(--space-1); font-size: .8125rem; color: #333; }
 .tp-all-m.is-away .tp-all-where { color: #5c5c5c; }
 
-/* Pick your team: Change teams and Show all matches side by side under the cards */
-.tp-results-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-5); margin-top: var(--space-2); }
-.tp-results-actions .tp-change { margin-top: 0; }
-.tp-showall { position: relative; }
 
 
 /* Pick your team: the timeline bar (Figma 213:13100, adapted). A sheet docked over the bottom of the phone: hidden
@@ -3593,12 +3589,12 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-reset:hover { color: #111; } }
 /* A short hero: a band of placeholder photo above the title, the dates and one countdown line, so the find field and
    the fan are above the fold on a 390 x 844 phone */
-.tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 216px; color: #fff; isolation: isolate; }
+.tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 200px; color: #fff; isolation: isolate; }
 .tp-hero-img { position: absolute; inset: 0; z-index: -1; background: #595959; }
 .tp-hero-img::after { align-items: flex-start; justify-content: flex-end; padding: var(--space-2) var(--space-3) 0 0; font-size: .75rem; color: rgba(255,255,255,.55); } /* the placeholder label sits in the corner, clear of the title */
 /* The scrim darkens only where the text sits, so the placeholder still reads as a photo above it */
 .tp-hero::before { content: ""; position: absolute; inset: 20% 0 0; z-index: -1; background: linear-gradient(to bottom, rgba(17,17,17,0), rgba(17,17,17,.82) 55%); pointer-events: none; }
-.tp-hero-content { padding: var(--space-7) var(--space-4) var(--space-4); }
+.tp-hero-content { padding: var(--space-6) var(--space-4) var(--space-4); }
 .tp-hero-title { display: flex; flex-direction: column; gap: 2px; font-weight: 800; line-height: 1.05; text-wrap: balance; }
 .tp-hero-kicker { font-size: .875rem; font-weight: 600; letter-spacing: .01em; }
 .tp-hero-name { font-size: 2.25rem; letter-spacing: -.02em; }
@@ -3609,7 +3605,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 
 /* Pick your team: the fanned hand of team cards (concepts-teams.js). Each card turns about a pivot 460px below its
    foot, so the hand curves; later cards lie on top so every code shows at the top left. Picked cards lift and turn
-   dark. "See their matches" flies the picked cards out and flips them (.tp-flip) to show their matches. */
+   dark. A pick takes effect at once; Your matches shows each picked team's card face up (.tp-flip.is-flipped). */
 .tp-pick { padding: var(--space-6) var(--space-4) var(--space-6); }
 .tp-pick-title { font-size: 1.75rem; font-weight: 800; line-height: 1.1; letter-spacing: -.01em; }
 .tp-pick-intro { margin-top: var(--space-2); font-size: .9375rem; line-height: 1.45; color: #333; }
@@ -3641,11 +3637,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-chosen { font-size: .875rem; font-weight: 600; line-height: 1.4; }
 .tp-clear { flex: none; }
 .tp-clear[hidden] { display: none; }
-.tp-show { display: flex; align-items: center; justify-content: center; width: 100%; height: 48px; margin-top: var(--space-3); border: 0; border-radius: var(--radius-pill); background: #1f1f1f; color: #fff; font: inherit; font-size: .9375rem; font-weight: 600; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
-.tp-show[aria-disabled="true"] { background: #d1d1d1; color: #4d4d4d; cursor: not-allowed; }
-.tp-show:not([aria-disabled="true"]):active { transform: scale(.98); }
-@media (hover: hover) { .tp-show:not([aria-disabled="true"]):hover { background: #000; } }
-.tp-show:focus-visible, .tp-link:focus-visible, .tp-ticket input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.tp-link:focus-visible, .tp-ticket input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 .tp-alt { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--space-4); margin-top: var(--space-1); }
 .tp-link { min-height: 44px; padding: 0; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .tp-device { margin-top: var(--space-2); font-size: .75rem; color: #5c5c5c; }
@@ -3655,7 +3647,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-results-note { margin-top: var(--space-1); font-size: .75rem; color: #5c5c5c; }
 .tp-deck { display: flex; gap: var(--space-3); margin: var(--space-4) calc(var(--space-4) * -1) 0; padding: 4px var(--space-4) var(--space-3); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-4); scrollbar-width: none; }
 .tp-deck::-webkit-scrollbar { display: none; }
-.tp-deck.is-flying { scroll-snap-type: none; overflow-x: hidden; }
 .tp-rcard { flex: none; width: calc(100% - 28px); scroll-snap-align: start; perspective: 1200px; }
 .tp-deck.is-single .tp-rcard { width: 100%; }
 /* Here for the rugby lists all nine NSW matches: three to a column so the card fits the screen's height, and the card
@@ -3693,9 +3684,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-m.has-ticket .tp-m-teams::after { content: " \00b7  ticket"; font-size: .75rem; font-weight: 600; color: #2666d9; }
 .tp-ko { margin-top: var(--space-3); font-size: .75rem; line-height: 1.45; color: #444; }
 .tp-deck-hint { font-size: .75rem; color: #5c5c5c; }
-.tp-change { margin-top: var(--space-2); }
-.tp-skipped-text { margin-top: var(--space-2); font-size: .9375rem; line-height: 1.45; }
-.tp-skipped-text:focus { outline: none; }
 @media (prefers-reduced-motion: reduce) { .tp-card { transition: opacity var(--dur-small) linear, background-color var(--dur-micro) linear; } }
 
 /* Prototype viewer (Figma: Rugby World Cup, node 204:12914): prototype-pick-your-team.html and
@@ -3745,3 +3733,60 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
   .pv-stage { justify-content: flex-start; padding: var(--space-4); }
   .pv-page .pv-phone > .cn-phone { height: 844px; }
 }
+
+/* Pick your team: picking is the action (no See their matches). Tabs once a team is picked, match rows that open a
+   match page, the feedback caption, and a pick's matches flying into the timeline bar. */
+.tp-tabs { display: grid; grid-template-columns: 1fr 1fr; margin-top: var(--space-5); border-bottom: 1px solid #d9d9d9; }
+.tp-tabs[hidden] { display: none; }
+.tp-tab { position: relative; min-height: 48px; padding: 0 var(--space-2); border: 0; background: none; color: #4d4d4d; font: inherit; font-size: .9375rem; font-weight: 600; cursor: pointer; }
+.tp-tab[aria-selected="true"] { color: #111; font-weight: 800; }
+.tp-tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 2px 2px 0 0; background: #1f1f1f; transform: scaleX(0); transition: transform .24s cubic-bezier(.2, .8, .2, 1); }
+.tp-tab[aria-selected="true"]::after { transform: scaleX(1); }
+.tp-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: -2px; }
+.tp-tab-n { display: inline-block; padding: 0 3px; border-radius: 4px; font-variant-numeric: tabular-nums; }
+.tp-tab-n.is-bumped { animation: tp-tab-bump 1.2s ease-out; }
+@keyframes tp-tab-bump { 0%, 30% { background: #dfe9fb; color: #1a1a1a; } 100% { background: rgba(223,233,251,0); } }
+/* All matches as the second tab: the tabs name it, so its own heading is for screen readers only, and it sits close */
+.tp-all.is-tabbed { margin-top: 0; padding-top: var(--space-3); border-top: 0; }
+.tp-all.is-tabbed .tp-all-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tp-results { padding-top: var(--space-1); }
+/* A match row is one button: the whole row opens the match page */
+.tp-all-btn { display: flex; flex-direction: column; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tp-all-btn > span { display: block; }
+.tp-all-btn:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; border-radius: 4px; }
+@media (hover: hover) { .tp-all-btn:hover .tp-all-teams { text-decoration: underline; text-underline-offset: 3px; } }
+.tp-all-m.is-added .tp-all-when::after { content: " \00b7  On your timeline"; color: #1a1a1a; font-weight: 700; }
+/* The feedback caption: the new part is emphasised for a moment (a wash that fades), then settles */
+.tp-fan-caption { min-height: 2.8em; line-height: 1.4; text-wrap: balance; }
+.tp-cap-new { border-radius: 3px; font-weight: 700; color: #111; }
+.tp-cap-note { display: block; font-size: .75rem; color: #5c5c5c; }
+/* A pick's matches flying into the bar: a round dot each, landing on its date */
+.tp-fly--dot { width: 10px; height: 10px; border-radius: 50%; background: #1f1f1f; box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(0,0,0,.25); }
+.tp-tl-dot.is-incoming { opacity: 0; transform: scale(.3); transition: none; }
+.tp-tl-dot.is-landed { animation: tp-dot-land .42s cubic-bezier(.2, .8, .2, 1); }
+@keyframes tp-dot-land { 0% { transform: scale(1.9); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .tp-tl-dot.is-landed { animation: tp-dot-fade .3s linear; }
+  @keyframes tp-dot-fade { from { opacity: 0; } to { opacity: 1; } }
+  .tp-tab::after { transition: none; }
+}
+/* Your matches: the newest card says so for a moment; a match on another of your cards says where it is */
+.tp-rcard-new { margin-left: auto; align-self: flex-start; padding: 2px 8px; border-radius: var(--radius-pill); background: #1f1f1f; color: #fff; font-size: .6875rem; font-weight: 700; white-space: nowrap; transition: opacity .4s ease-out; }
+.tp-rcard:not(.is-new) .tp-rcard-new { opacity: 0; }
+.tp-rcard.is-new .tp-face { box-shadow: 0 0 0 3px #dfe9fb; transition: box-shadow .6s ease-out; }
+.tp-rcard .tp-face { transition: box-shadow .8s ease-out; }
+.tp-m-moved { margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #4d4d4d; }
+.tp-rcard--added .tp-back-code { background: #fff; color: #1a1a1a; border: 1.5px solid #1a1a1a; }
+/* The match page (from All matches): facts, then add the match, a ticket, or either team */
+.tp-pm-match .tp-tag { margin-top: var(--space-2); }
+.tp-pm-v { font-weight: 600; color: #5c5c5c; }
+.tp-pm-acts--match { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.tp-pm-on { font-size: .9375rem; font-weight: 700; line-height: 1.4; }
+.tp-pm-ticket { margin-top: 0; }
+.tp-pm-teams { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); margin-top: var(--space-2); }
+.tp-pm-team { min-height: 44px; padding: 0 var(--space-4); border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
+.tp-pm-team:active { transform: scale(.97); }
+.tp-pm-team:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.tp-pm-team-on { min-height: 44px; display: flex; align-items: center; font-size: .875rem; font-weight: 700; }
+.tp-pm-note { margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #5c5c5c; }
+.tp-pm-said { min-height: 1.4em; margin-top: var(--space-4); font-size: .875rem; font-weight: 600; line-height: 1.4; color: #1a1a1a; }

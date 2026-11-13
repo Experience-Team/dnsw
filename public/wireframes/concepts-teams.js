@@ -1,12 +1,14 @@
 /* Concepts: Pick your team (prototype-pick-your-team.html).
    A fanned hand of cards: the 24 teams, alphabetical, then "Here for the rugby". Drag or swipe the fan sideways,
-   or use the arrow keys; tap or press Space to pick a card (as many as you like). "See their matches" flies the
-   picked cards out of the fan and flips them to show their matches.
+   or use the arrow keys; tap or press Space to pick a card (as many as you like). Picking is the action: there is no
+   button to press after it. A pick takes effect at once (Your matches, the timeline, Where to watch and Suits your 3rd
+   half all follow it) and says what it did: the caption under the fan, the team's matches flying into the timeline
+   bar, and the Your matches tab count. Unpicking reverses it. The picker stays on screen throughout.
    Data: window.cnFixtures (concepts-fixtures.js), the 36 pool matches and the knockouts in NSW, kick-offs in Sydney
    time. Nothing else is added: no flags, no community or home-country times, no ticket links.
    Jobs covered (docs/jtbd-itinerary.md): T1 one team, T5 and T7 more than one, T8 and T9 no team, T2 and T12
    tickets, T3 NSW or interstate, T4 knockouts, T6 a shared match noted on both cards, T15 saved on this device,
-   T16 skip, and Clear all to start again. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
+   T16 skip (to the dates question), T12 a single match from All matches, and Clear all to start again. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
 (function () {
   'use strict';
   var root = document.getElementById('tp-pick');
@@ -16,13 +18,12 @@
   var fan = document.getElementById('tp-fan');
   var caption = document.getElementById('tp-fan-caption');
   var chosenEl = document.getElementById('tp-chosen');
-  var showBtn = document.getElementById('tp-show');
+  var tabsEl = document.getElementById('tp-tabs'), tabYours = document.getElementById('tp-tab-yours'), tabAll = document.getElementById('tp-tab-all');
   var clearBtn = document.getElementById('tp-clear');
   var picker = document.getElementById('tp-picker');
   var results = document.getElementById('tp-results');
   var deck = document.getElementById('tp-deck');
   var sum = document.getElementById('tp-results-sum');
-  var skipped = document.getElementById('tp-skipped');
   var live = document.getElementById('tp-live');
   var body = document.querySelector('#tp-phone .cn-body');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -66,14 +67,15 @@
   /* ---------- State, kept in this browser ---------- */
   var KEY = 'tp-pick-v1';
   // added: things put on the timeline (screenings, the village, products); trip: the one optional question's answer
-  var state = { picked: [], tickets: [], view: 'pick', added: [], trip: null };
+  // tab: which of Your matches and All matches is chosen once a team is picked (kept, like everything else, on reload)
+  var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null };
   try {
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
     var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (rec && Array.isArray(rec.picked)) {
       state.picked = rec.picked.filter(function (n) { return n === RUGBY.name || TEAMS[n]; });
       state.tickets = Array.isArray(rec.tickets) ? rec.tickets.filter(function (x) { return typeof x === 'string'; }) : [];
-      if (rec.view === 'skipped' || (rec.view === 'results' && state.picked.length)) state.view = rec.view;
+      if (rec.tab === 'all') state.tab = 'all';
     }
     if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
     if (rec && rec.trip && /^(visiting|local|unsure)$/.test(rec.trip.mode)) state.trip = rec.trip;
@@ -84,7 +86,13 @@
   function notesOnly() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
   // Picks, tickets or the screen changed: the timeline follows, then the annotations
   var tlReady = false;
-  function changed() { if (tlReady) { tlUpdate(); syncBar(); } notesOnly(); }
+  function changed() { if (tlReady) { tlUpdate(); syncBar(); markRows(); } notesOnly(); }
+  // All matches: a row whose match was added on its own says so
+  function markRows() {
+    var on = {};
+    state.added.forEach(function (it) { if (it.kind === 'match') on[it.key] = true; });
+    document.querySelectorAll('#tp-all-scroll .tp-all-m').forEach(function (li) { li.classList.toggle('is-added', !!on[li.dataset.key]); });
+  }
   function say(msg) { live.textContent = ''; setTimeout(function () { live.textContent = msg; }, 30); }
   function isPicked(c) { return state.picked.indexOf(c.name) > -1; }
   // A team with no pool match in NSW is not a dead end: its fans can watch in NSW and go to the NSW matches
@@ -141,8 +149,6 @@
       b.classList.toggle('is-picked', isPicked(c));
       b.setAttribute('aria-pressed', isPicked(c) ? 'true' : 'false');
     });
-    var c = CARDS[seq[Math.max(0, Math.min(seq.length - 1, mid))]];
-    caption.innerHTML = (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + '<strong>' + esc(c.name) + '</strong> &middot; ' + esc(c.rugby ? 'No team, every match in NSW' : c.pool + ', ' + lowerFirst(nswLine(c)));
   }
   function settle(to, focus, trans) {
     offset = Math.max(0, Math.min(seq.length - 1, Math.round(to)));
@@ -201,8 +207,12 @@
     clearTimeout(fan._w); fan._w = setTimeout(function () { settle(offset); }, 120);
   }, { passive: false });
 
-  function toggle(i) {
+  // from: where the pick came from, for the dots to fly out of (the card itself unless said otherwise; null for none,
+  // as from the match page, which covers the fan and the bar)
+  function toggle(i, from, keepTab) {
     var c = CARDS[i], on = !isPicked(c), note = '';
+    // While the first pick's dots are in the air the bar has no count of theirs yet, so it says what is happening
+    var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
     // Here for the rugby already covers every match in NSW, so it stands alone: picking it puts the team cards back in
     // the hand, and picking a team puts it back. The cards that go drop in the same glide.
     if (on && c.rugby && state.picked.length) { state.picked = []; note = ' Your team picks are cleared, as every NSW match is included.'; }
@@ -229,7 +239,101 @@
       card._pull.onfinish = card._pull.oncancel = function () { card.style.zIndex = ''; card._pull = null; };
     }
     renderChosen();
-    say(c.name + (on ? ' picked.' : ' removed.') + note + ' ' + chosenText());
+    renderMatches(on ? c.name : null, on ? null : c.name, keepTab);
+    var msg = pickLine(c, on);
+    showCaption(c.name + (on ? ' added' : ' removed'), msg.slice((c.name + (on ? ' added' : ' removed')).length), note);
+    say(msg + '.' + note);
+    pickFlights(from === undefined ? cards[i] : from, before, oldValue, barWasOn, c.rugby, from === undefined ? dur : 0);
+    notesOnly(); // after the caption is rewritten, which would otherwise wipe its annotation badge
+    return msg;
+  }
+  /* ---------- What a pick did ----------
+     The caption under the fan is the feedback line (it used to repeat the middle card): what was added or removed, and
+     what that means in matches. The new part is emphasised for a moment, then settles. The live region says the same. */
+  function pickLine(c, on) {
+    if (!on) return c.name + ' removed';
+    if (c.rugby) return 'Here for the rugby added: every NSW match, ' + countPhrase(nswPool.concat(nswKo));
+    return c.name + ' added: ' + countPhrase(c.matches) + ', ' + (c.nsw ? c.nsw + ' in NSW' : 'all interstate');
+  }
+  var CAPTION_REST = 'Tap a card to add its matches. Tap it again to take it off.';
+  function showCaption(lead, rest, note) {
+    caption.innerHTML = '<span class="tp-cap-new">' + esc(lead) + '</span>' + esc(rest || '') + (note ? '<span class="tp-cap-note">' + esc(note) + '</span>' : '');
+    var n = caption.firstChild;
+    if (n.animate && !reduce.matches) n.animate([{ backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb' }, { backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb', offset: .35 }, { backgroundColor: 'rgba(223,233,251,0)', boxShadow: '0 0 0 4px rgba(223,233,251,0)' }], { duration: 1400, easing: 'ease-out' });
+  }
+  // The person's own matches on the strip. With nothing of their own the strip previews every match, and none of
+  // those is theirs, so the first pick flies all of its matches in.
+  function ownKeys() { var o = {}; if (own()) TLM.forEach(function (m) { if (m.on) o[m.key] = m; }); return o; }
+  /* The team's matches arrive in the timeline bar: on the first pick the bar rises, then a dot per new match glides from
+     the picked card to its date on the bar's strip, 60ms apart so they read as one team's matches arriving, and lands
+     there; the count changes once they are in. A match already on the strip (shared with a team already picked) does
+     not fly again. Here for the rugby is one sweep, not 17 flights. Picks in quick succession fly shorter and closer,
+     so they do not pile up. Unpicking lifts that team's dots out of the strip as they fade, and the count drops.
+     Reduced motion, or a pick made where the bar cannot be seen: no flight; the dots fade in on the strip. */
+  var flying = 0, lastPick = 0;
+  // glide: how long the picked card takes to reach the middle of the fan; its dots leave once it is nearly there,
+  // from where it comes to rest, so they are seen to come out of the card and not from where it used to be
+  function pickFlights(src, before, oldValue, barWasOn, sweep, glide) {
+    var now = ownKeys(), inc = [], out = [];
+    Object.keys(now).forEach(function (k) { if (!before[k]) inc.push(now[k]); });
+    Object.keys(before).forEach(function (k) { if (!now[k]) out.push(before[k]); });
+    var strip = tl.querySelector('.tp-tl-strip'), ph = phoneEl.getBoundingClientRect();
+    // Leaving: each of the team's dots lifts out of the strip and fades (the strip's own dot has already gone)
+    if (out.length && tlOn && !reduce.matches && document.body.animate) {
+      var days = {};
+      out.forEach(function (m) { days[m.day] = true; });
+      Object.keys(days).forEach(function (d, k) {
+        var r = tlDotEls[d].getBoundingClientRect(), g = document.createElement('span');
+        g.className = 'tp-fly tp-fly--dot';
+        g.style.left = (r.left + r.width / 2 - ph.left - 5) + 'px'; g.style.top = (r.top + r.height / 2 - ph.top - 5) + 'px';
+        phoneEl.appendChild(g);
+        g.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-22px)', opacity: 0 }], { duration: 420, delay: k * 30, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' }).onfinish = function () { g.remove(); };
+      });
+    }
+    if (!inc.length) return;
+    inc.sort(function (a, b) { return a.day - b.day; });
+    var landDots = inc.map(function (m) { return tlDotEls[m.day]; });
+    function landed(el) { el.classList.remove('is-incoming'); el.classList.remove('is-landed'); void el.offsetWidth; el.classList.add('is-landed'); }
+    var quiet = reduce.matches || !src || !document.body.animate || !src.getClientRects().length;
+    if (quiet) { landDots.forEach(landed); return; }
+    // The dots wait off the strip until their flight lands; the count waits for the last one
+    landDots.forEach(function (el) { el.classList.add('is-incoming'); });
+    tlValue.textContent = oldValue;
+    flying++;
+    var t = performance.now(), rapid = t - lastPick < 900; lastPick = t;
+    var DUR = rapid ? 360 : 680, GAP = rapid ? 30 : 60, wait = Math.max(barWasOn ? 0 : 380, (glide || 0) * .6); // the bar's rise is 360ms
+    var list = sweep ? [inc[0]] : inc, done = 0;
+    setTimeout(function () {
+      var a = src.getBoundingClientRect();
+      if (src.classList.contains('tp-card')) {
+        // The card's resting place in the middle of the fan: its own layout box, upright, lifted as a pick is
+        var fr = fan.getBoundingClientRect();
+        a = { left: fr.left + src.offsetLeft, top: fr.top + src.offsetTop - LIFT - 6, width: src.offsetWidth, height: src.offsetHeight };
+      }
+      list.forEach(function (m, k) {
+        var dest = tlDotEls[m.day], b = dest.getBoundingClientRect(), g = document.createElement('span');
+        g.className = 'tp-fly tp-fly--dot';
+        var x0 = a.left + a.width / 2 - ph.left - 5, y0 = a.top + a.height * .35 - ph.top - 5;
+        g.style.left = x0 + 'px'; g.style.top = y0 + 'px';
+        phoneEl.appendChild(g);
+        var dx = b.left + b.width / 2 - ph.left - 5 - x0, dy = b.top + b.height / 2 - ph.top - 5 - y0;
+        // It leaves the card visibly (small, then full size as it lifts), arcs, and lands at the strip's dot size
+        g.animate([{ transform: 'translate(0,0) scale(.6)', opacity: 1 }, { transform: 'translate(' + dx * .4 + 'px,' + (dy * .4 - 30) + 'px) scale(1.2)', opacity: 1, offset: .35 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.8)', opacity: 1 }],
+          { duration: DUR, delay: k * GAP, easing: 'cubic-bezier(.45, .05, .25, 1)', fill: 'backwards' }).onfinish = function () {
+          g.remove();
+          if (sweep) {
+            // One dot lands on the first day, then the rest light up along the strip, left to right
+            landDots.forEach(function (el, j) { setTimeout(function () { landed(el); }, j * 22); });
+            setTimeout(finish, landDots.length * 22 + 120);
+          } else { inc.forEach(function (x) { if (x.day === m.day) landed(tlDotEls[x.day]); }); if (++done === list.length) finish(); }
+        };
+      });
+    }, wait);
+    function finish() {
+      if (--flying) return;
+      tlValue.textContent = valueNow;
+      if (tlValue.animate) tlValue.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' });
+    }
   }
   fan.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-card');
@@ -348,20 +452,25 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
-    var n = state.picked.length;
-    showBtn.setAttribute('aria-disabled', n ? 'false' : 'true');
-    clearBtn.hidden = !n;
-    showBtn.textContent = !n ? 'See their matches' : n === 1 && state.picked[0] === RUGBY.name ? 'See the NSW matches' : 'See their matches (' + n + ')';
+    clearBtn.hidden = !state.picked.length;
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
   // Clear all: every card back in the hand and every ticket mark gone, so the picker starts again
   clearBtn.addEventListener('click', function () {
-    state.picked = []; state.tickets = [];
+    var before = ownKeys(), old = tlValue.textContent, bar = tlOn;
+    state.picked = [];
+    // Tickets go with the teams; a ticket on a match added on its own stays with that match
+    var keepT = addedMatches().map(function (m) { return idOf(m.f); });
+    state.tickets = state.tickets.filter(function (x) { return keepT.indexOf(x) > -1; });
     save();
     place(true);
     renderChosen();
+    renderMatches();
+    pickFlights(null, before, old, bar);
+    showCaption('All teams cleared', '. ' + CAPTION_REST);
+    notesOnly();
     midCard().focus({ preventScroll: true }); // the button has just hidden itself
-    say('All teams and tickets cleared. No teams picked yet.');
+    say('All teams and their tickets cleared. No teams picked.');
   });
   document.getElementById('tp-rugby-link').addEventListener('click', function () {
     deal();
@@ -371,16 +480,18 @@
     cards[i].focus({ preventScroll: true });
   });
 
-  /* ---------- The flip: the picked cards fly out of the fan and turn over ---------- */
+  /* ---------- Your matches: a card per picked team, built as picks change ----------
+     A match between two picked teams appears once, on the card of the team picked first; the other card says where it
+     is. Matches added one at a time from All matches (with no team of theirs in it) get a card of their own. */
   function others(f, self) {
-    // Picked teams also in this match, other than the card it sits on: the match is the same one, so its ticket is too
+    // Picked teams also in this match, other than the card it sits on
     return f.t.split(' v ').filter(function (n) { return n !== self && state.picked.indexOf(n) > -1; });
   }
-  function row(f, self, rugbyCard) {
-    var id = idOf(f), opp = rugbyCard ? f.t : 'v ' + f.t.split(' v ').filter(function (n) { return n !== self; })[0];
-    var also = rugbyCard ? f.t.split(' v ').filter(function (n) { return state.picked.indexOf(n) > -1; }) : others(f, self);
+  function row(f, self, full) {
+    var id = idOf(f), opp = full ? f.t : 'v ' + f.t.split(' v ').filter(function (n) { return n !== self; })[0];
+    var also = full ? f.t.split(' v ').filter(function (n) { return state.picked.indexOf(n) > -1; }) : others(f, self);
     var tag = f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>';
-    var note = also.length ? '<p class="tp-m-also">' + (rugbyCard ? 'Your team: ' : 'Also on your ') + esc(list(also)) + (rugbyCard ? '' : ' card') + '</p>' : '';
+    var note = also.length ? '<p class="tp-m-also">' + (full ? 'Your team: ' : 'Also your team: ') + esc(list(also)) + '</p>' : '';
     var has = state.tickets.indexOf(id) > -1;
     return '<li class="tp-m' + (has ? ' has-ticket' : '') + '"><p class="tp-m-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</p>' +
       '<p class="tp-m-teams">' + esc(opp) + '</p><p class="tp-m-where">' + esc(f.v + ', ' + f.p) + '</p>' + tag + note +
@@ -392,13 +503,28 @@
     if (r) { var pos = /(\w+) Pool /.exec(r.t.split(' v ').filter(function (x) { return x.indexOf('Pool ' + p) > -1; })[0])[1]; line = 'If ' + c.name + ' finishes ' + (pos === '2nd' ? 'second' : pos) + ' in ' + c.pool + ', its Round of 16 match is in Sydney on ' + r.d + '. '; }
     return line + 'Knockouts in NSW run from Sat 23 Oct to the final on Sat 13 Nov. Teams are known when the pools finish.';
   }
-  function back(c) {
-    var ms = c.rugby ? nswPool : c.matches;
+  function back(c, seen, isNew) {
+    var ms = c.rugby ? nswPool : c.matches, own = [], elsewhere = [];
+    ms.forEach(function (f) {
+      var at = seen[idOf(f)];
+      if (at && at !== c.name) elsewhere.push([f, at]); else { own.push(f); seen[idOf(f)] = c.name; }
+    });
     var head = c.rugby ? countPhrase(nswPool.concat(nswKo)) + ' in NSW' : c.pool + ' &middot; ' + countPhrase(c.matches) + ', ' + c.nsw + ' in NSW';
-    return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div></div>' +
-      '<ol class="tp-ms' + (c.rugby ? ' tp-ms--cols' : '') + '">' + ms.map(function (f) { return row(f, c.name, c.rugby); }).join('') +
+    var moved = elsewhere.map(function (x) { return '<p class="tp-m-moved">' + esc(x[0].d) + ', v ' + esc(x[0].t.split(' v ').filter(function (n) { return n !== c.name; })[0]) + ': on your ' + esc(x[1]) + ' card.</p>'; }).join('');
+    return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div>' +
+      (isNew ? '<span class="tp-rcard-new">Just added</span>' : '') + '</div>' +
+      '<ol class="tp-ms' + (c.rugby ? ' tp-ms--cols' : '') + '">' + own.map(function (f) { return row(f, c.name, c.rugby); }).join('') +
       // On the columned card the knockout note is a column of its own, so it adds width, not height
-      (c.rugby ? '<li class="tp-ko tp-ko--col">' + esc(koNote(c)) + '</li></ol>' : '</ol><p class="tp-ko">' + esc(koNote(c)) + '</p>');
+      (c.rugby ? '<li class="tp-ko tp-ko--col">' + esc(koNote(c)) + '</li></ol>' : '</ol>' + moved + '<p class="tp-ko">' + esc(koNote(c)) + '</p>');
+  }
+  // Single matches added from All matches that no picked team's card already shows
+  function addedMatches() { return state.added.filter(function (it) { return it.kind === 'match'; }).map(function (it) { return TLM_BY[it.key]; }).filter(Boolean); }
+  function addedCard(seen) {
+    var ms = addedMatches().filter(function (m) { return !seen[idOf(m.f)]; });
+    if (!ms.length) return '';
+    return '<article class="tp-rcard tp-rcard--added" data-name="added" aria-label="Matches you added"><div class="tp-flip is-flipped"><div class="tp-face tp-face--back">' +
+      '<div class="tp-back-head"><span class="tp-back-code">+</span><div><h4 class="tp-back-name">Matches you added</h4><p class="tp-back-meta">' + countPhrase(ms.map(function (m) { return m.f; })) + ', from All matches</p></div></div>' +
+      '<ol class="tp-ms">' + ms.map(function (m) { return m.f.t ? row(m.f, '', true) : '<li class="tp-m"><p class="tp-m-when">' + esc(m.f.d) + ', ' + esc(m.f.k || 'time to be confirmed') + '</p><p class="tp-m-teams">' + esc(m.f.s) + '</p><p class="tp-m-where">' + esc(m.f.v + ', ' + m.f.p) + '</p><span class="tp-tag">Teams to be decided</span></li>'; }).join('') + '</ol></div></div></article>';
   }
   function pickedCards() {
     // Teams in the order they were picked, then Here for the rugby last
@@ -416,18 +542,19 @@
     var fs = all.map(function (k) { return ids[k]; });
     return who + ': ' + countPhrase(fs) + (nsw === all.length ? ', all in NSW. ' : ', ' + nsw + ' in NSW. ') + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : 'No tickets marked yet.');
   }
-  function buildDeck() {
-    var cs = pickedCards();
-    deck.classList.toggle('is-single', cs.length === 1);
-    deck.innerHTML = cs.map(function (c) {
-      return '<article class="tp-rcard' + (c.rugby ? ' tp-rcard--rugby' : '') + '" data-name="' + esc(c.name) + '" aria-label="' + esc(c.name) + '"><div class="tp-flip">' +
-        '<div class="tp-face tp-face--front" aria-hidden="true">' + front(c) + '</div>' +
-        '<div class="tp-face tp-face--back">' + back(c) + '</div></div></article>';
-    }).join('');
+  function buildDeck(newName) {
+    var cs = pickedCards(), seen = {};
+    var html = cs.map(function (c) {
+      return '<article class="tp-rcard' + (c.rugby ? ' tp-rcard--rugby' : '') + '" data-name="' + esc(c.name) + '" aria-label="' + esc(c.name) + '"><div class="tp-flip is-flipped">' +
+        '<div class="tp-face tp-face--back">' + back(c, seen, c.name === newName) + '</div></div></article>';
+    }).join('') + addedCard(seen);
+    var keep = deck.scrollLeft;
+    deck.innerHTML = html;
+    deck.classList.toggle('is-single', deck.children.length === 1);
+    deck.scrollLeft = keep;
     // The hint shows whenever there is more to the side: other cards, or the columns of Here for the rugby
     var hint = document.getElementById('tp-deck-hint');
-    hint.textContent = cs.length > 1 ? 'Swipe for your other cards.' : 'Swipe sideways for more matches.';
-    hint.hidden = true;
+    hint.textContent = deck.children.length > 1 ? 'Swipe for your other cards.' : 'Swipe sideways for more matches.';
     requestAnimationFrame(function () { hint.hidden = deck.scrollWidth <= deck.clientWidth + 2; });
     sum.textContent = summary();
     // Teams that play all their pool matches interstate: say so plainly, and point to watching in NSW
@@ -435,12 +562,72 @@
     var awayEl = document.getElementById('tp-results-away');
     if (awayEl) {
       awayEl.hidden = !away.length;
-      awayEl.querySelector('.tp-results-away-text').textContent = away.length ? list(away) + (away.length === 1 ? ' plays all its' : ' play all their') + ' pool matches interstate. You can still watch them in NSW, and go to an NSW match while you\u2019re here.' : '';
+      awayEl.querySelector('.tp-results-away-text').textContent = away.length ? list(away) + (away.length === 1 ? ' plays all its' : ' play all their') + ' pool matches interstate. You can still watch them in NSW, and go to an NSW match while you’re here.' : '';
+    }
+    // The newest card comes in gently and says it is new: it rises into place, the deck slides to it, and its
+    // "Just added" label stays for a moment before fading
+    var el = newName && deck.querySelector('.tp-rcard[data-name="' + CSS.escape(newName) + '"]');
+    if (el) {
+      el.classList.add('is-new');
+      var vis = !results.hidden;
+      if (vis) deck.scrollTo({ left: Math.max(0, el.offsetLeft - 16), behavior: reduce.matches ? 'auto' : 'smooth' });
+      if (vis && el.animate) el.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(14px) scale(.97)' }, { opacity: 1, transform: 'none' }],
+        { duration: reduce.matches ? 160 : 460, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+      clearTimeout(el._new); el._new = setTimeout(function () { el.classList.remove('is-new'); }, 2600);
     }
   }
+  /* ---------- Tabs: Your matches and All matches ----------
+     Only once a team is picked; with none, All matches stands alone as it always did. The first pick chooses Your
+     matches; after that the chosen tab stays put (and is kept on reload), and the tab's count says what changed. */
+  var tabsOn = false, lastN = 0, restoring = false;
+  // keepTab: a pick made from a match page keeps All matches chosen, so closing the page goes back to its row
+  function renderMatches(newName, goneName, keepTab) {
+    var has = state.picked.length > 0;
+    if (!has) {
+      tabsOn = false; lastN = 0;
+      tabsEl.hidden = true; results.hidden = true; deck.innerHTML = '';
+      if (allSec) { allSec.hidden = false; allSec.classList.remove('is-tabbed'); allSec.removeAttribute('role'); allSec.setAttribute('aria-labelledby', 'tp-all-title'); }
+      return;
+    }
+    if (!tabsOn) { tabsOn = true; if (!restoring) { state.tab = keepTab ? 'all' : 'yours'; save(); } tabsEl.hidden = false; if (!restoring && !reduce.matches && tabsEl.animate) tabsEl.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.2, .8, .2, 1)' }); }
+    // A card that goes fades out first, so the deck does not jump in one frame
+    var gone = goneName && !results.hidden && !reduce.matches && deck.querySelector('.tp-rcard[data-name="' + CSS.escape(goneName) + '"]');
+    if (gone && gone.animate) gone.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.96)' }], { duration: 180, easing: 'ease-in' }).onfinish = function () { buildDeck(newName); };
+    else buildDeck(newName);
+    var n = userMatches().length;
+    tabYours.innerHTML = 'Your matches <span class="tp-tab-n">(' + n + ')</span>';
+    if (lastN && n !== lastN && tabYours.animate) {
+      var t = tabYours.querySelector('.tp-tab-n');
+      t.classList.add('is-bumped');
+      setTimeout(function () { t.classList.remove('is-bumped'); }, 1200);
+    }
+    lastN = n;
+    setTab(state.tab);
+  }
+  function setTab(t, focus) {
+    state.tab = t; save();
+    var y = t === 'yours';
+    tabYours.setAttribute('aria-selected', y ? 'true' : 'false'); tabAll.setAttribute('aria-selected', y ? 'false' : 'true');
+    tabYours.tabIndex = y ? 0 : -1; tabAll.tabIndex = y ? -1 : 0;
+    results.hidden = !y;
+    if (allSec) { allSec.hidden = y; allSec.classList.add('is-tabbed'); allSec.setAttribute('role', 'tabpanel'); allSec.setAttribute('aria-labelledby', 'tp-tab-all'); }
+    if (focus) (y ? tabYours : tabAll).focus({ preventScroll: true });
+    if (tlReady) syncBar();
+    notesOnly();
+  }
+  // Standard tabs: click or arrow keys (Home and End too) move the selection, which follows focus
+  tabsEl.addEventListener('click', function (e) { var b = e.target.closest('[role="tab"]'); if (b) setTab(b === tabYours ? 'yours' : 'all', true); });
+  tabsEl.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k !== 'ArrowLeft' && k !== 'ArrowRight' && k !== 'Home' && k !== 'End') return;
+    e.preventDefault();
+    var to = k === 'Home' ? 'yours' : k === 'End' ? 'all' : state.tab === 'yours' ? 'all' : 'yours';
+    setTab(to, true);
+  });
   /* ---------- All matches ----------
      Below the picker, whether or not anyone has picked: every match in the fixture list, in date order. Kept minimal,
-     as this page is not the main source for matches. Hidden while the picked cards are showing (Your matches). */
+     as this page is not the main source for matches. Once a team is picked it is the All matches tab. Each row opens the
+     match's own full-screen page (concepts-third-half.js): add that one match to the timeline, or add either team. */
   var allSec = document.getElementById('tp-all');
   function minutes(k) { var m = /^(\d+):(\d+)(am|pm)$/.exec(k || ''); return m ? ((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] : 24 * 60; }
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
@@ -450,8 +637,9 @@
       // leave an empty band under the others): a knockout's stage joins the date line, "teams to be decided" its name
       var ko = !/^Pool /.test(f.s);
       var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s) + ' <span class="tp-all-v">\u00b7 teams to be decided</span>';
-      return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '"><p class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + (ko && f.t ? ' \u00b7 ' + esc(f.s.replace(/ \(\d+\)$/, '')) : '') + '</p><p class="tp-all-teams">' + who + '</p>' +
-        '<p class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '') + '</p></li>';
+      return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '" data-key="' + esc(f.d + '|' + (f.t || f.s)) + '"><button type="button" class="tp-all-btn" data-open="match:' + esc(f.d + '|' + (f.t || f.s)) + '" aria-haspopup="dialog">' +
+        '<span class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + (ko && f.t ? ' \u00b7 ' + esc(f.s.replace(/ \(\d+\)$/, '')) : '') + '</span><span class="tp-all-teams">' + who + '</span>' +
+        '<span class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '') + '</span></button></li>';
     });
     // Columns of five: each is a card without a border, snapped as the strip is swiped sideways
     var cols = '';
@@ -461,174 +649,33 @@
     }
     document.getElementById('tp-all-scroll').innerHTML = cols;
   }
-  // Your matches: the all matches list is closed until Show all matches opens it. Everywhere else it is always there.
-  var showAll = false, showAllBtn = document.getElementById('tp-showall');
-  function syncAll(v) {
-    if (allSec) allSec.hidden = v === 'results' && !showAll;
-    showAllBtn.textContent = showAll ? 'Hide all matches' : 'Show all matches';
-    showAllBtn.setAttribute('aria-expanded', showAll ? 'true' : 'false');
-  }
-  showAllBtn.addEventListener('click', function () {
-    showAll = !showAll;
-    syncAll('results');
-    changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
-    if (showAll) {
-      // glide down to the list so the change is seen, with the title 16px below the top
-      var t = document.getElementById('tp-all-title');
-      body.scrollTo({ top: Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16)), behavior: reduce.matches ? 'auto' : 'smooth' });
-    }
-    say(showAll ? 'All matches shown below your cards.' : 'All matches hidden.');
-  });
-  function setView(v) {
-    if (v === 'results' && state.view !== 'results') showAll = false; // closed each time Your matches opens
-    state.view = v; save();
-    syncAll(v);
-    document.getElementById('tp-pick-title').textContent = v === 'results' ? 'Your matches' : 'Pick your team';
-    picker.hidden = v !== 'pick';
-    results.hidden = v !== 'results';
-    skipped.hidden = v !== 'skipped';
-    changed();
-  }
-  // Where the phone's content must scroll to for the section title to sit 16px below the top bar. Measured against
-  // the scrolling body itself (offsetTop would also count the bar above it).
-  function resultsTop() {
-    var t = document.getElementById('tp-pick-title');
-    return Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16));
-  }
-  /* The reveal. Pressing See their matches is one sequence, not a swap:
-     1. Let go (380ms): the phone glides so Your matches will start where the section title sits now, the cards you did
-        not pick drop away and the rest of the picker fades, so the picked cards are left alone in the fan.
-     2. Fly and turn (about 800ms): the picked cards leave the fan on an arc that lifts a little at the middle, and turn
-        face up on the way, landing in the match deck. The new title and summary arrive just behind them, and the rest
-        fades up as they land.
-     Reduced motion: no glide, flight or turn; the match cards fade in. Reload (animate false) goes straight there. */
-  var busy = false;
-  function glideTo(top, ms) {
-    var from = body.scrollTop, dist = top - from;
-    if (Math.abs(dist) < 4) return;
-    var t0 = performance.now();
-    (function step(now) {
-      var k = Math.min(1, (now - t0) / ms), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; // ease in and out
-      body.scrollTop = from + dist * e;
-      if (k < 1) requestAnimationFrame(step);
-    })(t0);
-  }
-  function letGo() {
-    var DUR = 380, held = [];
-    glideTo(resultsTop(), DUR);
-    // Cards that were not picked drop away; the picker's other parts fade. The picked cards stay put.
-    cards.forEach(function (b, i) {
-      if (isPicked(CARDS[i]) || b.style.visibility === 'hidden') return;
-      held.push(b.animate([{ opacity: 1, translate: '0 0' }, { opacity: 0, translate: '0 32px' }], { duration: 260, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' }));
-    });
-    Array.prototype.forEach.call(picker.children, function (el) {
-      if (el.classList.contains('tp-fan-wrap')) return;
-      held.push(el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in', fill: 'forwards' }));
-    });
-    held.push(document.getElementById('tp-pick-title').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in', fill: 'forwards' }));
-    return new Promise(function (done) { setTimeout(function () { done(held); }, DUR); });
-  }
-  // Fade a part of the new screen up from slightly below, after a delay; it is visible before and after
-  function arrive(el, delay) {
-    if (el && el.animate) el.animate([{ opacity: 0, translate: '0 10px' }, { opacity: 1, translate: '0 0' }], { duration: 320, delay: delay, easing: EASE, fill: 'backwards' });
-  }
-  function showResults(animate, held) {
-    if (!state.picked.length) return;
-    var move = animate && !reduce.matches;
-    // Where each picked card sits in the fan now, to fly from
-    var from = {};
-    if (move) pickedCards().forEach(function (c) {
-      var b = cards[CARDS.indexOf(c)], r = b.getBoundingClientRect();
-      if (r.width && b.style.visibility !== 'hidden') from[c.name] = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: b.offsetWidth, h: b.offsetHeight, a: angleOf(pos(CARDS.indexOf(c)) - offset) };
-    });
-    buildDeck();
-    setView('results');
-    // The picker is hidden now: the held animations have nothing left to hold
-    (held || []).forEach(function (a) { a.cancel(); });
-    deck.scrollLeft = 0;
-    // The phone already glided to where Your matches starts (this only tidies a few pixels, or does it all on reload)
-    body.scrollTop = resultsTop();
-    if (!animate) { Array.prototype.forEach.call(deck.children, function (el) { el.firstElementChild.classList.add('is-flipped'); }); sum.focus({ preventScroll: true }); say(summary()); return; }
-    if (reduce.matches) {
-      Array.prototype.forEach.call(deck.children, function (el) { el.firstElementChild.classList.add('is-flipped'); });
-      results.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' });
-      sum.focus({ preventScroll: true }); say(summary()); return;
-    }
-    // Snapping would catch a card mid-flight and leave the deck scrolled part way in, so it is off until they land
-    deck.classList.add('is-flying');
-    var landed = 0, total = deck.children.length, FLY = 780;
-    function land() {
-      if (++landed < total) return;
-      deck.scrollLeft = 0; deck.classList.remove('is-flying'); changed();
-    }
-    // The new screen's words arrive just behind the cards
-    arrive(document.getElementById('tp-pick-title'), 0);
-    arrive(sum, 140);
-    arrive(document.getElementById('tp-results-away'), 260);
-    arrive(document.getElementById('tp-deck-hint'), FLY - 120);
-    arrive(results.querySelector('.tp-results-actions'), FLY - 80);
-    Array.prototype.forEach.call(deck.children, function (el, k) {
-      var flip = el.firstElementChild, f = from[el.dataset.name], delay = k * 90;
-      var r = el.getBoundingClientRect();
-      if (f) {
-        var dx = f.x - (r.left + r.width / 2), dy = f.y - (r.top + r.height / 2), sx = f.w / r.width, sy = f.h / r.height;
-        // An arc: the card lifts and grows a little at the middle of its flight, then settles
-        el.animate([
-          { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + f.a + 'deg) scale(' + sx + ',' + sy + ')', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.12))' },
-          { transform: 'translate(' + (dx * .45) + 'px,' + (dy * .45 - 22) + 'px) rotate(' + (f.a * .4) + 'deg) scale(' + ((sx + 1) / 2 * 1.04) + ',' + ((sy + 1) / 2 * 1.04) + ')', filter: 'drop-shadow(0 18px 18px rgba(0,0,0,.22))', offset: .45 },
-          { transform: 'none', filter: 'drop-shadow(0 0 0 rgba(0,0,0,0))' }
-        ], { duration: FLY, delay: delay, easing: 'cubic-bezier(.45, .05, .25, 1)', fill: 'backwards' });
-      } else el.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: delay, easing: EASE, fill: 'backwards' });
-      // The turn runs across the middle of the flight and lands face up
-      var a = flip.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: FLY - 220, delay: delay + 110, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'both' });
-      a.onfinish = function () { flip.classList.add('is-flipped'); a.cancel(); land(); };
-    });
-    sum.focus({ preventScroll: true });
-    say(summary());
-  }
-  showBtn.addEventListener('click', function () {
-    if (busy) return;
-    if (!state.picked.length) { chosenEl.textContent = 'Pick at least one card first, or choose Here for the rugby.'; say(chosenEl.textContent); return; }
-    if (reduce.matches) { showResults(true); return; }
-    busy = true;
-    letGo().then(function (held) { busy = false; showResults(true, held); });
-  });
-  document.getElementById('tp-change').addEventListener('click', function () {
-    function back() {
-      setView('pick');
-      // The cards go back into the hand: the fan starts stacked and deals open again, picks still lifted
-      if (!reduce.matches) { dealt = false; place(false); fan.offsetWidth; requestAnimationFrame(deal); } else place(false);
-      midCard().focus({ preventScroll: true });
-    }
-    // The match cards fade and drop away first, so the deck does not vanish in one frame
-    if (reduce.matches || !results.animate) { back(); return; }
-    results.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 200, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = back;
-  });
   // A ticket on a match is one ticket, whichever card it is marked on
   deck.addEventListener('change', function (e) {
     var cb = e.target.closest('input[data-match]'); if (!cb) return;
-    var id = cb.dataset.match;
+    setTicket(cb.dataset.match, cb.checked);
+    say((cb.checked ? 'Ticket marked. ' : 'Ticket removed. ') + summary());
+  });
+  function setTicket(id, on) {
     state.tickets = state.tickets.filter(function (x) { return x !== id; });
-    if (cb.checked) state.tickets.push(id);
+    if (on) state.tickets.push(id);
     save();
     deck.querySelectorAll('input[data-match]').forEach(function (x) {
       if (x.dataset.match !== id) return;
-      x.checked = cb.checked;
-      x.closest('.tp-m').classList.toggle('has-ticket', cb.checked);
+      x.checked = on;
+      x.closest('.tp-m').classList.toggle('has-ticket', on);
     });
-    sum.textContent = summary();
+    if (tabsOn) sum.textContent = summary();
     changed(); // rewriting the summary wipes its annotation badge
-    say((cb.checked ? 'Ticket marked. ' : 'Ticket removed. ') + summary());
-  });
+  }
+  // Skip: no team needed, so straight on to the dates question (the picker stays where it is, above)
   document.getElementById('tp-skip').addEventListener('click', function () {
-    setView('skipped');
-    skipped.querySelector('.tp-skipped-text').focus({ preventScroll: true });
+    phoneEl.dispatchEvent(new CustomEvent('tp:ask'));
   });
-  document.getElementById('tp-unskip').addEventListener('click', function () {
-    setView('pick');
-    deal();
-    midCard().focus({ preventScroll: true });
-  });
+  // Where the phone's content must scroll to for the picker's title to sit 16px below the top
+  function pickTop() {
+    var t = document.getElementById('tp-pick-title');
+    return Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16));
+  }
 
   /* ---------- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to the 390px phone) ----------
      A sheet docked over the bottom of the phone, out of the content's flow. Three states: hidden (until the match cards
@@ -665,6 +712,7 @@
   var TLM = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
     return { f: f, day: dayOf(f.d), key: f.d + '|' + (f.t || f.s), tkey: f.t ? f.d + '|' + f.t : null };
   });
+  var TLM_BY = {}; TLM.forEach(function (m) { TLM_BY[m.key] = m; });
   // The canvas: an axis with every day of the tournament and one marker button per match, built once
   (function () {
     var h = '<span class="tp-tl-axis" style="left:' + PADX + 'px;width:' + ((DAYS - 1) * DAYW) + 'px"></span>';
@@ -687,10 +735,14 @@
   TLM.forEach(function (m, k) { m.el = tlMarks[k]; m.sym = tlMarks[k].firstElementChild; m.state = ''; });
 
   function tlTeams() { return state.picked.filter(function (n) { return n !== RUGBY.name; }); }
+  // A single match added from All matches is the person's too, with or without a team of theirs in it
+  function isAddedMatch(f) { var k = f.d + '|' + (f.t || f.s); return state.added.some(function (it) { return it.kind === 'match' && it.key === k; }); }
   function tlShown(f) {
+    if (isAddedMatch(f)) return true;
     if (isPicked(RUGBY)) return !f.a; // every NSW match, knockouts included
     var t = tlTeams();
-    if (!t.length) return true;
+    // Nothing of their own yet: every match, as a preview of the tournament
+    if (!t.length) return !state.added.some(function (it) { return it.kind === 'match'; });
     return !!f.t && f.t.split(' v ').some(function (n) { return t.indexOf(n) > -1; });
   }
   function shortDate(d) { var p = d.split(' '); return p[1] + ' ' + p[2]; }
@@ -700,6 +752,9 @@
     return pa[2] === pb[2] ? pa[1] + ' to ' + pb[1] + ' ' + pb[2] : shortDate(a) + ' to ' + shortDate(b);
   }
   function tlName(m) { return m.f.t ? m.f.t : m.f.s + ', teams to be decided'; }
+  // The bar's count: held at its old value while a pick's dots are still flying in, then changed as the last one lands
+  var valueNow = '';
+  function setValue(v) { valueNow = v; if (!flying) tlValue.textContent = v; }
   function tlUpdate() {
     var perDay = {}, dayType = {}, shown = [];
     TLM.forEach(function (m) {
@@ -724,6 +779,7 @@
     // Added items sit on their day above that day's matches (a screening next to its match), square markers
     var itemDays = {}, keep = {};
     state.added.forEach(function (it) {
+      if (it.kind === 'match') return; // a match added on its own is a match marker, drawn above
       var day = dayOf(it.day);
       if (!(day >= 0 && day < DAYS)) return;
       keep[it.id] = true;
@@ -771,9 +827,9 @@
     // the bar has room for "9 pool + 8 knockouts · 3 Oct to 13 Nov" and no more)
     if (confirmed) {
       var ca = isoDay(trip.from), cz = isoDay(trip.to), inDays = shown.filter(function (m) { return m.day >= ca && m.day <= cz; });
-      tlValue.textContent = countPhrase(inDays.map(function (m) { return m.f; }), { short: true }) + ' · ' + isoRange(trip.from, trip.to);
+      setValue(countPhrase(inDays.map(function (m) { return m.f; }), { short: true }) + ' · ' + isoRange(trip.from, trip.to));
     } else {
-      tlValue.textContent = countPhrase(shown.map(function (m) { return m.f; }), { short: true }) + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : '');
+      setValue(countPhrase(shown.map(function (m) { return m.f; }), { short: true }) + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : ''));
     }
     if (String(added || '') !== tlBadge.textContent) {
       tlBadge.hidden = !added;
@@ -788,7 +844,7 @@
     // The key lists only the marker shapes on the axis now
     // Each entry draws its marker exactly as the axis does (the ball in the ring, the screen or pin in the square)
     var kinds = { nsw: false, away: false, ticket: false, tbd: false,
-      screen: state.added.some(function (it) { return it.kind === 'screening'; }), pin: state.added.some(function (it) { return it.kind !== 'screening'; }) };
+      screen: state.added.some(function (it) { return it.kind === 'screening'; }), pin: state.added.some(function (it) { return it.kind !== 'screening' && it.kind !== 'match'; }) };
     shown.forEach(function (m) { var tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1; if (tk) kinds.ticket = true; else if (!m.f.t) kinds.tbd = true; else if (m.f.a) kinds.away = true; else kinds.nsw = true; });
     tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--match" aria-hidden="true">' + TL_ICON.ball + '</span>In NSW</li>' : '') +
       (kinds.away ? '<li><span class="cn-tl-sym cn-tl-sym--match is-away" aria-hidden="true">' + TL_ICON.ball + '</span>Interstate</li>' : '') +
@@ -841,6 +897,7 @@
     var spots = f.a ? SPOTS.filter(function (sp) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }) : [];
     if (spots.length) h += '<p class="tp-tl-watch provenance-gap">Watch in NSW: ' + spots.map(function (sp) { return esc(sp.name) + ', ' + esc(sp.place); }).join('; ') + '</p>';
     if (tk) h += '<p class="tp-tl-d-ticket">You have a ticket for this match.</p>';
+    if (isAddedMatch(f)) h += '<p class="tp-tl-d-stage">Added by you from All matches</p><button type="button" class="tp-link tp-tl-remove" data-remove="m:' + esc(m.key) + '">Remove from timeline</button>';
     tlDetail.innerHTML = h;
   }
   function tlSelect(k, focus, itemId) {
@@ -891,7 +948,7 @@
   window.addEventListener('resize', tlFit);
   // Shown once the match cards have come into view and their top has passed the top of the phone (never for the fan)
   function tlRef() {
-    if (state.view === 'results') return deck;
+    if (!results.hidden) return deck;
     return allSec && !allSec.hidden ? document.getElementById('tp-all-scroll') : null;
   }
   function syncBar() {
@@ -902,8 +959,9 @@
     var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
     // Once something is on the timeline, the bar stays up anywhere below the fan, so an Add never goes nowhere
     var fanBox = root.querySelector('.tp-fan-wrap').getBoundingClientRect();
-    var belowFan = state.view === 'results' || state.view === 'skipped' || (fanBox.height > 0 && fanBox.bottom < box.top);
-    var on = tlOpen || seen || (state.added.length > 0 && belowFan);
+    var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
+    // A pick is shown working: the bar is up whenever a team is picked
+    var on = tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
     if (on === tlOn) return;
     tlOn = on;
     tl.classList.toggle('is-on', on);
@@ -965,9 +1023,8 @@
   // The prompt that used to sit at the top of the phone: back to the fan
   document.getElementById('tp-tl-pick').addEventListener('click', function () {
     tlSetOpen(false, false);
-    if (state.view === 'skipped') document.getElementById('tp-unskip').click();
     deal();
-    body.scrollTo({ top: resultsTop(), behavior: reduce.matches ? 'auto' : 'smooth' });
+    body.scrollTo({ top: pickTop(), behavior: reduce.matches ? 'auto' : 'smooth' });
     midCard().focus({ preventScroll: true });
   });
   /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections
@@ -996,10 +1053,12 @@
   }
   // The person's matches, as the timeline shows them: picked teams', every NSW match for Here for the rugby, or all
   function userMatches() { return TLM.filter(function (m) { return tlShown(m.f); }); }
+  // Anything of their own: a team picked, or a match added on its own
+  function own() { return state.picked.length > 0 || state.added.some(function (it) { return it.kind === 'match'; }); }
   function allMatches() { return TLM.slice(); }
   // The days in NSW guessed from what they have picked: first to last NSW match. Nothing to go on without a pick.
   function inferTrip() {
-    if (!state.picked.length) return null;
+    if (!own()) return null;
     var ds = userMatches().filter(function (m) { return !m.f.a; }).map(function (m) { return m.day; });
     if (!ds.length) return null;
     function iso(d) { return new Date(Date.UTC(2027, 9, 1 + d)).toISOString().slice(0, 10); }
@@ -1021,7 +1080,8 @@
   tlUpdate();
 
   renderChosen();
-  if (state.view === 'results') { dealt = true; place(false); showResults(false); } else setView(state.view);
+  caption.textContent = CAPTION_REST;
+  restoring = true; renderMatches(); restoring = false;
   syncBar();
   /* ---------- Reset prototype (a reviewer tool in the section header, not part of the design) ----------
      Back to a first visit: nothing picked, no tickets, nothing saved, the picker view, the hand stacked to deal open
@@ -1032,10 +1092,12 @@
     cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
     state.picked = []; state.tickets = [];
     try { localStorage.removeItem(KEY); } catch (e) {}
-    deck.innerHTML = ''; deck.classList.remove('is-flying');
+    deck.innerHTML = '';
     setNsw(false); clearFind(); offset = START; dealt = false;
-    setView('pick');
+    state.tab = 'yours';
     renderChosen();
+    renderMatches();
+    caption.textContent = CAPTION_REST;
     place(false);
     body.scrollTop = 0;
     tlSetOpen(false, false); tlSel = -1; tlSelItem = null; state.added = []; state.trip = null; save(); changed();
@@ -1045,7 +1107,12 @@
 
   window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
     flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
-    rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; } };
+    rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
+    // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
+    // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark
+    match: function (key) { return TLM_BY[key] || null; }, isPicked: function (n) { return state.picked.indexOf(n) > -1; },
+    pickTeam: function (n) { var c = TEAMS[n]; if (!c) return ''; var i = CARDS.indexOf(c); if (pos(i) < 0) setNsw(false); return toggle(i, null, true); },
+    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; } };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
 })();
