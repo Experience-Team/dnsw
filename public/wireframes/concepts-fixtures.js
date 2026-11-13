@@ -49,11 +49,42 @@ window.cnFixtures = [
   {"d": "Sun 17 Oct", "t": "Scotland v Portugal", "s": "Pool D", "v": "Adelaide Oval", "p": "Adelaide", "k": "3:30pm", "a": "Adelaide"}
 ];
 
-/* GAP DATA: placeholders only, not real. Fan zones and the Rugby World Cup village are not in the live data or in
-   docs/product-data-contract.md, so per CLAUDE.md they render from fixtures only, with the pink gap marker. Each spot
-   lists the interstate matches it shows (key: date|teams, as in cnFixtures). A match not listed here has no "watch in
-   NSW" line: that is the empty state. Names and places are deliberately fake. Real data is still needed. */
+/* GAP DATA: placeholders only, not real. Pub screenings, fan zones and the Rugby World Cup village are not in the
+   live data. Per CLAUDE.md they render from fixtures only, with the pink gap marker. Each spot has a name, a type
+   (pub, fan_zone or village), a place and the matches it shows (key: date|teams, as in cnFixtures). A match no spot
+   lists has no "where to watch" line: that is the empty state. Names and places are deliberately fake, and no pub is
+   a real business. NOT IN THE PRODUCT DATA CONTRACT: the spot type and the screening link (which spot shows which
+   match) have no contract field; asked about in the build log. Real data is still needed. */
 window.cnWatchSpots = [
-  { name: 'Sample fan zone (placeholder)', place: 'Placeholder site, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|New Zealand v Chile', 'Sat 2 Oct|Argentina v Canada', 'Sun 3 Oct|England v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Sat 16 Oct|Australia v Chile'] },
-  { name: 'Sample rugby village (placeholder)', place: 'Placeholder site, Newcastle', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 16 Oct|Australia v Chile', 'Sat 9 Oct|France v Japan'] }
+  { name: 'Sample fan zone (placeholder)', type: 'fan_zone', place: 'Placeholder site, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|New Zealand v Chile', 'Sat 2 Oct|Argentina v Canada', 'Sun 3 Oct|England v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Sat 16 Oct|Australia v Chile'] },
+  { name: 'Sample rugby village (placeholder)', type: 'village', place: 'Placeholder site, Newcastle', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 16 Oct|Australia v Chile', 'Sat 9 Oct|France v Japan'] },
+  { name: 'Sample pub A (placeholder)', type: 'pub', place: 'Placeholder suburb, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|Scotland v Uruguay', 'Sat 9 Oct|New Zealand v Australia', 'Sat 9 Oct|England v Zimbabwe', 'Sat 16 Oct|England v Wales', 'Sat 16 Oct|Australia v Chile'] },
+  { name: 'Sample pub B (placeholder)', type: 'pub', place: 'Placeholder suburb, Sydney', shows: ['Sun 3 Oct|Wales v Zimbabwe', 'Fri 8 Oct|Wales v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Mon 4 Oct|Ireland v Portugal', 'Sat 30 Oct|Quarter-final 1', 'Sat 13 Nov|Final'] },
+  { name: 'Sample pub C (placeholder)', type: 'pub', place: 'Placeholder suburb, Newcastle', shows: ['Sun 3 Oct|Japan v Samoa', 'Sat 9 Oct|France v Japan', 'Sun 17 Oct|France v Samoa', 'Thu 14 Oct|Fiji v Canada', 'Sun 10 Oct|Argentina v Fiji'] }
 ];
+
+/* GAP DATA: placeholder products for "Suits your 3rd half". Shaped like the product data contract's shared record
+   (§1: id, type, title, address.suburb, links) plus availability (§4, gap), pricing (§5, gap) and distance_to_venue
+   (§7, gap, derived). venue_ref names the stadium, as cnFixtures does (v). Every title is fake; links go nowhere and
+   nothing is booked (links.booking is null on every record). Real listings, opening hours on the dates and distances
+   are still needed. */
+(function () {
+  function week(opens, closes, days) { return (days || ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']).map(function (d) { return { day: d, opens: opens, closes: closes }; }); }
+  function rec(id, type, title, suburb, hours, pricing, venue, km) {
+    return { id: id, type: type, title: title, address: { suburb: suburb, state: 'NSW' }, links: { website: '#', booking: null },
+      availability: { kind: 'opening_hours', opening_hours: hours }, pricing: pricing,
+      distance_to_venue: { venue_ref: venue, km: km, label: 'the stadium' } };
+  }
+  var free = { is_free: true, band: '' }, b1 = { is_free: false, band: '$' }, b2 = { is_free: false, band: '$$' };
+  window.cnThirdHalf = [
+    rec('ph-sa-cafe', 'food_and_drink', 'Sample café (placeholder)', 'Sydney Olympic Park', week('07:00', '15:00'), b1, 'Stadium Australia', 0.4),
+    rec('ph-sa-park', 'attraction', 'Sample parklands walk (placeholder)', 'Sydney Olympic Park', week('06:00', '20:00'), free, 'Stadium Australia', 0.9),
+    rec('ph-sa-bar', 'food_and_drink', 'Sample bar and grill (placeholder)', 'Sydney Olympic Park', week('16:00', '23:59', ['thu', 'fri', 'sat', 'sun']), b2, 'Stadium Australia', 0.7),
+    rec('ph-sfs-cafe', 'food_and_drink', 'Sample bakery (placeholder)', 'Moore Park', week('06:30', '14:00'), b1, 'Sydney Football Stadium', 0.6),
+    rec('ph-sfs-gallery', 'attraction', 'Sample gallery (placeholder)', 'Paddington', week('10:00', '17:00', ['tue', 'wed', 'thu', 'fri', 'sat', 'sun']), free, 'Sydney Football Stadium', 1.4),
+    rec('ph-sfs-dining', 'food_and_drink', 'Sample dining hall (placeholder)', 'Moore Park', week('11:30', '23:00'), b2, 'Sydney Football Stadium', 0.8),
+    rec('ph-ncl-cafe', 'food_and_drink', 'Sample espresso bar (placeholder)', 'Broadmeadow', week('07:00', '14:30'), b1, 'Newcastle Stadium', 0.5),
+    rec('ph-ncl-beach', 'attraction', 'Sample coastal walk (placeholder)', 'Newcastle', week('06:00', '19:00'), free, 'Newcastle Stadium', 3.2),
+    rec('ph-ncl-bar', 'food_and_drink', 'Sample small bar (placeholder)', 'Hamilton', week('15:00', '23:59', ['wed', 'thu', 'fri', 'sat', 'sun']), b2, 'Newcastle Stadium', 1.1)
+  ];
+})();
