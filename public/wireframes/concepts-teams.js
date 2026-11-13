@@ -718,7 +718,23 @@
       var last = Math.min(c0 + 5, rows.length);
       cols += '<ol class="tp-all-col" aria-label="Matches ' + (c0 + 1) + ' to ' + last + ' of ' + rows.length + '">' + rows.slice(c0, last).join('') + '</ol>';
     }
-    document.getElementById('tp-all-scroll').innerHTML = cols;
+    var allScroll = document.getElementById('tp-all-scroll');
+    allScroll.innerHTML = cols;
+    /* One tab stop for the whole list (it was 44): the current row is in the tab order, the arrow keys move between
+       rows (down and right forward, up and left back; Home and End), and the list slides to keep it in view */
+    var allBtns = Array.prototype.slice.call(allScroll.querySelectorAll('.tp-all-btn')), allAt = 0;
+    allBtns.forEach(function (b, k) { b.tabIndex = k ? -1 : 0; });
+    allScroll.addEventListener('focusin', function (e) { var k = allBtns.indexOf(e.target); if (k > -1 && k !== allAt) { allBtns[allAt].tabIndex = -1; allAt = k; e.target.tabIndex = 0; } });
+    allScroll.addEventListener('keydown', function (e) {
+      var k = allBtns.indexOf(e.target); if (k < 0) return;
+      var to = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? k + 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? k - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? allBtns.length - 1 : null;
+      if (to === null) return;
+      e.preventDefault();
+      to = Math.max(0, Math.min(allBtns.length - 1, to));
+      allBtns[to].focus({ preventScroll: true });
+      var col = allBtns[to].closest('.tp-all-col');
+      allScroll.scrollTo({ left: col.offsetLeft - allScroll.offsetLeft - 16, behavior: reduce.matches ? 'auto' : 'smooth' });
+    });
   }
   // A ticket on a match is one ticket, whichever card it is marked on
   deck.addEventListener('change', function (e) {
@@ -938,7 +954,9 @@
     // the bar has room for "9 pool + 8 knockouts · 3 Oct to 13 Nov" and no more)
     if (confirmed) {
       var ca = isoDay(trip.from), cz = isoDay(trip.to), inDays = shown.filter(function (m) { return m.day >= ca && m.day <= cz; });
-      setValue(countPhrase(inDays.map(function (m) { return m.f; }), { short: true }) + ' · ' + isoRange(trip.from, trip.to));
+      // It says it counts only their days, so it never seems to disagree with the plan's total
+      setValue(inDays.length === shown.length ? countPhrase(shown.map(function (m) { return m.f; }), { short: true }) + ' · ' + isoRange(trip.from, trip.to)
+        : inDays.length + (inDays.length === 1 ? ' match' : ' matches') + ' in your days · ' + isoRange(trip.from, trip.to));
     } else {
       setValue(countPhrase(shown.map(function (m) { return m.f; }), { short: true }) + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : ''));
     }
@@ -1124,7 +1142,8 @@
       // Open on what matters: the chosen marker; else the days in NSW (confirmed or suggested); else the first thing
       // they added; else the first match shown. Never on empty early October with the trip cut off at the edge.
       var items = Object.keys(tlItemEls).map(function (id) { return tlItemEls[id]; }).sort(function (a, b) { return a.offsetLeft - b.offsetLeft; });
-      var start = tlSelEl() || (!tlStay.hidden && tlStay) || items[0] || tlOrder()[0];
+      var nswFirst = own() ? TLM.filter(function (m) { return m.on && !m.f.a; })[0] : null;
+      var start = tlSelEl() || (!tlStay.hidden && tlStay) || items[0] || (nswFirst && nswFirst.el) || tlOrder()[0];
       // A short stay sits in the middle of the view, with the days around it either side; a long one starts at the left
       var vw = tlScroll.clientWidth, x = !start ? 0 : start !== tlStay ? start.offsetLeft - 48
         : tlStay.offsetWidth < vw - 96 ? tlStay.offsetLeft + tlStay.offsetWidth / 2 - vw / 2 : tlStay.offsetLeft - 16;
