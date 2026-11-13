@@ -3060,7 +3060,7 @@ body.cp-page code { font: inherit; }
 .cn-save, .cn-pill, .cn-sheet-title, .cn-day-card, .cn-peek summary { position: relative; }
 
 /* Pick your team: parts that carry an annotation badge need a box to hang it on */
-.tp-count, .tp-fan-caption, .tp-clear, .tp-link, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-days, .tp-ask { position: relative; }
+.tp-count, .tp-fan-caption, .tp-clear, .tp-link, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-ask { position: relative; }
 
 /* The fan's badge sits in the empty corner inside its frame (the frame clips its sides, and above it is the intro text) */
 .tp-fan-wrap > .cn-badge { top: 8px; right: 24px; }
@@ -3236,17 +3236,6 @@ body.cp-page code { font: inherit; }
 .tp-add:active { transform: scale(.96); }
 .tp-add:focus-visible, .tp-chip:focus-visible, .tp-pc-main:focus-visible, .tp-pill:focus-visible, .tp-out:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 /* Day chips and the fork: single-choice pills */
-/* The row runs off the phone's edge; a soft fade on the side with more chips past it (set by is-more-l / is-more-r) */
-@property --tp-fade-l { syntax: "<length>"; inherits: false; initial-value: 0px; }
-@property --tp-fade-r { syntax: "<length>"; inherits: false; initial-value: 0px; }
-.tp-days { display: flex; gap: var(--space-2); margin: calc(var(--space-3) - 2px) calc(var(--space-4) * -1) 0; padding: 4px var(--space-4); overflow-x: auto; scrollbar-width: none; scroll-padding-inline: 40px;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--tp-fade-l), #000 calc(100% - var(--tp-fade-r)), transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 var(--tp-fade-l), #000 calc(100% - var(--tp-fade-r)), transparent);
-  transition: --tp-fade-l var(--dur-micro) var(--ease-out), --tp-fade-r var(--dur-micro) var(--ease-out); }
-.tp-days.is-more-l { --tp-fade-l: 40px; }
-.tp-days.is-more-r { --tp-fade-r: 40px; }
-.tp-days::-webkit-scrollbar { display: none; }
-.tp-days[hidden] { display: none; }
 .tp-chip { flex: none; min-height: 40px; padding: 0 var(--space-3); border: 1.5px solid #9e9e9e; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .tp-chip[aria-pressed="true"] { border-color: #1f1f1f; background: #1f1f1f; color: #fff; }
 .tp-chip-tk { font-weight: 700; }
@@ -3811,3 +3800,45 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-third-trip { margin-top: var(--space-2); font-size: .8125rem; line-height: 1.4; color: #1a1a1a; }
 .tp-third-trip-a { font-weight: 700; }
 .tp-third-trip .tp-link { min-height: 32px; }
+
+/* Around your matches: the fan's days in NSW as blocks with plain headings (no date pills) */
+.tp-blk { margin-top: var(--space-3); border-top: 1px solid #e0e0e0; }
+.tp-blk:first-child { margin-top: var(--space-3); }
+.tp-blk-h { margin: 0; }
+.tp-blk-head { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 48px; padding: var(--space-3) var(--space-6) var(--space-3) 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tp-blk-head:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; border-radius: 4px; }
+.tp-blk-when { font-size: .9375rem; font-weight: 800; line-height: 1.3; }
+.tp-blk-what { font-size: .8125rem; line-height: 1.35; color: #4d4d4d; }
+.tp-blk-chev { position: absolute; right: 4px; top: 50%; width: 9px; height: 9px; margin-top: -7px; border-right: 2px solid #1a1a1a; border-bottom: 2px solid #1a1a1a; transform: rotate(45deg); transition: transform var(--dur-micro) var(--ease-out); }
+.tp-blk-head[aria-expanded="true"] .tp-blk-chev { transform: rotate(225deg); margin-top: -2px; }
+.tp-blk-body { padding-bottom: var(--space-3); }
+.tp-blk-body[hidden] { display: none; }
+.tp-blk--away { padding: var(--space-3) 0; }
+.tp-blk-line { display: flex; flex-direction: column; gap: 2px; }
+.tp-blk--away .tp-blk-when { font-size: .875rem; color: #4d4d4d; }
+.tp-blk-note { margin-top: var(--space-1); font-size: .8125rem; line-height: 1.4; color: #4d4d4d; }
+.tp-blk-sub { margin-top: var(--space-3); font-size: .8125rem; font-weight: 700; }
+.tp-blk-watch { margin-top: var(--space-1); font-size: .8125rem; line-height: 1.4; }
+.tp-blk-watch .tp-link, .tp-blk-more { min-height: 32px; }
+.tp-blk .tp-grp { margin-top: var(--space-3); font-size: .8125rem; font-weight: 700; }
+/* A trip card says where it went once added, and offers the other valid starts */
+.tp-trip-added { grid-column: 1 / -1; font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.tp-trip-added .tp-link { min-height: 32px; }
+.tp-move { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tp-move .tp-chip { min-height: 36px; font-size: .75rem; }
+/* The trip page: stops as product cards, with a small source label; values worked out from the stops say so */
+.tp-stop { grid-template-columns: minmax(0, 1fr); }
+.tp-stop { display: flex; align-items: center; gap: var(--space-3); }
+.tp-stop-src { align-self: flex-start; padding: 0 4px; border: 1px solid #ccc; border-radius: 3px; font-size: .625rem; font-weight: 600; letter-spacing: .02em; color: #4d4d4d; }
+.tp-pm-derived { font-size: .75rem; color: #5c5c5c; }
+/* On the timeline: a longer trip is a solid span across its nights; a clash is hatched */
+.tp-tl-span { position: absolute; top: 8px; bottom: auto; height: 24px; margin-left: 0; display: flex; align-items: center; padding: 0 6px; border-radius: 6px; background: #1f1f1f; color: #fff; transform: none; overflow: hidden; }
+.tp-tl-span.is-new { opacity: 0; transform: scaleX(.6); transform-origin: left center; }
+.tp-tl-span-t { font-size: .6875rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tp-tl-span.is-clash { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #B42318; }
+.tp-tl-span:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.tp-tl-mk--item.is-clash .cn-tl-sym--place { border-color: #B42318; }
+.tp-tl-clashes { position: absolute; inset: 0; pointer-events: none; }
+.tp-tl-clash { position: absolute; top: 0; bottom: 38px; background: repeating-linear-gradient(135deg, rgba(180,35,24,.16) 0 3px, transparent 3px 8px); }
+.tp-tl-d-clash { margin-top: var(--space-1); font-size: .8125rem; font-weight: 600; line-height: 1.4; color: #B42318; }
+.tp-tl-key-span { display: inline-block; width: 22px; height: 10px; border-radius: 3px; background: #1f1f1f; }

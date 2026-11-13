@@ -20,10 +20,10 @@
   var PRODUCTS = Array.isArray(window.cnThirdHalf) ? window.cnThirdHalf : [];
   var phone = document.getElementById('tp-phone'), body = tp.body, reduce = tp.reduce, esc = tp.esc, side = tp.side;
   var watchList = document.getElementById('tp-watch-list'), watchMore = document.getElementById('tp-watch-more');
-  var daysEl = document.getElementById('tp-days'), thirdList = document.getElementById('tp-third-list'), thirdNote = document.getElementById('tp-third-note');
+  var thirdList = document.getElementById('tp-third-list'), thirdNote = document.getElementById('tp-third-note');
   var watchNote = document.getElementById('tp-watch-note'), watchNoteText = watchNote ? watchNote.textContent : '';
   var ask = document.getElementById('tp-ask'), tripEl = document.getElementById('tp-third-trip');
-  if (!watchList || !daysEl || !thirdList || !ask) return;
+  if (!watchList || !thirdList || !ask) return;
 
   var SPOT_TYPE = { fan_zone: 'Fan zone', village: 'Village', pub: 'Pub screening' }, SPOT_ORDER = { fan_zone: 0, village: 1, pub: 2 };
   var PTYPE = { food_and_drink: 'Food and drink', attraction: 'Attraction', tour: 'Tour', event: 'Event', hire: 'Hire', accommodation: 'Accommodation' };
@@ -110,7 +110,6 @@
   watchMore.addEventListener('click', function () { watchAll = !watchAll; render(true); });
 
   /* ---------- Suits your 3rd half ---------- */
-  var selDay = null;
   // The person's match days in NSW (one chip per day and stadium), in their days in NSW when they have said so
   // fallback: none of the person's matches is in NSW, so offer the NSW match days they could go to instead
   var fallback = false, thirdNoteText = thirdNote ? thirdNote.textContent : '';
@@ -151,87 +150,261 @@
     return parts.join(' · ');
   }
   var openCard = null;
-  function renderThird() {
-    var days = nswDays(), s = stay(), first = teaser();
-    if (first) days = days.slice(0, 1); // one day only until there is a team to tailor to
-    if (!days.some(function (d) { return d.key === selDay; })) {
-      var first = days.filter(function (d) { return d.ticket; })[0] || days[0];
-      selDay = first ? first.key : null;
+  /* ---------- Around your matches: the fan's days in NSW, in order ----------
+     Not date pills: blocks with plain headings, in time order. Two kinds, plus the edges:
+     - a match day (Before the match, After the final whistle, Near the stadium, as before);
+     - a free stretch ("4 free days · Tue 12 to Fri 15 Oct"): one or two free days get day trips; three or more get
+       longer trips first, then day trips; an interstate match of theirs that evening is a screening, linked to Where
+       to watch;
+     - the first and last day of a stay are half days (arrival, departure): only things near the base, never counted
+       towards a free stretch; a day away for an interstate match they have a ticket for splits the stretch.
+     Where the days come from: the confirmed days in NSW; otherwise first to last NSW match, as a guess to confirm
+     (never for Here for the rugby, where that would be six weeks); otherwise match days only, with a nudge to the
+     timeline question. I live in NSW: no free stretches; each match day gets Make a day of it.
+     Only the next block is open; the rest open from their heading. At most three suggestions each, then Show more.
+     Nothing is added for them, and a free stretch can stay empty. Trips are curated by the DNSW team (cnTrips,
+     fixture-only, pink); trips and stops are sorted by travel time, then name. Links go out only. */
+  var TRIPS = Array.isArray(window.cnTrips) ? window.cnTrips : [];
+  var WD_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var CITY = { sydney: 'Sydney', newcastle: 'Newcastle' }, MODE = { train: 'by train', car: 'by car', coach: 'by coach' };
+  var openSet = null, blkSig = '', moreBlk = {}, moveOpen = null;
+  function dayLabel(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return WD_SHORT[x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + MONTHS[x.getUTCMonth()]; }
+  function spanLabel(a, z) { return a === z ? dayLabel(a) : WD_SHORT[new Date(Date.UTC(2027, 9, 1 + a)).getUTCDay()] + ' ' + tp.isoRange(isoOf(a), isoOf(z)).replace(' to ', ' to ' + WD_SHORT[new Date(Date.UTC(2027, 9, 1 + z)).getUTCDay()] + ' '); }
+  function cityOf(venue) { return /Newcastle/.test(venue || '') ? 'newcastle' : 'sydney'; }
+  function mins(m) { return m < 60 ? m + ' min' : m % 60 ? Math.floor(m / 60) + ' hr ' + (m % 60) + ' min' : (m / 60) + ' hr'; }
+  // Worked out from the stops, not written by hand: the days every stop is open, and the dearest stop's price band
+  function tripDays(t) { return WD_ORDER.filter(function (wd) { return t.stops.every(function (s) { return s.days.indexOf(wd) > -1; }); }); }
+  function tripBand(t) { return t.stops.reduce(function (b, s) { return s.band.length > b.length ? s.band : b; }, '') || 'free'; }
+  function tripFrom(t, base) { return t.travel[base] ? base : Object.keys(t.travel)[0]; }
+  function tripMins(t, base) { return t.travel[tripFrom(t, base)].minutes; }
+  function getThere(t, base) { var b = tripFrom(t, base), tr = t.travel[b]; return mins(tr.minutes) + ' ' + (MODE[tr.mode] || '') + ' from ' + CITY[b]; }
+  function fitsDay(t, d) { return tripDays(t).indexOf(weekdayOf(d)) > -1; }
+  // Valid starts in a stretch: a day trip on any free day it runs; a longer trip so it ends with a free day to spare
+  function starts(t, b) {
+    var out = [];
+    if (t.kind === 'day') { for (var d = b.a; d <= b.z; d++) if (fitsDay(t, d)) out.push(d); }
+    else for (var s = b.a; s + t.nights <= b.z - 1; s++) out.push(s);
+    return out;
+  }
+
+  function model() {
+    var t = trip(), local = !!(t && t.mode === 'local'), rugby = tp.rugby(), own = tp.own();
+    var ms = own ? tp.userMatches() : [], nsw = ms.filter(function (m) { return !m.f.a; });
+    var days = {}; nsw.forEach(function (m) { days[m.day] = true; });
+    var nd = Object.keys(days).map(Number).sort(function (x, y) { return x - y; });
+    var range = null, how = 'none';
+    if (t && t.mode === 'visiting' && t.from && t.to) { range = { a: tp.isoDay(t.from), z: tp.isoDay(t.to) }; how = 'confirmed'; }
+    else if (!local && own && !rugby && nd.length >= 2) { range = { a: nd[0], z: nd[nd.length - 1] }; how = 'guessed'; }
+    else if (!local && own && !rugby && nd.length === 1) how = 'one';
+    return { t: t, local: local, rugby: rugby, own: own, ms: ms, nsw: nsw, range: range, how: how };
+  }
+  function matchBlocks(list) {
+    var by = {}, out = [];
+    list.forEach(function (m) { (by[m.day] = by[m.day] || []).push(m); });
+    Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (d) { out.push({ kind: 'match', key: 'm' + d, day: d, ms: by[d] }); });
+    return out;
+  }
+  function blocks(M) {
+    if (!M.own && !M.range) { var d0 = nswDays()[0]; return d0 ? matchBlocks(tp.allMatches().filter(function (m) { return !m.f.a && m.day === d0.m.day; })).slice(0, 1) : []; }
+    if (!M.range) {
+      // Match days only: theirs in NSW, or (a team that plays only interstate) the NSW matches they could go to
+      return matchBlocks(M.nsw.length ? M.nsw : tp.allMatches().filter(function (m) { return !m.f.a; }));
     }
-    daysEl.hidden = first || days.length < 1;
-    if (thirdNote) {
-      var teams = state.picked.filter(function (n) { return tp.teams[n]; });
-      thirdNote.textContent = first && days.length ? 'A first look: around the next NSW match day. Each links out; nothing is booked here.'
-        : fallback && days.length ? tp.list(teams) + (teams.length === 1 ? ' plays' : ' play') + ' interstate, so these are around the matches in NSW you could go to. Each links out; nothing is booked here.' : thirdNoteText;
+    var a = M.range.a, z = M.range.z, by = {}, out = [], st = null;
+    M.ms.forEach(function (m) { if (m.day >= a && m.day <= z) (by[m.day] = by[m.day] || []).push(m); });
+    // Here for the rugby watches every interstate match too
+    if (M.rugby) tp.allMatches().forEach(function (m) { if (m.f.a && m.day >= a && m.day <= z) (by[m.day] = by[m.day] || []).push(m); });
+    function close() { if (st) { out.push(st); st = null; } }
+    for (var d = a; d <= z; d++) {
+      var dm = by[d] || [], home = dm.filter(function (m) { return !m.f.a; }), away = dm.filter(function (m) { return m.f.a && hasTicket(m); });
+      if (home.length) { close(); out.push({ kind: 'match', key: 'm' + d, day: d, ms: home }); continue; }
+      if (away.length) { close(); out.push({ kind: 'away', key: 'a' + d, day: d, m: away[0] }); continue; }
+      if (a !== z && (d === a || d === z)) { close(); out.push({ kind: 'half', key: 'h' + d, day: d, first: d === a }); continue; }
+      if (!st) st = { kind: 'free', key: 'f' + d, a: d, z: d, watch: [] };
+      st.z = d;
+      dm.filter(function (m) { return m.f.a && m.f.t; }).forEach(function (m) { st.watch.push(m); });
     }
-    daysEl.innerHTML = days.map(function (d) {
-      return '<button type="button" class="tp-chip" data-day="' + esc(d.key) + '" aria-pressed="' + (d.key === selDay) + '">' +
-        esc(d.m.f.d) + ' · ' + esc(d.m.f.p) + (d.ticket ? '<span class="tp-chip-tk"> · ticket</span>' : '') + '</button>';
-    }).join('');
-    if (!selDay) {
-      thirdList.innerHTML = '<p class="tp-empty">' + (s ? (fallback ? 'No NSW match falls in your days here (' : 'None of your match days in NSW falls in your days here (') + esc(tp.isoRange(trip().from, trip().to)) + '). Change your dates, or see Where to watch above.'
-        : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>' + (first ? TAILOR : '');
-      return;
-    }
-    var d = days.filter(function (x) { return x.key === selDay; })[0], f = d.m.f, wd = weekdayOf(d.m.day), k = kickMins(f.k);
-    var groups = { before: [], after: [], near: [] };
+    close();
+    // Base for each stretch and half day: from the matches either side (Sydney or Newcastle)
+    out.forEach(function (b, i) {
+      if (b.kind !== 'free' && b.kind !== 'half') return;
+      var p = null, n = null;
+      for (var j = i - 1; j >= 0; j--) if (out[j].kind === 'match') { p = out[j]; break; }
+      for (j = i + 1; j < out.length; j++) if (out[j].kind === 'match') { n = out[j]; break; }
+      var pc = p && cityOf(p.ms[0].f.v), nc = n && cityOf(n.ms[0].f.v);
+      b.base = b.kind === 'half' ? (b.first ? nc || pc : pc || nc) || 'sydney' : pc || nc || 'sydney';
+      b.between = !!(pc && nc && pc !== nc);
+    });
+    return out;
+  }
+
+  // Match day groups, as before: Before the match, After the final whistle, Near the stadium
+  function productCard(p, why, id, f) {
+    return '<article class="tp-pc" data-id="' + esc(id) + '">' +
+      '<button type="button" class="tp-pc-main" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
+      '<span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title">' + esc(p.title) + '</span>' +
+      '<span class="tp-pc-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</span>' +
+      '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
+      addBtn(id, p.title + ' on ' + f.d) + '</article>';
+  }
+  function matchBody(b, M) {
+    var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
+    var groups = { before: [], after: [], near: [] }, h = '';
+    if (b.ms.length > 1) h += '<p class="tp-blk-note">Also in NSW that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return esc(matchName(x.f)) + ', ' + esc(x.f.k || 'time to be confirmed') + ', ' + esc(x.f.v); }).join('; ') + '.</p>';
     PRODUCTS.filter(function (p) { return p.distance_to_venue && p.distance_to_venue.venue_ref === f.v; }).forEach(function (p) {
       var o = hoursOn(p, wd);
       if (!o) return; // closed that day: not a fit, so not shown
       var g = 'near';
       if (k !== null) {
-        var b = openAt(o, k - 90), a = openAt(o, Math.min(1439, k + 150));
-        g = b && a ? 'near' : b ? 'before' : a ? 'after' : hm(o.opens) < k ? 'before' : 'after';
+        var bb = openAt(o, k - 90), aa = openAt(o, Math.min(1439, k + 150));
+        g = bb && aa ? 'near' : bb ? 'before' : aa ? 'after' : hm(o.opens) < k ? 'before' : 'after';
       }
       groups[g].push({ p: p, o: o });
     });
-    var LABEL = { before: 'Before the match', after: 'After the final whistle', near: 'Near the stadium' };
-    var h = '<p class="tp-third-match">' + esc(f.d) + ', ' + (f.k ? 'kick-off ' + esc(f.k) : 'kick-off to be confirmed') + ' · ' + esc(f.v) + '</p>', any = false;
+    var LABEL = { before: 'Before the match', after: 'After the final whistle', near: 'Near the stadium' }, any = false;
     ['before', 'after', 'near'].forEach(function (g) {
       var list = groups[g].sort(function (x, y) { return (x.p.distance_to_venue.km - y.p.distance_to_venue.km) || x.p.title.localeCompare(y.p.title); });
       if (!list.length) return;
       any = true;
-      h += '<h4 class="tp-grp">' + LABEL[g] + '</h4><div class="tp-pcs">';
+      h += '<h5 class="tp-grp">' + LABEL[g] + '</h5><div class="tp-pcs">';
       list.forEach(function (x) {
-        var p = x.p, id = 'p:' + p.id + ':' + f.d, cid = 'tp-pc-' + p.id, why = reason(p, x.o, d);
+        var p = x.p, id = 'p:' + p.id + ':' + f.d, why = reason(p, x.o, d);
         ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
         MODAL[id] = { type: 'product', p: p, f: f, o: x.o, why: why };
-        h += '<article class="tp-pc" data-id="' + esc(id) + '">' +
-          '<button type="button" class="tp-pc-main" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
-          '<span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title">' + esc(p.title) + '</span>' +
-          '<span class="tp-pc-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</span>' +
-          '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
-          addBtn(id, p.title + ' on ' + f.d) + '</article>';
+        h += productCard(p, why, id, f);
       });
       h += '</div>';
     });
     if (!any) h += '<p class="tp-empty">Nothing listed near ' + esc(f.v) + ' is open on ' + esc(f.d) + ' yet.</p>';
+    // A local makes a day of it: the attractions around that stadium, and on a weekend the other weekend day too
+    if (M.local) {
+      h += '<h5 class="tp-grp">Make a day of it</h5>';
+      var base = cityOf(f.v), other = wd === 'sat' ? m.day + 1 : wd === 'sun' ? m.day - 1 : null;
+      var near = PRODUCTS.filter(function (p) { return p.type === 'attraction' && p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === base && hoursOn(p, wd); })
+        .sort(function (x, y) { return x.distance_to_venue.km - y.distance_to_venue.km || x.title.localeCompare(y.title); }).slice(0, 2);
+      h += '<div class="tp-pcs">' + near.map(function (p) { var id = 'p:' + p.id + ':' + f.d, o = hoursOn(p, wd), why = reason(p, o, d); ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: f.d, matchName: matchName(f) }; MODAL[id] = { type: 'product', p: p, f: f, o: o, why: why }; return productCard(p, why, id, f); }).join('') + '</div>';
+      // Not when the other weekend day is one of their match days too
+      if (other !== null && M.nsw.some(function (x) { return x.day === other; })) other = null;
+      if (other !== null) {
+        var ts = TRIPS.filter(function (t) { return t.kind === 'day' && t.bases.indexOf(base) > -1 && fitsDay(t, other); }).sort(byTravel(base)).slice(0, 2);
+        if (ts.length) h += '<p class="tp-blk-sub">Make a weekend of it: ' + esc(dayLabel(other)) + '</p><div class="tp-pcs">' + ts.map(function (t) { return tripCard(t, { a: other, z: other, base: base, key: b.key }, other); }).join('') + '</div>';
+      }
+    }
+    return h;
+  }
+  function byTravel(base) { return function (x, y) { return tripMins(x, base) - tripMins(y, base) || x.title.localeCompare(y.title); }; }
+  function tripCard(t, b, at) {
+    var id = 't:' + t.id, s = at !== undefined ? at : starts(t, b)[0], n = b.z - b.a + 1;
+    var fits = t.kind === 'day' ? 'Fits ' + dayLabel(s) : 'Fits ' + t.nights + (t.nights === 1 ? ' night' : ' nights') + ' of your ' + n;
+    var why = [fits, getThere(t, b.base), tripBand(t)].join(' · ');
+    ITEMS[id] = { id: id, kind: 'trip', trip: t.kind, tripId: t.id, title: t.region, kindLabel: (t.kind === 'day' ? 'Day trip' : 'Longer trip') + ', curated by Destination NSW', place: getThere(t, b.base),
+      day: dayLabel(s), endDay: t.kind === 'long' ? dayLabel(s + t.nights) : null, nights: t.nights || 0, start: s, when: t.kind === 'long' ? spanLabel(s, s + t.nights) : dayLabel(s) };
+    MODAL[id] = { type: 'trip', t: t, b: b, why: why };
+    var it = state.added.filter(function (x) { return x.id === id; })[0], line = '';
+    if (it) {
+      // Says where it went, and offers the other valid starts in this stretch
+      var other = starts(t, b).filter(function (x) { return x !== it.start; });
+      line = '<p class="tp-trip-added">Added: ' + esc(t.region) + ', ' + esc(it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) +
+        (other.length ? ' · <button type="button" class="tp-link" data-move="' + esc(id) + '" aria-expanded="' + (moveOpen === id) + '">Move</button>' : '') + '</p>' +
+        (moveOpen === id ? '<div class="tp-move" role="group" aria-label="Move ' + esc(t.region) + ' to start on">' + other.map(function (x) {
+          return '<button type="button" class="tp-chip" data-move-to="' + x + '" data-move-id="' + esc(id) + '">' + esc(t.kind === 'long' ? spanLabel(x, x + t.nights) : dayLabel(x)) + '</button>';
+        }).join('') + '</div>' : '');
+    }
+    return '<article class="tp-pc tp-trip' + (t.kind === 'long' ? ' tp-trip--long' : '') + '" data-id="' + esc(id) + '">' +
+      '<button type="button" class="tp-pc-main" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
+      '<span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title provenance-gap">' + esc(t.title) + '</span>' +
+      '<span class="tp-pc-type provenance-gap">' + (t.kind === 'day' ? 'Day trip' : 'Longer trip') + ' · Curated by Destination NSW</span>' +
+      '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
+      addBtn(id, t.region + ', ' + (t.kind === 'day' ? 'day trip' : 'longer trip')) + line + '</article>';
+  }
+  function freeBody(b) {
+    var n = b.z - b.a + 1, h = '';
+    b.watch.forEach(function (m) {
+      h += '<p class="tp-blk-watch">' + esc(dayLabel(m.day)) + ' evening: <button type="button" class="tp-link" data-watch="' + esc(m.key) + '">watch ' + esc(matchName(m.f)) + ' in NSW</button></p>';
+    });
+    var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
+    var days = TRIPS.filter(function (t) { return t.kind === 'day' && t.bases.indexOf(b.base) > -1 && starts(t, b).length; });
+    longs.sort(function (x, y) { return (b.between ? (y.on_the_way ? 1 : 0) - (x.on_the_way ? 1 : 0) : 0) || byTravel(b.base)(x, y); });
+    days.sort(byTravel(b.base));
+    var all = longs.concat(days), show = moreBlk[b.key] ? all : all.slice(0, 3);
+    if (b.between && longs.some(function (t) { return t.on_the_way; })) h += '<p class="tp-blk-note">Between a Newcastle match and a Sydney match: something on the way.</p>';
+    if (!all.length) h += '<p class="tp-empty">Nothing curated fits these days yet. Free days can stay free.</p>';
+    else h += '<div class="tp-pcs">' + show.map(function (t) { return tripCard(t, b); }).join('') + '</div>';
+    if (all.length > 3) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Show fewer' : 'Show ' + (all.length - 3) + ' more') + '</button>';
+    return h;
+  }
+  function halfBody(b) {
+    var wd = weekdayOf(b.day), f = { d: dayLabel(b.day) };
+    var list = PRODUCTS.filter(function (p) { return p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === b.base && hoursOn(p, wd) && (p.type === 'food_and_drink' || p.type === 'attraction'); })
+      .sort(function (x, y) { return x.distance_to_venue.km - y.distance_to_venue.km || x.title.localeCompare(y.title); });
+    var show = moreBlk[b.key] ? list : list.slice(0, 3);
+    var h = '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': something near your base in ' + CITY[b.base] + ', nothing far.</p><div class="tp-pcs">';
+    show.forEach(function (p) {
+      var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + f.d, why = ['Open ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb].filter(Boolean).join(' · ');
+      ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: f.d };
+      MODAL[id] = { type: 'product', p: p, f: { d: f.d, v: CITY[b.base] }, o: o, why: why };
+      h += productCard(p, why, id, f);
+    });
+    h += '</div>';
+    if (list.length > 3) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Show fewer' : 'Show ' + (list.length - 3) + ' more') + '</button>';
+    return h;
+  }
+  function heading(b) {
+    if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || 'time to be confirmed') + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
+    if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + CITY[b.base] }; }
+    if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, near your base' };
+    return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
+  }
+  function renderThird() {
+    // With no team but their days set (T16), the days still lead: free stretches with day trips and longer trips
+    var M = model(), bs = blocks(M), first = teaser() && !M.range;
+    if (thirdNote) thirdNote.textContent = first ? 'A first look: around the next NSW match day. Each links out; nothing is booked here.'
+      : M.range ? 'Your days in NSW, in order: match days and the free days between them. Each links out; nothing is booked here.'
+      : M.own && !M.nsw.length && !M.local ? tp.list(state.picked.filter(function (n) { return tp.teams[n]; })) + ' plays interstate, so these are the NSW match days you could go to. Each links out; nothing is booked here.'
+      : 'Your match days in NSW. Each links out; nothing is booked here.';
+    // Only the next block is open to start with; a different set of days starts again from the next one
+    var sigNow = bs.map(function (b) { return b.key; }).join(',');
+    if (sigNow !== blkSig || !openSet) { blkSig = sigNow; openSet = {}; var nx = bs.filter(function (b) { return b.kind !== 'away'; })[0]; if (nx) openSet[nx.key] = true; }
+    if (!bs.length) {
+      thirdList.innerHTML = '<p class="tp-empty">' + (stay() ? 'No NSW match falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your days, or see Where to watch above.' : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>' + (first ? TAILOR : '');
+      return;
+    }
+    var h = '';
+    bs.forEach(function (b) {
+      var hd = heading(b), open = !!openSet[b.key], bid = 'tp-blk-' + b.key;
+      if (b.kind === 'away') { h += '<div class="tp-blk tp-blk--away"><p class="tp-blk-line"><span class="tp-blk-when">' + esc(hd.when) + '</span> <span class="tp-blk-what">' + esc(hd.what) + '</span></p></div>'; return; }
+      h += '<section class="tp-blk tp-blk--' + b.kind + '" data-blk="' + b.key + '"><h4 class="tp-blk-h"><button type="button" class="tp-blk-head" data-blk-toggle="' + b.key + '" aria-expanded="' + open + '" aria-controls="' + bid + '">' +
+        '<span class="tp-blk-when">' + esc(hd.when) + '</span><span class="tp-blk-what">' + esc(hd.what) + '</span><span class="tp-blk-chev" aria-hidden="true"></span></button></h4>' +
+        '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? freeBody(b) : halfBody(b)) : '') + '</div></section>';
+    });
     if (first) h += TAILOR;
     thirdList.innerHTML = h;
   }
-  daysEl.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-day]'); if (!b) return;
-    selDay = b.dataset.day; openCard = null;
-    render(true, '[data-day="' + CSS.escape(b.dataset.day) + '"]');
-    tp.say('Suggestions for ' + b.textContent + '.');
-    chipInView();
+  thirdList.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-blk-toggle]');
+    if (t) { var k = t.dataset.blkToggle; if (openSet[k]) delete openSet[k]; else openSet[k] = true; render(true, '[data-blk-toggle="' + k + '"]'); return; }
+    var m = e.target.closest('[data-more]');
+    if (m) { moreBlk[m.dataset.more] = !moreBlk[m.dataset.more]; render(true, '[data-more="' + m.dataset.more + '"]'); return; }
+    var mv = e.target.closest('[data-move]');
+    if (mv) { moveOpen = moveOpen === mv.dataset.move ? null : mv.dataset.move; render(true, moveOpen ? '[data-move-id="' + CSS.escape(mv.dataset.move) + '"]' : '[data-move="' + CSS.escape(mv.dataset.move) + '"]'); return; }
+    var to = e.target.closest('[data-move-to]');
+    if (to) {
+      // Move: the same trip, another valid start in the same stretch
+      var id = to.dataset.moveId, cur = state.added.filter(function (x) { return x.id === id; })[0]; if (!cur) return;
+      var s = +to.dataset.moveTo, nu = Object.assign({}, cur, { start: s, day: dayLabel(s), endDay: cur.nights ? dayLabel(s + cur.nights) : null, when: cur.nights ? spanLabel(s, s + cur.nights) : dayLabel(s) });
+      tp.removeItem(id); tp.addItem(nu); moveOpen = null;
+      render(true, '[data-move="' + CSS.escape(id) + '"]');
+      tp.say(cur.title + ' moved to ' + (nu.nights ? spanLabel(s, s + nu.nights) : nu.day) + '.');
+      return;
+    }
+    var w = e.target.closest('[data-watch]');
+    if (w) {
+      var g = watchList.querySelector('.tp-wm[data-key="' + CSS.escape(w.dataset.watch) + '"]') || document.getElementById('tp-watch');
+      var top = g.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
+      body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+      var f = g.querySelector('button'); if (f) f.focus({ preventScroll: true });
+    }
   });
-  /* The day chips run off the right edge of the phone: a fade on whichever edge has more chips past it says so, and
-     goes once the row is scrolled to that end. A picked chip is brought clear of the fade. */
-  var FADE = 40;
-  function fades() {
-    var x = daysEl.scrollLeft, max = daysEl.scrollWidth - daysEl.clientWidth;
-    daysEl.classList.toggle('is-more-l', x > 2);
-    daysEl.classList.toggle('is-more-r', x < max - 2);
-  }
-  function chipInView() {
-    var c = daysEl.querySelector('[aria-pressed="true"]'); if (!c) return;
-    var l = c.offsetLeft - FADE, r = c.offsetLeft + c.offsetWidth + FADE - daysEl.clientWidth, x = daysEl.scrollLeft;
-    var to = x > l ? l : x < r ? r : x;
-    if (to !== x) daysEl.scrollTo({ left: Math.max(0, to), behavior: reduce.matches ? 'auto' : 'smooth' });
-  }
-  daysEl.addEventListener('scroll', fades, { passive: true });
-  window.addEventListener('resize', fades);
   // Pick a team to tailor this: back up to the hand of cards, focus on the card in the middle
   phone.addEventListener('click', function (e) {
     if (!e.target.closest('[data-act="tailor"]')) return;
@@ -339,13 +512,48 @@
     var el = focusSel && pm.querySelector(focusSel);
     (el || pm.querySelector('[data-pm-team], [data-pm-match], [data-pm-ticket], [data-pm-close]')).focus({ preventScroll: true });
   }
+  /* A curated trip: what it is, how to get there from the base, when it runs and roughly what it costs (both worked out
+     from its stops), then its stops as product cards. ATDW stops and DNSW's custom stops look the same apart from a
+     small source label. Stops in a neutral order: travel time from the start, then name. */
+  var SOURCE = { atdw: 'ATDW listing', custom: 'Custom: Destination NSW' };
+  function dayRun(ds) {
+    if (ds.length === 7) return 'Every day';
+    if (!ds.length) return 'Check the stops';
+    // A run of days, wrapping past Sunday ("Thu to Mon"), or else the days listed
+    for (var k = 0; k < ds.length; k++) {
+      var st = WD_ORDER.indexOf(ds[k]);
+      if (ds.every(function (x, j) { return ds.indexOf(WD_ORDER[(st + j) % 7]) > -1; })) return WD_NAME[ds[k]] + ' to ' + WD_NAME[WD_ORDER[(st + ds.length - 1) % 7]];
+    }
+    return ds.map(function (d) { return WD_NAME[d]; }).join(', ');
+  }
+  function pmTrip(id, x) {
+    var t = x.t, b = x.b, h = '';
+    var bases = Object.keys(t.travel).map(function (k) { return mins(t.travel[k].minutes) + ' ' + (MODE[t.travel[k].mode] || '') + ' from ' + CITY[k]; }).join('; ');
+    h += '<div class="plan-modal-img ph-img" role="img" aria-label="Placeholder image of ' + esc(t.region) + '"></div><div class="plan-modal-body">';
+    h += '<p class="tp-pm-type provenance-gap">' + (t.kind === 'day' ? 'Day trip' : 'Longer trip, ' + t.nights + (t.nights === 1 ? ' night' : ' nights')) + ' \u00b7 Curated by Destination NSW</p>';
+    h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(t.title) + '</h2>';
+    h += '<p class="tp-pm-why provenance-gap">' + esc(x.why) + '</p>';
+    h += '<p class="cn-pp-venue provenance-gap">' + esc(t.summary) + '</p>';
+    h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
+      '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + esc(bases) + '</span></dd></div>' +
+      '<div><dt>Runs</dt><dd><span class="provenance-gap">' + esc(dayRun(tripDays(t))) + '</span> <span class="tp-pm-derived">(from its stops)</span></dd></div>' +
+      '<div><dt>Price</dt><dd><span class="provenance-gap">' + esc(tripBand(t) === 'free' ? 'Free' : tripBand(t) + ' (price band)') + '</span> <span class="tp-pm-derived">(from its stops)</span></dd></div></dl>';
+    var stops = t.stops.slice().sort(function (a, c) { return a.minutes_from_start - c.minutes_from_start || a.title.localeCompare(c.title); });
+    h += '<h3 class="cn-pp-h">Stops</h3><div class="tp-pcs tp-stops">' + stops.map(function (st) {
+      return '<article class="tp-pc tp-stop"><span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title provenance-gap">' + esc(st.title) + '</span>' +
+        '<span class="tp-pc-type provenance-gap">' + esc(PTYPE[st.type] || 'Product') + ' \u00b7 ' + esc(st.suburb) + '</span>' +
+        '<span class="tp-stop-src">' + esc(SOURCE[st.source]) + '</span></span></article>';
+    }).join('') + '</div>';
+    h += pmActions(id, t.region) + '</div>';
+    return h;
+  }
   function openPm(id, opener) {
     var isMatch = id.indexOf('match:') === 0, x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : MODAL[id];
     if (!x || (isMatch && !x.m)) return;
     pmSaid = '';
-    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : x.type === 'product' ? pmProduct(id, x) : pmSpot(id, x);
+    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = isMatch ? 'Match' : x.type === 'product' ? 'Suits your 3rd half' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isMatch ? 'Match' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     pm.classList.toggle('is-match', isMatch);
     // Everything behind waits; remember what was already inert so closing puts it back as it was
@@ -353,7 +561,7 @@
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.sp.name) + ', page opened.');
+    tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : x.sp.name) + ', page opened.');
     notesRefresh();
   }
   function closePm() {
@@ -439,12 +647,12 @@
      the person moves on, and a brief tint on each section that changed, played as it comes into view (the sections
      sit below the question, often off screen when it is answered). */
   var askNews = '', SECS = { watch: document.getElementById('tp-watch'), third: document.getElementById('tp-third') }, pending = [];
-  function snap() { return { watch: watchList.textContent + watchMore.textContent, third: daysEl.textContent + thirdList.textContent }; }
+  function snap() { return { watch: watchList.textContent + watchMore.textContent, third: thirdList.textContent }; }
   function changedSince(before, lead, same) {
     var after = snap(), names = [];
     pending = [];
     if (before.watch !== after.watch) { names.push('Where to watch'); pending.push(SECS.watch); }
-    if (before.third !== after.third) { names.push('Suits your 3rd half'); pending.push(SECS.third); }
+    if (before.third !== after.third) { names.push('Around your matches'); pending.push(SECS.third); }
     askNews = names.length ? lead + ' Updated on the page: ' + names.join(' and ') + '.' : (same || lead + ' Nothing on the page needed to change.');
     // The answer is given in the open timeline, over the page: the sections wait until it closes, then each is tinted
     // as it comes into view
@@ -583,12 +791,31 @@
   /* The line under Suits your 3rd half: the way to the question while it is unanswered, then the answer and Change */
   function renderTripLine() {
     if (!tripEl) return;
-    var t = trip(), done = t && (t.mode !== 'visiting' || (t.from && t.to));
+    var t = trip(), done = t && (t.mode === 'local' || (t.mode === 'visiting' && t.from && t.to)), M = model();
+    // A guess from their first to last NSW match, confirmed with the same That's right as the timeline
+    if (!done && M.how === 'guessed') {
+      tripEl.innerHTML = '<span>Looks like you\u2019re here <strong>' + esc(tp.isoRange(isoOf(M.range.a), isoOf(M.range.z))) + '</strong></span> \u00b7 <button type="button" class="tp-link" data-act="trip-ok">That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>';
+      return;
+    }
+    if (!done) {
+      tripEl.innerHTML = '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + (M.how === 'one' ? 'Staying longer? Set your days' : 'Set your days in NSW to see what fits your free days') + '</button>';
+      return;
+    }
     var what = !done ? '' : t.mode === 'local' ? 'You live in NSW' : t.mode === 'unsure' ? 'Not sure yet if you\u2019re visiting' : 'Your days in NSW: ' + tp.isoRange(t.from, t.to);
     tripEl.innerHTML = done ? '<span class="tp-third-trip-a">' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>'
       : '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + (t && t.mode === 'visiting' ? 'Visiting? Confirm your days to see what fits' : 'Visiting? Set your days to see what fits') + '</button>';
   }
-  phone.addEventListener('click', function (e) { if (e.target.closest('#tp-third-trip [data-act="trip"]')) openAsk(); });
+  phone.addEventListener('click', function (e) {
+    if (e.target.closest('#tp-third-trip [data-act="trip"]')) { openAsk(); return; }
+    if (!e.target.closest('#tp-third-trip [data-act="trip-ok"]')) return;
+    var M = model(); if (!M.range) return;
+    var before = snap();
+    tp.setTrip({ mode: 'visiting', from: isoOf(M.range.a), to: isoOf(M.range.z) });
+    var said = changedSince(before, 'Your days in NSW are ' + tp.isoRange(isoOf(M.range.a), isoOf(M.range.z)) + '.');
+    askNews = '';
+    render(true, '#tp-third-trip [data-act="trip"]');
+    tp.say(said);
+  });
 
   // From the results' interstate note: down to the screenings of their matches
   var toWatch = document.getElementById('tp-to-watch');
@@ -615,7 +842,11 @@
     var things = state.added.filter(function (it) { return it.kind !== 'match'; });
     if (things.length) {
       lines.push('', 'Added:');
-      things.forEach(function (it) { lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : '')); });
+      things.forEach(function (it) {
+        // A longer trip is a span: "Tue 12 to Thu 14 Oct: Hunter Valley (2 nights)"
+        if (it.kind === 'trip') { lines.push('- ' + (it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) + ': ' + it.title + (it.nights ? ' (' + it.nights + (it.nights === 1 ? ' night' : ' nights') + ')' : ' (day trip)')); return; }
+        lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : ''));
+      });
       lines.push('', 'Places are placeholders in this prototype, not real listings.');
     }
     return lines.join('\n');
@@ -658,7 +889,7 @@
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};
   function signature() {
-    return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.tab, selDay, watchAll, askEditing, askManual, askError, openCard, copied]);
+    return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.tab, openSet, moreBlk, moveOpen, watchAll, askEditing, askManual, askError, openCard, copied]);
   }
   function render(force, focusSel) {
     var s = signature();
@@ -677,7 +908,6 @@
     renderWatch();
     renderThird();
     renderTripLine();
-    fades();
     renderAsk();
     renderPlan();
     // A gentle change: what is new fades up; a reason that changed glows briefly
@@ -697,6 +927,6 @@
   phone.addEventListener('tp:state', function () { render(false); });
   // Reset prototype (a reviewer tool): this section's own choices go back to a first visit too
   var resetBtn = document.getElementById('tp-reset');
-  if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); selDay = null; watchAll = false; openCard = null; askEditing = false; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
+  if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); openSet = null; blkSig = ''; moreBlk = {}; moveOpen = null; watchAll = false; openCard = null; askEditing = false; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
   render(true);
 })();
