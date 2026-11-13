@@ -3345,6 +3345,10 @@ body.cp-page code { font: inherit; }
 .tp-tl-later { border: 0; padding: var(--space-1) 0 0; text-align: left; }
 @media (prefers-reduced-motion: reduce) { .tp-tl-strip, .tp-tl-end, .tp-tl.is-open .tp-tl-strip, .tp-tl.is-open .tp-tl-end { transition: opacity .15s linear; } }
 
+/* Quieter: the hero says once that kick-offs are Sydney time; text in the phone avoids single-word last lines */
+.tp-dates-note { margin-top: 2px; font-size: .75rem; color: rgba(255,255,255,.8); }
+.cn-phone p, .cn-phone li, .cn-phone button { text-wrap: pretty; }
+
 /* Concepts: the cross, panes, toast fade, reorder and the timeline view. */
 .cn-x { display: block; }
 .cn-toast { transition: opacity var(--dur-large) var(--ease-in), transform var(--dur-large) var(--ease-in); }
