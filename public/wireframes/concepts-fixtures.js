@@ -48,3 +48,12 @@ window.cnFixtures = [
   {"d": "Sat 16 Oct", "t": "Argentina v Spain", "s": "Pool C", "v": "Perth Stadium", "p": "Perth", "k": "9:30pm", "a": "Perth"},
   {"d": "Sun 17 Oct", "t": "Scotland v Portugal", "s": "Pool D", "v": "Adelaide Oval", "p": "Adelaide", "k": "3:30pm", "a": "Adelaide"}
 ];
+
+/* GAP DATA: placeholders only, not real. Fan zones and the Rugby World Cup village are not in the live data or in
+   docs/product-data-contract.md, so per CLAUDE.md they render from fixtures only, with the pink gap marker. Each spot
+   lists the interstate matches it shows (key: date|teams, as in cnFixtures). A match not listed here has no "watch in
+   NSW" line: that is the empty state. Names and places are deliberately fake. Real data is still needed. */
+window.cnWatchSpots = [
+  { name: 'Sample fan zone (placeholder)', place: 'Placeholder site, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|New Zealand v Chile', 'Sat 2 Oct|Argentina v Canada', 'Sun 3 Oct|England v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Sat 16 Oct|Australia v Chile'] },
+  { name: 'Sample rugby village (placeholder)', place: 'Placeholder site, Newcastle', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 16 Oct|Australia v Chile', 'Sat 9 Oct|France v Japan'] }
+];

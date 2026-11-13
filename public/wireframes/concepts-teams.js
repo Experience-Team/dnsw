@@ -65,7 +65,11 @@
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   // Tells the annotation layer (prototype-pick-your-team.html) that what is on screen has changed
-  function changed() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
+  // Tells the annotation layer that what is on screen has changed
+  function notesOnly() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
+  // Picks, tickets or the screen changed: the timeline follows, then the annotations
+  var tlReady = false;
+  function changed() { if (tlReady) { tlUpdate(); syncBar(); } notesOnly(); }
   function say(msg) { live.textContent = ''; setTimeout(function () { live.textContent = msg; }, 30); }
   function isPicked(c) { return state.picked.indexOf(c.name) > -1; }
   function nswLine(c) { return c.rugby ? 'Every match in NSW' : c.nsw ? c.nsw + (c.nsw === 1 ? ' match' : ' matches') + ' in NSW' : 'No matches in NSW'; }
@@ -228,7 +232,6 @@
     var n = state.picked.length;
     showBtn.setAttribute('aria-disabled', n ? 'false' : 'true');
     clearBtn.hidden = !n;
-    syncNudge();
     showBtn.textContent = !n ? 'See their matches' : n === 1 && state.picked[0] === RUGBY.name ? 'See the NSW matches' : 'See their matches (' + n + ')';
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
@@ -346,29 +349,10 @@
     }
     say(showAll ? 'All matches shown below your cards.' : 'All matches hidden.');
   });
-  // Pick a team prompt: slides in once the person has scrolled past the cards without a team (never on Your matches or after Skip)
-  var nudge = document.getElementById('tp-nudge'), nudgeOn = false, nudgeRaf = 0;
-  function syncNudge() {
-    // Only on the picker: someone who chose Skip this step has made their choice and is not nagged
-    var cardsBox = root.querySelector('.tp-fan-wrap').getBoundingClientRect();
-    var past = state.view === 'pick' && state.picked.length === 0 && cardsBox.height > 0 && cardsBox.bottom < body.getBoundingClientRect().top;
-    if (past === nudgeOn) return;
-    nudgeOn = past;
-    nudge.classList.toggle('is-on', past);
-    changed(); // the annotation for it follows
-  }
-  body.addEventListener('scroll', function () { if (!nudgeRaf) nudgeRaf = requestAnimationFrame(function () { nudgeRaf = 0; syncNudge(); }); }, { passive: true });
-  window.addEventListener('resize', syncNudge);
-  document.getElementById('tp-nudge-btn').addEventListener('click', function () {
-    deal();
-    body.scrollTo({ top: resultsTop(), behavior: reduce.matches ? 'auto' : 'smooth' }); // the title 16px below the top
-    cards[Math.round(offset)].focus({ preventScroll: true });
-  });
   function setView(v) {
     if (v === 'results' && state.view !== 'results') showAll = false; // closed each time Your matches opens
     state.view = v; save();
     syncAll(v);
-    syncNudge();
     document.getElementById('tp-pick-title').textContent = v === 'results' ? 'Your matches' : 'Pick your team';
     picker.hidden = v !== 'pick';
     results.hidden = v !== 'results';
@@ -516,8 +500,222 @@
     cards[Math.round(offset)].focus({ preventScroll: true });
   });
 
+  /* ---------- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to the 390px phone) ----------
+     A sheet docked over the bottom of the phone, out of the content's flow. Three states: hidden (until the match cards
+     have scrolled past the top of the phone), collapsed (the 104px bar) and open (the sheet risen by its panel height).
+     Only transform moves it. Matches only: every match with no team or after Skip, every NSW match for Here for the
+     rugby, and only the picked teams' matches, live as picks change. The All matches list stays unfiltered.
+     Fan zones and the village are gap data from cnWatchSpots (placeholders). The number badge counts items added to
+     the timeline; none exist yet, so only the reviewer-only stand-in control can show it. */
+  var tl = document.getElementById('tp-tl');
+  var tlToggle = document.getElementById('tp-tl-toggle'), tlPanel = document.getElementById('tp-tl-panel'), tlScrim = document.getElementById('tp-tl-scrim');
+  var tlCanvas = document.getElementById('tp-tl-canvas'), tlScroll = document.getElementById('tp-tl-scroll'), tlDetail = document.getElementById('tp-tl-detail');
+  var tlDots = document.getElementById('tp-tl-dots'), tlLabel = document.getElementById('tp-tl-label'), tlValue = document.getElementById('tp-tl-value');
+  var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt'), tlAddedEl = document.getElementById('tp-tl-added');
+  var phoneEl = document.getElementById('tp-phone');
+  var SPOTS = Array.isArray(window.cnWatchSpots) ? window.cnWatchSpots : [];
+  var TL_ICON = {
+    ball: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="8" rx="6.5" ry="4.2" transform="rotate(-35 8 8)" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.6 10.4l4.8-4.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    ticket: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'
+  };
+  var DAYS = 44, DAYW = 40, PADX = 28, BAR = 104;
+  var tlOn = false, tlOpen = false, tlSel = -1, tlAdded = 0;
+  function dayOf(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + (+p[1]) - 1; } // 1 Oct is day 0, 13 Nov day 43
+  var TLM = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
+    return { f: f, day: dayOf(f.d), key: f.d + '|' + (f.t || f.s), tkey: f.t ? f.d + '|' + f.t : null };
+  });
+  // The canvas: an axis with every day of the tournament and one marker button per match, built once
+  (function () {
+    var h = '<span class="tp-tl-axis" style="left:' + PADX + 'px;width:' + ((DAYS - 1) * DAYW) + 'px"></span>';
+    for (var i = 0; i < DAYS; i++) {
+      var x = PADX + i * DAYW;
+      h += '<span class="tp-tl-tick" style="left:' + x + 'px"></span><span class="tp-tl-day" style="left:' + x + 'px">' + (i < 31 ? i + 1 : i - 30) + '</span>';
+      if (i === 0 || i === 31) h += '<span class="tp-tl-month" style="left:' + (x - 6) + 'px">' + (i ? 'November' : 'October') + '</span>';
+    }
+    h += TLM.map(function (m, k) { return '<button type="button" class="tp-tl-mk" data-k="' + k + '" tabindex="-1" aria-pressed="false" style="left:' + (PADX + m.day * DAYW) + 'px"><span class="cn-tl-sym cn-tl-sym--match"></span></button>'; }).join('');
+    tlCanvas.style.width = (PADX * 2 + (DAYS - 1) * DAYW) + 'px';
+    tlCanvas.innerHTML = h;
+    var d = '';
+    for (var j = 0; j < DAYS; j++) d += '<span class="tp-tl-dot is-off" style="left:' + (j / (DAYS - 1) * 100) + '%"></span>';
+    tlDots.innerHTML = d;
+  })();
+  var tlMarks = Array.prototype.slice.call(tlCanvas.querySelectorAll('.tp-tl-mk'));
+  var tlDotEls = Array.prototype.slice.call(tlDots.children);
+  TLM.forEach(function (m, k) { m.el = tlMarks[k]; m.sym = tlMarks[k].firstElementChild; m.state = ''; });
+
+  function tlTeams() { return state.picked.filter(function (n) { return n !== RUGBY.name; }); }
+  function tlShown(f) {
+    if (isPicked(RUGBY)) return !f.a; // every NSW match, knockouts included
+    var t = tlTeams();
+    if (!t.length) return true;
+    return !!f.t && f.t.split(' v ').some(function (n) { return t.indexOf(n) > -1; });
+  }
+  function shortDate(d) { var p = d.split(' '); return p[1] + ' ' + p[2]; }
+  function tlRange(a, b) {
+    if (a === b) return shortDate(a);
+    var pa = a.split(' '), pb = b.split(' ');
+    return pa[2] === pb[2] ? pa[1] + ' to ' + pb[1] + ' ' + pb[2] : shortDate(a) + ' to ' + shortDate(b);
+  }
+  function tlName(m) { return m.f.t ? m.f.t : m.f.s + ', teams to be decided'; }
+  function tlUpdate() {
+    var perDay = {}, dayType = {}, shown = [];
+    TLM.forEach(function (m) {
+      var on = tlShown(m.f), tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1;
+      m.on = on;
+      if (on) {
+        var row = perDay[m.day] || 0; perDay[m.day] = row + 1;
+        m.el.style.setProperty('--row', row);
+        shown.push(m);
+        var t = tk ? 3 : !m.f.t ? 0 : m.f.a ? 1 : 2; // the strip shows one dot a day: ticket, then NSW, interstate, to be decided
+        if (dayType[m.day] === undefined || t > dayType[m.day]) dayType[m.day] = t;
+      }
+      m.el.classList.toggle('is-off', !on);
+      var st = (tk ? 'ticket' : 'match') + (m.f.a ? ' away' : '') + (m.f.t ? '' : ' tbd');
+      if (st !== m.state) {
+        m.state = st;
+        m.sym.className = 'cn-tl-sym ' + (tk ? 'cn-tl-sym--ticket' : 'cn-tl-sym--match') + (m.f.a ? ' is-away' : '') + (m.f.t ? '' : ' is-tbd');
+        m.sym.innerHTML = tk ? TL_ICON.ticket : m.f.t ? TL_ICON.ball : '';
+        m.el.setAttribute('aria-label', m.f.d + ', ' + tlName(m) + ', ' + (m.f.a ? 'interstate, ' + m.f.a : m.f.p) + (tk ? ', you have a ticket' : ''));
+      }
+    });
+    // The canvas is as tall as the tallest day shown: 50px for the axis and dates, 28px a row, 10px above
+    var rows = 1; Object.keys(perDay).forEach(function (d) { rows = Math.max(rows, perDay[d]); });
+    tlCanvas.style.height = (60 + rows * 28) + 'px';
+    tlDotEls.forEach(function (el, i) {
+      var t = dayType[i];
+      el.className = 'tp-tl-dot' + (t === undefined ? ' is-off' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '');
+    });
+    // The bar's words
+    var teams = tlTeams(), none = !state.picked.length;
+    var label = none ? 'Pick your team' : isPicked(RUGBY) ? 'Here for the rugby: every NSW match' : 'Your teams: ' + list(teams);
+    if (tlAdded) label = tlAdded + ' added to your timeline' + (none ? ' · Pick your team' : '');
+    tlLabel.textContent = label;
+    tlLabel.classList.toggle('is-hook', none || !!tlAdded);
+    tlValue.textContent = shown.length + (shown.length === 1 ? ' match' : ' matches') + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : '');
+    tlBadge.hidden = !tlAdded;
+    tlBadge.textContent = tlAdded;
+    tlPrompt.hidden = !none;
+    tlAddedEl.hidden = !tlAdded;
+    tlAddedEl.textContent = tlAdded ? tlAdded + (tlAdded === 1 ? ' stand-in item' : ' stand-in items') + ' added by the reviewer control. Not a real product or place; no product data.' : '';
+    // A selected match that is no longer shown is let go
+    if (tlSel > -1 && !TLM[tlSel].on) tlSel = -1;
+    tlRenderDetail();
+  }
+  function tlRoving() {
+    var first = -1;
+    TLM.forEach(function (m, k) { if (first < 0 && m.on) first = k; });
+    var tab = tlSel > -1 ? tlSel : first;
+    TLM.forEach(function (m, k) { m.el.tabIndex = k === tab ? 0 : -1; m.el.setAttribute('aria-pressed', k === tlSel ? 'true' : 'false'); });
+  }
+  function tlRenderDetail() {
+    tlRoving();
+    if (tlSel < 0) { tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a match on the timeline to see its details.</p>'; return; }
+    var m = TLM[tlSel], f = m.f, tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1;
+    var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
+    var h = '<p class="tp-tl-d-when">' + esc(f.d) + ', ' + (f.k ? esc(f.k) + ' Sydney time' : 'time to be confirmed') + '</p>' +
+      '<p class="tp-tl-d-teams">' + who + '</p>' +
+      '<p class="tp-tl-d-stage">' + (f.t ? esc(f.s) : 'Teams to be decided') + '</p>' +
+      '<p class="tp-tl-d-where">' + esc(f.v + ', ' + f.p) + '</p>' +
+      (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>');
+    // Gap data: only where a placeholder spot lists this match; otherwise no line at all
+    var spots = f.a ? SPOTS.filter(function (sp) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }) : [];
+    if (spots.length) h += '<p class="tp-tl-watch provenance-gap">Watch in NSW: ' + spots.map(function (sp) { return esc(sp.name) + ', ' + esc(sp.place); }).join('; ') + '</p>';
+    if (tk) h += '<p class="tp-tl-d-ticket">You have a ticket for this match.</p>';
+    tlDetail.innerHTML = h;
+  }
+  function tlSelect(k, focus) {
+    tlSel = k;
+    tlRenderDetail();
+    var el = TLM[k].el, x = el.offsetLeft;
+    // Keep the chosen marker in view, with some of the days either side
+    if (x < tlScroll.scrollLeft + 40 || x > tlScroll.scrollLeft + tlScroll.clientWidth - 40) tlScroll.scrollTo({ left: Math.max(0, x - tlScroll.clientWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
+    if (focus) el.focus({ preventScroll: true });
+    notesOnly();
+  }
+  tlCanvas.addEventListener('click', function (e) { var b = e.target.closest('.tp-tl-mk'); if (b) tlSelect(+b.dataset.k, false); });
+  tlCanvas.addEventListener('keydown', function (e) {
+    var b = e.target.closest('.tp-tl-mk'); if (!b) return;
+    var on = []; TLM.forEach(function (m, k) { if (m.on) on.push(k); });
+    var at = on.indexOf(+b.dataset.k), to = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') to = on[Math.min(on.length - 1, at + 1)];
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') to = on[Math.max(0, at - 1)];
+    else if (e.key === 'Home') to = on[0];
+    else if (e.key === 'End') to = on[on.length - 1];
+    if (to === null || to === undefined) return;
+    e.preventDefault();
+    tlSelect(to, true);
+  });
+  // The panel's height: as tall as fits under the top of the phone, up to 460px
+  function tlFit() { tl.style.setProperty('--tl-p', Math.max(260, Math.min(460, phoneEl.clientHeight - BAR - 72)) + 'px'); }
+  tlFit();
+  window.addEventListener('resize', tlFit);
+  // Shown once the match cards have come into view and their top has passed the top of the phone (never for the fan)
+  function tlRef() {
+    if (state.view === 'results') return deck;
+    return allSec && !allSec.hidden ? document.getElementById('tp-all-scroll') : null;
+  }
+  function syncBar() {
+    var ref = tlRef(), r = ref && ref.getBoundingClientRect(), box = body.getBoundingClientRect();
+    // The cards' top has passed the top of the phone; or, where the page is too short for that, the cards are in view and
+    // the page is scrolled to its end (otherwise the bar could never appear under a short list)
+    var atEnd = body.scrollTop + body.clientHeight >= body.scrollHeight - 2;
+    var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
+    var on = tlOpen || seen;
+    if (on === tlOn) return;
+    tlOn = on;
+    tl.classList.toggle('is-on', on);
+    tl.inert = !on;
+    notesOnly();
+  }
+  var barRaf = 0;
+  body.addEventListener('scroll', function () { if (!barRaf) barRaf = requestAnimationFrame(function () { barRaf = 0; syncBar(); }); }, { passive: true });
+  window.addEventListener('resize', syncBar);
+  function tlSetOpen(open, focusBack) {
+    if (open === tlOpen) return;
+    tlOpen = open;
+    tl.classList.toggle('is-open', open);
+    tlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    tlPanel.inert = !open;
+    body.inert = open; // the screen behind waits under the scrim while the timeline is open
+    tlScrim.classList.toggle('is-on', open);
+    if (open) {
+      tlFit();
+      // Start the axis at the chosen match, or the first one shown
+      var k = tlSel > -1 ? tlSel : TLM.findIndex(function (m) { return m.on; });
+      if (k > -1) tlScroll.scrollLeft = Math.max(0, TLM[k].el.offsetLeft - 48);
+      tlPanel.scrollTop = 0;
+      document.getElementById('tp-tl-title').focus({ preventScroll: true });
+    } else if (focusBack !== false) tlToggle.focus({ preventScroll: true });
+    syncBar();
+    notesOnly();
+  }
+  tlToggle.addEventListener('click', function () { tlSetOpen(!tlOpen); });
+  tlScrim.addEventListener('click', function () { tlSetOpen(false); });
+  document.addEventListener('keydown', function (e) { if (tlOpen && e.key === 'Escape') { e.preventDefault(); tlSetOpen(false); } });
+  // The prompt that used to sit at the top of the phone: back to the fan
+  document.getElementById('tp-tl-pick').addEventListener('click', function () {
+    tlSetOpen(false, false);
+    if (state.view === 'skipped') document.getElementById('tp-unskip').click();
+    deal();
+    body.scrollTo({ top: resultsTop(), behavior: reduce.matches ? 'auto' : 'smooth' });
+    cards[Math.round(offset)].focus({ preventScroll: true });
+  });
+  // Reviewer only: a stand-in item, so the number badge can be tested. No product fields; not saved.
+  var standin = document.getElementById('tp-tl-standin'), standinClear = document.getElementById('tp-tl-standin-clear');
+  function setAdded(n) {
+    tlAdded = n;
+    standinClear.hidden = !n;
+    changed();
+    say(n ? n + ' stand-in ' + (n === 1 ? 'item' : 'items') + ' on the timeline.' : 'Stand-in items removed.');
+  }
+  if (standin) standin.addEventListener('click', function () { setAdded(tlAdded + 1); });
+  if (standinClear) standinClear.addEventListener('click', function () { setAdded(0); });
+  tlReady = true;
+  tlUpdate();
+
   renderChosen();
   if (state.view === 'results') { dealt = true; place(false); showResults(false); } else setView(state.view);
+  syncBar();
   /* ---------- Reset prototype (a reviewer tool in the section header, not part of the design) ----------
      Back to a first visit: nothing picked, no tickets, nothing saved, the picker view, the hand stacked to deal open
      again, and the phone scrolled to the top. */
@@ -533,6 +731,7 @@
     renderChosen();
     place(false);
     body.scrollTop = 0;
+    tlSetOpen(false, false); tlSel = -1; tlAdded = 0; standinClear.hidden = true; changed();
     watchDeal();
     say('Prototype reset. No teams picked.');
   });
