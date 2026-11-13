@@ -3842,3 +3842,17 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-clash { position: absolute; top: 0; bottom: 38px; background: repeating-linear-gradient(135deg, rgba(180,35,24,.16) 0 3px, transparent 3px 8px); }
 .tp-tl-d-clash { margin-top: var(--space-1); font-size: .8125rem; font-weight: 600; line-height: 1.4; color: #B42318; }
 .tp-tl-key-span { display: inline-block; width: 22px; height: 10px; border-radius: 3px; background: #1f1f1f; }
+
+/* A match from All matches opens as a sheet from the bottom (products and places stay full-screen pages) */
+.tp-pm-scrim { position: absolute; inset: 0; z-index: 139; background: rgba(0,0,0,.4); animation: tp-fade-in .24s ease-out; }
+.tp-pm-scrim[hidden] { display: none; }
+@keyframes tp-fade-in { from { opacity: 0; } }
+.cn-pp.tp-pm.is-sheet { inset: auto 0 0 0; max-height: 88%; border-radius: 16px 16px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.18); }
+.cn-pp.tp-pm.is-sheet::before { content: ""; position: absolute; top: 6px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #c4c4c4; }
+.cn-pp.tp-pm.is-sheet .cn-bar { padding-top: var(--space-3); border-radius: 16px 16px 0 0; }
+.cn-pp.tp-pm.is-sheet .cn-pp-body { padding-bottom: var(--space-4); }
+.cn-pp.tp-pm.is-sheet.is-open { animation: tp-sheet-up .36s cubic-bezier(.2, .8, .2, 1); }
+@keyframes tp-sheet-up { from { transform: translateY(100%); } }
+@media (prefers-reduced-motion: reduce) { .cn-pp.tp-pm.is-sheet.is-open, .tp-pm-scrim { animation: tp-fade-in .15s linear; } }
+/* A team in the sheet is a toggle, like Add to my timeline: pressed has a tick and a light fill */
+.tp-pm-team[aria-pressed="true"] { background: #f0f0f0; border-style: solid; }
