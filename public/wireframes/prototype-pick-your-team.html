@@ -98,6 +98,11 @@
           <div class="tp-results" id="tp-results" hidden>
             <p class="tp-results-sum" id="tp-results-sum" tabindex="-1"></p>
             <p class="tp-results-note">Kick-off times are Sydney time.</p>
+            <!-- Only for teams with no pool match in NSW (filled by concepts-teams.js): the way on, not a dead end -->
+            <div class="tp-results-away" id="tp-results-away" hidden>
+              <p class="tp-results-away-text"></p>
+              <button type="button" class="tp-link" id="tp-to-watch">See where to watch in NSW</button>
+            </div>
             <div class="tp-deck" id="tp-deck" role="group" aria-label="Your matches"></div>
             <p class="tp-deck-hint" id="tp-deck-hint" hidden>Swipe for your other cards.</p>
             <div class="tp-results-actions">
@@ -260,7 +265,8 @@
       { sel: '.tp-device', title: 'Saved on this device', text: 'Picks, ticket marks and the screen you were on are kept in this browser, so a reload puts you back where you were. Reset prototype, or ?reset on the address, clears them.' }
     ].concat(EXTRA, TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
     results: { items: [
-      { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers; focus lands here when the cards turn over.' },
+      { sel: '#tp-results-away', title: 'Teams that play interstate', text: 'Nine teams have no pool match in NSW. Their cards now say "Plays interstate; watch in NSW" rather than "No matches in NSW", and the results say so plainly with a way on: See where to watch in NSW scrolls to the screenings of their matches. Suits your 3rd half then suggests things around the NSW matches they could go to instead of saying there is nothing.' },
+    { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers; focus lands here when the cards turn over.' },
       { sel: '.tp-ticket', at: 'tl', title: 'I have a ticket', text: 'One ticket is one match, whichever card it is marked on: a match between two of your teams shows the same tick on both cards. Marks are kept on this device and cleared by Clear all on the picker.' },
       { sel: '.tp-tag--away', title: 'Interstate matches', text: 'A match outside NSW (Perth, Brisbane) stays on the card so the pool is complete, with a dashed Interstate tag naming the city. It is left out of the NSW count.' },
       { sel: '.tp-m-also', title: 'Shared matches', text: 'When two picked teams meet, the match sits on both cards and each says the other is also on your card.' },

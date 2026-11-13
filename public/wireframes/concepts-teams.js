@@ -75,7 +75,9 @@
   function changed() { if (tlReady) { tlUpdate(); syncBar(); } notesOnly(); }
   function say(msg) { live.textContent = ''; setTimeout(function () { live.textContent = msg; }, 30); }
   function isPicked(c) { return state.picked.indexOf(c.name) > -1; }
-  function nswLine(c) { return c.rugby ? 'Every match in NSW' : c.nsw ? c.nsw + (c.nsw === 1 ? ' match' : ' matches') + ' in NSW' : 'No matches in NSW'; }
+  // A team with no pool match in NSW is not a dead end: its fans can watch in NSW and go to the NSW matches
+  function lowerFirst(t) { return t.charAt(0).toLowerCase() + t.slice(1); }
+  function nswLine(c) { return c.rugby ? 'Every match in NSW' : c.nsw ? c.nsw + (c.nsw === 1 ? ' match' : ' matches') + ' in NSW' : 'Plays interstate; watch in NSW'; }
   function esc(x) { return String(x).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
   function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
 
@@ -97,7 +99,7 @@
   }
   fan.innerHTML = CARDS.map(function (c, i) {
     return '<button type="button" class="tp-card' + (c.rugby ? ' tp-card--rugby' : '') + '" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
-      esc(c.name + ', ' + (c.rugby ? 'no team, see every match in NSW' : c.pool + ', ' + nswLine(c))) + '">' + front(c) + TICK + '</button>';
+      esc(c.name + ', ' + (c.rugby ? 'no team, see every match in NSW' : c.pool + ', ' + lowerFirst(nswLine(c)))) + '">' + front(c) + TICK + '</button>';
   }).join('');
   var cards = Array.prototype.slice.call(fan.children);
   /* seq: the cards in the hand, in order (all of them, or only teams playing in NSW, see "In NSW" below). offset counts
@@ -128,7 +130,7 @@
       b.setAttribute('aria-pressed', isPicked(c) ? 'true' : 'false');
     });
     var c = CARDS[seq[Math.max(0, Math.min(seq.length - 1, mid))]];
-    caption.innerHTML = (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + '<strong>' + esc(c.name) + '</strong> &middot; ' + esc(c.rugby ? 'No team, every match in NSW' : c.pool + ', ' + nswLine(c).replace(/^No /, 'no '));
+    caption.innerHTML = (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + '<strong>' + esc(c.name) + '</strong> &middot; ' + esc(c.rugby ? 'No team, every match in NSW' : c.pool + ', ' + lowerFirst(nswLine(c)));
   }
   function settle(to, focus, trans) {
     offset = Math.max(0, Math.min(seq.length - 1, Math.round(to)));
@@ -415,6 +417,13 @@
     hint.hidden = true;
     requestAnimationFrame(function () { hint.hidden = deck.scrollWidth <= deck.clientWidth + 2; });
     sum.textContent = summary();
+    // Teams that play all their pool matches interstate: say so plainly, and point to watching in NSW
+    var away = cs.filter(function (c) { return !c.rugby && !c.nsw; }).map(function (c) { return c.name; });
+    var awayEl = document.getElementById('tp-results-away');
+    if (awayEl) {
+      awayEl.hidden = !away.length;
+      awayEl.querySelector('.tp-results-away-text').textContent = away.length ? list(away) + (away.length === 1 ? ' plays all its' : ' play all their') + ' pool matches interstate. You can still watch them in NSW, and go to an NSW match while you\u2019re here.' : '';
+    }
   }
   /* ---------- All matches ----------
      Below the picker, whether or not anyone has picked: every match in the fixture list, in date order. Kept minimal,
@@ -541,6 +550,7 @@
     arrive(document.getElementById('tp-pick-title'), 0);
     arrive(sum, 140);
     arrive(results.querySelector('.tp-results-note'), 200);
+    arrive(document.getElementById('tp-results-away'), 260);
     arrive(document.getElementById('tp-deck-hint'), FLY - 120);
     arrive(results.querySelector('.tp-results-actions'), FLY - 80);
     Array.prototype.forEach.call(deck.children, function (el, k) {
@@ -918,6 +928,7 @@
   }
   // The person's matches, as the timeline shows them: picked teams', every NSW match for Here for the rugby, or all
   function userMatches() { return TLM.filter(function (m) { return tlShown(m.f); }); }
+  function allMatches() { return TLM.slice(); }
   function tripLine() {
     var t = state.trip;
     if (!t) return '<span>Visiting or local? One tap sharpens the suggestions.</span> <button type="button" class="tp-link" data-ask>Answer</button>';
@@ -951,7 +962,7 @@
   });
 
   window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, say: say, allMatches: allMatches, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; } };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
