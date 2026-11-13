@@ -2911,7 +2911,7 @@ body.cp-page code { font: inherit; }
 .cn-fixed { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin: -15px -8px -15px -14px; color: #737373; }
 .cn-handle::before, .cn-handle::after, .cn-handle i { content: ""; display: block; height: 2px; background: #888; }
 .cn-foot { flex: none; padding: var(--space-3) var(--space-4) var(--space-6); border-top: 1px solid #e0e0e0; }
-.cn-status { display: flex; align-items: center; gap: var(--space-2); font-size: .6875rem; color: #737373; }
+.cn-status { position: relative; display: flex; align-items: center; gap: var(--space-2); font-size: .6875rem; color: #737373; }
 .cn-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #999; }
 .cn-save { display: block; width: 100%; height: 48px; margin-top: var(--space-2); border: 0; border-radius: var(--radius-pill); background: #1f1f1f; color: #fff; font: inherit; font-size: .9375rem; font-weight: 600; cursor: pointer; }
 .cn-close:focus-visible, .cn-seg button:focus-visible, .cn-save:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
@@ -3379,44 +3379,50 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-skipped-text:focus { outline: none; }
 @media (prefers-reduced-motion: reduce) { .tp-card { transition: opacity var(--dur-small) linear, background-color var(--dur-micro) linear; } }
 
-/* Prototype viewer (Figma: Rugby World Cup, Prototype layout 204:12359): prototype-pick-your-team.html and
-   prototype-itinerary.html. The title and description scroll away; the tab bar (with the divider) sticks to the top
-   of the window. Below it, three columns: the concept's intro (and the annotations on the itinerary), the phone at its
-   full 390 x 844, and a spare frame the same size. The phone scrolls inside, and reaching its end never scrolls the
-   page (overscroll-behavior: contain). */
-.pv-page { --pv-gutter: 96px; --topbar-h: 0px; background: #fff; color: #1a1a1a; }
-.pv-header { padding: var(--space-5) var(--pv-gutter) 0; }
-.pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.01em; }
-.pv-desc { margin-top: var(--space-1); font-size: 1rem; line-height: 1.5; color: #333; }
-.pv-tabbar { position: sticky; top: 0; z-index: 20; padding: var(--space-3) var(--pv-gutter) var(--space-4); border-bottom: 1px solid #d1d1d1; background: #fff; }
-.pv-tabs { display: flex; flex-wrap: wrap; gap: var(--space-4); }
-.pv-tab { display: inline-flex; align-items: center; min-height: 33px; padding: 0 var(--space-5); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font-size: .8125rem; font-weight: 600; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+/* Prototype viewer (Figma: Rugby World Cup, node 204:12914): prototype-pick-your-team.html and
+   prototype-itinerary.html. A single static screen: a left panel (title, tabs, then the concept with its Reset, jump
+   links, Annotations switch and annotations) and a stage with the phone and a spare frame for another prototype. The
+   page never scrolls; only the annotations and the phone scroll, each inside its own window. The phone keeps its
+   390px width and fills the window height up to 844px. Short or narrow windows fall back to an ordinary page. */
+.pv-page { --topbar-h: 0px; height: 100vh; height: 100dvh; display: grid; grid-template-columns: 460px minmax(0, 1fr); overflow: hidden; background: #fff; color: #1a1a1a; }
+.pv-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #d1d1d1; }
+.pv-header { padding: var(--space-5) var(--space-6) 0; }
+.pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.02em; }
+.pv-desc { margin-top: var(--space-1); max-width: 21rem; font-size: 1rem; line-height: 1.5; color: #333; }
+/* One row of tabs, as in the design; it scrolls sideways when there are more prototypes than fit */
+.pv-tabs { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-6) var(--space-4); border-bottom: 1px solid #d1d1d1; overflow-x: auto; scrollbar-width: none; }
+.pv-tabs::-webkit-scrollbar { display: none; }
+.pv-tab { flex: none; display: inline-flex; align-items: center; min-height: 33px; padding: 0 var(--space-5); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font-size: .8125rem; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .pv-tab.is-active { background: #2666d9; color: #fff; }
-@media (hover: hover) { .pv-tab:not(.is-active):hover { background: #f2f6fd; } }
+.pv-tab--next { border-style: dashed; cursor: default; }
+@media (hover: hover) { a.pv-tab:not(.is-active):hover { background: #f2f6fd; } }
 .pv-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
-.pv-main { display: grid; grid-template-columns: minmax(0, 427px) 390px 390px; column-gap: var(--space-6); justify-content: start; padding: var(--space-6) var(--pv-gutter) var(--space-7); }
-/* The intro column is as tall as the phone; the annotations fill the rest of it and scroll on their own */
-.pv-intro { display: flex; flex-direction: column; height: 844px; min-height: 0; }
+.pv-concept { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); }
+.pv-concept-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
 .pv-h2 { font-size: 1.25rem; font-weight: 400; line-height: 1.5; }
-.pv-p { margin-top: var(--space-1); max-width: 36rem; font-size: 1rem; line-height: 1.5; color: #333; }
+.pv-reset { flex: none; padding: 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@media (hover: hover) { .pv-reset:hover { color: #111; } }
+.pv-reset:focus-visible, .pv-jump:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.pv-p { margin-top: var(--space-1); font-size: 1rem; line-height: 1.5; color: #333; }
+/* Jump links: text, so they take one or two lines instead of a block of buttons */
+.pv-jumps { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-3); }
+.pv-jump { padding: var(--space-1) 0; border: 0; background: none; color: #2666d9; font: inherit; font-size: .875rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.pv-jump[aria-pressed="true"] { color: #1a1a1a; font-weight: 600; text-decoration: none; }
 .pv-switch { align-self: flex-start; margin-top: var(--space-3); }
-.pv-notes { flex: 1; min-height: 0; margin-top: var(--space-3); }
-.pv-notes .cn-notes { max-width: none; height: 100%; overflow-y: auto; overscroll-behavior: contain; }
-.pv-notes-empty { display: grid; place-items: center; height: 100%; border: 1px dashed #b3b3b3; font-size: 1rem; color: #333; }
-.pv-notes .cn-notes:not([hidden]) ~ .pv-notes-empty { display: none; }
-.pv-page .pv-phone > .cn-phone { height: 844px; }
-.pv-page .cn-body { overscroll-behavior: contain; } /* reaching the end of the prototype never hands the scroll to the page */
-.pv-spare { height: 844px; border: 1px dashed #b3b3b3; } /* placeholder for another prototype */
-.pv-screens { margin: var(--space-4) 0 0; }
-/* Without room for both the intro and the spare frame, the spare frame goes; narrower still, the columns stack */
-@media (max-width: 1400px) { .pv-main { grid-template-columns: minmax(0, 1fr) 390px; } .pv-spare { display: none; } }
-@media (max-width: 1100px) { .pv-page { --pv-gutter: 48px; } }
-@media (max-width: 860px) {
-  .pv-page { --pv-gutter: var(--space-4); }
-  .pv-main { display: block; }
-  .pv-intro { height: auto; }
-  .pv-notes { min-height: 0; }
-  .pv-notes .cn-notes { height: auto; max-height: 60vh; }
-  .pv-notes-empty { display: none; }
-  .pv-phone { margin-top: var(--space-5); }
+.pv-notes.cn-notes { flex: 1; min-height: 0; max-width: none; margin-top: var(--space-3); overflow-y: auto; overscroll-behavior: contain; }
+.pv-stage { min-height: 0; display: flex; justify-content: center; gap: 40px; padding: var(--space-6); }
+.pv-phone { min-height: 0; }
+.pv-page .pv-phone > .cn-phone { height: min(844px, 100%); }
+.pv-page .cn-body { overscroll-behavior: contain; } /* reaching the end of the prototype never hands the scroll on */
+.pv-spare { flex: none; width: 390px; height: min(844px, 100%); border: 1px dashed #b3b3b3; } /* placeholder for another prototype */
+/* No room for the spare frame: it goes */
+@media (max-width: 1340px) { .pv-spare { display: none; } }
+@media (max-width: 960px) { .pv-page { grid-template-columns: 360px minmax(0, 1fr); } .pv-header, .pv-tabs, .pv-concept { padding-inline: var(--space-4); } }
+/* Too short or too narrow for a fixed screen: an ordinary page, panel above, phone at full size */
+@media (max-height: 600px), (max-width: 800px) {
+  .pv-page { display: block; height: auto; overflow: visible; }
+  .pv-side { border-right: 0; }
+  .pv-notes.cn-notes { max-height: 60vh; }
+  .pv-stage { justify-content: flex-start; padding: var(--space-4); }
+  .pv-page .pv-phone > .cn-phone { height: 844px; }
 }
