@@ -433,9 +433,11 @@
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
   if (allSec) {
     var rows = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
-      var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
-      var stage = f.t && !/^Pool /.test(f.s) ? '<span class="tp-all-stage">' + esc(f.s) + '</span>' : f.t ? '' : '<span class="tp-all-stage">Teams to be decided</span>';
-      return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '"><p class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</p><p class="tp-all-teams">' + who + '</p>' + stage +
+      // Every row is three lines, so a column of knockouts is no taller than a column of pool matches (which would
+      // leave an empty band under the others): a knockout's stage joins the date line, "teams to be decided" its name
+      var ko = !/^Pool /.test(f.s);
+      var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s) + ' <span class="tp-all-v">\u00b7 teams to be decided</span>';
+      return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '"><p class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + (ko && f.t ? ' \u00b7 ' + esc(f.s.replace(/ \(\d+\)$/, '')) : '') + '</p><p class="tp-all-teams">' + who + '</p>' +
         '<p class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '') + '</p></li>';
     });
     // Columns of five: each is a card without a border, snapped as the strip is swiped sideways
