@@ -6,11 +6,22 @@
 - `public/wireframes/` and `src/` are separate deliverables. `src/` is the CJM and research tool. Do not add product page code to `src/`.
 - When a brief ends with stop-and-show, do not commit, open a PR, or merge until the person has answered any questions raised. A stop means stop.
 
+# Adding standing flags
+
+When the user gives a new standing flag, a correction, or a "you missed X" as a specific example:
+
+1. **Don't add it verbatim.** Work out the underlying principle the example is an instance of, and word it so it
+   applies beyond the one case. Keep the user's example as a short "for example" if it helps.
+2. **Fit it into the existing structure.** If an existing category or numbered check already covers the principle,
+   extend or sharpen that entry rather than adding a near-duplicate. If none fits, propose a new category.
+3. **Show before saving.** Present the proposed wording and where it will go (which section, new or amended entry)
+   and wait for the user's approval before editing this file. Fixing the issue itself does not need to wait.
+
 # Prototype interaction checks
 
 Lessons from things the user had to point out. Check every prototype change against all of them before committing.
-When the user says "you missed X" (or corrects something they expected you to catch), add the lesson to this list
-in the same change as the fix, in general terms so it applies beyond the one case.
+When the user says "you missed X" (or corrects something they expected you to catch), propose a lesson for this
+list as set out in "Adding standing flags" above, and add it once the user has approved the wording.
 
 1. **Movement can be followed.** Anything that moves because of a tap or click glides so the eye can track it from
    start to end (for example a picked card travelling to the middle of a fan). Check motion frame by frame, not only
