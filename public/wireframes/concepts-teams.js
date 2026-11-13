@@ -46,6 +46,18 @@
   var names = Object.keys(TEAMS).sort();
   names.forEach(function (n) { TEAMS[n].nsw = TEAMS[n].matches.filter(function (f) { return !f.a; }).length; });
   var nswPool = pool.filter(function (f) { return !f.a; });
+  var nswKo = FIX.filter(function (f) { return !/^Pool /.test(f.s) && !f.a; });
+  /* One counting rule for every count of matches on the page (summary, card, bar, plan): pool matches and knockouts
+     are named apart whenever both are in the count, for example "9 pool matches + 8 knockouts". A team's knockouts are
+     not known until the pools finish, so a team's count is pool matches only. short: the bar's tighter form
+     ("9 pool + 8 knockouts"). num: wraps each number (the plan sets them bold). */
+  function countPhrase(fs, opts) {
+    opts = opts || {};
+    var p = fs.filter(function (f) { return /^Pool /.test(f.s); }).length, k = fs.length - p, n = opts.num || String;
+    var P = n(p) + ' pool ' + (p === 1 ? 'match' : 'matches'), K = n(k) + ' ' + (k === 1 ? 'knockout' : 'knockouts');
+    if (p && k) return opts.short ? n(p) + ' pool + ' + K : P + ' + ' + K;
+    return p ? P : k ? K : 'No matches';
+  }
   // The 25th card: no team, every match in NSW
   var RUGBY = { name: 'Here for the rugby', code: 'ALL', rugby: true };
   var CARDS = names.map(function (n) { return TEAMS[n]; }).concat([RUGBY]);
@@ -382,7 +394,7 @@
   }
   function back(c) {
     var ms = c.rugby ? nswPool : c.matches;
-    var head = c.rugby ? nswPool.length + ' pool matches in NSW' : c.pool + ' &middot; ' + c.matches.length + ' pool matches, ' + c.nsw + ' in NSW';
+    var head = c.rugby ? countPhrase(nswPool.concat(nswKo)) + ' in NSW' : c.pool + ' &middot; ' + countPhrase(c.matches) + ', ' + c.nsw + ' in NSW';
     return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div></div>' +
       '<ol class="tp-ms' + (c.rugby ? ' tp-ms--cols' : '') + '">' + ms.map(function (f) { return row(f, c.name, c.rugby); }).join('') +
       // On the columned card the knockout note is a column of its own, so it adds width, not height
@@ -395,13 +407,14 @@
   }
   function summary() {
     var ids = {}, nsw = 0, tickets = 0;
-    pickedCards().forEach(function (c) { (c.rugby ? nswPool : c.matches).forEach(function (f) { ids[idOf(f)] = f; }); });
+    pickedCards().forEach(function (c) { (c.rugby ? nswPool.concat(nswKo) : c.matches).forEach(function (f) { ids[idOf(f)] = f; }); });
     var all = Object.keys(ids);
     all.forEach(function (k) { if (!ids[k].a) nsw++; if (state.tickets.indexOf(k) > -1) tickets++; });
     var teams = pickedCards().filter(function (c) { return !c.rugby; }).map(function (c) { return c.name; });
     var who = teams.length ? list(teams) + (isPicked(RUGBY) ? ', plus every NSW match' : '') : 'Every NSW match';
     // A match between two of your teams counts once
-    return who + ': ' + all.length + (all.length === 1 ? ' match' : ' matches') + ', ' + nsw + ' in NSW. ' + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : 'No tickets marked yet.');
+    var fs = all.map(function (k) { return ids[k]; });
+    return who + ': ' + countPhrase(fs) + (nsw === all.length ? ', all in NSW. ' : ', ' + nsw + ' in NSW. ') + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : 'No tickets marked yet.');
   }
   function buildDeck() {
     var cs = pickedCards();
@@ -754,7 +767,14 @@
     if (added) label = added + ' added to your timeline' + (none ? ' \u00b7 Pick your team' : '');
     tlLabel.textContent = label;
     tlLabel.classList.toggle('is-hook', none || !!added);
-    tlValue.textContent = shown.length + (shown.length === 1 ? ' match' : ' matches') + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : '');
+    // Once the days in NSW are confirmed the bar follows them: the matches in those days, and those days (no prefix:
+    // the bar has room for "9 pool + 8 knockouts · 3 Oct to 13 Nov" and no more)
+    if (confirmed) {
+      var ca = isoDay(trip.from), cz = isoDay(trip.to), inDays = shown.filter(function (m) { return m.day >= ca && m.day <= cz; });
+      tlValue.textContent = countPhrase(inDays.map(function (m) { return m.f; }), { short: true }) + ' · ' + isoRange(trip.from, trip.to);
+    } else {
+      tlValue.textContent = countPhrase(shown.map(function (m) { return m.f; }), { short: true }) + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : '');
+    }
     if (String(added || '') !== tlBadge.textContent) {
       tlBadge.hidden = !added;
       tlBadge.textContent = added || '';
@@ -1016,7 +1036,7 @@
   });
 
   window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; } };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));

@@ -542,7 +542,7 @@
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
     var when = t && t.mode === 'visiting' && t.from && t.to ? 'In NSW ' + tp.isoRange(t.from, t.to) : t && t.mode === 'local' ? 'Local' : '';
     var facts = [];
-    if (ms.length) facts.push('<li><strong>' + ms.length + '</strong> ' + (ms.length === 1 ? 'match' : 'matches') + ', ' + nsw + ' in NSW' + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
+    if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (nsw === ms.length ? 'all' : nsw) + ' in NSW' + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
     if (when) facts.push('<li>' + esc(when) + '</li>');
     planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' +
