@@ -3868,18 +3868,26 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 
 /* Pick your team: Save & share, a second sheet stacked over the open timeline (the sheet and tiles above, from the
    Share/edit itinerary prototype). The id outranks .cn-phone's screen rule, so it stays down until opened. */
-.tp-tl-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .tp-tl-share { position: relative; flex: none; min-height: 36px; padding: 0 14px; border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
 .tp-tl-share::before { content: ""; position: absolute; inset: -4px 0; } /* 44px to tap */
 .tp-tl-share[hidden] { display: none; }
 .tp-tl-share:active { transform: scale(.98); }
 .tp-tl-share:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 @media (hover: hover) { .tp-tl-share:hover { background: #f5f5f5; } }
-.tp-ss-scrim { position: absolute; inset: 0; z-index: 101; background: rgba(17,17,17,.32); opacity: 0; visibility: hidden; transition: opacity .22s ease-in, visibility 0s linear .22s; }
-.tp-ss-scrim.is-on { opacity: 1; visibility: visible; transition: opacity .3s ease-out, visibility 0s; }
-#tp-phone .tp-ss { z-index: 102; height: auto; max-height: calc(100% - 48px); transform: translateY(100%); visibility: hidden; transition: transform .26s cubic-bezier(.4, 0, 1, 1), visibility 0s linear .26s; }
-#tp-phone .tp-ss.is-open { transform: translateY(0); visibility: visible; transition: transform .42s cubic-bezier(.25, .6, .3, 1); } /* even enough to follow, not front-loaded */
-#tp-phone .tp-ss.is-dragging { transition: none; }
+/* The open timeline's title row stays put while its content scrolls under it */
+.tp-tl-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); position: sticky; top: calc(var(--space-2) * -1); z-index: 2; margin: calc(var(--space-2) * -1) calc(var(--space-4) * -1) 0; padding: var(--space-2) var(--space-4) var(--space-2); background: #fff; }
+.tp-tl-head { box-shadow: 0 1px 0 transparent; transition: box-shadow .2s ease-out; }
+.tp-tl-head.is-stuck { box-shadow: 0 1px 0 #e3e3e3; }
+/* Stacked sheets over the open timeline: one motion, one timing each way (open .42s, close .32s) for the sheet, the
+   timeline moving back and the scrim. --stack-top is set by the script: the timeline's moved-back top + 16px. */
+.tp-tl { transform-origin: 50% 0; }
+.tp-tl.is-on.is-open.is-back { transform: translateY(-10px) scale(.94); transition: transform .42s cubic-bezier(.25, .6, .3, 1); }
+.tp-tl.is-on.is-open.is-fwd { transition: transform .32s cubic-bezier(.4, 0, .6, 1); }
+.tp-stack-scrim { position: absolute; inset: 0; z-index: 101; background: rgba(17,17,17,.18); opacity: 0; visibility: hidden; transition: opacity .32s cubic-bezier(.4, 0, .6, 1), visibility 0s linear .32s; }
+.tp-stack-scrim.is-on { opacity: 1; visibility: visible; transition: opacity .42s cubic-bezier(.25, .6, .3, 1), visibility 0s; }
+#tp-phone .tp-stack { top: var(--stack-top, 54px); height: auto; max-height: none; z-index: 102; transform: translateY(100%); visibility: hidden; transition: transform .32s cubic-bezier(.4, 0, .6, 1), visibility 0s linear .32s; }
+#tp-phone .tp-stack.is-open { transform: none; visibility: visible; transition: transform .42s cubic-bezier(.25, .6, .3, 1); }
+#tp-phone .tp-stack.is-dragging { transition: none; }
 .tp-ss .cn-sheet-head { margin-bottom: var(--space-1); }
 .tp-ss.is-sent .cn-pill--sent { display: flex; }
 .tp-ss.is-sent #tp-ss-send { display: none; }

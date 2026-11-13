@@ -955,8 +955,7 @@
 
   /* ---------- Save & share: a second sheet stacked over the open timeline ----------
      The options come from the Share/edit itinerary prototype's sheet; what they keep or send is this plan. */
-  var ssBtn = document.getElementById('tp-tl-share'), ss = document.getElementById('tp-ss'), ssScrim = document.getElementById('tp-ss-scrim');
-  var tlEl = document.getElementById('tp-tl'), ssOpen = false;
+  var ssBtn = document.getElementById('tp-tl-share'), ss = document.getElementById('tp-ss');
   var KIND = { screening: 'Screening', place: 'Place', product: 'Thing to do' };
   // One row per match or thing added, in date order: for the table, the spreadsheet and the route
   function planRows() {
@@ -1034,7 +1033,6 @@
   ss.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     switch (b.id) {
-      case 'tp-ss-close': ssSet(false); break;
       case 'tp-ss-print': printPlan(); break;
       case 'tp-ss-txt': download(planText(), 'text/plain;charset=utf-8', 'txt'); mark(b); ssSay('Downloaded ' + fileName('txt')); break;
       case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(b); ssSay('Downloaded ' + fileName('csv')); break;
@@ -1059,39 +1057,8 @@
   }
   email.addEventListener('input', function () { if (email.getAttribute('aria-invalid')) { email.removeAttribute('aria-invalid'); emailErr.hidden = true; } });
   email.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(); } });
-  function ssSet(open) {
-    if (open === ssOpen) return;
-    ssOpen = open;
-    ss.style.transform = ''; ss.classList.remove('is-dragging');
-    ss.classList.toggle('is-open', open);
-    ssScrim.classList.toggle('is-on', open);
-    ss.inert = !open;
-    tlEl.inert = open; // the timeline waits under its own scrim while this sheet is on top
-    if (open) { ss.scrollTop = 0; fb.hidden = true; toast.hidden = true; ss.focus({ preventScroll: true }); }
-    else ssBtn.focus({ preventScroll: true });
-  }
-  ssBtn.addEventListener('click', function () { ssSet(true); });
-  ssScrim.addEventListener('click', function () { ssSet(false); });
-  phone.addEventListener('tp:tlclose', function () { if (ssOpen) ssSet(false); });
-  ss.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); ssSet(false); return; } // closes this sheet only
-    if (e.key !== 'Tab') return;
-    var f = [].filter.call(ss.querySelectorAll('button, input, textarea, [tabindex="0"]'), function (x) { return !x.disabled && x.tabIndex > -1 && x.offsetParent !== null; });
-    if (!f.length) return;
-    if (e.shiftKey && (document.activeElement === f[0] || document.activeElement === ss)) { e.preventDefault(); f[f.length - 1].focus(); }
-    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
-  });
-  // Drag the handle down to close: past a third of the way, or a flick, closes; earlier springs back
-  var grab = document.getElementById('tp-ss-grab'), dy0 = null, dy = 0, t0 = 0;
-  grab.addEventListener('pointerdown', function (e) { dy0 = e.clientY; dy = 0; t0 = e.timeStamp; grab.setPointerCapture(e.pointerId); ss.classList.add('is-dragging'); });
-  grab.addEventListener('pointermove', function (e) { if (dy0 == null) return; dy = Math.max(0, e.clientY - dy0); ss.style.transform = 'translateY(' + dy + 'px)'; });
-  function let_go(e) {
-    if (dy0 == null) return;
-    var v = dy / Math.max(1, e.timeStamp - t0); dy0 = null;
-    ss.classList.remove('is-dragging');
-    if (dy > ss.offsetHeight / 3 || (v > .6 && dy > 24)) ssSet(false); else ss.style.transform = '';
-  }
-  grab.addEventListener('pointerup', let_go); grab.addEventListener('pointercancel', let_go);
+  // Opens as a sheet stacked over the timeline (tp.stackOpen in concepts-teams.js: motion, closing, focus, Tab)
+  ssBtn.addEventListener('click', function () { fb.hidden = true; toast.hidden = true; tp.stackOpen(ss, ssBtn); });
 
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};

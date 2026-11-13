@@ -1080,7 +1080,12 @@
     if (it) say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
   });
   // The panel's height: as tall as fits under the top of the phone, up to 460px
-  function tlFit() { tl.style.setProperty('--tl-p', Math.max(260, Math.min(460, phoneEl.clientHeight - BAR - 72)) + 'px'); }
+  // Open, the sheet is as tall as it can be: it leaves a 48px strip of the dimmed page at the top (44px or more to tap)
+  var TL_STRIP = 48;
+  // A faint line under the title row, only once the content has scrolled under it
+  var tlHead = document.querySelector('.tp-tl-head');
+  tlPanel.addEventListener('scroll', function () { tlHead.classList.toggle('is-stuck', tlPanel.scrollTop > 0); }, { passive: true });
+  function tlFit() { tl.style.setProperty('--tl-p', Math.max(260, phoneEl.clientHeight - BAR - TL_STRIP) + 'px'); }
   tlFit();
   window.addEventListener('resize', tlFit);
   // Shown once the match cards have come into view and their top has passed the top of the phone (never for the fan)
@@ -1130,6 +1135,7 @@
   }
   function tlSetOpen(open, focusBack) {
     if (open === tlOpen) return;
+    if (!open && stackEl) stackClose(false); // a sheet stacked over the timeline goes with it
     if (!open) tlZoom(false);
     tlOpen = open;
     tl.classList.toggle('is-open', open);
@@ -1158,7 +1164,76 @@
   }
   tlToggle.addEventListener('click', function () { tlSetOpen(!tlOpen); });
   tlScrim.addEventListener('click', function () { tlSetOpen(false); });
-  document.addEventListener('keydown', function (e) { if (tlOpen && e.key === 'Escape') { e.preventDefault(); tlSetOpen(false); } });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (stackEl) { e.preventDefault(); stackClose(); } // the top sheet only
+    else if (tlOpen) { e.preventDefault(); tlSetOpen(false); }
+  });
+
+  /* ---------- Stacked sheets over the open timeline: one pattern, one level deep ----------
+     A sheet opened from the timeline (.tp-stack: Save & share now; a trip, a match or Move later) slides up while the
+     timeline moves back (scaled to 94% from its top centre, its top raised 10px, dimmed by the stack scrim), in one
+     motion with one timing; closing reverses both. The sheet stops 16px below the timeline's moved-back top, so a
+     strip of the timeline shows above it. A third sheet replaces the second rather than stacking again. */
+  var stackScrim = document.getElementById('tp-stack-scrim'), stackEl = null, stackOpener = null, fwdT;
+  var BACK_LIFT = 10, STACK_GAP = 16;
+  function stackHide(sh) { sh.classList.remove('is-open', 'is-dragging'); sh.style.transform = ''; sh.inert = true; }
+  function stackOpen(sheet, opener) {
+    if (!tlOpen || stackEl === sheet) return;
+    if (stackEl) stackHide(stackEl); // replace, never a third level
+    else stackOpener = opener || document.activeElement;
+    stackEl = sheet;
+    sheet.style.setProperty('--stack-top', (tl.offsetTop - BACK_LIFT + STACK_GAP) + 'px');
+    sheet.scrollTop = 0;
+    sheet.inert = false;
+    sheet.classList.add('is-open');
+    clearTimeout(fwdT); tl.classList.remove('is-fwd');
+    tl.classList.add('is-back');
+    tl.inert = true; // stays in view behind, but cannot be used
+    stackScrim.classList.add('is-on');
+    sheet.focus({ preventScroll: true });
+    notesOnly();
+  }
+  function stackClose(focusBack) {
+    if (!stackEl) return;
+    var sh = stackEl; stackEl = null;
+    stackHide(sh);
+    tl.classList.add('is-fwd'); // the way back has the sheet's closing timing, so the two still move as one
+    tl.classList.remove('is-back');
+    clearTimeout(fwdT); fwdT = setTimeout(function () { tl.classList.remove('is-fwd'); }, 360);
+    tl.inert = false;
+    stackScrim.classList.remove('is-on');
+    if (focusBack !== false && stackOpener && stackOpener.isConnected) stackOpener.focus({ preventScroll: true });
+    stackOpener = null;
+    sh.dispatchEvent(new CustomEvent('tp:stackclose', { bubbles: true }));
+    notesOnly();
+  }
+  stackScrim.addEventListener('click', function () { stackClose(); }); // the strip of timeline and page above the sheet
+  phoneEl.addEventListener('click', function (e) { if (stackEl && e.target.closest('[data-stack-close]')) stackClose(); });
+  // Tab stays in the top sheet
+  document.addEventListener('keydown', function (e) {
+    if (!stackEl || e.key !== 'Tab') return;
+    var f = [].filter.call(stackEl.querySelectorAll('button, input, textarea, select, a[href], [tabindex="0"], summary'), function (x) { return !x.disabled && x.tabIndex > -1 && x.offsetParent !== null; });
+    if (!f.length) return;
+    var a = document.activeElement;
+    if (!stackEl.contains(a)) { e.preventDefault(); f[0].focus(); }
+    else if (e.shiftKey && (a === f[0] || a === stackEl)) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  // Drag the handle down to close: past a third of the way, or a flick, closes; earlier springs back
+  phoneEl.querySelectorAll('.tp-stack').forEach(function (sh) {
+    var grab = sh.querySelector('.cn-grabber'), y0 = null, dy = 0, t0 = 0;
+    if (!grab) return;
+    grab.addEventListener('pointerdown', function (e) { if (stackEl !== sh) return; y0 = e.clientY; dy = 0; t0 = e.timeStamp; grab.setPointerCapture(e.pointerId); sh.classList.add('is-dragging'); });
+    grab.addEventListener('pointermove', function (e) { if (y0 == null) return; dy = Math.max(0, e.clientY - y0); sh.style.transform = 'translateY(' + dy + 'px)'; });
+    function letGo(e) {
+      if (y0 == null) return;
+      var v = dy / Math.max(1, e.timeStamp - t0); y0 = null;
+      sh.classList.remove('is-dragging');
+      if (dy > sh.offsetHeight / 3 || (v > .6 && dy > 24)) stackClose(); else sh.style.transform = '';
+    }
+    grab.addEventListener('pointerup', letGo); grab.addEventListener('pointercancel', letGo);
+  });
   // The prompt that used to sit at the top of the phone: back to the fan
   document.getElementById('tp-tl-pick').addEventListener('click', function () {
     tlSetOpen(false, false);
@@ -1233,7 +1308,7 @@
     say('Prototype reset. No teams picked.');
   });
 
-  window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
+  window.tpPicker = { stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
     flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
