@@ -3900,3 +3900,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-bar { touch-action: none; }
 .tp-tl.is-on.is-dragging { transition: none; }
 .tp-tl.is-dragging .tp-tl-panel { opacity: 1; transition: none; }
+
+/* Pick your team: Here for the rugby as a quiet link (All matches, and the timeline's empty state) */
+.tp-rugby-line { margin-top: var(--space-1); }
+.tp-rugby-line[hidden] { display: none; }
+.tp-rugby-link { font-weight: 600; color: #1a1a1a; text-align: left; }
+.tp-tl-rugby { margin-top: var(--space-2); }
