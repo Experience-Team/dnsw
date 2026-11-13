@@ -3298,6 +3298,10 @@ body.cp-page code { font: inherit; }
 .tp-date input:focus-visible { outline: 2px solid #005EA2; outline-offset: 1px; }
 .tp-ask-err { margin-top: var(--space-2); font-size: .8125rem; font-weight: 600; color: #B42318; }
 .tp-ask-sum { font-size: .9375rem; font-weight: 700; }
+.tp-ask-news { margin-top: var(--space-1); font-size: .8125rem; line-height: 1.4; color: #333; }
+/* A section an answer changed: a brief blue wash as it comes into view, then nothing (colour only, no movement) */
+.tp-sec.is-changed { animation: tp-sec-changed 1.8s ease-out; }
+@keyframes tp-sec-changed { 0%, 30% { background-color: #e8f0fc; box-shadow: 0 0 0 var(--space-3) #e8f0fc; } 100% { background-color: rgba(232,240,252,0); box-shadow: 0 0 0 var(--space-3) rgba(232,240,252,0); } }
 .tp-ask-sum .tp-link { font-size: .875rem; }
 .tp-ask-why { font-size: .75rem; color: #5c5c5c; }
 
@@ -3355,7 +3359,6 @@ body.cp-page code { font: inherit; }
 @media (prefers-reduced-motion: reduce) { .tp-tl-strip, .tp-tl-end, .tp-tl.is-open .tp-tl-strip, .tp-tl.is-open .tp-tl-end { transition: opacity .15s linear; } }
 
 /* Quieter: the hero says once that kick-offs are Sydney time; text in the phone avoids single-word last lines */
-.tp-dates-note { margin-top: 2px; font-size: .75rem; color: rgba(255,255,255,.8); }
 .cn-phone p, .cn-phone li, .cn-phone button { text-wrap: pretty; }
 
 /* Pick your team: the full-screen page for a product or a place to watch (the itinerary's .cn-pp pattern), above the
@@ -3585,26 +3588,20 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-reset { margin-left: auto; min-height: 44px; padding: 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .tp-reset:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 @media (hover: hover) { .tp-reset:hover { color: #111; } }
-.tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 360px; color: #fff; isolation: isolate; }
+/* A short hero: a band of placeholder photo above the title, the dates and one countdown line, so the find field and
+   the fan are above the fold on a 390 x 844 phone */
+.tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 216px; color: #fff; isolation: isolate; }
 .tp-hero-img { position: absolute; inset: 0; z-index: -1; background: #595959; }
 .tp-hero-img::after { align-items: flex-start; justify-content: flex-end; padding: var(--space-2) var(--space-3) 0 0; font-size: .75rem; color: rgba(255,255,255,.55); } /* the placeholder label sits in the corner, clear of the title */
 /* The scrim darkens only where the text sits, so the placeholder still reads as a photo above it */
-.tp-hero::before { content: ""; position: absolute; inset: 35% 0 0; z-index: -1; background: linear-gradient(to bottom, rgba(17,17,17,0), rgba(17,17,17,.82) 45%); pointer-events: none; }
-.tp-hero-content { padding: 0 var(--space-4) var(--space-5); }
-.tp-hero-title { display: flex; flex-direction: column; gap: var(--space-1); font-weight: 800; line-height: 1.05; text-wrap: balance; }
-.tp-hero-kicker { font-size: 1rem; font-weight: 600; letter-spacing: .01em; }
-.tp-hero-name { font-size: 2.75rem; letter-spacing: -.02em; }
-.tp-hero-sub { margin-top: var(--space-3); max-width: 22rem; font-size: 1rem; line-height: 1.4; color: rgba(255,255,255,.9); text-wrap: balance; }
-.tp-count { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid rgba(255,255,255,.35); }
-.tp-count-label { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,.85); }
-.tp-count-units { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: var(--space-2); }
-.tp-count-units[hidden], .tp-count-label[hidden] { display: none; }
-.tp-count-cell { display: flex; flex-direction: column; align-items: flex-start; padding-left: var(--space-3); border-left: 1px solid rgba(255,255,255,.35); }
-.tp-count-cell:first-child { padding-left: 0; border-left: 0; }
-.tp-count-num { font-size: 2.25rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-.tp-count-unit { margin-top: var(--space-1); font-size: .75rem; color: rgba(255,255,255,.8); }
-.tp-count-done { font-size: 1rem; font-weight: 600; line-height: 1.4; }
-.tp-dates { margin-top: var(--space-4); font-size: .875rem; font-weight: 600; }
+.tp-hero::before { content: ""; position: absolute; inset: 20% 0 0; z-index: -1; background: linear-gradient(to bottom, rgba(17,17,17,0), rgba(17,17,17,.82) 55%); pointer-events: none; }
+.tp-hero-content { padding: var(--space-7) var(--space-4) var(--space-4); }
+.tp-hero-title { display: flex; flex-direction: column; gap: 2px; font-weight: 800; line-height: 1.05; text-wrap: balance; }
+.tp-hero-kicker { font-size: .875rem; font-weight: 600; letter-spacing: .01em; }
+.tp-hero-name { font-size: 2.25rem; letter-spacing: -.02em; }
+.tp-hero-dates { margin-top: var(--space-3); font-size: .875rem; font-weight: 700; }
+.tp-hero-tz { font-weight: 500; color: rgba(255,255,255,.85); }
+.tp-count { margin-top: 2px; font-size: .875rem; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.85); }
 
 
 /* Pick your team: the fanned hand of team cards (concepts-teams.js). Each card turns about a pivot 460px below its
