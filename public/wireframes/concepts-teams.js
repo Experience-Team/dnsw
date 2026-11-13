@@ -53,7 +53,8 @@
 
   /* ---------- State, kept in this browser ---------- */
   var KEY = 'tp-pick-v1';
-  var state = { picked: [], tickets: [], view: 'pick' };
+  // added: things put on the timeline (screenings, the village, products); trip: the one optional question's answer
+  var state = { picked: [], tickets: [], view: 'pick', added: [], trip: null };
   try {
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
     var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
@@ -62,6 +63,8 @@
       state.tickets = Array.isArray(rec.tickets) ? rec.tickets.filter(function (x) { return typeof x === 'string'; }) : [];
       if (rec.view === 'skipped' || (rec.view === 'results' && state.picked.length)) state.view = rec.view;
     }
+    if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
+    if (rec && rec.trip && /^(visiting|local|unsure)$/.test(rec.trip.mode)) state.trip = rec.trip;
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   // Tells the annotation layer (prototype-pick-your-team.html) that what is on screen has changed
@@ -511,16 +514,27 @@
   var tlToggle = document.getElementById('tp-tl-toggle'), tlPanel = document.getElementById('tp-tl-panel'), tlScrim = document.getElementById('tp-tl-scrim');
   var tlCanvas = document.getElementById('tp-tl-canvas'), tlScroll = document.getElementById('tp-tl-scroll'), tlDetail = document.getElementById('tp-tl-detail');
   var tlDots = document.getElementById('tp-tl-dots'), tlLabel = document.getElementById('tp-tl-label'), tlValue = document.getElementById('tp-tl-value');
-  var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt'), tlAddedEl = document.getElementById('tp-tl-added');
+  var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt'), tlTrip = document.getElementById('tp-tl-trip');
+  var tlItemEls = {}, tlStay;
   var phoneEl = document.getElementById('tp-phone');
   var SPOTS = Array.isArray(window.cnWatchSpots) ? window.cnWatchSpots : [];
   var TL_ICON = {
     ball: '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="8" rx="6.5" ry="4.2" transform="rotate(-35 8 8)" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.6 10.4l4.8-4.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
-    ticket: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'
+    ticket: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+    // Added items use a square marker (matches are round): a screen for a screening, a pin for a place or a product
+    screen: '<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 12.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    pin: '<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13s4.5-4.3 4.5-7.5a4.5 4.5 0 0 0-9 0C2.5 8.7 7 13 7 13z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="5.5" r="1.5" fill="currentColor"/></svg>'
   };
   var DAYS = 44, DAYW = 40, PADX = 28, BAR = 104;
-  var tlOn = false, tlOpen = false, tlSel = -1, tlAdded = 0;
+  var tlOn = false, tlOpen = false, tlSel = -1, tlSelItem = null;
   function dayOf(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + (+p[1]) - 1; } // 1 Oct is day 0, 13 Nov day 43
+  // Trip dates are ISO (2027-10-03); day numbers count from 1 Oct 2027 (a Friday)
+  function isoDay(iso) { var p = iso.split('-'); return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - Date.UTC(2027, 9, 1)) / 864e5); }
+  function isoRange(a, b) {
+    var M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], pa = a.split('-'), pb = b.split('-');
+    var da = +pa[2] + ' ' + M[+pa[1] - 1], db = +pb[2] + ' ' + M[+pb[1] - 1];
+    return a === b ? da : pa[1] === pb[1] ? +pa[2] + ' to ' + db : da + ' to ' + db;
+  }
   var TLM = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
     return { f: f, day: dayOf(f.d), key: f.d + '|' + (f.t || f.s), tkey: f.t ? f.d + '|' + f.t : null };
   });
@@ -534,12 +548,13 @@
     }
     h += TLM.map(function (m, k) { return '<button type="button" class="tp-tl-mk" data-k="' + k + '" tabindex="-1" aria-pressed="false" style="left:' + (PADX + m.day * DAYW) + 'px"><span class="cn-tl-sym cn-tl-sym--match"></span></button>'; }).join('');
     tlCanvas.style.width = (PADX * 2 + (DAYS - 1) * DAYW) + 'px';
-    tlCanvas.innerHTML = h;
+    tlCanvas.innerHTML = '<span class="tp-tl-stay" hidden></span>' + h;
     var d = '';
     for (var j = 0; j < DAYS; j++) d += '<span class="tp-tl-dot is-off" style="left:' + (j / (DAYS - 1) * 100) + '%"></span>';
     tlDots.innerHTML = d;
   })();
   var tlMarks = Array.prototype.slice.call(tlCanvas.querySelectorAll('.tp-tl-mk'));
+  tlStay = tlCanvas.querySelector('.tp-tl-stay');
   var tlDotEls = Array.prototype.slice.call(tlDots.children);
   TLM.forEach(function (m, k) { m.el = tlMarks[k]; m.sym = tlMarks[k].firstElementChild; m.state = ''; });
 
@@ -578,38 +593,94 @@
         m.el.setAttribute('aria-label', m.f.d + ', ' + tlName(m) + ', ' + (m.f.a ? 'interstate, ' + m.f.a : m.f.p) + (tk ? ', you have a ticket' : ''));
       }
     });
+    // Added items sit on their day above that day's matches (a screening next to its match), square markers
+    var itemDays = {}, keep = {};
+    state.added.forEach(function (it) {
+      var day = dayOf(it.day);
+      if (!(day >= 0 && day < DAYS)) return;
+      keep[it.id] = true;
+      itemDays[day] = true;
+      var el = tlItemEls[it.id];
+      if (!el) {
+        el = tlItemEls[it.id] = document.createElement('button');
+        el.type = 'button'; el.className = 'tp-tl-mk tp-tl-mk--item is-new'; el.dataset.item = it.id;
+        el.innerHTML = '<span class="cn-tl-sym cn-tl-sym--place">' + (it.kind === 'screening' ? TL_ICON.screen : TL_ICON.pin) + '</span>';
+        el.style.left = (PADX + day * DAYW) + 'px';
+        tlCanvas.appendChild(el);
+        setTimeout(function () { el.classList.remove('is-new'); }, 20);
+      }
+      var row = perDay[day] || 0; perDay[day] = row + 1;
+      el.style.setProperty('--row', row);
+      el.setAttribute('aria-label', it.day + ', added: ' + it.title + (it.matchName ? ', for ' + it.matchName : ''));
+    });
+    Object.keys(tlItemEls).forEach(function (id) { if (!keep[id]) { tlItemEls[id].remove(); delete tlItemEls[id]; if (tlSelItem === id) tlSelItem = null; } });
+    // Visiting with dates: the days in NSW are shaded on the axis
+    var trip = state.trip, stay = trip && trip.mode === 'visiting' && trip.from && trip.to;
+    tlStay.hidden = !stay;
+    if (stay) {
+      var a = isoDay(trip.from), z = isoDay(trip.to);
+      a = Math.max(0, Math.min(DAYS - 1, a)); z = Math.max(a, Math.min(DAYS - 1, z));
+      tlStay.style.left = (PADX + a * DAYW - DAYW / 2) + 'px';
+      tlStay.style.width = ((z - a + 1) * DAYW) + 'px';
+    }
     // The canvas is as tall as the tallest day shown: 50px for the axis and dates, 28px a row, 10px above
     var rows = 1; Object.keys(perDay).forEach(function (d) { rows = Math.max(rows, perDay[d]); });
     tlCanvas.style.height = (60 + rows * 28) + 'px';
     tlDotEls.forEach(function (el, i) {
       var t = dayType[i];
-      el.className = 'tp-tl-dot' + (t === undefined ? ' is-off' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '');
+      el.className = 'tp-tl-dot' + (t === undefined && !itemDays[i] ? ' is-off' : t === undefined ? ' is-item' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '') + (itemDays[i] && t !== undefined ? ' has-item' : '');
     });
     // The bar's words
     var teams = tlTeams(), none = !state.picked.length;
     var label = none ? 'Pick your team' : isPicked(RUGBY) ? 'Here for the rugby: every NSW match' : 'Your teams: ' + list(teams);
-    if (tlAdded) label = tlAdded + ' added to your timeline' + (none ? ' · Pick your team' : '');
+    var added = state.added.length;
+    if (added) label = added + ' added to your timeline' + (none ? ' \u00b7 Pick your team' : '');
     tlLabel.textContent = label;
-    tlLabel.classList.toggle('is-hook', none || !!tlAdded);
+    tlLabel.classList.toggle('is-hook', none || !!added);
     tlValue.textContent = shown.length + (shown.length === 1 ? ' match' : ' matches') + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : '');
-    tlBadge.hidden = !tlAdded;
-    tlBadge.textContent = tlAdded;
+    if (String(added || '') !== tlBadge.textContent) {
+      tlBadge.hidden = !added;
+      tlBadge.textContent = added || '';
+      // The count changing is worth seeing: the badge pops again
+      if (added) { tlBadge.style.animation = 'none'; tlBadge.offsetWidth; tlBadge.style.animation = ''; }
+    }
     tlPrompt.hidden = !none;
-    tlAddedEl.hidden = !tlAdded;
-    tlAddedEl.textContent = tlAdded ? tlAdded + (tlAdded === 1 ? ' stand-in item' : ' stand-in items') + ' added by the reviewer control. Not a real product or place; no product data.' : '';
+    // The trip answer, editable here (never asked twice)
+    tlTrip.innerHTML = tripLine();
     // A selected match that is no longer shown is let go
     if (tlSel > -1 && !TLM[tlSel].on) tlSel = -1;
     tlRenderDetail();
   }
+  // Every marker shown, matches and added items, in the order of the axis: by day, then bottom to top
+  function tlOrder() {
+    var els = [];
+    TLM.forEach(function (m) { if (m.on) els.push(m.el); });
+    Object.keys(tlItemEls).forEach(function (id) { els.push(tlItemEls[id]); });
+    return els.sort(function (a, b) { return a.offsetLeft - b.offsetLeft || (+a.style.getPropertyValue('--row') || 0) - (+b.style.getPropertyValue('--row') || 0); });
+  }
+  function tlSelEl() { return tlSelItem ? tlItemEls[tlSelItem] : tlSel > -1 ? TLM[tlSel].el : null; }
   function tlRoving() {
-    var first = -1;
-    TLM.forEach(function (m, k) { if (first < 0 && m.on) first = k; });
-    var tab = tlSel > -1 ? tlSel : first;
-    TLM.forEach(function (m, k) { m.el.tabIndex = k === tab ? 0 : -1; m.el.setAttribute('aria-pressed', k === tlSel ? 'true' : 'false'); });
+    var order = tlOrder(), sel = tlSelEl(), tab = sel || order[0];
+    order.concat(TLM.filter(function (m) { return !m.on; }).map(function (m) { return m.el; })).forEach(function (el) {
+      el.tabIndex = el === tab ? 0 : -1;
+      el.setAttribute('aria-pressed', el === sel ? 'true' : 'false');
+    });
   }
   function tlRenderDetail() {
     tlRoving();
-    if (tlSel < 0) { tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a match on the timeline to see its details.</p>'; return; }
+    if (tlSelItem) {
+      var it = state.added.filter(function (x) { return x.id === tlSelItem; })[0];
+      if (it) {
+        tlDetail.innerHTML = '<p class="tp-tl-d-when">' + esc(it.day) + (it.matchName ? ', for ' + esc(it.matchName) : '') + '</p>' +
+          '<p class="tp-tl-d-teams">' + esc(it.title) + '</p><p class="tp-tl-d-stage">' + esc(it.kindLabel || '') + '</p>' +
+          (it.place ? '<p class="tp-tl-d-where">' + esc(it.place) + '</p>' : '') + (it.note ? '<p class="tp-tl-d-where">' + esc(it.note) + '</p>' : '') +
+          '<p class="tp-tl-d-gap provenance-gap">Placeholder: not real data yet.</p>' +
+          '<button type="button" class="tp-link tp-tl-remove" data-remove="' + esc(it.id) + '">Remove from timeline</button>';
+        return;
+      }
+      tlSelItem = null;
+    }
+    if (tlSel < 0) { tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a match or something you added to see its details.</p>'; return; }
     var m = TLM[tlSel], f = m.f, tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1;
     var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
     var h = '<p class="tp-tl-d-when">' + esc(f.d) + ', ' + (f.k ? esc(f.k) + ' Sydney time' : 'time to be confirmed') + '</p>' +
@@ -623,27 +694,42 @@
     if (tk) h += '<p class="tp-tl-d-ticket">You have a ticket for this match.</p>';
     tlDetail.innerHTML = h;
   }
-  function tlSelect(k, focus) {
-    tlSel = k;
+  function tlSelect(k, focus, itemId) {
+    tlSel = itemId ? -1 : k; tlSelItem = itemId || null;
     tlRenderDetail();
-    var el = TLM[k].el, x = el.offsetLeft;
+    var el = itemId ? tlItemEls[itemId] : TLM[k].el, x = el.offsetLeft;
     // Keep the chosen marker in view, with some of the days either side
     if (x < tlScroll.scrollLeft + 40 || x > tlScroll.scrollLeft + tlScroll.clientWidth - 40) tlScroll.scrollTo({ left: Math.max(0, x - tlScroll.clientWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
     if (focus) el.focus({ preventScroll: true });
     notesOnly();
   }
-  tlCanvas.addEventListener('click', function (e) { var b = e.target.closest('.tp-tl-mk'); if (b) tlSelect(+b.dataset.k, false); });
+  function tlPick(el, focus) { if (el.dataset.item) tlSelect(-1, focus, el.dataset.item); else tlSelect(+el.dataset.k, focus); }
+  tlCanvas.addEventListener('click', function (e) { var b = e.target.closest('.tp-tl-mk'); if (b) tlPick(b, false); });
   tlCanvas.addEventListener('keydown', function (e) {
     var b = e.target.closest('.tp-tl-mk'); if (!b) return;
-    var on = []; TLM.forEach(function (m, k) { if (m.on) on.push(k); });
-    var at = on.indexOf(+b.dataset.k), to = null;
+    var on = tlOrder(), at = on.indexOf(b), to = null;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') to = on[Math.min(on.length - 1, at + 1)];
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') to = on[Math.max(0, at - 1)];
     else if (e.key === 'Home') to = on[0];
     else if (e.key === 'End') to = on[on.length - 1];
-    if (to === null || to === undefined) return;
+    if (!to) return;
     e.preventDefault();
-    tlSelect(to, true);
+    tlPick(to, true);
+  });
+  // Remove an added item from its detail card
+  tlDetail.addEventListener('click', function (e) {
+    var r = e.target.closest('[data-remove]'); if (!r) return;
+    var it = state.added.filter(function (x) { return x.id === r.dataset.remove; })[0];
+    tlSelItem = null;
+    removeItem(r.dataset.remove);
+    document.getElementById('tp-tl-title').focus({ preventScroll: true });
+    if (it) say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
+  });
+  // The trip line in the open timeline: Change (or Answer) goes to the question below the suggestions
+  tlTrip.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-ask]')) return;
+    tlSetOpen(false, false);
+    phoneEl.dispatchEvent(new CustomEvent('tp:ask'));
   });
   // The panel's height: as tall as fits under the top of the phone, up to 460px
   function tlFit() { tl.style.setProperty('--tl-p', Math.max(260, Math.min(460, phoneEl.clientHeight - BAR - 72)) + 'px'); }
@@ -681,8 +767,8 @@
     if (open) {
       tlFit();
       // Start the axis at the chosen match, or the first one shown
-      var k = tlSel > -1 ? tlSel : TLM.findIndex(function (m) { return m.on; });
-      if (k > -1) tlScroll.scrollLeft = Math.max(0, TLM[k].el.offsetLeft - 48);
+      var start = tlSelEl() || tlOrder()[0];
+      if (start) tlScroll.scrollLeft = Math.max(0, start.offsetLeft - 48);
       tlPanel.scrollTop = 0;
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
     } else if (focusBack !== false) tlToggle.focus({ preventScroll: true });
@@ -700,16 +786,38 @@
     body.scrollTo({ top: resultsTop(), behavior: reduce.matches ? 'auto' : 'smooth' });
     cards[Math.round(offset)].focus({ preventScroll: true });
   });
-  // Reviewer only: a stand-in item, so the number badge can be tested. No product fields; not saved.
-  var standin = document.getElementById('tp-tl-standin'), standinClear = document.getElementById('tp-tl-standin-clear');
-  function setAdded(n) {
-    tlAdded = n;
-    standinClear.hidden = !n;
-    changed();
-    say(n ? n + ' stand-in ' + (n === 1 ? 'item' : 'items') + ' on the timeline.' : 'Stand-in items removed.');
+  /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections
+     (concepts-third-half.js) through window.tpPicker. Saved on this device with the picks. ---------- */
+  function addItem(it) {
+    if (state.added.some(function (x) { return x.id === it.id; })) return false;
+    state.added.push(it); save(); changed(); return true;
   }
-  if (standin) standin.addEventListener('click', function () { setAdded(tlAdded + 1); });
-  if (standinClear) standinClear.addEventListener('click', function () { setAdded(0); });
+  function removeItem(id) {
+    var n = state.added.length;
+    state.added = state.added.filter(function (x) { return x.id !== id; });
+    if (state.added.length !== n) { save(); changed(); }
+  }
+  function setTrip(t) { state.trip = t; save(); changed(); }
+  // The added item travels from the button that added it to the timeline bar, then the badge pops
+  function flyToBar(fromEl) {
+    if (!tlOn || reduce.matches || !fromEl || !document.body.animate) return;
+    var a = fromEl.getBoundingClientRect(), b = tl.querySelector('.tp-tl-exp').getBoundingClientRect(), ph = phoneEl.getBoundingClientRect();
+    var g = document.createElement('span');
+    g.className = 'tp-fly';
+    g.style.left = (a.left + a.width / 2 - ph.left - 6) + 'px'; g.style.top = (a.top + a.height / 2 - ph.top - 6) + 'px';
+    phoneEl.appendChild(g);
+    var dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+    g.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: 'translate(' + dx * .5 + 'px,' + (dy * .5 - 40) + 'px) scale(1.15)', opacity: 1, offset: .5 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.6)', opacity: .2 }],
+      { duration: 560, easing: 'cubic-bezier(.45, .05, .25, 1)' }).onfinish = function () { g.remove(); };
+  }
+  // The person's matches, as the timeline shows them: picked teams', every NSW match for Here for the rugby, or all
+  function userMatches() { return TLM.filter(function (m) { return tlShown(m.f); }); }
+  function tripLine() {
+    var t = state.trip;
+    if (!t) return '<span>Visiting or local? One tap sharpens the suggestions.</span> <button type="button" class="tp-link" data-ask>Answer</button>';
+    var what = t.mode === 'local' ? 'I’m local' : t.mode === 'unsure' ? 'Not sure yet' : t.from && t.to ? 'In NSW ' + isoRange(t.from, t.to) : 'Visiting NSW, dates not set';
+    return '<span>' + esc(what) + '</span> · <button type="button" class="tp-link" data-ask>Change</button>';
+  }
   tlReady = true;
   tlUpdate();
 
@@ -731,10 +839,14 @@
     renderChosen();
     place(false);
     body.scrollTop = 0;
-    tlSetOpen(false, false); tlSel = -1; tlAdded = 0; standinClear.hidden = true; changed();
+    tlSetOpen(false, false); tlSel = -1; tlSelItem = null; state.added = []; state.trip = null; save(); changed();
     watchDeal();
     say('Prototype reset. No teams picked.');
   });
 
-  window.tpPicker = { teams: TEAMS, state: state };
+  window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
+    flyToBar: flyToBar, say: say, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; } };
+  // The sections below the match cards read the picks once this is ready
+  phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
 })();

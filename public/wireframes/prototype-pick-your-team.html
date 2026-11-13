@@ -24,9 +24,6 @@
       <button type="button" class="pv-reset" id="tp-reset">Reset prototype</button>
     </div>
     <p class="pv-p">A new prototype, started fresh. Phone size only.</p>
-    <!-- For whoever is reviewing the prototype, not part of the design: nothing can be added to the timeline yet, so this
-         adds a stand-in (no product data) to test the number badge. Not saved; Reset prototype clears it. -->
-    <p class="pv-reviewer"><span class="pv-reviewer-tag">Reviewer only</span><button type="button" class="pv-reset" id="tp-tl-standin">Add a stand-in to the timeline</button><button type="button" class="pv-reset" id="tp-tl-standin-clear" hidden>Remove stand-ins</button></p>
     <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
     <aside class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
@@ -112,6 +109,23 @@
           <div class="tp-all-scroll" id="tp-all-scroll" role="group" aria-label="All matches, five to a column" tabindex="0"></div>
           <p class="tp-all-hint" id="tp-all-hint">Swipe sideways for the next five matches.</p>
         </section>
+        <!-- Where to watch, Suits your 3rd half and the one question: built by concepts-third-half.js from placeholder
+             fixtures (cnWatchSpots, cnThirdHalf), following the picks and tickets live. Shown straight away; nothing is
+             held back for dates. No venue or product is favoured: spots by type then name, products by distance then
+             name. Links go out only; nothing is booked here. -->
+        <section class="tp-sec" id="tp-watch" aria-labelledby="tp-watch-title">
+          <h3 class="tp-sec-title" id="tp-watch-title">Where to watch</h3>
+          <p class="tp-sec-note" id="tp-watch-note">Screenings for your matches, at pubs, the village and a fan zone. All placeholders for now.</p>
+          <div class="tp-watch-list" id="tp-watch-list"></div>
+          <button type="button" class="tp-link tp-watch-more" id="tp-watch-more" aria-expanded="false" hidden></button>
+        </section>
+        <section class="tp-sec" id="tp-third" aria-labelledby="tp-third-title">
+          <h3 class="tp-sec-title" id="tp-third-title">Suits your 3rd half</h3>
+          <p class="tp-sec-note" id="tp-third-note">Around your match days in NSW. Placeholder listings; each links out, nothing is booked here.</p>
+          <div class="tp-days" id="tp-days" role="group" aria-label="Match day"></div>
+          <div class="tp-third-list" id="tp-third-list"></div>
+        </section>
+        <section class="tp-sec tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1"></section>
       </div>
       <!-- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to 390px). Docked over the bottom of the phone,
            outside the scrolling body, so it never moves the content; the body has 120px of room at the bottom so it never
@@ -128,7 +142,8 @@
         </button>
         <div class="tp-tl-panel" id="tp-tl-panel" inert>
           <h3 class="tp-tl-title" id="tp-tl-title" tabindex="-1">Your timeline</h3>
-          <p class="tp-tl-sub">Matches for now. Kick-off times are Sydney time.</p>
+          <p class="tp-tl-sub">Your matches and what you add. Kick-off times are Sydney time.</p>
+          <p class="tp-tl-trip" id="tp-tl-trip"></p>
           <div class="tp-tl-prompt" id="tp-tl-prompt">
             <p class="tp-tl-prompt-text"><strong>Which team are you here for?</strong> Pick one to see only their matches.</p>
             <button type="button" class="tp-tl-pick" id="tp-tl-pick">Pick a team</button>
@@ -138,10 +153,10 @@
             <li><span class="cn-tl-sym cn-tl-sym--match is-away" aria-hidden="true"></span>Interstate</li>
             <li><span class="cn-tl-sym cn-tl-sym--ticket" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></span>Your ticket</li>
             <li><span class="cn-tl-sym cn-tl-sym--match is-tbd" aria-hidden="true"></span>Teams to be decided</li>
+            <li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true"></span>Added by you</li>
           </ul>
           <div class="tp-tl-scroll" id="tp-tl-scroll"><div class="tp-tl-canvas" id="tp-tl-canvas" role="group" aria-label="Matches by date. Arrow keys move between matches."></div></div>
           <div class="tp-tl-detail" id="tp-tl-detail" aria-live="polite"></div>
-          <p class="tp-tl-added" id="tp-tl-added" hidden></p>
           <p class="tp-tl-later">More about each match, and the places you add, will show here.</p>
         </div>
       </section>
@@ -189,6 +204,7 @@
 </script>
 <script src="concepts-fixtures.js"></script>
 <script src="concepts-teams.js"></script>
+<script src="concepts-third-half.js"></script>
 <script>
 /* Pick your team: annotation layer. Same switch, numbered badges and list as the itinerary prototype. Switch it on to
    see a badge on each part with complex behaviour and the matching numbered list on the left; standard controls are
@@ -201,10 +217,17 @@
   var NAMES = { pick: 'Picker', results: 'Your matches', skipped: 'Skipped' };
   // The timeline bar and its open state, on every screen (each note only shows when its part is on screen)
   var TL = [
-    { sel: '#tp-tl-toggle', at: 'tc', title: 'Timeline bar', text: 'Hidden at first. It slides up once the match cards (Your matches, or All matches when no team is confirmed) have scrolled past the top of the phone, or, where the list is too short for that, once you reach the end of the page with them in view. Never over the fan; it slides away when you scroll back above the cards. Matches only, on one axis from 1 Oct to 13 Nov: every match with no team or after Skip, every NSW match for Here for the rugby, and only your teams\u2019 matches as you pick, live, before See their matches. The All matches list stays unfiltered. With no team the label says Pick your team. Tap the bar or its handle to open it; tap again or press Escape to close. The number badge counts products and places added to the timeline: none exist yet, so it stays hidden; the reviewer-only control in the left panel adds a stand-in to test it. The page keeps 120px clear at the bottom so the bar never covers the last match.' },
+    { sel: '#tp-tl-toggle', at: 'tc', title: 'Timeline bar', text: 'Hidden at first. It slides up once the match cards (Your matches, or All matches when no team is confirmed) have scrolled past the top of the phone, or, where the list is too short for that, once you reach the end of the page with them in view. Never over the fan; it slides away when you scroll back above the cards. Matches only, on one axis from 1 Oct to 13 Nov: every match with no team or after Skip, every NSW match for Here for the rugby, and only your teams\u2019 matches as you pick, live, before See their matches. The All matches list stays unfiltered. With no team the label says Pick your team. Tap the bar or its handle to open it; tap again or press Escape to close. The number badge counts what you add from Where to watch and Suits your 3rd half, and the label says how many. The page keeps 120px clear at the bottom so the bar never covers the last match.' },
     { sel: '.tp-tl-prompt', title: 'Pick a team (open, no team only)', text: 'The prompt that used to sit at the top of the phone, now here. Pick a team closes the timeline, scrolls to the fan and focuses the middle card; after Skip it goes back to the fan first.' },
     { sel: '.tp-tl-key', title: 'Markers', text: 'One marker per match, stacked on its day. Solid ring: in NSW. Dashed ring: interstate, kept because fans can watch at NSW fan zones and the village. Filled with a blue ring: you have a ticket, as on the itinerary timeline. Dotted: a knockout whose teams are still to be decided. Tap a marker, or use the arrow keys, Home and End, to see teams, Sydney kick-off, venue and city. Markers fade and restack as picks change.' },
     { sel: '.tp-tl-watch', title: 'Watch in NSW (gap data)', text: 'Fan zones and the village are not in the live data or the product data contract, so this line comes from clearly fake placeholder fixtures, with the pink gap marker. A match with no fan zone data shows no line. Real data still needed.' }
+  ];
+  // Where to watch, Suits your 3rd half and the question, on every screen they show on
+  var EXTRA = [
+    { sel: '#tp-watch-note', title: 'Where to watch (gap data)', text: 'Shown straight away, for your matches: picked teams, ticket marks, every NSW match for Here for the rugby, or every match when nothing is picked. Matches you have a ticket for are left out (you will be at the ground). Each match lists its spots, fan zone, village, then pubs, by name: no venue is favoured. All placeholders from cnWatchSpots, with the pink gap marker; the screening link and the spot type are not in the product data contract. A match with no spot has no line; if none of your matches has one, the section says so. Add puts a screening on its match day and the village on that same day; Added takes it off. The village shows its open dates (assumed open every day between them; fixture-only). Visiting with dates keeps only matches in your days in NSW.' },
+    { sel: '#tp-third-note', title: 'Match days (Suits your 3rd half)', text: 'One chip for each of your match days in NSW, the first ticketed one picked to start. Results show at once, grouped around that match: Before the match (open 90 minutes before kick-off), After the final whistle (open 2.5 hours after), Near the stadium (open both). Products are sorted by distance, then name. With no match in NSW the section says so instead.' },
+    { sel: '.tp-pc', title: 'Product card (gap data)', text: 'Minimal: a placeholder image, title, type and one line on why it fits, built from contract fields (availability, pricing, distance_to_venue, all gap, pink) plus a walking or transit time to the stadium, which is fixture-only and not in the contract (preferred over km; km shows in the detail). Tap the card for opening hours, suburb, price and a link out. Add puts it on the timeline on that match day and the badge counts it. The reason line changes with the question: visiting with dates says the exact day, local leads with distance.' },
+    { sel: '#tp-ask', title: 'The one question', text: 'Asked only after the first results, never required. Visiting NSW infers your days from your first to last NSW match (or shows two empty date fields when there is nothing to go on); confirm in one tap or adjust. I live in NSW never asks for dates. Not sure yet keeps everything by match day. The answer collapses to one line, is saved on this device with your picks, and can be changed here or in the timeline.' }
   ];
   var NOTES = {
     pick: { items: [
@@ -216,7 +239,7 @@
       { sel: '#tp-skip', title: 'Skip this step', text: 'Moves to a short Skipped screen. Nothing is picked and the plan would start from dates instead of a team’s matches. Pick a team after all comes back to the fan.' },
       { sel: '.tp-all-note', title: 'All matches', text: 'Every match in date order, with or without a pick, in columns of five. Each column is a card without a border: swipe sideways, or use the arrow keys when the list has focus, for the next five. Picking a team and choosing See their matches swaps this list for the picked cards; Show all matches there brings it back below them. Minimal on purpose: this page is not the main source for matches. Flags stand in for the teams.' },
       { sel: '.tp-device', title: 'Saved on this device', text: 'Picks, ticket marks and the screen you were on are kept in this browser, so a reload puts you back where you were. Reset prototype, or ?reset on the address, clears them.' }
-    ].concat(TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
+    ].concat(EXTRA, TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
     results: { items: [
       { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers; focus lands here when the cards turn over.' },
       { sel: '.tp-ticket', at: 'tl', title: 'I have a ticket', text: 'One ticket is one match, whichever card it is marked on: a match between two of your teams shows the same tick on both cards. Marks are kept on this device and cleared by Clear all on the picker.' },
@@ -226,11 +249,11 @@
       { sel: '#tp-deck-hint', title: 'More cards', text: 'Shown only when there is more to the side: your other cards, in the order you picked them with Here for the rugby last, or the columns of nine NSW matches on the Here for the rugby card.' },
       { sel: '#tp-showall', title: 'Show all matches', text: 'Opens the All matches list below your cards and glides down to it; the button then reads Hide all matches. Your cards stay where they are. The list is closed again each time you come back to Your matches.' },
       { sel: '#tp-change', title: 'Change teams', text: 'The match cards fade and drop away, then the hand deals open again with your picks still lifted, ready to change.' }
-    ].concat(TL) },
+    ].concat(EXTRA, TL) },
     skipped: { items: [
       { sel: '.tp-all-note', title: 'All matches', text: 'Still shown below, so skipping the team step leaves every match in view.' },
       { sel: '#tp-unskip', title: 'Pick a team after all', text: 'Goes back to the fan with nothing picked. Skipping is kept on this device like a pick, so a reload stays on this screen.' }
-    ].concat(TL) }
+    ].concat(EXTRA, TL) }
   };
   var stage = document.getElementById('tp-stage');
   var notesBox = document.getElementById('cn-notes');
