@@ -67,3 +67,6 @@ even when not asked.
      for again.
    - Newsletter or enquiry forms ask for the minimum (often just an email) and gather preferences later,
      once there is a reason to.
+3. **Accessibility target: WCAG 2.2 AA, not AAA.** Size controls to AA: at least 24px to tap (2.5.8), with
+   36px as the usual button height, rather than the 44px AAA size. Don't pad tap areas out to 44px. For example,
+   buttons in the Pick your team prototype were moved from 44px to 36px.

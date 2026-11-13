@@ -1162,7 +1162,40 @@
     syncBar();
     notesOnly();
   }
-  tlToggle.addEventListener('click', function () { tlSetOpen(!tlOpen); });
+  tlToggle.addEventListener('click', function () { if (tlDragged) { tlDragged = false; return; } tlSetOpen(!tlOpen); });
+  // Drag the sheet by its bar (the handle is on it): open, down past a third (or a flick) closes; collapsed, up opens.
+  // A tap still toggles; a move of 6px or more is a drag, and its click is ignored.
+  var tlDrag = null, tlDragged = false;
+  function tlTravel() { return parseFloat(getComputedStyle(tl).getPropertyValue('--tl-p')) || 420; }
+  tlToggle.addEventListener('pointerdown', function (e) {
+    if (!tlOn || stackEl || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    tlFit();
+    tlDrag = { y: e.clientY, t: e.timeStamp, dy: 0, open: tlOpen, id: e.pointerId, moved: false };
+    tlDragged = false;
+    try { tlToggle.setPointerCapture(e.pointerId); } catch (err) {} // so a quick drag that leaves the bar still counts
+  });
+  tlToggle.addEventListener('pointermove', function (e) {
+    if (!tlDrag) return;
+    var dy = e.clientY - tlDrag.y;
+    if (!tlDrag.moved) {
+      if (Math.abs(dy) < 6) return;
+      tlDrag.moved = true;
+      tl.classList.add('is-dragging');
+    }
+    var P = tlTravel();
+    tlDrag.dy = dy; tlDrag.t2 = e.timeStamp;
+    tl.style.transform = 'translateY(' + Math.max(0, Math.min(P, (tlDrag.open ? 0 : P) + dy)) + 'px)';
+  });
+  function tlLetGo(e) {
+    var d = tlDrag; tlDrag = null;
+    if (!d || !d.moved) return;
+    tlDragged = true; setTimeout(function () { tlDragged = false; }, 0);
+    var P = tlTravel(), v = d.dy / Math.max(1, e.timeStamp - d.t);
+    tl.classList.remove('is-dragging'); tl.style.transform = ''; // springs from where it was let go
+    if (d.open && (d.dy > P / 3 || (v > .6 && d.dy > 24))) tlSetOpen(false);
+    else if (!d.open && (-d.dy > P / 3 || (v < -.6 && d.dy < -24))) tlSetOpen(true);
+  }
+  tlToggle.addEventListener('pointerup', tlLetGo); tlToggle.addEventListener('pointercancel', tlLetGo);
   tlScrim.addEventListener('click', function () { tlSetOpen(false); });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;

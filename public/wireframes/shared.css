@@ -3131,7 +3131,7 @@ body.cp-page code { font: inherit; }
 .tp-tl-prompt[hidden] { display: none; }
 .tp-tl-prompt-text { font-size: .8125rem; line-height: 1.35; color: rgba(255,255,255,.88); }
 .tp-tl-prompt-text strong { display: block; font-size: .9375rem; color: #fff; }
-.tp-tl-pick { flex: none; min-height: 44px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill); background: #fff; color: #1f1f1f; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
+.tp-tl-pick { flex: none; min-height: 36px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill); background: #fff; color: #1f1f1f; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
 .tp-tl-pick:active { transform: scale(.97); }
 .tp-tl-pick:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .tp-tl-key { position: relative; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin-top: var(--space-2); font-size: .6875rem; color: #4d4d4d; }
@@ -3144,7 +3144,7 @@ body.cp-page code { font: inherit; }
 .tp-tl-key .cn-tl-sym--place { border-style: solid; border-color: #1a1a1a; background: #fff; color: #1a1a1a; }
 .cn-tl-sym--match.is-away { border-style: dashed; }
 .cn-tl-sym--match.is-tbd { border-style: dotted; border-color: #9e9e9e; background: #fafafa; }
-.tp-tl-scroll { margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.tp-tl-scroll { margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: thin; }
 /* Everything hangs from the bottom: the axis 44px up, markers stacked upward from it 28px a row. The script sets the
    canvas height to the tallest day shown, so a few matches do not leave an empty band above them. */
 .tp-tl-canvas { position: relative; height: 196px; }
@@ -3154,7 +3154,7 @@ body.cp-page code { font: inherit; }
 .tp-tl-day { bottom: 20px; width: 24px; margin-left: -12px; text-align: center; font-size: .6875rem; color: #4d4d4d; font-variant-numeric: tabular-nums; }
 .tp-tl-mband { bottom: 3px; height: 14px; pointer-events: none; }
 /* Pinned: the month name sticks to the left of the scrolling axis while its days are in view */
-.tp-tl-month { position: sticky; left: 10px; display: inline-block; padding: 0 4px; background: #fff; font-size: .6875rem; font-weight: 700; line-height: 14px; color: #1a1a1a; white-space: nowrap; }
+.tp-tl-month { position: sticky; left: 10px; display: inline-block; vertical-align: top; /* no baseline gap under it, so the timeline never scrolls up and down */ padding: 0 4px; background: #fff; font-size: .6875rem; font-weight: 700; line-height: 14px; color: #1a1a1a; white-space: nowrap; }
 .tp-tl-mk { bottom: 50px; width: 32px; height: 28px; margin-left: -16px; display: grid; place-items: center; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; transform: translateY(calc(var(--row, 0) * -28px)); transition: transform .28s cubic-bezier(.16, 1, .3, 1), opacity .22s ease-out, visibility 0s; }
 .tp-tl-mk .cn-tl-sym { width: 22px; height: 22px; }
 .tp-tl-mk .cn-tl-sym--ticket { width: 22px; height: 22px; }
@@ -3209,7 +3209,7 @@ body.cp-page code { font: inherit; }
 .tp-ws-name { font-size: .8125rem; font-weight: 600; }
 .tp-ws-meta { font-size: .6875rem; line-height: 1.35; color: #4d4d4d; }
 .tp-ws .tp-add { min-width: 60px; min-height: 32px; font-size: .75rem; }
-.tp-ws .tp-add::before { inset: -6px -4px; } /* still a 44px tap area */
+.tp-ws .tp-add::before { inset: 0; }
 /* Where to watch supports the plan, so its heading steps down; Suits your 3rd half leads */
 #tp-watch .tp-sec-title { font-size: 1.0625rem; }
 #tp-third .tp-sec-title { font-size: 1.375rem; }
@@ -3219,7 +3219,7 @@ body.cp-page code { font: inherit; }
 .tp-plan-facts { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); font-size: .875rem; color: #1a1a1a; }
 .tp-plan-facts strong { font-size: 1.125rem; font-weight: 800; }
 .tp-plan-acts { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
-.tp-plan-btn { min-height: 44px; padding: 0 var(--space-4); border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
+.tp-plan-btn { min-height: 36px; padding: 0 var(--space-4); border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
 .tp-plan-btn--primary { background: #1f1f1f; color: #fff; }
 .tp-plan-btn:active { transform: scale(.97); }
 .tp-plan-btn:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
@@ -3230,7 +3230,7 @@ body.cp-page code { font: inherit; }
 .tp-watch-more { margin-top: var(--space-2); }
 /* Add: a small outlined pill; Added: filled, with a tick */
 .tp-add { position: relative; z-index: 1; flex: none; min-width: 72px; min-height: 36px; padding: 0 var(--space-3); border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
-.tp-add::before { content: ""; position: absolute; inset: -4px; } /* 44px tap area */
+.tp-add::before { content: ""; position: absolute; inset: 0; }
 .tp-add[aria-pressed="true"] { background: #1f1f1f; color: #fff; }
 .tp-add[aria-pressed="true"] span[aria-hidden]::before { content: "\2713  "; }
 .tp-add:active { transform: scale(.96); }
@@ -3259,7 +3259,7 @@ body.cp-page code { font: inherit; }
 .tp-pc-more dl { display: grid; grid-template-columns: auto 1fr; gap: 4px var(--space-3); }
 .tp-pc-more dt { font-weight: 600; color: #444; }
 .tp-pc-more dd { padding: 0 4px; }
-.tp-out { display: inline-flex; align-items: center; min-height: 44px; color: #1a1a1a; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.tp-out { display: inline-flex; align-items: center; min-height: 36px; color: #1a1a1a; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 /* New results fade up; reduced motion fades only */
 .tp-wm.is-in, .tp-pc.is-in { animation: tp-in .32s cubic-bezier(.2, .8, .2, 1); }
 @keyframes tp-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -3272,11 +3272,12 @@ body.cp-page code { font: inherit; }
 /* The question */
 .tp-ask { padding-bottom: var(--space-2); }
 .tp-ask:focus { outline: none; }
-.tp-forks { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.tp-forks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-3); } /* one line, three equal parts */
+.tp-forks .tp-fork { min-width: 0; padding: 0 var(--space-2); text-align: center; overflow: hidden; text-overflow: ellipsis; }
 .tp-ask-step { margin-top: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); background: #f5f5f5; }
 .tp-ask-guess { font-size: .875rem; line-height: 1.4; }
 .tp-ask-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); }
-.tp-pill { min-height: 44px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill); background: #1f1f1f; color: #fff; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
+.tp-pill { min-height: 36px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill); background: #1f1f1f; color: #fff; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
 .tp-pill:active { transform: scale(.97); }
 .tp-dates { display: flex; gap: var(--space-3); margin-top: var(--space-3); }
 .tp-date { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; font-size: .75rem; font-weight: 600; color: #333; }
@@ -3302,7 +3303,7 @@ body.cp-page code { font: inherit; }
 .tp-find-in { width: 100%; min-height: 44px; padding: 0 var(--space-3); border: 1.5px solid #9e9e9e; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .9375rem; }
 .tp-find-in::placeholder { color: #6b6b6b; }
 .tp-find-in:focus-visible { outline: 2px solid #005EA2; outline-offset: 1px; border-color: #1a1a1a; }
-.tp-nsw { min-height: 44px; }
+.tp-nsw { min-height: 36px; }
 .tp-find-list { position: absolute; left: 0; right: 0; top: calc(100% + 6px); list-style: none; padding: var(--space-1); border: 1px solid #d9d9d9; border-radius: var(--radius-md); background: #fff; box-shadow: 0 10px 24px rgba(0,0,0,.16); animation: tp-drop .18s cubic-bezier(.2, .8, .2, 1); }
 .tp-find-list[hidden] { display: none; }
 @keyframes tp-drop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
@@ -3568,7 +3569,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    wireframe; no Rugby World Cup theme. */
 .tp-body { padding: 0 0 120px; } /* 120px clear at the bottom: the timeline bar (104px) never covers the last match */
 /* Reset prototype: a reviewer tool at the right of the top bar, quiet so it is not read as part of the design */
-.tp-reset { margin-left: auto; min-height: 44px; padding: 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tp-reset { margin-left: auto; min-height: 36px; padding: 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .tp-reset:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 @media (hover: hover) { .tp-reset:hover { color: #111; } }
 /* A short hero: a band of placeholder photo above the title, the dates and one countdown line, so the find field and
@@ -3618,13 +3619,13 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-card:not(.is-picked):hover { background: #f5f5f5; } .tp-card--rugby:not(.is-picked):hover { background: #e3e3e3; } }
 .tp-fan-caption { min-height: 1.4em; margin-top: var(--space-2); font-size: .8125rem; color: #444; text-align: center; }
 .tp-fan-caption strong { color: #111; }
-.tp-clear-row { display: flex; justify-content: center; min-height: 44px; }
-.tp-chosen-row { display: flex; align-items: center; justify-content: center; margin-top: var(--space-1); min-height: 44px; }
+.tp-clear-row { display: flex; justify-content: center; min-height: 36px; }
+.tp-chosen-row { display: flex; align-items: center; justify-content: center; margin-top: var(--space-1); min-height: 36px; }
 .tp-chosen { font-size: .875rem; font-weight: 600; line-height: 1.4; }
 .tp-clear { flex: none; }
 .tp-clear[hidden] { display: none; }
 .tp-link:focus-visible, .tp-ticket input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
-.tp-link { min-height: 44px; padding: 0; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tp-link { min-height: 36px; padding: 0; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 /* Results: one card per pick, side by side, swiped */
 .tp-results-sum { margin-top: var(--space-2); font-size: .9375rem; font-weight: 600; line-height: 1.4; }
 .tp-results-sum:focus { outline: none; }
@@ -3661,7 +3662,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tag { display: inline-block; margin-top: var(--space-2); padding: var(--space-1) var(--space-2); border: 1px solid #1a1a1a; border-radius: var(--radius-pill); font-size: .6875rem; font-weight: 600; }
 .tp-tag--away { border-style: dashed; color: #444; border-color: #737373; }
 .tp-m-also { margin-top: var(--space-1); font-size: .75rem; color: #444; }
-.tp-ticket { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; margin-bottom: calc(var(--space-3) * -1); font-size: .8125rem; cursor: pointer; }
+.tp-ticket { display: flex; align-items: center; gap: var(--space-2); min-height: 36px; margin-bottom: calc(var(--space-3) * -1); font-size: .8125rem; cursor: pointer; }
 .tp-ticket input { flex: none; appearance: none; -webkit-appearance: none; display: grid; place-items: center; width: 20px; height: 20px; margin: 0; border: 1.5px solid #1a1a1a; border-radius: var(--radius-sm); background: #fff; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out); }
 .tp-ticket input:checked { background: #1f1f1f; }
 .tp-ticket input:checked::after { content: ""; width: 10px; height: 5px; margin-top: -2px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
@@ -3768,15 +3769,15 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-pm-on { font-size: .9375rem; font-weight: 700; line-height: 1.4; }
 .tp-pm-ticket { margin-top: 0; }
 .tp-pm-teams { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); margin-top: var(--space-2); }
-.tp-pm-team { min-height: 44px; padding: 0 var(--space-4); border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
+.tp-pm-team { min-height: 36px; padding: 0 var(--space-4); border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; }
 .tp-pm-team:active { transform: scale(.97); }
 .tp-pm-team:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
-.tp-pm-team-on { min-height: 44px; display: flex; align-items: center; font-size: .875rem; font-weight: 700; }
+.tp-pm-team-on { min-height: 36px; display: flex; align-items: center; font-size: .875rem; font-weight: 700; }
 .tp-pm-note { margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #5c5c5c; }
 .tp-pm-said { min-height: 1.4em; margin-top: var(--space-4); font-size: .875rem; font-weight: 600; line-height: 1.4; color: #1a1a1a; }
 
 /* Here for the rugby: a button under the fan, rough and playful on purpose (tilted, dashed, a ball), not a card */
-.tp-rugby { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4) 0 var(--space-3); border: 2px dashed #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .9375rem; font-weight: 800; letter-spacing: -.01em; transform: rotate(-2deg); cursor: pointer; transition: transform var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.tp-rugby { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0 var(--space-4) 0 var(--space-3); border: 2px dashed #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .9375rem; font-weight: 800; letter-spacing: -.01em; transform: rotate(-2deg); cursor: pointer; transition: transform var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .tp-rugby:active { transform: rotate(-2deg) scale(.96); }
 @media (hover: hover) { .tp-rugby:hover { transform: rotate(1deg); } }
 .tp-rugby:focus-visible { outline: 2px solid #005EA2; outline-offset: 3px; }
@@ -3792,7 +3793,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-swap-q { font-size: .875rem; font-weight: 700; line-height: 1.4; }
 .tp-swap-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-2); }
 .tp-undo { min-height: 0; margin-left: var(--space-1); padding: 0; font-weight: 700; }
-.tp-undo::after { content: ""; position: absolute; inset: -12px -10px; } /* a 44px tap area without a taller line */
+.tp-undo::after { content: ""; position: absolute; inset: -6px -6px; } /* a 24px+ tap area (AA) without a taller line */
 /* The trip question in the open timeline, and the device note beside it */
 .tp-tl-ask { margin-top: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: #f7f7f7; }
 .tp-ask-title { font-size: 1rem; font-weight: 800; }
@@ -3869,7 +3870,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Pick your team: Save & share, a second sheet stacked over the open timeline (the sheet and tiles above, from the
    Share/edit itinerary prototype). The id outranks .cn-phone's screen rule, so it stays down until opened. */
 .tp-tl-share { position: relative; flex: none; min-height: 36px; padding: 0 14px; border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
-.tp-tl-share::before { content: ""; position: absolute; inset: -4px 0; } /* 44px to tap */
+.tp-tl-share::before { content: none; }
 .tp-tl-share[hidden] { display: none; }
 .tp-tl-share:active { transform: scale(.98); }
 .tp-tl-share:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
@@ -3894,3 +3895,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ss.is-sent .cn-again { display: block; }
 .tp-ss.is-sent .cn-note-dot { background: #2666d9; }
 .tp-ss .cn-toast { position: sticky; left: auto; right: auto; bottom: 0; flex: none; margin-top: var(--space-3); }
+
+/* Pick your team: the timeline sheet drags by its bar (handle included): down to close, up to open */
+.tp-tl-bar { touch-action: none; }
+.tp-tl.is-on.is-dragging { transition: none; }
+.tp-tl.is-dragging .tp-tl-panel { opacity: 1; transition: none; }
