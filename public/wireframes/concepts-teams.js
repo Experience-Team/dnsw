@@ -41,6 +41,8 @@
       t.matches.push(f);
     });
   });
+  // Flags for the all matches list. England, Scotland and Wales use their own flags; the rest are country flags.
+  var FLAG = { 'Argentina': '🇦🇷', 'Australia': '🇦🇺', 'Canada': '🇨🇦', 'Chile': '🇨🇱', 'England': '🏴\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', 'Fiji': '🇫🇯', 'France': '🇫🇷', 'Georgia': '🇬🇪', 'Hong Kong China': '🇭🇰', 'Ireland': '🇮🇪', 'Italy': '🇮🇹', 'Japan': '🇯🇵', 'New Zealand': '🇳🇿', 'Portugal': '🇵🇹', 'Romania': '🇷🇴', 'Samoa': '🇼🇸', 'Scotland': '🏴\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}', 'South Africa': '🇿🇦', 'Spain': '🇪🇸', 'Tonga': '🇹🇴', 'USA': '🇺🇸', 'Uruguay': '🇺🇾', 'Wales': '🏴\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}', 'Zimbabwe': '🇿🇼' };
   var names = Object.keys(TEAMS).sort();
   names.forEach(function (n) { TEAMS[n].nsw = TEAMS[n].matches.filter(function (f) { return !f.a; }).length; });
   var nswPool = pool.filter(function (f) { return !f.a; });
@@ -304,7 +306,22 @@
     requestAnimationFrame(function () { hint.hidden = deck.scrollWidth <= deck.clientWidth + 2; });
     sum.textContent = summary();
   }
+  /* ---------- All matches ----------
+     Below the picker, whether or not anyone has picked: every match in the fixture list, in date order. Kept minimal,
+     as this page is not the main source for matches. Hidden while the picked cards are showing (Your matches). */
+  var allSec = document.getElementById('tp-all');
+  function minutes(k) { var m = /^(\d+):(\d+)(am|pm)$/.exec(k || ''); return m ? ((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] : 24 * 60; }
+  function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
+  if (allSec) {
+    document.getElementById('tp-all-list').innerHTML = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
+      var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
+      var stage = f.t && !/^Pool /.test(f.s) ? '<span class="tp-all-stage">' + esc(f.s) + '</span>' : f.t ? '' : '<span class="tp-all-stage">Teams to be decided</span>';
+      return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '"><p class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</p><p class="tp-all-teams">' + who + '</p>' + stage +
+        '<p class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '') + '</p></li>';
+    }).join('');
+  }
   function setView(v) {
+    if (allSec) allSec.hidden = v === 'results';
     state.view = v; save();
     document.getElementById('tp-pick-title').textContent = v === 'results' ? 'Your matches' : 'Pick your team';
     picker.hidden = v !== 'pick';

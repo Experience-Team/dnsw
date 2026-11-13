@@ -97,6 +97,13 @@
           </div>
           <p class="visually-hidden" id="tp-live" role="status" aria-live="polite"></p>
         </section>
+        <!-- All matches: below the picker whether or not anyone has picked a team. Minimal, as this page is not the main
+             source for matches. Built by concepts-teams.js from cnFixtures; hidden while Your matches is showing. -->
+        <section class="tp-all" id="tp-all" aria-labelledby="tp-all-title">
+          <h3 class="tp-all-title" id="tp-all-title">All matches</h3>
+          <p class="tp-all-note">Kick-off times are Sydney time. Dates and venues are placeholders for this prototype.</p>
+          <ol class="tp-all-list" id="tp-all-list"></ol>
+        </section>
       </div>
     </div>
   </div>
@@ -160,6 +167,7 @@
       { sel: '#tp-show', title: 'See their matches', text: 'Greyed until something is picked. Pressed with nothing picked, it does not move: it says to pick a card first or choose Here for the rugby. With picks, the picked cards fly out of the fan and turn over to show their matches. The label counts the picks, and reads See the NSW matches when Here for the rugby is the only pick.' },
       { sel: '#tp-rugby-link', title: 'Here for the rugby', text: 'The No team? link and the last card in the fan do the same thing: every pool match in NSW, no team. It stands alone. Picking it puts any picked teams back in the hand, and picking a team while it is picked puts it back, so the two never mix. The live region says what was cleared. Ticket marks are kept.' },
       { sel: '#tp-skip', title: 'Skip this step', text: 'Moves to a short Skipped screen. Nothing is picked and the plan would start from dates instead of a team’s matches. Pick a team after all comes back to the fan.' },
+      { sel: '.tp-all-note', title: 'All matches', text: 'Every match in date order, with or without a pick. Picking a team and choosing See their matches swaps this list for the picked cards, which come back with Change teams. Minimal on purpose: this page is not the main source for matches. Flags stand in for the teams.' },
       { sel: '.tp-device', title: 'Saved on this device', text: 'Picks, ticket marks and the screen you were on are kept in this browser, so a reload puts you back where you were. Reset prototype, or ?reset on the address, clears them.' }
     ], todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
     results: { items: [
@@ -172,6 +180,7 @@
       { sel: '#tp-change', title: 'Change teams', text: 'The match cards fade and drop away, then the hand deals open again with your picks still lifted, ready to change.' }
     ] },
     skipped: { items: [
+      { sel: '.tp-all-note', title: 'All matches', text: 'Still shown below, so skipping the team step leaves every match in view.' },
       { sel: '#tp-unskip', title: 'Pick a team after all', text: 'Goes back to the fan with nothing picked. Skipping is kept on this device like a pick, so a reload stays on this screen.' }
     ] }
   };
