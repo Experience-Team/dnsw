@@ -69,8 +69,10 @@
     var show = watchAll ? ms : ms.slice(0, 3);
     show.forEach(function (m) {
       var f = m.f, who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
-      h += '<div class="tp-wm" data-key="' + esc(m.key) + '"><p class="tp-wm-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</p>' +
-        '<p class="tp-wm-teams">' + who + '</p>' + (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>') +
+      // One compact group per match: date and where on one line, the teams, then its spots as plain rows
+      h += '<div class="tp-wm" data-key="' + esc(m.key) + '"><p class="tp-wm-when"><span>' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</span>' +
+        (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>') + '</p>' +
+        '<p class="tp-wm-teams">' + who + '</p>' +
         '<ul class="tp-wm-spots">' + spotsFor(m).map(function (sp) {
           var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
           var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
@@ -320,10 +322,65 @@
     if (first) first.focus({ preventScroll: true });
   });
 
+  /* ---------- Your plan so far: the end of the page ---------- */
+  var planBody = document.getElementById('tp-plan-body'), copied = false;
+  function planText() {
+    var t = trip(), lines = ['My Rugby World Cup 2027 plan (Plan your 3rd half)'];
+    if (t && t.mode === 'visiting' && t.from && t.to) lines.push('In NSW ' + tp.isoRange(t.from, t.to));
+    else if (t && t.mode === 'local') lines.push('I live in NSW');
+    if (tp.picked()) {
+      lines.push('', 'Matches (kick-off times are Sydney time):');
+      tp.userMatches().forEach(function (m) {
+        var f = m.f;
+        lines.push('- ' + f.d + ', ' + (f.k || 'time to be confirmed') + ': ' + matchName(f) + ', ' + f.v + ', ' + f.p + (f.a ? ' (interstate)' : '') + (hasTicket(m) ? ' (ticket)' : ''));
+      });
+    }
+    if (state.added.length) {
+      lines.push('', 'Added:');
+      state.added.forEach(function (it) { lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : '')); });
+      lines.push('', 'Places are placeholders in this prototype, not real listings.');
+    }
+    return lines.join('\n');
+  }
+  function renderPlan() {
+    if (!planBody) return;
+    var t = trip(), ms = tp.picked() ? tp.userMatches() : [], n = state.added.length;
+    if (!ms.length && !n) {
+      planBody.innerHTML = '<p class="tp-plan-empty">Pick a team, or add a screening or a place above, and your plan builds up here.</p>';
+      return;
+    }
+    var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
+    var when = t && t.mode === 'visiting' && t.from && t.to ? 'In NSW ' + tp.isoRange(t.from, t.to) : t && t.mode === 'local' ? 'Local' : '';
+    var facts = [];
+    if (ms.length) facts.push('<li><strong>' + ms.length + '</strong> ' + (ms.length === 1 ? 'match' : 'matches') + ', ' + nsw + ' in NSW' + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
+    facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
+    if (when) facts.push('<li>' + esc(when) + '</li>');
+    planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' +
+      '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="open">Open your timeline</button>' +
+      '<button type="button" class="tp-plan-btn" data-plan="copy">' + (copied ? 'Copied' : 'Copy plan') + '</button></div>' +
+      '<p class="tp-plan-note">Copies as plain text for your notes or a message. Nothing leaves this device unless you paste it.</p>';
+  }
+  if (planBody) planBody.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-plan]'); if (!b) return;
+    if (b.dataset.plan === 'open') { tp.openTimeline(); return; }
+    var text = planText();
+    function done() {
+      copied = true; render(true, '[data-plan="copy"]');
+      tp.say('Plan copied. Paste it into your notes or a message.');
+      setTimeout(function () { copied = false; render(true); }, 2400);
+    }
+    function fallback() {
+      // Copying is blocked: show the text selected, to copy by hand
+      planBody.insertAdjacentHTML('beforeend', '<label class="tp-plan-fallback"><span>Copying is blocked here. The text is selected: copy it with your device\u2019s Copy.</span><textarea readonly rows="6"></textarea></label>');
+      var ta = planBody.querySelector('textarea'); ta.value = text; ta.focus(); ta.select();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  });
+
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};
   function signature() {
-    return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.view, selDay, watchAll, askEditing, askManual, askError, openCard]);
+    return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.view, selDay, watchAll, askEditing, askManual, askError, openCard, copied]);
   }
   function render(force, focusSel) {
     var s = signature();
@@ -339,6 +396,7 @@
     renderWatch();
     renderThird();
     renderAsk();
+    renderPlan();
     // A gentle change: what is new fades up; a reason that changed glows briefly
     var now = {};
     phone.querySelectorAll('.tp-wm, .tp-pc').forEach(function (el) {

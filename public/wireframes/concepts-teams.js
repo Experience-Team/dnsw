@@ -849,7 +849,10 @@
     // the page is scrolled to its end (otherwise the bar could never appear under a short list)
     var atEnd = body.scrollTop + body.clientHeight >= body.scrollHeight - 2;
     var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
-    var on = tlOpen || seen;
+    // Once something is on the timeline, the bar stays up anywhere below the fan, so an Add never goes nowhere
+    var fanBox = root.querySelector('.tp-fan-wrap').getBoundingClientRect();
+    var belowFan = state.view === 'results' || state.view === 'skipped' || (fanBox.height > 0 && fanBox.bottom < box.top);
+    var on = tlOpen || seen || (state.added.length > 0 && belowFan);
     if (on === tlOn) return;
     tlOn = on;
     tl.classList.toggle('is-on', on);
@@ -893,7 +896,7 @@
      (concepts-third-half.js) through window.tpPicker. Saved on this device with the picks. ---------- */
   function addItem(it) {
     if (state.added.some(function (x) { return x.id === it.id; })) return false;
-    state.added.push(it); save(); changed(); return true;
+    state.added.push(it); save(); changed(); syncBar(); return true;
   }
   function removeItem(id) {
     var n = state.added.length;
@@ -948,7 +951,7 @@
   });
 
   window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, say: say, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; } };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
