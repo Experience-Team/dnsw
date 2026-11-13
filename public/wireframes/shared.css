@@ -3060,7 +3060,7 @@ body.cp-page code { font: inherit; }
 .cn-save, .cn-pill, .cn-sheet-title, .cn-day-card, .cn-peek summary { position: relative; }
 
 /* Pick your team: parts that carry an annotation badge need a box to hang it on */
-.tp-count, .tp-fan-caption, .tp-clear, .tp-link, .tp-device, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-days, .tp-ask { position: relative; }
+.tp-count, .tp-fan-caption, .tp-clear, .tp-link, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-days, .tp-ask { position: relative; }
 
 /* The fan's badge sits in the empty corner inside its frame (the frame clips its sides, and above it is the intro text) */
 .tp-fan-wrap > .cn-badge { top: 8px; right: 24px; }
@@ -3186,8 +3186,6 @@ body.cp-page code { font: inherit; }
 .tp-tl-mk--item.is-new { opacity: 0; transform: translateY(calc(var(--row, 0) * -28px - 12px)) scale(.5); }
 .tp-tl-stay { top: 0; bottom: 38px; background: rgba(38,102,217,.08); border-inline: 1px solid rgba(38,102,217,.45); pointer-events: none; }
 .tp-tl-stay[hidden] { display: none; }
-.tp-tl-trip { position: relative; margin-top: var(--space-2); font-size: .8125rem; color: #1a1a1a; }
-.tp-tl-trip .tp-link { min-height: 32px; }
 .tp-tl-dot.is-item { border-radius: 2px; background: #fff; box-shadow: inset 0 0 0 1.5px #1a1a1a; }
 .tp-tl-dot.has-item::after { content: ""; position: absolute; left: 1px; top: -8px; width: 5px; height: 5px; border-radius: 1px; background: #1a1a1a; }
 .tp-tl-d-gap { margin-top: var(--space-2); padding: 2px var(--space-2); font-size: .75rem; color: #4d4d4d; }
@@ -3346,9 +3344,6 @@ body.cp-page code { font: inherit; }
 .tp-tl.is-open .tp-tl-strip, .tp-tl.is-open .tp-tl-end { opacity: 0; transition: opacity .16s ease-in; }
 .tp-tl-zoom { position: absolute; z-index: 3; transform-origin: 0 0; pointer-events: none; }
 .tp-tl-stay.is-suggested { background: rgba(38,102,217,.04); border-inline: 1px dashed rgba(38,102,217,.6); }
-.tp-tl-sugg { padding: 0 4px; border: 1px dashed #2666d9; border-radius: 3px; font-size: .6875rem; font-weight: 600; color: #2666d9; }
-.tp-tl-trip[hidden] { display: none; }
-.tp-tl-trip-acts { display: block; }
 /* Open, the strip has handed over to the axis: the panel moves up into its space (same total height, so the sheet's
    travel is unchanged) */
 .tp-tl.is-open .tp-tl-panel { position: relative; z-index: 1; margin-top: -34px; height: calc(var(--tl-p) + 34px); }
@@ -3638,9 +3633,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-clear { flex: none; }
 .tp-clear[hidden] { display: none; }
 .tp-link:focus-visible, .tp-ticket input:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
-.tp-alt { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--space-4); margin-top: var(--space-1); }
 .tp-link { min-height: 44px; padding: 0; border: 0; background: none; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-.tp-device { margin-top: var(--space-2); font-size: .75rem; color: #5c5c5c; }
 /* Results: one card per pick, side by side, swiped */
 .tp-results-sum { margin-top: var(--space-2); font-size: .9375rem; font-weight: 600; line-height: 1.4; }
 .tp-results-sum:focus { outline: none; }
@@ -3759,7 +3752,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* The feedback caption: the new part is emphasised for a moment (a wash that fades), then settles */
 .tp-fan-caption { min-height: 2.8em; line-height: 1.4; text-wrap: balance; }
 .tp-cap-new { border-radius: 3px; font-weight: 700; color: #111; }
-.tp-cap-note { display: block; font-size: .75rem; color: #5c5c5c; }
+.tp-cap-note { color: #5c5c5c; }
 /* A pick's matches flying into the bar: a round dot each, landing on its date */
 .tp-fly--dot { width: 10px; height: 10px; border-radius: 50%; background: #1f1f1f; box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(0,0,0,.25); }
 .tp-tl-dot.is-incoming { opacity: 0; transform: scale(.3); transition: none; }
@@ -3790,3 +3783,31 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-pm-team-on { min-height: 44px; display: flex; align-items: center; font-size: .875rem; font-weight: 700; }
 .tp-pm-note { margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #5c5c5c; }
 .tp-pm-said { min-height: 1.4em; margin-top: var(--space-4); font-size: .875rem; font-weight: 600; line-height: 1.4; color: #1a1a1a; }
+
+/* Here for the rugby: a button under the fan, rough and playful on purpose (tilted, dashed, a ball), not a card */
+.tp-rugby { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4) 0 var(--space-3); border: 2px dashed #1a1a1a; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .9375rem; font-weight: 800; letter-spacing: -.01em; transform: rotate(-2deg); cursor: pointer; transition: transform var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.tp-rugby:active { transform: rotate(-2deg) scale(.96); }
+@media (hover: hover) { .tp-rugby:hover { transform: rotate(1deg); } }
+.tp-rugby:focus-visible { outline: 2px solid #005EA2; outline-offset: 3px; }
+.tp-rugby[aria-pressed="true"] { border-style: solid; background: #1f1f1f; color: #fff; }
+.tp-rugby-ball { flex: none; width: 22px; height: 14px; border: 2px solid currentColor; border-radius: 50%; transform: rotate(-30deg); position: relative; }
+.tp-rugby-ball::after { content: ""; position: absolute; left: 3px; right: 3px; top: 50%; height: 2px; margin-top: -1px; background: currentColor; }
+.tp-rugby[aria-pressed="true"] .tp-rugby-ball { background: #fff; border-color: #fff; }
+.tp-rugby[aria-pressed="true"] .tp-rugby-ball::after { background: #1f1f1f; }
+/* The swap question: inline, under the button, until answered */
+.tp-under { position: relative; }
+.tp-swap { position: absolute; inset: 0 calc(var(--space-2) * -1) -4px; z-index: 2; display: flex; flex-direction: column; justify-content: center; padding: 0 var(--space-3); border-radius: var(--radius-md); background: #f2f2f2; }
+.tp-swap[hidden] { display: none; }
+.tp-swap-q { font-size: .875rem; font-weight: 700; line-height: 1.4; }
+.tp-swap-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-2); }
+.tp-undo { min-height: 0; margin-left: var(--space-1); padding: 0; font-weight: 700; }
+.tp-undo::after { content: ""; position: absolute; inset: -12px -10px; } /* a 44px tap area without a taller line */
+/* The trip question in the open timeline, and the device note beside it */
+.tp-tl-ask { margin-top: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: #f7f7f7; }
+.tp-ask-title { font-size: 1rem; font-weight: 800; }
+.tp-tl-ask .tp-ask-step { background: #fff; }
+.tp-tl-device { margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #5c5c5c; }
+/* Under Suits your 3rd half: the way to the question, then the answer */
+.tp-third-trip { margin-top: var(--space-2); font-size: .8125rem; line-height: 1.4; color: #1a1a1a; }
+.tp-third-trip-a { font-weight: 700; }
+.tp-third-trip .tp-link { min-height: 32px; }

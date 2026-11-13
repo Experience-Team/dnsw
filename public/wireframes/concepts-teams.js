@@ -1,5 +1,6 @@
 /* Concepts: Pick your team (prototype-pick-your-team.html).
-   A fanned hand of cards: the 24 teams, alphabetical, then "Here for the rugby". Drag or swipe the fan sideways,
+   A fanned hand of cards: the 24 teams, alphabetical. Here for the rugby (every NSW match, no team) is a button under
+   the fan, not a card; with teams picked it asks before swapping them, and offers Undo after. Drag or swipe the fan sideways,
    or use the arrow keys; tap or press Space to pick a card (as many as you like). Picking is the action: there is no
    button to press after it. A pick takes effect at once (Your matches, the timeline, Where to watch and Suits your 3rd
    half all follow it) and says what it did: the caption under the fan, the team's matches flying into the timeline
@@ -8,7 +9,7 @@
    time. Nothing else is added: no flags, no community or home-country times, no ticket links.
    Jobs covered (docs/jtbd-itinerary.md): T1 one team, T5 and T7 more than one, T8 and T9 no team, T2 and T12
    tickets, T3 NSW or interstate, T4 knockouts, T6 a shared match noted on both cards, T15 saved on this device,
-   T16 skip (to the dates question), T12 a single match from All matches, and Clear all to start again. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
+   T16 no team (set your days in NSW in the open timeline), T12 a single match from All matches, and Clear all. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
 (function () {
   'use strict';
   var root = document.getElementById('tp-pick');
@@ -20,6 +21,7 @@
   var chosenEl = document.getElementById('tp-chosen');
   var tabsEl = document.getElementById('tp-tabs'), tabYours = document.getElementById('tp-tab-yours'), tabAll = document.getElementById('tp-tab-all');
   var clearBtn = document.getElementById('tp-clear');
+  var rugbyBtn = document.getElementById('tp-rugby'), swapBox = document.getElementById('tp-swap');
   var picker = document.getElementById('tp-picker');
   var results = document.getElementById('tp-results');
   var deck = document.getElementById('tp-deck');
@@ -61,7 +63,7 @@
   }
   // The 25th card: no team, every match in NSW
   var RUGBY = { name: 'Here for the rugby', code: 'ALL', rugby: true };
-  var CARDS = names.map(function (n) { return TEAMS[n]; }).concat([RUGBY]);
+  var CARDS = names.map(function (n) { return TEAMS[n]; });
   var R16 = FIX.filter(function (f) { return /^Round of 16/.test(f.s); });
 
   /* ---------- State, kept in this browser ---------- */
@@ -216,7 +218,7 @@
     // Here for the rugby already covers every match in NSW, so it stands alone: picking it puts the team cards back in
     // the hand, and picking a team puts it back. The cards that go drop in the same glide.
     if (on && c.rugby && state.picked.length) { state.picked = []; note = ' Your team picks are cleared, as every NSW match is included.'; }
-    else if (on && !c.rugby && isPicked(RUGBY)) { state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; }); note = ' Here for the rugby is cleared.'; }
+    else if (on && !c.rugby && isPicked(RUGBY)) { state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; }); note = ' Here for the rugby is off.'; }
     if (on) state.picked.push(c.name); else state.picked = state.picked.filter(function (n) { return n !== c.name; });
     save();
     // The pick is a visible moment, not just a turn of the hand: the card is pulled up out of the fan above its
@@ -256,9 +258,19 @@
     return c.name + ' added: ' + countPhrase(c.matches) + ', ' + (c.nsw ? c.nsw + ' in NSW' : 'all interstate');
   }
   var CAPTION_REST = 'Tap a card to add its matches. Tap it again to take it off.';
-  function showCaption(lead, rest, note) {
-    caption.innerHTML = '<span class="tp-cap-new">' + esc(lead) + '</span>' + esc(rest || '') + (note ? '<span class="tp-cap-note">' + esc(note) + '</span>' : '');
-    var n = caption.firstChild;
+  // undo: a function, to offer Undo in the caption for a few seconds (the swap to Here for the rugby)
+  var undoTimer = 0;
+  function showCaption(lead, rest, note, undo) {
+    clearTimeout(undoTimer);
+    caption.innerHTML = '<span aria-hidden="true"><span class="tp-cap-new">' + esc(lead) + '</span>' + esc(rest || '') + (note ? '<span class="tp-cap-note">. ' + esc(note.trim()) + '</span>' : '') + '</span>' +
+      (undo ? ' <button type="button" class="tp-link tp-undo" id="tp-undo">Undo</button>' : '');
+    if (undo) {
+      var u = caption.querySelector('#tp-undo');
+      u.addEventListener('click', function () { clearTimeout(undoTimer); undo(u); });
+      // It goes after six seconds; if it had focus, focus goes to the button it came from
+      undoTimer = setTimeout(function () { var had = document.activeElement === u; u.remove(); if (had) rugbyBtn.focus({ preventScroll: true }); }, 6000);
+    }
+    var n = caption.querySelector('.tp-cap-new');
     if (n.animate && !reduce.matches) n.animate([{ backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb' }, { backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb', offset: .35 }, { backgroundColor: 'rgba(223,233,251,0)', boxShadow: '0 0 0 4px rgba(223,233,251,0)' }], { duration: 1400, easing: 'ease-out' });
   }
   // The person's own matches on the strip. With nothing of their own the strip previews every match, and none of
@@ -453,6 +465,10 @@
   function renderChosen() {
     chosenEl.textContent = chosenText();
     clearBtn.hidden = !state.picked.length;
+    var r = isPicked(RUGBY);
+    rugbyBtn.setAttribute('aria-pressed', r ? 'true' : 'false');
+    rugbyBtn.querySelector('.tp-rugby-text').textContent = r ? 'Here for the rugby: on' : 'Here for the rugby';
+    if (!teamsPicked().length && !swapBox.hidden) swapBox.hidden = true;
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
   // Clear all: every card back in the hand and every ticket mark gone, so the picker starts again
@@ -472,12 +488,67 @@
     midCard().focus({ preventScroll: true }); // the button has just hidden itself
     say('All teams and their tickets cleared. No teams picked.');
   });
-  document.getElementById('tp-rugby-link').addEventListener('click', function () {
-    deal();
-    var i = CARDS.length - 1;
-    if (pos(i) < 0) setNsw(false);
-    if (!isPicked(RUGBY)) toggle(i); else settle(i);
-    cards[i].focus({ preventScroll: true });
+  /* ---------- Here for the rugby: a button, every NSW match and no team ----------
+     Pressed again it comes off. With teams picked it never replaces them silently: it asks inline (Swap your 3 teams
+     for every NSW match?), and after Swap the caption offers Undo for six seconds. Same feedback as a pick: the caption,
+     one sweep of dots into the bar from the button, the tab count. Picking a team while it is on takes it off. */
+  function setRugby(on, from) {
+    var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
+    if (on) state.picked = [RUGBY.name]; else state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; });
+    save();
+    place(true);
+    renderChosen();
+    renderMatches(on ? RUGBY.name : null, on ? null : RUGBY.name);
+    pickFlights(from, before, oldValue, barWasOn, on, 0);
+  }
+  function teamsPicked() { return state.picked.filter(function (n) { return n !== RUGBY.name; }); }
+  function closeSwap(focusBtn) { swapBox.hidden = true; if (focusBtn) rugbyBtn.focus({ preventScroll: true }); notesOnly(); }
+  rugbyBtn.addEventListener('click', function () {
+    if (isPicked(RUGBY)) {
+      setRugby(false, rugbyBtn);
+      showCaption('Here for the rugby removed', '');
+      say('Here for the rugby removed.');
+      notesOnly();
+      return;
+    }
+    var t = teamsPicked();
+    if (t.length) {
+      // Ask first: swapping would drop the teams they chose
+      document.getElementById('tp-swap-q').textContent = 'Swap your ' + (t.length === 1 ? t[0] : t.length + ' teams') + ' for every NSW match?';
+      swapBox.hidden = false;
+      if (!reduce.matches && swapBox.animate) swapBox.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: 'ease-out' });
+      document.getElementById('tp-swap-yes').focus({ preventScroll: true });
+      notesOnly();
+      return;
+    }
+    setRugby(true, rugbyBtn);
+    var msg = pickLine(RUGBY, true);
+    showCaption('Here for the rugby added', msg.slice('Here for the rugby added'.length));
+    say(msg + '.');
+    notesOnly();
+  });
+  document.getElementById('tp-swap-no').addEventListener('click', function () { closeSwap(true); say('Kept your teams.'); });
+  swapBox.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); closeSwap(true); } });
+  document.getElementById('tp-swap-yes').addEventListener('click', function () {
+    var prev = teamsPicked();
+    closeSwap(false);
+    setRugby(true, rugbyBtn);
+    var msg = pickLine(RUGBY, true);
+    // Two lines at most, Undo included, so the button row never drops under the timeline bar
+    showCaption('Swapped for every NSW match', ': ' + countPhrase(nswPool.concat(nswKo), { short: true }), '', function (u) {
+      // Undo: the teams come back exactly as they were, their dots flying in from the Undo button
+      var before = ownKeys(), old = tlValue.textContent, bar = tlOn;
+      state.picked = prev.slice();
+      save(); place(true); renderChosen(); renderMatches(prev[prev.length - 1], RUGBY.name);
+      pickFlights(u, before, old, bar, false, 0);
+      showCaption('Your teams are back', ': ' + list(prev));
+      say('Undone. Your teams are back: ' + list(prev) + '.');
+      rugbyBtn.focus({ preventScroll: true });
+      notesOnly();
+    });
+    say(msg + '. Swapped for ' + list(prev) + '. Undo is available for a few seconds.');
+    var u = document.getElementById('tp-undo'); if (u) u.focus({ preventScroll: true });
+    notesOnly();
   });
 
   /* ---------- Your matches: a card per picked team, built as picks change ----------
@@ -667,10 +738,6 @@
     if (tabsOn) sum.textContent = summary();
     changed(); // rewriting the summary wipes its annotation badge
   }
-  // Skip: no team needed, so straight on to the dates question (the picker stays where it is, above)
-  document.getElementById('tp-skip').addEventListener('click', function () {
-    phoneEl.dispatchEvent(new CustomEvent('tp:ask'));
-  });
   // Where the phone's content must scroll to for the picker's title to sit 16px below the top
   function pickTop() {
     var t = document.getElementById('tp-pick-title');
@@ -688,7 +755,7 @@
   var tlToggle = document.getElementById('tp-tl-toggle'), tlPanel = document.getElementById('tp-tl-panel'), tlScrim = document.getElementById('tp-tl-scrim');
   var tlCanvas = document.getElementById('tp-tl-canvas'), tlScroll = document.getElementById('tp-tl-scroll'), tlDetail = document.getElementById('tp-tl-detail');
   var tlDots = document.getElementById('tp-tl-dots'), tlLabel = document.getElementById('tp-tl-label'), tlValue = document.getElementById('tp-tl-value');
-  var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt'), tlTrip = document.getElementById('tp-tl-trip');
+  var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt');
   var tlItemEls = {}, tlStay, tlKey = document.getElementById('tp-tl-key');
   var phoneEl = document.getElementById('tp-phone');
   var SPOTS = Array.isArray(window.cnWatchSpots) ? window.cnWatchSpots : [];
@@ -839,8 +906,6 @@
     }
     // One prompt at a time: which team first; the trip line only once there is a team
     tlPrompt.hidden = !none;
-    tlTrip.hidden = none;
-    tlTrip.innerHTML = none ? '' : tripLine();
     // The key lists only the marker shapes on the axis now
     // Each entry draws its marker exactly as the axis does (the ball in the ring, the screen or pin in the square)
     var kinds = { nsw: false, away: false, ticket: false, tbd: false,
@@ -931,17 +996,6 @@
     document.getElementById('tp-tl-title').focus({ preventScroll: true });
     if (it) say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
   });
-  // The trip line in the open timeline: Change (or Answer) goes to the question below the suggestions
-  tlTrip.addEventListener('click', function (e) {
-    if (e.target.closest('[data-trip-ok]')) {
-      var g = inferTrip();
-      if (g) { setTrip({ mode: 'visiting', from: g.from, to: g.to }); say('Your days in NSW are ' + isoRange(g.from, g.to) + '.'); var c = tlTrip.querySelector('[data-ask]'); if (c) c.focus({ preventScroll: true }); }
-      return;
-    }
-    if (!e.target.closest('[data-ask]')) return;
-    tlSetOpen(false, false);
-    phoneEl.dispatchEvent(new CustomEvent('tp:ask'));
-  });
   // The panel's height: as tall as fits under the top of the phone, up to 460px
   function tlFit() { tl.style.setProperty('--tl-p', Math.max(260, Math.min(460, phoneEl.clientHeight - BAR - 72)) + 'px'); }
   tlFit();
@@ -1014,6 +1068,7 @@
       tlZoom(true);
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
     } else if (focusBack !== false) tlToggle.focus({ preventScroll: true });
+    if (!open) phoneEl.dispatchEvent(new CustomEvent('tp:tlclose'));
     syncBar();
     notesOnly();
   }
@@ -1064,18 +1119,6 @@
     function iso(d) { return new Date(Date.UTC(2027, 9, 1 + d)).toISOString().slice(0, 10); }
     return { from: iso(Math.min.apply(null, ds)), to: iso(Math.max.apply(null, ds)) };
   }
-  function tripLine() {
-    var t = state.trip;
-    if (!t) return '<span>Visiting or local?</span> <button type="button" class="tp-link" data-ask>Answer</button>';
-    if (t.mode === 'visiting' && !(t.from && t.to)) {
-      var g = inferTrip();
-      // A guess is shown as a guess until it is confirmed
-      if (g) return '<span>Looks like you\u2019re here <strong>' + esc(isoRange(g.from, g.to)) + '</strong> <span class="tp-tl-sugg">suggested</span></span><span class="tp-tl-trip-acts"><button type="button" class="tp-link" data-trip-ok>That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-ask>Change</button></span>';
-      return '<span>Visiting NSW</span> \u00b7 <button type="button" class="tp-link" data-ask>Add your days</button>';
-    }
-    var what = t.mode === 'local' ? 'I\u2019m local' : t.mode === 'unsure' ? 'Not sure yet' : 'In NSW ' + isoRange(t.from, t.to);
-    return '<span>' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-ask>Change</button>';
-  }
   tlReady = true;
   tlUpdate();
 
@@ -1095,6 +1138,7 @@
     deck.innerHTML = '';
     setNsw(false); clearFind(); offset = START; dealt = false;
     state.tab = 'yours';
+    swapBox.hidden = true; clearTimeout(undoTimer);
     renderChosen();
     renderMatches();
     caption.textContent = CAPTION_REST;
@@ -1106,7 +1150,7 @@
   });
 
   window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark
