@@ -92,3 +92,63 @@ window.cnWatchSpots = [
     rec('ph-ncl-bar', 'food_and_drink', 'Sample small bar (placeholder)', 'Hamilton', week('15:00', '23:59', ['wed', 'thu', 'fri', 'sat', 'sun']), b2, 'Newcastle Stadium', 1.1)
   ];
 })();
+
+/* GAP DATA, FIXTURE-ONLY: curated trips for "Around your matches" (free days between matches). A curated trip is NOT
+   in the product data contract: it is a proposed record (docs/proposal-curated-trips.md), curated by the DNSW team
+   from ATDW products and the team's own custom products. Every title, stop and figure here is a placeholder; the
+   region names (Blue Mountains, Hunter Valley and so on) are real places, the trips are not. Links go nowhere and
+   nothing is booked.
+   Shape: id, kind ('day' | 'long'), nights (long only), title, summary, region, bases (where it starts from:
+   'sydney' | 'newcastle'), on_the_way (suits a stretch between a Newcastle match and a Sydney match), travel (per
+   base: mode and minutes, generalising travel_time_from_cbd_minutes to more than one origin), and stops. Each stop is
+   either an ATDW product reference (source 'atdw') or a custom DNSW product (source 'custom'), with the fields a
+   card needs: title, type, suburb, open days and a price band. The trip's open days and price band are worked out
+   from its stops (concepts-third-half.js), not written by hand. */
+(function () {
+  var ALL = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  function stop(source, title, type, suburb, days, band, minutes) {
+    return { source: source, ref: source === 'atdw' ? 'atdw:placeholder-' + title.toLowerCase().replace(/[^a-z]+/g, '-') : null,
+      title: title, type: type, suburb: suburb, days: days || ALL, band: band || '', minutes_from_start: minutes || 0 };
+  }
+  window.cnTrips = [
+    { id: 'trip-blue-mountains', kind: 'day', title: 'Blue Mountains day out (placeholder)', region: 'Blue Mountains',
+      summary: 'Lookouts, a bushwalk and lunch in a mountain village, back by evening.', bases: ['sydney'],
+      travel: { sydney: { mode: 'train', minutes: 120 } },
+      stops: [stop('atdw', 'Sample lookout (placeholder)', 'attraction', 'Katoomba', ALL, '', 0),
+        stop('custom', 'Sample cliff-top walk (placeholder)', 'attraction', 'Leura', ALL, '', 20),
+        stop('atdw', 'Sample village café (placeholder)', 'food_and_drink', 'Leura', ['wed', 'thu', 'fri', 'sat', 'sun', 'mon'], '$$', 25)] },
+    { id: 'trip-royal-np', kind: 'day', title: 'Royal National Park coast walk (placeholder)', region: 'Royal National Park',
+      summary: 'A coastal track, a swim spot and fish and chips by the water.', bases: ['sydney'],
+      travel: { sydney: { mode: 'train', minutes: 60 } },
+      stops: [stop('custom', 'Sample coast track (placeholder)', 'attraction', 'Royal National Park', ALL, '', 0),
+        stop('atdw', 'Sample kiosk (placeholder)', 'food_and_drink', 'Bundeena', ALL, '$', 30)] },
+    { id: 'trip-port-stephens', kind: 'day', title: 'Port Stephens bay day (placeholder)', region: 'Port Stephens',
+      summary: 'A dolphin cruise, the dunes and a beach lunch.', bases: ['newcastle'],
+      travel: { newcastle: { mode: 'car', minutes: 50 } },
+      stops: [stop('atdw', 'Sample bay cruise (placeholder)', 'tour', 'Nelson Bay', ['thu', 'fri', 'sat', 'sun', 'mon'], '$$', 0),
+        stop('atdw', 'Sample dune tour (placeholder)', 'tour', 'Anna Bay', ALL, '$$', 25),
+        stop('custom', 'Sample beach picnic spot (placeholder)', 'attraction', 'Shoal Bay', ALL, '', 15)] },
+    { id: 'trip-lake-macquarie', kind: 'day', title: 'Lake Macquarie by bike (placeholder)', region: 'Lake Macquarie',
+      summary: 'A flat lakeside ride with a café at each end.', bases: ['newcastle'],
+      travel: { newcastle: { mode: 'car', minutes: 30 } },
+      stops: [stop('atdw', 'Sample bike hire (placeholder)', 'hire', 'Warners Bay', ['fri', 'sat', 'sun', 'mon', 'tue'], '$', 0),
+        stop('custom', 'Sample lakeside path (placeholder)', 'attraction', 'Speers Point', ALL, '', 10)] },
+    { id: 'trip-hunter', kind: 'long', nights: 2, title: 'Hunter Valley, 2 nights (placeholder)', region: 'Hunter Valley',
+      summary: 'Cellar doors, a long lunch and a hot-air balloon at dawn.', bases: ['newcastle', 'sydney'], on_the_way: true,
+      travel: { newcastle: { mode: 'car', minutes: 50 }, sydney: { mode: 'car', minutes: 120 } },
+      stops: [stop('atdw', 'Sample cellar door (placeholder)', 'food_and_drink', 'Pokolbin', ['thu', 'fri', 'sat', 'sun', 'mon'], '$$', 0),
+        stop('atdw', 'Sample balloon flight (placeholder)', 'tour', 'Pokolbin', ALL, '$$$', 5),
+        stop('custom', 'Sample vineyard walk (placeholder)', 'attraction', 'Lovedale', ALL, '', 15)] },
+    { id: 'trip-south-coast', kind: 'long', nights: 3, title: 'South Coast, 3 nights (placeholder)', region: 'South Coast',
+      summary: 'Blowholes, beaches and a whale-watching cruise, by train then car.', bases: ['sydney'],
+      travel: { sydney: { mode: 'train', minutes: 120 } },
+      stops: [stop('atdw', 'Sample blowhole lookout (placeholder)', 'attraction', 'Kiama', ALL, '', 0),
+        stop('custom', 'Sample coastal drive (placeholder)', 'attraction', 'Gerringong', ALL, '', 20),
+        stop('atdw', 'Sample whale cruise (placeholder)', 'tour', 'Huskisson', ['fri', 'sat', 'sun', 'mon', 'tue', 'wed'], '$$', 70)] },
+    { id: 'trip-barrington', kind: 'long', nights: 1, title: 'Barrington Tops overnight (placeholder)', region: 'Barrington Tops',
+      summary: 'Rainforest walks and a night in the hills, an hour and a half from Newcastle.', bases: ['newcastle'],
+      travel: { newcastle: { mode: 'car', minutes: 95 } },
+      stops: [stop('custom', 'Sample rainforest loop (placeholder)', 'attraction', 'Barrington Tops', ALL, '', 0),
+        stop('atdw', 'Sample country pub (placeholder)', 'food_and_drink', 'Gloucester', ALL, '$', 30)] }
+  ];
+})();
