@@ -3578,7 +3578,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-reset:hover { color: #111; } }
 .tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 360px; color: #fff; isolation: isolate; }
 .tp-hero-img { position: absolute; inset: 0; z-index: -1; background: #595959; }
-.tp-hero-img::after { align-items: flex-start; padding-top: var(--space-5); font-size: .875rem; color: rgba(255,255,255,.55); }
+.tp-hero-img::after { align-items: flex-start; justify-content: flex-end; padding: var(--space-2) var(--space-3) 0 0; font-size: .75rem; color: rgba(255,255,255,.55); } /* the placeholder label sits in the corner, clear of the title */
 /* The scrim darkens only where the text sits, so the placeholder still reads as a photo above it */
 .tp-hero::before { content: ""; position: absolute; inset: 35% 0 0; z-index: -1; background: linear-gradient(to bottom, rgba(17,17,17,0), rgba(17,17,17,.82) 45%); pointer-events: none; }
 .tp-hero-content { padding: 0 var(--space-4) var(--space-5); }
