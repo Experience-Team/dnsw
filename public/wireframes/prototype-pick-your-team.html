@@ -57,6 +57,8 @@
              Choices follow the jobs to be done (docs/jtbd-itinerary.md, T1 to T16). -->
         <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
           <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
+          <!-- Why pick: read out with the fan (aria-describedby) -->
+          <p class="tp-pick-sub" id="tp-pick-sub">Pick the teams you follow to see their matches and plan your days in NSW around them.</p>
           <div class="tp-picker" id="tp-picker">
             <!-- Hidden for now (may come back): finding your team with a find field (suggestions float over the hand, so nothing below moves) and a toggle that
                  narrows the hand to the teams with a pool match in NSW. Wired by concepts-teams.js. -->
@@ -70,7 +72,7 @@
               <ul class="tp-find-list" id="tp-find-list" aria-label="Matching teams" hidden></ul>
             </div>
             <div class="tp-fan-wrap">
-              <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-fan-help"></div>
+              <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-pick-sub tp-fan-help"></div>
             </div>
             <p class="visually-hidden" id="tp-fan-help">Left and right arrow keys move through the teams; type a letter to jump to teams starting with it. Space or Enter picks one. You can pick more than one.</p>
             <!-- The feedback line: what the last pick did (its text is read out by the live region; Undo, when offered, is a
@@ -302,6 +304,7 @@
   var PICKER = [
       { sel: '.tp-find-field', title: 'Find your team (hidden for now)', text: 'Hidden for now with the In NSW toggle, and may come back; the code stays wired, and the letter jump below still works. Three ways to your team without swiping through 25 cards. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; choosing one picks it, Enter picks the first, Escape clears. In NSW narrows the hand to the 15 teams with a pool match in NSW (Here for the rugby and anything already picked stay). With the hand focused, a letter jumps to the next team starting with it. Flags now sit on every card. The hand opens on Australia, the host nation.' },
       { sel: '.tp-count', title: 'Countdown', text: 'One plain line, under the subheading (Two halves on the pitch. Make the third one count.), so the hero stays short and the fan sits above the fold: days to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says the tournament is under way (final on Sat 13 Nov), then that it has finished. The dates line above it carries the page\u2019s one note that kick-offs are Sydney time. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
+      { sel: '#tp-pick-sub', title: 'Why pick', text: 'One line under the heading says what a pick is for: Pick the teams you follow to see their matches and plan your days in NSW around them. The fan is described by it (aria-describedby, with the keyboard help), so screen readers hear it with the fan.' },
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
       { sel: '#tp-fan-caption', title: 'What a pick did', text: 'The caption under the fan is the feedback line (it used to repeat the middle card): Wales added: 3 pool matches, 1 in NSW, or Wales removed. The first part is washed blue for a moment, then settles. The live region says the same for screen readers. At rest it says how picking works.' },
       { sel: '#tp-clear', title: 'Clear all', text: 'Sits centred under the caption, and only shows once at least one team is picked (Here for the rugby on its own turns itself off, so it does not bring Clear all up). Its row keeps its height, so the rugby button below never jumps. Puts every card back in the hand (Here for the rugby off too) and clears the teams\u2019 ticket marks (a ticket on a match added on its own stays with it). The tabs go and All matches stands alone again; the bar sinks away unless something keeps it up. Focus moves to the middle card, as the button hides itself.' },
