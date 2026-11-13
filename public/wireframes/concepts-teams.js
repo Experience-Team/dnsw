@@ -464,7 +464,7 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
-    clearBtn.hidden = !state.picked.length;
+    clearBtn.hidden = !teamsPicked().length; // teams only: the rugby button turns itself off
     var r = isPicked(RUGBY);
     rugbyBtn.setAttribute('aria-pressed', r ? 'true' : 'false');
     rugbyBtn.querySelector('.tp-rugby-text').textContent = r ? 'Just here for the rugby: on' : 'No team, just here for the rugby';
