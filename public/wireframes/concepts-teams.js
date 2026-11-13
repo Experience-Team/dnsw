@@ -549,7 +549,6 @@
     // The new screen's words arrive just behind the cards
     arrive(document.getElementById('tp-pick-title'), 0);
     arrive(sum, 140);
-    arrive(results.querySelector('.tp-results-note'), 200);
     arrive(document.getElementById('tp-results-away'), 260);
     arrive(document.getElementById('tp-deck-hint'), FLY - 120);
     arrive(results.querySelector('.tp-results-actions'), FLY - 80);
@@ -797,9 +796,8 @@
       var it = state.added.filter(function (x) { return x.id === tlSelItem; })[0];
       if (it) {
         tlDetail.innerHTML = '<p class="tp-tl-d-when">' + esc(it.day) + (it.matchName ? ', for ' + esc(it.matchName) : '') + '</p>' +
-          '<p class="tp-tl-d-teams">' + esc(it.title) + '</p><p class="tp-tl-d-stage">' + esc(it.kindLabel || '') + '</p>' +
+          '<p class="tp-tl-d-teams provenance-gap">' + esc(it.title) + '</p><p class="tp-tl-d-stage">' + esc(it.kindLabel || '') + '</p>' +
           (it.place ? '<p class="tp-tl-d-where">' + esc(it.place) + '</p>' : '') + (it.note ? '<p class="tp-tl-d-where">' + esc(it.note) + '</p>' : '') +
-          '<p class="tp-tl-d-gap provenance-gap">Placeholder: not real data yet.</p>' +
           '<button type="button" class="tp-link tp-tl-remove" data-remove="' + esc(it.id) + '">Remove from timeline</button>';
         return;
       }

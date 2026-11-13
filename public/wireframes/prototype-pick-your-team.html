@@ -23,7 +23,7 @@
       <!-- For whoever is reviewing the prototype, not part of the design: puts the picker back as a first visit -->
       <button type="button" class="pv-reset" id="tp-reset">Reset prototype</button>
     </div>
-    <p class="pv-p">A new prototype, started fresh. Phone size only.</p>
+    <p class="pv-p">Phone size only. Match dates and venues, screenings, the village, fan zones and places are placeholders; pink marks data that is not live yet.</p>
     <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
     <aside class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
@@ -57,6 +57,8 @@
               </div>
               <p class="tp-count-done" hidden></p>
               <p class="tp-dates"><span class="visually-hidden">Tournament dates: </span>1 October to 13 November 2027</p>
+              <!-- Said once, here at the top: every kick-off on the page is Sydney time -->
+              <p class="tp-dates-note">All kick-off times are Sydney time.</p>
             </div>
           </div>
         </section>
@@ -97,7 +99,6 @@
           </div>
           <div class="tp-results" id="tp-results" hidden>
             <p class="tp-results-sum" id="tp-results-sum" tabindex="-1"></p>
-            <p class="tp-results-note">Kick-off times are Sydney time.</p>
             <!-- Only for teams with no pool match in NSW (filled by concepts-teams.js): the way on, not a dead end -->
             <div class="tp-results-away" id="tp-results-away" hidden>
               <p class="tp-results-away-text"></p>
@@ -120,7 +121,7 @@
              source for matches. Built by concepts-teams.js from cnFixtures; hidden while Your matches is showing. -->
         <section class="tp-all" id="tp-all" aria-labelledby="tp-all-title">
           <h3 class="tp-all-title" id="tp-all-title">All matches</h3>
-          <p class="tp-all-note">Kick-off times are Sydney time. Dates and venues are placeholders for this prototype.</p>
+          <p class="tp-all-note">Every match of the tournament, by date.</p>
           <!-- Columns of five matches, each a borderless card; swipe sideways (or use the arrow keys) for the next five -->
           <div class="tp-all-scroll" id="tp-all-scroll" role="group" aria-label="All matches, five to a column" tabindex="0"></div>
           <p class="tp-all-hint" id="tp-all-hint">Swipe sideways for the next five matches.</p>
@@ -131,13 +132,13 @@
              name. Links go out only; nothing is booked here. -->
         <section class="tp-sec" id="tp-watch" aria-labelledby="tp-watch-title">
           <h3 class="tp-sec-title" id="tp-watch-title">Where to watch</h3>
-          <p class="tp-sec-note" id="tp-watch-note">Screenings for your matches, at pubs, the village and a fan zone. All placeholders for now.</p>
+          <p class="tp-sec-note" id="tp-watch-note">Screenings for your matches, at pubs, the village and a fan zone.</p>
           <div class="tp-watch-list" id="tp-watch-list"></div>
           <button type="button" class="tp-link tp-watch-more" id="tp-watch-more" aria-expanded="false" hidden></button>
         </section>
         <section class="tp-sec" id="tp-third" aria-labelledby="tp-third-title">
           <h3 class="tp-sec-title" id="tp-third-title">Suits your 3rd half</h3>
-          <p class="tp-sec-note" id="tp-third-note">Around your match days in NSW. Placeholder listings; each links out, nothing is booked here.</p>
+          <p class="tp-sec-note" id="tp-third-note">Around your match days in NSW. Each links out; nothing is booked here.</p>
           <div class="tp-days" id="tp-days" role="group" aria-label="Match day"></div>
           <div class="tp-third-list" id="tp-third-list"></div>
         </section>
@@ -164,7 +165,6 @@
         </button>
         <div class="tp-tl-panel" id="tp-tl-panel" inert>
           <h3 class="tp-tl-title" id="tp-tl-title" tabindex="-1">Your timeline</h3>
-          <p class="tp-tl-sub">Kick-off times are Sydney time.</p>
           <p class="tp-tl-trip" id="tp-tl-trip"></p>
           <div class="tp-tl-prompt" id="tp-tl-prompt">
             <p class="tp-tl-prompt-text"><strong>Which team are you here for?</strong> Pick one to see only their matches.</p>

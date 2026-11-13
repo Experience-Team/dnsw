@@ -142,7 +142,7 @@
     daysEl.hidden = days.length < 1;
     if (thirdNote) {
       var teams = state.picked.filter(function (n) { return tp.teams[n]; });
-      thirdNote.textContent = fallback && days.length ? tp.list(teams) + (teams.length === 1 ? ' plays' : ' play') + ' interstate, so these are around the matches in NSW you could go to. Placeholder listings; each links out, nothing is booked here.' : thirdNoteText;
+      thirdNote.textContent = fallback && days.length ? tp.list(teams) + (teams.length === 1 ? ' plays' : ' play') + ' interstate, so these are around the matches in NSW you could go to. Each links out; nothing is booked here.' : thirdNoteText;
     }
     daysEl.innerHTML = days.map(function (d) {
       return '<button type="button" class="tp-chip" data-day="' + esc(d.key) + '" aria-pressed="' + (d.key === selDay) + '">' +
@@ -243,10 +243,10 @@
     if (done) {
       var what = t.mode === 'local' ? 'I’m local' : t.mode === 'unsure' ? 'Not sure yet' : 'In NSW ' + tp.isoRange(t.from, t.to);
       h = '<p class="tp-ask-sum"><span class="tp-ask-sum-text">' + esc(what) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>' +
-        '<p class="tp-ask-why">Saved on this device only, with your picks.</p>';
+        '';
     } else {
       h = '<h3 class="tp-sec-title" id="tp-ask-title">Make these fit your trip</h3>' +
-        '<p class="tp-sec-note">Optional. One tap sharpens the suggestions above. Saved on this device only.</p>' + fork();
+        '<p class="tp-sec-note">Optional. One tap sharpens the suggestions above.</p>' + fork();
       if (t && t.mode === 'visiting') {
         var inf = inferred();
         if (inf && !askManual) {
