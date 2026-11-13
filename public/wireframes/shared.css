@@ -3349,6 +3349,22 @@ body.cp-page code { font: inherit; }
 .tp-dates-note { margin-top: 2px; font-size: .75rem; color: rgba(255,255,255,.8); }
 .cn-phone p, .cn-phone li, .cn-phone button { text-wrap: pretty; }
 
+/* Pick your team: the full-screen page for a product or a place to watch (the itinerary's .cn-pp pattern), above the
+   timeline bar and the flying item */
+.cn-pp.tp-pm { z-index: 140; } /* above the timeline bar (100) and the flying item (120) */
+.tp-pm .cn-pp-body:focus { outline: none; }
+.tp-pm-type { align-self: flex-start; padding: 0 4px; font-size: .75rem; color: #4d4d4d; }
+.tp-pm-why { padding: 2px 4px; font-size: .875rem; line-height: 1.4; }
+.tp-pm-summary { margin-top: var(--space-3); }
+.tp-pm-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-5); }
+.tp-pm-add[aria-pressed="true"] { background: #fff; color: #1a1a1a; box-shadow: inset 0 0 0 1.5px #1a1a1a; }
+.tp-pm-full { font-size: .875rem; font-weight: 600; color: #8a8a8a; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; cursor: not-allowed; }
+.tp-pm-soon { padding: 1px 6px; border: 1px dashed #b3b3b3; border-radius: var(--radius-sm); font-size: .6875rem; color: #5c5c5c; }
+/* The spot's name and place open its summary */
+.tp-ws-text { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tp-ws-text .tp-ws-name { text-decoration: underline; text-decoration-color: #b3b3b3; text-underline-offset: 3px; }
+.tp-ws-text:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; border-radius: 2px; }
+
 /* Concepts: the cross, panes, toast fade, reorder and the timeline view. */
 .cn-x { display: block; }
 .cn-toast { transition: opacity var(--dur-large) var(--ease-in), transform var(--dur-large) var(--ease-in); }
