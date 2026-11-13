@@ -228,6 +228,7 @@
     var n = state.picked.length;
     showBtn.setAttribute('aria-disabled', n ? 'false' : 'true');
     clearBtn.hidden = !n;
+    syncNudge();
     showBtn.textContent = !n ? 'See their matches' : n === 1 && state.picked[0] === RUGBY.name ? 'See the NSW matches' : 'See their matches (' + n + ')';
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
@@ -313,16 +314,53 @@
   function minutes(k) { var m = /^(\d+):(\d+)(am|pm)$/.exec(k || ''); return m ? ((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] : 24 * 60; }
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
   if (allSec) {
-    document.getElementById('tp-all-list').innerHTML = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
+    var rows = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
       var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
       var stage = f.t && !/^Pool /.test(f.s) ? '<span class="tp-all-stage">' + esc(f.s) + '</span>' : f.t ? '' : '<span class="tp-all-stage">Teams to be decided</span>';
       return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '"><p class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</p><p class="tp-all-teams">' + who + '</p>' + stage +
         '<p class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '') + '</p></li>';
-    }).join('');
+    });
+    // Columns of five: each is a card without a border, snapped as the strip is swiped sideways
+    var cols = '';
+    for (var c0 = 0; c0 < rows.length; c0 += 5) {
+      var last = Math.min(c0 + 5, rows.length);
+      cols += '<ol class="tp-all-col" aria-label="Matches ' + (c0 + 1) + ' to ' + last + ' of ' + rows.length + '">' + rows.slice(c0, last).join('') + '</ol>';
+    }
+    document.getElementById('tp-all-scroll').innerHTML = cols;
   }
+  // Your matches: the all matches list is closed until Show all matches opens it. Everywhere else it is always there.
+  var showAll = false, showAllBtn = document.getElementById('tp-showall');
+  function syncAll(v) {
+    if (allSec) allSec.hidden = v === 'results' && !showAll;
+    showAllBtn.textContent = showAll ? 'Hide all matches' : 'Show all matches';
+    showAllBtn.setAttribute('aria-expanded', showAll ? 'true' : 'false');
+  }
+  showAllBtn.addEventListener('click', function () {
+    showAll = !showAll;
+    syncAll('results');
+    changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
+    if (showAll) {
+      // glide down to the list so the change is seen, with the title 16px below the top
+      var t = document.getElementById('tp-all-title');
+      body.scrollTo({ top: Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16)), behavior: reduce.matches ? 'auto' : 'smooth' });
+    }
+    say(showAll ? 'All matches shown below your cards.' : 'All matches hidden.');
+  });
+  // Sticky prompt: until a team is picked (not on Your matches)
+  var nudge = document.getElementById('tp-nudge');
+  function syncNudge() { nudge.hidden = state.picked.length > 0 || state.view === 'results'; }
+  document.getElementById('tp-nudge-btn').addEventListener('click', function () {
+    if (state.view === 'skipped') { document.getElementById('tp-unskip').click(); return; }
+    deal();
+    var t = document.getElementById('tp-pick-title');
+    body.scrollTo({ top: Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - nudge.offsetHeight - 16)), behavior: reduce.matches ? 'auto' : 'smooth' });
+    cards[Math.round(offset)].focus({ preventScroll: true });
+  });
   function setView(v) {
-    if (allSec) allSec.hidden = v === 'results';
+    if (v === 'results' && state.view !== 'results') showAll = false; // closed each time Your matches opens
     state.view = v; save();
+    syncAll(v);
+    syncNudge();
     document.getElementById('tp-pick-title').textContent = v === 'results' ? 'Your matches' : 'Pick your team';
     picker.hidden = v !== 'pick';
     results.hidden = v !== 'results';
