@@ -3270,6 +3270,36 @@ body.cp-page code { font: inherit; }
 .tp-ask-sum .tp-link { font-size: .875rem; }
 .tp-ask-why { font-size: .75rem; color: #5c5c5c; }
 
+/* Pick your team: finding your team. The field and the In NSW toggle share a row; suggestions float over the hand
+   (absolute), so the page does not move while typing. */
+.tp-find { position: relative; margin-top: var(--space-3); }
+/* Above the hand only while suggestions are open; otherwise a lifted card may rise over the field for a moment */
+.tp-find:has(.tp-find-list:not([hidden])) { z-index: 70; }
+.tp-find-row { display: flex; align-items: flex-end; gap: var(--space-2); }
+.tp-find-field { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.tp-find-label { font-size: .75rem; font-weight: 600; color: #333; }
+.tp-find-in { width: 100%; min-height: 44px; padding: 0 var(--space-3); border: 1.5px solid #9e9e9e; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .9375rem; }
+.tp-find-in::placeholder { color: #6b6b6b; }
+.tp-find-in:focus-visible { outline: 2px solid #005EA2; outline-offset: 1px; border-color: #1a1a1a; }
+.tp-nsw { min-height: 44px; }
+.tp-find-list { position: absolute; left: 0; right: 0; top: calc(100% + 6px); list-style: none; padding: var(--space-1); border: 1px solid #d9d9d9; border-radius: var(--radius-md); background: #fff; box-shadow: 0 10px 24px rgba(0,0,0,.16); animation: tp-drop .18s cubic-bezier(.2, .8, .2, 1); }
+.tp-find-list[hidden] { display: none; }
+@keyframes tp-drop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.tp-find-opt { display: flex; align-items: center; gap: var(--space-3); width: 100%; min-height: 48px; padding: var(--space-1) var(--space-2); border: 0; border-radius: var(--radius-sm); background: none; color: #1a1a1a; font: inherit; text-align: left; cursor: pointer; }
+.tp-find-opt:hover, .tp-find-opt:focus-visible { background: #f2f2f2; }
+.tp-find-opt:focus-visible { outline: 2px solid #005EA2; outline-offset: -2px; }
+.tp-find-flag { flex: none; font-size: 1.375rem; line-height: 1; }
+.tp-find-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tp-find-name { font-size: .9375rem; font-weight: 700; }
+.tp-find-meta { font-size: .75rem; color: #4d4d4d; }
+.tp-find-state { flex: none; padding: 2px var(--space-2); border: 1.5px solid #1a1a1a; border-radius: var(--radius-pill); font-size: .75rem; font-weight: 700; }
+.tp-find-opt[aria-pressed="true"] .tp-find-state { background: #1f1f1f; color: #fff; }
+.tp-find-none { padding: var(--space-2); font-size: .8125rem; line-height: 1.4; color: #333; }
+@media (prefers-reduced-motion: reduce) { .tp-find-list { animation: tp-fade .15s linear; } }
+/* Flags on the cards: with the name, in the fan and on the flipped match cards */
+.tp-card-flag { margin-right: 4px; font-size: 1rem; line-height: 1; vertical-align: -2px; }
+.tp-face--front .tp-card-flag { margin-right: var(--space-2); font-size: 1.5rem; vertical-align: -4px; }
+
 /* Concepts: the cross, panes, toast fade, reorder and the timeline view. */
 .cn-x { display: block; }
 .cn-toast { transition: opacity var(--dur-large) var(--ease-in), transform var(--dur-large) var(--ease-in); }

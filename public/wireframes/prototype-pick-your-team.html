@@ -67,11 +67,22 @@
         <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
           <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
           <div class="tp-picker" id="tp-picker">
-            <p class="tp-pick-intro">15 of the 24 teams play a pool match in NSW. Pick one or more to see when and where they play.</p>
+            <p class="tp-pick-intro">Pick one or more teams to see when and where they play.</p>
+            <!-- Finding your team: a find field (suggestions float over the hand, so nothing below moves) and a toggle that
+                 narrows the hand to the teams with a pool match in NSW. Wired by concepts-teams.js. -->
+            <div class="tp-find">
+              <div class="tp-find-row">
+                <label class="tp-find-field"><span class="tp-find-label">Find your team</span>
+                  <input type="search" id="tp-find-in" class="tp-find-in" placeholder="For example, Wales" autocomplete="off" spellcheck="false" aria-controls="tp-find-list" aria-expanded="false" aria-describedby="tp-find-help"></label>
+                <button type="button" class="tp-chip tp-nsw" id="tp-nsw" aria-pressed="false">In NSW</button>
+              </div>
+              <p class="visually-hidden" id="tp-find-help">Suggestions appear below as you type. Enter picks the first one; down arrow moves through them.</p>
+              <ul class="tp-find-list" id="tp-find-list" aria-label="Matching teams" hidden></ul>
+            </div>
             <div class="tp-fan-wrap">
               <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-fan-help"></div>
             </div>
-            <p class="visually-hidden" id="tp-fan-help">Left and right arrow keys move through the teams. Space or Enter picks one. You can pick more than one.</p>
+            <p class="visually-hidden" id="tp-fan-help">Left and right arrow keys move through the teams; type a letter to jump to teams starting with it. Space or Enter picks one. You can pick more than one.</p>
             <p class="tp-fan-caption" id="tp-fan-caption" aria-hidden="true"></p>
             <div class="tp-chosen-row">
               <p class="tp-chosen" id="tp-chosen">No teams picked yet.</p>
@@ -231,6 +242,7 @@
   ];
   var NOTES = {
     pick: { items: [
+      { sel: '.tp-find-field', title: 'Find your team', text: 'Three ways to your team without swiping through 25 cards. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; choosing one picks it, Enter picks the first, Escape clears. In NSW narrows the hand to the 15 teams with a pool match in NSW (Here for the rugby and anything already picked stay). With the hand focused, a letter jumps to the next team starting with it. Flags now sit on every card. The hand opens on Australia, the host nation.' },
       { sel: '.tp-count', title: 'Countdown', text: 'Counts down to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time, and ticks once a second. After kick-off it gives way to a plain line saying the tournament is under way (final on Sat 13 Nov), then that it has finished. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '.tp-fan-wrap', title: 'The fan and picking', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, and pick as many as you like. A pick is pulled up out of the hand, travels to the middle while the hand turns under it, then settles lifted and dark with a tick. Picking again puts it back. The middle card gets extra room so its pool and NSW line can be read; the line below the fan repeats it. The hand deals open the first time it scrolls into view. Reduced motion: no pull or glide, the colour and tick still change.' },
       { sel: '#tp-clear', title: 'Clear all', text: 'Only shown once something is picked. Puts every card back in the hand, clears every ticket mark, saves, announces it, and moves focus to the middle card because the button hides itself.' },

@@ -91,7 +91,8 @@
   function angleOf(rel) { return rel * STEP + Math.max(-1, Math.min(1, rel)) * GAP; }
   var TICK = '<svg class="tp-card-tick" width="14" height="12" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
   function front(c) {
-    return '<span class="tp-card-code">' + esc(c.code) + '</span><span class="tp-card-name">' + esc(c.name) + '</span>' +
+    // The code stays alone at the top left, so it shows on cards the next card overlaps; the flag sits with the name
+    return '<span class="tp-card-code">' + esc(c.code) + '</span><span class="tp-card-name">' + (FLAG[c.name] ? '<span class="tp-card-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') + esc(c.name) + '</span>' +
       '<span class="tp-card-meta">' + (c.rugby ? 'No team' : esc(c.pool)) + '<br>' + esc(nswLine(c)) + '</span>';
   }
   fan.innerHTML = CARDS.map(function (c, i) {
@@ -99,37 +100,47 @@
       esc(c.name + ', ' + (c.rugby ? 'no team, see every match in NSW' : c.pool + ', ' + nswLine(c))) + '">' + front(c) + TICK + '</button>';
   }).join('');
   var cards = Array.prototype.slice.call(fan.children);
-  var offset = 3, dealt = false;
+  /* seq: the cards in the hand, in order (all of them, or only teams playing in NSW, see "In NSW" below). offset counts
+     positions in seq, not card indexes. The hand opens on Australia, the host nation, rather than whichever card
+     happens to sit fourth alphabetically. */
+  var seq = CARDS.map(function (c, i) { return i; });
+  function pos(i) { return seq.indexOf(i); }
+  function midCard() { return cards[seq[Math.max(0, Math.min(seq.length - 1, Math.round(offset)))]]; }
+  var START = Math.max(0, CARDS.findIndex(function (c) { return c.name === 'Australia'; }));
+  var offset = START, dealt = false;
   // trans: an inline transition for this move only (the glide to a picked card); otherwise the stylesheet's
   function place(animate, trans) {
     var mid = Math.round(offset);
     cards.forEach(function (b, i) {
-      var rel = i - offset, c = CARDS[i];
-      var lift = (isPicked(c) ? LIFT : 0) + (i === mid ? 6 : 0);
+      var p = pos(i), out = p < 0, c = CARDS[i];
+      // A card out of the hand (In NSW on) stays where it last was and fades out; it comes back the same way
+      var rel = out ? (b._rel || 0) : p - offset;
+      if (!out) b._rel = rel;
+      var lift = (isPicked(c) ? LIFT : 0) + (p === mid ? 6 : 0);
       b.style.transition = !animate ? 'none' : trans || '';
       b.style.transform = dealt ? 'rotate(' + angleOf(rel).toFixed(2) + 'deg) translateY(' + (-lift) + 'px)' : 'rotate(0deg) translateY(0)';
-      var far = Math.abs(rel) > 7.5;
+      var far = out || Math.abs(rel) > 7.5;
       b.style.opacity = far ? '0' : '';
       b.style.visibility = far ? 'hidden' : '';
-      b.tabIndex = i === mid ? 0 : -1;
-      b.classList.toggle('is-mid', i === mid);
+      b.tabIndex = p === mid ? 0 : -1;
+      b.classList.toggle('is-mid', p === mid);
       b.classList.toggle('is-picked', isPicked(c));
       b.setAttribute('aria-pressed', isPicked(c) ? 'true' : 'false');
     });
-    var c = CARDS[mid];
-    caption.innerHTML = '<strong>' + esc(c.name) + '</strong> &middot; ' + esc(c.rugby ? 'No team, every match in NSW' : c.pool + ', ' + nswLine(c).replace(/^No /, 'no '));
+    var c = CARDS[seq[Math.max(0, Math.min(seq.length - 1, mid))]];
+    caption.innerHTML = (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + '<strong>' + esc(c.name) + '</strong> &middot; ' + esc(c.rugby ? 'No team, every match in NSW' : c.pool + ', ' + nswLine(c).replace(/^No /, 'no '));
   }
   function settle(to, focus, trans) {
-    offset = Math.max(0, Math.min(CARDS.length - 1, Math.round(to)));
+    offset = Math.max(0, Math.min(seq.length - 1, Math.round(to)));
     place(true, trans);
-    if (focus) cards[offset].focus({ preventScroll: true });
+    if (focus) midCard().focus({ preventScroll: true });
   }
   // The deal: the first time the fan comes into view, the hand opens from a stack. The one authored moment here.
   function deal() {
     if (dealt) return;
     dealt = true;
     if (reduce.matches) { place(false); return; }
-    cards.forEach(function (b, i) { b.style.transitionDelay = (Math.abs(i - offset) * 22) + 'ms'; });
+    cards.forEach(function (b, i) { b.style.transitionDelay = (pos(i) < 0 ? 0 : Math.abs(pos(i) - offset) * 22) + 'ms'; });
     place(true);
     setTimeout(function () { cards.forEach(function (b) { b.style.transitionDelay = ''; }); }, 900);
   }
@@ -155,7 +166,7 @@
     if (!drag.moved) { drag.moved = true; fan.setPointerCapture(e.pointerId); fan.classList.add('is-dragging'); deal(); }
     var now = performance.now();
     drag.v = (e.clientX - drag.lx) / Math.max(1, now - drag.t); drag.t = now; drag.lx = e.clientX;
-    offset = Math.max(-.6, Math.min(CARDS.length - .4, drag.o - dx / PX));
+    offset = Math.max(-.6, Math.min(seq.length - .4, drag.o - dx / PX));
     place(false);
   });
   function endDrag(e) {
@@ -171,7 +182,7 @@
   fan.addEventListener('wheel', function (e) {
     if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
     e.preventDefault();
-    offset = Math.max(0, Math.min(CARDS.length - 1, offset + e.deltaX / PX));
+    offset = Math.max(0, Math.min(seq.length - 1, offset + e.deltaX / PX));
     place(false);
     clearTimeout(fan._w); fan._w = setTimeout(function () { settle(offset); }, 120);
   }, { passive: false });
@@ -188,9 +199,9 @@
     // neighbours, travels to the middle while the hand turns under it, and settles back in. A fan step is only 6.5deg,
     // so without the pull a pick one or two cards over hardly reads. Slower the further it goes, eased in and out.
     // Reduced motion keeps the stylesheet's (no movement); the colour and tick still change.
-    var dist = Math.abs(i - offset), dur = Math.round(Math.min(1100, 620 + 120 * dist));
+    var dist = Math.abs(pos(i) - offset), dur = Math.round(Math.min(1100, 620 + 120 * dist));
     var ease = 'cubic-bezier(.65, 0, .35, 1)';
-    settle(i, false, reduce.matches ? '' : 'transform ' + dur + 'ms ' + ease + ', opacity 220ms ease-out, background-color 200ms ease-out, color 200ms ease-out');
+    settle(pos(i), false, reduce.matches ? '' : 'transform ' + dur + 'ms ' + ease + ', opacity 220ms ease-out, background-color 200ms ease-out, color 200ms ease-out');
     if (!reduce.matches && cards[i].animate) {
       var card = cards[i];
       if (card._pull) card._pull.cancel();
@@ -216,12 +227,103 @@
     if (k === 'ArrowRight' || k === 'ArrowDown') to = Math.round(offset) + 1;
     else if (k === 'ArrowLeft' || k === 'ArrowUp') to = Math.round(offset) - 1;
     else if (k === 'Home') to = 0;
-    else if (k === 'End') to = CARDS.length - 1;
+    else if (k === 'End') to = seq.length - 1;
+    else if (/^[a-z]$/i.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey) to = jumpTo(k);
     if (to === null) return;
     e.preventDefault();
     deal();
     settle(to, true);
   });
+
+  /* ---------- Finding your team ----------
+     Three ways in, so nobody swipes through 25 cards for theirs: type in Find your team (suggestions under the field;
+     the hand glides to the first match; choosing one picks it), type a letter while the hand has focus (jumps to the
+     next team starting with it), or narrow the hand to the 15 teams with a pool match in NSW. */
+  function jumpTo(letter) {
+    var L = letter.toLowerCase(), cur = Math.round(offset);
+    for (var n = 1; n <= seq.length; n++) {
+      var p = (cur + n) % seq.length, c = CARDS[seq[p]];
+      if (!c.rugby && c.name.toLowerCase().charAt(0) === L) return p;
+    }
+    return null;
+  }
+  var nswBtn = document.getElementById('tp-nsw'), findIn = document.getElementById('tp-find-in'), findList = document.getElementById('tp-find-list');
+  var NSW_COUNT = names.filter(function (n) { return TEAMS[n].nsw > 0; }).length;
+  function setNsw(on) {
+    if (!nswBtn || (nswBtn.getAttribute('aria-pressed') === 'true') === on) return;
+    var keep = seq[Math.round(offset)];
+    nswBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    // Teams with a pool match in NSW, plus Here for the rugby and anything already picked (never hide a pick)
+    seq = CARDS.map(function (c, i) { return i; }).filter(function (i) { var c = CARDS[i]; return !on || c.rugby || c.nsw > 0 || isPicked(c); });
+    var p = pos(keep);
+    if (p < 0) { p = 0; while (p < seq.length - 1 && seq[p] < keep) p++; } // the nearest card that stays
+    offset = p;
+    place(dealt && !reduce.matches, 'transform 420ms cubic-bezier(.3, .7, .2, 1), opacity 260ms ease-out, background-color 200ms ease-out');
+  }
+  if (nswBtn) {
+    nswBtn.textContent = 'In NSW \u00b7 ' + NSW_COUNT;
+    nswBtn.setAttribute('aria-label', 'Only the ' + NSW_COUNT + ' teams with a pool match in NSW');
+    nswBtn.addEventListener('click', function () {
+      var on = nswBtn.getAttribute('aria-pressed') !== 'true';
+      deal(); setNsw(on);
+      say(on ? 'Showing the ' + NSW_COUNT + ' teams with a pool match in NSW, ' + seq.length + ' cards.' : 'Showing all 24 teams.');
+    });
+  }
+  var found = [];
+  function clearFind() { if (!findIn) return; findIn.value = ''; found = []; renderFind(); }
+  function renderFind() {
+    var q = findIn.value.trim().toLowerCase();
+    if (!q) { findList.hidden = true; findList.innerHTML = ''; findIn.setAttribute('aria-expanded', 'false'); return; }
+    // Name or code, matching the start of a word: "zea" finds New Zealand, "rsa" finds South Africa
+    found = names.filter(function (n) {
+      var t = TEAMS[n];
+      return n.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(q) === 0; }) || n.toLowerCase().indexOf(q) === 0 || t.code.toLowerCase() === q;
+    }).slice(0, 4);
+    findIn.setAttribute('aria-expanded', 'true');
+    findList.hidden = false;
+    if (!found.length) {
+      findList.innerHTML = '<li class="tp-find-none">No team matches \u201c' + esc(findIn.value.trim()) + '\u201d. Try the country\u2019s name, for example New Zealand.</li>';
+      return;
+    }
+    findList.innerHTML = found.map(function (n, k) {
+      var t = TEAMS[n], picked = isPicked(t);
+      return '<li><button type="button" class="tp-find-opt" data-team="' + esc(n) + '" aria-pressed="' + picked + '">' +
+        (FLAG[n] ? '<span class="tp-find-flag" aria-hidden="true">' + FLAG[n] + '</span>' : '') +
+        '<span class="tp-find-text"><span class="tp-find-name">' + esc(n) + '</span><span class="tp-find-meta">' + esc(t.pool) + ' \u00b7 ' + esc(nswLine(t)) + '</span></span>' +
+        '<span class="tp-find-state" aria-hidden="true">' + (picked ? 'Picked' : 'Pick') + '</span></button></li>';
+    }).join('');
+    // The hand glides to the first match while you type, so the card is already there when you look up
+    var i = CARDS.indexOf(TEAMS[found[0]]);
+    if (pos(i) < 0) setNsw(false);
+    deal();
+    settle(pos(i), false, reduce.matches ? '' : 'transform 520ms cubic-bezier(.45, .05, .25, 1), opacity 220ms ease-out');
+  }
+  function pickFound(n) {
+    var i = CARDS.indexOf(TEAMS[n]);
+    if (pos(i) < 0) setNsw(false);
+    toggle(i);
+    clearFind();
+    findIn.focus({ preventScroll: true });
+  }
+  if (findIn) {
+    findIn.addEventListener('input', function () { renderFind(); if (findIn.value.trim()) say(found.length ? found.length + (found.length === 1 ? ' team matches.' : ' teams match.') : 'No team matches.'); });
+    findIn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && found.length) { e.preventDefault(); pickFound(found[0]); }
+      else if (e.key === 'Escape' && findIn.value) { e.preventDefault(); clearFind(); }
+      else if (e.key === 'ArrowDown' && found.length) { e.preventDefault(); findList.querySelector('.tp-find-opt').focus(); }
+    });
+    findList.addEventListener('click', function (e) { var b = e.target.closest('.tp-find-opt'); if (b) pickFound(b.dataset.team); });
+    findList.addEventListener('keydown', function (e) {
+      var b = e.target.closest('.tp-find-opt'); if (!b) return;
+      var all = Array.prototype.slice.call(findList.querySelectorAll('.tp-find-opt')), k = all.indexOf(b);
+      if (e.key === 'ArrowDown') { e.preventDefault(); (all[k + 1] || all[k]).focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); (k ? all[k - 1] : findIn).focus(); }
+      else if (e.key === 'Escape') { e.preventDefault(); clearFind(); findIn.focus(); }
+    });
+    // Leaving the field and its suggestions closes them; the text stays so nothing typed is lost
+    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.tp-find')) { findList.hidden = true; findIn.setAttribute('aria-expanded', 'false'); } });
+    findIn.addEventListener('focus', function () { if (findIn.value.trim()) renderFind(); });
+  }
 
   function chosenText() {
     var n = state.picked.length;
@@ -244,12 +346,13 @@
     save();
     place(true);
     renderChosen();
-    cards[Math.round(offset)].focus({ preventScroll: true }); // the button has just hidden itself
+    midCard().focus({ preventScroll: true }); // the button has just hidden itself
     say('All teams and tickets cleared. No teams picked yet.');
   });
   document.getElementById('tp-rugby-link').addEventListener('click', function () {
     deal();
     var i = CARDS.length - 1;
+    if (pos(i) < 0) setNsw(false);
     if (!isPicked(RUGBY)) toggle(i); else settle(i);
     cards[i].focus({ preventScroll: true });
   });
@@ -278,7 +381,7 @@
   function back(c) {
     var ms = c.rugby ? nswPool : c.matches;
     var head = c.rugby ? nswPool.length + ' pool matches in NSW' : c.pool + ' &middot; ' + c.matches.length + ' pool matches, ' + c.nsw + ' in NSW';
-    return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div></div>' +
+    return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div></div>' +
       '<ol class="tp-ms' + (c.rugby ? ' tp-ms--cols' : '') + '">' + ms.map(function (f) { return row(f, c.name, c.rugby); }).join('') +
       // On the columned card the knockout note is a column of its own, so it adds width, not height
       (c.rugby ? '<li class="tp-ko tp-ko--col">' + esc(koNote(c)) + '</li></ol>' : '</ol><p class="tp-ko">' + esc(koNote(c)) + '</p>');
@@ -412,7 +515,7 @@
     var from = {};
     if (move) pickedCards().forEach(function (c) {
       var b = cards[CARDS.indexOf(c)], r = b.getBoundingClientRect();
-      if (r.width && b.style.visibility !== 'hidden') from[c.name] = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: b.offsetWidth, h: b.offsetHeight, a: angleOf(CARDS.indexOf(c) - offset) };
+      if (r.width && b.style.visibility !== 'hidden') from[c.name] = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: b.offsetWidth, h: b.offsetHeight, a: angleOf(pos(CARDS.indexOf(c)) - offset) };
     });
     buildDeck();
     setView('results');
@@ -471,7 +574,7 @@
       setView('pick');
       // The cards go back into the hand: the fan starts stacked and deals open again, picks still lifted
       if (!reduce.matches) { dealt = false; place(false); fan.offsetWidth; requestAnimationFrame(deal); } else place(false);
-      cards[Math.round(offset)].focus({ preventScroll: true });
+      midCard().focus({ preventScroll: true });
     }
     // The match cards fade and drop away first, so the deck does not vanish in one frame
     if (reduce.matches || !results.animate) { back(); return; }
@@ -500,7 +603,7 @@
   document.getElementById('tp-unskip').addEventListener('click', function () {
     setView('pick');
     deal();
-    cards[Math.round(offset)].focus({ preventScroll: true });
+    midCard().focus({ preventScroll: true });
   });
 
   /* ---------- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to the 390px phone) ----------
@@ -784,7 +887,7 @@
     if (state.view === 'skipped') document.getElementById('tp-unskip').click();
     deal();
     body.scrollTo({ top: resultsTop(), behavior: reduce.matches ? 'auto' : 'smooth' });
-    cards[Math.round(offset)].focus({ preventScroll: true });
+    midCard().focus({ preventScroll: true });
   });
   /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections
      (concepts-third-half.js) through window.tpPicker. Saved on this device with the picks. ---------- */
@@ -834,7 +937,7 @@
     state.picked = []; state.tickets = [];
     try { localStorage.removeItem(KEY); } catch (e) {}
     deck.innerHTML = ''; deck.classList.remove('is-flying');
-    offset = 3; dealt = false;
+    setNsw(false); clearFind(); offset = START; dealt = false;
     setView('pick');
     renderChosen();
     place(false);
