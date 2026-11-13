@@ -70,7 +70,7 @@
   var KEY = 'tp-pick-v1';
   // added: things put on the timeline (screenings, the village, products); trip: the one optional question's answer
   // tab: which of Your matches and All matches is chosen once a team is picked (kept, like everything else, on reload)
-  var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null };
+  var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: false, city: null } };
   try {
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
     var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
@@ -79,6 +79,8 @@
       state.tickets = Array.isArray(rec.tickets) ? rec.tickets.filter(function (x) { return typeof x === 'string'; }) : [];
       if (rec.tab === 'all') state.tab = 'all';
     }
+    // All matches filter: In NSW only, then one host city (kept on reload)
+    if (rec && rec.allFilter && rec.allFilter.nsw === true) state.allFilter = { nsw: true, city: typeof rec.allFilter.city === 'string' ? rec.allFilter.city : null };
     if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
     if (rec && rec.trip && /^(visiting|local|unsure)$/.test(rec.trip.mode)) state.trip = rec.trip;
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
@@ -671,28 +673,101 @@
   var allSec = document.getElementById('tp-all');
   function minutes(k) { var m = /^(\d+):(\d+)(am|pm)$/.exec(k || ''); return m ? ((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] : 24 * 60; }
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
+  // Host venues (cnVenues): nsw drives In NSW only, city the city chips. A fixture whose venue is not in the list
+  // falls back to the fixture's own marker (a: a city outside NSW)
+  var VENUES = {}; (window.cnVenues || []).forEach(function (v) { VENUES[v.stadium] = v; });
+  function inNsw(f) { var v = VENUES[f.v]; return v ? v.nsw : !f.a; }
+  function cityOf(f) { var v = VENUES[f.v]; return v && v.nsw ? v.city : null; }
   if (allSec) {
-    var rows = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); }).map(function (f) {
+    var ALL = FIX.slice().sort(function (a, b) { return ord(a.d) - ord(b.d) || minutes(a.k) - minutes(b.k); });
+    function rowHtml(f) {
       // Every row is three lines, so a column of knockouts is no taller than a column of pool matches (which would
       // leave an empty band under the others): a knockout's stage joins the date line, "teams to be decided" its name
       var ko = !/^Pool /.test(f.s);
-      var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s) + ' <span class="tp-all-v">\u00b7 teams to be decided</span>';
+      var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s) + ' <span class="tp-all-v">· teams to be decided</span>';
       return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '" data-key="' + esc(f.d + '|' + (f.t || f.s)) + '"><button type="button" class="tp-all-btn" data-open="match:' + esc(f.d + '|' + (f.t || f.s)) + '" aria-haspopup="dialog">' +
-        '<span class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + (ko && f.t ? ' \u00b7 ' + esc(f.s.replace(/ \(\d+\)$/, '')) : '') + '</span><span class="tp-all-teams">' + who + '</span>' +
+        '<span class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + (ko && f.t ? ' · ' + esc(f.s.replace(/ \(\d+\)$/, '')) : '') + '</span><span class="tp-all-teams">' + who + '</span>' +
         '<span class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '') + '</span></button></li>';
-    });
-    // Columns of five: each is a card without a border, snapped as the strip is swiped sideways
-    var cols = '';
-    for (var c0 = 0; c0 < rows.length; c0 += 5) {
-      var last = Math.min(c0 + 5, rows.length);
-      cols += '<ol class="tp-all-col" aria-label="Matches ' + (c0 + 1) + ' to ' + last + ' of ' + rows.length + '">' + rows.slice(c0, last).join('') + '</ol>';
     }
-    var allScroll = document.getElementById('tp-all-scroll');
-    allScroll.innerHTML = cols;
+    var allScroll = document.getElementById('tp-all-scroll'), allBtns = [], allAt = 0;
+    var allNote = document.getElementById('tp-all-note'), allHint = document.getElementById('tp-all-hint');
+    var allEmpty = document.getElementById('tp-all-empty'), nswChip = document.getElementById('tp-all-nsw'), cityBox = document.getElementById('tp-all-cities');
+    // The NSW host cities, from the fixtures, each with its count (most matches first, then name)
+    var CITIES = {};
+    ALL.forEach(function (f) { var c = cityOf(f); if (c) CITIES[c] = (CITIES[c] || 0) + 1; });
+    var cityNames = Object.keys(CITIES).sort(function (a, b) { return CITIES[b] - CITIES[a] || a.localeCompare(b); });
+    cityBox.innerHTML = cityNames.map(function (c) { return '<button type="button" class="tp-chip tp-fchip" data-city="' + esc(c) + '" aria-pressed="false">' + esc(c) + ' <span class="tp-fchip-n">· ' + CITIES[c] + '</span></button>'; }).join('');
+    function allShown() {
+      var fl = state.allFilter;
+      return ALL.filter(function (f) { return !fl.nsw || (inNsw(f) && (!fl.city || cityOf(f) === fl.city)); });
+    }
+    function allWhat(n) {
+      var fl = state.allFilter, m = n + (n === 1 ? ' match' : ' matches');
+      return !fl.nsw ? 'Every match of the tournament' : fl.city ? m + ' in ' + fl.city : m + ' in NSW';
+    }
+    // Rebuild the list for the filter: columns of five as before, back at the first column, one tab stop
+    function renderAll(announce) {
+      var shown = allShown(), cols = '';
+      for (var c0 = 0; c0 < shown.length; c0 += 5) {
+        var last = Math.min(c0 + 5, shown.length);
+        cols += '<ol class="tp-all-col" aria-label="Matches ' + (c0 + 1) + ' to ' + last + ' of ' + shown.length + '">' + shown.slice(c0, last).map(rowHtml).join('') + '</ol>';
+      }
+      allScroll.innerHTML = cols;
+      allScroll.scrollLeft = 0;
+      allBtns = Array.prototype.slice.call(allScroll.querySelectorAll('.tp-all-btn')); allAt = 0;
+      allBtns.forEach(function (b, k) { b.tabIndex = k ? -1 : 0; });
+      var fl = state.allFilter, none = !shown.length;
+      allNote.textContent = allWhat(shown.length) + ', by date. Tap one for its details.';
+      allNote.hidden = none; // the empty message below says it instead
+      allScroll.hidden = none; allHint.hidden = none || shown.length <= 5;
+      allEmpty.hidden = !none;
+      if (none) document.getElementById('tp-all-empty-text').textContent = 'No matches ' + (fl.city ? 'in ' + fl.city : 'in NSW') + '.';
+      allScroll.setAttribute('aria-label', (fl.nsw ? allWhat(shown.length) : 'All matches') + ', five to a column. Arrow keys move between matches.');
+      nswChip.setAttribute('aria-pressed', fl.nsw ? 'true' : 'false');
+      cityBox.querySelectorAll('[data-city]').forEach(function (b) { b.setAttribute('aria-pressed', fl.city === b.dataset.city ? 'true' : 'false'); });
+      markRows();
+      if (announce) say(none ? 'No matches ' + (fl.city ? 'in ' + fl.city : 'in NSW') + '.' : fl.nsw ? allWhat(shown.length) + '.' : 'All ' + shown.length + ' matches.');
+    }
+    // The city chips slide in from the NSW chip, one after another, so the eye can follow them; out, they slide back
+    var cityAnims = [];
+    function showCities(on, instant) {
+      cityAnims.forEach(function (a) { a.cancel(); }); cityAnims = [];
+      var chips = [].slice.call(cityBox.children);
+      if (on) {
+        cityBox.hidden = false;
+        if (instant || reduce.matches || !cityBox.animate) return;
+        chips.forEach(function (c, k) {
+          cityAnims.push(c.animate([{ opacity: 0, transform: 'translateX(-24px)' }, { opacity: 1, transform: 'none' }], { duration: 340, delay: k * 60, easing: 'cubic-bezier(.3, .4, .3, 1)', fill: 'backwards' }));
+        });
+      } else {
+        if (instant || reduce.matches || !cityBox.animate || cityBox.hidden) { cityBox.hidden = true; return; }
+        chips.forEach(function (c, k) {
+          var a = c.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(-16px)' }], { duration: 180, delay: (chips.length - 1 - k) * 30, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' });
+          cityAnims.push(a);
+        });
+        var lastA = cityAnims[0];
+        if (lastA) lastA.onfinish = function () { cityBox.hidden = true; cityAnims.forEach(function (a) { a.cancel(); }); cityAnims = []; };
+      }
+    }
+    nswChip.addEventListener('click', function () {
+      var on = !state.allFilter.nsw;
+      state.allFilter = { nsw: on, city: null }; // off clears the city too
+      save(); showCities(on); renderAll(true); notesOnly();
+    });
+    cityBox.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-city]'); if (!b) return;
+      // One city at a time; the active one again goes back to every NSW match
+      state.allFilter.city = state.allFilter.city === b.dataset.city ? null : b.dataset.city;
+      save(); renderAll(true); notesOnly();
+    });
+    document.getElementById('tp-all-empty-clear').addEventListener('click', function () {
+      state.allFilter = { nsw: false, city: null };
+      save(); showCities(false, true); renderAll(true); nswChip.focus({ preventScroll: true }); notesOnly();
+    });
+    showCities(state.allFilter.nsw, true);
+    renderAll(false);
     /* One tab stop for the whole list (it was 44): the current row is in the tab order, the arrow keys move between
        rows (down and right forward, up and left back; Home and End), and the list slides to keep it in view */
-    var allBtns = Array.prototype.slice.call(allScroll.querySelectorAll('.tp-all-btn')), allAt = 0;
-    allBtns.forEach(function (b, k) { b.tabIndex = k ? -1 : 0; });
     allScroll.addEventListener('focusin', function (e) { var k = allBtns.indexOf(e.target); if (k > -1 && k !== allAt) { allBtns[allAt].tabIndex = -1; allAt = k; e.target.tabIndex = 0; } });
     allScroll.addEventListener('keydown', function (e) {
       var k = allBtns.indexOf(e.target); if (k < 0) return;
@@ -1294,8 +1369,9 @@
   if (resetBtn) resetBtn.addEventListener('click', function () {
     deck.getAnimations && deck.querySelectorAll('*').forEach(function (el) { el.getAnimations().forEach(function (a) { a.cancel(); }); });
     cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
-    state.picked = []; state.tickets = [];
+    state.picked = []; state.tickets = []; state.allFilter = { nsw: false, city: null };
     try { localStorage.removeItem(KEY); } catch (e) {}
+    if (allSec) { showCities(false, true); renderAll(false); }
     deck.innerHTML = '';
     setNsw(false); clearFind(); offset = START; dealt = false;
     state.tab = 'yours';

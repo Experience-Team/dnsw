@@ -3906,3 +3906,14 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-rugby-line[hidden] { display: none; }
 .tp-rugby-link { font-weight: 600; color: #1a1a1a; text-align: left; }
 .tp-tl-rugby { margin-top: var(--space-2); }
+
+/* Pick your team: All matches filter. In NSW only, then the NSW host cities in the same row (36px chips, AA) */
+.tp-all-filter { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); min-height: 36px; }
+.tp-all-cities { display: flex; flex-wrap: nowrap; gap: var(--space-2); }
+.tp-all-cities[hidden] { display: none; }
+.tp-fchip { min-height: 36px; padding: 0 var(--space-3); }
+.tp-fchip-n { font-weight: 500; }
+.tp-fchip[aria-pressed="true"] .tp-fchip-n { color: #fff; }
+.tp-all-filter + .tp-all-note { margin-top: var(--space-2); }
+.tp-all-scroll[hidden], .tp-all-hint[hidden], .tp-all-empty[hidden], .tp-all-note[hidden] { display: none; }
+.tp-all-empty { margin-top: var(--space-3); padding: var(--space-4); border-radius: var(--radius-md); background: #f5f5f5; font-size: .8125rem; color: #1a1a1a; }

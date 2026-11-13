@@ -152,3 +152,18 @@ window.cnWatchSpots = [
         stop('atdw', 'Sample country pub (placeholder)', 'food_and_drink', 'Gloucester', ALL, '$', 30)] }
   ];
 })();
+
+/* RWC 2027 host venues: 7 cities, 8 stadiums, 1 Oct to 13 Nov 2027.
+   Source: summary supplied 13 Nov 2027; verify against the official RWC 2027 matches page.
+   city: plain English name used in chips and copy; cityTraditional: dual name as published.
+   nsw: true for the NSW venues (drives In NSW only and the city chips). */
+window.cnVenues = [
+  { id: 'adelaide-oval',            stadium: 'Adelaide Oval',            city: 'Adelaide',   cityTraditional: 'Adelaide | Tarntanya',          state: 'South Australia',   stateCode: 'SA',  nsw: false, matches: { pool: 6, r16: 0, qf: 0, sf: 0, bronze: 0, final: 0 } },
+  { id: 'brisbane-stadium',         stadium: 'Brisbane Stadium',         city: 'Brisbane',   cityTraditional: 'Brisbane | Meeanjin',           state: 'Queensland',        stateCode: 'QLD', nsw: false, matches: { pool: 6, r16: 2, qf: 2, sf: 0, bronze: 0, final: 0 } },
+  { id: 'docklands-stadium',        stadium: 'Docklands Stadium',        city: 'Melbourne',  cityTraditional: 'Melbourne | Narrm',             state: 'Victoria',          stateCode: 'VIC', nsw: false, matches: { pool: 6, r16: 2, qf: 0, sf: 0, bronze: 0, final: 0 } },
+  { id: 'newcastle-stadium',        stadium: 'Newcastle Stadium',        city: 'Newcastle',  cityTraditional: 'Newcastle | Awabakal-Worimi',    state: 'New South Wales',   stateCode: 'NSW', nsw: true,  matches: { pool: 4, r16: 0, qf: 0, sf: 0, bronze: 0, final: 0 } },
+  { id: 'perth-stadium',            stadium: 'Perth Stadium',            city: 'Perth',      cityTraditional: 'Perth | Boorloo',               state: 'Western Australia', stateCode: 'WA',  nsw: false, matches: { pool: 5, r16: 2, qf: 0, sf: 0, bronze: 0, final: 0 }, note: 'Opening match' },
+  { id: 'stadium-australia',        stadium: 'Stadium Australia',        city: 'Sydney',     cityTraditional: 'Sydney | Gadigal/Wangal',       state: 'New South Wales',   stateCode: 'NSW', nsw: true,  matches: { pool: 2, r16: 0, qf: 2, sf: 2, bronze: 1, final: 1 }, note: 'Final, Sat 13 Nov 2027' },
+  { id: 'sydney-football-stadium',  stadium: 'Sydney Football Stadium',  city: 'Sydney',     cityTraditional: 'Sydney | Gadigal',              state: 'New South Wales',   stateCode: 'NSW', nsw: true,  matches: { pool: 3, r16: 2, qf: 0, sf: 0, bronze: 0, final: 0 } },
+  { id: 'north-queensland-stadium', stadium: 'North Queensland Stadium', city: 'Townsville', cityTraditional: 'Townsville | Gurambilbarra',    state: 'Queensland',        stateCode: 'QLD', nsw: false, matches: { pool: 4, r16: 0, qf: 0, sf: 0, bronze: 0, final: 0 } }
+];
