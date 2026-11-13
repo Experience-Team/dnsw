@@ -786,13 +786,16 @@
     tlTrip.hidden = none;
     tlTrip.innerHTML = none ? '' : tripLine();
     // The key lists only the marker shapes on the axis now
-    var kinds = { nsw: false, away: false, ticket: false, tbd: false, item: state.added.length > 0 };
+    // Each entry draws its marker exactly as the axis does (the ball in the ring, the screen or pin in the square)
+    var kinds = { nsw: false, away: false, ticket: false, tbd: false,
+      screen: state.added.some(function (it) { return it.kind === 'screening'; }), pin: state.added.some(function (it) { return it.kind !== 'screening'; }) };
     shown.forEach(function (m) { var tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1; if (tk) kinds.ticket = true; else if (!m.f.t) kinds.tbd = true; else if (m.f.a) kinds.away = true; else kinds.nsw = true; });
-    tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--match" aria-hidden="true"></span>In NSW</li>' : '') +
-      (kinds.away ? '<li><span class="cn-tl-sym cn-tl-sym--match is-away" aria-hidden="true"></span>Interstate</li>' : '') +
+    tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--match" aria-hidden="true">' + TL_ICON.ball + '</span>In NSW</li>' : '') +
+      (kinds.away ? '<li><span class="cn-tl-sym cn-tl-sym--match is-away" aria-hidden="true">' + TL_ICON.ball + '</span>Interstate</li>' : '') +
       (kinds.ticket ? '<li><span class="cn-tl-sym cn-tl-sym--ticket" aria-hidden="true">' + TL_ICON.ticket + '</span>Your ticket</li>' : '') +
       (kinds.tbd ? '<li><span class="cn-tl-sym cn-tl-sym--match is-tbd" aria-hidden="true"><span class="tp-tl-q">?</span></span>Teams to be decided</li>' : '') +
-      (kinds.item ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true"></span>Added by you</li>' : '');
+      (kinds.screen ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true">' + TL_ICON.screen + '</span>Screening you added</li>' : '') +
+      (kinds.pin ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true">' + TL_ICON.pin + '</span>Place you added</li>' : '');
     // A selected match that is no longer shown is let go
     if (tlSel > -1 && !TLM[tlSel].on) tlSel = -1;
     tlRenderDetail();
@@ -941,9 +944,14 @@
     tlScrim.classList.toggle('is-on', open);
     if (open) {
       tlFit();
-      // Start the axis at the chosen match, or the first one shown
-      var start = tlSelEl() || tlOrder()[0];
-      if (start) tlScroll.scrollLeft = Math.max(0, start.offsetLeft - 48);
+      // Open on what matters: the chosen marker; else the days in NSW (confirmed or suggested); else the first thing
+      // they added; else the first match shown. Never on empty early October with the trip cut off at the edge.
+      var items = Object.keys(tlItemEls).map(function (id) { return tlItemEls[id]; }).sort(function (a, b) { return a.offsetLeft - b.offsetLeft; });
+      var start = tlSelEl() || (!tlStay.hidden && tlStay) || items[0] || tlOrder()[0];
+      // A short stay sits in the middle of the view, with the days around it either side; a long one starts at the left
+      var vw = tlScroll.clientWidth, x = !start ? 0 : start !== tlStay ? start.offsetLeft - 48
+        : tlStay.offsetWidth < vw - 96 ? tlStay.offsetLeft + tlStay.offsetWidth / 2 - vw / 2 : tlStay.offsetLeft - 16;
+      tlScroll.scrollLeft = Math.max(0, x);
       tlPanel.scrollTop = 0;
       tlZoom(true);
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
