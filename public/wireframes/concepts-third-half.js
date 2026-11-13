@@ -3,7 +3,8 @@
    - Both result sections show straight away for the person's matches (picked teams, ticket marks, every NSW match for
      Here for the rugby). Nothing waits for dates. With no team picked they are a first look only: the next NSW match
      day (in their days in NSW once they have said so), with one Pick a team to tailor this, not every match at once.
-   - One optional question sits above them, straight after the results. Visiting NSW infers the days from the first to
+   - One optional question, in the open timeline and nowhere else on the page (a line under Suits your 3rd half opens
+     it, and shows the answer once given). Visiting NSW infers the days from the first to
      last NSW match; I live in NSW never asks for dates; Not sure yet changes nothing. The answer refines the results in
      place, says what changed under the answer, and tints each section that changed as it comes into view. It is saved
      with the picks (tp-pick-v1), shown and editable in the open timeline.
@@ -21,7 +22,7 @@
   var watchList = document.getElementById('tp-watch-list'), watchMore = document.getElementById('tp-watch-more');
   var daysEl = document.getElementById('tp-days'), thirdList = document.getElementById('tp-third-list'), thirdNote = document.getElementById('tp-third-note');
   var watchNote = document.getElementById('tp-watch-note'), watchNoteText = watchNote ? watchNote.textContent : '';
-  var ask = document.getElementById('tp-ask');
+  var ask = document.getElementById('tp-ask'), tripEl = document.getElementById('tp-third-trip');
   if (!watchList || !daysEl || !thirdList || !ask) return;
 
   var SPOT_TYPE = { fan_zone: 'Fan zone', village: 'Village', pub: 'Pub screening' }, SPOT_ORDER = { fan_zone: 0, village: 1, pub: 2 };
@@ -444,8 +445,11 @@
     pending = [];
     if (before.watch !== after.watch) { names.push('Where to watch'); pending.push(SECS.watch); }
     if (before.third !== after.third) { names.push('Suits your 3rd half'); pending.push(SECS.third); }
-    askNews = names.length ? lead + ' Updated below: ' + names.join(' and ') + '.' : (same || lead + ' Nothing below needed to change.');
-    pending.forEach(function (sec) { sec.classList.remove('is-changed'); if (io) io.observe(sec); else flash(sec); });
+    askNews = names.length ? lead + ' Updated on the page: ' + names.join(' and ') + '.' : (same || lead + ' Nothing on the page needed to change.');
+    // The answer is given in the open timeline, over the page: the sections wait until it closes, then each is tinted
+    // as it comes into view
+    pending.forEach(function (sec) { sec.classList.remove('is-changed'); });
+    if (!document.getElementById('tp-tl').classList.contains('is-open')) watchPending();
     return askNews;
   }
   function flash(sec) { sec.classList.remove('is-changed'); void sec.offsetWidth; sec.classList.add('is-changed'); }
@@ -456,6 +460,8 @@
       if (pending.indexOf(e.target) > -1) { pending.splice(pending.indexOf(e.target), 1); flash(e.target); }
     });
   }, { root: body, threshold: 0.12 }) : null;
+  function watchPending() { pending.forEach(function (sec) { if (io) io.observe(sec); else flash(sec); }); }
+  phone.addEventListener('tp:tlclose', watchPending);
   Object.keys(SECS).forEach(function (k) { if (SECS[k]) SECS[k].addEventListener('animationend', function () { SECS[k].classList.remove('is-changed'); }); });
   // The line stays until the person does something else on the page
   function dropNews(e) {
@@ -485,8 +491,8 @@
       h = '<p class="tp-ask-sum"><span class="tp-ask-sum-text">' + esc(what) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>' +
         (askNews ? '<p class="tp-ask-news">' + esc(askNews) + '</p>' : '');
     } else {
-      h = '<h3 class="tp-sec-title" id="tp-ask-title">Make these fit your trip</h3>' +
-        '<p class="tp-sec-note">Optional. One tap sharpens the suggestions below.</p>' + fork();
+      h = '<h3 class="tp-ask-title" id="tp-ask-title">Visiting or local?</h3>' +
+        '<p class="tp-sec-note">Optional. One tap sharpens the suggestions on the page.</p>' + fork();
       if (t && t.mode === 'visiting') {
         var inf = inferred();
         if (inf && !askManual) {
@@ -566,14 +572,23 @@
     if (el) el.focus({ preventScroll: true });
   }
   // From the open timeline: Change or Answer comes here
-  phone.addEventListener('tp:ask', function () {
+  /* The question is answered in the open timeline. Opening it there: with the choice showing (Change), and focus on the
+     current answer or the first choice. */
+  function openAsk() {
     askEditing = true; askManual = false;
     render(true);
-    var top = ask.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    var first = ask.querySelector('.tp-fork[aria-pressed="true"]') || ask.querySelector('.tp-fork');
-    if (first) first.focus({ preventScroll: true });
-  });
+    tp.openTimeline('.tp-fork[aria-pressed="true"], .tp-fork');
+  }
+  phone.addEventListener('tp:ask', openAsk);
+  /* The line under Suits your 3rd half: the way to the question while it is unanswered, then the answer and Change */
+  function renderTripLine() {
+    if (!tripEl) return;
+    var t = trip(), done = t && (t.mode !== 'visiting' || (t.from && t.to));
+    var what = !done ? '' : t.mode === 'local' ? 'You live in NSW' : t.mode === 'unsure' ? 'Not sure yet if you\u2019re visiting' : 'Your days in NSW: ' + tp.isoRange(t.from, t.to);
+    tripEl.innerHTML = done ? '<span class="tp-third-trip-a">' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>'
+      : '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + (t && t.mode === 'visiting' ? 'Visiting? Confirm your days to see what fits' : 'Visiting? Set your days to see what fits') + '</button>';
+  }
+  phone.addEventListener('click', function (e) { if (e.target.closest('#tp-third-trip [data-act="trip"]')) openAsk(); });
 
   // From the results' interstate note: down to the screenings of their matches
   var toWatch = document.getElementById('tp-to-watch');
@@ -655,11 +670,13 @@
       if (active.dataset.item) keep = '.tp-add[data-item="' + CSS.escape(active.dataset.item) + '"]';
       else if (active.dataset.day) keep = '[data-day="' + CSS.escape(active.dataset.day) + '"]';
       else if (active.dataset.mode) keep = '.tp-fork[data-mode="' + CSS.escape(active.dataset.mode) + '"]';
+      else if (active.dataset.act === 'trip') keep = '#tp-third-trip [data-act="trip"]';
       else if (active.dataset.open && !pm.contains(active)) keep = '[data-open="' + CSS.escape(active.dataset.open) + '"]';
     }
     ITEMS = {}; MODAL = {};
     renderWatch();
     renderThird();
+    renderTripLine();
     fades();
     renderAsk();
     renderPlan();
