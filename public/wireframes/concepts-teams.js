@@ -628,7 +628,7 @@
   var tlCanvas = document.getElementById('tp-tl-canvas'), tlScroll = document.getElementById('tp-tl-scroll'), tlDetail = document.getElementById('tp-tl-detail');
   var tlDots = document.getElementById('tp-tl-dots'), tlLabel = document.getElementById('tp-tl-label'), tlValue = document.getElementById('tp-tl-value');
   var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt'), tlTrip = document.getElementById('tp-tl-trip');
-  var tlItemEls = {}, tlStay;
+  var tlItemEls = {}, tlStay, tlKey = document.getElementById('tp-tl-key');
   var phoneEl = document.getElementById('tp-phone');
   var SPOTS = Array.isArray(window.cnWatchSpots) ? window.cnWatchSpots : [];
   var TL_ICON = {
@@ -657,7 +657,8 @@
     for (var i = 0; i < DAYS; i++) {
       var x = PADX + i * DAYW;
       h += '<span class="tp-tl-tick" style="left:' + x + 'px"></span><span class="tp-tl-day" style="left:' + x + 'px">' + (i < 31 ? i + 1 : i - 30) + '</span>';
-      if (i === 0 || i === 31) h += '<span class="tp-tl-month" style="left:' + (x - 6) + 'px">' + (i ? 'November' : 'October') + '</span>';
+      // Each month is a band as wide as its days; its label sticks to the left edge while the month is in view
+      if (i === 0 || i === 31) h += '<span class="tp-tl-mband" style="left:' + (x - 14) + 'px;width:' + ((i ? DAYS - 31 : 31) * DAYW) + 'px"><span class="tp-tl-month">' + (i ? 'November' : 'October') + '</span></span>';
     }
     h += TLM.map(function (m, k) { return '<button type="button" class="tp-tl-mk" data-k="' + k + '" tabindex="-1" aria-pressed="false" style="left:' + (PADX + m.day * DAYW) + 'px"><span class="cn-tl-sym cn-tl-sym--match"></span></button>'; }).join('');
     tlCanvas.style.width = (PADX * 2 + (DAYS - 1) * DAYW) + 'px';
@@ -702,7 +703,7 @@
       if (st !== m.state) {
         m.state = st;
         m.sym.className = 'cn-tl-sym ' + (tk ? 'cn-tl-sym--ticket' : 'cn-tl-sym--match') + (m.f.a ? ' is-away' : '') + (m.f.t ? '' : ' is-tbd');
-        m.sym.innerHTML = tk ? TL_ICON.ticket : m.f.t ? TL_ICON.ball : '';
+        m.sym.innerHTML = tk ? TL_ICON.ticket : m.f.t ? TL_ICON.ball : '<span class="tp-tl-q" aria-hidden="true">?</span>';
         m.el.setAttribute('aria-label', m.f.d + ', ' + tlName(m) + ', ' + (m.f.a ? 'interstate, ' + m.f.a : m.f.p) + (tk ? ', you have a ticket' : ''));
       }
     });
@@ -728,10 +729,12 @@
     });
     Object.keys(tlItemEls).forEach(function (id) { if (!keep[id]) { tlItemEls[id].remove(); delete tlItemEls[id]; if (tlSelItem === id) tlSelItem = null; } });
     // Visiting with dates: the days in NSW are shaded on the axis
-    var trip = state.trip, stay = trip && trip.mode === 'visiting' && trip.from && trip.to;
+    var trip = state.trip, confirmed = trip && trip.mode === 'visiting' && trip.from && trip.to;
+    var guess = !confirmed && trip && trip.mode === 'visiting' ? inferTrip() : null, stay = confirmed ? trip : guess;
     tlStay.hidden = !stay;
+    tlStay.classList.toggle('is-suggested', !!guess);
     if (stay) {
-      var a = isoDay(trip.from), z = isoDay(trip.to);
+      var a = isoDay(stay.from), z = isoDay(stay.to);
       a = Math.max(0, Math.min(DAYS - 1, a)); z = Math.max(a, Math.min(DAYS - 1, z));
       tlStay.style.left = (PADX + a * DAYW - DAYW / 2) + 'px';
       tlStay.style.width = ((z - a + 1) * DAYW) + 'px';
@@ -757,9 +760,18 @@
       // The count changing is worth seeing: the badge pops again
       if (added) { tlBadge.style.animation = 'none'; tlBadge.offsetWidth; tlBadge.style.animation = ''; }
     }
+    // One prompt at a time: which team first; the trip line only once there is a team
     tlPrompt.hidden = !none;
-    // The trip answer, editable here (never asked twice)
-    tlTrip.innerHTML = tripLine();
+    tlTrip.hidden = none;
+    tlTrip.innerHTML = none ? '' : tripLine();
+    // The key lists only the marker shapes on the axis now
+    var kinds = { nsw: false, away: false, ticket: false, tbd: false, item: state.added.length > 0 };
+    shown.forEach(function (m) { var tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1; if (tk) kinds.ticket = true; else if (!m.f.t) kinds.tbd = true; else if (m.f.a) kinds.away = true; else kinds.nsw = true; });
+    tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--match" aria-hidden="true"></span>In NSW</li>' : '') +
+      (kinds.away ? '<li><span class="cn-tl-sym cn-tl-sym--match is-away" aria-hidden="true"></span>Interstate</li>' : '') +
+      (kinds.ticket ? '<li><span class="cn-tl-sym cn-tl-sym--ticket" aria-hidden="true">' + TL_ICON.ticket + '</span>Your ticket</li>' : '') +
+      (kinds.tbd ? '<li><span class="cn-tl-sym cn-tl-sym--match is-tbd" aria-hidden="true"><span class="tp-tl-q">?</span></span>Teams to be decided</li>' : '') +
+      (kinds.item ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true"></span>Added by you</li>' : '');
     // A selected match that is no longer shown is let go
     if (tlSel > -1 && !TLM[tlSel].on) tlSel = -1;
     tlRenderDetail();
@@ -793,7 +805,8 @@
       }
       tlSelItem = null;
     }
-    if (tlSel < 0) { tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a match or something you added to see its details.</p>'; return; }
+    tlDetail.classList.toggle('is-empty', tlSel < 0 && !tlSelItem);
+    if (tlSel < 0) { tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a marker for its details.</p>'; return; }
     var m = TLM[tlSel], f = m.f, tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1;
     var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
     var h = '<p class="tp-tl-d-when">' + esc(f.d) + ', ' + (f.k ? esc(f.k) + ' Sydney time' : 'time to be confirmed') + '</p>' +
@@ -840,6 +853,11 @@
   });
   // The trip line in the open timeline: Change (or Answer) goes to the question below the suggestions
   tlTrip.addEventListener('click', function (e) {
+    if (e.target.closest('[data-trip-ok]')) {
+      var g = inferTrip();
+      if (g) { setTrip({ mode: 'visiting', from: g.from, to: g.to }); say('Your days in NSW are ' + isoRange(g.from, g.to) + '.'); var c = tlTrip.querySelector('[data-ask]'); if (c) c.focus({ preventScroll: true }); }
+      return;
+    }
     if (!e.target.closest('[data-ask]')) return;
     tlSetOpen(false, false);
     phoneEl.dispatchEvent(new CustomEvent('tp:ask'));
@@ -872,8 +890,29 @@
   var barRaf = 0;
   body.addEventListener('scroll', function () { if (!barRaf) barRaf = requestAnimationFrame(function () { barRaf = 0; syncBar(); }); }, { passive: true });
   window.addEventListener('resize', syncBar);
+  /* The mini strip and the big axis are the same timeline at two scales. Opening, a copy of the axis starts shrunk onto
+     the strip (its markers the size of the strip's dots) and grows into place while the sheet rises; closing, it shrinks
+     back onto the strip. Both live in the sheet, so their offset holds while the sheet slides. Reduced motion: fades. */
+  function tlZoom(open) {
+    if (reduce.matches || !tlCanvas.animate) return;
+    var tr = tl.getBoundingClientRect(), cr = tlCanvas.getBoundingClientRect(), sr = tl.querySelector('.tp-tl-strip').getBoundingClientRect();
+    var k = sr.width / ((DAYS - 1) * DAYW), H = tlCanvas.offsetHeight;
+    var cx = cr.left - tr.left, cy = cr.top - tr.top, sx = sr.left - tr.left, sy = sr.top - tr.top + sr.height / 2;
+    var small = 'translate(' + (sx - cx - k * PADX) + 'px,' + (sy - cy - k * (H - 44.5)) + 'px) scale(' + k + ')';
+    var old = tl.querySelector('.tp-tl-zoom'); if (old) old.remove();
+    var z = tlCanvas.cloneNode(true);
+    z.removeAttribute('id'); z.removeAttribute('role'); z.setAttribute('aria-hidden', 'true'); z.inert = true;
+    z.classList.add('tp-tl-zoom');
+    z.style.left = cx + 'px'; z.style.top = cy + 'px';
+    tl.appendChild(z);
+    tlScroll.style.visibility = 'hidden';
+    var frames = [{ transform: small, opacity: .7 }, { transform: 'none', opacity: 1 }];
+    var an = z.animate(open ? frames : frames.slice().reverse(), { duration: open ? 420 : 340, easing: open ? 'cubic-bezier(.32, .72, 0, 1)' : 'cubic-bezier(.4, 0, .2, 1)' });
+    an.onfinish = an.oncancel = function () { z.remove(); tlScroll.style.visibility = ''; };
+  }
   function tlSetOpen(open, focusBack) {
     if (open === tlOpen) return;
+    if (!open) tlZoom(false);
     tlOpen = open;
     tl.classList.toggle('is-open', open);
     tlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -886,6 +925,7 @@
       var start = tlSelEl() || tlOrder()[0];
       if (start) tlScroll.scrollLeft = Math.max(0, start.offsetLeft - 48);
       tlPanel.scrollTop = 0;
+      tlZoom(true);
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
     } else if (focusBack !== false) tlToggle.focus({ preventScroll: true });
     syncBar();
@@ -929,11 +969,25 @@
   // The person's matches, as the timeline shows them: picked teams', every NSW match for Here for the rugby, or all
   function userMatches() { return TLM.filter(function (m) { return tlShown(m.f); }); }
   function allMatches() { return TLM.slice(); }
+  // The days in NSW guessed from what they have picked: first to last NSW match. Nothing to go on without a pick.
+  function inferTrip() {
+    if (!state.picked.length) return null;
+    var ds = userMatches().filter(function (m) { return !m.f.a; }).map(function (m) { return m.day; });
+    if (!ds.length) return null;
+    function iso(d) { return new Date(Date.UTC(2027, 9, 1 + d)).toISOString().slice(0, 10); }
+    return { from: iso(Math.min.apply(null, ds)), to: iso(Math.max.apply(null, ds)) };
+  }
   function tripLine() {
     var t = state.trip;
-    if (!t) return '<span>Visiting or local? One tap sharpens the suggestions.</span> <button type="button" class="tp-link" data-ask>Answer</button>';
-    var what = t.mode === 'local' ? 'I’m local' : t.mode === 'unsure' ? 'Not sure yet' : t.from && t.to ? 'In NSW ' + isoRange(t.from, t.to) : 'Visiting NSW, dates not set';
-    return '<span>' + esc(what) + '</span> · <button type="button" class="tp-link" data-ask>Change</button>';
+    if (!t) return '<span>Visiting or local?</span> <button type="button" class="tp-link" data-ask>Answer</button>';
+    if (t.mode === 'visiting' && !(t.from && t.to)) {
+      var g = inferTrip();
+      // A guess is shown as a guess until it is confirmed
+      if (g) return '<span>Looks like you\u2019re here <strong>' + esc(isoRange(g.from, g.to)) + '</strong> <span class="tp-tl-sugg">suggested</span></span><span class="tp-tl-trip-acts"><button type="button" class="tp-link" data-trip-ok>That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-ask>Change</button></span>';
+      return '<span>Visiting NSW</span> \u00b7 <button type="button" class="tp-link" data-ask>Add your days</button>';
+    }
+    var what = t.mode === 'local' ? 'I\u2019m local' : t.mode === 'unsure' ? 'Not sure yet' : 'In NSW ' + isoRange(t.from, t.to);
+    return '<span>' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-ask>Change</button>';
   }
   tlReady = true;
   tlUpdate();
@@ -962,7 +1016,7 @@
   });
 
   window.tpPicker = { teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, allMatches: allMatches, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function () { tlSetOpen(true); }, side: side, esc: esc, list: list, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; } };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
