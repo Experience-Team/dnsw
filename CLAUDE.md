@@ -37,3 +37,8 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    size and speed. When a whole group moves together (a fan turning, a list shifting), the item the user acted on
    gets lost, so single it out: lift it, scale it, bring it above its neighbours, then settle it. Judge it from a
    strip of frames at real size, not from numbers that only prove it moved.
+6. **Content fits its window, with even breathing room.** Nothing the user is meant to see is cut off by its
+   container at rest (a card corner, a shadow, a lifted item), and the space above and below it is even. Size the
+   container from the content's real extremes in every state it can be in (dragged to either end, picked, lifted,
+   focused), not from a guess, and measure the rendered result. Clip only the sides that are meant to run on (a fan
+   or carousel running off the edge); let a brief lift or pull rise out of the box rather than reserving space for it.

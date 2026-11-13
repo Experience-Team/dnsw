@@ -3298,10 +3298,14 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-pick { padding: var(--space-6) var(--space-4) var(--space-6); }
 .tp-pick-title { font-size: 1.75rem; font-weight: 800; line-height: 1.1; letter-spacing: -.01em; }
 .tp-pick-intro { margin-top: var(--space-2); font-size: .9375rem; line-height: 1.45; color: #333; }
-.tp-fan-wrap { position: relative; height: 270px; margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow: hidden; overflow: clip; }
+/* The fan's box is sized to the cards, not guessed. Measured from the card geometry (116 x 168, pivot 460px below,
+   STEP 6.5, GAP 5): across every drag position the lowest corner visible in the 390px window dips 44px below the
+   card baseline, and a picked middle card tops out 203px above it. So the baseline sits 60px up and the box is
+   278px tall, leaving about 16px clear above and below. Only the sides clip; the pull on a pick may rise above. */
+.tp-fan-wrap { position: relative; height: 278px; margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow: hidden; overflow-x: clip; overflow-y: visible; }
 .tp-fan { position: absolute; inset: 0; touch-action: pan-y; cursor: grab; }
 .tp-fan.is-dragging { cursor: grabbing; }
-.tp-card { position: absolute; left: 50%; bottom: 14px; width: 116px; height: 168px; margin-left: -58px; display: flex; flex-direction: column; align-items: flex-start; padding: 10px 10px 12px; border: 1.5px solid #1a1a1a; border-radius: 12px; background: #fff; color: #1a1a1a; font: inherit; text-align: left; cursor: inherit; transform-origin: 50% calc(100% + 460px); box-shadow: -2px 0 6px rgba(0,0,0,.08); transition: transform 420ms cubic-bezier(.3, .7, .2, 1), opacity var(--dur-small) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); -webkit-tap-highlight-color: transparent; }
+.tp-card { position: absolute; left: 50%; bottom: 60px; width: 116px; height: 168px; margin-left: -58px; display: flex; flex-direction: column; align-items: flex-start; padding: 10px 10px 12px; border: 1.5px solid #1a1a1a; border-radius: 12px; background: #fff; color: #1a1a1a; font: inherit; text-align: left; cursor: inherit; transform-origin: 50% calc(100% + 460px); box-shadow: -2px 0 6px rgba(0,0,0,.08); transition: transform 420ms cubic-bezier(.3, .7, .2, 1), opacity var(--dur-small) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); -webkit-tap-highlight-color: transparent; }
 .tp-card-code { font-size: 1.5rem; font-weight: 800; line-height: 1; letter-spacing: -.01em; }
 .tp-card-name { margin-top: var(--space-2); font-size: .75rem; font-weight: 600; line-height: 1.2; }
 .tp-card-meta { margin-top: auto; font-size: .6875rem; line-height: 1.35; color: #5c5c5c; }
