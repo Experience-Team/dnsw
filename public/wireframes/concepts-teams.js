@@ -464,7 +464,7 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
-    clearBtn.hidden = !teamsPicked().length; // teams only: the rugby button turns itself off
+    clearBtn.hidden = !teamsPicked().length; // teams only: with just every NSW match on, it stays hidden; the link in All matches removes them
     // The quiet links: with no team, add every NSW match; on, take them off; hidden while teams are picked
     var r = isPicked(RUGBY), hide = teamsPicked().length > 0;
     rugbyLinks.forEach(function (a) {
