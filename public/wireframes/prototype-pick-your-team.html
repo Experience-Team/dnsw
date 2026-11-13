@@ -57,7 +57,6 @@
         <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
           <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
           <div class="tp-picker" id="tp-picker">
-            <p class="tp-pick-intro">Pick one or more teams to see when and where they play.</p>
             <!-- Finding your team: a find field (suggestions float over the hand, so nothing below moves) and a toggle that
                  narrows the hand to the teams with a pool match in NSW. Wired by concepts-teams.js. -->
             <div class="tp-find">
@@ -73,20 +72,26 @@
               <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-fan-help"></div>
             </div>
             <p class="visually-hidden" id="tp-fan-help">Left and right arrow keys move through the teams; type a letter to jump to teams starting with it. Space or Enter picks one. You can pick more than one.</p>
+            <!-- The feedback line: what the last pick did (the live region says the same for screen readers) -->
             <p class="tp-fan-caption" id="tp-fan-caption" aria-hidden="true"></p>
             <div class="tp-chosen-row">
               <p class="tp-chosen" id="tp-chosen">No teams picked yet.</p>
               <button type="button" class="tp-link tp-clear" id="tp-clear" hidden>Clear all</button>
             </div>
-            <button type="button" class="tp-show" id="tp-show" aria-disabled="true">See their matches</button>
             <div class="tp-alt">
               <button type="button" class="tp-link" id="tp-rugby-link">No team? Here for the rugby</button>
-              <button type="button" class="tp-link" id="tp-skip">Skip this step</button>
+              <button type="button" class="tp-link" id="tp-skip">Skip to your dates</button>
             </div>
             <p class="tp-device">Saved on this device only. Your teams are only used to show their matches.</p>
           </div>
-          <div class="tp-results" id="tp-results" hidden>
-            <p class="tp-results-sum" id="tp-results-sum" tabindex="-1"></p>
+          <!-- Once a team is picked: two tabs over the match area. Your matches (the picked teams' cards) and All matches
+               (the list below). No team picked: no tabs, and All matches stands alone. -->
+          <div class="tp-tabs" id="tp-tabs" role="tablist" aria-label="Matches" hidden>
+            <button type="button" class="tp-tab" id="tp-tab-yours" role="tab" aria-selected="true" aria-controls="tp-results">Your matches</button>
+            <button type="button" class="tp-tab" id="tp-tab-all" role="tab" aria-selected="false" aria-controls="tp-all" tabindex="-1">All matches</button>
+          </div>
+          <div class="tp-results" id="tp-results" role="tabpanel" aria-labelledby="tp-tab-yours" hidden>
+            <p class="tp-results-sum" id="tp-results-sum"></p>
             <!-- Only for teams with no pool match in NSW (filled by concepts-teams.js): the way on, not a dead end -->
             <div class="tp-results-away" id="tp-results-away" hidden>
               <p class="tp-results-away-text"></p>
@@ -94,22 +99,15 @@
             </div>
             <div class="tp-deck" id="tp-deck" role="group" aria-label="Your matches"></div>
             <p class="tp-deck-hint" id="tp-deck-hint" hidden>Swipe for your other cards.</p>
-            <div class="tp-results-actions">
-              <button type="button" class="tp-link tp-change" id="tp-change">Change teams</button>
-              <button type="button" class="tp-link tp-showall" id="tp-showall" aria-expanded="false" aria-controls="tp-all">Show all matches</button>
-            </div>
-          </div>
-          <div class="tp-skipped" id="tp-skipped" hidden>
-            <p class="tp-skipped-text" tabindex="-1">Skipped. Your plan will start from your dates instead of your team&rsquo;s matches.</p>
-            <button type="button" class="tp-link" id="tp-unskip">Pick a team after all</button>
           </div>
           <p class="visually-hidden" id="tp-live" role="status" aria-live="polite"></p>
         </section>
         <!-- All matches: below the picker whether or not anyone has picked a team. Minimal, as this page is not the main
-             source for matches. Built by concepts-teams.js from cnFixtures; hidden while Your matches is showing. -->
+             source for matches. Built by concepts-teams.js from cnFixtures; the All matches tab once a team is picked.
+             Each row opens that match's own page. -->
         <section class="tp-all" id="tp-all" aria-labelledby="tp-all-title">
           <h3 class="tp-all-title" id="tp-all-title">All matches</h3>
-          <p class="tp-all-note">Every match of the tournament, by date.</p>
+          <p class="tp-all-note">Every match of the tournament, by date. Tap one for its details.</p>
           <!-- Columns of five matches, each a borderless card; swipe sideways (or use the arrow keys) for the next five -->
           <div class="tp-all-scroll" id="tp-all-scroll" role="group" aria-label="All matches, five to a column" tabindex="0"></div>
           <p class="tp-all-hint" id="tp-all-hint">Swipe sideways for the next five matches.</p>
@@ -206,18 +204,18 @@
 <script>
 /* Pick your team: annotation layer. Same switch, numbered badges and list as the itinerary prototype. Switch it on to
    see a badge on each part with complex behaviour and the matching numbered list on the left; standard controls are
-   left out. The notes follow the screen (picker, your matches, skipped) and the picks: Clear all only has a badge once
+   left out. The notes follow the picks (no team, or teams picked with the tabs) and what is on screen: Clear all only has a badge once
    something is picked. Edit the NOTES table to change the copy. Badges are added to the target elements, so they move
    with them. concepts-teams.js sends tp:state whenever the picks or the screen change. */
 (function () {
   var phone = document.getElementById('tp-phone');
   if (!phone) return;
-  var NAMES = { pick: 'Picker', results: 'Your matches', skipped: 'Skipped' };
+  var NAMES = { pick: 'No team picked', results: 'Teams picked' };
   // The timeline bar and its open state, on every screen (each note only shows when its part is on screen)
   var TL = [
-    { sel: '#tp-tl-toggle', at: 'tc', title: 'Timeline bar', text: 'Hidden at first. It slides up once the match cards (Your matches, or All matches when no team is confirmed) have scrolled past the top of the phone, or, where the list is too short for that, once you reach the end of the page with them in view. Never over the fan; it slides away when you scroll back above the cards. Matches only, on one axis from 1 Oct to 13 Nov: every match with no team or after Skip, every NSW match for Here for the rugby, and only your teams\u2019 matches as you pick, live, before See their matches. The All matches list stays unfiltered. With no team the label says Pick your team. The count follows the page\u2019s one counting rule (pool matches and knockouts named apart, as 9 pool + 8 knockouts), and once your days in NSW are confirmed the count and the dates follow them (1 pool match \u00b7 16 Oct). Tap the bar or its handle to open it. It opens on what matters: a marker you chose, else your days in NSW (a short stay centred, with the days either side), else the first thing you added, else the first match: the mini strip opens out into the big axis as the sheet rises, and folds back into it on close (a fade with reduced motion). Month labels stay pinned while the axis scrolls. Tap again or press Escape to close. The number badge counts what you add from Where to watch and Suits your 3rd half, and the label says how many. The page keeps 120px clear at the bottom so the bar never covers the last match.' },
+    { sel: '#tp-tl-toggle', at: 'tc', title: 'Timeline bar', text: 'Hidden at first. It rises with the first pick and stays up while a team is picked, so every pick is seen working: the team\u2019s matches glide as dots from the picked card into the bar\u2019s strip and land on their dates, 60ms apart (closer and shorter for picks in quick succession; one sweep for Here for the rugby; a match already there does not fly again), then the count changes. Unpicking lifts that team\u2019s dots out as they fade, and the count drops; with nothing picked the bar sinks away. Reduced motion: no flight, the dots fade in. At 390 x 844 the risen bar sits clear of the fan, the caption and Clear all. With no team it also slides up once the match list has scrolled past the top of the phone, or, where the list is too short for that, once you reach the end of the page with them in view. Never over the fan; it slides away when you scroll back above the cards. Matches only, on one axis from 1 Oct to 13 Nov: every match as a preview with no team, every NSW match for Here for the rugby, your teams\u2019 matches as you pick, and any single match you add from All matches (with no team, only those). The All matches list stays unfiltered. With no team the label says Pick your team. The count follows the page\u2019s one counting rule (pool matches and knockouts named apart, as 9 pool + 8 knockouts), and once your days in NSW are confirmed the count and the dates follow them (1 pool match \u00b7 16 Oct). Tap the bar or its handle to open it. It opens on what matters: a marker you chose, else your days in NSW (a short stay centred, with the days either side), else the first thing you added, else the first match: the mini strip opens out into the big axis as the sheet rises, and folds back into it on close (a fade with reduced motion). Month labels stay pinned while the axis scrolls. Tap again or press Escape to close. The number badge counts what you add from Where to watch and Suits your 3rd half, and the label says how many. The page keeps 120px clear at the bottom so the bar never covers the last match.' },
     { sel: '.tp-tl-trip', title: 'Your trip (open, with a team)', text: 'One prompt at a time: with no team the open timeline asks only for a team; with one, it shows this line instead. Visiting with no dates confirmed shows the guess as a guess ("Looks like you\u2019re here 9 to 16 Oct, suggested") with That\u2019s right to confirm in one tap, and a dashed band on the axis; confirmed dates become a solid band. Change goes to the question below the suggestions.' },
-    { sel: '.tp-tl-prompt', title: 'Pick a team (open, no team only)', text: 'The prompt that used to sit at the top of the phone, now here. Pick a team closes the timeline, scrolls to the fan and focuses the middle card; after Skip it goes back to the fan first.' },
+    { sel: '.tp-tl-prompt', title: 'Pick a team (open, no team only)', text: 'The prompt that used to sit at the top of the phone, now here. Pick a team closes the timeline, scrolls to the fan and focuses the middle card.' },
     { sel: '.tp-tl-key', title: 'Markers', text: 'The key lists only the shapes on the axis now, each drawn as the axis draws it (the ball in a match ring; a screen or a pin in the solid square of something you added, as Screening you added and Place you added). One marker per match, stacked on its day. Solid ring: in NSW. Dashed ring: interstate, kept because fans can watch at NSW fan zones and the village. Filled with a blue ring: you have a ticket, as on the itinerary timeline. Dotted with a question mark: a knockout whose teams are still to be decided. Tap a marker, or use the arrow keys, Home and End, to see teams, Sydney kick-off, venue and city. Markers fade and restack as picks change.' },
     { sel: '.tp-tl-watch', title: 'Watch in NSW (gap data)', text: 'Fan zones and the village are not in the live data or the product data contract, so this line comes from clearly fake placeholder fixtures, with the pink gap marker. A match with no fan zone data shows no line. Real data still needed.' }
   ];
@@ -229,33 +227,34 @@
     { sel: '#tp-plan-title', title: 'Your plan so far', text: 'The end of the page: your matches, what you have added and your trip answer, in one block. Open your timeline opens the sheet; Copy plan puts it on the clipboard as plain text (matches with Sydney kick-offs, venues, what you added, your days in NSW) for notes or a message, since people keep plans outside the site. If copying is blocked, the text shows selected to copy by hand. With nothing picked or added it says how to start.' },
     { sel: '#tp-ask', title: 'The one question', text: 'Sits straight after the results, above Where to watch and Suits your 3rd half, so people see their answer work. Never required. Once answered, a line under the answer says what changed (for example Suggestions now for 9 to 16 Oct. Updated below: Where to watch and Suits your 3rd half), and each section that changed gets a brief blue wash as it comes into view; the line goes once they do something else. Visiting NSW infers your days from your first to last NSW match (or shows two empty date fields when there is nothing to go on); confirm in one tap or adjust. I live in NSW never asks for dates. Not sure yet keeps everything by match day. The answer collapses to one line, is saved on this device with your picks, and can be changed here or in the timeline.' }
   ];
-  var NOTES = {
-    pick: { items: [
+  // The picker is always on screen; its notes are the same whether or not a team is picked
+  var PICKER = [
       { sel: '.tp-find-field', title: 'Find your team', text: 'Three ways to your team without swiping through 25 cards. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; choosing one picks it, Enter picks the first, Escape clears. In NSW narrows the hand to the 15 teams with a pool match in NSW (Here for the rugby and anything already picked stay). With the hand focused, a letter jumps to the next team starting with it. Flags now sit on every card. The hand opens on Australia, the host nation.' },
       { sel: '.tp-count', title: 'Countdown', text: 'One plain line, so the hero stays short and the find field and fan sit above the fold: days to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says the tournament is under way (final on Sat 13 Nov), then that it has finished. The dates line above it carries the page\u2019s one note that kick-offs are Sydney time. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
-      { sel: '.tp-fan-wrap', title: 'The fan and picking', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, and pick as many as you like. A pick is pulled up out of the hand, travels to the middle while the hand turns under it, then settles lifted and dark with a tick. Picking again puts it back. The middle card gets extra room so its pool and NSW line can be read; the line below the fan repeats it. The hand deals open the first time it scrolls into view. Reduced motion: no pull or glide, the colour and tick still change.' },
-      { sel: '#tp-clear', title: 'Clear all', text: 'Only shown once something is picked. Puts every card back in the hand, clears every ticket mark, saves, announces it, and moves focus to the middle card because the button hides itself.' },
-      { sel: '#tp-show', title: 'See their matches', text: 'Greyed until something is picked. Pressed with nothing picked, it does not move: it says to pick a card first or choose Here for the rugby. With picks it is one sequence: the cards you did not pick drop away, the picker fades and the phone glides so the section starts at the top; then the picked cards fly out of the fan on an arc, turn over on the way and land as match cards, with the new title and summary arriving just behind them. Reduced motion: no glide or flight, the match cards fade in. The label counts the picks, and reads See the NSW matches when Here for the rugby is the only pick.' },
+      { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
+      { sel: '#tp-fan-caption', title: 'What a pick did', text: 'The caption under the fan is the feedback line (it used to repeat the middle card): Wales added: 3 pool matches, 1 in NSW, or Wales removed. The first part is washed blue for a moment, then settles. The live region says the same for screen readers. At rest it says how picking works.' },
+      { sel: '#tp-clear', title: 'Clear all', text: 'Only shown once something is picked. Puts every card back in the hand and clears the teams\u2019 ticket marks (a ticket on a match added on its own stays with it). The tabs go and All matches stands alone again; the bar sinks away unless something keeps it up. Focus moves to the middle card, as the button hides itself.' },
       { sel: '#tp-rugby-link', title: 'Here for the rugby', text: 'The No team? link and the last card in the fan do the same thing: every pool match in NSW, no team. It stands alone. Picking it puts any picked teams back in the hand, and picking a team while it is picked puts it back, so the two never mix. The live region says what was cleared. Ticket marks are kept.' },
-      { sel: '#tp-skip', title: 'Skip this step', text: 'Moves to a short Skipped screen. Nothing is picked and the plan would start from dates instead of a team’s matches. Pick a team after all comes back to the fan.' },
-      { sel: '.tp-all-note', title: 'All matches', text: 'Every match in date order, with or without a pick, in columns of five. Each column is a card without a border: swipe sideways, or use the arrow keys when the list has focus, for the next five. Picking a team and choosing See their matches swaps this list for the picked cards; Show all matches there brings it back below them. Minimal on purpose: this page is not the main source for matches. Flags stand in for the teams.' },
-      { sel: '.tp-device', title: 'Saved on this device', text: 'Picks, ticket marks and the screen you were on are kept in this browser, so a reload puts you back where you were. Reset prototype, or ?reset on the address, clears them.' }
-    ].concat(EXTRA, TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
-    results: { items: [
+      { sel: '#tp-skip', title: 'Skip to your dates', text: 'For people with no team to follow (T16): goes straight down to the dates question (Visiting NSW, I live in NSW, Not sure yet) and focuses it. Nothing is picked and the picker stays where it is, above. It used to open a separate Skipped screen that promised dates but had no date field.' },
+      { sel: '.tp-device', title: 'Saved on this device', text: 'Picks, ticket marks and the tab you chose are kept in this browser, so a reload puts you back where you were. Reset prototype, or ?reset on the address, clears them.' }
+  ];
+  var NOTES = {
+    pick: { items: PICKER.concat([
+      { sel: '.tp-all-note', title: 'All matches', text: 'With no team picked: every match in date order in columns of five, each a card without a border; swipe sideways, or use the arrow keys when the list has focus. No tabs. Each row is one button that opens the match\u2019s own page.' },
+      { sel: '.tp-all-btn', title: 'A match page', text: 'Tapping a row opens a full-screen page (the same pattern as the product and place pages): date, Sydney kick-off, venue, city, In NSW or interstate. Add to my timeline adds that one match, even when neither team is picked (T12, a ticket for a match their team is not in); it shows on the timeline and in Copy plan as a match. Add [team] to my teams, for each side not already picked, does exactly what picking its card does. I have a ticket shows for any match with known teams; ticking it also puts the match on the timeline, as a ticket means they are going. Tapping the row itself never adds a team. Focus moves in and stays in; Escape or the cross returns it to the row.' }
+    ]).concat(EXTRA, TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
+    results: { items: PICKER.concat([
+      { sel: '#tp-tabs', title: 'Your matches and All matches', text: 'Two tabs appear below the picker with the first pick, and Your matches is chosen. After that the chosen tab stays put, and is kept on reload. A pick made from a match page keeps All matches chosen, so closing the page goes back to its row. Standard tabs: arrow keys, Home and End move between them, the selected state is announced. Clearing every pick removes the tabs. The count in Your matches (N) is the matches on your timeline, and washes blue for a moment when it changes.' },
+      { sel: '.tp-rcard-new', title: 'The newest card', text: 'Each newly picked team\u2019s card rises gently into Your matches, the deck slides to it, and it says Just added for a moment with a soft outline. A card that goes fades out first.' },
       { sel: '#tp-results-away', title: 'Teams that play interstate', text: 'Nine teams have no pool match in NSW. Their cards now say "Plays interstate; watch in NSW" rather than "No matches in NSW", and the results say so plainly with a way on: See where to watch in NSW scrolls to the screenings of their matches. Suits your 3rd half then suggests things around the NSW matches they could go to instead of saying there is nothing.' },
-    { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. Counts follow one rule across the page: pool matches and knockouts are named apart (Every NSW match: 9 pool matches + 8 knockouts, all in NSW); a team\u2019s count is pool matches only, as its knockouts are not known until the pools finish. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers; focus lands here when the cards turn over.' },
+    { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. Counts follow one rule across the page: pool matches and knockouts are named apart (Every NSW match: 9 pool matches + 8 knockouts, all in NSW); a team\u2019s count is pool matches only, as its knockouts are not known until the pools finish. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers.' },
       { sel: '.tp-ticket', at: 'tl', title: 'I have a ticket', text: 'One ticket is one match, whichever card it is marked on: a match between two of your teams shows the same tick on both cards. Marks are kept on this device and cleared by Clear all on the picker.' },
       { sel: '.tp-tag--away', title: 'Interstate matches', text: 'A match outside NSW (Perth, Brisbane) stays on the card so the pool is complete, with a dashed Interstate tag naming the city. It is left out of the NSW count.' },
-      { sel: '.tp-m-also', title: 'Shared matches', text: 'When two picked teams meet, the match sits on both cards and each says the other is also on your card.' },
+      { sel: '.tp-m-moved', title: 'Shared matches, once', text: 'A match between two picked teams appears once, on the card of the team picked first (marked Also your team: \u2026). The other card says where it is, for example Sat 16 Oct, v Wales: on your Wales card.' },
       { sel: '.tp-ko', title: 'Knockouts', text: 'Teams in the knockouts are not known until the pools finish, so each card says where its team would play if it finishes first or second. Here for the rugby lists every knockout in NSW in a column of its own at the end.' },
       { sel: '#tp-deck-hint', title: 'More cards', text: 'Shown only when there is more to the side: your other cards, in the order you picked them with Here for the rugby last, or the columns of nine NSW matches on the Here for the rugby card.' },
-      { sel: '#tp-showall', title: 'Show all matches', text: 'Opens the All matches list below your cards and glides down to it; the button then reads Hide all matches. Your cards stay where they are. The list is closed again each time you come back to Your matches.' },
-      { sel: '#tp-change', title: 'Change teams', text: 'The match cards fade and drop away, then the hand deals open again with your picks still lifted, ready to change.' }
-    ].concat(EXTRA, TL) },
-    skipped: { items: [
-      { sel: '.tp-all-note', title: 'All matches', text: 'Still shown below, so skipping the team step leaves every match in view.' },
-      { sel: '#tp-unskip', title: 'Pick a team after all', text: 'Goes back to the fan with nothing picked. Skipping is kept on this device like a pick, so a reload stays on this screen.' }
-    ].concat(EXTRA, TL) }
+      { sel: '.tp-rcard--added', title: 'Matches you added', text: 'Single matches added from All matches that none of your teams plays in get a card of their own at the end, with ticket marks.' }
+    ]).concat(EXTRA, TL) }
   };
   var stage = document.getElementById('tp-stage');
   var notesBox = document.getElementById('cn-notes');
@@ -268,7 +267,7 @@
   try { notesOn = localStorage.getItem('tp-annotations') === 'on'; } catch (e) {}
   function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function currentView() {
-    return !document.getElementById('tp-results').hidden ? 'results' : !document.getElementById('tp-skipped').hidden ? 'skipped' : 'pick';
+    return !document.getElementById('tp-tabs').hidden ? 'results' : 'pick';
   }
   function renderNotes() {
     phone.querySelectorAll('.cn-badge').forEach(function (b) { b.remove(); });
@@ -277,7 +276,6 @@
     stage.classList.toggle('has-notes', notesOn);
     if (!notesOn) return;
     // While the cards are in flight there is nothing steady to point at; they call again once they land
-    if (deck.classList.contains('is-flying')) return;
     var view = currentView(), set = NOTES[view], n = 0, html = '';
     notesTitle.textContent = 'Annotations: ' + NAMES[view];
     set.items.forEach(function (it) {

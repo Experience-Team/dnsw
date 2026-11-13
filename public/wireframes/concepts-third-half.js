@@ -58,7 +58,7 @@
   /* ---------- First look: no team picked yet ----------
      Without a pick there is nothing to tailor to, so both sections show one day only (the next NSW match day, in the
      person's days in NSW once given) and one way on, Pick a team to tailor this, instead of every match at once. */
-  function teaser() { return !tp.picked(); }
+  function teaser() { return !tp.own(); }
   function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
   var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">Pick a team to tailor this</button></p>';
 
@@ -234,7 +234,6 @@
   // Pick a team to tailor this: back up to the hand of cards, focus on the card in the middle
   phone.addEventListener('click', function (e) {
     if (!e.target.closest('[data-act="tailor"]')) return;
-    if (state.view === 'skipped') document.getElementById('tp-unskip').click();
     var pick = document.getElementById('tp-pick'), card = document.querySelector('#tp-fan [tabindex="0"]');
     var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
     body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
@@ -297,18 +296,63 @@
     h += pmActions(id, sp.name + ' on ' + f.d) + '</div>';
     return h;
   }
+  /* A match from All matches: the facts (date, Sydney kick-off, venue, city, in NSW or interstate), then what can be
+     done with it. Add to my timeline puts that one match on the timeline even when neither team is picked (T12, a
+     ticket for a match their team is not in). Add [team] to my teams does exactly what picking the card in the fan
+     does. I have a ticket shows for any match with known teams; ticking it also puts the match on the timeline, as a
+     ticket means they are going. Nothing here adds a team without its own button. */
+  var pmSaid = '';
+  function matchId(key) { return 'm:' + key; }
+  function pmMatch(key) {
+    var m = tp.match(key); if (!m) return '';
+    var f = m.f, teams = f.t ? f.t.split(' v ') : [], h = '';
+    var by = teams.filter(function (n) { return tp.isPicked(n); }), rugby = tp.rugby() && !f.a, on = added(matchId(key));
+    var who = f.t ? teams.map(function (n) { return (tp.flag(n) ? '<span aria-hidden="true">' + tp.flag(n) + '</span> ' : '') + esc(n); }).join(' <span class="tp-pm-v">v</span> ') : esc(f.s);
+    h += '<div class="plan-modal-body tp-pm-match">';
+    h += '<p class="tp-pm-type">' + esc(f.t ? f.s.replace(/ \(\d+\)$/, '') : 'Teams to be decided') + '</p>';
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">' + who + '</h2>';
+    h += (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>');
+    h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
+      '<div><dt>Date</dt><dd>' + esc(f.d) + '</dd></div>' +
+      '<div><dt>Kick-off</dt><dd>' + (f.k ? esc(f.k) + ' Sydney time' : 'Time to be confirmed') + '</dd></div>' +
+      '<div><dt>Venue</dt><dd>' + esc(f.v) + '</dd></div>' +
+      '<div><dt>City</dt><dd>' + esc(f.p) + (f.a ? ' (interstate)' : ', NSW') + '</dd></div></dl>';
+    // On the timeline already, through a team or Here for the rugby: say so instead of offering to add it
+    h += '<div class="tp-pm-acts tp-pm-acts--match">';
+    if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Here for the rugby includes every NSW match') + '</p>';
+    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '">' + (on ? '\u2713 Added to my timeline' : 'Add to my timeline') + '<span class="visually-hidden">, ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
+    if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' /><span>I have a ticket</span></label>';
+    h += '</div>';
+    if (teams.length) {
+      h += '<h3 class="cn-pp-h">Your teams</h3><div class="tp-pm-teams">' + teams.map(function (n) {
+        return tp.isPicked(n) ? '<p class="tp-pm-team-on">\u2713 ' + esc(n) + ' is one of your teams</p>'
+          : '<button type="button" class="tp-pm-team" data-pm-team="' + esc(n) + '">Add ' + esc(n) + ' to my teams</button>';
+      }).join('') + '</div><p class="tp-pm-note">Adding a team adds all its matches, as picking its card does.</p>';
+    }
+    h += '<p class="tp-pm-said" aria-hidden="true">' + esc(pmSaid) + '</p></div>';
+    return h;
+  }
+  function pmRefresh(focusSel) {
+    if (!pmOpen || pmOpen.id.indexOf('match:') !== 0) return;
+    pmBody.innerHTML = pmMatch(pmOpen.id.slice(6));
+    var el = focusSel && pm.querySelector(focusSel);
+    (el || pm.querySelector('[data-pm-team], [data-pm-match], [data-pm-ticket], [data-pm-close]')).focus({ preventScroll: true });
+  }
   function openPm(id, opener) {
-    var x = MODAL[id]; if (!x) return;
-    pmBody.innerHTML = x.type === 'product' ? pmProduct(id, x) : pmSpot(id, x);
+    var isMatch = id.indexOf('match:') === 0, x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : MODAL[id];
+    if (!x || (isMatch && !x.m)) return;
+    pmSaid = '';
+    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : x.type === 'product' ? pmProduct(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = x.type === 'product' ? 'Suits your 3rd half' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isMatch ? 'Match' : x.type === 'product' ? 'Suits your 3rd half' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
+    pm.classList.toggle('is-match', isMatch);
     // Everything behind waits; remember what was already inert so closing puts it back as it was
     pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say((x.type === 'product' ? x.p.title : x.sp.name) + ', page opened.');
+    tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.sp.name) + ', page opened.');
     notesRefresh();
   }
   function closePm() {
@@ -327,6 +371,23 @@
   });
   pm.addEventListener('click', function (e) {
     if (e.target.closest('[data-pm-close]')) { closePm(); return; }
+    // A match page's own actions
+    var mb = e.target.closest('[data-pm-match]');
+    if (mb) {
+      var key = mb.dataset.pmMatch, f = tp.match(key).f, id = matchId(key), on = !added(id);
+      if (on) tp.addItem({ id: id, kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
+      else tp.removeItem(id);
+      pmSaid = on ? matchName(f) + ' is on your timeline, ' + f.d + '.' : matchName(f) + ' is off your timeline.';
+      pmRefresh('[data-pm-match]');
+      tp.say(pmSaid);
+      return;
+    }
+    var tb = e.target.closest('[data-pm-team]');
+    if (tb) {
+      pmSaid = tp.pickTeam(tb.dataset.pmTeam) + '.';
+      pmRefresh('[data-pm-team]');
+      return; // the pick says its own line to screen readers
+    }
     var b = e.target.closest('[data-pm-add]'); if (!b) return;
     var it = ITEMS[b.dataset.pmAdd]; if (!it) return;
     var on = !added(it.id);
@@ -336,10 +397,20 @@
     b.firstChild.textContent = on ? '\u2713 Added to your timeline' : 'Add to your timeline';
     tp.say(it.title + (on ? ' added to your timeline on ' + it.day + '. ' : ' removed from your timeline. ') + state.added.length + ' added.');
   });
+  pm.addEventListener('change', function (e) {
+    var cb = e.target.closest('[data-pm-ticket]'); if (!cb || !pmOpen) return;
+    var key = pmOpen.id.slice(6), m = tp.match(key), f = m.f, mine = f.t.split(' v ').some(function (n) { return tp.isPicked(n); }) || (tp.rugby() && !f.a);
+    // A ticket means they are going: the match goes on the timeline too, if no team of theirs puts it there already
+    if (cb.checked && !mine && !added(matchId(key))) tp.addItem({ id: matchId(key), kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
+    tp.setTicket(m.tkey, cb.checked);
+    pmSaid = cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your timeline.') : 'Ticket removed.';
+    pmRefresh('[data-pm-ticket]');
+    tp.say(pmSaid);
+  });
   pm.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePm(); return; }
     if (e.key !== 'Tab') return;
-    var f = Array.prototype.filter.call(pm.querySelectorAll('button, [href]'), function (n) { return n.offsetParent !== null; });
+    var f = Array.prototype.filter.call(pm.querySelectorAll('button, [href], input'), function (n) { return n.offsetParent !== null; });
     var a = f[0], z = f[f.length - 1];
     if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
     else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
@@ -519,23 +590,24 @@
     var t = trip(), lines = ['My Rugby World Cup 2027 plan (Plan your 3rd half)'];
     if (t && t.mode === 'visiting' && t.from && t.to) lines.push('In NSW ' + tp.isoRange(t.from, t.to));
     else if (t && t.mode === 'local') lines.push('I live in NSW');
-    if (tp.picked()) {
+    if (tp.own()) {
       lines.push('', 'Matches (kick-off times are Sydney time):');
       tp.userMatches().forEach(function (m) {
         var f = m.f;
         lines.push('- ' + f.d + ', ' + (f.k || 'time to be confirmed') + ': ' + matchName(f) + ', ' + f.v + ', ' + f.p + (f.a ? ' (interstate)' : '') + (hasTicket(m) ? ' (ticket)' : ''));
       });
     }
-    if (state.added.length) {
+    var things = state.added.filter(function (it) { return it.kind !== 'match'; });
+    if (things.length) {
       lines.push('', 'Added:');
-      state.added.forEach(function (it) { lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : '')); });
+      things.forEach(function (it) { lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : '')); });
       lines.push('', 'Places are placeholders in this prototype, not real listings.');
     }
     return lines.join('\n');
   }
   function renderPlan() {
     if (!planBody) return;
-    var t = trip(), ms = tp.picked() ? tp.userMatches() : [], n = state.added.length;
+    var t = trip(), ms = tp.own() ? tp.userMatches() : [], n = state.added.filter(function (it) { return it.kind !== 'match'; }).length;
     if (!ms.length && !n) {
       planBody.innerHTML = '<p class="tp-plan-empty">Pick a team, or add a screening or a place above, and your plan builds up here.</p>';
       return;
@@ -543,7 +615,7 @@
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
     var when = t && t.mode === 'visiting' && t.from && t.to ? 'In NSW ' + tp.isoRange(t.from, t.to) : t && t.mode === 'local' ? 'Local' : '';
     var facts = [];
-    if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (nsw === ms.length ? 'all' : nsw) + ' in NSW' + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
+    if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (nsw === ms.length ? 'all in NSW' : nsw ? nsw + ' in NSW' : 'all interstate') + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
     if (when) facts.push('<li>' + esc(when) + '</li>');
     planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' +
@@ -571,7 +643,7 @@
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};
   function signature() {
-    return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.view, selDay, watchAll, askEditing, askManual, askError, openCard, copied]);
+    return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.tab, selDay, watchAll, askEditing, askManual, askError, openCard, copied]);
   }
   function render(force, focusSel) {
     var s = signature();
@@ -582,6 +654,7 @@
     if (active && phone.contains(active) && active.dataset) {
       if (active.dataset.item) keep = '.tp-add[data-item="' + CSS.escape(active.dataset.item) + '"]';
       else if (active.dataset.day) keep = '[data-day="' + CSS.escape(active.dataset.day) + '"]';
+      else if (active.dataset.mode) keep = '.tp-fork[data-mode="' + CSS.escape(active.dataset.mode) + '"]';
       else if (active.dataset.open && !pm.contains(active)) keep = '[data-open="' + CSS.escape(active.dataset.open) + '"]';
     }
     ITEMS = {}; MODAL = {};
