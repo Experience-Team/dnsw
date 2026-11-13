@@ -42,3 +42,28 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    container from the content's real extremes in every state it can be in (dragged to either end, picked, lifted,
    focused), not from a guess, and measure the rendered result. Clip only the sides that are meant to run on (a fan
    or carousel running off the edge); let a brief lift or pull rise out of the box rather than reserving space for it.
+
+# Experience principles
+
+Apply these to every flow in wireframes and prototypes, and flag any brief or design that breaks them,
+even when not asked.
+
+1. **Reward early, then build on it.** Give people something useful as soon as possible and let each
+   extra input improve it, rather than holding results back until a form is finished. Reveal options
+   and detail as they become relevant, not all up front. For example:
+   - A trip planner shows suggestions from the first choice (a region, a date or an interest) and
+     refines them as more is added, instead of opening with a long questionnaire.
+   - Search and listing pages show results straight away and offer filters alongside them, rather than
+     asking for filters before showing anything.
+   - Product and event pages lead with what helps someone decide (when, where, price, why go) and keep
+     the fine print behind an expand or further down.
+2. **Don't make people do the work.** Ask only for what the next step needs. Prefer sensible defaults,
+   inferring from what they have already done, and asking later over asking now. Make an input optional
+   whenever the result still works without it. Before adding a required field or step, check whether it
+   can be defaulted, inferred or deferred. For example:
+   - Saving or shortlisting works without an account; ask people to sign in only when they want to keep
+     or share the list.
+   - Carry choices forward: a region or date picked on one page is already set on the next, not asked
+     for again.
+   - Newsletter or enquiry forms ask for the minimum (often just an email) and gather preferences later,
+     once there is a reason to.
