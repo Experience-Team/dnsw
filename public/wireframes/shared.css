@@ -3856,3 +3856,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (prefers-reduced-motion: reduce) { .cn-pp.tp-pm.is-sheet.is-open, .tp-pm-scrim { animation: tp-fade-in .15s linear; } }
 /* A team in the sheet is a toggle, like Add to my timeline: pressed has a tick and a light fill */
 .tp-pm-team[aria-pressed="true"] { background: #f0f0f0; border-style: solid; }
+/* A clash said outside the timeline: on the bar, on the trip's card and in Your plan so far */
+.tp-tl-label.is-clash { color: #B42318; }
+.tp-trip-clash, .tp-plan-clash { grid-column: 1 / -1; font-size: .8125rem; font-weight: 600; line-height: 1.4; color: #B42318; }
+.tp-plan-clash { margin-top: var(--space-2); }
+.tp-plan-clash-how { margin-top: 2px; font-size: .75rem; color: #4d4d4d; }
+.tp-tl-detail .tp-move { margin-top: var(--space-1); }
+.tp-tl-key-clash { display: inline-block; width: 16px; height: 12px; background: repeating-linear-gradient(135deg, rgba(180,35,24,.35) 0 3px, transparent 3px 6px); border: 1px solid rgba(180,35,24,.5); }

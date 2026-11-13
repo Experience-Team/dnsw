@@ -48,8 +48,10 @@
   function inStay(day) { var s = stay(); return !s || (day >= s.a && day <= s.z); }
   function added(id) { return state.added.some(function (x) { return x.id === id; }); }
   function notesRefresh() { phone.dispatchEvent(new CustomEvent('tp:state')); }
+  // key: what the card's button looks up in ITEMS; the item it adds can have its own id (a trip card is keyed by
+  // trip and free stretch, the trip itself is one item in the plan)
   function addBtn(id, label) {
-    var on = added(id);
+    var on = added(ITEMS[id] ? ITEMS[id].id : id);
     return '<button type="button" class="tp-add" data-item="' + esc(id) + '" aria-pressed="' + on + '">' +
       '<span aria-hidden="true">' + (on ? 'Added' : 'Add') + '</span><span class="visually-hidden">' + (on ? 'Added: ' : 'Add ') + esc(label) + (on ? '. Press to remove' : ' to your timeline') + '</span></button>';
   }
@@ -293,30 +295,62 @@
     return h;
   }
   function byTravel(base) { return function (x, y) { return tripMins(x, base) - tripMins(y, base) || x.title.localeCompare(y.title); }; }
+  /* One card per trip and free stretch (key), so its Fits line and its Add always mean this stretch; the trip itself is
+     one item in the plan (id). Added in this stretch: where it went, and Move. Added elsewhere: where it is, and Move
+     here. */
   function tripCard(t, b, at) {
-    var id = 't:' + t.id, s = at !== undefined ? at : starts(t, b)[0], n = b.z - b.a + 1;
+    var id = 't:' + t.id, key = id + '@' + b.key, s = at !== undefined ? at : starts(t, b)[0], n = b.z - b.a + 1;
     var fits = t.kind === 'day' ? 'Fits ' + dayLabel(s) : 'Fits ' + t.nights + (t.nights === 1 ? ' night' : ' nights') + ' of your ' + n;
     var why = [fits, getThere(t, b.base), tripBand(t)].join(' · ');
-    ITEMS[id] = { id: id, kind: 'trip', trip: t.kind, tripId: t.id, title: t.region, kindLabel: (t.kind === 'day' ? 'Day trip' : 'Longer trip') + ', curated by Destination NSW', place: getThere(t, b.base),
+    ITEMS[key] = { id: id, kind: 'trip', trip: t.kind, tripId: t.id, title: t.region, kindLabel: (t.kind === 'day' ? 'Day trip' : 'Longer trip') + ', curated by Destination NSW', place: getThere(t, b.base),
       day: dayLabel(s), endDay: t.kind === 'long' ? dayLabel(s + t.nights) : null, nights: t.nights || 0, start: s, when: t.kind === 'long' ? spanLabel(s, s + t.nights) : dayLabel(s) };
-    MODAL[id] = { type: 'trip', t: t, b: b, why: why };
+    MODAL[key] = { type: 'trip', t: t, b: b, why: why };
     var it = state.added.filter(function (x) { return x.id === id; })[0], line = '';
-    if (it) {
+    var here = it && it.start >= b.a && it.start <= b.z, cl = it && tp.clashes()[id];
+    if (it && !here) {
+      // Already in the plan, in another free stretch: say where, and offer to bring it here
+      line = '<p class="tp-trip-added">In your plan on ' + esc(it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) +
+        ' \u00b7 <button type="button" class="tp-link" data-move-to="' + s + '" data-move-id="' + esc(id) + '">Move here</button></p>';
+    } else if (it) {
       // Says where it went, and offers the other valid starts in this stretch
       var other = starts(t, b).filter(function (x) { return x !== it.start; });
       line = '<p class="tp-trip-added">Added: ' + esc(t.region) + ', ' + esc(it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) +
-        (other.length ? ' · <button type="button" class="tp-link" data-move="' + esc(id) + '" aria-expanded="' + (moveOpen === id) + '">Move</button>' : '') + '</p>' +
-        (moveOpen === id ? '<div class="tp-move" role="group" aria-label="Move ' + esc(t.region) + ' to start on">' + other.map(function (x) {
+        (other.length ? ' \u00b7 <button type="button" class="tp-link" data-move="' + esc(key) + '" aria-expanded="' + (moveOpen === key) + '">Move</button>' : '') + '</p>' +
+        (cl ? '<p class="tp-trip-clash">' + esc(clashText(cl)) + '</p>' : '') +
+        (moveOpen === key ? '<div class="tp-move" role="group" aria-label="Move ' + esc(t.region) + ' to start on">' + other.map(function (x) {
           return '<button type="button" class="tp-chip" data-move-to="' + x + '" data-move-id="' + esc(id) + '">' + esc(t.kind === 'long' ? spanLabel(x, x + t.nights) : dayLabel(x)) + '</button>';
         }).join('') + '</div>' : '');
     }
-    return '<article class="tp-pc tp-trip' + (t.kind === 'long' ? ' tp-trip--long' : '') + '" data-id="' + esc(id) + '">' +
-      '<button type="button" class="tp-pc-main" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
+    return '<article class="tp-pc tp-trip' + (t.kind === 'long' ? ' tp-trip--long' : '') + '" data-id="' + esc(key) + '">' +
+      '<button type="button" class="tp-pc-main" data-open="' + esc(key) + '" aria-haspopup="dialog">' +
       '<span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title provenance-gap">' + esc(t.title) + '</span>' +
       '<span class="tp-pc-type provenance-gap">' + (t.kind === 'day' ? 'Day trip' : 'Longer trip') + ' · Curated by Destination NSW</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
-      addBtn(id, t.region + ', ' + (t.kind === 'day' ? 'day trip' : 'longer trip')) + line + '</article>';
+      addBtn(key, t.region + ', ' + (t.kind === 'day' ? 'day trip' : 'longer trip')) + line + '</article>';
   }
+  // "Clashes with Italy v Romania, Mon 11 Oct" (a match), or "with Blue Mountains, Sun 17 Oct" (another trip)
+  function clashText(cl) { return 'Clashes with ' + tp.list(cl.map(function (c) { return c.name + ', ' + c.day; })) + '.'; }
+  /* Where a trip can go now: every valid start in every free stretch it suits, for Move in the timeline's detail (a
+     trip whose stretch has split has no card on the page any more) */
+  function tripMoves(id) {
+    var it = state.added.filter(function (x) { return x.id === id; })[0]; if (!it) return [];
+    var t = TRIPS.filter(function (x) { return x.id === it.tripId; })[0]; if (!t) return [];
+    var out = [];
+    blocks(model()).forEach(function (b) {
+      if (b.kind !== 'free' || (t.kind === 'long' && (b.z - b.a + 1 < 3 || !(t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way))))) return;
+      if (t.kind === 'day' && t.bases.indexOf(b.base) < 0) return;
+      starts(t, b).forEach(function (x) { if (x !== it.start) out.push({ start: x, label: t.kind === 'long' ? spanLabel(x, x + t.nights) : dayLabel(x) }); });
+    });
+    return out.slice(0, 6);
+  }
+  function moveTrip(id, s) {
+    var cur = state.added.filter(function (x) { return x.id === id; })[0]; if (!cur) return;
+    var nu = Object.assign({}, cur, { start: s, day: dayLabel(s), endDay: cur.nights ? dayLabel(s + cur.nights) : null, when: cur.nights ? spanLabel(s, s + cur.nights) : dayLabel(s) });
+    tp.removeItem(id); tp.addItem(nu); moveOpen = null;
+    render(true);
+    tp.say(cur.title + ' moved to ' + nu.when + '.');
+  }
+  tp.tripMoves = tripMoves; tp.moveTrip = moveTrip;
   function freeBody(b) {
     var n = b.z - b.a + 1, h = '';
     b.watch.forEach(function (m) {
@@ -386,15 +420,22 @@
     var m = e.target.closest('[data-more]');
     if (m) { moreBlk[m.dataset.more] = !moreBlk[m.dataset.more]; render(true, '[data-more="' + m.dataset.more + '"]'); return; }
     var mv = e.target.closest('[data-move]');
-    if (mv) { moveOpen = moveOpen === mv.dataset.move ? null : mv.dataset.move; render(true, moveOpen ? '[data-move-id="' + CSS.escape(mv.dataset.move) + '"]' : '[data-move="' + CSS.escape(mv.dataset.move) + '"]'); return; }
+    if (mv) {
+      var k = mv.dataset.move;
+      moveOpen = moveOpen === k ? null : k;
+      render(true, '[data-move="' + CSS.escape(k) + '"]');
+      // Opened: focus goes to the first other start
+      var first = moveOpen && thirdList.querySelector('[data-move="' + CSS.escape(k) + '"]').closest('.tp-trip').querySelector('.tp-move [data-move-to]');
+      if (first) first.focus({ preventScroll: true });
+      return;
+    }
     var to = e.target.closest('[data-move-to]');
     if (to) {
-      // Move: the same trip, another valid start in the same stretch
-      var id = to.dataset.moveId, cur = state.added.filter(function (x) { return x.id === id; })[0]; if (!cur) return;
-      var s = +to.dataset.moveTo, nu = Object.assign({}, cur, { start: s, day: dayLabel(s), endDay: cur.nights ? dayLabel(s + cur.nights) : null, when: cur.nights ? spanLabel(s, s + cur.nights) : dayLabel(s) });
-      tp.removeItem(id); tp.addItem(nu); moveOpen = null;
-      render(true, '[data-move="' + CSS.escape(id) + '"]');
-      tp.say(cur.title + ' moved to ' + (nu.nights ? spanLabel(s, s + nu.nights) : nu.day) + '.');
+      // Move: the same trip, another valid start (in this stretch, or here from another one)
+      var id = to.dataset.moveId;
+      moveTrip(id, +to.dataset.moveTo);
+      var back = thirdList.querySelector('[data-move^="' + CSS.escape(id) + '@"]') || thirdList.querySelector('.tp-add[data-item^="' + CSS.escape(id) + '@"]');
+      if (back) back.focus({ preventScroll: true });
       return;
     }
     var w = e.target.closest('[data-watch]');
@@ -441,7 +482,7 @@
   pmScrim.addEventListener('click', function () { closePm(); });
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
   function pmActions(id, label) {
-    var on = added(id);
+    var on = added(ITEMS[id] ? ITEMS[id].id : id);
     return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '">' + (on ? '\u2713 Added to your timeline' : 'Add to your timeline') + '<span class="visually-hidden">, ' + esc(label) + '</span></button>' +
       '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>';
   }
@@ -859,7 +900,7 @@
       lines.push('', 'Added:');
       things.forEach(function (it) {
         // A longer trip is a span: "Tue 12 to Thu 14 Oct: Hunter Valley (2 nights)"
-        if (it.kind === 'trip') { lines.push('- ' + (it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) + ': ' + it.title + (it.nights ? ' (' + it.nights + (it.nights === 1 ? ' night' : ' nights') + ')' : ' (day trip)')); return; }
+        if (it.kind === 'trip') { var c = tp.clashes()[it.id]; lines.push('- ' + (it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) + ': ' + it.title + (it.nights ? ' (' + it.nights + (it.nights === 1 ? ' night' : ' nights') + ')' : ' (day trip)') + (c ? ' [clashes with ' + c.map(function (x) { return x.name + ', ' + x.day; }).join('; ') + ']' : '')); return; }
         lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : ''));
       });
       lines.push('', 'Places are placeholders in this prototype, not real listings.');
@@ -879,7 +920,11 @@
     if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (nsw === ms.length ? 'all in NSW' : nsw ? nsw + ' in NSW' : 'all interstate') + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
     if (when) facts.push('<li>' + esc(when) + '</li>');
-    planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' +
+    // A trip that clashes is said here too, with the way to fix it, not only in the open timeline
+    var cls = tp.clashes(), clash = state.added.filter(function (it) { return cls[it.id]; }).map(function (it) {
+      return '<p class="tp-plan-clash">' + esc(it.title) + ' (' + esc(it.when || it.day) + '): ' + 'clashes with ' + esc(tp.list(cls[it.id].map(function (c) { return c.name + ', ' + c.day; }))) + '</p>';
+    }).join('');
+    planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' + (clash ? clash + '<p class="tp-plan-clash-how">Open your timeline to move or remove it.</p>' : '') +
       '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="open">Open your timeline</button>' +
       '<button type="button" class="tp-plan-btn" data-plan="copy">' + (copied ? 'Copied' : 'Copy plan') + '</button></div>' +
       '<p class="tp-plan-note">Copies as plain text for your notes or a message. Nothing leaves this device unless you paste it.</p>';

@@ -852,7 +852,13 @@
     var busy = {};
     shown.forEach(function (m) { var tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1; if (own() && (!m.f.a || tk)) (busy[m.day] = busy[m.day] || []).push(m); });
     tlClash = {};
-    var hatch = '';
+    var hatch = '', tripDays = {};
+    // Two trips on the same day clash too (a day trip on a longer trip's days, or two day trips)
+    state.added.forEach(function (it) {
+      if (it.kind !== 'trip') return;
+      var d0 = dayOf(it.day);
+      for (var d = d0; d <= d0 + (it.nights || 0); d++) (tripDays[d] = tripDays[d] || []).push(it);
+    });
     state.added.forEach(function (it) {
       if (it.kind === 'match') return; // a match added on its own is a match marker, drawn above
       var day = dayOf(it.day);
@@ -863,7 +869,13 @@
       // A trip on a day it cannot share: hatched on the axis, said in its detail; nothing is moved
       if (it.kind === 'trip') {
         var hit = [];
-        for (var cd = day; cd <= day + (it.nights || 0); cd++) if (busy[cd]) { hit = hit.concat(busy[cd]); hatch += '<span class="tp-tl-clash" style="left:' + (PADX + cd * DAYW - DAYW / 2) + 'px;width:' + DAYW + 'px"></span>'; }
+        for (var cd = day; cd <= day + (it.nights || 0); cd++) {
+          var others = (tripDays[cd] || []).filter(function (x) { return x !== it; });
+          if (!busy[cd] && !others.length) continue;
+          (busy[cd] || []).forEach(function (m) { hit.push({ name: tlName(m), day: m.f.d }); });
+          others.forEach(function (x) { if (!hit.some(function (h) { return h.name === x.title; })) hit.push({ name: x.title, day: dayLabel(cd) }); });
+          hatch += '<span class="tp-tl-clash" style="left:' + (PADX + cd * DAYW - DAYW / 2) + 'px;width:' + DAYW + 'px"></span>';
+        }
         if (hit.length) tlClash[it.id] = hit;
       }
       var el = tlItemEls[it.id];
@@ -917,6 +929,9 @@
     var label = none ? 'Pick your team' : isPicked(RUGBY) ? 'Here for the rugby: every NSW match' : 'Your teams: ' + list(teams);
     var added = state.added.length;
     if (added) label = added + ' added to your timeline' + (none ? ' \u00b7 Pick your team' : '');
+    var nClash = Object.keys(tlClash).length;
+    if (nClash) label = nClash + (nClash === 1 ? ' clash' : ' clashes') + ' \u00b7 ' + added + ' added to your timeline';
+    tlLabel.classList.toggle('is-clash', !!nClash);
     tlLabel.textContent = label;
     tlLabel.classList.toggle('is-hook', none || !!added);
     // Once the days in NSW are confirmed the bar follows them: the matches in those days, and those days (no prefix:
@@ -948,7 +963,8 @@
       (kinds.screen ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true">' + TL_ICON.screen + '</span>Screening you added</li>' : '') +
       (kinds.pin ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true">' + TL_ICON.pin + '</span>Place you added</li>' : '') +
       (kinds.trip ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true">' + TL_ICON.route + '</span>Day trip you added</li>' : '') +
-      (kinds.span ? '<li><span class="tp-tl-key-span" aria-hidden="true"></span>Longer trip you added</li>' : '');
+      (kinds.span ? '<li><span class="tp-tl-key-span" aria-hidden="true"></span>Longer trip you added</li>' : '') +
+      (Object.keys(tlClash).length ? '<li><span class="tp-tl-key-clash" aria-hidden="true"></span>Clash: two things on one day</li>' : '');
     // A selected match that is no longer shown is let go
     if (tlSel > -1 && !TLM[tlSel].on) tlSel = -1;
     tlRenderDetail();
@@ -975,7 +991,7 @@
       if (it) {
         var cl = tlClash[it.id];
         tlDetail.innerHTML = '<p class="tp-tl-d-when">' + esc(it.endDay ? (it.when || it.day + ' to ' + it.endDay) + ', ' + it.nights + (it.nights === 1 ? ' night' : ' nights') : it.day) + (it.matchName ? ', for ' + esc(it.matchName) : '') + '</p>' +
-          (cl ? '<p class="tp-tl-d-clash">Clashes with ' + esc(list(cl.map(function (m) { return tlName(m) + ', ' + m.f.d; }))) + '. Nothing has been moved: move or remove it if you need to.</p>' : '') +
+          (cl ? '<p class="tp-tl-d-clash">Clashes with ' + esc(list(cl.map(function (c) { return c.name + ', ' + c.day; }))) + '. Nothing has been moved.</p>' + tlMoveChips(it) : '') +
           '<p class="tp-tl-d-teams provenance-gap">' + esc(it.title) + '</p><p class="tp-tl-d-stage">' + esc(it.kindLabel || '') + '</p>' +
           (it.place ? '<p class="tp-tl-d-where">' + esc(it.place) + '</p>' : '') + (it.note ? '<p class="tp-tl-d-where">' + esc(it.note) + '</p>' : '') +
           '<button type="button" class="tp-link tp-tl-remove" data-remove="' + esc(it.id) + '">Remove from timeline</button>';
@@ -999,6 +1015,14 @@
     if (isAddedMatch(f)) h += '<p class="tp-tl-d-stage">Added by you from All matches</p><button type="button" class="tp-link tp-tl-remove" data-remove="m:' + esc(m.key) + '">Remove from timeline</button>';
     tlDetail.innerHTML = h;
   }
+  // Move, offered where a clash is shown: the trip's other valid starts in today's free stretches (from the page)
+  function tlMoveChips(it) {
+    var mv = typeof window.tpPicker.tripMoves === 'function' ? window.tpPicker.tripMoves(it.id) : [];
+    if (!mv.length) return '<p class="tp-tl-d-stage">No other free days fit it now. Remove it, or change your days.</p>';
+    return '<p class="tp-tl-d-stage">Move it to:</p><div class="tp-move" role="group" aria-label="Move ' + esc(it.title) + ' to">' +
+      mv.map(function (m) { return '<button type="button" class="tp-chip" data-tl-move="' + m.start + '" data-tl-move-id="' + esc(it.id) + '">' + esc(m.label) + '</button>'; }).join('') + '</div>';
+  }
+  function dayLabel(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + ['Oct', 'Nov'][x.getUTCMonth() - 9]; }
   function tlSelect(k, focus, itemId) {
     tlSel = itemId ? -1 : k; tlSelItem = itemId || null;
     tlRenderDetail();
@@ -1023,6 +1047,13 @@
   });
   // Remove an added item from its detail card
   tlDetail.addEventListener('click', function (e) {
+    var mv = e.target.closest('[data-tl-move]');
+    if (mv) {
+      var id = mv.dataset.tlMoveId;
+      window.tpPicker.moveTrip(id, +mv.dataset.tlMove);
+      tlSelect(-1, true, id); // the moved trip stays chosen, its detail says where it is now
+      return;
+    }
     var r = e.target.closest('[data-remove]'); if (!r) return;
     var it = state.added.filter(function (x) { return x.id === r.dataset.remove; })[0];
     tlSelItem = null;
@@ -1190,7 +1221,9 @@
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark
     match: function (key) { return TLM_BY[key] || null; }, isPicked: function (n) { return state.picked.indexOf(n) > -1; },
     pickTeam: function (n) { var c = TEAMS[n]; if (!c) return ''; var i = CARDS.indexOf(c); if (pos(i) < 0) setNsw(false); return toggle(i, null, true); },
-    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; } };
+    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; },
+    // Trips that clash, by item id: [{ name, day }] (filled by the timeline; read by the plan and the trip cards)
+    clashes: function () { return tlClash; } };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
 })();
