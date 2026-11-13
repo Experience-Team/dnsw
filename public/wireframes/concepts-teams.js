@@ -346,14 +346,22 @@
     }
     say(showAll ? 'All matches shown below your cards.' : 'All matches hidden.');
   });
-  // Sticky prompt: until a team is picked (not on Your matches)
-  var nudge = document.getElementById('tp-nudge');
-  function syncNudge() { nudge.hidden = state.picked.length > 0 || state.view === 'results'; }
+  // Pick a team prompt: slides in once the person has scrolled past the cards without a team (never on Your matches or after Skip)
+  var nudge = document.getElementById('tp-nudge'), nudgeOn = false, nudgeRaf = 0;
+  function syncNudge() {
+    // Only on the picker: someone who chose Skip this step has made their choice and is not nagged
+    var cardsBox = root.querySelector('.tp-fan-wrap').getBoundingClientRect();
+    var past = state.view === 'pick' && state.picked.length === 0 && cardsBox.height > 0 && cardsBox.bottom < body.getBoundingClientRect().top;
+    if (past === nudgeOn) return;
+    nudgeOn = past;
+    nudge.classList.toggle('is-on', past);
+    changed(); // the annotation for it follows
+  }
+  body.addEventListener('scroll', function () { if (!nudgeRaf) nudgeRaf = requestAnimationFrame(function () { nudgeRaf = 0; syncNudge(); }); }, { passive: true });
+  window.addEventListener('resize', syncNudge);
   document.getElementById('tp-nudge-btn').addEventListener('click', function () {
-    if (state.view === 'skipped') { document.getElementById('tp-unskip').click(); return; }
     deal();
-    var t = document.getElementById('tp-pick-title');
-    body.scrollTo({ top: Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - nudge.offsetHeight - 16)), behavior: reduce.matches ? 'auto' : 'smooth' });
+    body.scrollTo({ top: resultsTop(), behavior: reduce.matches ? 'auto' : 'smooth' }); // the title 16px below the top
     cards[Math.round(offset)].focus({ preventScroll: true });
   });
   function setView(v) {
@@ -373,47 +381,103 @@
     var t = document.getElementById('tp-pick-title');
     return Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16));
   }
-  function showResults(animate) {
+  /* The reveal. Pressing See their matches is one sequence, not a swap:
+     1. Let go (380ms): the phone glides so Your matches will start where the section title sits now, the cards you did
+        not pick drop away and the rest of the picker fades, so the picked cards are left alone in the fan.
+     2. Fly and turn (about 800ms): the picked cards leave the fan on an arc that lifts a little at the middle, and turn
+        face up on the way, landing in the match deck. The new title and summary arrive just behind them, and the rest
+        fades up as they land.
+     Reduced motion: no glide, flight or turn; the match cards fade in. Reload (animate false) goes straight there. */
+  var busy = false;
+  function glideTo(top, ms) {
+    var from = body.scrollTop, dist = top - from;
+    if (Math.abs(dist) < 4) return;
+    var t0 = performance.now();
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / ms), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; // ease in and out
+      body.scrollTop = from + dist * e;
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function letGo() {
+    var DUR = 380, held = [];
+    glideTo(resultsTop(), DUR);
+    // Cards that were not picked drop away; the picker's other parts fade. The picked cards stay put.
+    cards.forEach(function (b, i) {
+      if (isPicked(CARDS[i]) || b.style.visibility === 'hidden') return;
+      held.push(b.animate([{ opacity: 1, translate: '0 0' }, { opacity: 0, translate: '0 32px' }], { duration: 260, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' }));
+    });
+    Array.prototype.forEach.call(picker.children, function (el) {
+      if (el.classList.contains('tp-fan-wrap')) return;
+      held.push(el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in', fill: 'forwards' }));
+    });
+    held.push(document.getElementById('tp-pick-title').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in', fill: 'forwards' }));
+    return new Promise(function (done) { setTimeout(function () { done(held); }, DUR); });
+  }
+  // Fade a part of the new screen up from slightly below, after a delay; it is visible before and after
+  function arrive(el, delay) {
+    if (el && el.animate) el.animate([{ opacity: 0, translate: '0 10px' }, { opacity: 1, translate: '0 0' }], { duration: 320, delay: delay, easing: EASE, fill: 'backwards' });
+  }
+  function showResults(animate, held) {
     if (!state.picked.length) return;
+    var move = animate && !reduce.matches;
     // Where each picked card sits in the fan now, to fly from
     var from = {};
-    if (animate && !reduce.matches) pickedCards().forEach(function (c) {
+    if (move) pickedCards().forEach(function (c) {
       var b = cards[CARDS.indexOf(c)], r = b.getBoundingClientRect();
       if (r.width && b.style.visibility !== 'hidden') from[c.name] = { x: r.left + r.width / 2, y: r.top + r.height / 2, w: b.offsetWidth, h: b.offsetHeight, a: angleOf(CARDS.indexOf(c) - offset) };
     });
     buildDeck();
     setView('results');
+    // The picker is hidden now: the held animations have nothing left to hold
+    (held || []).forEach(function (a) { a.cancel(); });
     deck.scrollLeft = 0;
+    // The phone already glided to where Your matches starts (this only tidies a few pixels, or does it all on reload)
+    body.scrollTop = resultsTop();
+    if (!animate) { Array.prototype.forEach.call(deck.children, function (el) { el.firstElementChild.classList.add('is-flipped'); }); sum.focus({ preventScroll: true }); say(summary()); return; }
+    if (reduce.matches) {
+      Array.prototype.forEach.call(deck.children, function (el) { el.firstElementChild.classList.add('is-flipped'); });
+      results.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' });
+      sum.focus({ preventScroll: true }); say(summary()); return;
+    }
     // Snapping would catch a card mid-flight and leave the deck scrolled part way in, so it is off until they land
-    var flying = animate && !reduce.matches;
-    if (flying) deck.classList.add('is-flying');
-    // The title ends up 16px below the top bar, so the whole card fits under the summary. With motion, the cards fly
-    // first and the screen glides there once they land; jumping first would snap everything round the flying cards.
-    if (!flying) body.scrollTop = resultsTop();
-    var landed = 0, total = deck.children.length;
+    deck.classList.add('is-flying');
+    var landed = 0, total = deck.children.length, FLY = 780;
     function land() {
       if (++landed < total) return;
       deck.scrollLeft = 0; deck.classList.remove('is-flying'); changed();
-      body.scrollTo({ top: resultsTop(), behavior: 'smooth' });
     }
+    // The new screen's words arrive just behind the cards
+    arrive(document.getElementById('tp-pick-title'), 0);
+    arrive(sum, 140);
+    arrive(results.querySelector('.tp-results-note'), 200);
+    arrive(document.getElementById('tp-deck-hint'), FLY - 120);
+    arrive(results.querySelector('.tp-results-actions'), FLY - 80);
     Array.prototype.forEach.call(deck.children, function (el, k) {
-      var flip = el.firstElementChild, f = from[el.dataset.name];
-      if (!animate || reduce.matches) { flip.classList.add('is-flipped'); return; }
-      var r = el.getBoundingClientRect(), delay = k * 70;
+      var flip = el.firstElementChild, f = from[el.dataset.name], delay = k * 90;
+      var r = el.getBoundingClientRect();
       if (f) {
-        var dx = f.x - (r.left + r.width / 2), dy = f.y - (r.top + r.height / 2);
-        el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + f.a + 'deg) scale(' + (f.w / r.width) + ',' + (f.h / r.height) + ')' }, { transform: 'none' }], { duration: 640, delay: delay, easing: 'cubic-bezier(.45, .05, .2, 1)', fill: 'backwards' });
+        var dx = f.x - (r.left + r.width / 2), dy = f.y - (r.top + r.height / 2), sx = f.w / r.width, sy = f.h / r.height;
+        // An arc: the card lifts and grows a little at the middle of its flight, then settles
+        el.animate([
+          { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + f.a + 'deg) scale(' + sx + ',' + sy + ')', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.12))' },
+          { transform: 'translate(' + (dx * .45) + 'px,' + (dy * .45 - 22) + 'px) rotate(' + (f.a * .4) + 'deg) scale(' + ((sx + 1) / 2 * 1.04) + ',' + ((sy + 1) / 2 * 1.04) + ')', filter: 'drop-shadow(0 18px 18px rgba(0,0,0,.22))', offset: .45 },
+          { transform: 'none', filter: 'drop-shadow(0 0 0 rgba(0,0,0,0))' }
+        ], { duration: FLY, delay: delay, easing: 'cubic-bezier(.45, .05, .25, 1)', fill: 'backwards' });
       } else el.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: delay, easing: EASE, fill: 'backwards' });
-      // The turn starts as the card leaves the fan and lands face up
-      var a = flip.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 620, delay: delay + 80, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'both' });
+      // The turn runs across the middle of the flight and lands face up
+      var a = flip.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: FLY - 220, delay: delay + 110, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'both' });
       a.onfinish = function () { flip.classList.add('is-flipped'); a.cancel(); land(); };
     });
     sum.focus({ preventScroll: true });
     say(summary());
   }
   showBtn.addEventListener('click', function () {
+    if (busy) return;
     if (!state.picked.length) { chosenEl.textContent = 'Pick at least one card first, or choose Here for the rugby.'; say(chosenEl.textContent); return; }
-    showResults(true);
+    if (reduce.matches) { showResults(true); return; }
+    busy = true;
+    letGo().then(function (held) { busy = false; showResults(true, held); });
   });
   document.getElementById('tp-change').addEventListener('click', function () {
     function back() {

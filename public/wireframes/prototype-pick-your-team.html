@@ -37,13 +37,14 @@
 <main class="pv-stage" id="tp-stage">
   <div class="pv-phone">
     <div class="cn-phone" id="tp-phone" role="group" aria-label="Pick your team, phone screen">
+    <!-- Prompt over the top of the phone (outside the scrolling body, so it never moves the content). Hidden at first; it
+         slides in once the person has scrolled past the cards without picking a team, and goes when they pick or when the
+         cards are back in view. Its button takes them to the fan. -->
+    <div class="tp-nudge" id="tp-nudge" role="region" aria-label="Pick your team">
+      <div class="tp-nudge-text"><strong class="tp-nudge-title">Which team are you here for?</strong><span class="tp-nudge-sub">Pick one to see only their matches.</span></div>
+      <button type="button" class="tp-nudge-btn" id="tp-nudge-btn">Pick a team</button>
+    </div>
       <div class="cn-body tp-body">
-        <!-- Sticky prompt, shown until a team is picked (and not on Your matches). Pushy on purpose: it stays at the top
-             of the phone while the screen scrolls, and its button takes the person to the fan. -->
-        <div class="tp-nudge" id="tp-nudge" role="region" aria-label="Pick your team">
-          <div class="tp-nudge-text"><strong class="tp-nudge-title">Which team are you here for?</strong><span class="tp-nudge-sub">Pick one to see only their matches.</span></div>
-          <button type="button" class="tp-nudge-btn" id="tp-nudge-btn">Pick a team</button>
-        </div>
         <!-- Hero: a grey image placeholder with the title, a countdown to the opening match and the tournament dates.
              The countdown runs to Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time
              (AEST, UTC+10: daylight saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to the address
@@ -172,11 +173,11 @@
   var NAMES = { pick: 'Picker', results: 'Your matches', skipped: 'Skipped' };
   var NOTES = {
     pick: { items: [
-      { sel: '#tp-nudge-btn', title: 'Pick a team prompt', text: 'Sticky at the top of the phone while the screen scrolls, shown until a team is picked and not on Your matches. Pick a team scrolls to the fan and moves focus to the middle card. It goes as soon as something is picked, and comes back if Clear all empties the picks.' },
+      { sel: '#tp-nudge-btn', title: 'Pick a team prompt', text: 'Hidden at first. Once you scroll past the cards without picking a team it slides in from the top and stays there while you scroll; it does not move the content. Pick a team scrolls back to the fan and moves focus to the middle card. It slides away on the first pick and when the cards are back in view, never shows on Your matches or after Skip this step (that is a choice too), and returns if Clear all empties the picks.' },
       { sel: '.tp-count', title: 'Countdown', text: 'Counts down to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time, and ticks once a second. After kick-off it gives way to a plain line saying the tournament is under way (final on Sat 13 Nov), then that it has finished. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '.tp-fan-wrap', title: 'The fan and picking', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, and pick as many as you like. A pick is pulled up out of the hand, travels to the middle while the hand turns under it, then settles lifted and dark with a tick. Picking again puts it back. The middle card gets extra room so its pool and NSW line can be read; the line below the fan repeats it. The hand deals open the first time it scrolls into view. Reduced motion: no pull or glide, the colour and tick still change.' },
       { sel: '#tp-clear', title: 'Clear all', text: 'Only shown once something is picked. Puts every card back in the hand, clears every ticket mark, saves, announces it, and moves focus to the middle card because the button hides itself.' },
-      { sel: '#tp-show', title: 'See their matches', text: 'Greyed until something is picked. Pressed with nothing picked, it does not move: it says to pick a card first or choose Here for the rugby. With picks, the picked cards fly out of the fan and turn over to show their matches. The label counts the picks, and reads See the NSW matches when Here for the rugby is the only pick.' },
+      { sel: '#tp-show', title: 'See their matches', text: 'Greyed until something is picked. Pressed with nothing picked, it does not move: it says to pick a card first or choose Here for the rugby. With picks it is one sequence: the cards you did not pick drop away, the picker fades and the phone glides so the section starts at the top; then the picked cards fly out of the fan on an arc, turn over on the way and land as match cards, with the new title and summary arriving just behind them. Reduced motion: no glide or flight, the match cards fade in. The label counts the picks, and reads See the NSW matches when Here for the rugby is the only pick.' },
       { sel: '#tp-rugby-link', title: 'Here for the rugby', text: 'The No team? link and the last card in the fan do the same thing: every pool match in NSW, no team. It stands alone. Picking it puts any picked teams back in the hand, and picking a team while it is picked puts it back, so the two never mix. The live region says what was cleared. Ticket marks are kept.' },
       { sel: '#tp-skip', title: 'Skip this step', text: 'Moves to a short Skipped screen. Nothing is picked and the plan would start from dates instead of a team’s matches. Pick a team after all comes back to the fan.' },
       { sel: '.tp-all-note', title: 'All matches', text: 'Every match in date order, with or without a pick, in columns of five. Each column is a card without a border: swipe sideways, or use the arrow keys when the list has focus, for the next five. Picking a team and choosing See their matches swaps this list for the picked cards; Show all matches there brings it back below them. Minimal on purpose: this page is not the main source for matches. Flags stand in for the teams.' },
@@ -193,7 +194,6 @@
       { sel: '#tp-change', title: 'Change teams', text: 'The match cards fade and drop away, then the hand deals open again with your picks still lifted, ready to change.' }
     ] },
     skipped: { items: [
-      { sel: '#tp-nudge-btn', title: 'Pick a team prompt', text: 'Still shown after skipping, because no team is picked. Here its button goes back to the fan, the same as Pick a team after all.' },
       { sel: '.tp-all-note', title: 'All matches', text: 'Still shown below, so skipping the team step leaves every match in view.' },
       { sel: '#tp-unskip', title: 'Pick a team after all', text: 'Goes back to the fan with nothing picked. Skipping is kept on this device like a pick, so a reload stays on this screen.' }
     ] }
@@ -223,7 +223,7 @@
     notesTitle.textContent = 'Annotations: ' + NAMES[view];
     set.items.forEach(function (it) {
       var el = phone.querySelector(it.sel);
-      if (!el || el.offsetParent === null) return; // not on screen in this state
+      if (!el || el.offsetParent === null || getComputedStyle(el).visibility === 'hidden') return; // not on screen in this state
       n++;
       var b = document.createElement('span');
       b.className = 'cn-badge' + (it.at ? ' cn-badge--' + it.at : '');
