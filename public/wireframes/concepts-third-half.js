@@ -49,8 +49,8 @@
     return '<button type="button" class="tp-add" data-item="' + esc(id) + '" aria-pressed="' + on + '">' +
       '<span aria-hidden="true">' + (on ? 'Added' : 'Add') + '</span><span class="visually-hidden">' + (on ? 'Added: ' : 'Add ') + esc(label) + (on ? '. Press to remove' : ' to your timeline') + '</span></button>';
   }
-  // Items the add buttons put on the timeline, by id, rebuilt on each render
-  var ITEMS = {};
+  // Items the add buttons put on the timeline, by id, rebuilt on each render; and what each one's page shows
+  var ITEMS = {}, MODAL = {};
 
   /* ---------- Where to watch ---------- */
   var watchAll = false;
@@ -77,9 +77,10 @@
           var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
           var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
           ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, note: open, day: f.d, matchName: matchName(f) };
-          return '<li class="tp-ws provenance-gap" data-id="' + esc(id) + '"><span class="tp-ws-text"><span class="tp-ws-name">' + esc(sp.name) + '</span>' +
+          MODAL[id] = { type: 'spot', sp: sp, m: m };
+          return '<li class="tp-ws provenance-gap" data-id="' + esc(id) + '"><button type="button" class="tp-ws-text" data-open="' + esc(id) + '" aria-haspopup="dialog"><span class="tp-ws-name">' + esc(sp.name) + '</span>' +
             '<span class="tp-ws-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' · ' + esc(sp.place) + '</span>' +
-            (open ? '<span class="tp-ws-meta">' + esc(open) + '</span>' : '') + '</span>' +
+            (open ? '<span class="tp-ws-meta">' + esc(open) + '</span>' : '') + '</button>' +
             addBtn(id, sp.name + ' on ' + f.d) + '</li>';
         }).join('') + '</ul></div>';
     });
@@ -175,18 +176,13 @@
       list.forEach(function (x) {
         var p = x.p, id = 'p:' + p.id + ':' + f.d, cid = 'tp-pc-' + p.id, why = reason(p, x.o, d);
         ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
-        var isOpen = openCard === id;
+        MODAL[id] = { type: 'product', p: p, f: f, o: x.o, why: why };
         h += '<article class="tp-pc" data-id="' + esc(id) + '">' +
-          '<button type="button" class="tp-pc-main" aria-expanded="' + isOpen + '" aria-controls="' + cid + '">' +
+          '<button type="button" class="tp-pc-main" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
           '<span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title">' + esc(p.title) + '</span>' +
           '<span class="tp-pc-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</span>' +
           '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
-          addBtn(id, p.title + ' on ' + f.d) +
-          '<div class="tp-pc-more" id="' + cid + '"' + (isOpen ? '' : ' hidden') + '><dl>' +
-          '<dt>Where</dt><dd class="provenance-gap">' + esc(p.address.suburb) + ', ' + travel(p.distance_to_venue, f.v) + ' (' + p.distance_to_venue.km + ' km)</dd>' +
-          '<dt>' + esc(f.d) + '</dt><dd class="provenance-gap">Open ' + clock(x.o.opens) + ' to ' + clock(x.o.closes) + '</dd>' +
-          '<dt>Price</dt><dd class="provenance-gap">' + (p.pricing.is_free ? 'Free' : esc(p.pricing.band) + ' (price band)') + '</dd></dl>' +
-          '<a class="tp-out" href="' + esc(p.links.website || '#') + '" rel="external noopener">Visit their website<span class="visually-hidden"> (their own site; nothing is booked here)</span></a></div></article>';
+          addBtn(id, p.title + ' on ' + f.d) + '</article>';
       });
       h += '</div>';
     });
@@ -199,20 +195,116 @@
     render(true, '[data-day="' + CSS.escape(b.dataset.day) + '"]');
     tp.say('Suggestions for ' + b.textContent + '.');
   });
-  thirdList.addEventListener('click', function (e) {
-    var b = e.target.closest('.tp-pc-main'); if (!b) return;
-    var card = b.closest('.tp-pc'), more = card.querySelector('.tp-pc-more'), open = more.hidden;
-    more.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false');
-    openCard = open ? card.dataset.id : null;
-    if (open && !reduce.matches && more.animate) more.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: 'ease-out' });
+
+  /* ---------- Full-screen pages: a product, or a place to watch (summarised) ----------
+     The same pattern as the itinerary prototype's product page (.cn-pp): over the whole phone, a close cross and what
+     it is at the top, a placeholder image, then the facts. Each has Add to timeline (in step with the card's Add) and
+     View full page, which is not linked yet. Focus moves in and stays in; Escape or the cross closes it and focus goes
+     back to what opened it. Gap fields keep the pink marker. */
+  var WD_NAME = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' }, WD_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  // "Daily 7am to 3pm" or "Thu to Sun 4pm to midnight", from the week's opening hours
+  function weekHours(p) {
+    var oh = (p.availability && p.availability.opening_hours) || [];
+    if (!oh.length) return '';
+    var days = WD_ORDER.filter(function (d) { return oh.some(function (o) { return o.day === d; }); }), o = oh[0];
+    var same = oh.every(function (x) { return x.opens === o.opens && x.closes === o.closes; });
+    var span = days.length === 7 ? 'Daily' : WD_NAME[days[0]] + ' to ' + WD_NAME[days[days.length - 1]];
+    return same ? span + ', ' + clock(o.opens) + ' to ' + clock(o.closes) : span;
+  }
+  var pm = document.createElement('div'), pmBody, pmKind, pmOpen = null, pmBehind = [];
+  pm.className = 'cn-pp tp-pm'; pm.id = 'tp-pm'; pm.hidden = true;
+  pm.setAttribute('role', 'dialog'); pm.setAttribute('aria-modal', 'true'); pm.setAttribute('aria-labelledby', 'tp-pm-title');
+  pm.innerHTML = '<div class="cn-bar"><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><p class="cn-bar-title" id="tp-pm-kind"></p></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
+  phone.appendChild(pm);
+  pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
+  function pmActions(id, label) {
+    var on = added(id);
+    return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '">' + (on ? '\u2713 Added to your timeline' : 'Add to your timeline') + '<span class="visually-hidden">, ' + esc(label) + '</span></button>' +
+      '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>';
+  }
+  function pmProduct(id, x) {
+    var p = x.p, f = x.f, h = '';
+    h += '<div class="plan-modal-img ph-img" role="img" aria-label="Placeholder image of ' + esc(p.title) + '"></div><div class="plan-modal-body">';
+    h += '<p class="tp-pm-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</p>';
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">' + esc(p.title) + '</h2>';
+    h += '<p class="cn-pp-venue">' + esc(p.address.suburb) + ' \u00b7 near ' + esc(f.v) + ', ' + esc(f.d) + '</p>';
+    h += '<p class="tp-pm-why provenance-gap">' + esc(x.why) + '</p>';
+    h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
+      '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + travel(p.distance_to_venue, f.v) + ' (' + p.distance_to_venue.km + ' km)</span></dd></div>' +
+      '<div><dt>' + esc(f.d) + '</dt><dd><span class="provenance-gap">Open ' + clock(x.o.opens) + ' to ' + clock(x.o.closes) + '</span></dd></div>' +
+      '<div><dt>Opening hours</dt><dd><span class="provenance-gap">' + esc(weekHours(p)) + '</span></dd></div>' +
+      '<div><dt>Price</dt><dd><span class="provenance-gap">' + (p.pricing.is_free ? 'Free' : esc(p.pricing.band) + ' (price band)') + '</span></dd></div></dl>';
+    h += pmActions(id, p.title + ' on ' + f.d) + '</div>';
+    return h;
+  }
+  function pmSpot(id, x) {
+    var sp = x.sp, f = x.m.f, h = '';
+    // Summarised: what it is, where, what it shows for this match, and how many of your other matches it shows
+    var others = tp.userMatches().filter(function (m) { return m.key !== x.m.key && Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }).length;
+    h += '<div class="plan-modal-img ph-img" role="img" aria-label="Placeholder image of ' + esc(sp.name) + '"></div><div class="plan-modal-body">';
+    h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(sp.name) + '</h2>';
+    h += '<p class="cn-pp-venue provenance-gap">' + esc(sp.place) + '</p>';
+    h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
+      '<div><dt>Showing</dt><dd>' + esc(matchName(f)) + ', ' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + (f.a ? ' (played in ' + esc(f.a) + ')' : '') + '</dd></div>' +
+      (others ? '<div><dt>Also shows</dt><dd><span class="provenance-gap">' + others + ' more of your matches</span></dd></div>' : '') +
+      (sp.open_from && sp.open_to ? '<div><dt>Open</dt><dd><span class="provenance-gap">Daily, ' + esc(tp.isoRange(sp.open_from, sp.open_to)) + '</span></dd></div>' : '') +
+      '</dl>';
+    h += pmActions(id, sp.name + ' on ' + f.d) + '</div>';
+    return h;
+  }
+  function openPm(id, opener) {
+    var x = MODAL[id]; if (!x) return;
+    pmBody.innerHTML = x.type === 'product' ? pmProduct(id, x) : pmSpot(id, x);
+    pmBody.scrollTop = 0;
+    pmKind.textContent = x.type === 'product' ? 'Suits your 3rd half' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmOpen = { id: id, opener: opener && opener.dataset.open };
+    // Everything behind waits; remember what was already inert so closing puts it back as it was
+    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    pm.hidden = false;
+    pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
+    pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
+    tp.say((x.type === 'product' ? x.p.title : x.sp.name) + ', page opened.');
     notesRefresh();
+  }
+  function closePm() {
+    if (!pmOpen) return;
+    var back = pmOpen.opener; pmOpen = null;
+    pmBehind.forEach(function (pair) { pair[0].inert = pair[1]; });
+    function done() { pm.hidden = true; pm.classList.remove('is-open', 'is-closing'); notesRefresh(); }
+    if (reduce.matches || !pm.animate) done();
+    else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
+    var el = back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
+    if (el) el.focus({ preventScroll: true });
+  }
+  phone.addEventListener('click', function (e) {
+    var o = e.target.closest('[data-open]');
+    if (o && !pm.contains(o)) { openPm(o.dataset.open, o); return; }
+  });
+  pm.addEventListener('click', function (e) {
+    if (e.target.closest('[data-pm-close]')) { closePm(); return; }
+    var b = e.target.closest('[data-pm-add]'); if (!b) return;
+    var it = ITEMS[b.dataset.pmAdd]; if (!it) return;
+    var on = !added(it.id);
+    if (on) tp.addItem(Object.assign({}, it)); else tp.removeItem(it.id);
+    // The page stays open; its button follows (the card behind updates with the page)
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.firstChild.textContent = on ? '\u2713 Added to your timeline' : 'Add to your timeline';
+    tp.say(it.title + (on ? ' added to your timeline on ' + it.day + '. ' : ' removed from your timeline. ') + state.added.length + ' added.');
+  });
+  pm.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePm(); return; }
+    if (e.key !== 'Tab') return;
+    var f = Array.prototype.filter.call(pm.querySelectorAll('button, [href]'), function (n) { return n.offsetParent !== null; });
+    var a = f[0], z = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
+    else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
   });
 
   /* ---------- Add and remove (both sections) ---------- */
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
     if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say('Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
-    var b = e.target.closest('.tp-add'); if (!b) return;
+    var b = e.target.closest('.tp-add'); if (!b || pm.contains(b)) return;
     var it = ITEMS[b.dataset.item]; if (!it) return;
     if (added(it.id)) {
       tp.removeItem(it.id);
@@ -408,8 +500,9 @@
     if (active && phone.contains(active) && active.dataset) {
       if (active.dataset.item) keep = '.tp-add[data-item="' + CSS.escape(active.dataset.item) + '"]';
       else if (active.dataset.day) keep = '[data-day="' + CSS.escape(active.dataset.day) + '"]';
+      else if (active.dataset.open && !pm.contains(active)) keep = '[data-open="' + CSS.escape(active.dataset.open) + '"]';
     }
-    ITEMS = {};
+    ITEMS = {}; MODAL = {};
     renderWatch();
     renderThird();
     renderAsk();
@@ -431,6 +524,6 @@
   phone.addEventListener('tp:state', function () { render(false); });
   // Reset prototype (a reviewer tool): this section's own choices go back to a first visit too
   var resetBtn = document.getElementById('tp-reset');
-  if (resetBtn) resetBtn.addEventListener('click', function () { selDay = null; watchAll = false; openCard = null; askEditing = false; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
+  if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); selDay = null; watchAll = false; openCard = null; askEditing = false; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
   render(true);
 })();
