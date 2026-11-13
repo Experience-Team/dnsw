@@ -394,6 +394,7 @@
   }
   phone.addEventListener('pointerdown', dropNews);
   phone.addEventListener('keydown', dropNews);
+  phone.addEventListener('focusin', dropNews); // tabbing on past the answer counts as moving on
   // From what they have already done: their first to last match in NSW (and any ticket). Nothing to go on without a pick.
   function inferred() { return tp.inferTrip(); }
   function fork(mode) {
