@@ -696,7 +696,18 @@
     var CITIES = {};
     ALL.forEach(function (f) { var c = cityOf(f); if (c) CITIES[c] = (CITIES[c] || 0) + 1; });
     var cityNames = Object.keys(CITIES).sort(function (a, b) { return CITIES[b] - CITIES[a] || a.localeCompare(b); });
-    cityBox.innerHTML = cityNames.map(function (c) { return '<button type="button" class="tp-chip tp-fchip" data-city="' + esc(c) + '" aria-pressed="false">' + esc(c) + ' <span class="tp-fchip-n">· ' + CITIES[c] + '</span></button>'; }).join('');
+    // A segmented control: the cities side by side in one pill, with a dark thumb that slides to the one chosen
+    cityBox.innerHTML = '<span class="tp-seg-thumb" aria-hidden="true"></span>' + cityNames.map(function (c) { return '<button type="button" class="tp-seg-btn" data-city="' + esc(c) + '" aria-pressed="false">' + esc(c) + '<span class="tp-fchip-n"> · ' + CITIES[c] + '</span></button>'; }).join('');
+    var segThumb = cityBox.querySelector('.tp-seg-thumb');
+    function placeThumb() {
+      var on = cityBox.querySelector('[aria-pressed="true"]'), had = cityBox.classList.contains('has-sel');
+      cityBox.classList.toggle('has-sel', !!on);
+      if (!on) return; // fades out where it was
+      // Appearing (none chosen before): it starts at its place and fades in; moving: it slides from the last one
+      if (!had) { segThumb.style.transition = 'none'; }
+      segThumb.style.left = on.offsetLeft + 'px'; segThumb.style.width = on.offsetWidth + 'px';
+      if (!had) { void segThumb.offsetWidth; segThumb.style.transition = ''; }
+    }
     function allShown() {
       var fl = state.allFilter;
       return ALL.filter(function (f) { return !fl.nsw || (inNsw(f) && (!fl.city || cityOf(f) === fl.city)); });
@@ -725,6 +736,7 @@
       allScroll.setAttribute('aria-label', (fl.nsw ? allWhat(shown.length) : 'All matches') + ', five to a column. Arrow keys move between matches.');
       nswChip.setAttribute('aria-pressed', fl.nsw ? 'true' : 'false');
       cityBox.querySelectorAll('[data-city]').forEach(function (b) { b.setAttribute('aria-pressed', fl.city === b.dataset.city ? 'true' : 'false'); });
+      if (!cityBox.hidden) placeThumb();
       markRows();
       if (announce) say(none ? 'No matches ' + (fl.city ? 'in ' + fl.city : 'in NSW') + '.' : fl.nsw ? allWhat(shown.length) + '.' : 'All ' + shown.length + ' matches.');
     }
@@ -732,9 +744,9 @@
     var cityAnims = [];
     function showCities(on, instant) {
       cityAnims.forEach(function (a) { a.cancel(); }); cityAnims = [];
-      var chips = [].slice.call(cityBox.children);
+      var chips = [cityBox]; // the control slides in as one piece
       if (on) {
-        cityBox.hidden = false;
+        cityBox.hidden = false; placeThumb();
         if (instant || reduce.matches || !cityBox.animate) return;
         chips.forEach(function (c, k) {
           cityAnims.push(c.animate([{ opacity: 0, transform: 'translateX(-24px)' }, { opacity: 1, transform: 'none' }], { duration: 340, delay: k * 60, easing: 'cubic-bezier(.3, .4, .3, 1)', fill: 'backwards' }));
