@@ -3,9 +3,10 @@
    - Both result sections show straight away for the person's matches (picked teams, ticket marks, every NSW match for
      Here for the rugby). Nothing waits for dates. With no team picked they are a first look only: the next NSW match
      day (in their days in NSW once they have said so), with one Pick a team to tailor this, not every match at once.
-   - One optional question comes after them. Visiting NSW infers the days from the first to last NSW match; I live in
-     NSW never asks for dates; Not sure yet changes nothing. The answer refines the results in place and is saved with
-     the picks (tp-pick-v1), shown and editable in the open timeline.
+   - One optional question sits above them, straight after the results. Visiting NSW infers the days from the first to
+     last NSW match; I live in NSW never asks for dates; Not sure yet changes nothing. The answer refines the results in
+     place, says what changed under the answer, and tints each section that changed as it comes into view. It is saved
+     with the picks (tp-pick-v1), shown and editable in the open timeline.
    Data: placeholders only. Screenings, the village and the fan zone come from window.cnWatchSpots; products from
    window.cnThirdHalf, shaped like the product data contract (availability, pricing and distance_to_venue are gap, so
    pink). No venue or product is favoured: spots go by type then name, products by distance then name. Links go out
@@ -362,6 +363,37 @@
 
   /* ---------- The one question ---------- */
   var askEditing = false, askManual = false, askError = '';
+  /* What an answer changed: a line under the answer ("Suggestions now for 9 to 16 Oct. Updated below: …"), gone once
+     the person moves on, and a brief tint on each section that changed, played as it comes into view (the sections
+     sit below the question, often off screen when it is answered). */
+  var askNews = '', SECS = { watch: document.getElementById('tp-watch'), third: document.getElementById('tp-third') }, pending = [];
+  function snap() { return { watch: watchList.textContent + watchMore.textContent, third: daysEl.textContent + thirdList.textContent }; }
+  function changedSince(before, lead, same) {
+    var after = snap(), names = [];
+    pending = [];
+    if (before.watch !== after.watch) { names.push('Where to watch'); pending.push(SECS.watch); }
+    if (before.third !== after.third) { names.push('Suits your 3rd half'); pending.push(SECS.third); }
+    askNews = names.length ? lead + ' Updated below: ' + names.join(' and ') + '.' : (same || lead + ' Nothing below needed to change.');
+    pending.forEach(function (sec) { sec.classList.remove('is-changed'); if (io) io.observe(sec); else flash(sec); });
+    return askNews;
+  }
+  function flash(sec) { sec.classList.remove('is-changed'); void sec.offsetWidth; sec.classList.add('is-changed'); }
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      if (pending.indexOf(e.target) > -1) { pending.splice(pending.indexOf(e.target), 1); flash(e.target); }
+    });
+  }, { root: body, threshold: 0.12 }) : null;
+  Object.keys(SECS).forEach(function (k) { if (SECS[k]) SECS[k].addEventListener('animationend', function () { SECS[k].classList.remove('is-changed'); }); });
+  // The line stays until the person does something else on the page
+  function dropNews(e) {
+    if (!askNews || ask.contains(e.target)) return;
+    askNews = '';
+    var n = ask.querySelector('.tp-ask-news'); if (n) n.remove();
+  }
+  phone.addEventListener('pointerdown', dropNews);
+  phone.addEventListener('keydown', dropNews);
   // From what they have already done: their first to last match in NSW (and any ticket). Nothing to go on without a pick.
   function inferred() { return tp.inferTrip(); }
   function fork(mode) {
@@ -379,10 +411,10 @@
     if (done) {
       var what = t.mode === 'local' ? 'I’m local' : t.mode === 'unsure' ? 'Not sure yet' : 'In NSW ' + tp.isoRange(t.from, t.to);
       h = '<p class="tp-ask-sum"><span class="tp-ask-sum-text">' + esc(what) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>' +
-        '';
+        (askNews ? '<p class="tp-ask-news">' + esc(askNews) + '</p>' : '');
     } else {
       h = '<h3 class="tp-sec-title" id="tp-ask-title">Make these fit your trip</h3>' +
-        '<p class="tp-sec-note">Optional. One tap sharpens the suggestions above.</p>' + fork();
+        '<p class="tp-sec-note">Optional. One tap sharpens the suggestions below.</p>' + fork();
       if (t && t.mode === 'visiting') {
         var inf = inferred();
         if (inf && !askManual) {
@@ -404,7 +436,8 @@
   }
   ask.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    var t = trip(), h0 = ask.offsetHeight; // measured before anything changes, so the change can glide
+    var t = trip(), h0 = ask.offsetHeight, before = snap(); // measured before anything changes, so the change can glide
+    askNews = '';
     if (b.dataset.mode) {
       var mode = b.dataset.mode;
       askManual = false; askError = '';
@@ -418,8 +451,10 @@
       } else {
         askEditing = false;
         askOwn = true; tp.setTrip({ mode: mode });
+        var said = mode === 'local' ? changedSince(before, 'Suggestions now for a local: nearest first, no dates needed.')
+          : changedSince(before, 'Suggestions back to your match days, no dates.', 'Nothing changes. You can answer any time.');
         settle('[data-act="change"]', h0);
-        tp.say(mode === 'local' ? 'Local. Suggestions stay grouped by match day; no dates needed.' : 'Not sure yet. Nothing changes; you can answer later.');
+        tp.say(said);
       }
       return;
     }
@@ -430,8 +465,9 @@
       var inf = inferred();
       askEditing = false;
       askOwn = true; tp.setTrip({ mode: 'visiting', from: inf.from, to: inf.to });
+      var said1 = changedSince(before, 'Suggestions now for ' + tp.isoRange(inf.from, inf.to) + '.');
       settle('[data-act="change"]', h0);
-      tp.say('Your days in NSW are ' + tp.isoRange(inf.from, inf.to) + '. Suggestions updated.');
+      tp.say(said1);
       return;
     }
     if (act === 'use') {
@@ -440,8 +476,9 @@
       if (z < a) { askError = 'The last day is before the first day.'; settle('#tp-to', h0); return; }
       askError = ''; askEditing = false; askManual = false;
       askOwn = true; tp.setTrip({ mode: 'visiting', from: a, to: z });
+      var said2 = changedSince(before, 'Suggestions now for ' + tp.isoRange(a, z) + '.');
       settle('[data-act="change"]', h0);
-      tp.say('Your days in NSW are ' + tp.isoRange(a, z) + '. Suggestions updated.');
+      tp.say(said2);
     }
   });
   // The question collapsing to its answer (or opening again) glides between the two heights
@@ -505,7 +542,7 @@
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
     var when = t && t.mode === 'visiting' && t.from && t.to ? 'In NSW ' + tp.isoRange(t.from, t.to) : t && t.mode === 'local' ? 'Local' : '';
     var facts = [];
-    if (ms.length) facts.push('<li><strong>' + ms.length + '</strong> ' + (ms.length === 1 ? 'match' : 'matches') + ', ' + nsw + ' in NSW' + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
+    if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (nsw === ms.length ? 'all' : nsw) + ' in NSW' + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
     if (when) facts.push('<li>' + esc(when) + '</li>');
     planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' +

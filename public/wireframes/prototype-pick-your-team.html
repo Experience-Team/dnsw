@@ -38,28 +38,16 @@
   <div class="pv-phone">
     <div class="cn-phone" id="tp-phone" role="group" aria-label="Pick your team, phone screen">
       <div class="cn-body tp-body">
-        <!-- Hero: a grey image placeholder with the title, a countdown to the opening match and the tournament dates.
-             The countdown runs to Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time
-             (AEST, UTC+10: daylight saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to the address
-             to see the screen at another moment. -->
+        <!-- Hero, kept short so the find field and the fan sit above the fold: the title, the tournament dates (with the
+             one note that every kick-off on the page is Sydney time) and one countdown line. The countdown runs to
+             Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (AEST, UTC+10: daylight
+             saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to the address to see another moment. -->
         <section class="tp-hero" aria-labelledby="tp-hero-title">
           <span class="ph-img tp-hero-img" aria-hidden="true"></span>
           <div class="tp-hero-content">
             <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-hero-kicker">Rugby World Cup 2027:</span> <span class="tp-hero-name">Your 3rd half</span></h3>
-            <p class="tp-hero-sub">Two halves on the pitch. Make the third one count.</p>
-            <div class="tp-count" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">
-              <p class="tp-count-label" id="tp-count-label">Countdown to the opening match</p>
-              <div class="tp-count-units" role="timer" aria-labelledby="tp-count-label">
-                <span class="tp-count-cell"><span class="tp-count-num" data-unit="days">--</span><span class="tp-count-unit">Days</span></span>
-                <span class="tp-count-cell"><span class="tp-count-num" data-unit="hours">--</span><span class="tp-count-unit">Hours</span></span>
-                <span class="tp-count-cell"><span class="tp-count-num" data-unit="minutes">--</span><span class="tp-count-unit">Mins</span></span>
-                <span class="tp-count-cell"><span class="tp-count-num" data-unit="seconds">--</span><span class="tp-count-unit">Secs</span></span>
-              </div>
-              <p class="tp-count-done" hidden></p>
-              <p class="tp-dates"><span class="visually-hidden">Tournament dates: </span>1 October to 13 November 2027</p>
-              <!-- Said once, here at the top: every kick-off on the page is Sydney time -->
-              <p class="tp-dates-note">All kick-off times are Sydney time.</p>
-            </div>
+            <p class="tp-hero-dates"><span class="visually-hidden">Tournament dates: </span>1 Oct to 13 Nov 2027 <span class="tp-hero-tz">· Kick-offs in Sydney time</span></p>
+            <p class="tp-count" role="timer" aria-live="off" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down to the opening match</p>
           </div>
         </section>
 
@@ -130,6 +118,8 @@
              fixtures (cnWatchSpots, cnThirdHalf), following the picks and tickets live. Shown straight away; nothing is
              held back for dates. No venue or product is favoured: spots by type then name, products by distance then
              name. Links go out only; nothing is booked here. -->
+        <!-- The one question sits straight after the results, above what it changes, so people see their answer work -->
+        <section class="tp-sec tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1"></section>
         <section class="tp-sec" id="tp-watch" aria-labelledby="tp-watch-title">
           <h3 class="tp-sec-title" id="tp-watch-title">Where to watch</h3>
           <p class="tp-sec-note" id="tp-watch-note">Screenings for your matches, at pubs, the village and a fan zone.</p>
@@ -142,7 +132,6 @@
           <div class="tp-days" id="tp-days" role="group" aria-label="Match day"></div>
           <div class="tp-third-list" id="tp-third-list"></div>
         </section>
-        <section class="tp-sec tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1"></section>
         <!-- The end of the page: the plan so far, which the matches, screenings and suggestions above have been building.
              Open your timeline, or copy it as plain text for notes or a message (people keep plans outside the site). -->
         <section class="tp-plan" id="tp-plan" aria-labelledby="tp-plan-title">
@@ -183,36 +172,29 @@
 </main>
 
 <script>
-/* Pick your team: hero countdown. Counts down to the opening match, then says the tournament is under way, then that
-   it has finished. Ticks once a second, lined up to the clock, and stops while the tab is hidden. */
+/* Pick your team: hero countdown, as one plain line. Days to the opening match (hours, then minutes, on the day),
+   then that the tournament is under way, then that it has finished. Updates on the minute, lined up to the clock, and
+   stops while the tab is hidden. */
 (function () {
   var box = document.querySelector('#tp-phone .tp-count');
   if (!box) return;
   var start = Date.parse(box.dataset.start), end = Date.parse(box.dataset.end);
-  var units = box.querySelector('.tp-count-units'), label = box.querySelector('.tp-count-label'), done = box.querySelector('.tp-count-done');
-  var nums = {};
-  box.querySelectorAll('[data-unit]').forEach(function (n) { nums[n.dataset.unit] = n; });
   // For review: ?tp-now=<ISO date> shows the screen at that moment, and the clock runs on from there
   var m = /[?&]tp-now=([^&]+)/.exec(location.search), offset = 0;
   if (m) { var t = Date.parse(decodeURIComponent(m[1])); if (!isNaN(t)) offset = t - Date.now(); }
-  function pad(n) { return n < 10 ? '0' + n : String(n); }
-  function set(el, v) { if (el.textContent !== v) el.textContent = v; }
+  function n(v, one) { return v + ' ' + one + (v === 1 ? '' : 's'); }
   var timer;
   function tick() {
-    var now = Date.now() + offset, left = start - now;
+    var now = Date.now() + offset, left = start - now, txt;
     if (left > 0) {
-      var s = Math.floor(left / 1000);
-      set(nums.days, String(Math.floor(s / 86400)));
-      set(nums.hours, pad(Math.floor(s / 3600) % 24));
-      set(nums.minutes, pad(Math.floor(s / 60) % 60));
-      set(nums.seconds, pad(s % 60));
-      timer = setTimeout(tick, 1000 - (now % 1000) + 5);
-      return;
+      var mins = Math.ceil(left / 60000);
+      txt = (mins >= 1440 ? n(Math.floor(mins / 1440), 'day') : mins >= 60 ? n(Math.floor(mins / 60), 'hour') : n(mins, 'minute')) + ' to the opening match';
+      timer = setTimeout(tick, 60000 - (now % 60000) + 5);
+    } else {
+      txt = now < end ? 'Under way now. The final is on Sat 13 Nov.' : 'Rugby World Cup 2027 has finished.';
+      if (now < end) timer = setTimeout(tick, Math.min(end - now + 1000, 3600000));
     }
-    // After kick-off there is nothing to count down to: the timer gives way to a plain line
-    units.hidden = true; label.hidden = true; done.hidden = false;
-    done.textContent = now < end ? 'The tournament is under way. The final is on Sat 13 Nov 2027.' : 'Rugby World Cup 2027 has finished.';
-    if (now < end) timer = setTimeout(tick, Math.min(end - now + 1000, 3600000));
+    if (box.textContent !== txt) box.textContent = txt;
   }
   document.addEventListener('visibilitychange', function () { clearTimeout(timer); if (!document.hidden) tick(); });
   tick();
@@ -233,7 +215,7 @@
   var NAMES = { pick: 'Picker', results: 'Your matches', skipped: 'Skipped' };
   // The timeline bar and its open state, on every screen (each note only shows when its part is on screen)
   var TL = [
-    { sel: '#tp-tl-toggle', at: 'tc', title: 'Timeline bar', text: 'Hidden at first. It slides up once the match cards (Your matches, or All matches when no team is confirmed) have scrolled past the top of the phone, or, where the list is too short for that, once you reach the end of the page with them in view. Never over the fan; it slides away when you scroll back above the cards. Matches only, on one axis from 1 Oct to 13 Nov: every match with no team or after Skip, every NSW match for Here for the rugby, and only your teams\u2019 matches as you pick, live, before See their matches. The All matches list stays unfiltered. With no team the label says Pick your team. Tap the bar or its handle to open it: the mini strip opens out into the big axis as the sheet rises, and folds back into it on close (a fade with reduced motion). Month labels stay pinned while the axis scrolls. Tap again or press Escape to close. The number badge counts what you add from Where to watch and Suits your 3rd half, and the label says how many. The page keeps 120px clear at the bottom so the bar never covers the last match.' },
+    { sel: '#tp-tl-toggle', at: 'tc', title: 'Timeline bar', text: 'Hidden at first. It slides up once the match cards (Your matches, or All matches when no team is confirmed) have scrolled past the top of the phone, or, where the list is too short for that, once you reach the end of the page with them in view. Never over the fan; it slides away when you scroll back above the cards. Matches only, on one axis from 1 Oct to 13 Nov: every match with no team or after Skip, every NSW match for Here for the rugby, and only your teams\u2019 matches as you pick, live, before See their matches. The All matches list stays unfiltered. With no team the label says Pick your team. The count follows the page\u2019s one counting rule (pool matches and knockouts named apart, as 9 pool + 8 knockouts), and once your days in NSW are confirmed the count and the dates follow them (1 pool match \u00b7 16 Oct). Tap the bar or its handle to open it: the mini strip opens out into the big axis as the sheet rises, and folds back into it on close (a fade with reduced motion). Month labels stay pinned while the axis scrolls. Tap again or press Escape to close. The number badge counts what you add from Where to watch and Suits your 3rd half, and the label says how many. The page keeps 120px clear at the bottom so the bar never covers the last match.' },
     { sel: '.tp-tl-trip', title: 'Your trip (open, with a team)', text: 'One prompt at a time: with no team the open timeline asks only for a team; with one, it shows this line instead. Visiting with no dates confirmed shows the guess as a guess ("Looks like you\u2019re here 9 to 16 Oct, suggested") with That\u2019s right to confirm in one tap, and a dashed band on the axis; confirmed dates become a solid band. Change goes to the question below the suggestions.' },
     { sel: '.tp-tl-prompt', title: 'Pick a team (open, no team only)', text: 'The prompt that used to sit at the top of the phone, now here. Pick a team closes the timeline, scrolls to the fan and focuses the middle card; after Skip it goes back to the fan first.' },
     { sel: '.tp-tl-key', title: 'Markers', text: 'The key lists only the shapes on the axis now. One marker per match, stacked on its day. Solid ring: in NSW. Dashed ring: interstate, kept because fans can watch at NSW fan zones and the village. Filled with a blue ring: you have a ticket, as on the itinerary timeline. Dotted with a question mark: a knockout whose teams are still to be decided. Tap a marker, or use the arrow keys, Home and End, to see teams, Sydney kick-off, venue and city. Markers fade and restack as picks change.' },
@@ -245,12 +227,12 @@
     { sel: '#tp-third-note', title: 'Match days (Suits your 3rd half)', text: 'One chip for each of your match days in NSW, the first ticketed one picked to start. The row runs off the edge of the phone; a soft fade on the side with more chips past it says so, and goes at that end of the row. With no team picked there are no chips: a first look at the next NSW match day only, then Pick a team to tailor this, which goes back up to the cards with focus on the middle one. Results show at once, grouped around that match: Before the match (open 90 minutes before kick-off), After the final whistle (open 2.5 hours after), Near the stadium (open both). Products are sorted by distance, then name. With no match in NSW the section says so instead.' },
     { sel: '.tp-pc', title: 'Product card (gap data)', text: 'Minimal: a placeholder image, title, type and one line on why it fits, built from contract fields (availability, pricing, distance_to_venue, all gap, pink) plus a walking or transit time to the stadium, which is fixture-only and not in the contract (preferred over km; km shows in the detail). Tap the card for its own full-screen page: type, why it fits, getting there, hours that day and across the week, price, Add to your timeline and View full page (not linked yet). Add puts it on the timeline on that match day and the badge counts it. The reason line changes with the question: visiting with dates says the exact day, local leads with distance.' },
     { sel: '#tp-plan-title', title: 'Your plan so far', text: 'The end of the page: your matches, what you have added and your trip answer, in one block. Open your timeline opens the sheet; Copy plan puts it on the clipboard as plain text (matches with Sydney kick-offs, venues, what you added, your days in NSW) for notes or a message, since people keep plans outside the site. If copying is blocked, the text shows selected to copy by hand. With nothing picked or added it says how to start.' },
-    { sel: '#tp-ask', title: 'The one question', text: 'Asked only after the first results, never required. Visiting NSW infers your days from your first to last NSW match (or shows two empty date fields when there is nothing to go on); confirm in one tap or adjust. I live in NSW never asks for dates. Not sure yet keeps everything by match day. The answer collapses to one line, is saved on this device with your picks, and can be changed here or in the timeline.' }
+    { sel: '#tp-ask', title: 'The one question', text: 'Sits straight after the results, above Where to watch and Suits your 3rd half, so people see their answer work. Never required. Once answered, a line under the answer says what changed (for example Suggestions now for 9 to 16 Oct. Updated below: Where to watch and Suits your 3rd half), and each section that changed gets a brief blue wash as it comes into view; the line goes once they do something else. Visiting NSW infers your days from your first to last NSW match (or shows two empty date fields when there is nothing to go on); confirm in one tap or adjust. I live in NSW never asks for dates. Not sure yet keeps everything by match day. The answer collapses to one line, is saved on this device with your picks, and can be changed here or in the timeline.' }
   ];
   var NOTES = {
     pick: { items: [
       { sel: '.tp-find-field', title: 'Find your team', text: 'Three ways to your team without swiping through 25 cards. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; choosing one picks it, Enter picks the first, Escape clears. In NSW narrows the hand to the 15 teams with a pool match in NSW (Here for the rugby and anything already picked stay). With the hand focused, a letter jumps to the next team starting with it. Flags now sit on every card. The hand opens on Australia, the host nation.' },
-      { sel: '.tp-count', title: 'Countdown', text: 'Counts down to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time, and ticks once a second. After kick-off it gives way to a plain line saying the tournament is under way (final on Sat 13 Nov), then that it has finished. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
+      { sel: '.tp-count', title: 'Countdown', text: 'One plain line, so the hero stays short and the find field and fan sit above the fold: days to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says the tournament is under way (final on Sat 13 Nov), then that it has finished. The dates line above it carries the page\u2019s one note that kick-offs are Sydney time. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '.tp-fan-wrap', title: 'The fan and picking', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, and pick as many as you like. A pick is pulled up out of the hand, travels to the middle while the hand turns under it, then settles lifted and dark with a tick. Picking again puts it back. The middle card gets extra room so its pool and NSW line can be read; the line below the fan repeats it. The hand deals open the first time it scrolls into view. Reduced motion: no pull or glide, the colour and tick still change.' },
       { sel: '#tp-clear', title: 'Clear all', text: 'Only shown once something is picked. Puts every card back in the hand, clears every ticket mark, saves, announces it, and moves focus to the middle card because the button hides itself.' },
       { sel: '#tp-show', title: 'See their matches', text: 'Greyed until something is picked. Pressed with nothing picked, it does not move: it says to pick a card first or choose Here for the rugby. With picks it is one sequence: the cards you did not pick drop away, the picker fades and the phone glides so the section starts at the top; then the picked cards fly out of the fan on an arc, turn over on the way and land as match cards, with the new title and summary arriving just behind them. Reduced motion: no glide or flight, the match cards fade in. The label counts the picks, and reads See the NSW matches when Here for the rugby is the only pick.' },
@@ -261,7 +243,7 @@
     ].concat(EXTRA, TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
     results: { items: [
       { sel: '#tp-results-away', title: 'Teams that play interstate', text: 'Nine teams have no pool match in NSW. Their cards now say "Plays interstate; watch in NSW" rather than "No matches in NSW", and the results say so plainly with a way on: See where to watch in NSW scrolls to the screenings of their matches. Suits your 3rd half then suggests things around the NSW matches they could go to instead of saying there is nothing.' },
-    { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers; focus lands here when the cards turn over.' },
+    { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. Counts follow one rule across the page: pool matches and knockouts are named apart (Every NSW match: 9 pool matches + 8 knockouts, all in NSW); a team\u2019s count is pool matches only, as its knockouts are not known until the pools finish. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers; focus lands here when the cards turn over.' },
       { sel: '.tp-ticket', at: 'tl', title: 'I have a ticket', text: 'One ticket is one match, whichever card it is marked on: a match between two of your teams shows the same tick on both cards. Marks are kept on this device and cleared by Clear all on the picker.' },
       { sel: '.tp-tag--away', title: 'Interstate matches', text: 'A match outside NSW (Perth, Brisbane) stays on the card so the pool is complete, with a dashed Interstate tag naming the city. It is left out of the NSW count.' },
       { sel: '.tp-m-also', title: 'Shared matches', text: 'When two picked teams meet, the match sits on both cards and each says the other is also on your card.' },
