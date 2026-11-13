@@ -7,17 +7,33 @@
 <link rel="stylesheet" href="shared.css" />
 </head>
 <body class="pv-page">
-<!-- Prototype viewer (Figma: Rugby World Cup, Prototype layout 204:12359). One prototype per page, each with its own
-     address. The page scrolls: the title and description scroll away and the tabs stick to the top of the window. The
-     phone is its full 390 x 844 and scrolls inside; reaching its end never hands the scroll on to the page. -->
-<header class="pv-header">
-  <h1 class="pv-title">RWC prototypes</h1>
-  <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
-</header>
-<!-- The tabs stick to the top of the window once the header above has scrolled away -->
-<div class="pv-tabbar">
-  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html">Pick your team</a><a class="pv-tab is-active" href="prototype-itinerary.html" aria-current="page">Share/edit itinerary</a></nav>
-</div>
+<!-- Prototype viewer (Figma: Rugby World Cup, node 204:12914). One prototype per page, each with its own address. It
+     behaves as a single static screen: the left panel (title, tabs, the concept, its controls and annotations) and the
+     stage (the phone and a spare frame for another prototype) are fixed to the window, and only the annotations and
+     the phone scroll, each inside its own window. -->
+<aside class="pv-side">
+  <header class="pv-header">
+    <h1 class="pv-title">RWC prototypes</h1>
+    <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
+  </header>
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html">Pick your team</a><a class="pv-tab is-active" href="prototype-itinerary.html" aria-current="page">Share/edit itinerary</a><span class="pv-tab pv-tab--next" aria-disabled="true">[next] prototype</span></nav>
+  <div class="pv-concept">
+    <div class="pv-concept-head">
+      <h2 class="pv-h2">Itinerary list and Save and share</h2>
+      <!-- For whoever is reviewing the prototype, not part of the design: reloads with ?reset, which clears the saved plan -->
+      <a class="pv-reset" href="prototype-itinerary.html?reset">Reset prototype</a>
+    </div>
+    <p class="pv-p">The starting screen is the itinerary list. Save and share opens a sheet in the same window, and the sheet leads to the format copied, email sent and open in maps screens. Phone size only.</p>
+    <!-- Jump straight to any of the five screens (wired by the itinerary script: .pv-jump[data-go]) -->
+    <p class="pv-jumps" role="group" aria-label="Jump to a screen"><button type="button" class="pv-jump" data-go="m1" aria-pressed="true">M1 Itinerary list</button><button type="button" class="pv-jump" data-go="m2" aria-pressed="false">M2 Save and share</button><button type="button" class="pv-jump" data-go="m3" aria-pressed="false">M3 Format copied</button><button type="button" class="pv-jump" data-go="m4" aria-pressed="false">M4 Email sent</button><button type="button" class="pv-jump" data-go="m5" aria-pressed="false">M5 Open in maps</button></p>
+    <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+    <aside class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
+      <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
+      <ol class="cn-notes-list" id="cn-notes-list"></ol>
+      <p class="cn-notes-todo" id="cn-notes-todo"></p>
+    </aside>
+  </div>
+</aside>
 <!-- Concept: itinerary list and Save and share, five Figma screens in one 390 x 844 phone window:
      M1 Itinerary list view (42:41), M2 Save and share sheet (42:98), M3 Format copied (43:40),
      M4 Email sent (43:141), M5 Open in maps (43:242). The sheet, toast and states are drawn once and
@@ -26,28 +42,7 @@
      Placeholder content comes from the Figma frames. The sheet puts the ways to keep a copy first (print, download,
      copy) and the email form last. Not wired: the close cross on the list, the Google Maps and Apple Maps buttons,
      and Download a file on M5. -->
-<main class="pv-main" id="cn-stage">
-  <div class="pv-intro">
-    <h2 class="pv-h2">Itinerary list and Save and share</h2>
-    <p class="pv-p">The starting screen is the itinerary list. Save and share opens a sheet in the same window, and the sheet leads to the format copied, email sent and open in maps screens. Phone size only.</p>
-    <!-- Jump straight to any of the five screens; the itinerary script wires these ([data-go].btn) -->
-    <div class="cn-screens pv-screens" role="group" aria-label="Jump to a screen">
-      <button type="button" class="btn btn-sm btn-dark" data-go="m1" aria-pressed="true">M1 Itinerary list</button>
-      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m2" aria-pressed="false">M2 Save and share</button>
-      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m3" aria-pressed="false">M3 Format copied</button>
-      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m4" aria-pressed="false">M4 Email sent</button>
-      <button type="button" class="btn btn-sm btn-outline-dark" data-go="m5" aria-pressed="false">M5 Open in maps</button>
-    </div>
-    <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
-    <div class="pv-notes">
-      <aside class="cn-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
-      <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
-      <ol class="cn-notes-list" id="cn-notes-list"></ol>
-      <p class="cn-notes-todo" id="cn-notes-todo"></p>
-    </aside>
-      <p class="pv-notes-empty">Annotations appear here</p>
-    </div>
-  </div>
+<main class="pv-stage" id="cn-stage">
   <div class="pv-phone">
     <div class="cn-phone" id="cn-phone" data-screen="m1" data-view="list" role="group" aria-label="Itinerary, phone screen">
       <div class="cn-bar">
@@ -161,7 +156,7 @@
   var stateTiles = [sheetTile, aiTile, chatTile, document.getElementById('cn-tile-txt'), document.getElementById('cn-tile-csv')];
   var peek = document.getElementById('cn-peek');
   var preview = document.getElementById('cn-preview');
-  var jumps = document.querySelectorAll('[data-go].btn');
+  var jumps = document.querySelectorAll('.pv-jump[data-go]');
   var behind = phone.querySelectorAll('.cn-bar, .cn-body, .cn-foot');
   var NOTE_DEFAULT = 'Saved on this device only. Keep a copy so you do not lose it.';
   var screen = 'm1';
@@ -390,7 +385,7 @@
     var t = e.target.closest('[data-close],[data-back],[data-go]');
     if (!t || !phone.contains(t)) return;
     if (t.hasAttribute('data-close')) show('m1', { focus: true });
-    else if (t.hasAttribute('data-back')) { show('m2', { focus: false }); document.querySelector('[data-go="m5"]:not(.btn)').focus(); }
+    else if (t.hasAttribute('data-back')) { show('m2', { focus: false }); document.querySelector('.cn-tile[data-go="m5"]').focus(); }
     else if (t.dataset.go === 'm5') { show('m5'); sheet.focus({ preventScroll: true }); }
   });
   // Drag the handle down to close the sheet. Past a third of the way, or a quick flick, it closes; otherwise it springs back.
