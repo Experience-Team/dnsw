@@ -1,7 +1,8 @@
 /* Concepts: Where to watch, Suits your 3rd half and the one question (prototype-pick-your-team.html).
    Experience principles (CLAUDE.md): reward early, then build on it; don't make people do the work.
    - Both result sections show straight away for the person's matches (picked teams, ticket marks, every NSW match for
-     Here for the rugby, or every match when nothing is picked). Nothing waits for dates.
+     Here for the rugby). Nothing waits for dates. With no team picked they are a first look only: the next NSW match
+     day (in their days in NSW once they have said so), with one Pick a team to tailor this, not every match at once.
    - One optional question comes after them. Visiting NSW infers the days from the first to last NSW match; I live in
      NSW never asks for dates; Not sure yet changes nothing. The answer refines the results in place and is saved with
      the picks (tp-pick-v1), shown and editable in the open timeline.
@@ -18,6 +19,7 @@
   var phone = document.getElementById('tp-phone'), body = tp.body, reduce = tp.reduce, esc = tp.esc, side = tp.side;
   var watchList = document.getElementById('tp-watch-list'), watchMore = document.getElementById('tp-watch-more');
   var daysEl = document.getElementById('tp-days'), thirdList = document.getElementById('tp-third-list'), thirdNote = document.getElementById('tp-third-note');
+  var watchNote = document.getElementById('tp-watch-note'), watchNoteText = watchNote ? watchNote.textContent : '';
   var ask = document.getElementById('tp-ask');
   if (!watchList || !daysEl || !thirdList || !ask) return;
 
@@ -52,6 +54,13 @@
   // Items the add buttons put on the timeline, by id, rebuilt on each render; and what each one's page shows
   var ITEMS = {}, MODAL = {};
 
+  /* ---------- First look: no team picked yet ----------
+     Without a pick there is nothing to tailor to, so both sections show one day only (the next NSW match day, in the
+     person's days in NSW once given) and one way on, Pick a team to tailor this, instead of every match at once. */
+  function teaser() { return !tp.picked(); }
+  function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
+  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">Pick a team to tailor this</button></p>';
+
   /* ---------- Where to watch ---------- */
   var watchAll = false;
   function spotsFor(m) {
@@ -61,7 +70,13 @@
   function renderWatch() {
     // The person's matches without a ticket (with a ticket they will be at the ground) that a spot shows, in their days
     var ms = tp.userMatches().filter(function (m) { return !hasTicket(m) && inStay(m.day) && spotsFor(m).length; });
-    var s = stay(), h = '';
+    var s = stay(), h = '', first = teaser();
+    if (first) {
+      // The next NSW match day's screenings (any match that day, in NSW or not); failing that, the first day with one
+      var d0 = teaserDay(), on = ms.filter(function (m) { return m.f.d === d0; });
+      ms = on.length ? on : ms.filter(function (m) { return ms[0] && m.f.d === ms[0].f.d; });
+    }
+    if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : watchNoteText;
     if (!ms.length) {
       h = '<p class="tp-empty">' + (s ? 'None of your matches in your days in NSW (' + esc(tp.isoRange(trip().from, trip().to)) + ') has a screening listed yet.'
         : 'None of your matches has a screening listed yet.') + '</p>';
@@ -86,7 +101,7 @@
     });
     watchList.innerHTML = h;
     var more = ms.length - show.length;
-    watchMore.hidden = ms.length <= 3;
+    watchMore.hidden = first || ms.length <= 3;
     watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false');
     watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + more + ' more ' + (more === 1 ? 'match' : 'matches') + ' with screenings';
   }
@@ -135,15 +150,17 @@
   }
   var openCard = null;
   function renderThird() {
-    var days = nswDays(), s = stay();
+    var days = nswDays(), s = stay(), first = teaser();
+    if (first) days = days.slice(0, 1); // one day only until there is a team to tailor to
     if (!days.some(function (d) { return d.key === selDay; })) {
       var first = days.filter(function (d) { return d.ticket; })[0] || days[0];
       selDay = first ? first.key : null;
     }
-    daysEl.hidden = days.length < 1;
+    daysEl.hidden = first || days.length < 1;
     if (thirdNote) {
       var teams = state.picked.filter(function (n) { return tp.teams[n]; });
-      thirdNote.textContent = fallback && days.length ? tp.list(teams) + (teams.length === 1 ? ' plays' : ' play') + ' interstate, so these are around the matches in NSW you could go to. Each links out; nothing is booked here.' : thirdNoteText;
+      thirdNote.textContent = first && days.length ? 'A first look: around the next NSW match day. Each links out; nothing is booked here.'
+        : fallback && days.length ? tp.list(teams) + (teams.length === 1 ? ' plays' : ' play') + ' interstate, so these are around the matches in NSW you could go to. Each links out; nothing is booked here.' : thirdNoteText;
     }
     daysEl.innerHTML = days.map(function (d) {
       return '<button type="button" class="tp-chip" data-day="' + esc(d.key) + '" aria-pressed="' + (d.key === selDay) + '">' +
@@ -151,7 +168,7 @@
     }).join('');
     if (!selDay) {
       thirdList.innerHTML = '<p class="tp-empty">' + (s ? (fallback ? 'No NSW match falls in your days here (' : 'None of your match days in NSW falls in your days here (') + esc(tp.isoRange(trip().from, trip().to)) + '). Change your dates, or see Where to watch above.'
-        : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>';
+        : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>' + (first ? TAILOR : '');
       return;
     }
     var d = days.filter(function (x) { return x.key === selDay; })[0], f = d.m.f, wd = weekdayOf(d.m.day), k = kickMins(f.k);
@@ -187,6 +204,7 @@
       h += '</div>';
     });
     if (!any) h += '<p class="tp-empty">Nothing listed near ' + esc(f.v) + ' is open on ' + esc(f.d) + ' yet.</p>';
+    if (first) h += TAILOR;
     thirdList.innerHTML = h;
   }
   daysEl.addEventListener('click', function (e) {
@@ -194,6 +212,32 @@
     selDay = b.dataset.day; openCard = null;
     render(true, '[data-day="' + CSS.escape(b.dataset.day) + '"]');
     tp.say('Suggestions for ' + b.textContent + '.');
+    chipInView();
+  });
+  /* The day chips run off the right edge of the phone: a fade on whichever edge has more chips past it says so, and
+     goes once the row is scrolled to that end. A picked chip is brought clear of the fade. */
+  var FADE = 40;
+  function fades() {
+    var x = daysEl.scrollLeft, max = daysEl.scrollWidth - daysEl.clientWidth;
+    daysEl.classList.toggle('is-more-l', x > 2);
+    daysEl.classList.toggle('is-more-r', x < max - 2);
+  }
+  function chipInView() {
+    var c = daysEl.querySelector('[aria-pressed="true"]'); if (!c) return;
+    var l = c.offsetLeft - FADE, r = c.offsetLeft + c.offsetWidth + FADE - daysEl.clientWidth, x = daysEl.scrollLeft;
+    var to = x > l ? l : x < r ? r : x;
+    if (to !== x) daysEl.scrollTo({ left: Math.max(0, to), behavior: reduce.matches ? 'auto' : 'smooth' });
+  }
+  daysEl.addEventListener('scroll', fades, { passive: true });
+  window.addEventListener('resize', fades);
+  // Pick a team to tailor this: back up to the hand of cards, focus on the card in the middle
+  phone.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-act="tailor"]')) return;
+    if (state.view === 'skipped') document.getElementById('tp-unskip').click();
+    var pick = document.getElementById('tp-pick'), card = document.querySelector('#tp-fan [tabindex="0"]');
+    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
+    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+    if (card) card.focus({ preventScroll: true });
   });
 
   /* ---------- Full-screen pages: a product, or a place to watch (summarised) ----------
@@ -505,6 +549,7 @@
     ITEMS = {}; MODAL = {};
     renderWatch();
     renderThird();
+    fades();
     renderAsk();
     renderPlan();
     // A gentle change: what is new fades up; a reason that changed glows briefly
