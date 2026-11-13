@@ -94,9 +94,13 @@
   /* ---------- Suits your 3rd half ---------- */
   var selDay = null;
   // The person's match days in NSW (one chip per day and stadium), in their days in NSW when they have said so
+  // fallback: none of the person's matches is in NSW, so offer the NSW match days they could go to instead
+  var fallback = false, thirdNoteText = thirdNote ? thirdNote.textContent : '';
   function nswDays() {
     var out = [], seen = {};
-    tp.userMatches().forEach(function (m) {
+    var own = tp.userMatches().filter(function (m) { return !m.f.a; });
+    fallback = tp.picked() && !own.length;
+    (fallback ? tp.allMatches() : tp.userMatches()).forEach(function (m) {
       if (m.f.a || !inStay(m.day)) return;
       var k = m.f.d + '|' + m.f.v;
       if (seen[k]) { if (hasTicket(m)) seen[k].ticket = true; return; }
@@ -136,13 +140,17 @@
       selDay = first ? first.key : null;
     }
     daysEl.hidden = days.length < 1;
+    if (thirdNote) {
+      var teams = state.picked.filter(function (n) { return tp.teams[n]; });
+      thirdNote.textContent = fallback && days.length ? tp.list(teams) + (teams.length === 1 ? ' plays' : ' play') + ' interstate, so these are around the matches in NSW you could go to. Placeholder listings; each links out, nothing is booked here.' : thirdNoteText;
+    }
     daysEl.innerHTML = days.map(function (d) {
       return '<button type="button" class="tp-chip" data-day="' + esc(d.key) + '" aria-pressed="' + (d.key === selDay) + '">' +
         esc(d.m.f.d) + ' · ' + esc(d.m.f.p) + (d.ticket ? '<span class="tp-chip-tk"> · ticket</span>' : '') + '</button>';
     }).join('');
     if (!selDay) {
-      thirdList.innerHTML = '<p class="tp-empty">' + (s ? 'None of your match days in NSW falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your dates, or see Where to watch above.'
-        : 'None of your matches is in NSW, so there is nothing near a stadium to suggest yet. See Where to watch above.') + '</p>';
+      thirdList.innerHTML = '<p class="tp-empty">' + (s ? (fallback ? 'No NSW match falls in your days here (' : 'None of your match days in NSW falls in your days here (') + esc(tp.isoRange(trip().from, trip().to)) + '). Change your dates, or see Where to watch above.'
+        : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>';
       return;
     }
     var d = days.filter(function (x) { return x.key === selDay; })[0], f = d.m.f, wd = weekdayOf(d.m.day), k = kickMins(f.k);
@@ -320,6 +328,15 @@
     body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
     var first = ask.querySelector('.tp-fork[aria-pressed="true"]') || ask.querySelector('.tp-fork');
     if (first) first.focus({ preventScroll: true });
+  });
+
+  // From the results' interstate note: down to the screenings of their matches
+  var toWatch = document.getElementById('tp-to-watch');
+  if (toWatch) toWatch.addEventListener('click', function () {
+    var w = document.getElementById('tp-watch'), top = w.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
+    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+    document.getElementById('tp-watch-title').setAttribute('tabindex', '-1');
+    document.getElementById('tp-watch-title').focus({ preventScroll: true });
   });
 
   /* ---------- Your plan so far: the end of the page ---------- */

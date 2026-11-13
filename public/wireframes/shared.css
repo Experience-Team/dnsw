@@ -3320,6 +3320,13 @@ body.cp-page code { font: inherit; }
 .tp-card-flag { margin-right: 4px; font-size: 1rem; line-height: 1; vertical-align: -2px; }
 .tp-face--front .tp-card-flag { margin-right: var(--space-2); font-size: 1.5rem; vertical-align: -4px; }
 
+/* Results: the note for teams that play all their pool matches interstate */
+.tp-results-away { position: relative; margin-top: var(--space-3); padding: var(--space-3); border: 1px dashed #9e9e9e; border-radius: var(--radius-md); background: #fafafa; }
+.tp-results-away[hidden] { display: none; }
+.tp-results-away-text { font-size: .875rem; line-height: 1.45; color: #1a1a1a; }
+.tp-results-away .tp-link { min-height: 40px; }
+#tp-watch-title:focus { outline: none; }
+
 /* Concepts: the cross, panes, toast fade, reorder and the timeline view. */
 .cn-x { display: block; }
 .cn-toast { transition: opacity var(--dur-large) var(--ease-in), transform var(--dur-large) var(--ease-in); }
