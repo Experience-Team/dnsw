@@ -24,6 +24,12 @@
       <button type="button" class="pv-reset" id="tp-reset">Reset prototype</button>
     </div>
     <p class="pv-p">A new prototype, started fresh. Phone size only.</p>
+    <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+    <aside class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
+      <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
+      <ol class="cn-notes-list" id="cn-notes-list"></ol>
+      <p class="cn-notes-todo" id="cn-notes-todo"></p>
+    </aside>
   </div>
 </aside>
 <!-- Concept: Pick your team. A new prototype in its own 390 x 844 phone window, started fresh: nothing here is shared
@@ -136,5 +142,90 @@
 </script>
 <script src="concepts-fixtures.js"></script>
 <script src="concepts-teams.js"></script>
+<script>
+/* Pick your team: annotation layer. Same switch, numbered badges and list as the itinerary prototype. Switch it on to
+   see a badge on each part with complex behaviour and the matching numbered list on the left; standard controls are
+   left out. The notes follow the screen (picker, your matches, skipped) and the picks: Clear all only has a badge once
+   something is picked. Edit the NOTES table to change the copy. Badges are added to the target elements, so they move
+   with them. concepts-teams.js sends tp:state whenever the picks or the screen change. */
+(function () {
+  var phone = document.getElementById('tp-phone');
+  if (!phone) return;
+  var NAMES = { pick: 'Picker', results: 'Your matches', skipped: 'Skipped' };
+  var NOTES = {
+    pick: { items: [
+      { sel: '.tp-count', title: 'Countdown', text: 'Counts down to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time, and ticks once a second. After kick-off it gives way to a plain line saying the tournament is under way (final on Sat 13 Nov), then that it has finished. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
+      { sel: '.tp-fan-wrap', title: 'The fan and picking', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, and pick as many as you like. A pick is pulled up out of the hand, travels to the middle while the hand turns under it, then settles lifted and dark with a tick. Picking again puts it back. The middle card gets extra room so its pool and NSW line can be read; the line below the fan repeats it. The hand deals open the first time it scrolls into view. Reduced motion: no pull or glide, the colour and tick still change.' },
+      { sel: '#tp-clear', title: 'Clear all', text: 'Only shown once something is picked. Puts every card back in the hand, clears every ticket mark, saves, announces it, and moves focus to the middle card because the button hides itself.' },
+      { sel: '#tp-show', title: 'See their matches', text: 'Greyed until something is picked. Pressed with nothing picked, it does not move: it says to pick a card first or choose Here for the rugby. With picks, the picked cards fly out of the fan and turn over to show their matches. The label counts the picks, and reads See the NSW matches when Here for the rugby is the only pick.' },
+      { sel: '#tp-rugby-link', title: 'Here for the rugby', text: 'The No team? link and the last card in the fan do the same thing: every pool match in NSW, no team. It stands alone. Picking it puts any picked teams back in the hand, and picking a team while it is picked puts it back, so the two never mix. The live region says what was cleared. Ticket marks are kept.' },
+      { sel: '#tp-skip', title: 'Skip this step', text: 'Moves to a short Skipped screen. Nothing is picked and the plan would start from dates instead of a team’s matches. Pick a team after all comes back to the fan.' },
+      { sel: '.tp-device', title: 'Saved on this device', text: 'Picks, ticket marks and the screen you were on are kept in this browser, so a reload puts you back where you were. Reset prototype, or ?reset on the address, clears them.' }
+    ], todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
+    results: { items: [
+      { sel: '#tp-results-sum', title: 'Summary', text: 'Teams, matches, how many are in NSW and how many tickets you have marked. A match between two of your teams counts once. It updates as you tick, and is read out to screen readers; focus lands here when the cards turn over.' },
+      { sel: '.tp-ticket', at: 'tl', title: 'I have a ticket', text: 'One ticket is one match, whichever card it is marked on: a match between two of your teams shows the same tick on both cards. Marks are kept on this device and cleared by Clear all on the picker.' },
+      { sel: '.tp-tag--away', title: 'Interstate matches', text: 'A match outside NSW (Perth, Brisbane) stays on the card so the pool is complete, with a dashed Interstate tag naming the city. It is left out of the NSW count.' },
+      { sel: '.tp-m-also', title: 'Shared matches', text: 'When two picked teams meet, the match sits on both cards and each says the other is also on your card.' },
+      { sel: '.tp-ko', title: 'Knockouts', text: 'Teams in the knockouts are not known until the pools finish, so each card says where its team would play if it finishes first or second. Here for the rugby lists every knockout in NSW in a column of its own at the end.' },
+      { sel: '#tp-deck-hint', title: 'More cards', text: 'Shown only when there is more to the side: your other cards, in the order you picked them with Here for the rugby last, or the columns of nine NSW matches on the Here for the rugby card.' },
+      { sel: '#tp-change', title: 'Change teams', text: 'The match cards fade and drop away, then the hand deals open again with your picks still lifted, ready to change.' }
+    ] },
+    skipped: { items: [
+      { sel: '#tp-unskip', title: 'Pick a team after all', text: 'Goes back to the fan with nothing picked. Skipping is kept on this device like a pick, so a reload stays on this screen.' }
+    ] }
+  };
+  var stage = document.getElementById('tp-stage');
+  var notesBox = document.getElementById('cn-notes');
+  var notesList = document.getElementById('cn-notes-list');
+  var notesTitle = document.getElementById('cn-notes-title');
+  var notesTodo = document.getElementById('cn-notes-todo');
+  var notesToggle = document.getElementById('cn-notes-toggle');
+  var deck = document.getElementById('tp-deck');
+  var notesOn = false;
+  try { notesOn = localStorage.getItem('tp-annotations') === 'on'; } catch (e) {}
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function currentView() {
+    return !document.getElementById('tp-results').hidden ? 'results' : !document.getElementById('tp-skipped').hidden ? 'skipped' : 'pick';
+  }
+  function renderNotes() {
+    phone.querySelectorAll('.cn-badge').forEach(function (b) { b.remove(); });
+    notesToggle.setAttribute('aria-checked', notesOn ? 'true' : 'false');
+    notesBox.hidden = !notesOn;
+    stage.classList.toggle('has-notes', notesOn);
+    if (!notesOn) return;
+    // While the cards are in flight there is nothing steady to point at; they call again once they land
+    if (deck.classList.contains('is-flying')) return;
+    var view = currentView(), set = NOTES[view], n = 0, html = '';
+    notesTitle.textContent = 'Annotations: ' + NAMES[view];
+    set.items.forEach(function (it) {
+      var el = phone.querySelector(it.sel);
+      if (!el || el.offsetParent === null) return; // not on screen in this state
+      n++;
+      var b = document.createElement('span');
+      b.className = 'cn-badge' + (it.at ? ' cn-badge--' + it.at : '');
+      b.setAttribute('aria-hidden', 'true');
+      b.dataset.n = n;
+      b.textContent = n;
+      el.appendChild(b);
+      html += '<li data-n="' + n + '"><span class="cn-num" aria-hidden="true">' + n + '</span><span><strong>' + esc(it.title) + '</strong> ' + esc(it.text) + '</span></li>';
+    });
+    notesList.innerHTML = html;
+    notesTodo.textContent = set.todo || '';
+    notesTodo.hidden = !set.todo;
+  }
+  phone.addEventListener('tp:state', renderNotes);
+  notesToggle.addEventListener('click', function () {
+    notesOn = !notesOn;
+    try { localStorage.setItem('tp-annotations', notesOn ? 'on' : 'off'); } catch (e) {}
+    renderNotes();
+  });
+  // Hovering a note lifts its badge, and the other way round
+  function lift(n, on) { var b = phone.querySelector('.cn-badge[data-n="' + n + '"]'), li = notesList.querySelector('li[data-n="' + n + '"]'); if (b) b.classList.toggle('is-active', on); if (li) li.classList.toggle('is-active', on); }
+  notesList.addEventListener('mouseover', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, true); });
+  notesList.addEventListener('mouseout', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, false); });
+  renderNotes();
+})();
+</script>
 </body>
 </html>

@@ -3059,6 +3059,12 @@ body.cp-page code { font: inherit; }
 .cn-badge.is-active { transform: scale(1.3); }
 .cn-save, .cn-pill, .cn-sheet-title, .cn-day-card, .cn-peek summary { position: relative; }
 
+/* Pick your team: parts that carry an annotation badge need a box to hang it on */
+.tp-count, .tp-fan-caption, .tp-clear, .tp-show, .tp-link, .tp-device, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint { position: relative; }
+
+/* The fan's badge sits in the empty corner inside its frame (the frame clips its sides, and above it is the intro text) */
+.tp-fan-wrap > .cn-badge { top: 8px; right: 24px; }
+
 /* Concepts: the cross, panes, toast fade, reorder and the timeline view. */
 .cn-x { display: block; }
 .cn-toast { transition: opacity var(--dur-large) var(--ease-in), transform var(--dur-large) var(--ease-in); }
