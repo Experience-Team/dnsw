@@ -62,6 +62,8 @@
     }
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  // Tells the annotation layer (prototype-pick-your-team.html) that what is on screen has changed
+  function changed() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
   function say(msg) { live.textContent = ''; setTimeout(function () { live.textContent = msg; }, 30); }
   function isPicked(c) { return state.picked.indexOf(c.name) > -1; }
   function nswLine(c) { return c.rugby ? 'Every match in NSW' : c.nsw ? c.nsw + (c.nsw === 1 ? ' match' : ' matches') + ' in NSW' : 'No matches in NSW'; }
@@ -225,6 +227,7 @@
     showBtn.setAttribute('aria-disabled', n ? 'false' : 'true');
     clearBtn.hidden = !n;
     showBtn.textContent = !n ? 'See their matches' : n === 1 && state.picked[0] === RUGBY.name ? 'See the NSW matches' : 'See their matches (' + n + ')';
+    changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
   // Clear all: every card back in the hand and every ticket mark gone, so the picker starts again
   clearBtn.addEventListener('click', function () {
@@ -307,6 +310,7 @@
     picker.hidden = v !== 'pick';
     results.hidden = v !== 'results';
     skipped.hidden = v !== 'skipped';
+    changed();
   }
   // Where the phone's content must scroll to for the section title to sit 16px below the top bar. Measured against
   // the scrolling body itself (offsetTop would also count the bar above it).
@@ -334,7 +338,7 @@
     var landed = 0, total = deck.children.length;
     function land() {
       if (++landed < total) return;
-      deck.scrollLeft = 0; deck.classList.remove('is-flying');
+      deck.scrollLeft = 0; deck.classList.remove('is-flying'); changed();
       body.scrollTo({ top: resultsTop(), behavior: 'smooth' });
     }
     Array.prototype.forEach.call(deck.children, function (el, k) {
@@ -380,6 +384,7 @@
       x.closest('.tp-m').classList.toggle('has-ticket', cb.checked);
     });
     sum.textContent = summary();
+    changed(); // rewriting the summary wipes its annotation badge
     say((cb.checked ? 'Ticket marked. ' : 'Ticket removed. ') + summary());
   });
   document.getElementById('tp-skip').addEventListener('click', function () {
