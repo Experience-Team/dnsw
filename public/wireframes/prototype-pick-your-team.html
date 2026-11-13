@@ -77,19 +77,11 @@
                  real button here) -->
             <div class="tp-under">
             <p class="tp-fan-caption" id="tp-fan-caption"></p>
-            <!-- Here for the rugby: every NSW match, no team. A playful button, not a card in the fan. With teams picked it
-                 asks before swapping them (#tp-swap, laid over the caption and this row, so nothing below moves under the
-                 timeline bar), and the caption offers Undo afterwards. -->
+            <!-- Here for the rugby is no longer under the fan: it is a quiet link (data-rugby) where it is relevant, in
+                 All matches and in the timeline's empty state -->
             <!-- Clear all sits under the caption, shown once a team is picked; its row keeps its height so the rugby
                  button below never jumps -->
             <div class="tp-clear-row"><button type="button" class="tp-link tp-clear" id="tp-clear" hidden>Clear all</button></div>
-            <div class="tp-chosen-row">
-              <button type="button" class="tp-rugby" id="tp-rugby" aria-pressed="false"><span class="tp-rugby-ball" aria-hidden="true"></span><span class="tp-rugby-text">No team, just here for the rugby</span></button>
-            </div>
-            <div class="tp-swap" id="tp-swap" role="group" aria-labelledby="tp-swap-q" hidden>
-              <p class="tp-swap-q" id="tp-swap-q"></p>
-              <div class="tp-swap-acts"><button type="button" class="tp-pill" id="tp-swap-yes">Swap</button><button type="button" class="tp-link" id="tp-swap-no">Keep my teams</button></div>
-            </div>
             </div>
             <p class="visually-hidden" id="tp-chosen">No teams picked yet.</p>
           </div>
@@ -117,6 +109,9 @@
         <section class="tp-all" id="tp-all" aria-labelledby="tp-all-title">
           <h3 class="tp-all-title" id="tp-all-title">All matches</h3>
           <p class="tp-all-note">Every match of the tournament, by date. Tap one for its details.</p>
+          <!-- Here for the rugby, demoted to a quiet link: with no team picked it adds every NSW match; on, it takes them off.
+               Hidden while teams are picked (picking a team already replaces it). -->
+          <p class="tp-rugby-line"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-pressed="false">Not following a team? Add every NSW match</button></p>
           <!-- Columns of five matches, each a borderless card; swipe sideways (or use the arrow keys) for the next five -->
           <div class="tp-all-scroll" id="tp-all-scroll" role="group" aria-label="All matches, five to a column. Arrow keys move between matches." aria-describedby="tp-all-hint"></div>
           <p class="tp-all-hint" id="tp-all-hint">Swipe sideways for the next five matches.</p>
@@ -171,6 +166,7 @@
             <p class="tp-tl-prompt-text"><strong>Which team are you here for?</strong> Pick one to see only their matches.</p>
             <button type="button" class="tp-tl-pick" id="tp-tl-pick">Pick a team</button>
           </div>
+          <p class="tp-rugby-line tp-tl-rugby" id="tp-tl-rugby"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-pressed="false">Not following a team? Add every NSW match</button></p>
           <div class="tp-tl-scroll" id="tp-tl-scroll"><div class="tp-tl-canvas" id="tp-tl-canvas" role="group" aria-label="Matches by date. Arrow keys move between matches."></div></div>
           <ul class="tp-tl-key" id="tp-tl-key" aria-label="Key"></ul>
           <div class="tp-tl-detail" id="tp-tl-detail" aria-live="polite"></div>
@@ -302,7 +298,7 @@
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
       { sel: '#tp-fan-caption', title: 'What a pick did', text: 'The caption under the fan is the feedback line (it used to repeat the middle card): Wales added: 3 pool matches, 1 in NSW, or Wales removed. The first part is washed blue for a moment, then settles. The live region says the same for screen readers. At rest it says how picking works.' },
       { sel: '#tp-clear', title: 'Clear all', text: 'Sits centred under the caption, and only shows once at least one team is picked (Here for the rugby on its own turns itself off, so it does not bring Clear all up). Its row keeps its height, so the rugby button below never jumps. Puts every card back in the hand (Here for the rugby off too) and clears the teams\u2019 ticket marks (a ticket on a match added on its own stays with it). The tabs go and All matches stands alone again; the bar sinks away unless something keeps it up. Focus moves to the middle card, as the button hides itself.' },
-      { sel: '#tp-rugby', title: 'No team, just here for the rugby', text: 'Every NSW match, no team: a playful button, centred under Clear all (rough on purpose: tilted, dashed, a ball), no longer a card in the fan or a link. It reads No team, just here for the rugby; pressed it reads Just here for the rugby: on; pressed again it comes off. Same feedback as a pick: the caption, one sweep of dots from the button into the timeline bar, the tab count. With teams picked it does not replace them silently: it asks Swap your 3 teams for every NSW match? with Swap and Keep my teams (Escape keeps them), laid over the caption, Clear all and this row so nothing moves under the bar. After Swap the caption offers Undo for six seconds, with focus on it; Undo puts the teams back exactly. Picking a team while it is on takes it off.' },
+      { sel: '#tp-all [data-rugby]', title: 'Not following a team? (quiet link)', text: 'Here for the rugby is no longer a button under the fan: it is a quiet text link where it is relevant, here in All matches and in the timeline\u2019s empty state, and only while no team is picked (so it never has to replace teams, and there is no Swap question). It adds every NSW match, knockouts included, with the same feedback as a pick: dots sweep from the link into the bar, the tabs appear, the live region says it. On, it reads Every NSW match added. Remove them; picking a team takes it off.' },
   ];
   var NOTES = {
     pick: { items: PICKER.concat([

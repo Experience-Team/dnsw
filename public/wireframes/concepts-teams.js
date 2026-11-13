@@ -21,7 +21,7 @@
   var chosenEl = document.getElementById('tp-chosen');
   var tabsEl = document.getElementById('tp-tabs'), tabYours = document.getElementById('tp-tab-yours'), tabAll = document.getElementById('tp-tab-all');
   var clearBtn = document.getElementById('tp-clear');
-  var rugbyBtn = document.getElementById('tp-rugby'), swapBox = document.getElementById('tp-swap');
+  var rugbyLinks = [].slice.call(root.ownerDocument.querySelectorAll('#tp-phone [data-rugby]'));
   var picker = document.getElementById('tp-picker');
   var results = document.getElementById('tp-results');
   var deck = document.getElementById('tp-deck');
@@ -268,7 +268,7 @@
       var u = caption.querySelector('#tp-undo');
       u.addEventListener('click', function () { clearTimeout(undoTimer); undo(u); });
       // It goes after six seconds; if it had focus, focus goes to the button it came from
-      undoTimer = setTimeout(function () { var had = document.activeElement === u; u.remove(); if (had) rugbyBtn.focus({ preventScroll: true }); }, 6000);
+      undoTimer = setTimeout(function () { var had = document.activeElement === u; u.remove(); if (had) { var mid = fan.querySelector('.tp-card.is-mid'); if (mid) mid.focus({ preventScroll: true }); } }, 6000);
     }
     var n = caption.querySelector('.tp-cap-new');
     if (n.animate && !reduce.matches) n.animate([{ backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb' }, { backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb', offset: .35 }, { backgroundColor: 'rgba(223,233,251,0)', boxShadow: '0 0 0 4px rgba(223,233,251,0)' }], { duration: 1400, easing: 'ease-out' });
@@ -464,11 +464,15 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
-    clearBtn.hidden = !teamsPicked().length; // teams only: the rugby button turns itself off
-    var r = isPicked(RUGBY);
-    rugbyBtn.setAttribute('aria-pressed', r ? 'true' : 'false');
-    rugbyBtn.querySelector('.tp-rugby-text').textContent = r ? 'Just here for the rugby: on' : 'No team, just here for the rugby';
-    if (!teamsPicked().length && !swapBox.hidden) swapBox.hidden = true;
+    clearBtn.hidden = !teamsPicked().length; // teams only: with just every NSW match on, it stays hidden; the link in All matches removes them
+    // The quiet links: with no team, add every NSW match; on, take them off; hidden while teams are picked
+    var r = isPicked(RUGBY), hide = teamsPicked().length > 0;
+    rugbyLinks.forEach(function (a) {
+      // In the timeline it is part of the empty state only, so it goes with any pick (on, it shows in All matches)
+      a.parentNode.hidden = a.parentNode.id === 'tp-tl-rugby' ? state.picked.length > 0 : hide;
+      a.setAttribute('aria-pressed', r ? 'true' : 'false');
+      a.textContent = r ? 'Every NSW match added. Remove them' : 'Not following a team? Add every NSW match';
+    });
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
   // Clear all: every card back in the hand and every ticket mark gone, so the picker starts again
@@ -488,10 +492,10 @@
     midCard().focus({ preventScroll: true }); // the button has just hidden itself
     say('All teams and their tickets cleared. No teams picked.');
   });
-  /* ---------- Here for the rugby: a button, every NSW match and no team ----------
-     Pressed again it comes off. With teams picked it never replaces them silently: it asks inline (Swap your 3 teams
-     for every NSW match?), and after Swap the caption offers Undo for six seconds. Same feedback as a pick: the caption,
-     one sweep of dots into the bar from the button, the tab count. Picking a team while it is on takes it off. */
+  /* ---------- Here for the rugby: a quiet link, every NSW match and no team ----------
+     In All matches and the timeline's empty state, only while no team is picked (so it never has to replace teams).
+     Pressed again it comes off. Same feedback as a pick: one sweep of dots into the bar from the link, the tab count,
+     the live region. Picking a team while it is on takes it off. */
   function setRugby(on, from) {
     var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
     if (on) state.picked = [RUGBY.name]; else state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; });
@@ -502,53 +506,18 @@
     pickFlights(from, before, oldValue, barWasOn, on, 0);
   }
   function teamsPicked() { return state.picked.filter(function (n) { return n !== RUGBY.name; }); }
-  function closeSwap(focusBtn) { swapBox.hidden = true; if (focusBtn) rugbyBtn.focus({ preventScroll: true }); notesOnly(); }
-  rugbyBtn.addEventListener('click', function () {
-    if (isPicked(RUGBY)) {
-      setRugby(false, rugbyBtn);
-      showCaption('Here for the rugby removed', '');
-      say('Here for the rugby removed.');
-      notesOnly();
-      return;
-    }
-    var t = teamsPicked();
-    if (t.length) {
-      // Ask first: swapping would drop the teams they chose
-      document.getElementById('tp-swap-q').textContent = 'Swap your ' + (t.length === 1 ? t[0] : t.length + ' teams') + ' for every NSW match?';
-      swapBox.hidden = false;
-      if (!reduce.matches && swapBox.animate) swapBox.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: 'ease-out' });
-      document.getElementById('tp-swap-yes').focus({ preventScroll: true });
-      notesOnly();
-      return;
-    }
-    setRugby(true, rugbyBtn);
-    var msg = pickLine(RUGBY, true);
-    showCaption('Here for the rugby added', msg.slice('Here for the rugby added'.length));
-    say(msg + '.');
-    notesOnly();
-  });
-  document.getElementById('tp-swap-no').addEventListener('click', function () { closeSwap(true); say('Kept your teams.'); });
-  swapBox.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); closeSwap(true); } });
-  document.getElementById('tp-swap-yes').addEventListener('click', function () {
-    var prev = teamsPicked();
-    closeSwap(false);
-    setRugby(true, rugbyBtn);
-    var msg = pickLine(RUGBY, true);
-    // Two lines at most, Undo included, so the button row never drops under the timeline bar
-    showCaption('Swapped for every NSW match', ': ' + countPhrase(nswPool.concat(nswKo), { short: true }), '', function (u) {
-      // Undo: the teams come back exactly as they were, their dots flying in from the Undo button
-      var before = ownKeys(), old = tlValue.textContent, bar = tlOn;
-      state.picked = prev.slice();
-      save(); place(true); renderChosen(); renderMatches(prev[prev.length - 1], RUGBY.name);
-      pickFlights(u, before, old, bar, false, 0);
-      showCaption('Your teams are back', ': ' + list(prev));
-      say('Undone. Your teams are back: ' + list(prev) + '.');
-      rugbyBtn.focus({ preventScroll: true });
+  rugbyLinks.forEach(function (a) {
+    a.addEventListener('click', function () {
+      var on = !isPicked(RUGBY), inTl = tlPanel.contains(a);
+      // From the open timeline there is nothing to fly from: the markers appear in place
+      setRugby(on, inTl ? null : a);
+      var msg = on ? pickLine(RUGBY, true) : 'Here for the rugby removed';
+      showCaption(on ? 'Here for the rugby added' : 'Here for the rugby removed', on ? msg.slice('Here for the rugby added'.length) : '');
+      say(msg + '.');
+      // The timeline's empty state goes once something is on it, so focus moves to its title
+      if (inTl && on) document.getElementById('tp-tl-title').focus({ preventScroll: true });
       notesOnly();
     });
-    say(msg + '. Swapped for ' + list(prev) + '. Undo is available for a few seconds.');
-    var u = document.getElementById('tp-undo'); if (u) u.focus({ preventScroll: true });
-    notesOnly();
   });
 
   /* ---------- Your matches: a card per picked team, built as picks change ----------
@@ -1330,7 +1299,7 @@
     deck.innerHTML = '';
     setNsw(false); clearFind(); offset = START; dealt = false;
     state.tab = 'yours';
-    swapBox.hidden = true; clearTimeout(undoTimer);
+    clearTimeout(undoTimer);
     renderChosen();
     renderMatches();
     caption.textContent = CAPTION_REST;
