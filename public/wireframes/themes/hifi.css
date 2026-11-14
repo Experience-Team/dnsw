@@ -130,6 +130,10 @@
 :root[data-theme="hifi"] .cn-phone .tp-card.is-picked .tp-card-code { color: var(--tth-text-on-brand); }
 :root[data-theme="hifi"] .cn-phone .tp-card.is-picked .tp-card-meta { color: var(--tth-text-on-brand-small); }
 :root[data-theme="hifi"] .cn-phone .tp-back-code { border-radius: 0; }
+/* TEST stacked hand: picked takes the colourway (Team Card / Selected), with a 2px line; the 15px code stays ink, as
+   chalk on a colourway needs 24px */
+:root[data-theme="hifi"] .cn-phone .tp-card2.is-picked { background: var(--tth-surface-brand); border-width: 2px; color: var(--tth-text-on-brand-small); box-shadow: none; }
+:root[data-theme="hifi"] .cn-phone .tp-card2-code { font-weight: 700; }
 :root[data-theme="hifi"] .cn-phone .tp-tl-badge { border-radius: 0; }
 
 /* Just added: the ring takes the colourway (volt on chalk is never used: 1.0:1) */
