@@ -859,7 +859,7 @@
     var t = trip(), done = t && (t.mode !== 'visiting' || (t.from && t.to)) && !askEditing, h;
     if (done) {
       var what = t.mode === 'local' ? 'I’m local' : t.mode === 'unsure' ? 'Not sure yet' : 'In NSW ' + tp.isoRange(t.from, t.to);
-      h = '<p class="tp-ask-sum"><span class="tp-ask-sum-text">' + esc(what) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>' +
+      h = '<p class="tp-ask-sum"><span class="tp-ask-sum-text">' + esc(what) + '</span> · <button type="button" class="tp-link" data-act="change">' + (t.mode === 'visiting' ? window.tpIcons.cal : '') + 'Change</button></p>' +
         (askNews ? '<p class="tp-ask-news">' + esc(askNews) + '</p>' : '');
     } else {
       h = '<h3 class="tp-ask-title" id="tp-ask-title">Visiting or local?</h3>' +
@@ -868,7 +868,7 @@
         var inf = inferred();
         if (inf && !askManual) {
           h += '<div class="tp-ask-step"><p class="tp-ask-guess">Looks like you’re here ' + (inf.from === inf.to ? 'on ' : '') + '<strong>' + esc(tp.isoRange(inf.from, inf.to)) + '</strong>, ' + (inf.from === inf.to ? 'for your match in NSW.' : 'from your first to last match in NSW.') + '</p>' +
-            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="confirm">That’s right</button><button type="button" class="tp-link" data-act="adjust">Change dates</button></div></div>';
+            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="confirm">That’s right</button><button type="button" class="tp-link" data-act="adjust">' + window.tpIcons.cal + 'Change dates</button></div></div>';
         } else {
           var from = (t.from) || (askManual && inf ? inf.from : ''), to = (t.to) || (askManual && inf ? inf.to : '');
           h += '<div class="tp-ask-step"><p class="tp-ask-guess">' + window.tpIcons.cal + (inf ? 'Set your days in NSW.' : 'When are you in NSW? Add your days, or leave it for later.') + '</p>' +
@@ -882,7 +882,7 @@
             '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day in NSW" aria-valuemin="-2" aria-valuemax="45"></span></div>' +
             '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out" id="tp-range-out"></span><span>15 Nov</span></div></div>' +
             (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
-            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="use">Use these dates</button></div></div>';
+            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="use">' + window.tpIcons.cal + 'Use these dates</button></div></div>';
         }
       }
     }
@@ -1044,7 +1044,7 @@
     var t = trip(), done = t && (t.mode === 'local' || (t.mode === 'visiting' && t.from && t.to)), M = model();
     // A guess from their first to last NSW match, confirmed with the same That's right as the timeline
     if (!done && M.how === 'guessed') {
-      tripEl.innerHTML = '<span>Looks like you\u2019re here <strong>' + esc(tp.isoRange(isoOf(M.range.a), isoOf(M.range.z))) + '</strong></span> \u00b7 <button type="button" class="tp-link" data-act="trip-ok">That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>';
+      tripEl.innerHTML = '<span>Looks like you\u2019re here <strong>' + esc(tp.isoRange(isoOf(M.range.a), isoOf(M.range.z))) + '</strong></span> \u00b7 <button type="button" class="tp-link" data-act="trip-ok">That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-act="trip">' + (t.mode === 'visiting' ? window.tpIcons.cal : '') + 'Change</button>';
       return;
     }
     if (!done) {
@@ -1052,7 +1052,7 @@
       return;
     }
     var what = !done ? '' : t.mode === 'local' ? 'You live in NSW' : t.mode === 'unsure' ? 'Not sure yet if you\u2019re visiting' : 'Your days in NSW: ' + tp.isoRange(t.from, t.to);
-    tripEl.innerHTML = done ? '<span class="tp-third-trip-a">' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>'
+    tripEl.innerHTML = done ? '<span class="tp-third-trip-a">' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-act="trip">' + (t.mode === 'visiting' ? window.tpIcons.cal : '') + 'Change</button>'
       : '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (t && t.mode === 'visiting' ? 'Visiting? Confirm your days to see what fits' : 'Visiting? Set your days to see what fits') + '</button>';
   }
   phone.addEventListener('click', function (e) {

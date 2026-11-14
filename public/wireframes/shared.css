@@ -3959,11 +3959,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    sized to the text; the stroke stays 1.5px whatever the size. The fan's cards are filled with the surface they sit on. */
 .tp-ico { display: inline-block; flex: none; height: 1.15em; width: auto; margin-right: .4em; vertical-align: -.22em; overflow: visible; }
 .tp-ico-fan { aspect-ratio: 36 / 33; }
-.tp-ico-cal { aspect-ratio: 1; }
-.tp-ico g { fill: var(--ico-bg, #fff); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
-.tp-ico g * { vector-effect: non-scaling-stroke; }
-.tp-ico-cal g { fill: none; }
-.tp-pill .tp-ico { --ico-bg: #1f1f1f; }
+.tp-ico-cal { aspect-ratio: 28 / 32; height: 1em; vertical-align: -.15em; }
+.tp-ico path { fill: currentColor; } /* Figma artwork: one filled path each */
 .tp-tl-pick, .tp-pill { display: inline-flex; align-items: center; justify-content: center; }
 
 /* Pick your team: the indicative keyboard (a static picture, greyscale), over the bottom of the phone while search is open */
@@ -3976,8 +3973,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-kbd-k--wide { flex: 2.2 1 0; font-size: .875rem; }
 .tp-kbd-k--space { flex: 5 1 0; font-size: .875rem; }
 .tp-kbd-note { position: absolute; right: 8px; bottom: 6px; font-size: .625rem; color: #5c5c5c; }
-.tp-ico-fan g { stroke-width: 1.1; } /* the fan's five outlines stay apart at text size */
-.tp-plan .tp-ico { --ico-bg: #f2f2f2; } /* the fan's cards take the plan panel's grey */
 
 /* Pick your team: match markers with a flag pair (stacked: a day column is 40px, a pair side by side is 51px), 30px
    tall (target over 24px, AA); rows step 32px. Teams to be decided keep the neutral marker. */
