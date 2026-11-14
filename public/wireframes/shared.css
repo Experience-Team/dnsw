@@ -3860,7 +3860,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* A team in the sheet is a toggle, like Add to my timeline: pressed has a tick and a light fill */
 .tp-pm-team[aria-pressed="true"] { background: #f0f0f0; border-style: solid; }
 /* A clash said outside the timeline: on the bar, on the trip's card and in Your plan so far */
-.tp-tl-label.is-clash { color: #B42318; }
 .tp-trip-clash, .tp-plan-clash { grid-column: 1 / -1; font-size: .8125rem; font-weight: 600; line-height: 1.4; color: #B42318; }
 .tp-plan-clash { margin-top: var(--space-2); }
 .tp-plan-clash-how { margin-top: 2px; font-size: .75rem; color: #4d4d4d; }
@@ -4081,3 +4080,22 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-list-opt .tp-fl { height: 16px; }
 .tp-list-all { width: 25px; height: 16px; border: 1.5px dashed #8a8a8a; border-radius: 2px; }
 #tp-phone .tp-ts { overflow: hidden; } /* the list scrolls, not the sheet */
+/* Pick your team: the bar reads one way. Your days (or the matches' span) as a small note between the strip's end
+   labels; a clash marks its day on the strip in red. */
+.tp-tl-days { left: 50%; transform: translateX(-50%); white-space: nowrap; color: #1a1a1a; font-weight: 600; }
+.tp-tl-dot.is-clash { box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px #B42318; }
+/* Skip link: hidden until focused, then a 36px pill at the top of the phone */
+.tp-skip { position: absolute; left: 16px; top: 8px; z-index: 200; display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--space-4); border-radius: var(--radius-pill); background: #1f1f1f; color: #fff; font-size: .875rem; font-weight: 700; text-decoration: none; transform: translateY(-160%); }
+.tp-skip:focus { transform: none; outline: 2px solid #005EA2; outline-offset: 2px; }
+.tp-skip[hidden] { display: none; }
+/* Pick your team: Save & share, a prominent button pinned to the foot of the timeline sheet. Sticky, so it stays in
+   reach as the sheet scrolls; white behind it with a hairline above once content runs under it. */
+.tp-tl-foot { position: sticky; bottom: 0; z-index: 3; margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: var(--space-3) var(--space-4) var(--space-4); background: #fff; border-top: 1px solid #e3e3e3; }
+.tp-tl-foot:has(.tp-tl-share[hidden]) { display: none; }
+.tp-tl-foot .tp-tl-share { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 36px; border-color: #1f1f1f; background: #1f1f1f; color: #fff; font-size: .9375rem; font-weight: 700; }
+@media (hover: hover) { .tp-tl-foot .tp-tl-share:hover { background: #333; } }
+/* The sheet is a column so the Save & share row sits at its foot even when the content is short */
+.tp-tl-panel { display: flex; flex-direction: column; }
+.tp-tl-panel > * { flex: none; }
+.tp-tl-panel:has(.tp-tl-foot .tp-tl-share:not([hidden])) { padding-bottom: 0; }
+.tp-tl-foot { margin-top: auto; }

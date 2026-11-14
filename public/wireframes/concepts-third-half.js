@@ -539,7 +539,7 @@
       '<div><dt>City</dt><dd>' + esc(f.p) + (f.a ? ' (interstate)' : ', NSW') + '</dd></div></dl>';
     // On the timeline already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
-    if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Here for the rugby includes every NSW match') + '</p>';
+    if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'All matches includes every NSW match') + '</p>';
     else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '">' + (on ? '\u2713 Added to my timeline' : 'Add to my timeline') + '<span class="visually-hidden">, ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
     if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' aria-describedby="tp-pm-ticket-why" /><span>I have a ticket</span></label><p class="tp-ticket-why" id="tp-pm-ticket-why">Tick it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
     h += '</div>';
