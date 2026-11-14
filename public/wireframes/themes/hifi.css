@@ -1,36 +1,157 @@
 /* ── High fidelity theme for the prototypes (prototype-pick-your-team.html, prototype-itinerary.html) ─────────────
    On when <html data-theme="hifi">: the High fidelity switch in the viewer panel, or ?theme=hifi (works with ?phone,
    so the QR code opens the same theme). Phone only: every rule is inside .cn-phone, so the viewer panel stays
-   wireframe. Style only: no behaviour or layout lives here.
+   wireframe.
+
+   Source: "The Third Half design guidelines" (draft v0.1, after Landor's early design development), Figma file
+   Rugby World Cup (LwBKfIftpu8erI6WGOi4W1), page Styling, node 261:13292. The --tth-* values below are its Figma
+   variables, named as in Figma. Colours were sampled from a PDF and the fonts are stand-ins, so this whole theme is a
+   draft until Landor supplies final values, fonts and logo artwork.
 
    How it works: the phone is drawn from the tokens on :root in shared.css (--c-*, --font-*, --fs-*, --fw-*, --bw-*,
-   --radius-*, --shadow-*); this file gives them the high fidelity values. A token that is not set here keeps its
-   wireframe value. Note: a token defined from another (--font-display: var(--font-body)) is worked out on :root, so
-   set both here rather than only the first.
+   --radius-*, --shadow-*). Section 2 points them at the --tth-* values. A token defined from another on :root
+   (--font-display: var(--font-body)) is worked out there, so every one is set here, not only the first.
+   Section 4 holds the few component rules tokens cannot express (the Team Card, Tag, the Brand button, the hero). */
 
-   Brand values: still to come from the design (colours, fonts, radius, shadows). Until then the switch changes only
-   the wireframe touches below: pictures in place of grey blocks, no pink wash, solid lines in place of the rough
-   dashed ones. */
+/* ── 1. Fonts: IBM Plex stands in for Social Condensed and Social Mono (see assets/fonts/README.md) ─────────────── */
+@font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 400; font-display: swap; src: url('../assets/fonts/ibm-plex-sans-condensed-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 600; font-display: swap; src: url('../assets/fonts/ibm-plex-sans-condensed-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url('../assets/fonts/ibm-plex-sans-condensed-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url('../assets/fonts/ibm-plex-mono-latin-700-normal.woff2') format('woff2'); }
 
 :root[data-theme="hifi"] .cn-phone {
-  /* Colour (to come) */
-  /* --c-ink: ; --c-ink-2: ; --c-ink-3: ; --c-on-dark: ; --c-on-dark-2: ;
-     --c-surface: ; --c-surface-2: ; --c-surface-3: ; --c-btn: ; --c-btn-hover: ; --c-hero: ;
-     --c-line-ink: ; --c-line-strong: ; --c-line: ; --c-line-soft: ;
-     --c-accent: ; --c-accent-soft: ; --c-accent-line: ; --c-focus: ; --c-danger: ; --c-danger-soft: ; --c-flash: ; */
-  /* Type (to come; load the fonts with an @import at the top of this file) */
-  /* --font-body: ; --font-display: ; --fw-semi: ; --fw-bold: ; --fw-heavy: ; */
-  /* Shape (to come) */
-  /* --radius-sm: ; --radius-md: ; --radius-lg: ; --radius-card: ; --radius-face: ; --shadow-1: ; --shadow-2: ; --bw-2: ; */
+  /* ── 2a. Figma variables (TTH) ── */
+  --tth-color-chalk: #faf7f0;    /* page and card background */
+  --tth-color-clay: #a3726d;     /* colourway */
+  --tth-color-violet: #ac54ff;   /* colourway */
+  --tth-color-green: #009953;    /* colourway */
+  --tth-color-orange: #ff4802;   /* colourway, default */
+  --tth-color-volt: #ecfe54;     /* accent: tags, highlights; never a page background */
+  --tth-color-ink: #111111;      /* text, added for digital */
+  --tth-surface-page: var(--tth-color-chalk);
+  --tth-surface-inverse: var(--tth-color-ink);
+  --tth-surface-brand: var(--tth-color-orange);   /* the colourway (Theme mode) */
+  --tth-surface-accent: var(--tth-color-volt);
+  --tth-text-primary: var(--tth-color-ink);
+  --tth-text-on-brand: var(--tth-color-chalk);    /* large text (24px+, or 19px+ bold) on a colourway only */
+  --tth-text-on-brand-small: var(--tth-color-ink);
+  --tth-border-default: var(--tth-color-ink);
+  --tth-goal-line: var(--tth-surface-brand);
+  --tth-goal-line-on-image: var(--tth-color-chalk);
+  --tth-goal-hairline: 1px; --tth-goal-regular: 4px; --tth-goal-bold: 12px;
+  --tth-space-4: 4px; --tth-space-8: 8px; --tth-space-12: 12px; --tth-space-24: 24px;
+  --tth-radius-none: 0;
+  --tth-font-condensed: 'Social Condensed', 'IBM Plex Sans Condensed', system-ui, sans-serif;
+  --tth-font-mono: 'Social Mono', 'IBM Plex Mono', ui-monospace, monospace;
 
-  /* The rough "not a team" touches of the wireframe (the dashed All matches button and cards) become solid */
-  --border-loose: solid;
+  /* ── 2b. The prototype's tokens, pointed at TTH ──
+     "Derived" values are not in the guidelines (which have ink only): warm greys and tints chosen to sit on chalk,
+     each 4.5:1 or more where it carries text. Confirm with Landor. */
+  /* Text */
+  --c-ink: var(--tth-text-primary);
+  --c-ink-2: #3d3a35;            /* derived: 10.6:1 on chalk */
+  --c-ink-3: #625d55;            /* derived: 6.1:1 on chalk, 5.0:1 on surface-3 */
+  --c-on-dark: var(--tth-color-chalk);
+  --c-on-dark-2: rgba(250,247,240,.85);
+  /* Surfaces and fills */
+  --c-surface: var(--tth-surface-page);
+  --c-surface-2: #f1ece1;        /* derived: hover and subtle fills */
+  --c-surface-3: #e7e0d2;        /* derived */
+  --c-btn: var(--tth-surface-inverse);   /* Button / Primary */
+  --c-btn-hover: #2b2b2b;
+  --c-hero: var(--tth-surface-inverse);
+  --c-scrim: rgba(17,17,17,.4);
+  --c-scrim-soft: rgba(17,17,17,.2);
+  --c-fill-strong: #6f695f;      /* derived: markers and tracks */
+  --c-fill-mid: #a39d92;
+  --c-fill-soft: #d6cfc1;
+  /* Lines */
+  --c-line-ink: var(--tth-border-default);
+  --c-line-strong: var(--tth-border-default);   /* fields: an ink outline, like Button / Secondary */
+  --c-line: #d6cfc1;             /* derived dividers */
+  --c-line-soft: #e7e0d2;
+  /* States */
+  --c-accent: var(--tth-surface-brand);
+  --c-accent-soft: color-mix(in srgb, var(--tth-surface-brand) 10%, transparent);
+  --c-accent-line: color-mix(in srgb, var(--tth-surface-brand) 50%, transparent);
+  --c-accent-ink: var(--tth-text-primary);       /* a colourway as small text fails AA on chalk (3.2:1) */
+  --c-on-accent: var(--tth-text-on-brand-small);  /* and chalk on a colourway fails below 24px */
+  --c-focus: var(--tth-text-primary);
+  --c-danger: #b42318;           /* not in the palette; clashes stay red (6.1:1 on chalk) */
+  --c-danger-soft: rgba(180,35,24,.14);
+  --c-flash: var(--tth-surface-accent);          /* volt: highlights */
+  /* Type: Condensed for body and headings, Mono for short caps labels (TTH Primary / Secondary / Tertiary) */
+  --font-body: var(--tth-font-condensed);
+  --font-display: var(--tth-font-condensed);
+  --font-label: var(--tth-font-mono);
+  --fs-2xs: .8125rem;   /* 13 Caption */
+  --fs-xs: .8125rem;    /* 13 Caption */
+  --fs-sm: .875rem;     /* 14 */
+  --fs-md: 1rem;        /* 16 Body M (16px minimum for body in product) */
+  --fs-base: 1rem;      /* 16 Body M */
+  --fs-lg: 1rem;        /* 16 */
+  --fs-lg-2: 1.125rem;  /* 18 Body L */
+  --fs-xl: 1.25rem;     /* 20 Secondary Condensed S */
+  --fs-2xl: 1.75rem;    /* 28 Secondary Condensed M */
+  --fs-hero: 2.5rem;    /* 40 Secondary Condensed L */
+  --fw-semi: 600; --fw-bold: 600; --fw-heavy: 600;   /* SemiBold headings and labels */
+  /* Shape: square corners, like the posts; no pills, no shadows */
+  --radius-sm: var(--tth-radius-none); --radius-md: var(--tth-radius-none); --radius-lg: var(--tth-radius-none);
+  --radius-pill: var(--tth-radius-none); --radius-card: var(--tth-radius-none); --radius-face: var(--tth-radius-none);
+  --bw-1: 1px; --bw-2: 1px; --bw-3: 2px;   /* 1px default; 2px marks a selected state */
+  --shadow-1: none; --shadow-2: none;
+  --shadow-3: 0 -1px 0 var(--tth-border-default);   /* a sheet's top edge is an ink line, not a shadow */
+  --border-loose: solid;         /* the wireframe's rough dashed "not a team" lines */
+
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Colourway modes (the Figma Theme collection): orange by default; set data-colourway on <html> for another.
+   One colourway per layout, always paired with chalk. */
+:root[data-theme="hifi"][data-colourway="green"] .cn-phone { --tth-surface-brand: var(--tth-color-green); }
+:root[data-theme="hifi"][data-colourway="violet"] .cn-phone { --tth-surface-brand: var(--tth-color-violet); }
+:root[data-theme="hifi"][data-colourway="clay"] .cn-phone { --tth-surface-brand: var(--tth-color-clay); }
+
+/* ── 3. Wireframe-only marks ───────────────────────────────────────────────────────────────────────────────────── */
 /* Data that is not live yet: the pink wash is a wireframe marker only (the annotations still say which data is gap) */
 :root[data-theme="hifi"] .cn-phone .provenance-gap::after { content: none; }
-
-/* Pictures: a placeholder with data-img shows assets/hifi/<name>.jpg over its grey block (pv-device.js sets it; a
-   missing file leaves the block). No "Image" label. */
+/* Pictures: a placeholder with data-img shows assets/hifi/<name>.jpg over its block (pv-device.js sets it; a missing
+   file leaves the block). No "Image" label. */
 :root[data-theme="hifi"] .cn-phone .ph-img::after { content: none; }
 :root[data-theme="hifi"] .cn-phone [data-img] { background-size: cover; background-position: center; }
+
+/* ── 4. Components (from the TTH main components) ─────────────────────────────────────────────────────────────── */
+/* Short caps labels in Primary Mono (always caps, never sentences) */
+:root[data-theme="hifi"] .cn-phone :is(.tp-hero-kicker, .tp-tag) { text-transform: uppercase; letter-spacing: .06em; }
+:root[data-theme="hifi"] .cn-phone :is(.tp-card-code, .tp-back-code) { font-weight: 700; letter-spacing: .02em; }
+
+/* Team Card: chalk with a 1px ink line; Selected takes the colourway, a 2px line, the code in chalk (24px Mono is
+   large text) and the name and meta in ink. Selection shows in the line weight too, not colour alone. */
+:root[data-theme="hifi"] .cn-phone .tp-card.is-picked { background: var(--tth-surface-brand); border-width: 2px; border-color: var(--tth-border-default); color: var(--tth-text-on-brand-small); box-shadow: none; }
+:root[data-theme="hifi"] .cn-phone .tp-card.is-picked .tp-card-code { color: var(--tth-text-on-brand); }
+:root[data-theme="hifi"] .cn-phone .tp-card.is-picked .tp-card-meta { color: var(--tth-text-on-brand-small); }
+:root[data-theme="hifi"] .cn-phone .tp-back-code { border-radius: 0; }
+:root[data-theme="hifi"] .cn-phone .tp-tl-badge { border-radius: 0; }
+
+/* Just added: the ring takes the colourway (volt on chalk is never used: 1.0:1) */
+:root[data-theme="hifi"] .cn-phone .tp-rcard.is-new .tp-face { box-shadow: 0 0 0 3px var(--tth-surface-brand); }
+
+/* Tag: Solid (volt) for In NSW, the primary state; Outline (ink line) for Interstate. Mono caps; the label carries
+   the meaning, not the colour */
+:root[data-theme="hifi"] .cn-phone .tp-tag { border-color: var(--tth-surface-accent); background: var(--tth-surface-accent); color: var(--tth-text-primary); font-size: .8125rem; font-weight: 700; }
+:root[data-theme="hifi"] .cn-phone .tp-tag--away { border-color: var(--tth-border-default); background: transparent; }
+
+/* Button / Brand: one colourway moment per screen, the timeline's Save & share; ink text (chalk fails at this size) */
+:root[data-theme="hifi"] .cn-phone #tp-tl-share { border-color: var(--tth-surface-brand); background: var(--tth-surface-brand); color: var(--tth-text-on-brand-small); }
+
+/* Hero: the headline in Secondary Condensed, the kicker in Primary Mono, and a hairline goal device (landscape) in
+   chalk framing the picture: posts top and bottom, the crossbar to one side. Decorative only. */
+:root[data-theme="hifi"] .cn-phone .tp-hero-name { letter-spacing: -.02em; line-height: 1; }
+:root[data-theme="hifi"] .cn-phone .tp-hero-kicker { font-size: .8125rem; font-weight: 700; }
+:root[data-theme="hifi"] .cn-phone .tp-hero-img::before {
+  content: ""; position: absolute; inset: 10px 0; pointer-events: none;
+  border-top: var(--tth-goal-hairline) solid var(--tth-goal-line-on-image);
+  border-bottom: var(--tth-goal-hairline) solid var(--tth-goal-line-on-image);
+  background: linear-gradient(var(--tth-goal-line-on-image), var(--tth-goal-line-on-image)) right 24px top / var(--tth-goal-hairline) 100% no-repeat;
+  opacity: .9;
+}
