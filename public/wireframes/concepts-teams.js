@@ -50,8 +50,11 @@
       t.matches.push(f);
     });
   });
-  // Flags for the all matches list. England, Scotland and Wales use their own flags; the rest are country flags.
-  var FLAG = { 'Argentina': '🇦🇷', 'Australia': '🇦🇺', 'Canada': '🇨🇦', 'Chile': '🇨🇱', 'England': '🏴\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', 'Fiji': '🇫🇯', 'France': '🇫🇷', 'Georgia': '🇬🇪', 'Hong Kong China': '🇭🇰', 'Ireland': '🇮🇪', 'Italy': '🇮🇹', 'Japan': '🇯🇵', 'New Zealand': '🇳🇿', 'Portugal': '🇵🇹', 'Romania': '🇷🇴', 'Samoa': '🇼🇸', 'Scotland': '🏴\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}', 'South Africa': '🇿🇦', 'Spain': '🇪🇸', 'Tonga': '🇹🇴', 'USA': '🇺🇸', 'Uruguay': '🇺🇾', 'Wales': '🏴\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}', 'Zimbabwe': '🇿🇼' };
+  /* Team flags from the Rugby World Cup Figma Flag Pack (node 170:129), one SVG per team in flags/ (25 x 16). England,
+     Scotland and Wales use their own flags. Decorative everywhere: the team name is always said alongside. */
+  var FLAG_FILE = { 'Argentina': 'argentina', 'Australia': 'australia', 'Canada': 'canada', 'Chile': 'chile', 'England': 'england', 'Fiji': 'fiji', 'France': 'france', 'Georgia': 'georgia', 'Hong Kong China': 'hongkong', 'Ireland': 'ireland', 'Italy': 'italy', 'Japan': 'japan', 'New Zealand': 'newzealand', 'Portugal': 'portugal', 'Romania': 'romania', 'Samoa': 'samoa', 'Scotland': 'scotland', 'South Africa': 'southafrica', 'Spain': 'spain', 'Tonga': 'tonga', 'USA': 'unitedstates', 'Uruguay': 'uruguay', 'Wales': 'wales', 'Zimbabwe': 'zimbabwe' };
+  var FLAG = {};
+  Object.keys(FLAG_FILE).forEach(function (n) { FLAG[n] = '<img class="tp-fl" src="flags/' + FLAG_FILE[n] + '.svg" alt="" width="25" height="16" decoding="async">'; });
   var names = Object.keys(TEAMS).sort();
   names.forEach(function (n) { TEAMS[n].nsw = TEAMS[n].matches.filter(function (f) { return !f.a; }).length; });
   var nswPool = pool.filter(function (f) { return !f.a; });
@@ -989,11 +992,12 @@
       var st = (tk ? 'ticket' : 'match') + (m.f.a ? ' away' : '') + (m.f.t ? '' : ' tbd');
       if (st !== m.state) {
         m.state = st;
-        // Teams known: a small flag pair, stacked (the day column is too narrow side by side); a ticket rings it in
+        // Teams known: the Figma flag pair, side by side (15 x 9.6 each, as wide as a day column); a ticket rings it in
         // blue. Teams to be decided keep the neutral marker
         var tms = m.f.t ? m.f.t.split(' v ') : [], flags = tms.length === 2 && FLAG[tms[0]] && FLAG[tms[1]];
         m.sym.className = 'cn-tl-sym ' + (flags ? 'cn-tl-sym--flags' + (tk ? ' is-ticket' : '') : tk ? 'cn-tl-sym--ticket' : 'cn-tl-sym--match') + (m.f.a ? ' is-away' : '') + (m.f.t ? '' : ' is-tbd');
-        m.sym.innerHTML = flags ? '<span class="tp-tl-flag" aria-hidden="true">' + FLAG[tms[0]] + '</span><span class="tp-tl-flag" aria-hidden="true">' + FLAG[tms[1]] + '</span>'
+        m.el.classList.toggle('tp-tl-mk--flags', !!flags);
+        m.sym.innerHTML = flags ? FLAG[tms[0]] + FLAG[tms[1]]
           : tk ? TL_ICON.ticket : m.f.t ? TL_ICON.ball : '<span class="tp-tl-q" aria-hidden="true">?</span>';
         m.el.setAttribute('aria-label', m.f.d + ', ' + tlName(m) + ', ' + (m.f.a ? 'interstate, ' + m.f.a : m.f.p) + (tk ? ', you have a ticket' : ''));
       }

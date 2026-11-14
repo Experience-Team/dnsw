@@ -42,6 +42,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    container from the content's real extremes in every state it can be in (dragged to either end, picked, lifted,
    focused), not from a guess, and measure the rendered result. Clip only the sides that are meant to run on (a fan
    or carousel running off the edge); let a brief lift or pull rise out of the box rather than reserving space for it.
+7. **Patterns go everywhere they apply.** When a visual or behavioural cue is attached to a kind of control (an icon,
+   a confirm step, a focus rule), find every control of that kind and apply it to all of them, not just the one in the
+   brief. List them before handing over. For example, the calendar icon belongs on every button that sets or changes
+   dates, not only the prompts.
 
 # Experience principles
 

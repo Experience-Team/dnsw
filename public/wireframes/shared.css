@@ -3980,13 +3980,14 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-mk.is-off { transform: translateY(calc(var(--row, 0) * -32px)) scale(.4); }
 .tp-tl-mk--item.is-new { transform: translateY(calc(var(--row, 0) * -32px - 12px)) scale(.5); }
 @media (prefers-reduced-motion: reduce) { .tp-tl-mk.is-off, .tp-tl-mk--item.is-new { transform: translateY(calc(var(--row, 0) * -32px)); } }
-.tp-tl-mk .cn-tl-sym--flags, .cn-tl-sym--flags { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; width: 22px; height: 28px; border: 1.5px solid #737373; border-radius: 6px; background: #fff; }
+.tp-tl-mk .cn-tl-sym--flags, .cn-tl-sym--flags { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 1.3px; width: auto; height: auto; padding: 2px; border: 1.5px solid #737373; border-radius: 5px; background: #fff; }
 .cn-tl-sym--flags.is-away { border-style: dashed; }
 .cn-tl-sym--flags.is-ticket { border-color: #1a1a1a; box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #2666d9; }
 .tp-tl-mk[aria-pressed="true"] .cn-tl-sym--flags.is-ticket { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #2666d9, 0 0 0 5.5px #1a1a1a; }
-.tp-tl-flag { display: block; font-size: 11px; line-height: 12px; }
-.tp-key-flags { width: 14px; height: 18px; gap: 2px; border-radius: 4px; }
-.tp-key-flags i { display: block; width: 8px; height: 4px; border-radius: 1px; background: #b3b3b3; }
+.cn-tl-sym--flags .tp-fl { width: 15px; height: 9.6px; }
+.tp-tl-mk.tp-tl-mk--flags { width: 40px; margin-left: -20px; } /* the pair is a day column wide (38px drawn), 30px tall to tap */
+.tp-key-flags { width: auto; height: auto; padding: 1.5px; gap: 1px; border-radius: 3px; }
+.tp-key-flags i { display: block; width: 8px; height: 5px; border-radius: 1px; background: #b3b3b3; }
 
 /* The match sheet as the timeline's stacked sheet (#tp-pm.is-stacked): rounded top, a grabber, the stack's motion */
 .tp-pm .tp-pm-grab { display: none; }
@@ -4041,3 +4042,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-drop[hidden] { display: none; }
 .tp-tl-drop-t { position: absolute; left: 50%; bottom: -25px; transform: translateX(-50%); padding: 1px 6px; border-radius: 4px; background: #1a1a1a; color: #fff; font-size: .6875rem; font-weight: 600; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .tp-tl-mk--item.is-settling { transition: none; } .tp-tl-mk--item.is-lifted { transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px)); } }
+/* Pick your team: team flags (Figma Flag Pack SVGs, 25 x 16). A hairline edge keeps white flags (England, Japan) apart
+   from a white ground. Sized to the text where they sit beside a name. */
+.tp-fl { display: inline-block; height: .78em; width: auto; aspect-ratio: 25 / 16; border-radius: 1.5px; outline: .5px solid rgba(0,0,0,.18); outline-offset: -.5px; vertical-align: -.05em; object-fit: cover; }
+.cn-tl-sym--flags .tp-fl { display: block; border-radius: 1px; }
+.tp-find-flag .tp-fl, .tp-card-flag .tp-fl { vertical-align: 0; }
