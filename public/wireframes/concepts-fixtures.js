@@ -32,7 +32,7 @@ window.cnFixtures = [
   {"d": "Thu 7 Oct", "t": "Chile v Hong Kong China", "s": "Pool A", "v": "North Queensland Stadium", "p": "Townsville", "k": "5:15pm", "a": "Townsville"},
   {"d": "Fri 8 Oct", "t": "Spain v Canada", "s": "Pool C", "v": "Adelaide Oval", "p": "Adelaide", "k": "7:30pm", "a": "Adelaide"},
   {"d": "Fri 8 Oct", "t": "Wales v Tonga", "s": "Pool F", "v": "Docklands Stadium", "p": "Melbourne", "k": "7:45pm", "a": "Melbourne"},
-  {"d": "Sat 9 Oct", "t": "England v Zimbabwe", "s": "Pool F", "v": "Adelaide Oval", "p": "Adelaide", "k": "7:30pm", "a": "Adelaide"},
+  {"d": "Sat 9 Oct", "t": "England v Zimbabwe", "s": "Pool F", "v": "North Queensland Stadium", "p": "Townsville", "k": "7:30pm", "a": "Townsville"},
   {"d": "Sat 9 Oct", "t": "Ireland v Scotland", "s": "Pool D", "v": "Docklands Stadium", "p": "Melbourne", "k": "8:00pm", "a": "Melbourne"},
   {"d": "Sat 9 Oct", "t": "France v Japan", "s": "Pool E", "v": "Brisbane Stadium", "p": "Brisbane", "k": "8:00pm", "a": "Brisbane"},
   {"d": "Sat 9 Oct", "t": "South Africa v Georgia", "s": "Pool B", "v": "Perth Stadium", "p": "Perth", "k": "9:30pm", "a": "Perth"},

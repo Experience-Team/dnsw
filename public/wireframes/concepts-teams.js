@@ -71,7 +71,7 @@
     return p ? P : k ? K : 'No matches';
   }
   // The 25th card: no team, every match in NSW
-  var RUGBY = { name: 'Here for the rugby', code: 'ALL', rugby: true };
+  var RUGBY = { name: 'All matches', code: 'ALL', rugby: true }; // every NSW match, no team (it was Here for the rugby)
   var CARDS = names.map(function (n) { return TEAMS[n]; });
   var R16 = FIX.filter(function (f) { return /^Round of 16/.test(f.s); });
 
@@ -84,7 +84,7 @@
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
     var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (rec && Array.isArray(rec.picked)) {
-      state.picked = rec.picked.filter(function (n) { return n === RUGBY.name || TEAMS[n]; });
+      state.picked = rec.picked.map(function (n) { return n === 'Here for the rugby' ? RUGBY.name : n; }).filter(function (n) { return n === RUGBY.name || TEAMS[n]; }); // saved under its old name before
       state.tickets = Array.isArray(rec.tickets) ? rec.tickets.filter(function (x) { return typeof x === 'string'; }) : [];
       if (rec.tab === 'all') state.tab = 'all';
     }
@@ -228,8 +228,8 @@
     var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
     // Here for the rugby already covers every match in NSW, so it stands alone: picking it puts the team cards back in
     // the hand, and picking a team puts it back. The cards that go drop in the same glide.
-    if (on && c.rugby && state.picked.length) { state.picked = []; note = ' Your team picks are cleared, as every NSW match is included.'; }
-    else if (on && !c.rugby && isPicked(RUGBY)) { state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; }); note = ' Here for the rugby is off.'; }
+    if (on && c.rugby && state.picked.length) { state.picked = []; note = ' Your team picks are cleared, as All matches includes every NSW match.'; }
+    else if (on && !c.rugby && isPicked(RUGBY)) { state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; }); note = ' All matches is off.'; }
     if (on) state.picked.push(c.name); else state.picked = state.picked.filter(function (n) { return n !== c.name; });
     save();
     // The pick is a visible moment, not just a turn of the hand: the card is pulled up out of the fan above its
@@ -265,7 +265,7 @@
      what that means in matches. The new part is emphasised for a moment, then settles. The live region says the same. */
   function pickLine(c, on) {
     if (!on) return c.name + ' removed';
-    if (c.rugby) return 'Every NSW match added: ' + countPhrase(nswPool.concat(nswKo));
+    if (c.rugby) return 'All matches added: ' + countPhrase(nswPool.concat(nswKo));
     return c.name + ' added: ' + countPhrase(c.matches) + ', ' + (c.nsw ? c.nsw + ' in NSW' : 'all interstate');
   }
   var CAPTION_REST = 'Tap a card to add its matches. Tap it again to take it off.';
@@ -532,7 +532,7 @@
     var mine = names.filter(function (n) { return isPicked(TEAMS[n]); });
     var rest = names.filter(function (n) { return !isPicked(TEAMS[n]); });
     var order = mine.concat(rest.filter(function (n) { return TEAMS[n].nsw; }), rest.filter(function (n) { return !TEAMS[n].nsw; }));
-    tsList.innerHTML = tsRow(RUGBY.name, '', 'Every NSW match', 'No team needed: ' + countPhrase(nswPool.concat(nswKo), { short: true })) +
+    tsList.innerHTML = tsRow(RUGBY.name, '', 'All matches', 'Every NSW match, no team needed: ' + countPhrase(nswPool.concat(nswKo), { short: true })) +
       order.map(function (n) { var t = TEAMS[n]; return tsRow(n, FLAG[n], n, t.pool + ' · ' + nswLine(t)); }).join('');
   }
   function tsMatches() {
@@ -550,7 +550,7 @@
     });
     var picks = state.picked.slice();
     tsChips.innerHTML = picks.map(function (n) {
-      var label = n === RUGBY.name ? 'Every NSW match' : n;
+      var label = n;
       return '<li><button type="button" class="tp-ts-chip" data-team="' + esc(n) + '" aria-label="Remove ' + esc(label) + '">' +
         (FLAG[n] ? '<span aria-hidden="true">' + FLAG[n] + '</span>' : '') + '<span>' + esc(label) + '</span><svg class="tp-ts-chip-x" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></li>';
     }).join('');
@@ -575,7 +575,7 @@
     var q = tsFind.value.trim().toLowerCase(), shown = 0;
     tsList.querySelectorAll('li').forEach(function (li) {
       var n = li.firstElementChild.dataset.team;
-      var hit = !q || (n === RUGBY.name ? /^(every|nsw|all|rugby)/.test(q) || 'every nsw match'.indexOf(q) === 0 : teamMatch(n, q));
+      var hit = !q || (n === RUGBY.name ? /^(every|nsw|all|rugby)/.test(q) || 'all matches'.indexOf(q) === 0 : teamMatch(n, q));
       li.hidden = !hit; if (hit) shown++;
     });
     tsNone.hidden = shown > 0;
@@ -586,7 +586,7 @@
   function tsRugby(from) {
     var on = !isPicked(RUGBY), prev = state.picked.slice(), swapped = on && teamsPicked().length > 0;
     setRugby(on, from);
-    var lead = on ? 'Every NSW match added' : 'Every NSW match removed', rest = on ? ': ' + countPhrase(nswPool.concat(nswKo), { short: true }) : '';
+    var lead = on ? 'All matches added' : 'All matches removed', rest = on ? ': ' + countPhrase(nswPool.concat(nswKo), { short: true }) : '';
     showCaption(lead, rest);
     tsNote(lead + rest + '.' + (swapped ? ' Your teams are cleared.' : ''), swapped ? function () {
       state.picked = prev; save(); place(true); renderChosen(); renderMatches();
@@ -600,7 +600,7 @@
     var i = CARDS.indexOf(TEAMS[n]), wasR = isPicked(RUGBY), on = !isPicked(TEAMS[n]);
     if (pos(i) < 0) setNsw(false);
     var msg = toggle(i, from);
-    tsNote(msg + '.' + (on && wasR ? ' Every NSW match is off.' : ''));
+    tsNote(msg + '.' + (on && wasR ? ' All matches is off.' : ''));
   }
   if (tsList) {
     tsList.addEventListener('click', function (e) {
@@ -656,7 +656,7 @@
     if (!n) return 'No teams picked yet.';
     var teams = state.picked.filter(function (x) { return x !== RUGBY.name; });
     var rugby = state.picked.length > teams.length;
-    return (teams.length ? 'Picked: ' + list(teams) : '') + (rugby ? (teams.length ? ', plus every NSW match.' : 'Here for the rugby: every NSW match.') : '.');
+    return (teams.length ? 'Picked: ' + list(teams) : '') + (rugby ? (teams.length ? ', plus All matches (every NSW match).' : 'All matches: every NSW match.') : '.');
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
@@ -668,7 +668,7 @@
       // In the timeline it is part of the empty state only, so it goes with any pick (on, it shows in All matches)
       a.parentNode.hidden = a.parentNode.id === 'tp-tl-rugby' ? state.picked.length > 0 : hide;
       a.setAttribute('aria-pressed', r ? 'true' : 'false');
-      a.textContent = r ? 'Every NSW match added. Remove them' : 'Not following a team? Add every NSW match';
+      a.textContent = r ? 'All matches added. Remove them' : 'Not following a team? Add All matches (every NSW match)';
     });
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
@@ -693,7 +693,7 @@
       state.picked = prevPicked; state.tickets = prevTickets; state.tab = prevTab;
       save(); place(true); renderChosen(); renderMatches(null, null, prevTab === 'all');
       pickFlights(u, b2, o2, bar2);
-      showCaption('Your teams are back', ': ' + list(prevPicked.map(function (n) { return n === RUGBY.name ? 'every NSW match' : n; })));
+      showCaption('Your teams are back', ': ' + list(prevPicked.map(function (n) { return n; })));
       say('Undone. Your teams' + (prevTickets.length ? ' and ticket marks' : '') + ' are back.');
       clearBtn.focus({ preventScroll: true });
       notesOnly();
@@ -723,7 +723,7 @@
       // From the open timeline there is nothing to fly from: the markers appear in place. From All matches, All
       // matches stays the chosen tab, so the link (now Remove them) stays where it was, with focus on it
       setRugby(on, inTl ? null : a, !inTl);
-      var lead = on ? 'Every NSW match added' : 'Every NSW match removed';
+      var lead = on ? 'All matches added' : 'All matches removed';
       showCaption(lead, on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '');
       say(lead + (on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '') + '.');
       if (inTl && on) document.getElementById('tp-tl-title').focus({ preventScroll: true });
@@ -792,7 +792,7 @@
     var all = Object.keys(ids);
     all.forEach(function (k) { if (!ids[k].a) nsw++; if (state.tickets.indexOf(k) > -1) tickets++; });
     var teams = pickedCards().filter(function (c) { return !c.rugby; }).map(function (c) { return c.name; });
-    var who = teams.length ? list(teams) + (isPicked(RUGBY) ? ', plus every NSW match' : '') : 'Every NSW match';
+    var who = teams.length ? list(teams) + (isPicked(RUGBY) ? ', plus All matches' : '') : 'All matches';
     // A match between two of your teams counts once
     var fs = all.map(function (k) { return ids[k]; });
     return who + ': ' + countPhrase(fs) + (nsw === all.length ? ', all in NSW. ' : ', ' + nsw + ' in NSW. ') + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : 'No tickets marked yet.');
@@ -1047,6 +1047,7 @@
   var tl = document.getElementById('tp-tl');
   var tlToggle = document.getElementById('tp-tl-toggle'), tlPanel = document.getElementById('tp-tl-panel'), tlScrim = document.getElementById('tp-tl-scrim');
   var tlCanvas = document.getElementById('tp-tl-canvas'), tlScroll = document.getElementById('tp-tl-scroll'), tlDetail = document.getElementById('tp-tl-detail');
+  var tlDays = document.getElementById('tp-tl-days');
   var tlDots = document.getElementById('tp-tl-dots'), tlLabel = document.getElementById('tp-tl-label'), tlValue = document.getElementById('tp-tl-value');
   var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt');
   var tlItemEls = {}, tlStay, tlKey = document.getElementById('tp-tl-key'), tlClash = {}, tlClashEl;
@@ -1236,26 +1237,30 @@
       var t = dayType[i];
       el.className = 'tp-tl-dot' + (t === undefined && !itemDays[i] ? ' is-off' : t === undefined ? ' is-item' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '') + (itemDays[i] && t !== undefined ? ' has-item' : '');
     });
-    // The bar's words
+    // The bar's words. One reading that never changes meaning: the label names your teams; the value is the plan's total
+    // by the page's one counting rule (as the tab, the summary and the Your teams sheet); your days are a small note under
+    // the strip; what you added is on the badge only; clashes show on the strip (and are named in the open timeline)
     var teams = tlTeams(), none = !state.picked.length;
-    var label = none ? 'Pick your team' : isPicked(RUGBY) ? 'Here for the rugby: every NSW match' : 'Your teams: ' + list(teams);
+    var label = none ? 'Pick your team' : isPicked(RUGBY) ? 'All matches: every NSW match' : 'Your teams: ' + list(teams);
     var added = state.added.length;
-    if (added) label = added + ' added to your timeline' + (none ? ' \u00b7 Pick your team' : '');
-    var nClash = Object.keys(tlClash).length;
-    if (nClash) label = nClash + (nClash === 1 ? ' clash' : ' clashes') + ' \u00b7 ' + added + ' added to your timeline';
-    tlLabel.classList.toggle('is-clash', !!nClash);
     tlLabel.textContent = label;
-    tlLabel.classList.toggle('is-hook', none || !!added);
-    // Once the days in NSW are confirmed the bar follows them: the matches in those days, and those days (no prefix:
-    // the bar has room for "9 pool + 8 knockouts · 3 Oct to 13 Nov" and no more)
-    if (confirmed) {
-      var ca = isoDay(trip.from), cz = isoDay(trip.to), inDays = shown.filter(function (m) { return m.day >= ca && m.day <= cz; });
-      // It says it counts only their days, so it never seems to disagree with the plan's total
-      setValue(inDays.length === shown.length ? countPhrase(shown.map(function (m) { return m.f; }), { short: true }) + ' · ' + isoRange(trip.from, trip.to)
-        : inDays.length + (inDays.length === 1 ? ' match' : ' matches') + ' in your days · ' + isoRange(trip.from, trip.to));
-    } else {
-      setValue(countPhrase(shown.map(function (m) { return m.f; }), { short: true }) + (shown.length ? ' · ' + tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : ''));
+    tlLabel.classList.toggle('is-hook', none);
+    var fsAll = shown.map(function (m) { return m.f; }), inNsw = fsAll.filter(function (f) { return !f.a; }).length;
+    setValue(fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + inNsw + ' in NSW' : 'No matches yet');
+    if (tlDays) {
+      if (confirmed) {
+        var ca = isoDay(trip.from), cz = isoDay(trip.to), inDays = shown.filter(function (m) { return m.day >= ca && m.day <= cz; }).length;
+        tlDays.textContent = (!shown.length ? 'Your days' : inDays === shown.length ? 'All in your days' : inDays + ' in your days') + ' \u00b7 ' + isoRange(trip.from, trip.to);
+      } else tlDays.textContent = shown.length ? tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : '';
     }
+    // A clash marks its day on the strip
+    var clashDays = {};
+    Object.keys(tlClash).forEach(function (id) {
+      var it = state.added.filter(function (x) { return x.id === id; })[0];
+      if (it && it.day) clashDays[dayOf(it.day)] = true;
+      (tlClash[id] || []).forEach(function (c) { if (c && c.day && /^\w{3} \d{1,2} (Oct|Nov)$/.test(c.day)) clashDays[dayOf(c.day)] = true; });
+    });
+    tlDotEls.forEach(function (el, i) { el.classList.toggle('is-clash', !!clashDays[i]); });
     if (String(added || '') !== tlBadge.textContent) {
       tlBadge.hidden = !added;
       tlBadge.textContent = added || '';
@@ -1455,7 +1460,7 @@
     if (by.trip) off.push(tlCount(by.trip, 'trip', 'trips'));
     if (gone.length) off.push(tlCount(gone.length, 'ticket mark on an added match', 'ticket marks on added matches'));
     var teams = state.picked.filter(function (x) { return x !== RUGBY.name; });
-    if (isPicked(RUGBY)) keep.push('Every NSW match, as you’re here for the rugby');
+    if (isPicked(RUGBY)) keep.push('All matches (every NSW match)');
     else if (teams.length) keep.push((teams.length === 1 ? teams[0] : tlCount(teams.length, 'team', 'teams')) + ' and ' + (teams.length === 1 ? 'its' : 'their') + ' matches');
     var tk = state.tickets.length - gone.length;
     if (tk > 0) keep.push(tlCount(tk, 'ticket you’ve marked', 'tickets you’ve marked'));
@@ -1507,6 +1512,10 @@
     if (!results.hidden) return deck;
     return allSec && !allSec.hidden ? document.getElementById('tp-all-scroll') : null;
   }
+  // Go to your timeline: the first Tab stop in the phone, so the bar (last in the markup) is two presses away
+  var skipEl = document.getElementById('tp-skip');
+  if (skipEl) skipEl.addEventListener('click', function (e) { e.preventDefault(); document.getElementById('tp-tl-toggle').focus(); });
+  if (skipEl) skipEl.hidden = !tlOn;
   function syncBar() {
     var ref = tlRef(), r = ref && ref.getBoundingClientRect(), box = body.getBoundingClientRect();
     // The cards' top has passed the top of the phone; or, where the page is too short for that, the cards are in view and
@@ -1518,6 +1527,7 @@
     var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
     // A pick is shown working: the bar is up whenever a team is picked
     var on = tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
+    if (skipEl) skipEl.hidden = !on; // the skip link only points somewhere while the bar is up
     if (on === tlOn) return;
     tlOn = on;
     tl.classList.toggle('is-on', on);
