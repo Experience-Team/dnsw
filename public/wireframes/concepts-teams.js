@@ -317,7 +317,7 @@
     inc.sort(function (a, b) { return a.day - b.day; });
     var landDots = inc.map(function (m) { return tlDotEls[m.day]; });
     function landed(el) { el.classList.remove('is-incoming'); el.classList.remove('is-landed'); void el.offsetWidth; el.classList.add('is-landed'); }
-    var quiet = reduce.matches || !src || !document.body.animate || !src.getClientRects().length;
+    var quiet = reduce.matches || !src || !document.body.animate || !src.getClientRects().length || tsPh; // in its sheet, the bar is behind
     if (quiet) { landDots.forEach(landed); return; }
     // The dots wait off the strip until their flight lands; the count waits for the last one
     landDots.forEach(function (el) { el.classList.add('is-incoming'); });
@@ -1122,6 +1122,7 @@
     }
     // One prompt at a time: which team first; the trip line only once there is a team
     tlPrompt.hidden = !none;
+    if (tsLink) tsLink.hidden = none; // with a team (or every NSW match): add or change them over the timeline
     // The key lists only the marker shapes on the axis now
     // Each entry draws its marker exactly as the axis does (the ball in the ring, the screen or pin in the square)
     var kinds = { nsw: false, away: false, ticket: false, tbd: false,
@@ -1371,7 +1372,7 @@
     var atEnd = body.scrollTop + body.clientHeight >= body.scrollHeight - 2;
     var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
     // Once something is on the timeline, the bar stays up anywhere below the fan, so an Add never goes nowhere
-    var fanBox = root.querySelector('.tp-fan-wrap').getBoundingClientRect();
+    var fanBox = (tsPh || root.querySelector('.tp-fan-wrap')).getBoundingClientRect(); // the placeholder while the picker is in its sheet
     var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
     // A pick is shown working: the bar is up whenever a team is picked
     var on = tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
@@ -1539,13 +1540,40 @@
     grab.addEventListener('pointerup', letGo); grab.addEventListener('pointercancel', letGo);
   }
   phoneEl.querySelectorAll('.tp-stack').forEach(stackRegister);
-  // The prompt that used to sit at the top of the phone: back to the fan
-  document.getElementById('tp-tl-pick').addEventListener('click', function () {
-    tlSetOpen(false, false);
-    deal();
-    body.scrollTo({ top: pickTop(), behavior: reduce.matches ? 'auto' : 'smooth' });
+  /* Pick your teams over the timeline: Pick a team (none picked) and Add or change teams (some picked) open a sheet
+     stacked over the timeline, and the page's own picker (#tp-picker: the fan, its caption with Undo, Clear all) moves
+     into it, so every pick works exactly as on the page and the timeline behind updates as you go. A placeholder of the
+     same height holds its place on the page. On close it goes back once the sheet has slid away, and focus returns to
+     the button that opened it, or to Add or change teams when that button has gone (the first pick hides Pick a team). */
+  var tsSheet = document.getElementById('tp-ts'), tsBody = document.getElementById('tp-ts-body'), tsPh = null, tsBackT = 0;
+  var tsLink = document.getElementById('tp-tl-teams'), tsLinkBtn = document.getElementById('tp-tl-teams-btn');
+  function tsAway() { return !!tsPh; }
+  function tsHome() {
+    clearTimeout(tsBackT);
+    if (!tsPh) return;
+    tsPh.parentNode.replaceChild(picker, tsPh); tsPh = null;
+    place(false);
+  }
+  function tsOpen(opener) {
+    if (!tlOpen) return;
+    clearTimeout(tsBackT);
+    if (!tsPh) {
+      tsPh = document.createElement('div'); tsPh.className = 'tp-picker-ph'; tsPh.setAttribute('aria-hidden', 'true');
+      tsPh.style.height = picker.offsetHeight + 'px';
+      picker.parentNode.replaceChild(tsPh, picker);
+      tsBody.appendChild(picker);
+    }
+    stackOpen(tsSheet, opener);
+    if (dealt) place(false); else deal();
     midCard().focus({ preventScroll: true });
+  }
+  tsSheet.addEventListener('tp:stackclose', function () {
+    tsBackT = setTimeout(tsHome, reduce.matches ? 0 : 340); // after the slide down, so the sheet never empties in view
+    var a = document.activeElement;
+    if (!a || a === document.body || !tl.contains(a) || !a.offsetParent) (tsLink.hidden ? document.getElementById('tp-tl-pick') : tsLinkBtn).focus({ preventScroll: true });
   });
+  document.getElementById('tp-tl-pick').addEventListener('click', function (e) { tsOpen(e.currentTarget); });
+  tsLinkBtn.addEventListener('click', function (e) { tsOpen(e.currentTarget); });
   /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections
      (concepts-third-half.js) through window.tpPicker. Saved on this device with the picks. ---------- */
   function addItem(it) {
@@ -1595,6 +1623,8 @@
      again, and the phone scrolled to the top. */
   var resetBtn = document.getElementById('tp-reset');
   if (resetBtn) resetBtn.addEventListener('click', function () {
+    if (stackEl) stackClose(false);
+    tsHome();
     deck.getAnimations && deck.querySelectorAll('*').forEach(function (el) { el.getAnimations().forEach(function (a) { a.cancel(); }); });
     cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
     state.picked = []; state.tickets = []; state.allFilter = { nsw: false, city: null };
