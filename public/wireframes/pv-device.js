@@ -19,14 +19,12 @@
      block, so a picture not added yet simply leaves the block. Placeholders drawn later (sheets, cards) are picked up
      as they appear. The wireframe takes them off again. */
   var IMG_DIR = 'assets/images/';
-  // Pictures saved under their own name rather than the placeholder's: placeholder name -> file name (no extension).
-  // Sample pub A keeps its sample name on purpose (the fixtures' pubs and the matches they show are invented, so no
-  // real business is named); only its picture is a real photo.
+  // Pictures saved under their own name rather than the placeholder's: placeholder name -> file name (no extension)
   var IMG_ALIAS = {
-    'sample-pub-a-placeholder': 'golden-barley',
-    'sample-pub-b-placeholder': 'lord-nelson',
-    'sample-pub-c-placeholder': 'marickville-tavern',
-    'sample-rugby-village-placeholder': 'village'
+    'golden-barley-hotel': 'golden-barley',
+    'lord-nelson-brewery-hotel': 'lord-nelson',
+    'marrickville-tavern': 'marickville-tavern',
+    'rugby-village-foreshore-park': 'village'
   };
   function paint(el) {
     var name = el.getAttribute('data-img'); name = IMG_ALIAS[name] || name;

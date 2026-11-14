@@ -2010,6 +2010,9 @@ button.area-map-pin:hover { color: #111; }
   pointer-events: none;
 }
 .provenance-gap::after { background: rgba(255, 0, 0, 0.05); }
+/* In the prototype viewer the markers show only while Annotations is on (the stage has .has-notes); phone view and the
+   default view stay clean, in the wireframe and in high fidelity alike */
+.pv-stage:not(.has-notes) :is(.provenance-gap, .provenance-unverified)::after { content: none; }
 .provenance-unverified::after { background: rgba(255, 234, 0, 0.05); }
 
 /* ── Trust bar (contract-bound module) ── */

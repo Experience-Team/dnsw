@@ -113,8 +113,7 @@
 :root[data-theme="hifi"][data-colourway="clay"] .cn-phone { --tth-surface-brand: var(--tth-color-clay); }
 
 /* ── 3. Wireframe-only marks ───────────────────────────────────────────────────────────────────────────────────── */
-/* Data that is not live yet: the pink wash is a wireframe marker only (the annotations still say which data is gap) */
-:root[data-theme="hifi"] .cn-phone .provenance-gap::after { content: none; }
+/* Data that is not live yet: the pink wash follows the Annotations switch, as in the wireframe (shared.css) */
 /* Pictures: a placeholder with data-img shows assets/images/<name>.webp or .jpg over its block (pv-device.js sets it; a missing
    file leaves the block). No "Image" label. */
 :root[data-theme="hifi"] .cn-phone .ph-img::after { content: none; }

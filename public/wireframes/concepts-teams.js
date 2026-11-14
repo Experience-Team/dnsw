@@ -1049,7 +1049,7 @@
      have scrolled past the top of the phone), collapsed (the 104px bar) and open (the sheet risen by its panel height).
      Only transform moves it. Matches only: every match with no team or after Skip, every NSW match for Here for the
      rugby, and only the picked teams' matches, live as picks change. The All matches list stays unfiltered.
-     Fan zones and the village are gap data from cnWatchSpots (placeholders). The number badge counts items added to
+     Fan zones and the village are gap data from cnWatchSpots (real places, indicative screenings). The number badge counts items added to
      the timeline; none exist yet, so only the reviewer-only stand-in control can show it. */
   var tl = document.getElementById('tp-tl');
   var tlToggle = document.getElementById('tp-tl-toggle'), tlPanel = document.getElementById('tp-tl-panel'), tlScrim = document.getElementById('tp-tl-scrim');
