@@ -4052,9 +4052,30 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    picked card's lift. */
 .tp-ts { padding-bottom: var(--space-4); }
 .tp-ts .cn-sheet-head { margin-bottom: var(--space-1); }
-.tp-ts-sub { margin: 0; font-size: .8125rem; line-height: 1.4; color: #4d4d4d; }
-.tp-ts-body { padding-top: var(--space-3); }
+.tp-ts-sub { margin: 0 0 24px; font-size: .8125rem; line-height: 1.4; color: #4d4d4d; }
 .tp-ts-acts { display: flex; justify-content: flex-end; margin-top: var(--space-2); }
 .tp-tl-teams { margin-top: var(--space-2); }
 .tp-tl-teams[hidden] { display: none; }
 .tp-tl-teams .tp-link { display: inline-flex; align-items: center; }
+/* Pick your team: Or pick from a list. A quiet link under the fan (36px, AA) opens every team A to Z in place, as
+   toggle buttons in the search list's row style; Every NSW match first, set apart. */
+.tp-list-row { display: flex; justify-content: center; }
+.tp-list-row .tp-link { min-height: 36px; }
+.tp-team-list { list-style: none; margin: var(--space-2) 0 0; padding: 0; border-top: 1px solid #e3e3e3; animation: tp-fade .2s ease-out; }
+.tp-team-list[hidden] { display: none; }
+.tp-team-list li { border-bottom: 1px solid #ededed; }
+.tp-team-list li:first-child { border-bottom-color: #cfcfcf; }
+.tp-list-opt { min-height: 44px; padding: 6px var(--space-1); border-radius: 0; }
+.tp-list-opt .tp-find-flag { display: inline-grid; place-items: center; width: 28px; }
+.tp-list-opt .tp-fl { height: 16px; }
+.tp-list-all { width: 25px; height: 16px; border: 1.5px dashed #8a8a8a; border-radius: 2px; }
+.tp-list-opt[aria-pressed="true"] .tp-find-name::after { content: none; }
+/* In the Pick your teams sheet the content scrolls between the title and Done, so an open list never pushes Done off */
+#tp-phone .tp-ts { max-height: calc(100% - var(--stack-top, 54px)); overflow: hidden; }
+.tp-ts-body { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; margin: 0 calc(var(--space-4) * -1); padding: 18px var(--space-4) var(--space-2); }
+/* The fan in the sheet: a picked card's pull rises over the line above it rather than being cut by the scroll area, and
+   the side cards' far corners stop 80px out, so they add no empty scrolling below */
+.tp-ts .tp-fan-wrap { overflow: clip; overflow-clip-margin: 80px; }
+.tp-ts-sub { position: relative; z-index: 0; }
+.tp-ts-acts { flex: none; }
+@media (prefers-reduced-motion: reduce) { .tp-team-list { animation: none; } }

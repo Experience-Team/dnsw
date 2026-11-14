@@ -510,6 +510,69 @@
     findIn.addEventListener('focus', function () { if (findIn.value.trim()) renderFind(); });
   }
 
+  /* ---------- Or pick from a list ----------
+     A quiet link under the fan opens every team A to Z in place: flag, name, pool and NSW matches, each a toggle button
+     (aria-pressed). Every NSW match sits at the top. It is the fan by other means: a team picked here goes through the
+     fan's own toggle (the hand turns to it, the caption says what it did, the timeline updates), and listSync() runs on
+     every change, so a pick on either shows on both. The everything rule is the fan's: picking a team swaps Every NSW
+     match off; picking Every NSW match replaces the teams, with Undo in the caption. */
+  var listBtn = document.getElementById('tp-list-toggle'), listEl = document.getElementById('tp-list');
+  function listRow(key, flag, name, meta) {
+    return '<li><button type="button" class="tp-find-opt tp-list-opt" data-team="' + esc(key) + '" aria-pressed="false">' +
+      (flag ? '<span class="tp-find-flag" aria-hidden="true">' + flag + '</span>' : '<span class="tp-find-flag tp-list-all" aria-hidden="true"></span>') +
+      '<span class="tp-find-text"><span class="tp-find-name">' + esc(name) + '</span><span class="tp-find-meta">' + esc(meta) + '</span></span>' +
+      '<span class="tp-find-state" aria-hidden="true">Pick</span></button></li>';
+  }
+  if (listEl) {
+    listEl.innerHTML = listRow(RUGBY.name, '', 'Every NSW match', 'No team needed: ' + countPhrase(nswPool.concat(nswKo), { short: true })) +
+      names.map(function (n) { var t = TEAMS[n]; return listRow(n, FLAG[n], n, t.pool + ' \u00b7 ' + nswLine(t)); }).join('');
+  }
+  function listSync() {
+    if (!listEl) return;
+    listEl.querySelectorAll('.tp-list-opt').forEach(function (b) {
+      var on = state.picked.indexOf(b.dataset.team) > -1;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.lastElementChild.textContent = on ? 'Picked' : 'Pick';
+    });
+  }
+  function listOpen(on) {
+    var sheet = listEl.closest('.tp-ts'), top0 = sheet && sheet.classList.contains('is-open') ? sheet.getBoundingClientRect().top : null;
+    listEl.hidden = !on;
+    listBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    listBtn.textContent = on ? 'Hide the list' : 'Or pick from a list';
+    // In the sheet over the timeline it grows upwards: glide its top from where it was, so the change can be followed
+    if (top0 != null && !reduce.matches && sheet.animate) {
+      var d = top0 - sheet.getBoundingClientRect().top;
+      if (Math.abs(d) > 1) sheet.animate([{ transform: 'translateY(' + d + 'px)' }, { transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.25, .6, .3, 1)' });
+    }
+    if (on) listEl.scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' });
+    notesOnly();
+  }
+  if (listBtn) listBtn.addEventListener('click', function () { listOpen(listEl.hidden); });
+  if (listEl) listEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.tp-list-opt'); if (!b) return;
+    var n = b.dataset.team;
+    if (n === RUGBY.name) {
+      var on = !isPicked(RUGBY), prev = state.picked.slice(), swapped = on && teamsPicked().length > 0;
+      setRugby(on, b);
+      var lead = on ? 'Every NSW match added' : 'Every NSW match removed', rest = on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '';
+      // The everything choice replaces the teams; Undo puts them back
+      showCaption(lead, rest, swapped ? ' Your team picks are cleared, as every NSW match is included.' : '', swapped ? function () {
+        state.picked = prev; save(); place(true); renderChosen(); renderMatches();
+        showCaption('Your teams are back', ': ' + list(prev));
+        say('Undone. Your teams are back.');
+        b.focus({ preventScroll: true });
+      } : null);
+      say(lead + rest + '.' + (swapped ? ' Your team picks are cleared. Undo is available for a few seconds.' : ''));
+    } else {
+      var i = CARDS.indexOf(TEAMS[n]);
+      if (pos(i) < 0) setNsw(false);
+      deal();
+      toggle(i, b);
+    }
+    b.focus({ preventScroll: true });
+  });
+
   function chosenText() {
     var n = state.picked.length;
     if (!n) return 'No teams picked yet.';
@@ -519,6 +582,7 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
+    listSync();
     clearBtn.hidden = !teamsPicked().length; // teams only: with just every NSW match on, it stays hidden; the link in All matches removes them
     // The quiet links: with no team, add every NSW match; on, take them off; hidden while teams are picked
     var r = isPicked(RUGBY), hide = teamsPicked().length > 0;
