@@ -256,11 +256,11 @@
      what that means in matches. The new part is emphasised for a moment, then settles. The live region says the same. */
   function pickLine(c, on) {
     if (!on) return c.name + ' removed';
-    if (c.rugby) return 'Here for the rugby added: every NSW match, ' + countPhrase(nswPool.concat(nswKo));
+    if (c.rugby) return 'Every NSW match added: ' + countPhrase(nswPool.concat(nswKo));
     return c.name + ' added: ' + countPhrase(c.matches) + ', ' + (c.nsw ? c.nsw + ' in NSW' : 'all interstate');
   }
   var CAPTION_REST = 'Tap a card to add its matches. Tap it again to take it off.';
-  // undo: a function, to offer Undo in the caption for a few seconds (the swap to Here for the rugby)
+  // undo: a function, to offer Undo in the caption for a few seconds (after Clear all)
   var undoTimer = 0;
   function showCaption(lead, rest, note, undo) {
     clearTimeout(undoTimer);
@@ -402,6 +402,30 @@
     });
   }
   var found = [];
+  /* Find your team: an icon button by the heading. Open, the field slides across the heading row from the icon (clip,
+     so nothing below moves) with the keyboard up; Escape, the cross or a tap elsewhere with nothing typed folds it back
+     into the icon, and focus returns to the icon */
+  var findBox = document.getElementById('tp-find'), findOpen = document.getElementById('tp-find-open'), findAnim = null;
+  function openFind() {
+    if (!findBox || !findBox.hidden) { if (findIn) findIn.focus(); return; }
+    if (findAnim) findAnim.cancel();
+    findBox.hidden = false; findOpen.setAttribute('aria-expanded', 'true');
+    if (!reduce.matches && findBox.animate) findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: .6 }, { clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.3, .4, .3, 1)' });
+    findIn.focus({ preventScroll: true });
+    notesOnly();
+  }
+  function closeFind(focusBtn) {
+    if (!findBox || findBox.hidden) return;
+    clearFind();
+    findOpen.setAttribute('aria-expanded', 'false');
+    var done = function () { findBox.hidden = true; findAnim = null; notesOnly(); };
+    if (findAnim) findAnim.cancel();
+    if (!reduce.matches && findBox.animate) { findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }, { clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: 0 }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }); findAnim.onfinish = done; }
+    else done();
+    if (focusBtn) findOpen.focus({ preventScroll: true });
+  }
+  if (findOpen) findOpen.addEventListener('click', openFind);
+  if (findBox) document.getElementById('tp-find-close').addEventListener('click', function () { closeFind(true); });
   function clearFind() { if (!findIn) return; findIn.value = ''; found = []; renderFind(); }
   function renderFind() {
     var q = findIn.value.trim().toLowerCase();
@@ -441,7 +465,7 @@
     findIn.addEventListener('input', function () { renderFind(); if (findIn.value.trim()) say(found.length ? found.length + (found.length === 1 ? ' team matches.' : ' teams match.') : 'No team matches.'); });
     findIn.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && found.length) { e.preventDefault(); pickFound(found[0]); }
-      else if (e.key === 'Escape' && findIn.value) { e.preventDefault(); clearFind(); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeFind(true); }
       else if (e.key === 'ArrowDown' && found.length) { e.preventDefault(); findList.querySelector('.tp-find-opt').focus(); }
     });
     findList.addEventListener('click', function (e) { var b = e.target.closest('.tp-find-opt'); if (b) pickFound(b.dataset.team); });
@@ -450,10 +474,11 @@
       var all = Array.prototype.slice.call(findList.querySelectorAll('.tp-find-opt')), k = all.indexOf(b);
       if (e.key === 'ArrowDown') { e.preventDefault(); (all[k + 1] || all[k]).focus(); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); (k ? all[k - 1] : findIn).focus(); }
-      else if (e.key === 'Escape') { e.preventDefault(); clearFind(); findIn.focus(); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeFind(true); }
     });
     // Leaving the field and its suggestions closes them; the text stays so nothing typed is lost
-    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.tp-find')) { findList.hidden = true; findIn.setAttribute('aria-expanded', 'false'); } });
+    // A tap elsewhere hides the suggestions; with nothing typed it also folds the search back into its icon
+    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.tp-find') && !e.target.closest('#tp-find-open')) { findList.hidden = true; findIn.setAttribute('aria-expanded', 'false'); if (!findIn.value.trim() && !findBox.hidden) closeFind(false); } });
     findIn.addEventListener('focus', function () { if (findIn.value.trim()) renderFind(); });
   }
 
@@ -480,44 +505,59 @@
   // Clear all: every card back in the hand and every ticket mark gone, so the picker starts again
   clearBtn.addEventListener('click', function () {
     var before = ownKeys(), old = tlValue.textContent, bar = tlOn;
+    var prevPicked = state.picked.slice(), prevTickets = state.tickets.slice(), prevTab = state.tab;
     state.picked = [];
     // Tickets go with the teams; a ticket on a match added on its own stays with that match
     var keepT = addedMatches().map(function (m) { return idOf(m.f); });
     state.tickets = state.tickets.filter(function (x) { return keepT.indexOf(x) > -1; });
+    var dropped = prevTickets.length - state.tickets.length;
     save();
     place(true);
     renderChosen();
     renderMatches();
     pickFlights(null, before, old, bar);
-    showCaption('All teams cleared', '. ' + CAPTION_REST);
+    // Undo for a few seconds: the teams and their ticket marks come back exactly as they were. Focus goes to Undo, as
+    // the button has just hidden itself; when Undo goes, focus goes to the middle card
+    showCaption('All teams cleared', '', '', function (u) {
+      var b2 = ownKeys(), o2 = tlValue.textContent, bar2 = tlOn;
+      state.picked = prevPicked; state.tickets = prevTickets; state.tab = prevTab;
+      save(); place(true); renderChosen(); renderMatches(null, null, prevTab === 'all');
+      pickFlights(u, b2, o2, bar2);
+      showCaption('Your teams are back', ': ' + list(prevPicked.map(function (n) { return n === RUGBY.name ? 'every NSW match' : n; })));
+      say('Undone. Your teams' + (prevTickets.length ? ' and ticket marks' : '') + ' are back.');
+      clearBtn.focus({ preventScroll: true });
+      notesOnly();
+    });
     notesOnly();
-    midCard().focus({ preventScroll: true }); // the button has just hidden itself
-    say('All teams and their tickets cleared. No teams picked.');
+    var undoBtn = document.getElementById('tp-undo');
+    (undoBtn || midCard()).focus({ preventScroll: true });
+    say('All teams' + (dropped ? ' and ' + dropped + (dropped === 1 ? ' ticket mark' : ' ticket marks') : '') + ' cleared. Undo is available for a few seconds.');
   });
   /* ---------- Here for the rugby: a quiet link, every NSW match and no team ----------
      In All matches and the timeline's empty state, only while no team is picked (so it never has to replace teams).
      Pressed again it comes off. Same feedback as a pick: one sweep of dots into the bar from the link, the tab count,
      the live region. Picking a team while it is on takes it off. */
-  function setRugby(on, from) {
+  function setRugby(on, from, keepTab) {
     var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
     if (on) state.picked = [RUGBY.name]; else state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; });
     save();
     place(true);
     renderChosen();
-    renderMatches(on ? RUGBY.name : null, on ? null : RUGBY.name);
+    renderMatches(on ? RUGBY.name : null, on ? null : RUGBY.name, keepTab);
     pickFlights(from, before, oldValue, barWasOn, on, 0);
   }
   function teamsPicked() { return state.picked.filter(function (n) { return n !== RUGBY.name; }); }
   rugbyLinks.forEach(function (a) {
     a.addEventListener('click', function () {
       var on = !isPicked(RUGBY), inTl = tlPanel.contains(a);
-      // From the open timeline there is nothing to fly from: the markers appear in place
-      setRugby(on, inTl ? null : a);
-      var msg = on ? pickLine(RUGBY, true) : 'Here for the rugby removed';
-      showCaption(on ? 'Here for the rugby added' : 'Here for the rugby removed', on ? msg.slice('Here for the rugby added'.length) : '');
-      say(msg + '.');
-      // The timeline's empty state goes once something is on it, so focus moves to its title
+      // From the open timeline there is nothing to fly from: the markers appear in place. From All matches, All
+      // matches stays the chosen tab, so the link (now Remove them) stays where it was, with focus on it
+      setRugby(on, inTl ? null : a, !inTl);
+      var lead = on ? 'Every NSW match added' : 'Every NSW match removed';
+      showCaption(lead, on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '');
+      say(lead + (on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '') + '.');
       if (inTl && on) document.getElementById('tp-tl-title').focus({ preventScroll: true });
+      else if (!inTl) a.focus({ preventScroll: true });
       notesOnly();
     });
   });
@@ -1394,7 +1434,7 @@
     try { localStorage.removeItem(KEY); } catch (e) {}
     if (allSec) { showCities(false, true); renderAll(false); }
     deck.innerHTML = '';
-    setNsw(false); clearFind(); offset = START; dealt = false;
+    setNsw(false); closeFind(false); clearFind(); offset = START; dealt = false;
     state.tab = 'yours';
     clearTimeout(undoTimer);
     renderChosen();

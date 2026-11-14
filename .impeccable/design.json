@@ -318,7 +318,7 @@
     "dos": [
       "Do keep every page greyscale plus its one site accent: Sydney Harbour Blue on sydney.com, NSW Bush Green on visitnsw.com.",
       "Do use grey placeholder boxes for every image and map, in the real slot's aspect ratio.",
-      "Do give every prototype control a 44 x 44px target, a visible 2px focus ring and press feedback.",
+      "Do give every prototype control an AA target (at least 24 x 24px, 36px for buttons), a visible 2px focus ring and press feedback.",
       "Do use the prototype motion tokens (150ms, 220ms, 320ms; exits at 0.7x) and honour reduced motion.",
       "Do annotate complex prototype behaviour with numbered notes, not on-screen explanation.",
       "Do keep team colours muted and small if a team needs identifying."
