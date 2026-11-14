@@ -27,13 +27,13 @@ A picture can keep its own file name if it's mapped to a placeholder in `IMG_ALI
 
 | File | Shows for | Where |
 |---|---|---|
-| `golden-barley.webp` | `sample-pub-a-placeholder` | Pick your team, Where to watch: tap Sample pub A to open its sheet |
-| `lord-nelson.webp` | `sample-pub-b-placeholder` | Where to watch: Sample pub B's sheet |
-| `marickville-tavern.webp` | `sample-pub-c-placeholder` | Where to watch: Sample pub C's sheet |
-| `village.jpg` | `sample-rugby-village-placeholder` | Where to watch: the Sample rugby village's sheet |
+| `golden-barley.webp` | `golden-barley-hotel` | Pick your team, Where to watch: the Golden Barley Hotel card and its sheet |
+| `lord-nelson.webp` | `lord-nelson-brewery-hotel` | Where to watch: the Lord Nelson Brewery Hotel card and its sheet |
+| `marickville-tavern.webp` | `marrickville-tavern` | Where to watch: the Marrickville Tavern card and its sheet |
+| `village.jpg` | `rugby-village-foreshore-park` | Where to watch: the Rugby village, Foreshore Park card and its sheet |
 
-The pubs and the village keep their sample names: the pubs in the fixtures, and the matches they show, are invented, so no real business
-is named or said to screen a match. Only the picture is real.
+The places are real; which matches each one screens, and the fan zone and village sites and dates, are invented for the
+prototype and not confirmed with anyone.
 
 Use hyphens, not spaces, in file names (spaces break web addresses), and `.jpg` rather than `.jpeg`.
 
@@ -51,15 +51,15 @@ Cards under each match day, and the sheet each one opens.
 
 | Name (add .webp or .jpg) | Shows |
 |---|---|
-| `sample-bakery-placeholder` | Sample bakery (placeholder) |
-| `sample-bar-and-grill-placeholder` | Sample bar and grill (placeholder) |
-| `sample-cafe-placeholder` | Sample café (placeholder) |
-| `sample-coastal-walk-placeholder` | Sample coastal walk (placeholder) |
-| `sample-dining-hall-placeholder` | Sample dining hall (placeholder) |
-| `sample-espresso-bar-placeholder` | Sample espresso bar (placeholder) |
-| `sample-gallery-placeholder` | Sample gallery (placeholder) |
-| `sample-parklands-walk-placeholder` | Sample parklands walk (placeholder) |
-| `sample-small-bar-placeholder` | Sample small bar (placeholder) |
+| `armory-wharf-cafe` | Armory Wharf Cafe |
+| `bathers-way` | Bathers Way |
+| `beaumont-street-bars` | Beaumont Street bars |
+| `bourke-street-bakery` | Bourke Street Bakery |
+| `brickpit-ring-walk` | Brickpit Ring Walk |
+| `darby-street-cafes` | Darby Street cafés |
+| `entertainment-quarter` | Entertainment Quarter |
+| `waterview-in-bicentennial-park` | Waterview in Bicentennial Park |
+| `white-rabbit-gallery` | White Rabbit Gallery |
 
 ## Your 3rd half: trips
 
@@ -67,13 +67,13 @@ Day and longer trip cards, and their sheets.
 
 | Name (add .webp or .jpg) | Shows |
 |---|---|
-| `barrington-tops-overnight-placeholder` | Barrington Tops overnight (placeholder) |
-| `blue-mountains-day-out-placeholder` | Blue Mountains day out (placeholder) |
-| `hunter-valley-2-nights-placeholder` | Hunter Valley, 2 nights (placeholder) |
-| `lake-macquarie-by-bike-placeholder` | Lake Macquarie by bike (placeholder) |
-| `port-stephens-bay-day-placeholder` | Port Stephens bay day (placeholder) |
-| `royal-national-park-coast-walk-placeholder` | Royal National Park coast walk (placeholder) |
-| `south-coast-3-nights-placeholder` | South Coast, 3 nights (placeholder) |
+| `barrington-tops-overnight` | Barrington Tops overnight |
+| `blue-mountains-day-out` | Blue Mountains day out |
+| `hunter-valley-2-nights` | Hunter Valley, 2 nights |
+| `lake-macquarie-by-bike` | Lake Macquarie by bike |
+| `port-stephens-bay-day` | Port Stephens bay day |
+| `royal-national-park-coast-walk` | Royal National Park coast walk |
+| `south-coast-3-nights` | South Coast, 3 nights |
 
 ## Your 3rd half: trip stops
 
@@ -81,36 +81,36 @@ The stops listed inside a trip's sheet.
 
 | Name (add .webp or .jpg) | Shows |
 |---|---|
-| `sample-balloon-flight-placeholder` | Sample balloon flight (placeholder) |
-| `sample-bay-cruise-placeholder` | Sample bay cruise (placeholder) |
-| `sample-beach-picnic-spot-placeholder` | Sample beach picnic spot (placeholder) |
-| `sample-bike-hire-placeholder` | Sample bike hire (placeholder) |
-| `sample-blowhole-lookout-placeholder` | Sample blowhole lookout (placeholder) |
-| `sample-cellar-door-placeholder` | Sample cellar door (placeholder) |
-| `sample-cliff-top-walk-placeholder` | Sample cliff-top walk (placeholder) |
-| `sample-coast-track-placeholder` | Sample coast track (placeholder) |
-| `sample-coastal-drive-placeholder` | Sample coastal drive (placeholder) |
-| `sample-country-pub-placeholder` | Sample country pub (placeholder) |
-| `sample-dune-tour-placeholder` | Sample dune tour (placeholder) |
-| `sample-kiosk-placeholder` | Sample kiosk (placeholder) |
-| `sample-lakeside-path-placeholder` | Sample lakeside path (placeholder) |
-| `sample-lookout-placeholder` | Sample lookout (placeholder) |
-| `sample-rainforest-loop-placeholder` | Sample rainforest loop (placeholder) |
-| `sample-village-cafe-placeholder` | Sample village café (placeholder) |
-| `sample-vineyard-walk-placeholder` | Sample vineyard walk (placeholder) |
-| `sample-whale-cruise-placeholder` | Sample whale cruise (placeholder) |
+| `barrington-tops-rainforest-walk` | Barrington Tops rainforest walk |
+| `bundeena-village-cafes` | Bundeena village cafés |
+| `echo-point-lookout` | Echo Point lookout |
+| `gloucester-country-pub` | Gloucester country pub |
+| `hunter-valley-balloon-flight` | Hunter Valley balloon flight |
+| `hunter-valley-gardens` | Hunter Valley Gardens |
+| `jervis-bay-whale-watching-cruise` | Jervis Bay whale-watching cruise |
+| `kiama-blowhole` | Kiama Blowhole |
+| `kiama-coast-walk` | Kiama Coast Walk |
+| `leura-mall-cafes` | Leura Mall cafés |
+| `nelson-bay-dolphin-cruise` | Nelson Bay dolphin cruise |
+| `pokolbin-cellar-doors` | Pokolbin cellar doors |
+| `prince-henry-cliff-walk` | Prince Henry Cliff Walk |
+| `shoal-bay-beach` | Shoal Bay beach |
+| `speers-point-park` | Speers Point Park |
+| `stockton-bight-sand-dunes-tour` | Stockton Bight sand dunes tour |
+| `the-coast-track` | The Coast Track |
+| `warners-bay-bike-hire` | Warners Bay bike hire |
 
 ## Where to watch
 
-The sheet for a screening, fan zone or the village.
+The portrait cards in Where to watch, and the sheet each one opens.
 
 | Name (add .webp or .jpg) | Shows |
 |---|---|
-| `sample-fan-zone-placeholder` | Sample fan zone (placeholder) |
-| `sample-pub-a-placeholder` | Sample pub A (placeholder) |
-| `sample-pub-b-placeholder` | Sample pub B (placeholder) |
-| `sample-pub-c-placeholder` | Sample pub C (placeholder) |
-| `sample-rugby-village-placeholder` | Sample rugby village (placeholder) |
+| `darling-harbour-fan-zone` | Darling Harbour fan zone |
+| `golden-barley-hotel` | Golden Barley Hotel |
+| `lord-nelson-brewery-hotel` | Lord Nelson Brewery Hotel |
+| `marrickville-tavern` | Marrickville Tavern |
+| `rugby-village-foreshore-park` | Rugby village, Foreshore Park |
 
 ## Share/edit itinerary
 
@@ -123,4 +123,3 @@ The thumbnails in the itinerary list, and the sheet each one opens.
 | `newcastle-ocean-baths` | Newcastle Ocean Baths |
 | `nz-v-australia` | New Zealand v Australia |
 | `patonga-beach` | Patonga Beach |
-

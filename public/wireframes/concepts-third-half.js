@@ -8,7 +8,7 @@
      last NSW match; I live in NSW never asks for dates; Not sure yet changes nothing. The answer refines the results in
      place, says what changed under the answer, and tints each section that changed as it comes into view. It is saved
      with the picks (tp-pick-v1), shown and editable in the open timeline.
-   Data: placeholders only. Screenings, the village and the fan zone come from window.cnWatchSpots; products from
+   Data: real places, with indicative hours, prices and screenings (not confirmed). Screenings, the village and the fan zone come from window.cnWatchSpots; products from
    window.cnThirdHalf, shaped like the product data contract (availability, pricing and distance_to_venue are gap, so
    pink). No venue or product is favoured: spots go by type then name, products by distance then name. Links go out
    only; nothing is booked here. State and the timeline live in concepts-teams.js (window.tpPicker). */
@@ -649,7 +649,7 @@
     }
     if (it.kind === 'screening') h += '<p class="tp-pm-note">A screening is for one match, so it stays on that match’s day. Remove it if your plans change.</p>';
     else if (mv.length) h += '<h3 class="cn-pp-h">Move it to</h3><div class="tp-move" role="group" aria-label="Move ' + esc(it.title) + ' to">' + mv.map(function (m) { return '<button type="button" class="tp-chip" data-pm-move="' + m.day + '">' + esc(m.label) + '</button>'; }).join('') + '</div>' +
-      (it.kind === 'trip' ? '' : '<p class="tp-pm-note">Days it is open<span class="provenance-gap"> (opening hours are placeholders)</span>' + (stay() ? ', within your days in NSW.' : '.') + '</p>');
+      (it.kind === 'trip' ? '' : '<p class="tp-pm-note">Days it is open<span class="provenance-gap"> (indicative opening hours)</span>' + (stay() ? ', within your days in NSW.' : '.') + '</p>');
     else h += '<p class="tp-pm-note">No other days fit it now. Remove it, or change your days.</p>';
     h += '<div class="tp-pm-acts"><button type="button" class="tp-link" data-pm-remove="' + esc(id) + '">Remove from timeline</button></div>';
     h += '<p class="tp-pm-said" aria-hidden="true">' + esc(pmSaid) + '</p></div>';
@@ -1104,7 +1104,7 @@
         if (it.kind === 'trip') { var c = tp.clashes()[it.id]; lines.push('- ' + (it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) + ': ' + it.title + (it.nights ? ' (' + it.nights + (it.nights === 1 ? ' night' : ' nights') + ')' : ' (day trip)') + (c ? ' [clashes with ' + c.map(function (x) { return x.name + ', ' + x.day; }).join('; ') + ']' : '')); return; }
         lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : ''));
       });
-      lines.push('', 'Places are placeholders in this prototype, not real listings.');
+      lines.push('', 'Hours, prices and screenings are indicative in this prototype, not confirmed.');
     }
     return lines.join('\n');
   }

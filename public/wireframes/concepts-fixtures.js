@@ -49,25 +49,26 @@ window.cnFixtures = [
   {"d": "Sun 17 Oct", "t": "Scotland v Portugal", "s": "Pool D", "v": "Adelaide Oval", "p": "Adelaide", "k": "3:30pm", "a": "Adelaide"}
 ];
 
-/* GAP DATA: placeholders only, not real. Pub screenings, fan zones and the Rugby World Cup village are not in the
-   live data. Per CLAUDE.md they render from fixtures only, with the pink gap marker. Each spot has a name, a type
-   (pub, fan_zone or village), a place and the matches it shows (key: date|teams, as in cnFixtures). A match no spot
-   lists has no "where to watch" line: that is the empty state. Names and places are deliberately fake, and no pub is
-   a real business. NOT IN THE PRODUCT DATA CONTRACT: the spot type and the screening link (which spot shows which
+/* GAP DATA: real places, indicative details. Pub screenings, fan zones and the Rugby World Cup village are not in
+   the live data. Per CLAUDE.md they render from fixtures only, with the pink gap marker (shown with Annotations on).
+   Each spot has a name, a type (pub, fan_zone or village), a place and the matches it shows (key: date|teams, as in
+   cnFixtures). A match no spot lists has no "where to watch" line: that is the empty state. The pubs and sites are
+   real places, but which matches they screen, the fan zone and village sites and their dates are invented for the
+   prototype and not confirmed with anyone. NOT IN THE PRODUCT DATA CONTRACT: the spot type and the screening link (which spot shows which
    match) have no contract field; fixture-only for now, as agreed on 13 November 2026. The village has open_from and
    open_to (also fixture-only), assumed open every day between them. Real data is still needed. */
 window.cnWatchSpots = [
-  { name: 'Sample fan zone (placeholder)', type: 'fan_zone', place: 'Placeholder site, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|New Zealand v Chile', 'Sat 2 Oct|Argentina v Canada', 'Sun 3 Oct|England v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Sat 16 Oct|Australia v Chile'] },
-  { name: 'Sample rugby village (placeholder)', type: 'village', place: 'Placeholder site, Newcastle', open_from: '2027-10-01', open_to: '2027-11-13', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 16 Oct|Australia v Chile', 'Sat 9 Oct|France v Japan'] },
-  { name: 'Sample pub A (placeholder)', type: 'pub', place: 'Placeholder suburb, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|Scotland v Uruguay', 'Sat 9 Oct|New Zealand v Australia', 'Sat 9 Oct|England v Zimbabwe', 'Sat 16 Oct|England v Wales', 'Sat 16 Oct|Australia v Chile'] },
-  { name: 'Sample pub B (placeholder)', type: 'pub', place: 'Placeholder suburb, Sydney', shows: ['Sun 3 Oct|Wales v Zimbabwe', 'Fri 8 Oct|Wales v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Mon 4 Oct|Ireland v Portugal', 'Sat 30 Oct|Quarter-final 1', 'Sat 13 Nov|Final'] },
-  { name: 'Sample pub C (placeholder)', type: 'pub', place: 'Placeholder suburb, Newcastle', shows: ['Sun 3 Oct|Japan v Samoa', 'Sat 9 Oct|France v Japan', 'Sun 17 Oct|France v Samoa', 'Thu 14 Oct|Fiji v Canada', 'Sun 10 Oct|Argentina v Fiji'] }
+  { name: 'Darling Harbour fan zone', type: 'fan_zone', place: 'Tumbalong Park, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|New Zealand v Chile', 'Sat 2 Oct|Argentina v Canada', 'Sun 3 Oct|England v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Sat 16 Oct|Australia v Chile'] },
+  { name: 'Rugby village, Foreshore Park', type: 'village', place: 'Foreshore Park, Newcastle', open_from: '2027-10-01', open_to: '2027-11-13', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 16 Oct|Australia v Chile', 'Sat 9 Oct|France v Japan'] },
+  { name: 'Golden Barley Hotel', type: 'pub', place: 'Enmore, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|Scotland v Uruguay', 'Sat 9 Oct|New Zealand v Australia', 'Sat 9 Oct|England v Zimbabwe', 'Sat 16 Oct|England v Wales', 'Sat 16 Oct|Australia v Chile'] },
+  { name: 'Lord Nelson Brewery Hotel', type: 'pub', place: 'The Rocks, Sydney', shows: ['Sun 3 Oct|Wales v Zimbabwe', 'Fri 8 Oct|Wales v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Mon 4 Oct|Ireland v Portugal', 'Sat 30 Oct|Quarter-final 1', 'Sat 13 Nov|Final'] },
+  { name: 'Marrickville Tavern', type: 'pub', place: 'Marrickville, Sydney', shows: ['Sun 3 Oct|Japan v Samoa', 'Sat 9 Oct|France v Japan', 'Sun 17 Oct|France v Samoa', 'Thu 14 Oct|Fiji v Canada', 'Sun 10 Oct|Argentina v Fiji'] }
 ];
 
-/* GAP DATA: placeholder products for "Suits your 3rd half". Shaped like the product data contract's shared record
+/* GAP DATA: real places with indicative details, for "Suits your 3rd half". Shaped like the product data contract's shared record
    (§1: id, type, title, address.suburb, links) plus availability (§4, gap), pricing (§5, gap) and distance_to_venue
-   (§7, gap, derived). venue_ref names the stadium, as cnFixtures does (v). Every title is fake; links go nowhere and
-   nothing is booked (links.booking is null on every record). distance_to_venue also carries walking_minutes and
+   (§7, gap, derived). venue_ref names the stadium, as cnFixtures does (v). Titles are real places; their opening hours, prices
+   and distances are indicative, not confirmed; links go nowhere and nothing is booked (links.booking is null on every record). distance_to_venue also carries walking_minutes and
    transit_minutes: NOT IN THE CONTRACT (it has km only, and notes that a walking or transit time can replace it later),
    fixture-only, preferred over km on the cards as agreed on 13 November 2026. Real listings, opening hours on the
    dates, distances and travel times are still needed. */
@@ -76,27 +77,27 @@ window.cnWatchSpots = [
   function rec(id, type, title, suburb, hours, pricing, venue, km, transit) {
     return { id: id, type: type, title: title, address: { suburb: suburb, state: 'NSW' }, links: { website: '#', booking: null },
       availability: { kind: 'opening_hours', opening_hours: hours }, pricing: pricing,
-      // Walking at about 5 km/h; transit only where it is too far to walk (placeholder figures)
+      // Walking at about 5 km/h; transit only where it is too far to walk (approximate, indicative figures)
       distance_to_venue: { venue_ref: venue, km: km, label: 'the stadium', walking_minutes: Math.max(1, Math.round(km * 12)), transit_minutes: transit || null } };
   }
   var free = { is_free: true, band: '' }, b1 = { is_free: false, band: '$' }, b2 = { is_free: false, band: '$$' };
   window.cnThirdHalf = [
-    rec('ph-sa-cafe', 'food_and_drink', 'Sample café (placeholder)', 'Sydney Olympic Park', week('07:00', '15:00'), b1, 'Stadium Australia', 0.4),
-    rec('ph-sa-park', 'attraction', 'Sample parklands walk (placeholder)', 'Sydney Olympic Park', week('06:00', '20:00'), free, 'Stadium Australia', 0.9),
-    rec('ph-sa-bar', 'food_and_drink', 'Sample bar and grill (placeholder)', 'Sydney Olympic Park', week('16:00', '23:59', ['thu', 'fri', 'sat', 'sun']), b2, 'Stadium Australia', 0.7),
-    rec('ph-sfs-cafe', 'food_and_drink', 'Sample bakery (placeholder)', 'Moore Park', week('06:30', '14:00'), b1, 'Sydney Football Stadium', 0.6),
-    rec('ph-sfs-gallery', 'attraction', 'Sample gallery (placeholder)', 'Paddington', week('10:00', '17:00', ['tue', 'wed', 'thu', 'fri', 'sat', 'sun']), free, 'Sydney Football Stadium', 1.4, 9),
-    rec('ph-sfs-dining', 'food_and_drink', 'Sample dining hall (placeholder)', 'Moore Park', week('11:30', '23:00'), b2, 'Sydney Football Stadium', 0.8),
-    rec('ph-ncl-cafe', 'food_and_drink', 'Sample espresso bar (placeholder)', 'Broadmeadow', week('07:00', '14:30'), b1, 'Newcastle Stadium', 0.5),
-    rec('ph-ncl-beach', 'attraction', 'Sample coastal walk (placeholder)', 'Newcastle', week('06:00', '19:00'), free, 'Newcastle Stadium', 3.2, 14),
-    rec('ph-ncl-bar', 'food_and_drink', 'Sample small bar (placeholder)', 'Hamilton', week('15:00', '23:59', ['wed', 'thu', 'fri', 'sat', 'sun']), b2, 'Newcastle Stadium', 1.1)
+    rec('ph-sa-cafe', 'food_and_drink', 'Armory Wharf Cafe', 'Sydney Olympic Park', week('07:00', '15:00'), b1, 'Stadium Australia', 2.2, 8),
+    rec('ph-sa-park', 'attraction', 'Brickpit Ring Walk', 'Sydney Olympic Park', week('06:00', '20:00'), free, 'Stadium Australia', 0.9),
+    rec('ph-sa-bar', 'food_and_drink', 'Waterview in Bicentennial Park', 'Sydney Olympic Park', week('16:00', '23:59', ['thu', 'fri', 'sat', 'sun']), b2, 'Stadium Australia', 1.6),
+    rec('ph-sfs-cafe', 'food_and_drink', 'Bourke Street Bakery', 'Surry Hills', week('06:30', '14:00'), b1, 'Sydney Football Stadium', 1.5),
+    rec('ph-sfs-gallery', 'attraction', 'White Rabbit Gallery', 'Chippendale', week('10:00', '17:00', ['tue', 'wed', 'thu', 'fri', 'sat', 'sun']), free, 'Sydney Football Stadium', 3.2, 15),
+    rec('ph-sfs-dining', 'food_and_drink', 'Entertainment Quarter', 'Moore Park', week('11:30', '23:00'), b2, 'Sydney Football Stadium', 0.8),
+    rec('ph-ncl-cafe', 'food_and_drink', 'Darby Street cafés', 'Cooks Hill', week('07:00', '14:30'), b1, 'Newcastle Stadium', 4.1, 15),
+    rec('ph-ncl-beach', 'attraction', 'Bathers Way', 'Newcastle', week('06:00', '19:00'), free, 'Newcastle Stadium', 6.0, 20),
+    rec('ph-ncl-bar', 'food_and_drink', 'Beaumont Street bars', 'Hamilton', week('15:00', '23:59', ['wed', 'thu', 'fri', 'sat', 'sun']), b2, 'Newcastle Stadium', 1.9)
   ];
 })();
 
 /* GAP DATA, FIXTURE-ONLY: curated trips for "Around your matches" (free days between matches). A curated trip is NOT
    in the product data contract: it is a proposed record (docs/proposal-curated-trips.md), curated by the DNSW team
-   from ATDW products and the team's own custom products. Every title, stop and figure here is a placeholder; the
-   region names (Blue Mountains, Hunter Valley and so on) are real places, the trips are not. Links go nowhere and
+   from ATDW products and the team's own custom products. The regions, stops and places are real; the trips themselves
+   (their grouping, open days, price bands and travel times) are indicative, not curated or confirmed by anyone. Links go nowhere and
    nothing is booked.
    Shape: id, kind ('day' | 'long'), nights (long only), title, summary, region, bases (where it starts from:
    'sydney' | 'newcastle'), on_the_way (suits a stretch between a Newcastle match and a Sydney match), travel (per
@@ -111,45 +112,45 @@ window.cnWatchSpots = [
       title: title, type: type, suburb: suburb, days: days || ALL, band: band || '', minutes_from_start: minutes || 0 };
   }
   window.cnTrips = [
-    { id: 'trip-blue-mountains', kind: 'day', title: 'Blue Mountains day out (placeholder)', region: 'Blue Mountains',
+    { id: 'trip-blue-mountains', kind: 'day', title: 'Blue Mountains day out', region: 'Blue Mountains',
       summary: 'Lookouts, a bushwalk and lunch in a mountain village, back by evening.', bases: ['sydney'],
       travel: { sydney: { mode: 'train', minutes: 120 } },
-      stops: [stop('atdw', 'Sample lookout (placeholder)', 'attraction', 'Katoomba', ALL, '', 0),
-        stop('custom', 'Sample cliff-top walk (placeholder)', 'attraction', 'Leura', ALL, '', 20),
-        stop('atdw', 'Sample village café (placeholder)', 'food_and_drink', 'Leura', ['wed', 'thu', 'fri', 'sat', 'sun', 'mon'], '$$', 25)] },
-    { id: 'trip-royal-np', kind: 'day', title: 'Royal National Park coast walk (placeholder)', region: 'Royal National Park',
+      stops: [stop('atdw', 'Echo Point lookout', 'attraction', 'Katoomba', ALL, '', 0),
+        stop('custom', 'Prince Henry Cliff Walk', 'attraction', 'Leura', ALL, '', 20),
+        stop('atdw', 'Leura Mall cafés', 'food_and_drink', 'Leura', ['wed', 'thu', 'fri', 'sat', 'sun', 'mon'], '$$', 25)] },
+    { id: 'trip-royal-np', kind: 'day', title: 'Royal National Park coast walk', region: 'Royal National Park',
       summary: 'A coastal track, a swim spot and fish and chips by the water.', bases: ['sydney'],
       travel: { sydney: { mode: 'train', minutes: 60 } },
-      stops: [stop('custom', 'Sample coast track (placeholder)', 'attraction', 'Royal National Park', ALL, '', 0),
-        stop('atdw', 'Sample kiosk (placeholder)', 'food_and_drink', 'Bundeena', ALL, '$', 30)] },
-    { id: 'trip-port-stephens', kind: 'day', title: 'Port Stephens bay day (placeholder)', region: 'Port Stephens',
+      stops: [stop('custom', 'The Coast Track', 'attraction', 'Royal National Park', ALL, '', 0),
+        stop('atdw', 'Bundeena village cafés', 'food_and_drink', 'Bundeena', ALL, '$', 30)] },
+    { id: 'trip-port-stephens', kind: 'day', title: 'Port Stephens bay day', region: 'Port Stephens',
       summary: 'A dolphin cruise, the dunes and a beach lunch.', bases: ['newcastle'],
       travel: { newcastle: { mode: 'car', minutes: 50 } },
-      stops: [stop('atdw', 'Sample bay cruise (placeholder)', 'tour', 'Nelson Bay', ['thu', 'fri', 'sat', 'sun', 'mon'], '$$', 0),
-        stop('atdw', 'Sample dune tour (placeholder)', 'tour', 'Anna Bay', ALL, '$$', 25),
-        stop('custom', 'Sample beach picnic spot (placeholder)', 'attraction', 'Shoal Bay', ALL, '', 15)] },
-    { id: 'trip-lake-macquarie', kind: 'day', title: 'Lake Macquarie by bike (placeholder)', region: 'Lake Macquarie',
+      stops: [stop('atdw', 'Nelson Bay dolphin cruise', 'tour', 'Nelson Bay', ['thu', 'fri', 'sat', 'sun', 'mon'], '$$', 0),
+        stop('atdw', 'Stockton Bight sand dunes tour', 'tour', 'Anna Bay', ALL, '$$', 25),
+        stop('custom', 'Shoal Bay beach', 'attraction', 'Shoal Bay', ALL, '', 15)] },
+    { id: 'trip-lake-macquarie', kind: 'day', title: 'Lake Macquarie by bike', region: 'Lake Macquarie',
       summary: 'A flat lakeside ride with a café at each end.', bases: ['newcastle'],
       travel: { newcastle: { mode: 'car', minutes: 30 } },
-      stops: [stop('atdw', 'Sample bike hire (placeholder)', 'hire', 'Warners Bay', ['fri', 'sat', 'sun', 'mon', 'tue'], '$', 0),
-        stop('custom', 'Sample lakeside path (placeholder)', 'attraction', 'Speers Point', ALL, '', 10)] },
-    { id: 'trip-hunter', kind: 'long', nights: 2, title: 'Hunter Valley, 2 nights (placeholder)', region: 'Hunter Valley',
+      stops: [stop('atdw', 'Warners Bay bike hire', 'hire', 'Warners Bay', ['fri', 'sat', 'sun', 'mon', 'tue'], '$', 0),
+        stop('custom', 'Speers Point Park', 'attraction', 'Speers Point', ALL, '', 10)] },
+    { id: 'trip-hunter', kind: 'long', nights: 2, title: 'Hunter Valley, 2 nights', region: 'Hunter Valley',
       summary: 'Cellar doors, a long lunch and a hot-air balloon at dawn.', bases: ['newcastle', 'sydney'], on_the_way: true,
       travel: { newcastle: { mode: 'car', minutes: 50 }, sydney: { mode: 'car', minutes: 120 } },
-      stops: [stop('atdw', 'Sample cellar door (placeholder)', 'food_and_drink', 'Pokolbin', ['thu', 'fri', 'sat', 'sun', 'mon'], '$$', 0),
-        stop('atdw', 'Sample balloon flight (placeholder)', 'tour', 'Pokolbin', ALL, '$$$', 5),
-        stop('custom', 'Sample vineyard walk (placeholder)', 'attraction', 'Lovedale', ALL, '', 15)] },
-    { id: 'trip-south-coast', kind: 'long', nights: 3, title: 'South Coast, 3 nights (placeholder)', region: 'South Coast',
+      stops: [stop('atdw', 'Pokolbin cellar doors', 'food_and_drink', 'Pokolbin', ['thu', 'fri', 'sat', 'sun', 'mon'], '$$', 0),
+        stop('atdw', 'Hunter Valley balloon flight', 'tour', 'Pokolbin', ALL, '$$$', 5),
+        stop('custom', 'Hunter Valley Gardens', 'attraction', 'Pokolbin', ALL, '', 15)] },
+    { id: 'trip-south-coast', kind: 'long', nights: 3, title: 'South Coast, 3 nights', region: 'South Coast',
       summary: 'Blowholes, beaches and a whale-watching cruise, by train then car.', bases: ['sydney'],
       travel: { sydney: { mode: 'train', minutes: 120 } },
-      stops: [stop('atdw', 'Sample blowhole lookout (placeholder)', 'attraction', 'Kiama', ALL, '', 0),
-        stop('custom', 'Sample coastal drive (placeholder)', 'attraction', 'Gerringong', ALL, '', 20),
-        stop('atdw', 'Sample whale cruise (placeholder)', 'tour', 'Huskisson', ['fri', 'sat', 'sun', 'mon', 'tue', 'wed'], '$$', 70)] },
-    { id: 'trip-barrington', kind: 'long', nights: 1, title: 'Barrington Tops overnight (placeholder)', region: 'Barrington Tops',
+      stops: [stop('atdw', 'Kiama Blowhole', 'attraction', 'Kiama', ALL, '', 0),
+        stop('custom', 'Kiama Coast Walk', 'attraction', 'Kiama', ALL, '', 20),
+        stop('atdw', 'Jervis Bay whale-watching cruise', 'tour', 'Huskisson', ['fri', 'sat', 'sun', 'mon', 'tue', 'wed'], '$$', 70)] },
+    { id: 'trip-barrington', kind: 'long', nights: 1, title: 'Barrington Tops overnight', region: 'Barrington Tops',
       summary: 'Rainforest walks and a night in the hills, an hour and a half from Newcastle.', bases: ['newcastle'],
       travel: { newcastle: { mode: 'car', minutes: 95 } },
-      stops: [stop('custom', 'Sample rainforest loop (placeholder)', 'attraction', 'Barrington Tops', ALL, '', 0),
-        stop('atdw', 'Sample country pub (placeholder)', 'food_and_drink', 'Gloucester', ALL, '$', 30)] }
+      stops: [stop('custom', 'Barrington Tops rainforest walk', 'attraction', 'Barrington Tops', ALL, '', 0),
+        stop('atdw', 'Gloucester country pub', 'food_and_drink', 'Gloucester', ALL, '$', 30)] }
   ];
 })();
 
