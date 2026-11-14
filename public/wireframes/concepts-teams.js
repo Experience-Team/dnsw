@@ -165,6 +165,7 @@
       b.classList.toggle('is-picked', isPicked(c));
       b.setAttribute('aria-pressed', isPicked(c) ? 'true' : 'false');
     });
+    sync2(animate);
   }
   function settle(to, focus, trans) {
     offset = Math.max(0, Math.min(seq.length - 1, Math.round(to)));
@@ -282,7 +283,7 @@
       var u = caption.querySelector('#tp-undo');
       u.addEventListener('click', function () { clearTimeout(undoTimer); undo(u); });
       // It goes after six seconds; if it had focus, focus goes to the button it came from
-      undoTimer = setTimeout(function () { var had = document.activeElement === u; u.remove(); if (had) { var mid = fan.querySelector('.tp-card.is-mid'); if (mid) mid.focus({ preventScroll: true }); } }, 6000);
+      undoTimer = setTimeout(function () { var had = document.activeElement === u; u.remove(); if (had) { var mid = handFocusEl(); if (mid) mid.focus({ preventScroll: true }); } }, 6000);
     }
     var n = caption.querySelector('.tp-cap-new');
     // The flash colour is the theme's --c-flash, read when it runs, so the high fidelity theme can change it
@@ -380,6 +381,133 @@
     deal();
     settle(to, true);
   });
+
+  /* ---------- TEST: the stacked hand (Figma node 282:26254) ----------
+     A copy of the fan's job in a new layout: all 24 teams at once, in rows of six on four overlapping arcs, each card
+     turned about a pivot below its row, later rows lying over earlier ones so each card's code and flag show at its top.
+     It is a test: the original fan is kept, hidden, and comes back with the panel switch "Stacked hand (test)" or
+     ?fan=classic (?fan=stacked forces this one); the choice is remembered in this browser (tp-fan-variant). Both hands
+     go through the same toggle(), so picks, Undo, the timeline, saving and the Your teams sheet behave the same.
+     Geometry from the Figma frame (462 wide), scaled to the phone: per-column angles, a 214px radius, rows 67px apart. */
+  var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2'), fanWrap = root.querySelector('.tp-fan-wrap');
+  var cards2 = null, f2Dealt = false, f2Focus = 0;
+  var F2 = { s: .82, angles: [-47.9, -33.5, -15.6, 1.6, 18.8, 36.0], px: 257.7, py: 311.2, row: 67.2, r: 214, w: 70, h: 107, x0: 18, y0: 40, pad: 13, top: 8, lift: 10 };
+  function fanVariant() {
+    var m = /[?&]fan=(classic|stacked)\b/.exec(location.search), v = m && m[1];
+    try { if (v) localStorage.setItem('tp-fan-variant', v); else v = localStorage.getItem('tp-fan-variant'); } catch (e) {}
+    return v === 'classic' ? 'classic' : 'stacked';
+  }
+  var variant = fan2 ? fanVariant() : 'classic';
+  function stacked() { return variant === 'stacked' && !!fan2; }
+  function handFocusEl() { return stacked() ? fan2.querySelector('.tp-card2[tabindex="0"]') : midCard(); }
+  function handWrap() { return stacked() ? fan2Wrap : fanWrap; }
+  if (fan2) {
+    fan2.innerHTML = CARDS.map(function (c, i) {
+      return '<button type="button" class="tp-card2" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
+        esc(c.name + ', ' + c.pool + ', ' + lowerFirst(nswLine(c))) + '"><span class="tp-card2-code">' + esc(c.code) + '</span>' +
+        (FLAG[c.name] ? '<span class="tp-card2-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') + TICK + '</button>';
+    }).join('');
+    cards2 = Array.prototype.slice.call(fan2.children);
+  }
+  // Where card k of the visible hand sits: its row of six (a short last row takes the middle angles), and the box and
+  // pivot that turn it into place
+  function slot2(k, n) {
+    var row = Math.floor(k / 6), col = k % 6, inRow = Math.min(6, n - row * 6), a = F2.angles[col + Math.floor((6 - inRow) / 2)];
+    var s = F2.s, w = F2.w * s, h = F2.h * s, r = F2.r * s;
+    var px = (F2.px - F2.x0) * s + F2.pad, py = (F2.py - F2.y0) * s + F2.top + row * F2.row * s;
+    return { left: px - w / 2, top: py - r - h / 2, w: w, h: h, ox: w / 2, oy: h / 2 + r, a: a, z: row * 10 + col };
+  }
+  function sync2(animate) {
+    if (!cards2) return;
+    var vis = seq.filter(function (i) { return true; }), n = vis.length;
+    f2Focus = Math.max(0, Math.min(n - 1, f2Focus));
+    cards2.forEach(function (b, i) {
+      var k = vis.indexOf(i), c = CARDS[i], on = isPicked(c);
+      b.classList.toggle('is-out', k < 0);
+      b.classList.toggle('is-picked', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.tabIndex = k === f2Focus ? 0 : -1;
+      if (k < 0) return; // a card out of the hand (In NSW on) keeps its last place and fades
+      var sl = slot2(k, n);
+      if (!animate) b.style.transition = 'none';
+      b.style.left = sl.left.toFixed(1) + 'px'; b.style.top = sl.top.toFixed(1) + 'px';
+      b.style.width = sl.w.toFixed(1) + 'px'; b.style.height = sl.h.toFixed(1) + 'px';
+      b.style.transformOrigin = sl.ox.toFixed(1) + 'px ' + sl.oy.toFixed(1) + 'px';
+      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on ? -F2.lift : 0) + 'px)';
+      b.style.zIndex = sl.z;
+      if (!animate) { void b.offsetWidth; b.style.transition = ''; }
+    });
+  }
+  function showVariant() {
+    if (!fan2) return;
+    fan2Wrap.hidden = !stacked();
+    fanWrap.hidden = stacked();
+    var help = document.getElementById('tp-fan-help'), help2 = document.getElementById('tp-fan2-help');
+    if (help) help.hidden = stacked(); if (help2) help2.hidden = !stacked();
+    var sw = document.getElementById('tp-fan-toggle');
+    if (sw) sw.setAttribute('aria-checked', stacked() ? 'true' : 'false');
+    sync2(false);
+    if (stacked()) deal2(); else watchDeal();
+  }
+  // The deal: the first time the stacked hand comes into view its cards come up into place, row by row
+  function deal2() {
+    if (f2Dealt || !stacked()) return;
+    var go = function () {
+      if (f2Dealt) return;
+      f2Dealt = true;
+      if (reduce.matches || !fan2.animate) return;
+      cards2.forEach(function (b) {
+        var k = seq.indexOf(+b.dataset.i); if (k < 0) return;
+        b.animate([{ opacity: 0, translate: '0 24px' }, { opacity: 1, translate: '0 0' }], { duration: 420, delay: Math.floor(k / 6) * 90 + (k % 6) * 25, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' });
+      });
+    };
+    if (!('IntersectionObserver' in window)) { go(); return; }
+    var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); go(); } }, { root: body, threshold: .3 });
+    io.observe(fan2);
+  }
+  if (fan2) {
+    fan2.addEventListener('click', function (e) {
+      var b = e.target.closest('.tp-card2'); if (!b) return;
+      var i = +b.dataset.i;
+      f2Focus = Math.max(0, seq.indexOf(i));
+      var on = !isPicked(CARDS[i]);
+      // The pick is singled out: the card rises out of its row, a little larger and above its neighbours, then settles
+      // (lifted a little while it stays picked). Reduced motion: no movement; the colour and tick still change.
+      if (!reduce.matches && b.animate) {
+        if (b._pull) b._pull.cancel();
+        b.classList.add('is-pulling');
+        b._pull = b.animate([{ translate: '0 0', scale: '1' }, { translate: '0 ' + (on ? -18 : -10) + 'px', scale: on ? '1.14' : '1.06', offset: .4 }, { translate: '0 0', scale: '1' }], { duration: 640, easing: 'cubic-bezier(.65, 0, .35, 1)' });
+        b._pull.onfinish = b._pull.oncancel = function () { b.classList.remove('is-pulling'); b._pull = null; };
+      }
+      toggle(i, b);
+    });
+    fan2.addEventListener('keydown', function (e) {
+      var k = e.key, n = seq.length, cur = f2Focus, to = null;
+      if (k === 'ArrowRight') to = cur + 1;
+      else if (k === 'ArrowLeft') to = cur - 1;
+      else if (k === 'ArrowDown') to = cur + 6 < n ? cur + 6 : cur;
+      else if (k === 'ArrowUp') to = cur - 6 >= 0 ? cur - 6 : cur;
+      else if (k === 'Home') to = 0;
+      else if (k === 'End') to = n - 1;
+      else if (/^[a-z]$/i.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        for (var d = 1; d <= n; d++) { var p = (cur + d) % n; if (CARDS[seq[p]].name.toLowerCase().charAt(0) === k.toLowerCase()) { to = p; break; } }
+      }
+      if (to === null) return;
+      e.preventDefault();
+      f2Focus = Math.max(0, Math.min(n - 1, to));
+      sync2(true);
+      cards2[seq[f2Focus]].focus({ preventScroll: true });
+    });
+    var fanSw = document.getElementById('tp-fan-toggle');
+    if (fanSw) fanSw.addEventListener('click', function () {
+      variant = stacked() ? 'classic' : 'stacked';
+      try { localStorage.setItem('tp-fan-variant', variant); } catch (e) {}
+      showVariant();
+      say(stacked() ? 'Showing the stacked hand (test).' : 'Showing the original fan.');
+      notesOnly();
+    });
+    showVariant();
+  }
 
   /* ---------- Finding your team ----------
      Three ways in, so nobody swipes through 25 cards for theirs: type in Find your team (suggestions under the field;
@@ -707,7 +835,7 @@
     });
     notesOnly();
     var undoBtn = document.getElementById('tp-undo');
-    (undoBtn || midCard()).focus({ preventScroll: true });
+    (undoBtn || handFocusEl()).focus({ preventScroll: true });
     say('All teams' + (dropped ? ' and ' + dropped + (dropped === 1 ? ' ticket mark' : ' ticket marks') : '') + ' cleared. Undo is available for a few seconds.');
   });
   /* ---------- Here for the rugby: a quiet link, every NSW match and no team ----------
@@ -1530,7 +1658,7 @@
     var atEnd = body.scrollTop + body.clientHeight >= body.scrollHeight - 2;
     var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
     // Once something is on the timeline, the bar stays up anywhere below the fan, so an Add never goes nowhere
-    var fanBox = root.querySelector('.tp-fan-wrap').getBoundingClientRect();
+    var fanBox = handWrap().getBoundingClientRect();
     var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
     // A pick is shown working: the bar is up whenever a team is picked
     var on = tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);

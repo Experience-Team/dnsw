@@ -3676,6 +3676,21 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-card.is-picked .tp-card-meta { color: var(--c-on-dark-2); }
 .tp-card.is-picked .tp-card-tick { display: block; animation: cn-pop var(--dur-small) var(--ease-spring); }
 .tp-card:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 3px; }
+/* TEST: the stacked hand (Figma 282:26254). Four overlapping arcs of six small cards; concepts-teams.js places each
+   card (left, top, size, pivot, angle). The box is sized to the hand's real extremes, lifted cards included. */
+.tp-fan2-wrap { position: relative; height: 339px; margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: clip; }
+.tp-fan2-wrap[hidden] { display: none; }
+.tp-fan2 { position: absolute; inset: 0; }
+.tp-card2 { position: absolute; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 6px 0; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; box-shadow: -1px 0 4px rgba(0,0,0,.06); transition: transform var(--dur-large) var(--ease-out), opacity var(--dur-small) ease-out, background-color var(--dur-micro) ease-out, color var(--dur-micro) ease-out; }
+.tp-card2-code { font-family: var(--font-label); font-size: .9375rem; font-weight: var(--fw-heavy); line-height: 1; letter-spacing: -.01em; }
+.tp-card2-flag .tp-fl { height: 12px; }
+.tp-card2 .tp-card-tick { display: none; top: 25px; right: 6px; width: 11px; height: 9px; } /* beside the flag, clear of the code */
+.tp-card2.is-picked { background: var(--c-btn); color: var(--c-on-dark); }
+.tp-card2.is-picked .tp-card-tick { display: block; animation: cn-pop var(--dur-small) var(--ease-spring); }
+.tp-card2.is-pulling { z-index: 80 !important; box-shadow: 0 14px 24px rgba(0,0,0,.22); }
+.tp-card2.is-out { opacity: 0; visibility: hidden; pointer-events: none; }
+.tp-card2:focus-visible { z-index: 70 !important; outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (hover: hover) { .tp-card2:not(.is-picked):hover { background: var(--c-surface-2); } }
 @media (hover: hover) { .tp-card:not(.is-picked):hover { background: var(--c-surface-2); } .tp-card--rugby:not(.is-picked):hover { background: var(--c-surface-3); } }
 .tp-fan-caption { min-height: 1.4em; margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); text-align: center; }
 .tp-fan-caption strong { color: var(--c-ink); }

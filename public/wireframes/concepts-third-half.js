@@ -456,7 +456,7 @@
   // Pick your team to tailor this: back up to the hand of cards, focus on the card in the middle
   phone.addEventListener('click', function (e) {
     if (!e.target.closest('[data-act="tailor"]')) return;
-    var pick = document.getElementById('tp-pick'), card = document.querySelector('#tp-fan [tabindex="0"]');
+    var pick = document.getElementById('tp-pick'), card = document.querySelector('.tp-fan2-wrap:not([hidden]) [tabindex="0"]') || document.querySelector('#tp-fan [tabindex="0"]');
     var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
     body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
     if (card) card.focus({ preventScroll: true });
