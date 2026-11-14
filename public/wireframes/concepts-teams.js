@@ -27,6 +27,12 @@
   var deck = document.getElementById('tp-deck');
   var sum = document.getElementById('tp-results-sum');
   var live = document.getElementById('tp-live');
+  /* Icons for prompts, greyscale and decorative (aria-hidden), sized to the text. Card fan: from the Rugby World Cup
+     Figma (node 252:13225), redrawn as SVG because the asset download is blocked here; calendar: drawn in the same style */
+  window.tpIcons = {
+    fan: '<svg class="tp-ico tp-ico-fan" viewBox="0 0 36 33" aria-hidden="true" focusable="false"><g><rect x="17" y="2" width="16.5" height="25" rx="2.5" transform="rotate(-40 15.5 31)"/><rect x="17" y="2" width="16.5" height="25" rx="2.5" transform="rotate(-30 15.5 31)"/><rect x="17" y="2" width="16.5" height="25" rx="2.5" transform="rotate(-20 15.5 31)"/><rect x="17" y="2" width="16.5" height="25" rx="2.5" transform="rotate(-10 15.5 31)"/><rect x="17" y="2" width="16.5" height="25" rx="2.5"/></g></svg>',
+    cal: '<svg class="tp-ico tp-ico-cal" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></g></svg>'
+  };
   var body = document.querySelector('#tp-phone .cn-body');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var EASE = 'cubic-bezier(.16, 1, .3, 1)';
@@ -406,10 +412,28 @@
      so nothing below moves) with the keyboard up; Escape, the cross or a tap elsewhere with nothing typed folds it back
      into the icon, and focus returns to the icon */
   var findBox = document.getElementById('tp-find'), findOpen = document.getElementById('tp-find-open'), findAnim = null;
+  // The indicative keyboard rises with the field and goes with it; the heading row is brought near the top of the
+  // phone first, so the suggestions under it stay clear of the keyboard
+  var kbd = document.getElementById('tp-kbd'), kbdAnim = null;
+  function showKbd(on) {
+    if (!kbd) return;
+    if (kbdAnim) { kbdAnim.cancel(); kbdAnim = null; }
+    if (on) {
+      kbd.hidden = false;
+      if (!reduce.matches && kbd.animate) kbdAnim = kbd.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.3, .4, .3, 1)' });
+    } else if (!kbd.hidden) {
+      if (!reduce.matches && kbd.animate) { kbdAnim = kbd.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }); kbdAnim.onfinish = function () { kbd.hidden = true; kbdAnim = null; }; }
+      else kbd.hidden = true;
+    }
+  }
+  if (kbd) kbd.addEventListener('pointerdown', function (e) { e.preventDefault(); }); // a picture: tapping it does nothing and keeps the field focused
   function openFind() {
     if (!findBox || !findBox.hidden) { if (findIn) findIn.focus(); return; }
     if (findAnim) findAnim.cancel();
     findBox.hidden = false; findOpen.setAttribute('aria-expanded', 'true');
+    var head = root.querySelector('.tp-pick-head'), top = head.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    if (top < 8 || top > 120) body.scrollTo({ top: Math.max(0, body.scrollTop + top - 16), behavior: reduce.matches ? 'auto' : 'smooth' });
+    showKbd(true);
     if (!reduce.matches && findBox.animate) findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: .6 }, { clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.3, .4, .3, 1)' });
     findIn.focus({ preventScroll: true });
     notesOnly();
@@ -418,6 +442,7 @@
     if (!findBox || findBox.hidden) return;
     clearFind();
     findOpen.setAttribute('aria-expanded', 'false');
+    showKbd(false);
     var done = function () { findBox.hidden = true; findAnim = null; notesOnly(); };
     if (findAnim) findAnim.cancel();
     if (!reduce.matches && findBox.animate) { findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }, { clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: 0 }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }); findAnim.onfinish = done; }
@@ -478,7 +503,7 @@
     });
     // Leaving the field and its suggestions closes them; the text stays so nothing typed is lost
     // A tap elsewhere hides the suggestions; with nothing typed it also folds the search back into its icon
-    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.tp-find') && !e.target.closest('#tp-find-open')) { findList.hidden = true; findIn.setAttribute('aria-expanded', 'false'); if (!findIn.value.trim() && !findBox.hidden) closeFind(false); } });
+    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.tp-find') && !e.target.closest('#tp-find-open') && !e.target.closest('#tp-kbd')) { findList.hidden = true; findIn.setAttribute('aria-expanded', 'false'); if (!findIn.value.trim() && !findBox.hidden) closeFind(false); } });
     findIn.addEventListener('focus', function () { if (findIn.value.trim()) renderFind(); });
   }
 
@@ -724,6 +749,7 @@
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
   // Host venues (cnVenues): nsw drives In NSW only, city the city chips. A fixture whose venue is not in the list
   // falls back to the fixture's own marker (a: a city outside NSW)
+  var allReset = null; // set below: back to every match, filter off (the reset needs it from outside the block)
   var VENUES = {}; (window.cnVenues || []).forEach(function (v) { VENUES[v.stadium] = v; });
   function inNsw(f) { var v = VENUES[f.v]; return v ? v.nsw : !f.a; }
   function cityOf(f) { var v = VENUES[f.v]; return v && v.nsw ? v.city : null; }
@@ -827,6 +853,7 @@
     });
     showCities(state.allFilter.nsw, true);
     renderAll(false);
+    allReset = function () { showCities(false, true); renderAll(false); };
     /* One tab stop for the whole list (it was 44): the current row is in the tab order, the arrow keys move between
        rows (down and right forward, up and left back; Home and End), and the list slides to keep it in view */
     allScroll.addEventListener('focusin', function (e) { var k = allBtns.indexOf(e.target); if (k > -1 && k !== allAt) { allBtns[allAt].tabIndex = -1; allAt = k; e.target.tabIndex = 0; } });
@@ -1432,7 +1459,7 @@
     cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
     state.picked = []; state.tickets = []; state.allFilter = { nsw: false, city: null };
     try { localStorage.removeItem(KEY); } catch (e) {}
-    if (allSec) { showCities(false, true); renderAll(false); }
+    if (allReset) allReset();
     deck.innerHTML = '';
     setNsw(false); closeFind(false); clearFind(); offset = START; dealt = false;
     state.tab = 'yours';
