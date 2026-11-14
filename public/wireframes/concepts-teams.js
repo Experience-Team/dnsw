@@ -55,6 +55,9 @@
   var FLAG_FILE = { 'Argentina': 'argentina', 'Australia': 'australia', 'Canada': 'canada', 'Chile': 'chile', 'England': 'england', 'Fiji': 'fiji', 'France': 'france', 'Georgia': 'georgia', 'Hong Kong China': 'hongkong', 'Ireland': 'ireland', 'Italy': 'italy', 'Japan': 'japan', 'New Zealand': 'newzealand', 'Portugal': 'portugal', 'Romania': 'romania', 'Samoa': 'samoa', 'Scotland': 'scotland', 'South Africa': 'southafrica', 'Spain': 'spain', 'Tonga': 'tonga', 'USA': 'unitedstates', 'Uruguay': 'uruguay', 'Wales': 'wales', 'Zimbabwe': 'zimbabwe' };
   var FLAG = {};
   Object.keys(FLAG_FILE).forEach(function (n) { FLAG[n] = '<img class="tp-fl" src="flags/' + FLAG_FILE[n] + '.svg" alt="" width="25" height="16" decoding="async">'; });
+  // All matches (no team): three flags fanned in a flag's space, so it reads as every team rather than an empty slot.
+  // Everywhere a flag is drawn by name (the sheet row, its chip, the result card) shows it.
+  FLAG['All matches'] = '<span class="tp-fl tp-fl-all">' + ['france', 'ireland', 'australia'].map(function (f) { return '<img src="flags/' + f + '.svg" alt="" decoding="async">'; }).join('') + '</span>';
   var names = Object.keys(TEAMS).sort();
   names.forEach(function (n) { TEAMS[n].nsw = TEAMS[n].matches.filter(function (f) { return !f.a; }).length; });
   var nswPool = pool.filter(function (f) { return !f.a; });
@@ -524,7 +527,7 @@
   function teamMatch(n, q) { return n.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(q) === 0; }) || n.toLowerCase().indexOf(q) === 0 || TEAMS[n].code.toLowerCase() === q; }
   function tsRow(key, flag, name, meta) {
     return '<li><button type="button" class="tp-find-opt tp-list-opt" data-team="' + esc(key) + '" aria-pressed="false">' +
-      (flag ? '<span class="tp-find-flag" aria-hidden="true">' + flag + '</span>' : '<span class="tp-find-flag tp-list-all" aria-hidden="true"></span>') +
+      '<span class="tp-find-flag" aria-hidden="true">' + flag + '</span>' +
       '<span class="tp-find-text"><span class="tp-find-name">' + esc(name) + '</span><span class="tp-find-meta">' + esc(meta) + '</span></span>' +
       '<span class="tp-find-state" aria-hidden="true">Pick</span></button></li>';
   }
@@ -532,7 +535,7 @@
     var mine = names.filter(function (n) { return isPicked(TEAMS[n]); });
     var rest = names.filter(function (n) { return !isPicked(TEAMS[n]); });
     var order = mine.concat(rest.filter(function (n) { return TEAMS[n].nsw; }), rest.filter(function (n) { return !TEAMS[n].nsw; }));
-    tsList.innerHTML = tsRow(RUGBY.name, '', 'All matches', 'Every NSW match, no team needed: ' + countPhrase(nswPool.concat(nswKo), { short: true })) +
+    tsList.innerHTML = tsRow(RUGBY.name, FLAG[RUGBY.name], 'All matches', 'Every NSW match, no team needed: ' + countPhrase(nswPool.concat(nswKo), { short: true })) +
       order.map(function (n) { var t = TEAMS[n]; return tsRow(n, FLAG[n], n, t.pool + ' · ' + nswLine(t)); }).join('');
   }
   function tsMatches() {
@@ -639,6 +642,8 @@
   }
   function tsOpen(opener) {
     if (!tlOpen) return;
+    // The title matches the way in: Pick your team with nothing picked, Change your teams after. Set on open, never mid-edit
+    document.getElementById('tp-ts-title').textContent = state.picked.length ? 'Change your teams' : 'Pick your team';
     tsFind.value = ''; tsBuild(); tsSync(); tsFilter();
     clearTimeout(tsNoteT); tsNoteEl.textContent = '';
     document.getElementById('tp-ts-body').scrollTop = 0;
@@ -1692,7 +1697,7 @@
     grab.addEventListener('pointerup', letGo); grab.addEventListener('pointercancel', letGo);
   }
   phoneEl.querySelectorAll('.tp-stack').forEach(stackRegister);
-  // Pick a team (none picked) and Add or change teams (some picked) open the Your teams sheet over the timeline
+  // Pick your team (none picked) and Change your teams (some picked) open the Your teams sheet over the timeline
   document.getElementById('tp-tl-pick').addEventListener('click', function (e) { tsOpen(e.currentTarget); });
   tsLinkBtn.addEventListener('click', function (e) { tsOpen(e.currentTarget); });
   /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections

@@ -4119,7 +4119,12 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-list-opt { min-height: 44px; padding: 6px var(--space-1); border-radius: 0; }
 .tp-list-opt .tp-find-flag { display: inline-grid; place-items: center; width: 28px; }
 .tp-list-opt .tp-fl { height: 16px; }
-.tp-list-all { width: 25px; height: 16px; border: 1.5px dashed #8a8a8a; border-radius: 2px; }
+/* All matches: three flags fanned in a flag's space, sized by the same .tp-fl rules as a flag wherever it sits */
+.tp-fl.tp-fl-all { position: relative; outline: 0; border-radius: 0; }
+.tp-fl-all img { position: absolute; top: 20%; width: 60%; height: auto; aspect-ratio: 25 / 16; border-radius: 1.5px; box-shadow: 0 0 0 1px #fff; outline: .5px solid rgba(0,0,0,.18); outline-offset: -.5px; }
+.tp-fl-all img:nth-child(1) { left: -2%; transform: rotate(-10deg); }
+.tp-fl-all img:nth-child(2) { left: 20%; z-index: 1; }
+.tp-fl-all img:nth-child(3) { left: 42%; z-index: 2; transform: rotate(10deg); }
 #tp-phone .tp-ts { overflow: hidden; } /* the list scrolls, not the sheet */
 /* Pick your team: the bar reads one way. Your days (or the matches' span) as a small note between the strip's end
    labels; a clash marks its day on the strip in red. */
