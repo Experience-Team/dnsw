@@ -56,21 +56,26 @@
              cnFixtures. Pick one or more, then the picked cards fly out of the fan and flip to show their matches.
              Choices follow the jobs to be done (docs/jtbd-itinerary.md, T1 to T16). -->
         <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
-          <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
+          <!-- Heading row: Find your team is a search icon button; the field slides across this row from the icon (over the
+               heading, so nothing below moves) and its suggestions float over the hand. Escape or the cross collapses it. -->
+          <div class="tp-pick-head">
+            <h3 class="tp-pick-title" id="tp-pick-title">Pick your team</h3>
+            <button type="button" class="tp-find-btn" id="tp-find-open" aria-label="Find your team" aria-expanded="false" aria-controls="tp-find"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 10.5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            <div class="tp-find" id="tp-find" hidden>
+              <div class="tp-find-row">
+                <label class="visually-hidden" for="tp-find-in">Find your team</label>
+                <input type="search" id="tp-find-in" class="tp-find-in" placeholder="Find your team, for example Wales" autocomplete="off" spellcheck="false" aria-controls="tp-find-list" aria-expanded="false" aria-describedby="tp-find-help">
+                <button type="button" class="tp-find-close" id="tp-find-close" aria-label="Close search"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+                <!-- In NSW: kept wired but hidden for now -->
+                <button type="button" class="tp-chip tp-nsw" id="tp-nsw" aria-pressed="false" hidden>In NSW</button>
+              </div>
+              <p class="visually-hidden" id="tp-find-help">Suggestions appear below as you type. Enter picks the first one; down arrow moves through them. Escape closes the search.</p>
+              <ul class="tp-find-list" id="tp-find-list" aria-label="Matching teams" hidden></ul>
+            </div>
+          </div>
           <!-- Why pick: read out with the fan (aria-describedby) -->
           <p class="tp-pick-sub" id="tp-pick-sub">Pick the teams you follow to see their matches and plan your days in NSW around them.</p>
           <div class="tp-picker" id="tp-picker">
-            <!-- Hidden for now (may come back): finding your team with a find field (suggestions float over the hand, so nothing below moves) and a toggle that
-                 narrows the hand to the teams with a pool match in NSW. Wired by concepts-teams.js. -->
-            <div class="tp-find" hidden>
-              <div class="tp-find-row">
-                <label class="tp-find-field"><span class="tp-find-label">Find your team</span>
-                  <input type="search" id="tp-find-in" class="tp-find-in" placeholder="For example, Wales" autocomplete="off" spellcheck="false" aria-controls="tp-find-list" aria-expanded="false" aria-describedby="tp-find-help"></label>
-                <button type="button" class="tp-chip tp-nsw" id="tp-nsw" aria-pressed="false">In NSW</button>
-              </div>
-              <p class="visually-hidden" id="tp-find-help">Suggestions appear below as you type. Enter picks the first one; down arrow moves through them.</p>
-              <ul class="tp-find-list" id="tp-find-list" aria-label="Matching teams" hidden></ul>
-            </div>
             <div class="tp-fan-wrap">
               <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-pick-sub tp-fan-help"></div>
             </div>
@@ -302,7 +307,7 @@
   ];
   // The picker is always on screen; its notes are the same whether or not a team is picked
   var PICKER = [
-      { sel: '.tp-find-field', title: 'Find your team (hidden for now)', text: 'Hidden for now with the In NSW toggle, and may come back; the code stays wired, and the letter jump below still works. Three ways to your team without swiping through 25 cards. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; choosing one picks it, Enter picks the first, Escape clears. In NSW narrows the hand to the 15 teams with a pool match in NSW (Here for the rugby and anything already picked stay). With the hand focused, a letter jumps to the next team starting with it. Flags now sit on every card. The hand opens on Australia, the host nation.' },
+      { sel: '#tp-find-open', title: 'Find your team (search icon)', text: 'A 36px search icon button by the heading keeps the picker clean. Tapping it slides the field across the heading row from the icon (over the heading, so nothing below moves) with the keyboard up. Type a name or code (wal, zea, RSA): up to four suggestions float over the hand, which glides to the first match; tapping one or Enter picks it and the field stays open for another; down arrow moves through them. Escape, the cross or a tap elsewhere with nothing typed folds it back into the icon, with focus back on the icon. In NSW stays hidden for now. Letter jump on the focused hand still works too.' },
       { sel: '.tp-count', title: 'Countdown', text: 'One plain line, under the subheading (Two halves on the pitch. Make the third one count.), so the hero stays short and the fan sits above the fold: days to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says the tournament is under way (final on Sat 13 Nov), then that it has finished. The dates line above it carries the page\u2019s one note that kick-offs are Sydney time. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '#tp-pick-sub', title: 'Why pick', text: 'One line under the heading says what a pick is for: Pick the teams you follow to see their matches and plan your days in NSW around them. The fan is described by it (aria-describedby, with the keyboard help), so screen readers hear it with the fan.' },
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Here for the rugby. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },

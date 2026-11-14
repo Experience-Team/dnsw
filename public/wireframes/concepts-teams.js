@@ -402,6 +402,30 @@
     });
   }
   var found = [];
+  /* Find your team: an icon button by the heading. Open, the field slides across the heading row from the icon (clip,
+     so nothing below moves) with the keyboard up; Escape, the cross or a tap elsewhere with nothing typed folds it back
+     into the icon, and focus returns to the icon */
+  var findBox = document.getElementById('tp-find'), findOpen = document.getElementById('tp-find-open'), findAnim = null;
+  function openFind() {
+    if (!findBox || !findBox.hidden) { if (findIn) findIn.focus(); return; }
+    if (findAnim) findAnim.cancel();
+    findBox.hidden = false; findOpen.setAttribute('aria-expanded', 'true');
+    if (!reduce.matches && findBox.animate) findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: .6 }, { clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.3, .4, .3, 1)' });
+    findIn.focus({ preventScroll: true });
+    notesOnly();
+  }
+  function closeFind(focusBtn) {
+    if (!findBox || findBox.hidden) return;
+    clearFind();
+    findOpen.setAttribute('aria-expanded', 'false');
+    var done = function () { findBox.hidden = true; findAnim = null; notesOnly(); };
+    if (findAnim) findAnim.cancel();
+    if (!reduce.matches && findBox.animate) { findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }, { clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: 0 }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }); findAnim.onfinish = done; }
+    else done();
+    if (focusBtn) findOpen.focus({ preventScroll: true });
+  }
+  if (findOpen) findOpen.addEventListener('click', openFind);
+  if (findBox) document.getElementById('tp-find-close').addEventListener('click', function () { closeFind(true); });
   function clearFind() { if (!findIn) return; findIn.value = ''; found = []; renderFind(); }
   function renderFind() {
     var q = findIn.value.trim().toLowerCase();
@@ -441,7 +465,7 @@
     findIn.addEventListener('input', function () { renderFind(); if (findIn.value.trim()) say(found.length ? found.length + (found.length === 1 ? ' team matches.' : ' teams match.') : 'No team matches.'); });
     findIn.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && found.length) { e.preventDefault(); pickFound(found[0]); }
-      else if (e.key === 'Escape' && findIn.value) { e.preventDefault(); clearFind(); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeFind(true); }
       else if (e.key === 'ArrowDown' && found.length) { e.preventDefault(); findList.querySelector('.tp-find-opt').focus(); }
     });
     findList.addEventListener('click', function (e) { var b = e.target.closest('.tp-find-opt'); if (b) pickFound(b.dataset.team); });
@@ -450,10 +474,11 @@
       var all = Array.prototype.slice.call(findList.querySelectorAll('.tp-find-opt')), k = all.indexOf(b);
       if (e.key === 'ArrowDown') { e.preventDefault(); (all[k + 1] || all[k]).focus(); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); (k ? all[k - 1] : findIn).focus(); }
-      else if (e.key === 'Escape') { e.preventDefault(); clearFind(); findIn.focus(); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeFind(true); }
     });
     // Leaving the field and its suggestions closes them; the text stays so nothing typed is lost
-    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.tp-find')) { findList.hidden = true; findIn.setAttribute('aria-expanded', 'false'); } });
+    // A tap elsewhere hides the suggestions; with nothing typed it also folds the search back into its icon
+    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.tp-find') && !e.target.closest('#tp-find-open')) { findList.hidden = true; findIn.setAttribute('aria-expanded', 'false'); if (!findIn.value.trim() && !findBox.hidden) closeFind(false); } });
     findIn.addEventListener('focus', function () { if (findIn.value.trim()) renderFind(); });
   }
 
@@ -1409,7 +1434,7 @@
     try { localStorage.removeItem(KEY); } catch (e) {}
     if (allSec) { showCities(false, true); renderAll(false); }
     deck.innerHTML = '';
-    setNsw(false); clearFind(); offset = START; dealt = false;
+    setNsw(false); closeFind(false); clearFind(); offset = START; dealt = false;
     state.tab = 'yours';
     clearTimeout(undoTimer);
     renderChosen();

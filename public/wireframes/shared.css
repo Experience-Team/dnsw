@@ -3935,3 +3935,17 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-pick-sub { margin-top: var(--space-1); font-size: .875rem; line-height: 1.4; color: #4d4d4d; text-wrap: pretty; }
 .tp-ticket-why { margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #5c5c5c; }
 .tp-pm-acts .tp-ticket-why { margin-top: var(--space-1); }
+
+/* Pick your team: the heading row with Find your team as an icon button; the open field lies over the row */
+.tp-pick-head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.tp-find-btn { position: relative; flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1.5px solid #1a1a1a; border-radius: 50%; background: #fff; color: #1a1a1a; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+.tp-find-btn:active { transform: scale(.96); }
+.tp-find-btn:focus-visible, .tp-find-close:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+@media (hover: hover) { .tp-find-btn:hover, .tp-find-close:hover { background: #f5f5f5; } }
+.tp-pick-head .tp-find { position: absolute; left: 0; right: 0; top: 50%; margin: 0; transform: translateY(-50%); z-index: 70; background: #fff; }
+.tp-pick-head .tp-find[hidden] { display: none; }
+.tp-pick-head .tp-find-row { align-items: center; gap: var(--space-2); padding-right: 0; }
+.tp-pick-head .tp-find-in { flex: 1; min-width: 0; min-height: 40px; }
+.tp-find-close { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: none; color: #1a1a1a; cursor: pointer; }
+.tp-pick-head .tp-find-list { top: calc(100% + 8px); }
+.tp-pick-head .tp-find-in::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; } /* one cross: the close button beside the field */
