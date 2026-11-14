@@ -3718,6 +3718,47 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
   .pv-stage { justify-content: flex-start; padding: var(--space-4); }
   .pv-page .pv-phone > .cn-phone { height: 844px; }
 }
+/* QR code for the phone view, pinned at the foot of the panel (pv-device.js draws it): the code beside its heading,
+   line and Copy link. Short windows: one row, and the code opens as a popover above it from the QR code button. */
+.pv-qr { position: relative; flex: none; display: grid; grid-template-columns: 112px minmax(0, 1fr); grid-template-areas: "code title" "code p" "code acts" "code url"; grid-template-rows: auto auto auto 1fr; align-content: center; column-gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }
+.pv-qr-pop { display: contents; }
+.pv-qr-code { grid-area: code; align-self: center; width: 112px; height: 112px; }
+.pv-qr-code[hidden] { display: none; }
+.pv-qr-code svg { display: block; width: 100%; height: 100%; }
+.pv-qr-title { grid-area: title; font-size: 1rem; font-weight: 600; line-height: 1.4; }
+.pv-qr-p { grid-area: p; margin-top: 2px; font-size: .875rem; line-height: 1.45; color: #333; }
+.pv-qr-acts { grid-area: acts; display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+.pv-qr-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 var(--space-4); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font: inherit; font-size: .8125rem; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.pv-qr-show { display: none; }
+.pv-qr-copy svg { display: none; }
+.pv-qr-copy.is-copied, .pv-qr-show[aria-expanded="true"] { background: #2666d9; color: #fff; }
+.pv-qr-copy.is-copied svg { display: block; }
+@media (hover: hover) { .pv-qr-copy:not(.is-copied):hover, .pv-qr-show[aria-expanded="false"]:hover { background: #f2f6fd; } }
+.pv-qr-btn:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+.pv-qr-url { grid-area: url; margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #1a1a1a; overflow-wrap: anywhere; user-select: all; }
+@media (max-width: 960px) { .pv-qr { padding-inline: var(--space-4); } }
+@media (max-height: 860px) and (min-width: 801px) {
+  .pv-qr { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "title acts" "url url"; grid-template-rows: auto; align-items: center; padding-block: var(--space-3); }
+  .pv-qr-acts { margin-top: 0; }
+  .pv-qr-show { display: inline-flex; }
+  .pv-qr-pop { position: absolute; left: var(--space-6); bottom: calc(100% + var(--space-2)); z-index: 5; display: flex; align-items: center; gap: var(--space-4); width: 320px; padding: var(--space-4); border: 1px solid #d1d1d1; border-radius: var(--radius-md); background: #fff; box-shadow: var(--shadow-3); opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity var(--dur-small) var(--ease-out), transform var(--dur-small) var(--ease-out), visibility 0s linear var(--dur-small); }
+  .pv-qr.is-open .pv-qr-pop { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .pv-qr-pop .pv-qr-code { flex: none; }
+  .pv-qr-pop .pv-qr-p { margin: 0; }
+}
+@media (max-height: 860px) and (min-width: 801px) and (max-width: 960px) { .pv-qr-pop { left: var(--space-4); } }
+@media (prefers-reduced-motion: reduce) { .pv-qr-pop { transform: none !important; transition-duration: 1ms !important; } }
+
+/* Phone view (html.pv-device: ?phone, or a touch screen under 500px): only the phone screen, edge to edge, as tall
+   as what is visible above the keyboard (--pv-vh, set by pv-device.js on iOS). The phone's own keyboard replaces the
+   indicative one, and fields are 16px so iOS does not zoom in when one is focused. */
+.pv-device .pv-page { display: block; height: 100vh; height: var(--pv-vh, 100dvh); overflow: hidden; }
+.pv-device .pv-side, .pv-device .pv-spare { display: none; }
+.pv-device .pv-stage { display: block; height: 100%; padding: 0; }
+.pv-device .pv-phone { height: 100%; }
+.pv-device .pv-page .pv-phone > .cn-phone { width: 100%; max-width: none; height: 100%; border: 0; }
+.pv-device .tp-kbd { display: none !important; }
+.pv-device .cn-field, .pv-device .tp-find-in, .pv-device .tp-date input { font-size: 16px; }
 
 /* Pick your team: picking is the action (no See their matches). Tabs once a team is picked, match rows that open a
    match page, the feedback caption, and a pick's matches flying into the timeline bar. */

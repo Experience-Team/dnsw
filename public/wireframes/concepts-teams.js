@@ -419,7 +419,7 @@
   // phone first, so the suggestions under it stay clear of the keyboard
   var kbd = document.getElementById('tp-kbd'), kbdAnim = null;
   function showKbd(on) {
-    if (!kbd) return;
+    if (!kbd || document.documentElement.classList.contains('pv-device')) return; // phone view: the phone's own keyboard
     if (kbdAnim) { kbdAnim.cancel(); kbdAnim = null; }
     if (on) {
       kbd.hidden = false;

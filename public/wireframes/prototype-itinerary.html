@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+<!-- Phone view: ?phone (the QR code in the panel), or a touch screen under 500px wide, shows only the phone screen, edge
+     to edge, with the phone's own keyboard and controls. Set before the first paint; see pv-device.js -->
+<script>if (/[?&]phone\b/.test(location.search) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) document.documentElement.classList.add('pv-device');</script>
 <title>Share/edit itinerary · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
 </head>
@@ -33,6 +36,22 @@
       <p class="cn-notes-todo" id="cn-notes-todo"></p>
     </aside>
   </div>
+  <!-- For whoever is reviewing the prototype, not part of the design: a QR code that opens this page in phone view
+       (?phone), drawn by pv-device.js. Pinned at the foot of the panel, under the annotations. -->
+  <section class="pv-qr" id="pv-qr" aria-labelledby="pv-qr-title">
+    <!-- On short windows the code and its line open as a popover from the QR code button, so the annotations keep room -->
+    <div class="pv-qr-pop" id="pv-qr-pop">
+      <div class="pv-qr-code" id="pv-qr-code" role="img" aria-label="QR code that opens the phone view of this prototype"></div>
+      <p class="pv-qr-p" id="pv-qr-p">Scan to open just the phone screen. Your phone&rsquo;s keyboard and controls work there.</p>
+    </div>
+    <h3 class="pv-qr-title" id="pv-qr-title">View on your phone</h3>
+    <div class="pv-qr-acts">
+      <button type="button" class="pv-qr-btn pv-qr-show" id="pv-qr-show" aria-expanded="false" aria-controls="pv-qr-pop">QR code</button>
+      <button type="button" class="pv-qr-btn pv-qr-copy" id="pv-qr-copy"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>Copy link</span></button>
+    </div>
+    <p class="pv-qr-url" id="pv-qr-url" hidden></p>
+    <span class="visually-hidden" id="pv-qr-status" role="status"></span>
+  </section>
 </aside>
 <!-- Concept: itinerary list and Save and share, five Figma screens in one 390 x 844 phone window:
      M1 Itinerary list view (42:41), M2 Save and share sheet (42:98), M3 Format copied (43:40),
@@ -540,5 +559,7 @@
 <script src="concepts-products.js"></script>
 <script src="concepts-itinerary.js"></script>
 <script src="concepts-copy.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="pv-device.js"></script>
 </body>
 </html>
