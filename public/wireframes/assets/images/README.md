@@ -28,9 +28,14 @@ A picture can keep its own file name if it's mapped to a placeholder in `IMG_ALI
 | File | Shows for | Where |
 |---|---|---|
 | `golden-barley.webp` | `sample-pub-a-placeholder` | Pick your team, Where to watch: tap Sample pub A to open its sheet |
+| `lord-nelson.webp` | `sample-pub-b-placeholder` | Where to watch: Sample pub B's sheet |
+| `marickville-tavern.webp` | `sample-pub-c-placeholder` | Where to watch: Sample pub C's sheet |
+| `village.jpg` | `sample-rugby-village-placeholder` | Where to watch: the Sample rugby village's sheet |
 
-The pub keeps its sample name: the pubs in the fixtures, and the matches they show, are invented, so no real business
+The pubs and the village keep their sample names: the pubs in the fixtures, and the matches they show, are invented, so no real business
 is named or said to screen a match. Only the picture is real.
+
+Use hyphens, not spaces, in file names (spaces break web addresses), and `.jpg` rather than `.jpeg`.
 
 The tables below list each placeholder's name; a file with that name (`.webp` or `.jpg`) needs no alias.
 

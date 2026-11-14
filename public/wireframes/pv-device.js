@@ -22,7 +22,12 @@
   // Pictures saved under their own name rather than the placeholder's: placeholder name -> file name (no extension).
   // Sample pub A keeps its sample name on purpose (the fixtures' pubs and the matches they show are invented, so no
   // real business is named); only its picture is a real photo.
-  var IMG_ALIAS = { 'sample-pub-a-placeholder': 'golden-barley' };
+  var IMG_ALIAS = {
+    'sample-pub-a-placeholder': 'golden-barley',
+    'sample-pub-b-placeholder': 'lord-nelson',
+    'sample-pub-c-placeholder': 'marickville-tavern',
+    'sample-rugby-village-placeholder': 'village'
+  };
   function paint(el) {
     var name = el.getAttribute('data-img'); name = IMG_ALIAS[name] || name;
     var want = hifi() ? 'url("' + IMG_DIR + name + '.webp"), url("' + IMG_DIR + name + '.jpg")' : '';
