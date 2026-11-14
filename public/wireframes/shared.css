@@ -4020,5 +4020,29 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-range-h:focus-visible::before { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #005EA2; }
 .tp-range.is-unset .tp-range-fill { background: #b3b3b3; }
 .tp-range-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: .6875rem; color: #5c5c5c; }
-.tp-range-out { color: #1a1a1a; font-weight: 600; }
+.tp-range-out { display: inline-flex; align-items: center; gap: 4px; }
+.tp-range-out::before { content: ""; width: 1.5px; height: 8px; background: #8a8a8a; }
+.tp-range-out.is-out { color: #1a1a1a; font-weight: 600; }
+.tp-range-out.is-out::before { content: none; }
+.tp-range-mark { position: absolute; top: 7px; width: 1.5px; height: 14px; margin-left: -.75px; background: #8a8a8a; border-radius: 1px; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .tp-range-fill, .tp-range-h, .tp-range-h.is-dragging, .tp-range-h::before { transition: none; } }
+/* Pick your team: Clear timeline asks first. A short sheet stacked over the timeline, as tall as its content. */
+#tp-phone .tp-stack.tp-stack--fit { top: auto; bottom: 0; }
+.tp-cc { padding-bottom: var(--space-5); }
+.tp-cc .cn-sheet-head { margin-bottom: var(--space-2); }
+.tp-cc-h { margin: var(--space-3) 0 var(--space-1); font-size: .8125rem; font-weight: 700; color: #1a1a1a; }
+.tp-cc-list { margin: 0; padding-left: 1.1em; font-size: .875rem; line-height: 1.45; color: #1a1a1a; }
+.tp-cc-list--keep { color: #4d4d4d; }
+.tp-cc-note { margin: var(--space-3) 0 0; font-size: .8125rem; color: #4d4d4d; }
+.tp-cc-acts { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+/* Pick your team: hold a place on the timeline to drag it to another day. Lifted: it scales up and sits above its
+   neighbours with a shadow; the day it would land on is outlined; on release it settles onto the day. */
+.tp-tl-mk--item.is-movable { touch-action: pan-x; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.tp-tl-mk--item.is-lifted { z-index: 5; cursor: grabbing; transition: transform .16s cubic-bezier(.25, .6, .3, 1); transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px - 6px)) scale(1.18); }
+.tp-tl-mk--item.is-lifted .cn-tl-sym { box-shadow: 0 6px 14px rgba(0,0,0,.28); }
+.tp-tl-mk--item.is-lifted.is-following { transition: none; } /* lifts over 160ms, then follows the finger exactly */
+.tp-tl-mk--item.is-settling { z-index: 5; transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px)); transition: transform .22s cubic-bezier(.25, .6, .3, 1); }
+.tp-tl-drop { position: absolute; top: 34px; bottom: 30px; width: 40px; margin-left: -20px; border: 1.5px dashed #1a1a1a; border-radius: 8px; background: rgba(26,26,26,.04); pointer-events: none; }
+.tp-tl-drop[hidden] { display: none; }
+.tp-tl-drop-t { position: absolute; left: 50%; bottom: -25px; transform: translateX(-50%); padding: 1px 6px; border-radius: 4px; background: #1a1a1a; color: #fff; font-size: .6875rem; font-weight: 600; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .tp-tl-mk--item.is-settling { transition: none; } .tp-tl-mk--item.is-lifted { transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px)); } }

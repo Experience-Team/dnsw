@@ -661,6 +661,7 @@
     pmUnstackT = setTimeout(function () { if (!pmStacked) { pm.hidden = true; pm.classList.remove('tp-stack', 'is-stacked'); } notesRefresh(); }, reduce.matches ? 0 : 340);
   });
   tp.openSheet = function (id, opener) { openPm(id, opener, true); };
+  tp.moveItem = moveItem; // the timeline's hold-and-drag
   function openPm(id, opener, stacked) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0;
     var x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
@@ -875,6 +876,8 @@
             '<label class="tp-date"><span>Last day in NSW</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc(to) + '"></label></div>' +
             // The same two days on a slider across the tournament and two days either side, in step with the fields
             '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
+            // Subtle marks where the tournament starts and ends (1 Oct, 13 Nov), two days in from either end
+            '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
             '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day in NSW" aria-valuemin="-2" aria-valuemax="45"></span>' +
             '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day in NSW" aria-valuemin="-2" aria-valuemax="45"></span></div>' +
             '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out" id="tp-range-out"></span><span>15 Nov</span></div></div>' +
@@ -954,7 +957,9 @@
     });
     var fill = p.r.querySelector('.tp-range-fill');
     fill.style.left = pct(a); fill.style.width = ((z - a) / RSPAN * 100) + '%';
-    p.r.querySelector('#tp-range-out').textContent = outA || outZ || '';
+    var o = p.r.querySelector('#tp-range-out');
+    o.textContent = outA || outZ || 'Tournament 1 Oct to 13 Nov'; // the marks' key, unless a typed date is past an end
+    o.classList.toggle('is-out', !!(outA || outZ));
   }
   function rangeFromFields() {
     var p = rangeParts(); if (!p.r) return;
