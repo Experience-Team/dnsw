@@ -491,7 +491,7 @@
     if (!rec) return;
     var r = rec.r, h = '', addr = r.address ? [r.address.line, r.address.suburb].filter(Boolean).join(', ') : '';
     var alt = r.gallery && r.gallery[0] ? r.gallery[0].alt : 'Placeholder image';
-    h += '<div class="plan-modal-img ph-img" role="img" aria-label="' + esc(alt) + '"></div><div class="plan-modal-body">';
+    h += '<div class="plan-modal-img ph-img" data-img="' + esc(String(key).replace(/^\w+:/, '')) + '" role="img" aria-label="' + esc(alt) + '"></div><div class="plan-modal-body">';
     if (rec.match && rec.ticket) h += '<p class="cn-pp-flag">' + sym('ticket') + 'You have a ticket</p>';
     h += '<h2 class="cn-pp-title" id="cn-pp-title">' + esc(r.title) + '</h2>';
     if (rec.match) {
@@ -841,7 +841,10 @@
   // A short wash of state blue where a place has landed, so the eye finds it after a move. Colour only, so it stays
   // with reduced motion.
   function landed(li) {
-    li.animate([{ borderColor: '#2666d9', boxShadow: '0 0 0 1px #2666d9', backgroundColor: '#f2f6fd' }, { borderColor: '#dbdbdb', boxShadow: '0 0 0 0 rgba(38,102,217,0)', backgroundColor: '#fff' }], { duration: 900, easing: 'ease-out' });
+    // Colours from the theme's tokens, read when it runs, so the high fidelity theme can change them
+    var cs = getComputedStyle(li), t = function (k, d) { return cs.getPropertyValue(k).trim() || d; };
+    var ac = t('--c-accent', '#2666d9');
+    li.animate([{ borderColor: ac, boxShadow: '0 0 0 1px ' + ac, backgroundColor: t('--c-accent-soft', '#f2f6fd') }, { borderColor: t('--c-line', '#dbdbdb'), boxShadow: '0 0 0 0 transparent', backgroundColor: t('--c-surface', '#fff') }], { duration: 900, easing: 'ease-out' });
   }
   // A copy of a row, laid over it in the phone, to lift during a drag or to fade out on remove
   function ghostOf(x) {

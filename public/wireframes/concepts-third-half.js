@@ -240,11 +240,14 @@
     return out;
   }
 
+  // High fidelity images: each placeholder names its picture, assets/hifi/<name>.jpg (the title in lower case, words
+  // joined by hyphens). Only the high fidelity theme loads them (pv-device.js); the wireframe keeps the grey block.
+  function imgKey(title) { return ' data-img="' + esc(String(title || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')) + '"'; }
   // Match day groups, as before: Before the match, After the final whistle, Near the stadium
   function productCard(p, why, id, f) {
     return '<article class="tp-pc" data-id="' + esc(id) + '">' +
       '<button type="button" class="tp-pc-main" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
-      '<span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title">' + esc(p.title) + '</span>' +
+      '<span class="ph-img tp-pc-img"' + imgKey(p.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title">' + esc(p.title) + '</span>' +
       '<span class="tp-pc-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
       addBtn(id, p.title + ' on ' + f.d) + '</article>';
@@ -323,7 +326,7 @@
     }
     return '<article class="tp-pc tp-trip' + (t.kind === 'long' ? ' tp-trip--long' : '') + '" data-id="' + esc(key) + '">' +
       '<button type="button" class="tp-pc-main" data-open="' + esc(key) + '" aria-haspopup="dialog">' +
-      '<span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title provenance-gap">' + esc(t.title) + '</span>' +
+      '<span class="ph-img tp-pc-img"' + imgKey(t.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title provenance-gap">' + esc(t.title) + '</span>' +
       '<span class="tp-pc-type provenance-gap">' + (t.kind === 'day' ? 'Day trip' : 'Longer trip') + ' · Curated by Destination NSW</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
       addBtn(key, t.region + ', ' + (t.kind === 'day' ? 'day trip' : 'longer trip')) + line + '</article>';
@@ -488,7 +491,7 @@
   }
   function pmProduct(id, x) {
     var p = x.p, f = x.f, h = '';
-    h += '<div class="plan-modal-img ph-img" role="img" aria-label="Placeholder image of ' + esc(p.title) + '"></div><div class="plan-modal-body">';
+    h += '<div class="plan-modal-img ph-img"' + imgKey(p.title) + ' role="img" aria-label="Placeholder image of ' + esc(p.title) + '"></div><div class="plan-modal-body">';
     h += '<p class="tp-pm-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</p>';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">' + esc(p.title) + '</h2>';
     h += '<p class="cn-pp-venue">' + esc(p.address.suburb) + ' \u00b7 near ' + esc(f.v) + ', ' + esc(f.d) + '</p>';
@@ -505,7 +508,7 @@
     var sp = x.sp, f = x.m.f, h = '';
     // Summarised: what it is, where, what it shows for this match, and how many of your other matches it shows
     var others = tp.userMatches().filter(function (m) { return m.key !== x.m.key && Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }).length;
-    h += '<div class="plan-modal-img ph-img" role="img" aria-label="Placeholder image of ' + esc(sp.name) + '"></div><div class="plan-modal-body">';
+    h += '<div class="plan-modal-img ph-img"' + imgKey(sp.name) + ' role="img" aria-label="Placeholder image of ' + esc(sp.name) + '"></div><div class="plan-modal-body">';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(sp.name) + '</h2>';
     h += '<p class="cn-pp-venue provenance-gap">' + esc(sp.place) + '</p>';
     h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
@@ -576,7 +579,7 @@
   function pmTrip(id, x) {
     var t = x.t, b = x.b, h = '';
     var bases = Object.keys(t.travel).map(function (k) { return mins(t.travel[k].minutes) + ' ' + (MODE[t.travel[k].mode] || '') + ' from ' + CITY[k]; }).join('; ');
-    h += '<div class="plan-modal-img ph-img" role="img" aria-label="Placeholder image of ' + esc(t.region) + '"></div><div class="plan-modal-body">';
+    h += '<div class="plan-modal-img ph-img"' + imgKey(t.title || t.region) + ' role="img" aria-label="Placeholder image of ' + esc(t.region) + '"></div><div class="plan-modal-body">';
     h += '<p class="tp-pm-type provenance-gap">' + (t.kind === 'day' ? 'Day trip' : 'Longer trip, ' + t.nights + (t.nights === 1 ? ' night' : ' nights')) + ' \u00b7 Curated by Destination NSW</p>';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(t.title) + '</h2>';
     h += '<p class="tp-pm-why provenance-gap">' + esc(x.why) + '</p>';
@@ -587,7 +590,7 @@
       '<div><dt>Price</dt><dd><span class="provenance-gap">' + esc(tripBand(t) === 'free' ? 'Free' : tripBand(t) + ' (price band)') + '</span> <span class="tp-pm-derived">(from its stops)</span></dd></div></dl>';
     var stops = t.stops.slice().sort(function (a, c) { return a.minutes_from_start - c.minutes_from_start || a.title.localeCompare(c.title); });
     h += '<h3 class="cn-pp-h">Stops</h3><div class="tp-pcs tp-stops">' + stops.map(function (st) {
-      return '<article class="tp-pc tp-stop"><span class="ph-img tp-pc-img" aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title provenance-gap">' + esc(st.title) + '</span>' +
+      return '<article class="tp-pc tp-stop"><span class="ph-img tp-pc-img"' + imgKey(st.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title provenance-gap">' + esc(st.title) + '</span>' +
         '<span class="tp-pc-type provenance-gap">' + esc(PTYPE[st.type] || 'Product') + ' \u00b7 ' + esc(st.suburb) + '</span>' +
         '<span class="tp-stop-src">' + esc(SOURCE[st.source]) + '</span></span></article>';
     }).join('') + '</div>';

@@ -1,0 +1,36 @@
+/* ── High fidelity theme for the prototypes (prototype-pick-your-team.html, prototype-itinerary.html) ─────────────
+   On when <html data-theme="hifi">: the High fidelity switch in the viewer panel, or ?theme=hifi (works with ?phone,
+   so the QR code opens the same theme). Phone only: every rule is inside .cn-phone, so the viewer panel stays
+   wireframe. Style only: no behaviour or layout lives here.
+
+   How it works: the phone is drawn from the tokens on :root in shared.css (--c-*, --font-*, --fs-*, --fw-*, --bw-*,
+   --radius-*, --shadow-*); this file gives them the high fidelity values. A token that is not set here keeps its
+   wireframe value. Note: a token defined from another (--font-display: var(--font-body)) is worked out on :root, so
+   set both here rather than only the first.
+
+   Brand values: still to come from the design (colours, fonts, radius, shadows). Until then the switch changes only
+   the wireframe touches below: pictures in place of grey blocks, no pink wash, solid lines in place of the rough
+   dashed ones. */
+
+:root[data-theme="hifi"] .cn-phone {
+  /* Colour (to come) */
+  /* --c-ink: ; --c-ink-2: ; --c-ink-3: ; --c-on-dark: ; --c-on-dark-2: ;
+     --c-surface: ; --c-surface-2: ; --c-surface-3: ; --c-btn: ; --c-btn-hover: ; --c-hero: ;
+     --c-line-ink: ; --c-line-strong: ; --c-line: ; --c-line-soft: ;
+     --c-accent: ; --c-accent-soft: ; --c-accent-line: ; --c-focus: ; --c-danger: ; --c-danger-soft: ; --c-flash: ; */
+  /* Type (to come; load the fonts with an @import at the top of this file) */
+  /* --font-body: ; --font-display: ; --fw-semi: ; --fw-bold: ; --fw-heavy: ; */
+  /* Shape (to come) */
+  /* --radius-sm: ; --radius-md: ; --radius-lg: ; --radius-card: ; --radius-face: ; --shadow-1: ; --shadow-2: ; --bw-2: ; */
+
+  /* The rough "not a team" touches of the wireframe (the dashed All matches button and cards) become solid */
+  --border-loose: solid;
+}
+
+/* Data that is not live yet: the pink wash is a wireframe marker only (the annotations still say which data is gap) */
+:root[data-theme="hifi"] .cn-phone .provenance-gap::after { content: none; }
+
+/* Pictures: a placeholder with data-img shows assets/hifi/<name>.jpg over its grey block (pv-device.js sets it; a
+   missing file leaves the block). No "Image" label. */
+:root[data-theme="hifi"] .cn-phone .ph-img::after { content: none; }
+:root[data-theme="hifi"] .cn-phone [data-img] { background-size: cover; background-position: center; }

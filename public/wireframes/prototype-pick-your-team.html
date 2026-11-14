@@ -4,10 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 <!-- Phone view: ?phone (the QR code in the panel), or a touch screen under 500px wide, shows only the phone screen, edge
-     to edge, with the phone's own keyboard and controls. Set before the first paint; see pv-device.js -->
-<script>if (/[?&]phone\b/.test(location.search) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) document.documentElement.classList.add('pv-device');</script>
+     to edge, with the phone's own keyboard and controls. Theme: ?theme=hifi or ?theme=wireframe, else the last choice
+     in this browser (pv-theme), else the wireframe; data-theme="hifi" on <html> switches the phone to the high
+     fidelity tokens in themes/hifi.css. Both set before the first paint; see pv-device.js -->
+<script>(function () {
+  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
+  if (/[?&]phone\b/.test(q) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) d.classList.add('pv-device');
+  try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
+  if (t === 'hifi') d.setAttribute('data-theme', 'hifi');
+})();</script>
 <title>Pick your team · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="themes/hifi.css" />
 </head>
 <body class="pv-page">
 <!-- Prototype viewer (Figma: Rugby World Cup, node 204:12914). One prototype per page, each with its own address. It
@@ -26,8 +34,12 @@
       <!-- For whoever is reviewing the prototype, not part of the design: puts the picker back as a first visit -->
       <button type="button" class="pv-reset" id="tp-reset">Reset prototype</button>
     </div>
-    <p class="pv-p">Phone size only. Match dates and venues, screenings, the village, fan zones and places are placeholders; pink marks data that is not live yet.</p>
-    <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+    <p class="pv-p">Phone size only. Match dates and venues, screenings, the village, fan zones and places are placeholders; pink marks data that is not live yet (wireframe only).</p>
+    <div class="pv-switches">
+      <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+      <!-- The phone in the wireframe or the high fidelity theme (pv-device.js; remembered in this browser) -->
+      <button type="button" class="cn-switch pv-switch" id="pv-theme-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>High fidelity</button>
+    </div>
     <aside class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
       <ol class="cn-notes-list" id="cn-notes-list"></ol>
@@ -64,7 +76,7 @@
              Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (AEST, UTC+10: daylight
              saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to the address to see another moment. -->
         <section class="tp-hero" aria-labelledby="tp-hero-title">
-          <span class="ph-img tp-hero-img" aria-hidden="true"></span>
+          <span class="ph-img tp-hero-img" data-img="hero-pick-your-team" aria-hidden="true"></span>
           <div class="tp-hero-content">
             <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-hero-kicker">Rugby World Cup 2027:</span> <span class="tp-hero-name">Your 3rd half</span></h3>
             <p class="tp-hero-sub">Two halves on the pitch. Make the third one count.</p>
