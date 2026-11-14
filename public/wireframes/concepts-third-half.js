@@ -594,14 +594,99 @@
     h += pmActions(id, t.region) + '</div>';
     return h;
   }
-  function openPm(id, opener) {
-    var isMatch = id.indexOf('match:') === 0, x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : MODAL[id];
-    if (!x || (isMatch && !x.m)) return;
+  /* ---------- An added item from the timeline: its details, Move and Remove (stacked over the timeline) ----------
+     Where it can go: places and products on the days they are open (fixture opening hours, gap data), a fan zone or
+     village between its open dates, all inside the days in NSW if set, else the tournament; trips use tripMoves.
+     A screening belongs to one match's broadcast, so it is not moved, only removed. */
+  function addedItem(id) { return state.added.filter(function (x) { return x.id === id; })[0] || null; }
+  function productOf(it) { var pid = it.id.split(':')[1]; return PRODUCTS.filter(function (p) { return p.id === pid; })[0] || null; }
+  function spotOf(it) { return SPOTS[+it.id.split(':')[1]] || null; }
+  function openOn(it, d) {
+    if (it.kind === 'product') { var p = productOf(it); return !p || !p.availability || p.availability.kind !== 'opening_hours' ? true : !!hoursOn(p, weekdayOf(d)); }
+    if (it.kind === 'place') { var sp = spotOf(it); return !sp || !sp.open_from ? true : d >= tp.isoDay(sp.open_from) && d <= tp.isoDay(sp.open_to); }
+    return true;
+  }
+  tp.itemClosed = function (it, d) { return (it.kind === 'product' || it.kind === 'place') && !openOn(it, d); };
+  function itemMoves(it) {
+    if (it.kind === 'trip') return tripMoves(it.id).map(function (m) { return { day: m.start, label: m.label, trip: true }; });
+    if (it.kind !== 'product' && it.kind !== 'place') return [];
+    var cur = tp.dayOf(it.day), s = stay(), a = s ? Math.max(0, s.a) : 0, z = s ? Math.min(43, s.z) : 43, out = []; // the axis runs 1 Oct to 13 Nov
+    var mine = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mine[m.day] = true; });
+    for (var d = a; d <= z; d++) if (d !== cur && openOn(it, d)) out.push(d);
+    // The six nearest the current day, in date order
+    out = out.sort(function (x, y) { return Math.abs(x - cur) - Math.abs(y - cur) || x - y; }).slice(0, 6).sort(function (x, y) { return x - y; });
+    return out.map(function (d) { return { day: d, label: dayLabel(d) + (mine[d] ? ' · match day' : '') }; });
+  }
+  function moveItem(id, d) {
+    var cur = addedItem(id); if (!cur) return id;
+    if (cur.kind === 'trip') { moveTrip(id, d); return id; }
+    var nid = cur.kind === 'product' ? 'p:' + cur.id.split(':')[1] + ':' + dayLabel(d) : 'w:' + cur.id.split(':')[1] + ':moved:' + dayLabel(d);
+    var nu = Object.assign({}, cur, { id: nid, day: dayLabel(d) });
+    delete nu.matchName; // it was suggested for a match on its old day
+    tp.removeItem(id); tp.addItem(nu);
+    render(true);
+    tp.say(cur.title + ' moved to ' + nu.day + '.');
+    return nid;
+  }
+  function pmItem(id) {
+    var it = addedItem(id); if (!it) return '<div class="plan-modal-body"><p class="cn-pp-text">This is no longer on your timeline.</p></div>';
+    var cl = tp.tlClash(id), mv = itemMoves(it), h = '<div class="plan-modal-body tp-pm-item">';
+    h += '<p class="tp-pm-type">' + esc(it.kindLabel || 'Added') + '</p>';
+    h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(it.title) + '</h2>';
+    h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary"><div><dt>When</dt><dd>' + esc(it.endDay ? (it.when || it.day + ' to ' + it.endDay) + ', ' + it.nights + (it.nights === 1 ? ' night' : ' nights') : it.day) + (it.matchName ? ', for ' + esc(it.matchName) : '') + '</dd></div>' +
+      (it.place ? '<div><dt>Where</dt><dd><span class="provenance-gap">' + esc(it.place) + '</span></dd></div>' : '') +
+      (it.note ? '<div><dt>Open</dt><dd><span class="provenance-gap">' + esc(it.note) + '</span></dd></div>' : '') + '</dl>';
+    if (cl) {
+      var who = cl.filter(function (c) { return !c.closed; }), shut = cl.some(function (c) { return c.closed; });
+      h += '<p class="tp-tl-d-clash">' + (who.length ? 'Clashes with ' + esc(tp.list(who.map(function (c) { return c.name + ', ' + c.day; }))) + '. ' : '') + (shut ? '<span class="provenance-gap">It is closed that day (opening hours).</span> ' : '') + 'Nothing has been moved.</p>';
+    }
+    if (it.kind === 'screening') h += '<p class="tp-pm-note">A screening is for one match, so it stays on that match’s day. Remove it if your plans change.</p>';
+    else if (mv.length) h += '<h3 class="cn-pp-h">Move it to</h3><div class="tp-move" role="group" aria-label="Move ' + esc(it.title) + ' to">' + mv.map(function (m) { return '<button type="button" class="tp-chip" data-pm-move="' + m.day + '">' + esc(m.label) + '</button>'; }).join('') + '</div>' +
+      (it.kind === 'trip' ? '' : '<p class="tp-pm-note">Days it is open<span class="provenance-gap"> (opening hours are placeholders)</span>' + (stay() ? ', within your days in NSW.' : '.') + '</p>');
+    else h += '<p class="tp-pm-note">No other days fit it now. Remove it, or change your days.</p>';
+    h += '<div class="tp-pm-acts"><button type="button" class="tp-link" data-pm-remove="' + esc(id) + '">Remove from timeline</button></div>';
+    h += '<p class="tp-pm-said" aria-hidden="true">' + esc(pmSaid) + '</p></div>';
+    return h;
+  }
+  // The match sheet doubles as the timeline's stacked sheet: grabber, stack closing, focus back to the marker
+  var pmGrab = document.createElement('span'); pmGrab.className = 'cn-grabber tp-pm-grab'; pmGrab.setAttribute('aria-hidden', 'true');
+  pm.insertBefore(pmGrab, pm.firstChild);
+  pm.tabIndex = -1;
+  if (typeof tp.stackRegister === 'function') tp.stackRegister(pm);
+  var pmStacked = false, pmUnstackT = 0;
+  pm.addEventListener('tp:stackclose', function () {
+    if (!pmStacked) return;
+    pmStacked = false; pmOpen = null;
+    clearTimeout(pmUnstackT);
+    pmUnstackT = setTimeout(function () { if (!pmStacked) { pm.hidden = true; pm.classList.remove('tp-stack', 'is-stacked'); } notesRefresh(); }, reduce.matches ? 0 : 340);
+  });
+  tp.openSheet = function (id, opener) { openPm(id, opener, true); };
+  tp.moveItem = moveItem; // the timeline's hold-and-drag
+  function openPm(id, opener, stacked) {
+    var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0;
+    var x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
+    if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
-    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : pmSpot(id, x);
+    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = isMatch ? 'Match' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
+    if (stacked) {
+      // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
+      clearTimeout(pmUnstackT);
+      pmStacked = true;
+      pm.classList.remove('is-sheet', 'is-open', 'is-closing');
+      pm.classList.add('tp-stack', 'is-stacked');
+      pm.classList.toggle('is-match', isMatch);
+      pm.hidden = false;
+      void pm.offsetWidth;
+      tp.stackOpen(pm, opener);
+      pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
+      tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
+      notesRefresh();
+      return;
+    }
+    pm.classList.remove('tp-stack', 'is-stacked');
     pm.classList.toggle('is-match', isMatch);
     pm.classList.toggle('is-sheet', isMatch);
     pmScrim.hidden = !isMatch;
@@ -615,6 +700,7 @@
   }
   function closePm() {
     if (!pmOpen) return;
+    if (pmStacked) { tp.stackClose(); return; } // the stack closes it, and puts focus back on the marker
     var back = pmOpen.opener; pmOpen = null;
     pmBehind.forEach(function (pair) { pair[0].inert = pair[1]; });
     var sheet = pm.classList.contains('is-sheet');
@@ -636,6 +722,27 @@
   });
   pm.addEventListener('click', function (e) {
     if (e.target.closest('[data-pm-close]')) { closePm(); return; }
+    // An added item's sheet: Move to another day, or Remove
+    var mvb = e.target.closest('[data-pm-move]');
+    if (mvb && pmOpen && pmOpen.id.indexOf('item:') === 0) {
+      var nid = moveItem(pmOpen.id.slice(5), +mvb.dataset.pmMove);
+      pmOpen.id = 'item:' + nid;
+      var moved = addedItem(nid);
+      pmSaid = moved ? moved.title + ' moved to ' + (moved.when || moved.day) + '.' : '';
+      pmBody.innerHTML = pmItem(nid);
+      if (typeof tp.tlSelect === 'function') tp.tlSelect(-1, false, nid); // its marker stays the chosen one, on its new day
+      var again = pm.querySelector('[data-pm-move], [data-pm-remove]'); if (again) again.focus({ preventScroll: true });
+      return;
+    }
+    var rmb = e.target.closest('[data-pm-remove]');
+    if (rmb) {
+      var gone = addedItem(rmb.dataset.pmRemove);
+      tp.removeItem(rmb.dataset.pmRemove);
+      if (gone) tp.say(gone.title + ' removed from your timeline. ' + state.added.length + ' added.');
+      tp.stackClose(false);
+      document.getElementById('tp-tl-title').focus({ preventScroll: true });
+      return;
+    }
     // A match page's own actions
     var mb = e.target.closest('[data-pm-match]');
     if (mb) {
@@ -752,7 +859,7 @@
     var t = trip(), done = t && (t.mode !== 'visiting' || (t.from && t.to)) && !askEditing, h;
     if (done) {
       var what = t.mode === 'local' ? 'I’m local' : t.mode === 'unsure' ? 'Not sure yet' : 'In NSW ' + tp.isoRange(t.from, t.to);
-      h = '<p class="tp-ask-sum"><span class="tp-ask-sum-text">' + esc(what) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>' +
+      h = '<p class="tp-ask-sum"><span class="tp-ask-sum-text">' + esc(what) + '</span> · <button type="button" class="tp-link" data-act="change">' + (t.mode === 'visiting' ? window.tpIcons.cal : '') + 'Change</button></p>' +
         (askNews ? '<p class="tp-ask-news">' + esc(askNews) + '</p>' : '');
     } else {
       h = '<h3 class="tp-ask-title" id="tp-ask-title">Visiting or local?</h3>' +
@@ -761,18 +868,26 @@
         var inf = inferred();
         if (inf && !askManual) {
           h += '<div class="tp-ask-step"><p class="tp-ask-guess">Looks like you’re here ' + (inf.from === inf.to ? 'on ' : '') + '<strong>' + esc(tp.isoRange(inf.from, inf.to)) + '</strong>, ' + (inf.from === inf.to ? 'for your match in NSW.' : 'from your first to last match in NSW.') + '</p>' +
-            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="confirm">That’s right</button><button type="button" class="tp-link" data-act="adjust">Change dates</button></div></div>';
+            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="confirm">That’s right</button><button type="button" class="tp-link" data-act="adjust">' + window.tpIcons.cal + 'Change dates</button></div></div>';
         } else {
           var from = (t.from) || (askManual && inf ? inf.from : ''), to = (t.to) || (askManual && inf ? inf.to : '');
           h += '<div class="tp-ask-step"><p class="tp-ask-guess">' + window.tpIcons.cal + (inf ? 'Set your days in NSW.' : 'When are you in NSW? Add your days, or leave it for later.') + '</p>' +
-            '<div class="tp-dates"><label class="tp-date"><span>First day in NSW</span><input type="date" id="tp-from" min="2027-09-20" max="2027-11-20" value="' + esc(from) + '"></label>' +
-            '<label class="tp-date"><span>Last day in NSW</span><input type="date" id="tp-to" min="2027-09-20" max="2027-11-20" value="' + esc(to) + '"></label></div>' +
+            '<div class="tp-dates"><label class="tp-date"><span>First day in NSW</span><input type="date" id="tp-from" min="2027-09-29" max="2027-11-15" value="' + esc(from) + '"></label>' +
+            '<label class="tp-date"><span>Last day in NSW</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc(to) + '"></label></div>' +
+            // The same two days on a slider across the tournament and two days either side, in step with the fields
+            '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
+            // Subtle marks where the tournament starts and ends (1 Oct, 13 Nov), two days in from either end
+            '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
+            '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day in NSW" aria-valuemin="-2" aria-valuemax="45"></span>' +
+            '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day in NSW" aria-valuemin="-2" aria-valuemax="45"></span></div>' +
+            '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out" id="tp-range-out"></span><span>15 Nov</span></div></div>' +
             (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
-            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="use">Use these dates</button></div></div>';
+            '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="use">' + window.tpIcons.cal + 'Use these dates</button></div></div>';
         }
       }
     }
     ask.innerHTML = h;
+    if (ask.querySelector('#tp-range')) rangeFromFields();
     ask.setAttribute('aria-labelledby', done ? '' : 'tp-ask-title');
     if (done) ask.setAttribute('aria-label', 'Your trip'); else ask.removeAttribute('aria-label');
   }
@@ -823,6 +938,85 @@
       tp.say(said2);
     }
   });
+  /* ---------- The date slider: 29 Sep to 15 Nov (the tournament and two days either side), two handles ----------
+     Each handle is a slider (arrows a day, Page Up and Down a week, Home and End to the limit); they never cross. It
+     and the date fields (limited to the same days) follow each other; Use these dates still commits. A date typed past
+     either end pins its handle there and says so. On a phone: a light haptic tick per day, a firmer one at either end. */
+  var RMIN = -2, RMAX = 45, RSPAN = RMAX - RMIN;
+  function rangeClamp(d) { return Math.max(RMIN, Math.min(RMAX, d)); }
+  function rangeAt(x, rect) { return rangeClamp(RMIN + Math.round((x - rect.left) / rect.width * RSPAN)); } // snaps to whole days
+  function rangeDay(iso, fb) { if (!iso) return { d: fb, out: '' }; var d = tp.isoDay(iso); return { d: rangeClamp(d), out: d < RMIN || d > RMAX ? dayLabel(d) + (d < RMIN ? ', before 29 Sep' : ', after 15 Nov') : '' }; }
+  function rangeParts() { return { r: ask.querySelector('#tp-range'), from: ask.querySelector('#tp-from'), to: ask.querySelector('#tp-to') }; }
+  function rangeDraw(a, z, outA, outZ) {
+    var p = rangeParts(); if (!p.r) return;
+    var hs = p.r.querySelectorAll('.tp-range-h'), pct = function (d) { return ((d - RMIN) / RSPAN * 100) + '%'; };
+    [[hs[0], a, outA], [hs[1], z, outZ]].forEach(function (x) {
+      x[0].style.left = pct(x[1]);
+      x[0].setAttribute('aria-valuenow', x[1]);
+      x[0].setAttribute('aria-valuetext', x[2] || dayLabel(x[1]));
+    });
+    var fill = p.r.querySelector('.tp-range-fill');
+    fill.style.left = pct(a); fill.style.width = ((z - a) / RSPAN * 100) + '%';
+    var o = p.r.querySelector('#tp-range-out');
+    o.textContent = outA || outZ || 'Tournament 1 Oct to 13 Nov'; // the marks' key, unless a typed date is past an end
+    o.classList.toggle('is-out', !!(outA || outZ));
+  }
+  function rangeFromFields() {
+    var p = rangeParts(); if (!p.r) return;
+    var a = rangeDay(p.from.value, RMIN), z = rangeDay(p.to.value, RMAX);
+    if (z.d < a.d) z.d = a.d;
+    rangeDraw(a.d, z.d, a.out, z.out);
+    p.r.classList.toggle('is-unset', !p.from.value && !p.to.value);
+  }
+  function rangeSet(which, d) {
+    var p = rangeParts(); if (!p.r) return;
+    var a = +p.r.querySelector('[data-h="from"]').getAttribute('aria-valuenow'), z = +p.r.querySelector('[data-h="to"]').getAttribute('aria-valuenow');
+    // The handles never cross: the one that moves stops at the other
+    if (which === 'from') a = Math.max(RMIN, Math.min(z, d)); else z = Math.min(RMAX, Math.max(a, d));
+    p.from.value = isoOf(a); p.to.value = isoOf(z);
+    p.r.classList.remove('is-unset');
+    rangeDraw(a, z, '', '');
+    if (askError) { askError = ''; var er = ask.querySelector('.tp-ask-err'); if (er) er.remove(); }
+  }
+  var rangeDrag = null;
+  ask.addEventListener('pointerdown', function (e) {
+    var tr = e.target.closest('.tp-range-track'); if (!tr) return;
+    var h = e.target.closest('.tp-range-h');
+    var rect = tr.getBoundingClientRect(), at = rangeAt(e.clientX, rect);
+    if (!h) { // a tap on the track moves the nearer handle there
+      var hs = tr.querySelectorAll('.tp-range-h'), a = +hs[0].getAttribute('aria-valuenow'), z = +hs[1].getAttribute('aria-valuenow');
+      h = Math.abs(at - a) <= Math.abs(at - z) && at <= z ? hs[0] : hs[1];
+      rangeSet(h.dataset.h, at);
+    }
+    e.preventDefault();
+    h.focus({ preventScroll: true });
+    // Both handles on one day: the drag's direction decides which moves (left the first day, right the last)
+    var same = tr.querySelector('[data-h="from"]').getAttribute('aria-valuenow') === tr.querySelector('[data-h="to"]').getAttribute('aria-valuenow');
+    rangeDrag = { h: h, rect: rect, id: e.pointerId, x0: e.clientX, pending: same };
+    try { tr.setPointerCapture(e.pointerId); } catch (err) {}
+    h.classList.add('is-dragging');
+  });
+  ask.addEventListener('pointermove', function (e) {
+    if (!rangeDrag) return;
+    if (rangeDrag.pending) {
+      if (Math.abs(e.clientX - rangeDrag.x0) < 4) return;
+      rangeDrag.h.classList.remove('is-dragging');
+      rangeDrag.h = ask.querySelector('.tp-range-h[data-h="' + (e.clientX < rangeDrag.x0 ? 'from' : 'to') + '"]');
+      rangeDrag.h.classList.add('is-dragging'); rangeDrag.h.focus({ preventScroll: true });
+      rangeDrag.pending = false;
+    }
+    rangeSet(rangeDrag.h.dataset.h, rangeAt(e.clientX, rangeDrag.rect));
+  });
+  function rangeEnd() { if (!rangeDrag) return; rangeDrag.h.classList.remove('is-dragging'); rangeDrag = null; }
+  ask.addEventListener('pointerup', rangeEnd); ask.addEventListener('pointercancel', rangeEnd);
+  ask.addEventListener('keydown', function (e) {
+    var h = e.target.closest('.tp-range-h'); if (!h) return;
+    var v = +h.getAttribute('aria-valuenow'), step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 7, PageDown: -7 }[e.key];
+    if (e.key === 'Home') v = RMIN; else if (e.key === 'End') v = RMAX; else if (step) v += step; else return;
+    e.preventDefault();
+    rangeSet(h.dataset.h, v);
+  });
+  ask.addEventListener('input', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') rangeFromFields(); });
   // The question collapsing to its answer (or opening again) glides between the two heights
   function settle(focusSel, h0) {
     render(true);
@@ -850,7 +1044,7 @@
     var t = trip(), done = t && (t.mode === 'local' || (t.mode === 'visiting' && t.from && t.to)), M = model();
     // A guess from their first to last NSW match, confirmed with the same That's right as the timeline
     if (!done && M.how === 'guessed') {
-      tripEl.innerHTML = '<span>Looks like you\u2019re here <strong>' + esc(tp.isoRange(isoOf(M.range.a), isoOf(M.range.z))) + '</strong></span> \u00b7 <button type="button" class="tp-link" data-act="trip-ok">That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>';
+      tripEl.innerHTML = '<span>Looks like you\u2019re here <strong>' + esc(tp.isoRange(isoOf(M.range.a), isoOf(M.range.z))) + '</strong></span> \u00b7 <button type="button" class="tp-link" data-act="trip-ok">That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-act="trip">' + (t.mode === 'visiting' ? window.tpIcons.cal : '') + 'Change</button>';
       return;
     }
     if (!done) {
@@ -858,7 +1052,7 @@
       return;
     }
     var what = !done ? '' : t.mode === 'local' ? 'You live in NSW' : t.mode === 'unsure' ? 'Not sure yet if you\u2019re visiting' : 'Your days in NSW: ' + tp.isoRange(t.from, t.to);
-    tripEl.innerHTML = done ? '<span class="tp-third-trip-a">' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>'
+    tripEl.innerHTML = done ? '<span class="tp-third-trip-a">' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-act="trip">' + (t.mode === 'visiting' ? window.tpIcons.cal : '') + 'Change</button>'
       : '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (t && t.mode === 'visiting' ? 'Visiting? Confirm your days to see what fits' : 'Visiting? Set your days to see what fits') + '</button>';
   }
   phone.addEventListener('click', function (e) {

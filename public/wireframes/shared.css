@@ -3959,11 +3959,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    sized to the text; the stroke stays 1.5px whatever the size. The fan's cards are filled with the surface they sit on. */
 .tp-ico { display: inline-block; flex: none; height: 1.15em; width: auto; margin-right: .4em; vertical-align: -.22em; overflow: visible; }
 .tp-ico-fan { aspect-ratio: 36 / 33; }
-.tp-ico-cal { aspect-ratio: 1; }
-.tp-ico g { fill: var(--ico-bg, #fff); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
-.tp-ico g * { vector-effect: non-scaling-stroke; }
-.tp-ico-cal g { fill: none; }
-.tp-pill .tp-ico { --ico-bg: #1f1f1f; }
+.tp-ico-cal { aspect-ratio: 28 / 32; height: 1em; vertical-align: -.15em; }
+.tp-ico path { fill: currentColor; } /* Figma artwork: one filled path each */
 .tp-tl-pick, .tp-pill { display: inline-flex; align-items: center; justify-content: center; }
 
 /* Pick your team: the indicative keyboard (a static picture, greyscale), over the bottom of the phone while search is open */
@@ -3976,5 +3973,77 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-kbd-k--wide { flex: 2.2 1 0; font-size: .875rem; }
 .tp-kbd-k--space { flex: 5 1 0; font-size: .875rem; }
 .tp-kbd-note { position: absolute; right: 8px; bottom: 6px; font-size: .625rem; color: #5c5c5c; }
-.tp-ico-fan g { stroke-width: 1.1; } /* the fan's five outlines stay apart at text size */
-.tp-plan .tp-ico { --ico-bg: #f2f2f2; } /* the fan's cards take the plan panel's grey */
+
+/* Pick your team: match markers with a flag pair (stacked: a day column is 40px, a pair side by side is 51px), 30px
+   tall (target over 24px, AA); rows step 32px. Teams to be decided keep the neutral marker. */
+.tp-tl-mk { width: 28px; height: 30px; margin-left: -14px; transform: translateY(calc(var(--row, 0) * -32px)); }
+.tp-tl-mk.is-off { transform: translateY(calc(var(--row, 0) * -32px)) scale(.4); }
+.tp-tl-mk--item.is-new { transform: translateY(calc(var(--row, 0) * -32px - 12px)) scale(.5); }
+@media (prefers-reduced-motion: reduce) { .tp-tl-mk.is-off, .tp-tl-mk--item.is-new { transform: translateY(calc(var(--row, 0) * -32px)); } }
+.tp-tl-mk .cn-tl-sym--flags, .cn-tl-sym--flags { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 1.3px; width: auto; height: auto; padding: 2px; border: 1.5px solid #737373; border-radius: 5px; background: #fff; }
+.cn-tl-sym--flags.is-away { border-style: dashed; }
+.cn-tl-sym--flags.is-ticket { border-color: #1a1a1a; box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #2666d9; }
+.tp-tl-mk[aria-pressed="true"] .cn-tl-sym--flags.is-ticket { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #2666d9, 0 0 0 5.5px #1a1a1a; }
+.cn-tl-sym--flags .tp-fl { width: 15px; height: 9.6px; }
+.tp-tl-mk.tp-tl-mk--flags { width: 40px; margin-left: -20px; } /* the pair is a day column wide (38px drawn), 30px tall to tap */
+.tp-key-flags { width: auto; height: auto; padding: 1.5px; gap: 1px; border-radius: 3px; }
+.tp-key-flags i { display: block; width: 8px; height: 5px; border-radius: 1px; background: #b3b3b3; }
+
+/* The match sheet as the timeline's stacked sheet (#tp-pm.is-stacked): rounded top, a grabber, the stack's motion */
+.tp-pm .tp-pm-grab { display: none; }
+.tp-pm.is-stacked { border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-3); padding-top: 14px; overflow: hidden; }
+.tp-pm.is-stacked .tp-pm-grab { display: block; }
+.cn-pp.tp-pm.is-stacked.is-open { animation: none; } /* the stack's slide, not the page's own entrance */
+.tp-pm-item .tp-tl-d-clash { margin-top: var(--space-3); }
+.tp-pm-item .tp-move { margin-top: var(--space-2); }
+
+/* Clear timeline: quiet, at the foot of the sheet; Undo for six seconds in its place */
+.tp-tl-clear { display: flex; align-items: center; min-height: 36px; margin-top: var(--space-2); }
+#tp-tl-clear { color: #4d4d4d; }
+.tp-tl-cleared { font-size: .8125rem; color: #1a1a1a; }
+.tp-tl-cleared[hidden], #tp-tl-clear[hidden] { display: none; }
+
+/* Pick your team: the date slider under the date fields. Track 1 Oct to 13 Nov; the chosen days fill dark; handles
+   20px to see, 28px to tap (AA); they snap to days and settle over 120ms (none with reduced motion). */
+.tp-range { margin-top: var(--space-3); }
+.tp-range-track { position: relative; height: 28px; margin: 0 14px; touch-action: none; cursor: pointer; }
+.tp-range-track::before { content: ""; position: absolute; left: -14px; right: -14px; top: 12px; height: 4px; border-radius: 2px; background: #d9d9d9; }
+.tp-range-fill { position: absolute; top: 12px; height: 4px; border-radius: 2px; background: #1f1f1f; transition: left .12s ease-out, width .12s ease-out; }
+.tp-range-h { position: absolute; top: 0; width: 28px; height: 28px; margin-left: -14px; border-radius: 50%; outline: none; transition: left .12s ease-out; cursor: grab; }
+.tp-range-h::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #fff; border: 2px solid #1f1f1f; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .12s ease-out, box-shadow .12s ease-out; }
+.tp-range-h.is-dragging { cursor: grabbing; transition: left .06s linear; }
+.tp-range-h.is-dragging::before { transform: scale(1.15); box-shadow: 0 3px 8px rgba(0,0,0,.25); }
+.tp-range-h:focus-visible::before { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #005EA2; }
+.tp-range.is-unset .tp-range-fill { background: #b3b3b3; }
+.tp-range-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: .6875rem; color: #5c5c5c; }
+.tp-range-out { display: inline-flex; align-items: center; gap: 4px; }
+.tp-range-out::before { content: ""; width: 1.5px; height: 8px; background: #8a8a8a; }
+.tp-range-out.is-out { color: #1a1a1a; font-weight: 600; }
+.tp-range-out.is-out::before { content: none; }
+.tp-range-mark { position: absolute; top: 7px; width: 1.5px; height: 14px; margin-left: -.75px; background: #8a8a8a; border-radius: 1px; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .tp-range-fill, .tp-range-h, .tp-range-h.is-dragging, .tp-range-h::before { transition: none; } }
+/* Pick your team: Clear timeline asks first. A short sheet stacked over the timeline, as tall as its content. */
+#tp-phone .tp-stack.tp-stack--fit { top: auto; bottom: 0; }
+.tp-cc { padding-bottom: var(--space-5); }
+.tp-cc .cn-sheet-head { margin-bottom: var(--space-2); }
+.tp-cc-h { margin: var(--space-3) 0 var(--space-1); font-size: .8125rem; font-weight: 700; color: #1a1a1a; }
+.tp-cc-list { margin: 0; padding-left: 1.1em; font-size: .875rem; line-height: 1.45; color: #1a1a1a; }
+.tp-cc-list--keep { color: #4d4d4d; }
+.tp-cc-note { margin: var(--space-3) 0 0; font-size: .8125rem; color: #4d4d4d; }
+.tp-cc-acts { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+/* Pick your team: hold a place on the timeline to drag it to another day. Lifted: it scales up and sits above its
+   neighbours with a shadow; the day it would land on is outlined; on release it settles onto the day. */
+.tp-tl-mk--item.is-movable { touch-action: pan-x; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.tp-tl-mk--item.is-lifted { z-index: 5; cursor: grabbing; transition: transform .16s cubic-bezier(.25, .6, .3, 1); transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px - 6px)) scale(1.18); }
+.tp-tl-mk--item.is-lifted .cn-tl-sym { box-shadow: 0 6px 14px rgba(0,0,0,.28); }
+.tp-tl-mk--item.is-lifted.is-following { transition: none; } /* lifts over 160ms, then follows the finger exactly */
+.tp-tl-mk--item.is-settling { z-index: 5; transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px)); transition: transform .22s cubic-bezier(.25, .6, .3, 1); }
+.tp-tl-drop { position: absolute; top: 34px; bottom: 30px; width: 40px; margin-left: -20px; border: 1.5px dashed #1a1a1a; border-radius: 8px; background: rgba(26,26,26,.04); pointer-events: none; }
+.tp-tl-drop[hidden] { display: none; }
+.tp-tl-drop-t { position: absolute; left: 50%; bottom: -25px; transform: translateX(-50%); padding: 1px 6px; border-radius: 4px; background: #1a1a1a; color: #fff; font-size: .6875rem; font-weight: 600; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .tp-tl-mk--item.is-settling { transition: none; } .tp-tl-mk--item.is-lifted { transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px)); } }
+/* Pick your team: team flags (Figma Flag Pack SVGs, 25 x 16). A hairline edge keeps white flags (England, Japan) apart
+   from a white ground. Sized to the text where they sit beside a name. */
+.tp-fl { display: inline-block; height: .78em; width: auto; aspect-ratio: 25 / 16; border-radius: 1.5px; outline: .5px solid rgba(0,0,0,.18); outline-offset: -.5px; vertical-align: -.05em; object-fit: cover; }
+.cn-tl-sym--flags .tp-fl { display: block; border-radius: 1px; }
+.tp-find-flag .tp-fl, .tp-card-flag .tp-fl { vertical-align: 0; }
