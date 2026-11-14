@@ -240,7 +240,7 @@
     return out;
   }
 
-  // High fidelity images: each placeholder names its picture, assets/hifi/<name>.jpg (the title in lower case, words
+  // High fidelity images: each placeholder names its picture, assets/images/<name>.webp or .jpg (the title in lower case, words
   // joined by hyphens). Only the high fidelity theme loads them (pv-device.js); the wireframe keeps the grey block.
   function imgKey(title) { return ' data-img="' + esc(String(title || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')) + '"'; }
   // Match day groups, as before: Before the match, After the final whistle, Near the stadium
