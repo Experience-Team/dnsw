@@ -1,12 +1,39 @@
-/* Prototype viewer: phone view and the QR code that opens it.
+/* Prototype viewer: phone view, the QR code that opens it, and the theme.
    Phone view (html.pv-device, set in each page's <head> for ?phone, or a touch screen under 500px wide) shows only the
    phone screen, edge to edge, so a real phone uses its own keyboard and controls. Here it keeps the screen the height
    of what is visible above the keyboard: Android resizes the page itself (interactive-widget=resizes-content), iOS
    only shrinks the visual viewport, so its height is copied into --pv-vh and the page is held at the top.
-   In the desktop viewer, #pv-qr draws a QR code for this page with ?phone, and Copy link copies the same address.
+   In the desktop viewer, #pv-qr draws a QR code for this page with ?phone and the theme in use, and Copy link copies
+   the same address. The High fidelity switch (#pv-theme-toggle) sets data-theme="hifi" on <html> (the <head> script
+   sets it first, from ?theme= or the last choice) and remembers it in this browser.
+   In the high fidelity theme, each placeholder with data-img shows assets/hifi/<name>.jpg.
    QR encoding: vendor/qrcode.js (qrcode-generator, Kazuhiko Arase, MIT). */
 (function () {
   var root = document.documentElement;
+  function hifi() { return root.getAttribute('data-theme') === 'hifi'; }
+
+  /* ---------- High fidelity pictures ----------
+     Every placeholder that names its picture (data-img) gets assets/hifi/<name>.jpg as a background, over its grey
+     block, so a picture not added yet simply leaves the block. Placeholders drawn later (sheets, cards) are picked up
+     as they appear. The wireframe takes them off again. */
+  var IMG_DIR = 'assets/hifi/';
+  function paint(el) {
+    var on = hifi(), want = on ? 'url("' + IMG_DIR + el.getAttribute('data-img') + '.jpg")' : '';
+    if (el.style.backgroundImage !== want) el.style.backgroundImage = want;
+  }
+  function paintAll(scope) { Array.prototype.forEach.call((scope || document).querySelectorAll('.cn-phone [data-img]'), paint); }
+  var watch = new MutationObserver(function (list) {
+    if (!hifi()) return;
+    list.forEach(function (m) {
+      Array.prototype.forEach.call(m.addedNodes, function (n) {
+        if (n.nodeType !== 1) return;
+        if (n.hasAttribute('data-img')) paint(n);
+        Array.prototype.forEach.call(n.querySelectorAll('[data-img]'), paint);
+      });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.cn-phone'), function (ph) { watch.observe(ph, { childList: true, subtree: true }); });
+  paintAll();
 
   if (root.classList.contains('pv-device')) {
     var vv = window.visualViewport;
@@ -21,21 +48,33 @@
     return;
   }
 
-  var box = document.getElementById('pv-qr');
-  if (!box) return;
-  var code = document.getElementById('pv-qr-code'), text = document.getElementById('pv-qr-p'),
-      copy = document.getElementById('pv-qr-copy'), status = document.getElementById('pv-qr-status'),
-      shown = document.getElementById('pv-qr-url');
-  var url = location.origin + location.pathname + '?phone';
-  var local = location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0$|\[::1\]$)/.test(location.hostname);
+  /* ---------- Theme switch ---------- */
+  var themeBtn = document.getElementById('pv-theme-toggle');
+  function setTheme(on, save) {
+    if (on) root.setAttribute('data-theme', 'hifi'); else root.removeAttribute('data-theme');
+    if (themeBtn) themeBtn.setAttribute('aria-checked', on ? 'true' : 'false');
+    if (save) { try { localStorage.setItem('pv-theme', on ? 'hifi' : 'wireframe'); } catch (e) {} }
+    paintAll();
+    drawQr();
+  }
+  if (themeBtn) themeBtn.addEventListener('click', function () { setTheme(!hifi(), true); });
 
-  if (local || typeof qrcode !== 'function') {
-    code.hidden = true;
-    document.getElementById('pv-qr-show').textContent = 'Why no QR code';
-    text.textContent = local
-      ? 'This is a local address, so a phone can’t open it. Use the Vercel preview link.'
-      : 'The QR code could not be drawn. Copy the link and open it on your phone.';
-  } else {
+  /* ---------- QR code and Copy link ---------- */
+  var box = document.getElementById('pv-qr');
+  var code, text, copy, status, shown, url = '';
+  var local = location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0$|\[::1\]$)/.test(location.hostname);
+  function phoneUrl() { return location.origin + location.pathname + '?phone&theme=' + (hifi() ? 'hifi' : 'wireframe'); }
+  function drawQr() {
+    if (!box) return;
+    url = phoneUrl();
+    if (local || typeof qrcode !== 'function') {
+      code.hidden = true;
+      document.getElementById('pv-qr-show').textContent = 'Why no QR code';
+      text.textContent = local
+        ? 'This is a local address, so a phone can’t open it. Use the Vercel preview link.'
+        : 'The QR code could not be drawn. Copy the link and open it on your phone.';
+      return;
+    }
     var qr = qrcode(0, 'M');
     qr.addData(url);
     qr.make();
@@ -44,35 +83,42 @@
     code.innerHTML = '<svg viewBox="0 0 ' + (n + q * 2) + ' ' + (n + q * 2) + '" shape-rendering="crispEdges" aria-hidden="true">' +
       '<rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#1a1a1a"/></svg>';
     code.dataset.url = url;
+    text.textContent = 'Scan to open just the phone screen, in the ' + (hifi() ? 'high fidelity' : 'wireframe') + ' version. Your phone’s keyboard and controls work there.';
   }
+  if (box) {
+    code = document.getElementById('pv-qr-code'); text = document.getElementById('pv-qr-p');
+    copy = document.getElementById('pv-qr-copy'); status = document.getElementById('pv-qr-status');
+    shown = document.getElementById('pv-qr-url');
 
-  // Short windows: the QR code button opens the code as a popover; it closes on the button, Escape or a click elsewhere
-  var show = document.getElementById('pv-qr-show');
-  function openPop(on) { box.classList.toggle('is-open', on); show.setAttribute('aria-expanded', on ? 'true' : 'false'); }
-  show.addEventListener('click', function () { openPop(!box.classList.contains('is-open')); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.classList.contains('is-open')) { openPop(false); show.focus(); } });
-  document.addEventListener('pointerdown', function (e) { if (box.classList.contains('is-open') && !box.contains(e.target)) openPop(false); });
+    // Short windows: the QR code button opens the code as a popover; it closes on the button, Escape or a click elsewhere
+    var show = document.getElementById('pv-qr-show');
+    var openPop = function (on) { box.classList.toggle('is-open', on); show.setAttribute('aria-expanded', on ? 'true' : 'false'); };
+    show.addEventListener('click', function () { openPop(!box.classList.contains('is-open')); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.classList.contains('is-open')) { openPop(false); show.focus(); } });
+    document.addEventListener('pointerdown', function (e) { if (box.classList.contains('is-open') && !box.contains(e.target)) openPop(false); });
 
-  var timer;
-  function copied(ok) {
-    clearTimeout(timer);
-    copy.classList.toggle('is-copied', ok);
-    copy.lastChild.textContent = ok ? 'Copied' : 'Copy link';
-    status.textContent = ok ? 'Link copied' : '';
-    if (ok) shown.hidden = true;
-    if (ok) timer = setTimeout(function () { copied(false); }, 2000);
+    var timer;
+    var copied = function (ok) {
+      clearTimeout(timer);
+      copy.classList.toggle('is-copied', ok);
+      copy.lastChild.textContent = ok ? 'Copied' : 'Copy link';
+      status.textContent = ok ? 'Link copied' : '';
+      if (ok) shown.hidden = true;
+      if (ok) timer = setTimeout(function () { copied(false); }, 2000);
+    };
+    var fallback = function () {
+      // The browser blocked copying: show the address, selected, to copy by hand
+      shown.hidden = false;
+      shown.textContent = url;
+      status.textContent = 'Copying was blocked. The link is shown and selected.';
+      var range = document.createRange();
+      range.selectNodeContents(shown);
+      var sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    };
+    copy.addEventListener('click', function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { copied(true); }, fallback);
+      else fallback();
+    });
   }
-  function fallback() {
-    // The browser blocked copying: show the address, selected, to copy by hand
-    shown.hidden = false;
-    shown.textContent = url;
-    status.textContent = 'Copying was blocked. The link is shown and selected.';
-    var range = document.createRange();
-    range.selectNodeContents(shown);
-    var sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
-  }
-  copy.addEventListener('click', function () {
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { copied(true); }, fallback);
-    else fallback();
-  });
+  setTheme(hifi(), false);
 })();

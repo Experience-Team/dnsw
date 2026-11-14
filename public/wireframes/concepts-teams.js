@@ -285,7 +285,9 @@
       undoTimer = setTimeout(function () { var had = document.activeElement === u; u.remove(); if (had) { var mid = fan.querySelector('.tp-card.is-mid'); if (mid) mid.focus({ preventScroll: true }); } }, 6000);
     }
     var n = caption.querySelector('.tp-cap-new');
-    if (n.animate && !reduce.matches) n.animate([{ backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb' }, { backgroundColor: '#dfe9fb', boxShadow: '0 0 0 4px #dfe9fb', offset: .35 }, { backgroundColor: 'rgba(223,233,251,0)', boxShadow: '0 0 0 4px rgba(223,233,251,0)' }], { duration: 1400, easing: 'ease-out' });
+    // The flash colour is the theme's --c-flash, read when it runs, so the high fidelity theme can change it
+    var fl = getComputedStyle(n).getPropertyValue('--c-flash').trim() || '#dfe9fb';
+    if (n.animate && !reduce.matches) n.animate([{ backgroundColor: fl, boxShadow: '0 0 0 4px ' + fl }, { backgroundColor: fl, boxShadow: '0 0 0 4px ' + fl, offset: .35 }, { backgroundColor: 'transparent', boxShadow: '0 0 0 4px transparent' }], { duration: 1400, easing: 'ease-out' });
   }
   // The person's own matches on the strip. With nothing of their own the strip previews every match, and none of
   // those is theirs, so the first pick flies all of its matches in.

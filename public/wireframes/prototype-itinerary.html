@@ -4,10 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 <!-- Phone view: ?phone (the QR code in the panel), or a touch screen under 500px wide, shows only the phone screen, edge
-     to edge, with the phone's own keyboard and controls. Set before the first paint; see pv-device.js -->
-<script>if (/[?&]phone\b/.test(location.search) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) document.documentElement.classList.add('pv-device');</script>
+     to edge, with the phone's own keyboard and controls. Theme: ?theme=hifi or ?theme=wireframe, else the last choice
+     in this browser (pv-theme), else the wireframe; data-theme="hifi" on <html> switches the phone to the high
+     fidelity tokens in themes/hifi.css. Both set before the first paint; see pv-device.js -->
+<script>(function () {
+  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
+  if (/[?&]phone\b/.test(q) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) d.classList.add('pv-device');
+  try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
+  if (t === 'hifi') d.setAttribute('data-theme', 'hifi');
+})();</script>
 <title>Share/edit itinerary · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="themes/hifi.css" />
 </head>
 <body class="pv-page">
 <!-- Prototype viewer (Figma: Rugby World Cup, node 204:12914). One prototype per page, each with its own address. It
@@ -29,7 +37,12 @@
     <p class="pv-p">The starting screen is the itinerary list. Save and share opens a sheet in the same window, and the sheet leads to the format copied, email sent and open in maps screens. Phone size only.</p>
     <!-- Jump straight to any of the five screens (wired by the itinerary script: .pv-jump[data-go]) -->
     <p class="pv-jumps" role="group" aria-label="Jump to a screen"><button type="button" class="pv-jump" data-go="m1" aria-pressed="true">M1 Itinerary list</button><button type="button" class="pv-jump" data-go="m2" aria-pressed="false">M2 Save and share</button><button type="button" class="pv-jump" data-go="m3" aria-pressed="false">M3 Format copied</button><button type="button" class="pv-jump" data-go="m4" aria-pressed="false">M4 Email sent</button><button type="button" class="pv-jump" data-go="m5" aria-pressed="false">M5 Open in maps</button></p>
-    <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+    <div class="pv-switches">
+      <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+      <!-- The phone in the wireframe or the high fidelity theme (pv-device.js; remembered in this browser). High fidelity
+           follows the draft Third Half guidelines (Figma: Rugby World Cup, Styling page, node 261:13292), in themes/hifi.css -->
+      <button type="button" class="cn-switch pv-switch" id="pv-theme-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>High fidelity</button>
+    </div>
     <aside class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
       <ol class="cn-notes-list" id="cn-notes-list"></ol>
@@ -79,21 +92,21 @@
         <p class="cn-meta" id="cn-meta">26 Sep to 11 Oct · 5 items</p>
           <h3 class="cn-day">Fri 8 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item" data-stop="centennial-parklands"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><button type="button" class="cn-handle" aria-label="Reorder Centennial Parklands. Press Space to pick up, then use the arrow keys."><i></i></button></li>
-            <li class="cn-item" data-stop="fan-zone"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><button type="button" class="cn-handle" aria-label="Reorder Fan zone. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="centennial-parklands"><span class="cn-thumb" data-img="centennial-parklands" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Centennial Parklands</span><span class="cn-item-meta" style="display:block">Sydney · must see</span></span><button type="button" class="cn-handle" aria-label="Reorder Centennial Parklands. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="fan-zone"><span class="cn-thumb" data-img="fan-zone" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Fan zone</span><span class="cn-item-meta" style="display:block">Sydney · dates to be confirmed</span></span><button type="button" class="cn-handle" aria-label="Reorder Fan zone. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Sat 9 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item" data-stop="nz-v-australia"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><span class="cn-fixed" title="Matches are fixed to their day"><svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="visually-hidden">Match, fixed to its day</span></span></li>
+            <li class="cn-item" data-stop="nz-v-australia"><span class="cn-thumb" data-img="nz-v-australia" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">New Zealand v Australia</span><span class="cn-item-meta" style="display:block">Stadium Australia · 5:10 pm</span></span><span class="cn-fixed" title="Matches are fixed to their day"><svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span class="visually-hidden">Match, fixed to its day</span></span></li>
           </ul>
           <h3 class="cn-day">Sun 10 Oct</h3>
           <ul class="cn-items">
-            <li class="cn-item" data-stop="patonga-beach"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><button type="button" class="cn-handle" aria-label="Reorder Patonga Beach. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="patonga-beach"><span class="cn-thumb" data-img="patonga-beach" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Patonga Beach</span><span class="cn-item-meta" style="display:block">Along the way · hidden gem</span></span><button type="button" class="cn-handle" aria-label="Reorder Patonga Beach. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
           <h3 class="cn-day">Not yet planned</h3>
           <p class="cn-hint">Drag onto a day, or leave them here.</p>
           <ul class="cn-items">
-            <li class="cn-item" data-stop="newcastle-ocean-baths"><span class="cn-thumb" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><button type="button" class="cn-handle" aria-label="Reorder Newcastle Ocean Baths. Press Space to pick up, then use the arrow keys."><i></i></button></li>
+            <li class="cn-item" data-stop="newcastle-ocean-baths"><span class="cn-thumb" data-img="newcastle-ocean-baths" aria-hidden="true"></span><span class="cn-item-text"><span class="cn-item-name">Newcastle Ocean Baths</span><span class="cn-item-meta" style="display:block">Newcastle · coastal stop</span></span><button type="button" class="cn-handle" aria-label="Reorder Newcastle Ocean Baths. Press Space to pick up, then use the arrow keys."><i></i></button></li>
           </ul>
         </div>
         <div class="cn-pane" data-pane="timeline" hidden></div>
