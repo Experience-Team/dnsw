@@ -3949,3 +3949,5 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-find-close { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: none; color: #1a1a1a; cursor: pointer; }
 .tp-pick-head .tp-find-list { top: calc(100% + 8px); }
 .tp-pick-head .tp-find-in::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; } /* one cross: the close button beside the field */
+/* The ticket reason on the every-NSW-match card keeps to one column's width, so it never runs across the columns */
+.tp-rcard--rugby .tp-ticket-why { max-width: 220px; }

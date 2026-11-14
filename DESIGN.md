@@ -84,12 +84,17 @@ components:
     backgroundColor: "{colors.charcoal-fill}"
     textColor: "{colors.paper}"
     rounded: "{rounded.pill}"
+    height: "36px"
+  prototype-pill-sheet:
+    backgroundColor: "{colors.charcoal-fill}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.pill}"
     height: "48px"
   prototype-pill-outline:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.prototype-ink}"
     rounded: "{rounded.pill}"
-    height: "38px"
+    height: "36px"
   event-card:
     backgroundColor: "{colors.paper}"
     rounded: "6px"
@@ -179,7 +184,7 @@ Greyscale with a single site accent; colour is a signal, never decoration.
 
 Site pages sit in a centred container (80rem max, 2rem side padding) under a sticky nav (4rem) and a fixed wireframe utility bar (2rem). Rows of cards scroll sideways rather than wrapping on small screens. The main breakpoint is 48rem, with a small-phone step at 30rem and a wide step at 72rem.
 
-The prototypes are fixed phone frames (390 x 844) on a white canvas, with the annotation column to the right. Inside the phone, spacing follows the 4px-based scale (space-1 to space-9: 0.25rem to 6rem); 16px side gutters are standard. Every tappable control has a target of at least 44 x 44px, using an invisible hit area where the visible control is smaller.
+The prototypes are fixed phone frames (390 x 844) on a white canvas, with the annotation column to the right. Inside the phone, spacing follows the 4px-based scale (space-1 to space-9: 0.25rem to 6rem); 16px side gutters are standard. Targets follow WCAG 2.2 AA, not AAA (see CLAUDE.md): every tappable control is at least 24 x 24px (2.5.8) and 36px is the usual button height. Hit areas are not padded out to 44px.
 
 ## Elevation & Depth
 
@@ -203,11 +208,11 @@ Small, quiet radii. Site buttons are barely rounded (4px) and cards 6px. Prototy
 - **Shape:** gently squared on site pages (4px); full pill in prototypes.
 - **Primary:** site accent fill, white text, 600 weight, 0.6rem by 1.25rem padding.
 - **Dark / Outline dark:** Ink fill with white text, or a 2px Ink outline on white. The default pair for wireframe chrome.
-- **Prototype pill:** Charcoal Fill, 48px tall, full width in sheets; the outline version is 38px with a 1.5px border.
+- **Prototype pill:** Charcoal Fill, 36px tall; the outline version is 36px with a 1.5px border. The one full-width primary action at the foot of a sheet (for example Send my plan) may be 48px.
 - **Hover / Focus / Press:** a 2px blue focus ring offset 2px on every control; press scales to 0.98 over 150ms. Hover darkens borders slightly where a pointer is present.
 
 ### Chips
-- **Style:** pill, white, 1.5px border, 0.75rem semibold text, at least 32px tall with a 44px hit area.
+- **Style:** pill, white, 1.5px border, 0.75rem to 0.8125rem semibold text, 36px tall (at least 24px to tap, with no padded hit area).
 - **State:** selected chips fill dark; removal is a single, explicit control, never two.
 
 ### Cards / Containers
@@ -236,7 +241,7 @@ A grey box labelled "Image", in the aspect ratio of the real slot (4:3 cards, 16
 ### Do:
 - **Do** keep every page greyscale plus its one site accent: Sydney Harbour Blue on sydney.com, NSW Bush Green on visitnsw.com.
 - **Do** use grey placeholder boxes for every image and map, in the real slot's aspect ratio.
-- **Do** give every prototype control a 44 x 44px target, a visible 2px focus ring and press feedback.
+- **Do** give every prototype control an AA target (at least 24 x 24px, 36px for buttons), a visible 2px focus ring and press feedback.
 - **Do** use the prototype motion tokens (150ms, 220ms, 320ms; exits at 0.7x) and honour reduced motion.
 - **Do** annotate complex prototype behaviour with numbered notes, not on-screen explanation.
 - **Do** keep team colours muted and small if a team needs identifying.
