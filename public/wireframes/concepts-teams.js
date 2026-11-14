@@ -256,11 +256,11 @@
      what that means in matches. The new part is emphasised for a moment, then settles. The live region says the same. */
   function pickLine(c, on) {
     if (!on) return c.name + ' removed';
-    if (c.rugby) return 'Here for the rugby added: every NSW match, ' + countPhrase(nswPool.concat(nswKo));
+    if (c.rugby) return 'Every NSW match added: ' + countPhrase(nswPool.concat(nswKo));
     return c.name + ' added: ' + countPhrase(c.matches) + ', ' + (c.nsw ? c.nsw + ' in NSW' : 'all interstate');
   }
   var CAPTION_REST = 'Tap a card to add its matches. Tap it again to take it off.';
-  // undo: a function, to offer Undo in the caption for a few seconds (the swap to Here for the rugby)
+  // undo: a function, to offer Undo in the caption for a few seconds (after Clear all)
   var undoTimer = 0;
   function showCaption(lead, rest, note, undo) {
     clearTimeout(undoTimer);
@@ -480,44 +480,59 @@
   // Clear all: every card back in the hand and every ticket mark gone, so the picker starts again
   clearBtn.addEventListener('click', function () {
     var before = ownKeys(), old = tlValue.textContent, bar = tlOn;
+    var prevPicked = state.picked.slice(), prevTickets = state.tickets.slice(), prevTab = state.tab;
     state.picked = [];
     // Tickets go with the teams; a ticket on a match added on its own stays with that match
     var keepT = addedMatches().map(function (m) { return idOf(m.f); });
     state.tickets = state.tickets.filter(function (x) { return keepT.indexOf(x) > -1; });
+    var dropped = prevTickets.length - state.tickets.length;
     save();
     place(true);
     renderChosen();
     renderMatches();
     pickFlights(null, before, old, bar);
-    showCaption('All teams cleared', '. ' + CAPTION_REST);
+    // Undo for a few seconds: the teams and their ticket marks come back exactly as they were. Focus goes to Undo, as
+    // the button has just hidden itself; when Undo goes, focus goes to the middle card
+    showCaption('All teams cleared', '', '', function (u) {
+      var b2 = ownKeys(), o2 = tlValue.textContent, bar2 = tlOn;
+      state.picked = prevPicked; state.tickets = prevTickets; state.tab = prevTab;
+      save(); place(true); renderChosen(); renderMatches(null, null, prevTab === 'all');
+      pickFlights(u, b2, o2, bar2);
+      showCaption('Your teams are back', ': ' + list(prevPicked.map(function (n) { return n === RUGBY.name ? 'every NSW match' : n; })));
+      say('Undone. Your teams' + (prevTickets.length ? ' and ticket marks' : '') + ' are back.');
+      clearBtn.focus({ preventScroll: true });
+      notesOnly();
+    });
     notesOnly();
-    midCard().focus({ preventScroll: true }); // the button has just hidden itself
-    say('All teams and their tickets cleared. No teams picked.');
+    var undoBtn = document.getElementById('tp-undo');
+    (undoBtn || midCard()).focus({ preventScroll: true });
+    say('All teams' + (dropped ? ' and ' + dropped + (dropped === 1 ? ' ticket mark' : ' ticket marks') : '') + ' cleared. Undo is available for a few seconds.');
   });
   /* ---------- Here for the rugby: a quiet link, every NSW match and no team ----------
      In All matches and the timeline's empty state, only while no team is picked (so it never has to replace teams).
      Pressed again it comes off. Same feedback as a pick: one sweep of dots into the bar from the link, the tab count,
      the live region. Picking a team while it is on takes it off. */
-  function setRugby(on, from) {
+  function setRugby(on, from, keepTab) {
     var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
     if (on) state.picked = [RUGBY.name]; else state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; });
     save();
     place(true);
     renderChosen();
-    renderMatches(on ? RUGBY.name : null, on ? null : RUGBY.name);
+    renderMatches(on ? RUGBY.name : null, on ? null : RUGBY.name, keepTab);
     pickFlights(from, before, oldValue, barWasOn, on, 0);
   }
   function teamsPicked() { return state.picked.filter(function (n) { return n !== RUGBY.name; }); }
   rugbyLinks.forEach(function (a) {
     a.addEventListener('click', function () {
       var on = !isPicked(RUGBY), inTl = tlPanel.contains(a);
-      // From the open timeline there is nothing to fly from: the markers appear in place
-      setRugby(on, inTl ? null : a);
-      var msg = on ? pickLine(RUGBY, true) : 'Here for the rugby removed';
-      showCaption(on ? 'Here for the rugby added' : 'Here for the rugby removed', on ? msg.slice('Here for the rugby added'.length) : '');
-      say(msg + '.');
-      // The timeline's empty state goes once something is on it, so focus moves to its title
+      // From the open timeline there is nothing to fly from: the markers appear in place. From All matches, All
+      // matches stays the chosen tab, so the link (now Remove them) stays where it was, with focus on it
+      setRugby(on, inTl ? null : a, !inTl);
+      var lead = on ? 'Every NSW match added' : 'Every NSW match removed';
+      showCaption(lead, on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '');
+      say(lead + (on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '') + '.');
       if (inTl && on) document.getElementById('tp-tl-title').focus({ preventScroll: true });
+      else if (!inTl) a.focus({ preventScroll: true });
       notesOnly();
     });
   });
