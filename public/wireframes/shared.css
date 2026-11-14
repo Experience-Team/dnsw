@@ -3951,3 +3951,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-pick-head .tp-find-in::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; } /* one cross: the close button beside the field */
 /* The ticket reason on the every-NSW-match card keeps to one column's width, so it never runs across the columns */
 .tp-rcard--rugby .tp-ticket-why { max-width: 220px; }
+/* All matches as a tab: the chips sit 16px under the tab bar (not 56px), so the panel reads as part of the tabs */
+.tp-pick:has(+ .tp-all.is-tabbed:not([hidden])) { padding-bottom: 0; }
+.tp-all.is-tabbed { padding-top: var(--space-1); }
