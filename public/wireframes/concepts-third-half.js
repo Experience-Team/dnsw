@@ -2,7 +2,7 @@
    Experience principles (CLAUDE.md): reward early, then build on it; don't make people do the work.
    - Both result sections show straight away for the person's matches (picked teams, ticket marks, every NSW match for
      Here for the rugby). Nothing waits for dates. With no team picked they are a first look only: the next NSW match
-     day (in their days in NSW once they have said so), with one Pick a team to tailor this, not every match at once.
+     day (in their days in NSW once they have said so), with one Pick your team to tailor this, not every match at once.
    - One optional question, in the open timeline and nowhere else on the page (a line under Suits your 3rd half opens
      it, and shows the answer once given). Visiting NSW infers the days from the first to
      last NSW match; I live in NSW never asks for dates; Not sure yet changes nothing. The answer refines the results in
@@ -60,10 +60,10 @@
 
   /* ---------- First look: no team picked yet ----------
      Without a pick there is nothing to tailor to, so both sections show one day only (the next NSW match day, in the
-     person's days in NSW once given) and one way on, Pick a team to tailor this, instead of every match at once. */
+     person's days in NSW once given) and one way on, Pick your team to tailor this, instead of every match at once. */
   function teaser() { return !tp.own(); }
   function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
-  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Pick a team to tailor this</button></p>';
+  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Pick your team to tailor this</button></p>';
 
   /* ---------- Where to watch ---------- */
   var watchAll = false;
@@ -446,7 +446,7 @@
       var f = g.querySelector('button'); if (f) f.focus({ preventScroll: true });
     }
   });
-  // Pick a team to tailor this: back up to the hand of cards, focus on the card in the middle
+  // Pick your team to tailor this: back up to the hand of cards, focus on the card in the middle
   phone.addEventListener('click', function (e) {
     if (!e.target.closest('[data-act="tailor"]')) return;
     var pick = document.getElementById('tp-pick'), card = document.querySelector('#tp-fan [tabindex="0"]');
@@ -1107,7 +1107,7 @@
     // Save & share in the timeline only shows once there is a plan to keep
     if (ssBtn) ssBtn.hidden = !ms.length && !n;
     if (!ms.length && !n) {
-      planBody.innerHTML = '<p class="tp-plan-empty">' + window.tpIcons.fan + 'Pick a team, or add a screening or a place above, and your plan builds up here.</p>';
+      planBody.innerHTML = '<p class="tp-plan-empty">' + window.tpIcons.fan + 'Pick your team, or add a screening or a place above, and your plan builds up here.</p>';
       return;
     }
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
