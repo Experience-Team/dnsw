@@ -1044,7 +1044,7 @@
     var t = trip(), done = t && (t.mode === 'local' || (t.mode === 'visiting' && t.from && t.to)), M = model();
     // A guess from their first to last NSW match, confirmed with the same That's right as the timeline
     if (!done && M.how === 'guessed') {
-      tripEl.innerHTML = '<span>Looks like you\u2019re here <strong>' + esc(tp.isoRange(isoOf(M.range.a), isoOf(M.range.z))) + '</strong></span> \u00b7 <button type="button" class="tp-link" data-act="trip-ok">That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-act="trip">' + (t.mode === 'visiting' ? window.tpIcons.cal : '') + 'Change</button>';
+      tripEl.innerHTML = '<span>Looks like you\u2019re here <strong>' + esc(tp.isoRange(isoOf(M.range.a), isoOf(M.range.z))) + '</strong></span> \u00b7 <button type="button" class="tp-link" data-act="trip-ok">That\u2019s right</button> \u00b7 <button type="button" class="tp-link" data-act="trip">' + window.tpIcons.cal + 'Change</button>';
       return;
     }
     if (!done) {

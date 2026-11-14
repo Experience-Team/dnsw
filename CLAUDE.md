@@ -6,6 +6,12 @@
 - `public/wireframes/` and `src/` are separate deliverables. `src/` is the CJM and research tool. Do not add product page code to `src/`.
 - When a brief ends with stop-and-show, do not commit, open a PR, or merge until the person has answered any questions raised. A stop means stop.
 
+# Previews
+
+- Share preview links only from the Vercel project the user can open (`mopo123-gmailcoms-projects`), in chat and in PR
+  descriptions, and point to the page that changed. Another Vercel project also deploys this repo, and its previews are
+  behind sign-in for that account, so its links ask for access.
+
 # Adding standing flags
 
 When the user gives a new standing flag, a correction, or a "you missed X" as a specific example:

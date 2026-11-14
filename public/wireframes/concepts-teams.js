@@ -317,7 +317,7 @@
     inc.sort(function (a, b) { return a.day - b.day; });
     var landDots = inc.map(function (m) { return tlDotEls[m.day]; });
     function landed(el) { el.classList.remove('is-incoming'); el.classList.remove('is-landed'); void el.offsetWidth; el.classList.add('is-landed'); }
-    var quiet = reduce.matches || !src || !document.body.animate || !src.getClientRects().length;
+    var quiet = reduce.matches || !src || !document.body.animate || !src.getClientRects().length || tsPh; // in its sheet, the bar is behind
     if (quiet) { landDots.forEach(landed); return; }
     // The dots wait off the strip until their flight lands; the count waits for the last one
     landDots.forEach(function (el) { el.classList.add('is-incoming'); });
@@ -510,6 +510,69 @@
     findIn.addEventListener('focus', function () { if (findIn.value.trim()) renderFind(); });
   }
 
+  /* ---------- Or pick from a list ----------
+     A quiet link under the fan opens every team A to Z in place: flag, name, pool and NSW matches, each a toggle button
+     (aria-pressed). Every NSW match sits at the top. It is the fan by other means: a team picked here goes through the
+     fan's own toggle (the hand turns to it, the caption says what it did, the timeline updates), and listSync() runs on
+     every change, so a pick on either shows on both. The everything rule is the fan's: picking a team swaps Every NSW
+     match off; picking Every NSW match replaces the teams, with Undo in the caption. */
+  var listBtn = document.getElementById('tp-list-toggle'), listEl = document.getElementById('tp-list');
+  function listRow(key, flag, name, meta) {
+    return '<li><button type="button" class="tp-find-opt tp-list-opt" data-team="' + esc(key) + '" aria-pressed="false">' +
+      (flag ? '<span class="tp-find-flag" aria-hidden="true">' + flag + '</span>' : '<span class="tp-find-flag tp-list-all" aria-hidden="true"></span>') +
+      '<span class="tp-find-text"><span class="tp-find-name">' + esc(name) + '</span><span class="tp-find-meta">' + esc(meta) + '</span></span>' +
+      '<span class="tp-find-state" aria-hidden="true">Pick</span></button></li>';
+  }
+  if (listEl) {
+    listEl.innerHTML = listRow(RUGBY.name, '', 'Every NSW match', 'No team needed: ' + countPhrase(nswPool.concat(nswKo), { short: true })) +
+      names.map(function (n) { var t = TEAMS[n]; return listRow(n, FLAG[n], n, t.pool + ' \u00b7 ' + nswLine(t)); }).join('');
+  }
+  function listSync() {
+    if (!listEl) return;
+    listEl.querySelectorAll('.tp-list-opt').forEach(function (b) {
+      var on = state.picked.indexOf(b.dataset.team) > -1;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.lastElementChild.textContent = on ? 'Picked' : 'Pick';
+    });
+  }
+  function listOpen(on) {
+    var sheet = listEl.closest('.tp-ts'), top0 = sheet && sheet.classList.contains('is-open') ? sheet.getBoundingClientRect().top : null;
+    listEl.hidden = !on;
+    listBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    listBtn.textContent = on ? 'Hide the list' : 'Or pick from a list';
+    // In the sheet over the timeline it grows upwards: glide its top from where it was, so the change can be followed
+    if (top0 != null && !reduce.matches && sheet.animate) {
+      var d = top0 - sheet.getBoundingClientRect().top;
+      if (Math.abs(d) > 1) sheet.animate([{ transform: 'translateY(' + d + 'px)' }, { transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.25, .6, .3, 1)' });
+    }
+    if (on) listEl.scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' });
+    notesOnly();
+  }
+  if (listBtn) listBtn.addEventListener('click', function () { listOpen(listEl.hidden); });
+  if (listEl) listEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.tp-list-opt'); if (!b) return;
+    var n = b.dataset.team;
+    if (n === RUGBY.name) {
+      var on = !isPicked(RUGBY), prev = state.picked.slice(), swapped = on && teamsPicked().length > 0;
+      setRugby(on, b);
+      var lead = on ? 'Every NSW match added' : 'Every NSW match removed', rest = on ? ': ' + countPhrase(nswPool.concat(nswKo)) : '';
+      // The everything choice replaces the teams; Undo puts them back
+      showCaption(lead, rest, swapped ? ' Your team picks are cleared, as every NSW match is included.' : '', swapped ? function () {
+        state.picked = prev; save(); place(true); renderChosen(); renderMatches();
+        showCaption('Your teams are back', ': ' + list(prev));
+        say('Undone. Your teams are back.');
+        b.focus({ preventScroll: true });
+      } : null);
+      say(lead + rest + '.' + (swapped ? ' Your team picks are cleared. Undo is available for a few seconds.' : ''));
+    } else {
+      var i = CARDS.indexOf(TEAMS[n]);
+      if (pos(i) < 0) setNsw(false);
+      deal();
+      toggle(i, b);
+    }
+    b.focus({ preventScroll: true });
+  });
+
   function chosenText() {
     var n = state.picked.length;
     if (!n) return 'No teams picked yet.';
@@ -519,6 +582,7 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
+    listSync();
     clearBtn.hidden = !teamsPicked().length; // teams only: with just every NSW match on, it stays hidden; the link in All matches removes them
     // The quiet links: with no team, add every NSW match; on, take them off; hidden while teams are picked
     var r = isPicked(RUGBY), hide = teamsPicked().length > 0;
@@ -1122,6 +1186,7 @@
     }
     // One prompt at a time: which team first; the trip line only once there is a team
     tlPrompt.hidden = !none;
+    if (tsLink) tsLink.hidden = none; // with a team (or every NSW match): add or change them over the timeline
     // The key lists only the marker shapes on the axis now
     // Each entry draws its marker exactly as the axis does (the ball in the ring, the screen or pin in the square)
     var kinds = { nsw: false, away: false, ticket: false, tbd: false,
@@ -1371,7 +1436,7 @@
     var atEnd = body.scrollTop + body.clientHeight >= body.scrollHeight - 2;
     var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
     // Once something is on the timeline, the bar stays up anywhere below the fan, so an Add never goes nowhere
-    var fanBox = root.querySelector('.tp-fan-wrap').getBoundingClientRect();
+    var fanBox = (tsPh || root.querySelector('.tp-fan-wrap')).getBoundingClientRect(); // the placeholder while the picker is in its sheet
     var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
     // A pick is shown working: the bar is up whenever a team is picked
     var on = tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
@@ -1539,13 +1604,40 @@
     grab.addEventListener('pointerup', letGo); grab.addEventListener('pointercancel', letGo);
   }
   phoneEl.querySelectorAll('.tp-stack').forEach(stackRegister);
-  // The prompt that used to sit at the top of the phone: back to the fan
-  document.getElementById('tp-tl-pick').addEventListener('click', function () {
-    tlSetOpen(false, false);
-    deal();
-    body.scrollTo({ top: pickTop(), behavior: reduce.matches ? 'auto' : 'smooth' });
+  /* Pick your teams over the timeline: Pick a team (none picked) and Add or change teams (some picked) open a sheet
+     stacked over the timeline, and the page's own picker (#tp-picker: the fan, its caption with Undo, Clear all) moves
+     into it, so every pick works exactly as on the page and the timeline behind updates as you go. A placeholder of the
+     same height holds its place on the page. On close it goes back once the sheet has slid away, and focus returns to
+     the button that opened it, or to Add or change teams when that button has gone (the first pick hides Pick a team). */
+  var tsSheet = document.getElementById('tp-ts'), tsBody = document.getElementById('tp-ts-body'), tsPh = null, tsBackT = 0;
+  var tsLink = document.getElementById('tp-tl-teams'), tsLinkBtn = document.getElementById('tp-tl-teams-btn');
+  function tsAway() { return !!tsPh; }
+  function tsHome() {
+    clearTimeout(tsBackT);
+    if (!tsPh) return;
+    tsPh.parentNode.replaceChild(picker, tsPh); tsPh = null;
+    place(false);
+  }
+  function tsOpen(opener) {
+    if (!tlOpen) return;
+    clearTimeout(tsBackT);
+    if (!tsPh) {
+      tsPh = document.createElement('div'); tsPh.className = 'tp-picker-ph'; tsPh.setAttribute('aria-hidden', 'true');
+      tsPh.style.height = picker.offsetHeight + 'px';
+      picker.parentNode.replaceChild(tsPh, picker);
+      tsBody.appendChild(picker);
+    }
+    stackOpen(tsSheet, opener);
+    if (dealt) place(false); else deal();
     midCard().focus({ preventScroll: true });
+  }
+  tsSheet.addEventListener('tp:stackclose', function () {
+    tsBackT = setTimeout(tsHome, reduce.matches ? 0 : 340); // after the slide down, so the sheet never empties in view
+    var a = document.activeElement;
+    if (!a || a === document.body || !tl.contains(a) || !a.offsetParent) (tsLink.hidden ? document.getElementById('tp-tl-pick') : tsLinkBtn).focus({ preventScroll: true });
   });
+  document.getElementById('tp-tl-pick').addEventListener('click', function (e) { tsOpen(e.currentTarget); });
+  tsLinkBtn.addEventListener('click', function (e) { tsOpen(e.currentTarget); });
   /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections
      (concepts-third-half.js) through window.tpPicker. Saved on this device with the picks. ---------- */
   function addItem(it) {
@@ -1595,6 +1687,8 @@
      again, and the phone scrolled to the top. */
   var resetBtn = document.getElementById('tp-reset');
   if (resetBtn) resetBtn.addEventListener('click', function () {
+    if (stackEl) stackClose(false);
+    tsHome();
     deck.getAnimations && deck.querySelectorAll('*').forEach(function (el) { el.getAnimations().forEach(function (a) { a.cancel(); }); });
     cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
     state.picked = []; state.tickets = []; state.allFilter = { nsw: false, city: null };
