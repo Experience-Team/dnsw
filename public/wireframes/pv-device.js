@@ -3,8 +3,9 @@
    phone screen, edge to edge, so a real phone uses its own keyboard and controls. Here it keeps the screen the height
    of what is visible above the keyboard: Android resizes the page itself (interactive-widget=resizes-content), iOS
    only shrinks the visual viewport, so its height is copied into --pv-vh and the page is held at the top.
-   In the desktop viewer, #pv-qr draws a QR code for this page with ?phone and the theme in use, and Copy link copies
-   the same address. The High fidelity switch (#pv-theme-toggle) sets data-theme="hifi" on <html> (the <head> script
+   In the desktop viewer, #pv-qr draws a QR code for this page with ?phone&theme=hifi, so a scan always opens the
+   high fidelity version whichever theme the viewer shows (the wireframe on a phone: ?phone&theme=wireframe), and Copy
+   link copies the same address. The High fidelity switch (#pv-theme-toggle) sets data-theme="hifi" on <html> (the <head> script
    sets it first, from ?theme= or the last choice) and remembers it in this browser.
    In the high fidelity theme, each placeholder with data-img shows assets/hifi/<name>.jpg.
    QR encoding: vendor/qrcode.js (qrcode-generator, Kazuhiko Arase, MIT). */
@@ -63,7 +64,8 @@
   var box = document.getElementById('pv-qr');
   var code, text, copy, status, shown, url = '';
   var local = location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0$|\[::1\]$)/.test(location.hostname);
-  function phoneUrl() { return location.origin + location.pathname + '?phone&theme=' + (hifi() ? 'hifi' : 'wireframe'); }
+  // Always the high fidelity version: that is what someone scanning the code should see
+  function phoneUrl() { return location.origin + location.pathname + '?phone&theme=hifi'; }
   function drawQr() {
     if (!box) return;
     url = phoneUrl();
@@ -83,7 +85,7 @@
     code.innerHTML = '<svg viewBox="0 0 ' + (n + q * 2) + ' ' + (n + q * 2) + '" shape-rendering="crispEdges" aria-hidden="true">' +
       '<rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#1a1a1a"/></svg>';
     code.dataset.url = url;
-    text.textContent = 'Scan to open just the phone screen, in the ' + (hifi() ? 'high fidelity' : 'wireframe') + ' version. Your phone’s keyboard and controls work there.';
+    text.textContent = 'Scan to open just the phone screen, in the high fidelity version. Your phone’s keyboard and controls work there.';
   }
   if (box) {
     code = document.getElementById('pv-qr-code'); text = document.getElementById('pv-qr-p');
