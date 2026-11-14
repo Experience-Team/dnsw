@@ -3236,7 +3236,7 @@ body.cp-page code { font: inherit; }
 .tp-add:active { transform: scale(.96); }
 .tp-add:focus-visible, .tp-chip:focus-visible, .tp-pc-main:focus-visible, .tp-pill:focus-visible, .tp-out:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 /* Day chips and the fork: single-choice pills */
-.tp-chip { flex: none; min-height: 40px; padding: 0 var(--space-3); border: 1.5px solid #9e9e9e; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.tp-chip { flex: none; min-height: 36px; padding: 0 var(--space-3); border: 1.5px solid #9e9e9e; border-radius: var(--radius-pill); background: #fff; color: #1a1a1a; font: inherit; font-size: .8125rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .tp-chip[aria-pressed="true"] { border-color: #1f1f1f; background: #1f1f1f; color: #fff; }
 .tp-chip-tk { font-weight: 700; }
 .tp-tailor { margin-top: var(--space-4); }
@@ -3326,7 +3326,7 @@ body.cp-page code { font: inherit; }
 .tp-results-away { position: relative; margin-top: var(--space-3); padding: var(--space-3); border: 1px dashed #9e9e9e; border-radius: var(--radius-md); background: #fafafa; }
 .tp-results-away[hidden] { display: none; }
 .tp-results-away-text { font-size: .875rem; line-height: 1.45; color: #1a1a1a; }
-.tp-results-away .tp-link { min-height: 40px; }
+.tp-results-away .tp-link { min-height: 36px; }
 #tp-watch-title:focus { outline: none; }
 
 /* Open timeline, distilled: the mini strip hands over to the axis; suggested dates read as a guess */
@@ -3954,3 +3954,27 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* All matches as a tab: the chips sit 16px under the tab bar (not 56px), so the panel reads as part of the tabs */
 .tp-pick:has(+ .tp-all.is-tabbed:not([hidden])) { padding-bottom: 0; }
 .tp-all.is-tabbed { padding-top: var(--space-1); }
+
+/* Pick your team: prompt icons (card fan for "pick a team", calendar for "set your days"). Greyscale, decorative,
+   sized to the text; the stroke stays 1.5px whatever the size. The fan's cards are filled with the surface they sit on. */
+.tp-ico { display: inline-block; flex: none; height: 1.15em; width: auto; margin-right: .4em; vertical-align: -.22em; overflow: visible; }
+.tp-ico-fan { aspect-ratio: 36 / 33; }
+.tp-ico-cal { aspect-ratio: 1; }
+.tp-ico g { fill: var(--ico-bg, #fff); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.tp-ico g * { vector-effect: non-scaling-stroke; }
+.tp-ico-cal g { fill: none; }
+.tp-pill .tp-ico { --ico-bg: #1f1f1f; }
+.tp-tl-pick, .tp-pill { display: inline-flex; align-items: center; justify-content: center; }
+
+/* Pick your team: the indicative keyboard (a static picture, greyscale), over the bottom of the phone while search is open */
+.tp-kbd { position: absolute; left: 0; right: 0; bottom: 0; z-index: 110; display: flex; flex-direction: column; gap: 9px; padding: 8px 3px 26px; background: #d4d4d4; user-select: none; }
+.tp-kbd[hidden] { display: none; }
+.tp-kbd-row { display: flex; justify-content: center; gap: 5px; }
+.tp-kbd-row--mid { padding: 0 18px; }
+.tp-kbd-k { flex: 1 1 0; display: grid; place-items: center; height: 42px; border-radius: 5px; background: #fdfdfd; box-shadow: 0 1px 0 #8f8f8f; font-size: 1.25rem; color: #1a1a1a; }
+.tp-kbd-k--fn { flex: 1.35 1 0; background: #ababab; font-size: 1rem; }
+.tp-kbd-k--wide { flex: 2.2 1 0; font-size: .875rem; }
+.tp-kbd-k--space { flex: 5 1 0; font-size: .875rem; }
+.tp-kbd-note { position: absolute; right: 8px; bottom: 6px; font-size: .625rem; color: #5c5c5c; }
+.tp-ico-fan g { stroke-width: 1.1; } /* the fan's five outlines stay apart at text size */
+.tp-plan .tp-ico { --ico-bg: #f2f2f2; } /* the fan's cards take the plan panel's grey */

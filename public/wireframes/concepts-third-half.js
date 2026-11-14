@@ -63,7 +63,7 @@
      person's days in NSW once given) and one way on, Pick a team to tailor this, instead of every match at once. */
   function teaser() { return !tp.own(); }
   function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
-  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">Pick a team to tailor this</button></p>';
+  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Pick a team to tailor this</button></p>';
 
   /* ---------- Where to watch ---------- */
   var watchAll = false;
@@ -764,7 +764,7 @@
             '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="confirm">That’s right</button><button type="button" class="tp-link" data-act="adjust">Change dates</button></div></div>';
         } else {
           var from = (t.from) || (askManual && inf ? inf.from : ''), to = (t.to) || (askManual && inf ? inf.to : '');
-          h += '<div class="tp-ask-step"><p class="tp-ask-guess">' + (inf ? 'Set your days in NSW.' : 'When are you in NSW? Add your days, or leave it for later.') + '</p>' +
+          h += '<div class="tp-ask-step"><p class="tp-ask-guess">' + window.tpIcons.cal + (inf ? 'Set your days in NSW.' : 'When are you in NSW? Add your days, or leave it for later.') + '</p>' +
             '<div class="tp-dates"><label class="tp-date"><span>First day in NSW</span><input type="date" id="tp-from" min="2027-09-20" max="2027-11-20" value="' + esc(from) + '"></label>' +
             '<label class="tp-date"><span>Last day in NSW</span><input type="date" id="tp-to" min="2027-09-20" max="2027-11-20" value="' + esc(to) + '"></label></div>' +
             (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
@@ -854,12 +854,12 @@
       return;
     }
     if (!done) {
-      tripEl.innerHTML = '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + (M.how === 'one' ? 'Staying longer? Set your days' : 'Set your days in NSW to see what fits your free days') + '</button>';
+      tripEl.innerHTML = '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (M.how === 'one' ? 'Staying longer? Set your days' : 'Set your days in NSW to see what fits your free days') + '</button>';
       return;
     }
     var what = !done ? '' : t.mode === 'local' ? 'You live in NSW' : t.mode === 'unsure' ? 'Not sure yet if you\u2019re visiting' : 'Your days in NSW: ' + tp.isoRange(t.from, t.to);
     tripEl.innerHTML = done ? '<span class="tp-third-trip-a">' + esc(what) + '</span> \u00b7 <button type="button" class="tp-link" data-act="trip">Change</button>'
-      : '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + (t && t.mode === 'visiting' ? 'Visiting? Confirm your days to see what fits' : 'Visiting? Set your days to see what fits') + '</button>';
+      : '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (t && t.mode === 'visiting' ? 'Visiting? Confirm your days to see what fits' : 'Visiting? Set your days to see what fits') + '</button>';
   }
   phone.addEventListener('click', function (e) {
     if (e.target.closest('#tp-third-trip [data-act="trip"]')) { openAsk(); return; }
@@ -913,7 +913,7 @@
     // Save & share in the timeline only shows once there is a plan to keep
     if (ssBtn) ssBtn.hidden = !ms.length && !n;
     if (!ms.length && !n) {
-      planBody.innerHTML = '<p class="tp-plan-empty">Pick a team, or add a screening or a place above, and your plan builds up here.</p>';
+      planBody.innerHTML = '<p class="tp-plan-empty">' + window.tpIcons.fan + 'Pick a team, or add a screening or a place above, and your plan builds up here.</p>';
       return;
     }
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
