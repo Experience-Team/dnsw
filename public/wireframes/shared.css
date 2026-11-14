@@ -3248,17 +3248,23 @@ body.cp-page code { font: inherit; }
 .tp-sec-title { font-size: var(--fs-xl); font-weight: var(--fw-heavy); letter-spacing: -.01em; }
 .tp-sec-note { position: relative; margin-top: var(--space-1); font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
 .tp-empty { margin-top: var(--space-3); padding: var(--space-3); border: var(--bw-2) dashed var(--c-line); border-radius: var(--radius-md); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
-.tp-wm { margin-top: var(--space-3); padding: var(--space-3) var(--space-3) var(--space-1); border: var(--bw-1) solid var(--c-line-soft); border-radius: var(--radius-md); }
-.tp-wm-when { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
-.tp-wm-when .tp-tag { margin-top: 0; }
-.tp-wm-teams { margin-top: 2px; font-size: var(--fs-base); font-weight: var(--fw-bold); line-height: 1.3; }
-/* Spots as plain rows inside the match's group: a hairline between them, no box each */
-.tp-wm-spots { list-style: none; margin-top: var(--space-2); }
-.tp-ws { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 2px; border-top: var(--bw-1) solid var(--c-line-soft); }
-.tp-ws-text { display: flex; flex-direction: column; min-width: 0; }
-.tp-ws-name { font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+/* Where to watch: one row of portrait cards, one per screening, in date order. The row runs off the phone's right edge
+   and scrolls sideways, snapping to each card; a card and most of the next show, so there is always more in view.
+   Each card: the place's picture (4:5, a grey block in the wireframe) with In NSW or Interstate on it, when, the match,
+   the place, then Add at the foot. Cards in the row share one height, so every Add lines up. */
+.tp-wm-spots { list-style: none; display: flex; gap: var(--space-3); margin: var(--space-3) calc(-1 * var(--space-4)) 0; padding: 0 var(--space-4) var(--space-1); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-4); overscroll-behavior-x: contain; scrollbar-width: none; }
+.tp-wm-spots::-webkit-scrollbar { display: none; }
+.tp-ws { flex: none; width: 200px; display: flex; flex-direction: column; scroll-snap-align: start; }
+.tp-ws-text { flex: 1 0 auto; display: flex; flex-direction: column; min-width: 0; }
+.tp-ws-media { position: relative; display: block; }
+.tp-ws-img { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: var(--radius-md); background-color: var(--c-fill-soft); }
+.tp-ws-media .tp-tag { position: absolute; top: var(--space-2); left: var(--space-2); max-width: calc(100% - 2 * var(--space-2)); margin: 0; background: var(--c-surface); line-height: 1.25; } /* a long city wraps inside the picture */
+.tp-ws-when { margin-top: var(--space-2); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-ws-teams { margin-top: 2px; font-size: var(--fs-base); font-weight: var(--fw-bold); line-height: 1.3; }
+.tp-ws-place { display: flex; flex-direction: column; gap: 2px; margin-top: var(--space-2); }
+.tp-ws-name { font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.3; }
 .tp-ws-meta { font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink-2); }
-.tp-ws .tp-add { min-width: 60px; min-height: 32px; font-size: var(--fs-xs); }
+.tp-ws .tp-add { align-self: flex-start; margin-top: var(--space-3); min-width: 72px; min-height: 32px; font-size: var(--fs-xs); }
 .tp-ws .tp-add::before { inset: 0; }
 /* Where to watch supports the plan, so its heading steps down; Suits your 3rd half leads */
 #tp-watch .tp-sec-title { font-size: 1.0625rem; }
@@ -3409,7 +3415,8 @@ body.cp-page code { font: inherit; }
 /* The spot's name and place open its summary */
 .tp-ws-text { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .tp-ws-text .tp-ws-name { text-decoration: underline; text-decoration-color: var(--c-line-strong); text-underline-offset: 3px; }
-.tp-ws-text:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: 2px; }
+.tp-ws-text:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; border-radius: var(--radius-md); } /* inset, so the row's scroll edge never clips it */
+@media (hover: hover) { .tp-ws-text:hover .tp-ws-name { text-decoration-color: currentColor; } }
 
 /* Concepts: the cross, panes, toast fade, reorder and the timeline view. */
 .cn-x { display: block; }

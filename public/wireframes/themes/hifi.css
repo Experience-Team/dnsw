@@ -140,6 +140,8 @@
    the meaning, not the colour */
 :root[data-theme="hifi"] .cn-phone .tp-tag { border-color: var(--tth-surface-accent); background: var(--tth-surface-accent); color: var(--tth-text-primary); font-size: .8125rem; font-weight: 700; }
 :root[data-theme="hifi"] .cn-phone .tp-tag--away { border-color: var(--tth-border-default); background: transparent; }
+/* On a Where to watch picture the outline tag sits on chalk, so it reads over any photo */
+:root[data-theme="hifi"] .cn-phone .tp-ws-media .tp-tag--away { background: var(--tth-surface-page); }
 
 /* Button / Brand: one colourway moment per screen, the timeline's Save & share; ink text (chalk fails at this size) */
 :root[data-theme="hifi"] .cn-phone #tp-tl-share { border-color: var(--tth-surface-brand); background: var(--tth-surface-brand); color: var(--tth-text-on-brand-small); }

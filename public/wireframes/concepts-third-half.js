@@ -85,29 +85,31 @@
       h = '<p class="tp-empty">' + (s ? 'None of your matches in your days in NSW (' + esc(tp.isoRange(trip().from, trip().to)) + ') has a screening listed yet.'
         : 'None of your matches has a screening listed yet.') + '</p>';
     }
-    var show = watchAll ? ms : ms.slice(0, 3);
-    show.forEach(function (m) {
+    // One row of portrait cards, one per screening, in date order: the place's picture (a grey block in the wireframe)
+    // with In NSW or Interstate on it, then when, the match, the place, and Add. The row scrolls sideways and the next
+    // card always shows at the edge, so every screening is in it and there is no Show more.
+    var cards = '';
+    ms.forEach(function (m) {
       var f = m.f, who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
-      // One compact group per match: date and where on one line, the teams, then its spots as plain rows
-      h += '<div class="tp-wm" data-key="' + esc(m.key) + '"><p class="tp-wm-when"><span>' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</span>' +
-        (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>') + '</p>' +
-        '<p class="tp-wm-teams">' + who + '</p>' +
-        '<ul class="tp-wm-spots">' + spotsFor(m).map(function (sp) {
-          var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
-          var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
-          ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, note: open, day: f.d, matchName: matchName(f) };
-          MODAL[id] = { type: 'spot', sp: sp, m: m };
-          return '<li class="tp-ws provenance-gap" data-id="' + esc(id) + '"><button type="button" class="tp-ws-text" data-open="' + esc(id) + '" aria-haspopup="dialog"><span class="tp-ws-name">' + esc(sp.name) + '</span>' +
-            '<span class="tp-ws-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' · ' + esc(sp.place) + '</span>' +
-            (open ? '<span class="tp-ws-meta">' + esc(open) + '</span>' : '') + '</button>' +
-            addBtn(id, sp.name + ' on ' + f.d) + '</li>';
-        }).join('') + '</ul></div>';
+      var tag = f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>';
+      spotsFor(m).forEach(function (sp) {
+        var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
+        var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
+        ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, note: open, day: f.d, matchName: matchName(f) };
+        MODAL[id] = { type: 'spot', sp: sp, m: m };
+        cards += '<li class="tp-wm tp-ws" data-key="' + esc(m.key) + '" data-id="' + esc(id) + '"><button type="button" class="tp-ws-text" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
+          '<span class="tp-ws-media"><span class="ph-img tp-ws-img"' + imgKey(sp.name) + ' aria-hidden="true"></span>' + tag + '</span>' +
+          '<span class="tp-ws-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</span>' +
+          '<span class="tp-ws-teams">' + who + '</span>' +
+          '<span class="tp-ws-place provenance-gap"><span class="tp-ws-name">' + esc(sp.name) + '</span>' +
+          '<span class="tp-ws-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' · ' + esc(sp.place) + '</span>' +
+          (open ? '<span class="tp-ws-meta">' + esc(open) + '</span>' : '') + '</span></button>' +
+          addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d) + '</li>';
+      });
     });
+    if (cards) h += '<ul class="tp-wm-spots" aria-label="Screenings, scroll sideways for more">' + cards + '</ul>';
     watchList.innerHTML = h;
-    var more = ms.length - show.length;
-    watchMore.hidden = first || ms.length <= 3;
-    watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false');
-    watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + more + ' more ' + (more === 1 ? 'match' : 'matches') + ' with screenings';
+    watchMore.hidden = true;
   }
   watchMore.addEventListener('click', function () { watchAll = !watchAll; render(true); });
 
@@ -446,6 +448,8 @@
       var g = watchList.querySelector('.tp-wm[data-key="' + CSS.escape(w.dataset.watch) + '"]') || document.getElementById('tp-watch');
       var top = g.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
       body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+      var rail = g.parentNode && g.parentNode.classList.contains('tp-wm-spots') ? g.parentNode : null;
+      if (rail) rail.scrollTo({ left: Math.max(0, g.offsetLeft - rail.offsetLeft - 16), behavior: reduce.matches ? 'auto' : 'smooth' });
       var f = g.querySelector('button'); if (f) f.focus({ preventScroll: true });
     }
   });
