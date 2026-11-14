@@ -96,7 +96,7 @@
   function notesOnly() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
   // Picks, tickets or the screen changed: the timeline follows, then the annotations
   var tlReady = false;
-  function changed() { if (tlReady) { tlUpdate(); syncBar(); markRows(); } notesOnly(); }
+  function changed() { if (tlReady) { tlUpdate(); syncBar(); markRows(); } if (tlClearBtn) tlClearSync(); notesOnly(); }
   // All matches: a row whose match was added on its own says so
   function markRows() {
     var on = {};
@@ -989,8 +989,12 @@
       var st = (tk ? 'ticket' : 'match') + (m.f.a ? ' away' : '') + (m.f.t ? '' : ' tbd');
       if (st !== m.state) {
         m.state = st;
-        m.sym.className = 'cn-tl-sym ' + (tk ? 'cn-tl-sym--ticket' : 'cn-tl-sym--match') + (m.f.a ? ' is-away' : '') + (m.f.t ? '' : ' is-tbd');
-        m.sym.innerHTML = tk ? TL_ICON.ticket : m.f.t ? TL_ICON.ball : '<span class="tp-tl-q" aria-hidden="true">?</span>';
+        // Teams known: a small flag pair, stacked (the day column is too narrow side by side); a ticket rings it in
+        // blue. Teams to be decided keep the neutral marker
+        var tms = m.f.t ? m.f.t.split(' v ') : [], flags = tms.length === 2 && FLAG[tms[0]] && FLAG[tms[1]];
+        m.sym.className = 'cn-tl-sym ' + (flags ? 'cn-tl-sym--flags' + (tk ? ' is-ticket' : '') : tk ? 'cn-tl-sym--ticket' : 'cn-tl-sym--match') + (m.f.a ? ' is-away' : '') + (m.f.t ? '' : ' is-tbd');
+        m.sym.innerHTML = flags ? '<span class="tp-tl-flag" aria-hidden="true">' + FLAG[tms[0]] + '</span><span class="tp-tl-flag" aria-hidden="true">' + FLAG[tms[1]] + '</span>'
+          : tk ? TL_ICON.ticket : m.f.t ? TL_ICON.ball : '<span class="tp-tl-q" aria-hidden="true">?</span>';
         m.el.setAttribute('aria-label', m.f.d + ', ' + tlName(m) + ', ' + (m.f.a ? 'interstate, ' + m.f.a : m.f.p) + (tk ? ', you have a ticket' : ''));
       }
     });
@@ -1014,6 +1018,18 @@
       keep[it.id] = true;
       itemDays[day] = true;
       var span = it.kind === 'trip' && it.nights > 0;
+      // A place on a day it cannot be done: inside a longer trip, on an interstate match day they have a ticket for
+      // (they are away), or closed that day (fixture opening hours, gap data). Hatched and said, as for trips
+      if (it.kind !== 'trip') {
+        var ph = [];
+        shown.forEach(function (m) { if (m.day === day && m.f.a && m.tkey && state.tickets.indexOf(m.tkey) > -1) ph.push({ name: tlName(m) + ' (interstate)', day: m.f.d }); });
+        (tripDays[day] || []).forEach(function (x) { if (x.nights > 0) ph.push({ name: x.title, day: dayLabel(day) }); });
+        if (window.tpPicker && typeof window.tpPicker.itemClosed === 'function' && window.tpPicker.itemClosed(it, day)) ph.push({ closed: true, name: 'closed that day', day: dayLabel(day) });
+        if (ph.length) {
+          tlClash[it.id] = ph;
+          hatch += '<span class="tp-tl-clash" style="left:' + (PADX + day * DAYW - DAYW / 2) + 'px;width:' + DAYW + 'px"></span>';
+        }
+      }
       // A trip on a day it cannot share: hatched on the axis, said in its detail; nothing is moved
       if (it.kind === 'trip') {
         var hit = [];
@@ -1067,7 +1083,7 @@
     var rows = 1; Object.keys(perDay).forEach(function (d) { rows = Math.max(rows, perDay[d]); });
     // A longer trip's span runs along the top, so the canvas makes room for it above the markers
     var spans = state.added.some(function (it) { return it.kind === 'trip' && it.nights > 0; });
-    tlCanvas.style.height = (60 + rows * 28 + (spans ? 34 : 0)) + 'px';
+    tlCanvas.style.height = (60 + rows * 32 + (spans ? 34 : 0)) + 'px';
     tlDotEls.forEach(function (el, i) {
       var t = dayType[i];
       el.className = 'tp-tl-dot' + (t === undefined && !itemDays[i] ? ' is-off' : t === undefined ? ' is-item' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '') + (itemDays[i] && t !== undefined ? ' has-item' : '');
@@ -1106,8 +1122,8 @@
       screen: state.added.some(function (it) { return it.kind === 'screening'; }), pin: state.added.some(function (it) { return it.kind !== 'screening' && it.kind !== 'match' && it.kind !== 'trip'; }),
       trip: state.added.some(function (it) { return it.kind === 'trip' && !it.nights; }), span: state.added.some(function (it) { return it.kind === 'trip' && it.nights; }) };
     shown.forEach(function (m) { var tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1; if (tk) kinds.ticket = true; else if (!m.f.t) kinds.tbd = true; else if (m.f.a) kinds.away = true; else kinds.nsw = true; });
-    tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--match" aria-hidden="true">' + TL_ICON.ball + '</span>In NSW</li>' : '') +
-      (kinds.away ? '<li><span class="cn-tl-sym cn-tl-sym--match is-away" aria-hidden="true">' + TL_ICON.ball + '</span>Interstate</li>' : '') +
+    tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--flags tp-key-flags" aria-hidden="true"><i></i><i></i></span>In NSW</li>' : '') +
+      (kinds.away ? '<li><span class="cn-tl-sym cn-tl-sym--flags tp-key-flags is-away" aria-hidden="true"><i></i><i></i></span>Interstate</li>' : '') +
       (kinds.ticket ? '<li><span class="cn-tl-sym cn-tl-sym--ticket" aria-hidden="true">' + TL_ICON.ticket + '</span>Your ticket</li>' : '') +
       (kinds.tbd ? '<li><span class="cn-tl-sym cn-tl-sym--match is-tbd" aria-hidden="true"><span class="tp-tl-q">?</span></span>Teams to be decided</li>' : '') +
       (kinds.screen ? '<li><span class="cn-tl-sym cn-tl-sym--place" aria-hidden="true">' + TL_ICON.screen + '</span>Screening you added</li>' : '') +
@@ -1136,41 +1152,11 @@
   }
   function tlRenderDetail() {
     tlRoving();
-    if (tlSelItem) {
-      var it = state.added.filter(function (x) { return x.id === tlSelItem; })[0];
-      if (it) {
-        var cl = tlClash[it.id];
-        tlDetail.innerHTML = '<p class="tp-tl-d-when">' + esc(it.endDay ? (it.when || it.day + ' to ' + it.endDay) + ', ' + it.nights + (it.nights === 1 ? ' night' : ' nights') : it.day) + (it.matchName ? ', for ' + esc(it.matchName) : '') + '</p>' +
-          (cl ? '<p class="tp-tl-d-clash">Clashes with ' + esc(list(cl.map(function (c) { return c.name + ', ' + c.day; }))) + '. Nothing has been moved.</p>' + tlMoveChips(it) : '') +
-          '<p class="tp-tl-d-teams provenance-gap">' + esc(it.title) + '</p><p class="tp-tl-d-stage">' + esc(it.kindLabel || '') + '</p>' +
-          (it.place ? '<p class="tp-tl-d-where">' + esc(it.place) + '</p>' : '') + (it.note ? '<p class="tp-tl-d-where">' + esc(it.note) + '</p>' : '') +
-          '<button type="button" class="tp-link tp-tl-remove" data-remove="' + esc(it.id) + '">Remove from timeline</button>';
-        return;
-      }
-      tlSelItem = null;
-    }
-    tlDetail.classList.toggle('is-empty', tlSel < 0 && !tlSelItem);
-    if (tlSel < 0) { tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a marker for its details.</p>'; return; }
-    var m = TLM[tlSel], f = m.f, tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1;
-    var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
-    var h = '<p class="tp-tl-d-when">' + esc(f.d) + ', ' + (f.k ? esc(f.k) + ' Sydney time' : 'time to be confirmed') + '</p>' +
-      '<p class="tp-tl-d-teams">' + who + '</p>' +
-      '<p class="tp-tl-d-stage">' + (f.t ? esc(f.s) : 'Teams to be decided') + '</p>' +
-      '<p class="tp-tl-d-where">' + esc(f.v + ', ' + f.p) + '</p>' +
-      (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>');
-    // Gap data: only where a placeholder spot lists this match; otherwise no line at all
-    var spots = f.a ? SPOTS.filter(function (sp) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }) : [];
-    if (spots.length) h += '<p class="tp-tl-watch provenance-gap">Watch in NSW: ' + spots.map(function (sp) { return esc(sp.name) + ', ' + esc(sp.place); }).join('; ') + '</p>';
-    if (tk) h += '<p class="tp-tl-d-ticket">You have a ticket for this match.</p>';
-    if (isAddedMatch(f)) h += '<p class="tp-tl-d-stage">Added by you from All matches</p><button type="button" class="tp-link tp-tl-remove" data-remove="m:' + esc(m.key) + '">Remove from timeline</button>';
-    tlDetail.innerHTML = h;
-  }
-  // Move, offered where a clash is shown: the trip's other valid starts in today's free stretches (from the page)
-  function tlMoveChips(it) {
-    var mv = typeof window.tpPicker.tripMoves === 'function' ? window.tpPicker.tripMoves(it.id) : [];
-    if (!mv.length) return '<p class="tp-tl-d-stage">No other free days fit it now. Remove it, or change your days.</p>';
-    return '<p class="tp-tl-d-stage">Move it to:</p><div class="tp-move" role="group" aria-label="Move ' + esc(it.title) + ' to">' +
-      mv.map(function (m) { return '<button type="button" class="tp-chip" data-tl-move="' + m.start + '" data-tl-move-id="' + esc(it.id) + '">' + esc(m.label) + '</button>'; }).join('') + '</div>';
+    // A marker's details open in a sheet stacked over the timeline (match sheet, or the added item with Move and
+    // Remove); this line only says so. The chosen marker keeps its pressed state for the arrow keys.
+    if (tlSelItem && !state.added.some(function (x) { return x.id === tlSelItem; })) tlSelItem = null;
+    tlDetail.classList.add('is-empty');
+    tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a marker for its details.</p>';
   }
   function dayLabel(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + ['Oct', 'Nov'][x.getUTCMonth() - 9]; }
   function tlSelect(k, focus, itemId) {
@@ -1183,7 +1169,13 @@
     notesOnly();
   }
   function tlPick(el, focus) { if (el.dataset.item) tlSelect(-1, focus, el.dataset.item); else tlSelect(+el.dataset.k, focus); }
-  tlCanvas.addEventListener('click', function (e) { var b = e.target.closest('.tp-tl-mk'); if (b) tlPick(b, false); });
+  // Tap (or Enter) opens the marker's details stacked over the timeline; the arrow keys only move between markers
+  tlCanvas.addEventListener('click', function (e) {
+    var b = e.target.closest('.tp-tl-mk'); if (!b) return;
+    tlPick(b, false);
+    var open = window.tpPicker.openSheet;
+    if (typeof open === 'function') open(b.dataset.item ? 'item:' + b.dataset.item : 'match:' + TLM[+b.dataset.k].key, b);
+  });
   tlCanvas.addEventListener('keydown', function (e) {
     var b = e.target.closest('.tp-tl-mk'); if (!b) return;
     var on = tlOrder(), at = on.indexOf(b), to = null;
@@ -1195,21 +1187,41 @@
     e.preventDefault();
     tlPick(to, true);
   });
-  // Remove an added item from its detail card
-  tlDetail.addEventListener('click', function (e) {
-    var mv = e.target.closest('[data-tl-move]');
-    if (mv) {
-      var id = mv.dataset.tlMoveId;
-      window.tpPicker.moveTrip(id, +mv.dataset.tlMove);
-      tlSelect(-1, true, id); // the moved trip stays chosen, its detail says where it is now
-      return;
-    }
-    var r = e.target.closest('[data-remove]'); if (!r) return;
-    var it = state.added.filter(function (x) { return x.id === r.dataset.remove; })[0];
-    tlSelItem = null;
-    removeItem(r.dataset.remove);
-    document.getElementById('tp-tl-title').focus({ preventScroll: true });
-    if (it) say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
+  /* Clear timeline: takes off everything they added (screenings, places, products, trips, single matches added from All
+     matches, and ticket marks on those matches, which would be left with no match). Teams and their tickets, the trip
+     answer, the filter and the tab stay: teams are cleared at the fan (Clear all), and matches are the plan's fixed
+     spine. Undo for six seconds, with focus on it, as Clear all. */
+  var tlClearBtn = document.getElementById('tp-tl-clear'), tlCleared = document.getElementById('tp-tl-cleared'), tlUndo = document.getElementById('tp-tl-undo'), tlClearT = 0;
+  function tlClearSync() { tlClearBtn.hidden = !state.added.length || !tlCleared.hidden; }
+  function tlClearEnd(focusTitle) {
+    clearTimeout(tlClearT);
+    var had = document.activeElement === tlUndo;
+    tlCleared.hidden = true;
+    tlClearSync();
+    if (focusTitle && had) document.getElementById('tp-tl-title').focus({ preventScroll: true });
+  }
+  tlClearBtn.addEventListener('click', function () {
+    var prevAdded = state.added.slice(), prevTickets = state.tickets.slice();
+    state.added = [];
+    // A ticket on a match that was only there because it was added goes with it
+    var gone = TLM.filter(function (m) { return m.tkey && state.tickets.indexOf(m.tkey) > -1 && !tlShown(m.f); }).map(function (m) { return m.tkey; });
+    state.tickets = state.tickets.filter(function (x) { return gone.indexOf(x) < 0; });
+    tlSel = -1; tlSelItem = null;
+    save(); changed(); renderMatches();
+    var n = prevAdded.length;
+    document.getElementById('tp-tl-cleared-text').textContent = 'Timeline cleared: ' + n + (n === 1 ? ' thing' : ' things') + ' taken off.';
+    tlCleared.hidden = false; tlClearSync();
+    tlUndo.onclick = function () {
+      state.added = prevAdded; state.tickets = prevTickets;
+      save(); changed(); renderMatches();
+      tlClearEnd(false);
+      tlClearBtn.focus({ preventScroll: true });
+      say('Undone. ' + n + (n === 1 ? ' thing is' : ' things are') + ' back on your timeline.');
+    };
+    tlUndo.focus({ preventScroll: true });
+    say('Timeline cleared: ' + n + (n === 1 ? ' thing' : ' things') + ' taken off' + (gone.length ? ', with ' + gone.length + (gone.length === 1 ? ' ticket mark' : ' ticket marks') : '') + '. Your teams and your days stay. Undo is available for a few seconds.');
+    clearTimeout(tlClearT);
+    tlClearT = setTimeout(function () { tlClearEnd(true); }, 6000);
   });
   // The panel's height: as tall as fits under the top of the phone, up to 460px
   // Open, the sheet is as tall as it can be: it leaves a 48px strip of the dimmed page at the top (44px or more to tap)
@@ -1386,7 +1398,7 @@
     else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
   });
   // Drag the handle down to close: past a third of the way, or a flick, closes; earlier springs back
-  phoneEl.querySelectorAll('.tp-stack').forEach(function (sh) {
+  function stackRegister(sh) {
     var grab = sh.querySelector('.cn-grabber'), y0 = null, dy = 0, t0 = 0;
     if (!grab) return;
     grab.addEventListener('pointerdown', function (e) { if (stackEl !== sh) return; y0 = e.clientY; dy = 0; t0 = e.timeStamp; grab.setPointerCapture(e.pointerId); sh.classList.add('is-dragging'); });
@@ -1398,7 +1410,8 @@
       if (dy > sh.offsetHeight / 3 || (v > .6 && dy > 24)) stackClose(); else sh.style.transform = '';
     }
     grab.addEventListener('pointerup', letGo); grab.addEventListener('pointercancel', letGo);
-  });
+  }
+  phoneEl.querySelectorAll('.tp-stack').forEach(stackRegister);
   // The prompt that used to sit at the top of the phone: back to the fan
   document.getElementById('tp-tl-pick').addEventListener('click', function () {
     tlSetOpen(false, false);
@@ -1474,7 +1487,7 @@
     say('Prototype reset. No teams picked.');
   });
 
-  window.tpPicker = { stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
+  window.tpPicker = { stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
     flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team

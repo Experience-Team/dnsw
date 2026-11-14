@@ -3978,3 +3978,47 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-kbd-note { position: absolute; right: 8px; bottom: 6px; font-size: .625rem; color: #5c5c5c; }
 .tp-ico-fan g { stroke-width: 1.1; } /* the fan's five outlines stay apart at text size */
 .tp-plan .tp-ico { --ico-bg: #f2f2f2; } /* the fan's cards take the plan panel's grey */
+
+/* Pick your team: match markers with a flag pair (stacked: a day column is 40px, a pair side by side is 51px), 30px
+   tall (target over 24px, AA); rows step 32px. Teams to be decided keep the neutral marker. */
+.tp-tl-mk { width: 28px; height: 30px; margin-left: -14px; transform: translateY(calc(var(--row, 0) * -32px)); }
+.tp-tl-mk.is-off { transform: translateY(calc(var(--row, 0) * -32px)) scale(.4); }
+.tp-tl-mk--item.is-new { transform: translateY(calc(var(--row, 0) * -32px - 12px)) scale(.5); }
+@media (prefers-reduced-motion: reduce) { .tp-tl-mk.is-off, .tp-tl-mk--item.is-new { transform: translateY(calc(var(--row, 0) * -32px)); } }
+.tp-tl-mk .cn-tl-sym--flags, .cn-tl-sym--flags { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; width: 22px; height: 28px; border: 1.5px solid #737373; border-radius: 6px; background: #fff; }
+.cn-tl-sym--flags.is-away { border-style: dashed; }
+.cn-tl-sym--flags.is-ticket { border-color: #1a1a1a; box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #2666d9; }
+.tp-tl-mk[aria-pressed="true"] .cn-tl-sym--flags.is-ticket { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #2666d9, 0 0 0 5.5px #1a1a1a; }
+.tp-tl-flag { display: block; font-size: 11px; line-height: 12px; }
+.tp-key-flags { width: 14px; height: 18px; gap: 2px; border-radius: 4px; }
+.tp-key-flags i { display: block; width: 8px; height: 4px; border-radius: 1px; background: #b3b3b3; }
+
+/* The match sheet as the timeline's stacked sheet (#tp-pm.is-stacked): rounded top, a grabber, the stack's motion */
+.tp-pm .tp-pm-grab { display: none; }
+.tp-pm.is-stacked { border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-3); padding-top: 14px; overflow: hidden; }
+.tp-pm.is-stacked .tp-pm-grab { display: block; }
+.cn-pp.tp-pm.is-stacked.is-open { animation: none; } /* the stack's slide, not the page's own entrance */
+.tp-pm-item .tp-tl-d-clash { margin-top: var(--space-3); }
+.tp-pm-item .tp-move { margin-top: var(--space-2); }
+
+/* Clear timeline: quiet, at the foot of the sheet; Undo for six seconds in its place */
+.tp-tl-clear { display: flex; align-items: center; min-height: 36px; margin-top: var(--space-2); }
+#tp-tl-clear { color: #4d4d4d; }
+.tp-tl-cleared { font-size: .8125rem; color: #1a1a1a; }
+.tp-tl-cleared[hidden], #tp-tl-clear[hidden] { display: none; }
+
+/* Pick your team: the date slider under the date fields. Track 1 Oct to 13 Nov; the chosen days fill dark; handles
+   20px to see, 28px to tap (AA); they snap to days and settle over 120ms (none with reduced motion). */
+.tp-range { margin-top: var(--space-3); }
+.tp-range-track { position: relative; height: 28px; margin: 0 14px; touch-action: none; cursor: pointer; }
+.tp-range-track::before { content: ""; position: absolute; left: -14px; right: -14px; top: 12px; height: 4px; border-radius: 2px; background: #d9d9d9; }
+.tp-range-fill { position: absolute; top: 12px; height: 4px; border-radius: 2px; background: #1f1f1f; transition: left .12s ease-out, width .12s ease-out; }
+.tp-range-h { position: absolute; top: 0; width: 28px; height: 28px; margin-left: -14px; border-radius: 50%; outline: none; transition: left .12s ease-out; cursor: grab; }
+.tp-range-h::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #fff; border: 2px solid #1f1f1f; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .12s ease-out, box-shadow .12s ease-out; }
+.tp-range-h.is-dragging { cursor: grabbing; transition: left .06s linear; }
+.tp-range-h.is-dragging::before { transform: scale(1.15); box-shadow: 0 3px 8px rgba(0,0,0,.25); }
+.tp-range-h:focus-visible::before { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #005EA2; }
+.tp-range.is-unset .tp-range-fill { background: #b3b3b3; }
+.tp-range-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: .6875rem; color: #5c5c5c; }
+.tp-range-out { color: #1a1a1a; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .tp-range-fill, .tp-range-h, .tp-range-h.is-dragging, .tp-range-h::before { transition: none; } }
