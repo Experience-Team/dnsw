@@ -4517,3 +4517,5 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (prefers-reduced-motion: reduce) { .tp-map-jump { animation: none; } }
 .tp-pcs.tp-map-pcs { flex-direction: row; margin-top: 0; }
 .tp-map-marks.is-far .tp-map-mark.is-stadium:not(.is-now) .tp-map-mark-t { display: none; } /* zoomed out: only today’s stadium is named, so labels never pile up */
+.tp-map-dn { font-size: 9px; font-weight: var(--fw-bold); line-height: 1; letter-spacing: -.02em; }
+.tp-map-pin.is-faint { opacity: .9; }

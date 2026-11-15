@@ -709,8 +709,8 @@
       if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) out.push({ kind: 'free', day: d, days: [d], b: b });
       else out.push({ kind: b.kind, day: b.day, days: [b.day], b: b });
     });
-    // A long plan: runs of free days with nothing added become one step (each day is a tab on its card)
-    if (out.length > 8) {
+    // A long plan (more than 12 days): runs of free days with nothing added become one step (each day is a tab on its card)
+    if (out.length > 12) {
       var merged = [];
       out.forEach(function (st) {
         var last = merged[merged.length - 1];

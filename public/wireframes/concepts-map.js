@@ -123,16 +123,21 @@
   function pinsFor() {
     var out = [];
     if (!free) { var c = cards[cur]; if (c) c.pins.forEach(function (p) { if (onMap(p.ll)) out.push({ p: p, i: cur, strong: true }); }); return out; }
-    // Explore freely: every day's stops; the day picked stays strong
-    cards.forEach(function (c, i) { c.pins.forEach(function (p) { if (onMap(p.ll)) out.push({ p: p, i: i, strong: i === cur }); }); });
+    // Explore freely: every day's stops, each day of a merged step included; the day picked stays strong
+    steps.forEach(function (st, i) {
+      st.days.forEach(function (d) {
+        var c = d === cards[i].day ? cards[i] : tp.mapStep(st, d);
+        c.pins.forEach(function (p) { if (onMap(p.ll)) out.push({ p: p, i: i, c: c, strong: i === cur && d === cards[i].day }); });
+      });
+    });
     return out;
   }
   function drawPins() {
     var ps = pinsFor(), c = cards[cur];
     pinsEl.innerHTML = ps.map(function (x, k) {
-      var p = x.p, lbl = (x.strong && !free ? p.n + ' of ' + c.pins.length + ': ' : '') + p.title + ', ' + p.kindLabel + (free ? ', ' + cards[x.i].label : '') + (p.done ? ', on your plan' : '');
+      var p = x.p, lbl = (x.strong && !free ? p.n + ' of ' + c.pins.length + ': ' : '') + p.title + ', ' + p.kindLabel + (free ? ', ' + (x.c || cards[x.i]).label : '') + (p.done ? ', on your plan' : '');
       return '<button type="button" class="tp-map-pin' + (x.strong ? ' is-strong' : ' is-faint') + (p.done ? ' is-done' : '') + (p.trip ? ' is-trip' : '') + '" data-k="' + k + '" aria-label="' + esc(lbl) + '">' +
-        (p.done ? TICK : x.strong && !free ? '<span>' + p.n + '</span>' : '<span class="tp-map-dot"></span>') + '</button>';
+        (p.done ? TICK : x.strong && !free ? '<span>' + p.n + '</span>' : '<span class="tp-map-dn">' + ((x.c || cards[x.i]).label.split(' ')[1] || '') + '</span>') + '</button>';
     }).join('');
     pinEls = Array.prototype.slice.call(pinsEl.children).map(function (el, k) { return { el: el, x: ps[k] }; });
     // Home, the day's stadium and every stadium on their plan, as quiet marks with a short label
@@ -141,6 +146,7 @@
     var seen = {};
     cards.forEach(function (cc, i) { if (cc.kind === 'match' && cc.anchor && !seen[cc.anchor.name]) { seen[cc.anchor.name] = 1; mk.push({ ll: cc.anchor.ll, cls: 'is-stadium' + (i === cur ? ' is-now' : ''), ico: FLAG, t: cc.anchor.name }); } });
     if (c && !home && c.anchor && c.kind !== 'match') mk.push({ ll: c.anchor.ll, cls: 'is-base', ico: '', t: c.anchor.name });
+    var names = {}; mk = mk.filter(function (m) { if (names[m.t]) return false; names[m.t] = 1; return true; });
     marksEl.innerHTML = mk.map(function (m, k) { return '<span class="tp-map-mark ' + m.cls + '" data-m="' + k + '"><span class="tp-map-mark-i">' + m.ico + '</span><span class="tp-map-mark-t">' + esc(m.t) + '</span></span>'; }).join('');
     marks = mk;
     place();
@@ -332,16 +338,16 @@
     var x = pinEls[+b.dataset.k].x;
     if (!free) { if (x.p.html) hot(x.p.n, true); return; }
     // Explore freely: a small card for the pin, with Add for its day and a way to that day
-    var c = cards[x.i];
+    var c = x.c || cards[x.i];
     pop.innerHTML = '<p class="tp-map-pop-t">' + esc(x.p.title) + '</p><p class="tp-map-pop-m">' + esc(x.p.kindLabel) + ' · ' + esc(c.label) + '</p>' +
       '<div class="tp-map-pop-a">' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add to ' + esc(c.label) + '</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your timeline on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') +
-      '<button type="button" class="tp-link" data-mgo="' + x.i + '">Go to ' + esc(c.label) + '</button><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
+      '<button type="button" class="tp-link" data-mgo="' + x.i + '" data-mday="' + c.day + '">Go to ' + esc(c.label) + '</button><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
     pop.hidden = false;
     var f = pop.querySelector('.tp-add, [data-mgo]'); if (f) f.focus({ preventScroll: true });
   });
   pop.addEventListener('click', function (e) {
     var g = e.target.closest('[data-mgo]');
-    if (g) { pop.hidden = true; setFree(false, +g.dataset.mgo); return; }
+    if (g) { var gi = +g.dataset.mgo, gd = +g.dataset.mday, gs = steps[gi]; if (gs && gs.days.length > 1) { sub[gs.day] = gd; cards[gi] = tp.mapStep(gs, gd); } pop.hidden = true; setFree(false, gi); return; }
     if (e.target.closest('[data-mpop-close]') || e.target.closest('.tp-add')) setTimeout(function () { pop.hidden = true; view.focus({ preventScroll: true }); }, e.target.closest('.tp-add') ? 600 : 0);
   });
 
@@ -387,6 +393,10 @@
     if (v) {
       body.scrollTo({ top: trackTop(), behavior: 'auto' });
       drawPins();
+      // Opens on the whole plan: every stop in view, each marked with its date
+      var xs = pinEls.map(function (o) { return px(o.x.p.ll); }), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      xs.forEach(function (q) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });
+      if (xs.length) glide(clampCam({ x: (x0 + x1) / 2, y: (y0 + y1) / 2, s: Math.max(sMin(), Math.min(1.2, Math.min((vw - 80) / Math.max(x1 - x0, 140), (stageH - 160) / Math.max(y1 - y0, 140)))), fy: 60 + (stageH - 60) / 2 }));
       view.focus({ preventScroll: true });
       say('Explore freely. Drag to move, pinch or use plus and minus to zoom. Every day’s stops are shown.');
     } else {
@@ -403,11 +413,13 @@
     var ns = Math.max(sMin(), Math.min(1.6, cam.s * f)), wx = cam.x + (cx - vw / 2) / cam.s, wy = cam.y + (cy - cam.fy) / cam.s;
     cam = { x: wx - (cx - vw / 2) / ns, y: wy - (cy - cam.fy) / ns, s: ns, fy: cam.fy }; clampCam(); apply();
   }
-  function clampCam() {
+  function clampCam(c) {
     // Keep the picture filling the view where it can (no edge of the illustration showing)
-    var hw = vw / 2 / cam.s, top = cam.fy / cam.s, bot = (stageH - cam.fy) / cam.s;
-    cam.x = hw * 2 >= IW ? IW / 2 : Math.max(hw, Math.min(IW - hw, cam.x));
-    cam.y = top + bot >= IH ? IH / 2 : Math.max(top, Math.min(IH - bot, cam.y));
+    c = c || cam;
+    var hw = vw / 2 / c.s, top = c.fy / c.s, bot = (stageH - c.fy) / c.s;
+    c.x = hw * 2 >= IW ? IW / 2 : Math.max(hw, Math.min(IW - hw, c.x));
+    c.y = top + bot >= IH ? IH / 2 : Math.max(top, Math.min(IH - bot, c.y));
+    return c;
   }
   zoomEl.addEventListener('click', function (e) {
     var z = e.target.closest('[data-zoom]'); if (!z) return;
