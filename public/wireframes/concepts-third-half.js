@@ -397,7 +397,8 @@
   function ampm(t) { t = ((t % 1440) + 1440) % 1440; var hh = Math.floor(t / 60), mm = t % 60; return ((hh % 12) || 12) + (mm ? ':' + (mm < 10 ? '0' : '') + mm : '') + (hh < 12 ? 'am' : 'pm'); }
   function lower(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
   function goLine(r) { return r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed') + ' · ' + lower(r.event_day.extra_services); }
-  function goStay(r) { return r.fromDefault && !baseOf() ? '<p class="tp-go-from">From ' + esc(r.from) + '. <button type="button" class="tp-link" data-go-stay>Add where you’re staying</button> to see your own route.</p>' : ''; }
+  // The line above already names the start, so this only offers the change
+  function goStay(r) { return r.fromDefault && !baseOf() ? '<p class="tp-go-from"><button type="button" class="tp-link" data-go-stay>Add where you’re staying</button> to see your own route.</p>' : ''; }
   function goBlock(m) {
     var f = m.f, r = goRoute(f); if (!r) return '';
     var id = 'go:' + m.key;
@@ -419,13 +420,13 @@
     var r = x.r, f = x.m.f, k = kickMins(f.k), e = r.event_day, h = '';
     var leave = k !== null && r.mins ? ampm(k - 45 - r.mins) : null, ft = k !== null ? k + 100 : null;
     h += '<div class="plan-modal-body tp-pm-go">';
-    h += '<p class="tp-pm-type">' + esc(f.d) + ' · Match day</p>';
+    h += '<p class="tp-pm-type">' + esc(f.d) + '</p>';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Getting there and back</h2>';
     h += '<p class="cn-pp-venue">' + esc(matchName(f)) + ', ' + esc(f.k || 'time to be confirmed') + ', ' + esc(f.v) + '</p>';
     h += '<p class="tp-go-ph" role="note">Placeholder transport details. Real routes, times and services to come.</p>';
-    h += goMap(r) + goStay(r);
+    h += goMap(r);
     h += '<h3 class="cn-pp-h">Getting there</h3><dl class="pl-option-facts cn-pp-facts">' +
-      '<div><dt>From</dt><dd>' + esc(r.from) + (r.fromDefault && !baseOf() ? ' (until you add where you’re staying)' : '') + '</dd></div>' +
+      '<div><dt>From</dt><dd>' + esc(r.from) + (r.fromDefault && !baseOf() ? ' · <button type="button" class="tp-link" data-go-stay>Add where you’re staying</button>' : '') + '</dd></div>' +
       '<div><dt>Journey</dt><dd><span class="provenance-gap">' + esc(r.mode) + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed') + '</span></dd></div>' +
       (leave ? '<div><dt>Leave by</dt><dd><span class="provenance-gap">About ' + leave + ', to be at the gates 45 min before kick-off</span></dd></div>' : '') +
       '<div><dt>Your ticket</dt><dd><span class="provenance-gap">Whether match tickets include public transport is to be confirmed</span></dd></div></dl>';
@@ -770,7 +771,7 @@
     var b = st.b, d = sub !== undefined ? sub : st.day, dl = dayLabel(d), home = homeLL(), r = { day: d, label: dl, kind: st.kind, pins: [], loops: [], home: home };
     if (st.kind === 'match') {
       var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, sl = stadiumLL(f.v);
-      r.anchor = sl; r.place = f.v; r.kicker = dl + ' \u00b7 Match day \u00b7 ' + (f.k || 'time to be confirmed');
+      r.anchor = sl; r.place = CITY[cityOf(f.v)]; r.kicker = dl + ' \u00b7 Match day \u00b7 ' + (f.k || 'time to be confirmed');
       r.title = matchName(f) + ', ' + f.v;
       if (b.ms.length > 1) r.note = 'Also that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return matchName(x.f); }).join(', ');
       r.lead = goBlock(m);
@@ -1129,7 +1130,7 @@
     var isRoute = x.type === 'route', asSheet = isMatch || isRoute;
     pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day travel' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
