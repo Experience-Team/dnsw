@@ -4664,3 +4664,34 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-tl-wait li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: 36px; }
 .tp-plan-wait-n, .tp-tl-wait-n { margin: 6px 0 0; font-size: var(--fs-2xs); color: var(--c-ink-2); }
 @media (prefers-reduced-motion: reduce) { .tp-ov-layer, .tp-ov-hint { transition: none; } }
+
+/* ---------- Your days in a sheet: an inline calendar (16 Nov) ----------
+   Opened where the person is (Set your days, Change, Add your days, Add where you're staying), never by moving the
+   page. Two months, Monday-first; their NSW match days carry a dot; first tap the first day, second the last. */
+.tp-days { padding: var(--space-1) 0 var(--space-3); }
+.tp-days .cn-pp-title { margin: 0; }
+.tp-days-note { margin: 4px 0 var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-days-q { margin: var(--space-4) 0 var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.tp-days .tp-quick { margin-bottom: var(--space-3); }
+.tp-cal { display: grid; gap: var(--space-4); width: 100%; align-self: stretch; }
+.tp-days > * { align-self: stretch; }
+.tp-cal-h { margin: 0 0 var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.tp-cal-g { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; }
+.tp-cal-wd { padding-bottom: 4px; font-size: var(--fs-2xs); font-weight: var(--fw-semi); color: var(--c-ink-2); text-align: center; }
+.tp-cal-x { height: 36px; }
+.tp-cal-d { position: relative; display: grid; place-items: center; height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; cursor: pointer; }
+.tp-cal-d.is-off { color: var(--c-ink-3); opacity: .5; cursor: default; }
+.tp-cal-d.is-other { color: var(--c-ink-2); }
+.tp-cal-d::before { content: ''; position: absolute; inset: 2px 4px; border-radius: 8px; z-index: -1; }
+.tp-cal-d:hover::before { background: var(--c-fill-soft); }
+.tp-cal-d.is-match::after { content: ''; position: absolute; bottom: 5px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--c-accent); }
+.tp-cal-d.is-in { background: var(--c-fill-soft); }
+.tp-cal-d.is-start, .tp-cal-d.is-end { color: var(--c-on-dark); font-weight: var(--fw-bold); }
+.tp-cal-d.is-start::before, .tp-cal-d.is-end::before { background: var(--c-btn); inset: 2px; border-radius: 50%; }
+.tp-cal-d.is-start.is-match::after, .tp-cal-d.is-end.is-match::after { background: var(--c-on-dark); }
+.tp-cal-g { isolation: isolate; }
+.tp-cal-d:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; border-radius: 8px; }
+.tp-days-sum { margin: var(--space-3) 0 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.tp-days-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); }
+.tp-days-acts .tp-pill[disabled] { opacity: .4; cursor: default; }
+.tp-days-acts .tp-pill .tp-ico { margin-right: 6px; }

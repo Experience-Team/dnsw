@@ -111,7 +111,7 @@
      person's days in NSW once given) and one way on, Pick your team to tailor this, instead of every match at once. */
   function teaser() { return !tp.own(); }
   function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
-  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Pick your teams to tailor this</button></p>';
+  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Go up to pick your teams</button></p>'; // says where it goes: the one control here that moves the page (16 Nov)
 
   /* ---------- Where to watch ---------- */
   var watchAll = false;
@@ -448,17 +448,10 @@
     h += '<div class="tp-pm-acts"><span class="tp-pm-full" role="link" aria-disabled="true">Learn more on Practical info</span><span class="tp-pm-soon">Not linked yet</span></div></div>';
     return h;
   }
-  // Add where you're staying: the Refine panel opens on the page, at the staying question
-  function openStaying() {
+  // Add where you're staying: the staying question in a sheet, where they are (it jumped down to Your days)
+  function openStaying(opener) {
     if (!tp.own()) return;
-    refineOpen = true;
-    if (tp.closeTimeline) tp.closeTimeline();
-    render(true);
-    var q = ask.querySelector('#tp-q-base') || ask;
-    var top = q.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    var el = ask.querySelector('[data-base][aria-pressed="true"]') || ask.querySelector('[data-base]') || q;
-    setTimeout(function () { el.focus({ preventScroll: true }); }, 30);
+    openDays(true, opener);
   }
   function matchBody(b, M) {
     var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
@@ -1193,14 +1186,15 @@
   tp.openSheet = function (id, opener) { openPm(id, opener, true); };
   tp.moveItem = moveItem; // the timeline's hold-and-drag
   function openPm(id, opener, stacked) {
-    var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0;
-    var x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
+    var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
+    var x = isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
-    var isRoute = x.type === 'route', asSheet = isMatch || isRoute;
-    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays;
+    pmOpenerEl = null;
+    pmBody.innerHTML = isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
@@ -1208,17 +1202,17 @@
       pmStacked = true;
       pm.classList.remove('is-sheet', 'is-open', 'is-closing');
       pm.classList.add('tp-stack', 'is-stacked');
-      pm.classList.toggle('is-match', isMatch);
+      pm.classList.toggle('is-match', isMatch || isDays);
       pm.hidden = false;
       void pm.offsetWidth;
       tp.stackOpen(pm, opener);
       pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-      tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
+      tp.say(isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
       notesRefresh();
       return;
     }
     pm.classList.remove('tp-stack', 'is-stacked');
-    pm.classList.toggle('is-match', isMatch);
+    pm.classList.toggle('is-match', isMatch || isDays);
     pm.classList.toggle('is-sheet', asSheet);
     pmScrim.hidden = !asSheet;
     // Everything behind waits; remember what was already inert so closing puts it back as it was
@@ -1226,7 +1220,7 @@
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
+    tp.say(isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
   function closePm() {
@@ -1245,12 +1239,123 @@
     }
     else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
     var el = back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
+    if (!el && pmOpenerEl && document.contains(pmOpenerEl)) el = pmOpenerEl;
     if (el) el.focus({ preventScroll: true });
   }
+  /* ---------- Your days, and where you're staying, in a sheet (16 Nov) ----------
+     Every way to the days from elsewhere on the page (Staying longer? Set your days, Set your days to see what fits,
+     Change, the timeline's Add your days) opens this sheet where the person is, instead of jumping the page down to
+     Your days: the calendar is inline (October and November 2027, the tournament and two days either side), their NSW
+     matches are marked, the first tap sets the first day and the second the last. Add where you're staying opens the
+     same sheet on the staying question. Nothing moves behind it, and closing returns focus to what opened it. */
+  var dsel = null, dStay = false, pmOpenerEl = null, pmAnchor = null;
+  // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
+  function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
+  function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
+  function dMatches() { var o = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
+  function calMonth(y, mo, ms) {
+    // Monday-first weeks; days outside 29 Sep to 15 Nov are shown but cannot be picked
+    var first = new Date(Date.UTC(y, mo, 1)), lead = (first.getUTCDay() + 6) % 7, days = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+    var name = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][mo];
+    var h = '<div class="tp-cal-m"><h4 class="tp-cal-h">' + name + ' ' + y + '</h4><div class="tp-cal-g" role="group" aria-label="' + name + ' ' + y + '">' +
+      ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(function (d) { return '<span class="tp-cal-wd" aria-hidden="true">' + d + '</span>'; }).join('');
+    var start = Math.round((first - Date.UTC(2027, 9, 1)) / 864e5) - lead, cells = Math.ceil((lead + days) / 7) * 7;
+    cells = Math.min(cells, Math.ceil((RMAX - start + 1) / 7) * 7); // no weeks after 15 Nov
+    for (var k = 0; k < cells; k++) {
+      var d = start + k, dt = new Date(Date.UTC(2027, 9, 1 + d)), inMonth = dt.getUTCMonth() === mo;
+      if (!inMonth && !(mo === 9 && d >= RMIN && d < 0)) { h += '<span class="tp-cal-x" aria-hidden="true"></span>'; continue; }
+      var can = d >= RMIN && d <= RMAX, mm = ms[d] || [], a = dsel && dsel.a, z = dsel && dsel.z;
+      var st = dsel ? (d === a ? ' is-start' : '') + (z !== null && d === z ? ' is-end' : '') + (z !== null && d > a && d < z ? ' is-in' : '') : '';
+      var lbl = dayLabel(d) + (mm.length ? ', ' + mm.map(function (m) { return matchName(m.f); }).join(' and ') : '') + (dsel && d === a ? ', first day' : '') + (z !== null && dsel && d === z ? ', last day' : '');
+      h += can ? '<button type="button" class="tp-cal-d' + (mm.length ? ' is-match' : '') + (inMonth ? '' : ' is-other') + st + '" data-dday="' + d + '" aria-pressed="' + !!st + '" aria-label="' + esc(lbl) + '">' + dt.getUTCDate() + '</button>'
+        : '<span class="tp-cal-d is-off" aria-hidden="true">' + dt.getUTCDate() + '</span>';
+    }
+    return h + '</div></div>';
+  }
+  function pmDays() {
+    var t = trip() || {}, ms = dMatches(), has = !!(t.from && t.to);
+    var h = '<div class="plan-modal-body tp-days">';
+    if (dStay) {
+      var cur = t.base || '';
+      h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying?</h2><p class="tp-days-note">Optional. Ideas then start near it, and match days show your own way there and back.</p>' +
+        '<div class="tp-quick" role="group" aria-label="Where you’re staying">' + BASE_Q.map(function (x) { return chip('sbase', x[0], x[1], cur === x[0]); }).join('') + '</div>' +
+        (basePlace() && !BASE_Q.some(function (x) { return x[0] === cur; }) ? '<p class="tp-days-note">' + esc(baseLabel(cur)) + '</p>' : '') +
+        '<h3 class="tp-days-q">Who’s coming?</h3><div class="tp-quick" role="group" aria-label="Who’s coming">' + PARTY_Q.map(function (x) { return chip('sparty', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
+        '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
+      return h + '</div>';
+    }
+    var qm = quickRange('matches'), qw = quickRange('week');
+    var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-dquick="' + kind + '" aria-pressed="' + !!(dsel && dsel.z !== null && isoOf(dsel.a) === r.from && isoOf(dsel.z) === r.to) + '">' + label + '</button>' : ''; };
+    var n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
+    if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
+    var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
+      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW</h2><p class="tp-days-note">Optional. The ideas then fit around your matches' + (Object.keys(ms).length ? ', which are marked' : '') + '.</p>' +
+      (qm ? '<div class="tp-quick" role="group" aria-label="Quick picks">' + Q('matches', qm, 'Around my matches') + Q('week', qw, 'About a week') + '</div>' : '') +
+      '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
+      '<p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
+      '<div class="tp-days-acts"><button type="button" class="tp-pill tp-pill--dark" data-duse' + (n ? '' : ' disabled') + '>' + window.tpIcons.cal + 'Use these dates</button>' +
+      (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div>';
+    return h + '</div>';
+  }
+  function openDays(stay, opener) {
+    dStay = !!stay; dsel = dRange();
+    var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
+    openPm(stay ? 'days:stay' : 'days', opener, overTl);
+    pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
+  }
+  // Setting the days rebuilds the sections above the link that opened the sheet; the page is held so that link (now
+  // Change) stays exactly where it was on screen, and focus goes back to it
+  function holdPlace(fn) {
+    var op = pmOpenerEl, sel = op && op.closest('#tp-third-trip') ? '#tp-third-trip [data-act="trip"]' : op && op.closest('#tp-tl-daysline') ? '#tp-tl-daysline [data-act="days"]' : op && op.closest('#tp-ask') ? '#tp-ask [data-act="change"], #tp-ask .tp-ask-title' : null;
+    var an = pmAnchor && document.querySelector(pmAnchor), ref = op && document.contains(op) ? op : an;
+    var y0 = ref ? ref.getBoundingClientRect().top : null, inPage = ref && body.contains(ref);
+    fn();
+    var nu = sel && document.querySelector(sel);
+    if (!nu && op && document.contains(op)) nu = op;
+    if (!nu && pmAnchor) { var an2 = document.querySelector(pmAnchor); nu = an2 && (an2.querySelector('[data-go-stay], .tp-go-btn, button, a[href]') || an2); }
+    if (nu && y0 !== null && inPage) body.scrollTop += nu.getBoundingClientRect().top - y0;
+    if (nu) { pmOpenerEl = nu; requestAnimationFrame(function () { nu.focus({ preventScroll: true }); }); }
+  }
+  function daysRefresh(focusSel) {
+    pmBody.innerHTML = pmDays();
+    var el = focusSel && pm.querySelector(focusSel);
+    if (el && !el.disabled) el.focus({ preventScroll: true });
+  }
+  pm.addEventListener('click', function (e) {
+    if (!pmOpen || pmOpen.id.indexOf('days') !== 0) return;
+    var b = e.target.closest('[data-dday], [data-dquick], [data-duse], [data-dclear], [data-sbase], [data-sparty], [data-dclose]'); if (!b) return;
+    var t = trip() || {};
+    if (b.dataset.dday !== undefined) {
+      var d = +b.dataset.dday;
+      if (!dsel || dsel.z !== null || d < dsel.a) dsel = { a: d, z: null }; else dsel.z = d;
+      daysRefresh('[data-dday="' + d + '"]');
+      tp.say(dsel.z === null ? 'First day ' + dayLabel(d) + '. Now pick your last day.' : 'Last day ' + dayLabel(d) + '. ' + tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.');
+      return;
+    }
+    if (b.dataset.dquick) { var r = quickRange(b.dataset.dquick); if (r) dsel = { a: tp.isoDay(r.from), z: tp.isoDay(r.to) }; daysRefresh('[data-dquick="' + b.dataset.dquick + '"]'); return; }
+    if (b.hasAttribute('data-duse')) {
+      if (!dsel || dsel.z === null) return;
+      var from = isoOf(dsel.a), to = isoOf(dsel.z);
+      askEditing = false; askDraft = null; askError = ''; askOwn = true;
+      holdPlace(function () { tp.setTrip({ from: from, to: to, base: t.base, party: t.party }); });
+      closePm(); tp.say('Your days: ' + tp.isoRange(from, to) + '.');
+      return;
+    }
+    if (b.hasAttribute('data-dclear')) {
+      askEditing = false; askDraft = null; askError = ''; askOwn = true; dsel = null;
+      holdPlace(function () { tp.setTrip({ base: t.base, party: t.party }); }); closePm(); tp.say('Your days are removed.'); return;
+    }
+    if (b.dataset.sbase !== undefined) { var v = t.base === b.dataset.sbase ? undefined : b.dataset.sbase; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: v, party: t.party }); }); daysRefresh('[data-sbase="' + CSS.escape(b.dataset.sbase) + '"]'); tp.say(v ? baseLabel(v) + '.' : 'Where you’re staying is removed.'); return; }
+    if (b.dataset.sparty !== undefined) { var pv = t.party === b.dataset.sparty ? undefined : b.dataset.sparty; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, party: pv }); }); daysRefresh('[data-sparty="' + CSS.escape(b.dataset.sparty) + '"]'); return; }
+    if (b.hasAttribute('data-dclose')) closePm();
+  });
+
   phone.addEventListener('click', function (e) {
     var o = e.target.closest('[data-open]');
     if (o && !pm.contains(o)) { openPm(o.dataset.open, o); return; }
-    if (e.target.closest('[data-go-stay]') && !pm.contains(e.target)) { openStaying(); return; }
+    var gs = e.target.closest('[data-go-stay]');
+    if (gs && !pm.contains(e.target)) { openStaying(gs); return; }
   });
   pm.addEventListener('click', function (e) {
     if (e.target.closest('[data-pm-close]')) { closePm(); return; }
@@ -1336,17 +1441,13 @@
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
     if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say('Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
-    // Going? Mark your ticket on the match: to that match's I have a ticket in Your matches, else its own sheet
+    // Going? Mark your ticket on the match: the match's own sheet opens over the page, at its I have a ticket (it used
+    // to scroll the page up to the match card in Your matches, a jump nobody asked for)
     var gk = e.target.closest('[data-going-mark]');
     if (gk) {
       var km = tp.match(gk.dataset.goingMark); if (!km) return;
-      var box = km.tkey && document.querySelector('#tp-deck input[data-match="' + CSS.escape(km.tkey) + '"]');
-      if (!box || document.getElementById('tp-results').hidden) { openPm('match:' + km.key, gk); return; }
-      var card = box.closest('.tp-rcard'), deck = document.getElementById('tp-deck');
-      if (card) deck.scrollTo({ left: card.offsetLeft - deck.offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
-      var top = box.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 120;
-      body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-      setTimeout(function () { box.focus({ preventScroll: true }); }, reduce.matches ? 0 : 450);
+      openPm('match:' + km.key, gk); pmOpenerEl = gk;
+      var tb2 = pm.querySelector('[data-pm-ticket]'); if (tb2) tb2.focus({ preventScroll: true });
       tp.say(matchName(km.f) + ': tick I have a ticket if you are going.');
       return;
     }
@@ -1655,17 +1756,11 @@
     var el = focusSel && ask.querySelector(focusSel);
     if (el) el.focus({ preventScroll: true });
   }
-  /* Every way to the days (Set your days, Change, the timeline's line): down to the days on the page, open, focus on
-     the first day. With the timeline open it closes first. */
-  function openAsk(dates) {
+  /* Every way to the days from elsewhere (Set your days, Change, the timeline's line) opens them in a sheet where the
+     person is; the page no longer jumps down to Your days (agreed 16 Nov) */
+  function openAsk(dates, opener) {
     if (!tp.own()) return;
-    askEditing = true;
-    if (tp.closeTimeline) tp.closeTimeline();
-    render(true);
-    var top = ask.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    var el = ask.querySelector(dates === false ? '#tp-ask-title' : '#tp-from') || ask;
-    setTimeout(function () { el.focus({ preventScroll: true }); }, 30);
+    openDays(false, opener);
   }
   phone.addEventListener('tp:ask', function () { openAsk(true); });
   /* The line under Suits your 3rd half: your days and Change, or the way to set them. Nothing guessed. */
@@ -1692,7 +1787,7 @@
   }
   phone.addEventListener('click', function (e) {
     var tb = e.target.closest('#tp-third-trip [data-act="trip"], #tp-tl-daysline [data-act="days"]');
-    if (tb) openAsk(true);
+    if (tb) openAsk(true, tb);
   });
 
   // From the results' interstate note: down to the screenings of their matches
