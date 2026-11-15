@@ -35,6 +35,8 @@
     // Add, remove, and added (an add toggle that is on: pressing it again removes): outline circles, in the text colour
     add: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg>',
     remove: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M4.75 8h6.5"/></svg>',
+    // A ticket (as on the timeline's ticket marker), outline, in the text colour
+    ticket: '<svg class="tp-ico tp-ico-circ tp-ico-ticket" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z"/></svg>',
     added: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M5 8.2l2 2 4-4.2"/></svg>'
   };
   var body = document.querySelector('#tp-phone .cn-body');
@@ -86,7 +88,7 @@
   var KEY = 'tp-pick-v1';
   // added: things put on the timeline (screenings, the village, products); trip: the one optional question's answer
   // tab: which of Your matches and All matches is chosen once a team is picked (kept, like everything else, on reload)
-  var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: false, city: null }, interstate: false };
+  var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: true, city: null, v: 2 }, interstate: false, view: 'fan', nswMark: false, notGoing: [] };
   try {
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
     var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
@@ -95,13 +97,32 @@
       state.tickets = Array.isArray(rec.tickets) ? rec.tickets.filter(function (x) { return typeof x === 'string'; }) : [];
       if (rec.tab === 'all') state.tab = 'all';
     }
-    // All matches filter: In NSW only, then one host city (kept on reload)
-    if (rec && rec.allFilter && rec.allFilter.nsw === true) state.allFilter = { nsw: true, city: typeof rec.allFilter.city === 'string' ? rec.allFilter.city : null };
+    // All matches filter: In NSW (default) or All, then one host city with In NSW (kept on reload)
+    // In NSW is the default (v2); a choice saved before that, when All was the default, is not carried over
+    if (rec && rec.allFilter && rec.allFilter.v === 2) state.allFilter = { nsw: rec.allFilter.nsw !== false, city: rec.allFilter.nsw !== false && typeof rec.allFilter.city === 'string' ? rec.allFilter.city : null, v: 2 };
     // Show interstate matches too (the open timeline's switch, with Every NSW match on)
     if (rec && rec.interstate === true) state.interstate = true;
+    // The picker: the fan or the grid, and whether cards of teams playing in NSW are marked (kept on reload)
+    if (rec && rec.view === 'grid') state.view = 'grid';
+    if (rec && rec.nswMark === true) state.nswMark = true;
+    // Matches they said No to on Going to this match? (the question is not asked again for those)
+    // Your days, in order as a map or a list (the section's switch); unset follows reduced motion
+    if (rec && (rec.dayView === 'map' || rec.dayView === 'list')) state.dayView = rec.dayView;
+    if (rec && Array.isArray(rec.notGoing)) state.notGoing = rec.notGoing.filter(function (x) { return typeof x === 'string'; });
     if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
-    if (rec && rec.trip && /^(visiting|local|unsure)$/.test(rec.trip.mode)) state.trip = rec.trip;
+    // The trip: your days (from, to), where you are staying (base) and who is coming (party), each optional. Saved before
+    // as a Visiting / local / not sure answer: a local becomes base local; not sure is dropped; days are kept
+    if (rec && rec.trip && typeof rec.trip === 'object') state.trip = normTrip({ from: rec.trip.from, to: rec.trip.to, base: rec.trip.base || (rec.trip.mode === 'local' ? 'local' : undefined), party: rec.trip.party });
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
+  // mode follows from the answers: local if staying is I'm a local, visiting once days are set; nothing else is assumed
+  function normTrip(t) {
+    if (!t) return null;
+    var o = {};
+    ['from', 'to', 'base', 'party'].forEach(function (k) { if (typeof t[k] === 'string' && t[k]) o[k] = t[k]; });
+    if (!o.from || !o.to) { delete o.from; delete o.to; }
+    o.mode = o.base === 'local' ? 'local' : o.from ? 'visiting' : undefined;
+    return Object.keys(o).some(function (k) { return o[k]; }) ? o : null;
+  }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   // Tells the annotation layer (prototype-pick-your-team.html) that what is on screen has changed
   // Tells the annotation layer that what is on screen has changed
@@ -119,6 +140,9 @@
   function isPicked(c) { return state.picked.indexOf(c.name) > -1; }
   // A team with no pool match in NSW is not a dead end: its fans can watch in NSW and go to the NSW matches
   function lowerFirst(t) { return t.charAt(0).toLowerCase() + t.slice(1); }
+  // A team with few or no pool matches in NSW: pair the count with what NSW has for everyone
+  var NSW_PLUS = 'plus the knockouts, the final and screenings of every match';
+  function nswCount(c) { return c.nsw > 1 ? c.nsw + ' in NSW' : (c.nsw === 1 ? '1 in NSW, ' : 'none in NSW, ') + NSW_PLUS; }
   function nswLine(c) { return c.rugby ? 'Every match in NSW' : c.nsw ? c.nsw + (c.nsw === 1 ? ' match' : ' matches') + ' in NSW' : 'Plays interstate; watch in NSW'; }
   function esc(x) { return String(x).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
   function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
@@ -134,14 +158,17 @@
   var GAP = 5;
   function angleOf(rel) { return rel * STEP + Math.max(-1, Math.min(1, rel)) * GAP; }
   var TICK = '<svg class="tp-card-tick" width="14" height="12" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+  // Cards show the team only (no pool or match info). With Plays in NSW on, teams with a match in NSW get a small marker
+  var NSW_MARK = '<span class="tp-nsw-mark" aria-hidden="true">NSW</span>';
+  function cardLabel(c) { return c.rugby ? c.name + ', no team, see every match in NSW' : c.name + (state.nswMark && c.nsw > 0 ? ', plays in NSW' : ''); }
   function front(c) {
     // The code stays alone at the top left, so it shows on cards the next card overlaps; the flag sits with the name
     return '<span class="tp-card-code">' + esc(c.code) + '</span><span class="tp-card-name">' + (FLAG[c.name] ? '<span class="tp-card-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') + esc(c.name) + '</span>' +
-      '<span class="tp-card-meta">' + (c.rugby ? 'No team' : esc(c.pool)) + '<br>' + esc(nswLine(c)) + '</span>';
+      (c.nsw > 0 ? NSW_MARK : '');
   }
   fan.innerHTML = CARDS.map(function (c, i) {
     return '<button type="button" class="tp-card' + (c.rugby ? ' tp-card--rugby' : '') + '" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
-      esc(c.name + ', ' + (c.rugby ? 'no team, see every match in NSW' : c.pool + ', ' + lowerFirst(nswLine(c)))) + '">' + front(c) + TICK + '</button>';
+      esc(cardLabel(c)) + '">' + front(c) + TICK + '</button>';
   }).join('');
   var cards = Array.prototype.slice.call(fan.children);
   /* seq: the cards in the hand, in order (all of them, or only teams playing in NSW, see "In NSW" below). offset counts
@@ -276,9 +303,9 @@
   function pickLine(c, on) {
     if (!on) return c.name + ' removed';
     if (c.rugby) return 'Every NSW match added: ' + countPhrase(nswPool.concat(nswKo));
-    return c.name + ' added: ' + countPhrase(c.matches) + ', ' + (c.nsw ? c.nsw + ' in NSW' : 'all interstate');
+    return c.name + ' added: ' + countPhrase(c.matches) + ', ' + nswCount(c);
   }
-  var CAPTION_REST = 'Tap a card to add its matches. Tap it again to take it off.';
+  var CAPTION_REST = 'Tap a card to add its matches to your plan';
   // undo: a function, to offer Undo in the caption for a few seconds (after Clear all)
   var undoTimer = 0;
   function showCaption(lead, rest, note, undo) {
@@ -396,7 +423,7 @@
      go through the same toggle(), so picks, Undo, the timeline, saving and the Your teams sheet behave the same.
      Geometry from the Figma frame (462 wide), scaled to the phone: per-column angles, a 214px radius, rows 67px apart. */
   var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2'), fanWrap = root.querySelector('.tp-fan-wrap');
-  var cards2 = null, f2Dealt = false, f2Focus = 0;
+  var cards2 = null, f2Dealt = false, f2Focus = 0, viewLabel = function () {}, syncNswMark = function () {};
   var F2 = { s: .82, angles: [-47.9, -33.5, -15.6, 1.6, 18.8, 36.0], px: 257.7, py: 311.2, row: 67.2, r: 214, w: 70, h: 107, x0: 18, y0: 40, pad: 13, top: 8, lift: 10 };
   function fanVariant() {
     var m = /[?&]fan=(classic|stacked)\b/.exec(location.search), v = m && m[1];
@@ -405,13 +432,15 @@
   }
   var variant = fan2 ? fanVariant() : 'classic';
   function stacked() { return variant === 'stacked' && !!fan2; }
-  function handFocusEl() { return stacked() ? fan2.querySelector('.tp-card2[tabindex="0"]') : midCard(); }
-  function handWrap() { return stacked() ? fan2Wrap : fanWrap; }
+  function handFocusEl() { return stacked() || grid() ? fan2.querySelector('.tp-card2[tabindex="0"]') : midCard(); }
+  function handWrap() { return stacked() || grid() ? fan2Wrap : fanWrap; }
   if (fan2) {
     fan2.innerHTML = CARDS.map(function (c, i) {
       return '<button type="button" class="tp-card2" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
-        esc(c.name + ', ' + c.pool + ', ' + lowerFirst(nswLine(c))) + '"><span class="tp-card2-code">' + esc(c.code) + '</span>' +
-        (FLAG[c.name] ? '<span class="tp-card2-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') + TICK + '</button>';
+        esc(cardLabel(c)) + '"><span class="tp-card2-code">' + esc(c.code) + '</span>' +
+        (FLAG[c.name] ? '<span class="tp-card2-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') +
+        // The full name shows in the grid only (the fan's cards are too narrow for it at 14px)
+        '<span class="tp-card2-name" aria-hidden="true">' + esc(c.name) + '</span>' + (c.nsw > 0 ? NSW_MARK : '') + TICK + '</button>';
     }).join('');
     cards2 = Array.prototype.slice.call(fan2.children);
   }
@@ -423,6 +452,14 @@
     var px = (F2.px - F2.x0) * s + F2.pad, py = (F2.py - F2.y0) * s + F2.top + row * F2.row * s;
     return { left: px - w / 2, top: py - r - h / 2, w: w, h: h, ox: w / 2, oy: h / 2 + r, a: a, z: row * 10 + col };
   }
+  /* The grid: the same cards, upright, four to a row in alphabetical order, each wide enough for the full name */
+  var G = { cols: 4, gap: 8, h: 106, x0: 16, y0: 8 }; // 106px: room for a three-line name (Hong Kong China in the system font)
+  function grid() { return state.view === 'grid'; }
+  function slotGrid(k) {
+    var w = (fan2Wrap.clientWidth - G.x0 * 2 - G.gap * (G.cols - 1)) / G.cols, row = Math.floor(k / G.cols), col = k % G.cols;
+    return { left: G.x0 + col * (w + G.gap), top: G.y0 + row * (G.h + G.gap), w: w, h: G.h, ox: w / 2, oy: G.h / 2, a: 0, z: k };
+  }
+  function gridHeight(n) { return G.y0 * 2 + Math.ceil(n / G.cols) * (G.h + G.gap) - G.gap; }
   function sync2(animate) {
     if (!cards2) return;
     var vis = seq.filter(function (i) { return true; }), n = vis.length;
@@ -434,26 +471,28 @@
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       b.tabIndex = k === f2Focus ? 0 : -1;
       if (k < 0) return; // a card out of the hand (In NSW on) keeps its last place and fades
-      var sl = slot2(k, n);
+      var sl = grid() ? slotGrid(k) : slot2(k, n);
       if (!animate) b.style.transition = 'none';
       b.style.left = sl.left.toFixed(1) + 'px'; b.style.top = sl.top.toFixed(1) + 'px';
       b.style.width = sl.w.toFixed(1) + 'px'; b.style.height = sl.h.toFixed(1) + 'px';
       b.style.transformOrigin = sl.ox.toFixed(1) + 'px ' + sl.oy.toFixed(1) + 'px';
-      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on ? -F2.lift : 0) + 'px)';
+      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on && !grid() ? -F2.lift : 0) + 'px)';
       b.style.zIndex = sl.z;
       if (!animate) { void b.offsetWidth; b.style.transition = ''; }
     });
   }
-  function showVariant() {
+  function showVariant(animate) {
     if (!fan2) return;
-    fan2Wrap.hidden = !stacked();
-    fanWrap.hidden = stacked();
+    fan2Wrap.hidden = !stacked() && !grid();
+    fanWrap.hidden = stacked() || grid();
+    fan2Wrap.classList.toggle('is-grid', grid());
+    fan2Wrap.style.height = grid() ? gridHeight(seq.length) + 'px' : '';
     var help = document.getElementById('tp-fan-help'), help2 = document.getElementById('tp-fan2-help');
     if (help) help.hidden = stacked(); if (help2) help2.hidden = !stacked();
     var sw = document.getElementById('tp-fan-toggle');
     if (sw) sw.setAttribute('aria-checked', stacked() ? 'true' : 'false');
-    sync2(false);
-    if (stacked()) deal2(); else watchDeal();
+    sync2(!!animate);
+    if (stacked() || grid()) deal2(); else watchDeal();
   }
   // The deal: the first time the stacked hand comes into view its cards come up into place, row by row
   function deal2() {
@@ -488,11 +527,11 @@
       toggle(i, b);
     });
     fan2.addEventListener('keydown', function (e) {
-      var k = e.key, n = seq.length, cur = f2Focus, to = null;
+      var k = e.key, n = seq.length, cur = f2Focus, to = null, rowN = grid() ? G.cols : 6; // a row of the grid, or of the hand
       if (k === 'ArrowRight') to = cur + 1;
       else if (k === 'ArrowLeft') to = cur - 1;
-      else if (k === 'ArrowDown') to = cur + 6 < n ? cur + 6 : cur;
-      else if (k === 'ArrowUp') to = cur - 6 >= 0 ? cur - 6 : cur;
+      else if (k === 'ArrowDown') to = cur + rowN < n ? cur + rowN : cur;
+      else if (k === 'ArrowUp') to = cur - rowN >= 0 ? cur - rowN : cur;
       else if (k === 'Home') to = 0;
       else if (k === 'End') to = n - 1;
       else if (/^[a-z]$/i.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -508,11 +547,54 @@
     if (fanSw) fanSw.addEventListener('click', function () {
       variant = stacked() ? 'classic' : 'stacked';
       try { localStorage.setItem('tp-fan-variant', variant); } catch (e) {}
-      showVariant();
+      showVariant(false);
       say(stacked() ? 'Showing the stacked hand (test).' : 'Showing the original fan.');
       notesOnly();
     });
-    showVariant();
+    /* Grid / Fan: the same 24 cards, laid out as a grid (upright, four to a row, full names) or as the hand. Picks stay.
+       The cards glide from one layout to the other, a few milliseconds apart in reading order, so the eye can follow
+       them; the box grows or shrinks with them. Reduced motion: the new layout appears at once. */
+    var viewBtn = document.getElementById('tp-view'), GRID_ICO = viewBtn ? viewBtn.querySelector('svg').outerHTML : '';
+    var VIEW_EASE = 'cubic-bezier(.45, .05, .25, 1)', viewTimer = 0;
+    viewLabel = function () {
+      if (!viewBtn) return;
+      viewBtn.innerHTML = (grid() ? window.tpIcons.fan : GRID_ICO) + '<span class="tp-view-l">' + (grid() ? 'Fan' : 'Grid') + '</span><span class="visually-hidden"> view of the teams</span>';
+    };
+    if (viewBtn) viewBtn.addEventListener('click', function () {
+      state.view = grid() ? 'fan' : 'grid';
+      save();
+      var glide = !reduce.matches && (stacked() || !fan2Wrap.hidden);
+      clearTimeout(viewTimer);
+      if (glide) cards2.forEach(function (b) {
+        var k = seq.indexOf(+b.dataset.i);
+        b.style.transition = ['left', 'top', 'width', 'height', 'transform', 'transform-origin'].map(function (pr) { return pr + ' 520ms ' + VIEW_EASE + ' ' + (Math.max(0, k) * 14) + 'ms'; }).join(', ') + ', background-color 120ms ease-out, color 120ms ease-out';
+      });
+      showVariant(glide);
+      if (glide) viewTimer = setTimeout(function () { cards2.forEach(function (b) { b.style.transition = ''; }); }, 520 + 24 * 14 + 60);
+      viewLabel();
+      say(grid() ? 'Showing the teams as a grid, with their names.' : 'Showing the teams as a fan.');
+      notesOnly();
+    });
+    viewLabel();
+    /* Plays in NSW: marks the cards of the teams with a match in NSW with a small NSW tag. Nothing is hidden or dimmed,
+       so a team that plays interstate can still be picked (its fans can watch in NSW) */
+    var nswSw = document.getElementById('tp-nswmark');
+    syncNswMark = function () {
+      if (!nswSw) return;
+      nswSw.setAttribute('aria-checked', state.nswMark ? 'true' : 'false');
+      root.querySelector('.tp-picker').classList.toggle('show-nsw', state.nswMark);
+      cards2.forEach(function (b) { b.setAttribute('aria-label', cardLabel(CARDS[+b.dataset.i])); });
+      cards.forEach(function (b) { b.setAttribute('aria-label', cardLabel(CARDS[+b.dataset.i])); });
+    };
+    if (nswSw) nswSw.addEventListener('click', function () {
+      state.nswMark = !state.nswMark;
+      save(); syncNswMark();
+      var n = CARDS.filter(function (c) { return !c.rugby && c.nsw > 0; }).length;
+      say(state.nswMark ? n + ' teams play a match in NSW; their cards are marked. Every team can still be picked.' : 'NSW marks off.');
+      notesOnly();
+    });
+    syncNswMark();
+    showVariant(false);
   }
 
   /* ---------- Finding your team ----------
@@ -573,7 +655,7 @@
     if (!findBox || !findBox.hidden) { if (findIn) findIn.focus(); return; }
     if (findAnim) findAnim.cancel();
     findBox.hidden = false; findOpen.setAttribute('aria-expanded', 'true');
-    var head = root.querySelector('.tp-pick-head'), top = head.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    var head = root.querySelector('.tp-util'), top = head.getBoundingClientRect().top - body.getBoundingClientRect().top;
     if (top < 8 || top > 120) body.scrollTo({ top: Math.max(0, body.scrollTop + top - 16), behavior: reduce.matches ? 'auto' : 'smooth' });
     showKbd(true);
     if (!reduce.matches && findBox.animate) findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: .6 }, { clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.3, .4, .3, 1)' });
@@ -779,7 +861,7 @@
   function tsOpen(opener) {
     if (!tlOpen) return;
     // The title matches the way in: Pick your team with nothing picked, Change your teams after. Set on open, never mid-edit
-    document.getElementById('tp-ts-title').textContent = state.picked.length ? 'Change your teams' : 'Pick your team';
+    document.getElementById('tp-ts-title').textContent = state.picked.length ? 'Change your teams' : 'Pick your teams';
     tsFind.value = ''; tsBuild(); tsSync(); tsFilter();
     clearTimeout(tsNoteT); tsNoteEl.textContent = '';
     document.getElementById('tp-ts-body').scrollTop = 0;
@@ -906,7 +988,7 @@
       var at = seen[idOf(f)];
       if (at && at !== c.name) elsewhere.push([f, at]); else { own.push(f); seen[idOf(f)] = c.name; }
     });
-    var head = c.rugby ? countPhrase(nswPool.concat(nswKo)) + ' in NSW' : c.pool + ' &middot; ' + countPhrase(c.matches) + ', ' + c.nsw + ' in NSW';
+    var head = c.rugby ? countPhrase(nswPool.concat(nswKo)) + ' in NSW' : c.pool + ' &middot; ' + countPhrase(c.matches) + ', ' + esc(nswCount(c));
     var moved = elsewhere.map(function (x) { return '<p class="tp-m-moved">' + esc(x[0].d) + ', v ' + esc(x[0].t.split(' v ').filter(function (n) { return n !== c.name; })[0]) + ': on your ' + esc(x[1]) + ' card.</p>'; }).join('');
     return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div>' +
       (isNew ? '<span class="tp-rcard-new">Just added</span>' : '') + '</div>' +
@@ -1036,7 +1118,7 @@
   var allSec = document.getElementById('tp-all');
   function minutes(k) { var m = /^(\d+):(\d+)(am|pm)$/.exec(k || ''); return m ? ((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] : 24 * 60; }
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
-  // Host venues (cnVenues): nsw drives In NSW only, city the city chips. A fixture whose venue is not in the list
+  // Host venues (cnVenues): nsw drives In NSW, city the city control. A fixture whose venue is not in the list
   // falls back to the fixture's own marker (a: a city outside NSW)
   var allReset = null; // set below: back to every match, filter off (the reset needs it from outside the block)
   var VENUES = {}; (window.cnVenues || []).forEach(function (v) { VENUES[v.stadium] = v; });
@@ -1055,7 +1137,16 @@
     }
     var allScroll = document.getElementById('tp-all-scroll'), allBtns = [], allAt = 0;
     var allNote = document.getElementById('tp-all-note'), allHint = document.getElementById('tp-all-hint');
-    var allEmpty = document.getElementById('tp-all-empty'), nswChip = document.getElementById('tp-all-nsw'), cityBox = document.getElementById('tp-all-cities');
+    var allEmpty = document.getElementById('tp-all-empty'), scopeBox = document.getElementById('tp-all-scope'), cityBox = document.getElementById('tp-all-cities');
+    // In NSW | All: the same segmented control as the cities (no counts, so it and the cities fit one row at 390px;
+    // the line under it gives the count); one is always chosen
+    var scopeThumb = scopeBox.querySelector('.tp-seg-thumb');
+    function placeScope(instant) {
+      var on = scopeBox.querySelector('[aria-pressed="true"]'); if (!on) return;
+      if (instant) scopeThumb.style.transition = 'none';
+      scopeThumb.style.left = on.offsetLeft + 'px'; scopeThumb.style.width = on.offsetWidth + 'px';
+      if (instant) { void scopeThumb.offsetWidth; scopeThumb.style.transition = ''; }
+    }
     // The NSW host cities, from the fixtures, each with its count (most matches first, then name)
     var CITIES = {};
     ALL.forEach(function (f) { var c = cityOf(f); if (c) CITIES[c] = (CITIES[c] || 0) + 1; });
@@ -1098,7 +1189,9 @@
       allEmpty.hidden = !none;
       if (none) document.getElementById('tp-all-empty-text').textContent = 'No matches ' + (fl.city ? 'in ' + fl.city : 'in NSW') + '.';
       allScroll.setAttribute('aria-label', (fl.nsw ? allWhat(shown.length) : 'All matches') + ', five to a column. Arrow keys move between matches.');
-      nswChip.setAttribute('aria-pressed', fl.nsw ? 'true' : 'false');
+      var scopeWas = scopeBox.querySelector('[aria-pressed="true"]');
+      scopeBox.querySelectorAll('[data-scope]').forEach(function (b) { b.setAttribute('aria-pressed', (b.dataset.scope === 'nsw') === fl.nsw ? 'true' : 'false'); });
+      placeScope(!scopeWas || scopeBox.offsetWidth === 0);
       cityBox.querySelectorAll('[data-city]').forEach(function (b) { b.setAttribute('aria-pressed', fl.city === b.dataset.city ? 'true' : 'false'); });
       if (!cityBox.hidden) placeThumb();
       markRows();
@@ -1125,9 +1218,11 @@
         if (lastA) lastA.onfinish = function () { cityBox.hidden = true; cityAnims.forEach(function (a) { a.cancel(); }); cityAnims = []; };
       }
     }
-    nswChip.addEventListener('click', function () {
-      var on = !state.allFilter.nsw;
-      state.allFilter = { nsw: on, city: null }; // off clears the city too
+    scopeBox.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-scope]'); if (!b) return;
+      var on = b.dataset.scope === 'nsw';
+      if (on === state.allFilter.nsw) return; // already chosen: nothing changes
+      state.allFilter = { nsw: on, city: null, v: 2 }; // All clears the city too
       save(); showCities(on); renderAll(true); notesOnly();
     });
     cityBox.addEventListener('click', function (e) {
@@ -1137,12 +1232,14 @@
       save(); renderAll(true); notesOnly();
     });
     document.getElementById('tp-all-empty-clear').addEventListener('click', function () {
-      state.allFilter = { nsw: false, city: null };
-      save(); showCities(false, true); renderAll(true); nswChip.focus({ preventScroll: true }); notesOnly();
+      state.allFilter = { nsw: false, city: null, v: 2 };
+      save(); showCities(false, true); renderAll(true); scopeBox.querySelector('[data-scope="all"]').focus({ preventScroll: true }); notesOnly();
     });
     showCities(state.allFilter.nsw, true);
     renderAll(false);
-    allReset = function () { showCities(false, true); renderAll(false); };
+    // The thumbs are measured from the labels, so measure again once the web fonts are in (high fidelity)
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { placeScope(true); if (!cityBox.hidden) placeThumb(); });
+    allReset = function () { showCities(state.allFilter.nsw, true); renderAll(false); };
     /* One tab stop for the whole list (it was 44): the current row is in the tab order, the arrow keys move between
        rows (down and right forward, up and left back; Home and End), and the list slides to keep it in view */
     allScroll.addEventListener('focusin', function (e) { var k = allBtns.indexOf(e.target); if (k > -1 && k !== allAt) { allBtns[allAt].tabIndex = -1; allAt = k; e.target.tabIndex = 0; } });
@@ -1186,7 +1283,7 @@
      have scrolled past the top of the phone), collapsed (the 88px bar) and open (the sheet risen by its panel height).
      Only transform moves it. Matches only: every match with no team or after Skip, every NSW match for Here for the
      rugby, and only the picked teams' matches, live as picks change. The All matches list stays unfiltered.
-     Fan zones and the village are gap data from cnWatchSpots (real places, indicative screenings). The number badge counts items added to
+     Where to watch venues are placeholders from cnWatchVenues (gap data, clearly marked). The number badge counts items added to
      the timeline; none exist yet, so only the reviewer-only stand-in control can show it. */
   var tl = document.getElementById('tp-tl');
   var tlInter = document.getElementById('tp-tl-inter'), tlInterBtn = document.getElementById('tp-inter');
@@ -1209,6 +1306,9 @@
   };
   var DAYS = 44, DAYW = 40, PADX = 28, BAR = 88;
   var tlOn = false, tlOpen = false, tlSel = -1, tlSelItem = null;
+  // Free days on the axis: a + per free day (from Your days, in order), opening that day's ideas inside the sheet
+  var tlFreeInfo = [], tlFreeEls = {}, tlPerDay = {}, tlFreeOpen = null, tlSelFree = null;
+  var tlIdeasEl = document.getElementById('tp-tl-ideas');
   function dayOf(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + (+p[1]) - 1; } // 1 Oct is day 0, 13 Nov day 43
   // Trip dates are ISO (2027-10-03); day numbers count from 1 Oct 2027 (a Friday)
   function isoDay(iso) { var p = iso.split('-'); return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - Date.UTC(2027, 9, 1)) / 864e5); }
@@ -1377,8 +1477,9 @@
     tlClashEl.innerHTML = hatch;
     Object.keys(tlItemEls).forEach(function (id) { if (!keep[id]) { if (tlItemEls[id] !== tlCarry) tlItemEls[id].remove(); delete tlItemEls[id]; if (tlSelItem === id) tlSelItem = null; } });
     // Visiting with dates: the days in NSW are shaded on the axis
-    var trip = state.trip, confirmed = trip && trip.mode === 'visiting' && trip.from && trip.to;
-    var guess = !confirmed && trip && trip.mode === 'visiting' ? inferTrip() : null, stay = confirmed ? trip : guess;
+    // Your days as set; nothing is guessed any more (the band shows only once days are chosen)
+    var trip = state.trip, confirmed = !!(trip && trip.from && trip.to);
+    var guess = null, stay = confirmed ? trip : null;
     tlStay.hidden = !stay;
     tlStay.classList.toggle('is-suggested', !!guess);
     if (stay) {
@@ -1397,11 +1498,13 @@
         tlStripStay.style.right = Math.max(0, 100 - (sz + .5) / (DAYS - 1) * 100) + '%';
       }
     }
+    tlPerDay = {}; Object.keys(perDay).forEach(function (d) { tlPerDay[d] = perDay[d]; });
     // The canvas is as tall as the tallest day shown: 50px for the axis and dates, 28px a row, 10px above
     var rows = 1; Object.keys(perDay).forEach(function (d) { rows = Math.max(rows, perDay[d]); });
     // A longer trip's span runs along the top, so the canvas makes room for it above the markers
     var spans = state.added.some(function (it) { return it.kind === 'trip' && it.nights > 0; });
     tlCanvas.style.height = (60 + rows * 32 + (spans ? 34 : 0)) + 'px';
+    if (!own()) dayType = {}; // empty plan: no match dots on the bar's strip (the open timeline still previews them)
     tlDotEls.forEach(function (el, i) {
       var t = dayType[i];
       el.className = 'tp-tl-dot' + (t === undefined && !itemDays[i] ? ' is-off' : t === undefined ? ' is-item' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '') + (itemDays[i] && t !== undefined ? ' has-item' : '');
@@ -1410,17 +1513,24 @@
     // by the page's one counting rule (as the tab, the summary and the Your teams sheet); your days are a small note under
     // the strip; what you added is on the badge only; clashes show on the strip (and are named in the open timeline)
     var teams = tlTeams(), none = !state.picked.length;
-    var label = none ? 'Pick your team' : isPicked(RUGBY) ? 'Every NSW match' : 'Your teams: ' + list(teams);
+    var label = none ? 'Your plan' : isPicked(RUGBY) ? 'Every NSW match' : 'Your teams: ' + list(teams);
     var added = state.added.length;
-    tlLabel.textContent = label;
-    tlLabel.classList.toggle('is-hook', none);
+    // Two or more teams: flags and codes, so the header fits and still shows what they chose (full names for screen readers)
+    if (!none && !isPicked(RUGBY) && teams.length > 1) {
+      var vis = teams.slice(0, 4), more = teams.length - vis.length;
+      var lh = vis.map(function (n) { return '<span class="tp-tl-lteam">' + (FLAG[n] || '') + esc(TEAMS[n] ? TEAMS[n].code : n) + '</span>'; }).join('') + (more ? '<span class="tp-tl-lteam">+' + more + '</span>' : '');
+      lh = '<span aria-hidden="true" class="tp-tl-lteams">' + lh + '</span><span class="visually-hidden">' + esc(label) + '</span>';
+      if (tlLabel.innerHTML !== lh) tlLabel.innerHTML = lh;
+    } else tlLabel.textContent = label;
+    tlLabel.classList.toggle('is-hook', false);
     var fsAll = shown.map(function (m) { return m.f; }), inNsw = fsAll.filter(function (f) { return !f.a; }).length;
-    setValue(fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + inNsw + ' in NSW' : 'No matches yet');
+    // Nothing of their own yet: the empty state, even though the open timeline previews every match
+    setValue(own() && fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + inNsw + ' in NSW' : 'No matches yet');
     if (tlDays) {
       if (confirmed) {
         var ca = isoDay(trip.from), cz = isoDay(trip.to), inDays = shown.filter(function (m) { return m.day >= ca && m.day <= cz; }).length;
         tlDays.textContent = (!shown.length ? 'Your days' : inDays === shown.length ? 'All in your days' : inDays + ' in your days') + ' \u00b7 ' + isoRange(trip.from, trip.to);
-      } else tlDays.textContent = shown.length ? tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : '';
+      } else tlDays.textContent = own() && shown.length ? tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : 'No matches yet';
     }
     // A clash marks its day on the strip
     var clashDays = {};
@@ -1459,6 +1569,7 @@
       (Object.keys(tlClash).length ? '<li><span class="tp-tl-key-clash" aria-hidden="true"></span>Clash: two things on one day</li>' : '');
     // A selected match that is no longer shown is let go
     if (tlSel > -1 && !TLM[tlSel].vis) tlSel = -1;
+    tlFreeDraw();
     tlRenderDetail();
   }
   // Every marker shown, matches and added items, in the order of the axis: by day, then bottom to top
@@ -1466,15 +1577,125 @@
     var els = [];
     TLM.forEach(function (m) { if (m.vis) els.push(m.el); });
     Object.keys(tlItemEls).forEach(function (id) { els.push(tlItemEls[id]); });
+    Object.keys(tlFreeEls).forEach(function (d) { els.push(tlFreeEls[d]); });
     return els.sort(function (a, b) { return a.offsetLeft - b.offsetLeft || (+a.style.getPropertyValue('--row') || 0) - (+b.style.getPropertyValue('--row') || 0); });
   }
-  function tlSelEl() { return tlSelItem ? tlItemEls[tlSelItem] : tlSel > -1 ? TLM[tlSel].el : null; }
+  function tlSelEl() { return tlSelFree && tlSelFree.isConnected ? tlSelFree : tlSelItem ? tlItemEls[tlSelItem] : tlSel > -1 ? TLM[tlSel].el : null; }
   function tlRoving() {
     var order = tlOrder(), sel = tlSelEl(), tab = sel || order[0];
     order.concat(TLM.filter(function (m) { return !m.vis; }).map(function (m) { return m.el; })).forEach(function (el) {
       el.tabIndex = el === tab ? 0 : -1;
-      el.setAttribute('aria-pressed', el === sel ? 'true' : 'false');
+      if (!el.dataset.free) el.setAttribute('aria-pressed', el === sel ? 'true' : 'false'); // a free day's + says expanded instead
     });
+  }
+  /* ---------- Free days on the axis ----------
+     Each free day in Your days, in order gets a + on the axis, with a short line above it (Free, and how many ideas;
+     Full once the day is filled). The + opens that day's ideas below the timeline, inside the sheet: nothing closes and
+     the page behind never moves. While ideas are open the axis sticks under the sheet's header, so an idea added from
+     the list can be seen landing on its day. The list itself is drawn by concepts-third-half.js (the same ideas, the
+     same Fits [day] rules and the same Add buttons as the page, so the two stay in step). */
+  function tlKeepInView(el) {
+    var x = el.offsetLeft;
+    if (x < tlScroll.scrollLeft + 40 || x > tlScroll.scrollLeft + tlScroll.clientWidth - 40) tlScroll.scrollTo({ left: Math.max(0, x - tlScroll.clientWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
+  }
+  var PLUS = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3.5v9M3.5 8h9"/></svg>';
+  function tlFreeDraw() {
+    var keep = {}, top = 0;
+    tlFreeInfo.forEach(function (fd) {
+      if (!(fd.d >= 0 && fd.d < DAYS)) return;
+      keep[fd.d] = true;
+      var el = tlFreeEls[fd.d];
+      if (!el) {
+        el = tlFreeEls[fd.d] = document.createElement('button');
+        el.type = 'button'; el.className = 'tp-tl-mk tp-tl-free'; el.dataset.free = fd.d; el.tabIndex = -1;
+        el.setAttribute('aria-controls', 'tp-tl-ideas');
+        el.innerHTML = '<span class="tp-tl-free-l" aria-hidden="true"></span><span class="cn-tl-sym tp-tl-free-sym">' + PLUS + '</span>';
+        el.style.left = (PADX + fd.d * DAYW) + 'px';
+        tlCanvas.appendChild(el);
+      }
+      var row = tlPerDay[fd.d] || 0; top = Math.max(top, row);
+      el.style.setProperty('--row', row);
+      var line = fd.filled ? 'Full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
+      el.querySelector('.tp-tl-free-l').innerHTML = 'Free<br>' + esc(line);
+      el.classList.toggle('is-full', !!fd.filled);
+      el.classList.toggle('is-open', tlFreeOpen === fd.d);
+      el.setAttribute('aria-expanded', tlFreeOpen === fd.d ? 'true' : 'false');
+      el.setAttribute('aria-label', fd.label + ', free day, ' + (fd.filled ? 'your day is full' : line) + (tlFreeOpen === fd.d ? '. Ideas shown below' : '. Show ideas'));
+    });
+    Object.keys(tlFreeEls).forEach(function (d) { if (!keep[d]) { if (tlFreeEls[d] === tlSelFree) tlSelFree = null; tlFreeEls[d].remove(); delete tlFreeEls[d]; } });
+    if (tlFreeOpen !== null && !keep[tlFreeOpen]) tlFreeShow(null);
+    // Room above the tallest + for its two-line label
+    if (Object.keys(keep).length) {
+      var need = 60 + (top + 1) * 32 + 28, cur = parseFloat(tlCanvas.style.height) || 0;
+      if (need > cur) tlCanvas.style.height = need + 'px';
+    }
+  }
+  function tlFreeShow(d) {
+    tlFreeOpen = d;
+    tlPanel.classList.toggle('has-ideas', d !== null);
+    if (tlIdeasEl) tlIdeasEl.hidden = d === null;
+    Object.keys(tlFreeEls).forEach(function (k) {
+      var on = +k === d; tlFreeEls[k].classList.toggle('is-open', on); tlFreeEls[k].setAttribute('aria-expanded', on ? 'true' : 'false');
+    });
+    phoneEl.dispatchEvent(new CustomEvent('tp:freeideas', { detail: { day: d } }));
+  }
+  function tlFreeToggle(d, opener) {
+    if (tlFreeOpen === d) { tlFreeShow(null); tlRoving(); return; }
+    var head = document.querySelector('.tp-tl-head');
+    tlPanel.style.setProperty('--tl-head-h', (head ? head.offsetHeight : 52) + 'px');
+    tlFreeShow(d);
+    tlRoving();
+    // The ideas sit just below the axis: scroll the sheet (never the page) only as far as needed to show their heading
+    var h = tlIdeasEl && tlIdeasEl.querySelector('.tp-tl-ideas-h');
+    if (h) {
+      var pr = tlPanel.getBoundingClientRect(), hr = h.getBoundingClientRect(), sr = tlScroll.getBoundingClientRect();
+      var stick = parseFloat(getComputedStyle(tlPanel).getPropertyValue('--tl-head-h')) - 8 + sr.height;
+      if (hr.bottom + 120 > pr.bottom) tlPanel.scrollTo({ top: tlPanel.scrollTop + (hr.top - pr.top) - stick - 12, behavior: reduce.matches ? 'auto' : 'smooth' });
+      h.focus({ preventScroll: true });
+    }
+    if (opener) tlKeepInView(opener);
+  }
+  window.tpFreeApi = {
+    set: function (list) { tlFreeInfo = list || []; tlFreeDraw(); tlRoving(); },
+    close: function (focusPlus) { var d = tlFreeOpen; tlFreeShow(null); tlRoving(); if (focusPlus && d !== null && tlFreeEls[d]) tlFreeEls[d].focus({ preventScroll: true }); },
+    go: function (d) { var el = tlFreeEls[d]; if (el) { tlPick(el, false); tlFreeToggle(d, el); } },
+    open: function () { return tlFreeOpen; }
+  };
+  /* An idea added from the sheet: its marker flies from the Add button up to its day on the axis (an even ease, so the
+     eye can follow it), arrives lifted and larger, above its neighbours, then settles with a ring. Reduced motion: the
+     marker simply appears with the ring held for a moment. */
+  function tlLand(id, from) {
+    var el = tlItemEls[id]; if (!el || !from) return;
+    el.classList.remove('is-new');
+    tlKeepInView(el);
+    var sym = el.querySelector('.cn-tl-sym');
+    if (reduce.matches || !el.animate) { el.classList.add('is-landed'); setTimeout(function () { el.classList.remove('is-landed'); }, 1400); return; }
+    // Wait a frame so the axis has scrolled the day into view before measuring where the marker is
+    el.style.visibility = 'hidden';
+    setTimeout(function () {
+      var to = sym.getBoundingClientRect(), pr = phoneEl.getBoundingClientRect();
+      var g = document.createElement('span');
+      g.className = 'tp-tl-ghost'; g.setAttribute('aria-hidden', 'true');
+      g.innerHTML = sym.outerHTML;
+      phoneEl.appendChild(g);
+      var x0 = from.left + from.width / 2 - pr.left - 11, y0 = from.top + from.height / 2 - pr.top - 11;
+      var x1 = to.left + to.width / 2 - pr.left - 11, y1 = to.top + to.height / 2 - pr.top - 11;
+      g.style.left = '0px'; g.style.top = '0px';
+      // One gentle arc: up from the button, bowing a little outward, and down onto the day
+      var pts = [], N = 10;
+      for (var i = 0; i <= N; i++) {
+        var t = i / N, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t - Math.sin(Math.PI * t) * 36;
+        pts.push({ transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + (1 + .4 * Math.sin(Math.PI / 2 * Math.min(1, t / .6)) - .05 * Math.max(0, (t - .6) / .4)).toFixed(3) + ')', opacity: t === 0 ? .4 : 1 });
+      }
+      var fly = g.animate(pts, { duration: 720, easing: 'cubic-bezier(.4, 0, .3, 1)' });
+      fly.onfinish = function () {
+        g.remove();
+        el.style.visibility = '';
+        el.classList.add('is-landed');
+        sym.animate([{ transform: 'scale(1.35)' }, { transform: 'scale(.94)', offset: .6 }, { transform: 'scale(1)' }], { duration: 380, easing: 'ease-out' });
+        setTimeout(function () { el.classList.remove('is-landed'); }, 1100);
+      };
+    }, 60);
   }
   function tlRenderDetail() {
     tlRoving();
@@ -1486,7 +1707,7 @@
   }
   function dayLabel(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + ['Oct', 'Nov'][x.getUTCMonth() - 9]; }
   function tlSelect(k, focus, itemId) {
-    tlSel = itemId ? -1 : k; tlSelItem = itemId || null;
+    tlSel = itemId ? -1 : k; tlSelItem = itemId || null; tlSelFree = null;
     tlRenderDetail();
     var el = itemId ? tlItemEls[itemId] : TLM[k].el, x = el.offsetLeft;
     // Keep the chosen marker in view, with some of the days either side
@@ -1494,10 +1715,13 @@
     if (focus) el.focus({ preventScroll: true });
     notesOnly();
   }
-  function tlPick(el, focus) { if (el.dataset.item) tlSelect(-1, focus, el.dataset.item); else tlSelect(+el.dataset.k, focus); }
+  function tlPick(el, focus) {
+    if (el.dataset.free) { tlSel = -1; tlSelItem = null; tlSelFree = el; tlRoving(); tlKeepInView(el); if (focus) el.focus({ preventScroll: true }); return; }
+    if (el.dataset.item) tlSelect(-1, focus, el.dataset.item); else tlSelect(+el.dataset.k, focus); }
   // Tap (or Enter) opens the marker's details stacked over the timeline; the arrow keys only move between markers
   tlCanvas.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-tl-mk'); if (!b) return;
+    if (b.dataset.free) { tlPick(b, false); tlFreeToggle(+b.dataset.free, b); return; }
     tlPick(b, false);
     var open = window.tpPicker.openSheet;
     if (typeof open === 'function') open(b.dataset.item ? 'item:' + b.dataset.item : 'match:' + TLM[+b.dataset.k].key, b);
@@ -1524,7 +1748,7 @@
   function dragMovable(it) { return it && (it.kind === 'place' || it.kind === 'product'); }
   function dragRange() {
     var t = state.trip, a = 0, z = DAYS - 1;
-    if (t && t.mode === 'visiting' && t.from && t.to) { a = Math.max(0, isoDay(t.from)); z = Math.min(DAYS - 1, isoDay(t.to)); }
+    if (t && t.from && t.to) { a = Math.max(0, isoDay(t.from)); z = Math.min(DAYS - 1, isoDay(t.to)); }
     return [a, z];
   }
   function dragDay(dx) { var r = dragRange(); return Math.max(r[0], Math.min(r[1], tdrag.day + Math.round(dx / DAYW))); }
@@ -1698,7 +1922,9 @@
     var fanBox = handWrap().getBoundingClientRect();
     var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
     // A pick is shown working: the bar is up whenever a team is picked
-    var on = tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
+    // From a moment after the page loads the bar is always up, empty to start (Your plan, No matches yet), so the plan is
+    // seen before anything is in it
+    var on = barIntro || tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
     if (skipEl) skipEl.hidden = !on; // the skip link only points somewhere while the bar is up
     if (on === tlOn) return;
     tlOn = on;
@@ -1706,7 +1932,8 @@
     tl.inert = !on;
     notesOnly();
   }
-  var barRaf = 0;
+  var barIntro = false, barRaf = 0;
+  setTimeout(function () { barIntro = true; syncBar(); }, 700);
   body.addEventListener('scroll', function () { if (!barRaf) barRaf = requestAnimationFrame(function () { barRaf = 0; syncBar(); }); }, { passive: true });
   window.addEventListener('resize', syncBar);
   /* The mini strip and the big axis are the same timeline at two scales. Opening, a copy of the axis starts shrunk onto
@@ -1733,6 +1960,7 @@
     if (open === tlOpen) return;
     if (!open && stackEl) stackClose(false); // a sheet stacked over the timeline goes with it
     if (!open) tlZoom(false);
+    if (!open && tlFreeOpen !== null) tlFreeShow(null);
     tlOpen = open;
     tl.classList.toggle('is-open', open);
     tlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -1878,7 +2106,7 @@
     state.added = state.added.filter(function (x) { return x.id !== id; });
     if (state.added.length !== n) { save(); changed(); }
   }
-  function setTrip(t) { state.trip = t; save(); changed(); }
+  function setTrip(t) { state.trip = normTrip(t); save(); changed(); }
   // The added item travels from the button that added it to the timeline bar, then the badge pops
   function flyToBar(fromEl) {
     if (!tlOn || reduce.matches || !fromEl || !document.body.animate) return;
@@ -1927,11 +2155,12 @@
     if (stackEl) stackClose(false);
     deck.getAnimations && deck.querySelectorAll('*').forEach(function (el) { el.getAnimations().forEach(function (a) { a.cancel(); }); });
     cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
-    state.picked = []; state.tickets = []; state.allFilter = { nsw: false, city: null };
+    state.picked = []; state.tickets = []; state.allFilter = { nsw: true, city: null, v: 2 };
     try { localStorage.removeItem(KEY); } catch (e) {}
     if (allReset) allReset();
     deck.innerHTML = '';
     setNsw(false); closeFind(false); clearFind(); offset = START; dealt = false;
+    state.view = 'fan'; state.nswMark = false; state.notGoing = []; showVariant(false); viewLabel(); syncNswMark();
     state.tab = 'yours';
     clearTimeout(undoTimer);
     renderChosen();
@@ -1944,8 +2173,8 @@
     say('Prototype reset. No teams picked.');
   });
 
-  window.tpPicker = { stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+  window.tpPicker = { save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
+    flyToBar: flyToBar, tlLand: tlLand, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark

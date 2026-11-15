@@ -57,6 +57,64 @@ window.cnFixtures = [
    prototype and not confirmed with anyone. NOT IN THE PRODUCT DATA CONTRACT: the spot type and the screening link (which spot shows which
    match) have no contract field; fixture-only for now, as agreed on 13 November 2026. The village has open_from and
    open_to (also fixture-only), assumed open every day between them. Real data is still needed. */
+/* FREE-DAY IDEAS for Your days, in order. The four Sydney ideas the user named (Manly ferry, Bondi to Coogee walk, Sydney
+   Opera House, The Rocks) keep their names; how to get there is the obvious start point only, and times are left to be
+   confirmed (mins: null) until real details are supplied. Everything else is a clearly marked placeholder ("(placeholder)"):
+   names, travel times, who it suits and tours. kind: half (a half day) or day (a day trip); car: true when there is no
+   public transport, so a guided tour is offered instead; party: who it suits best (placeholder tags for ordering). */
+(function () {
+  var ALLP = ['solo', 'couple', 'friends', 'family'];
+  var out = [
+    { id: 'syd-manly-ferry', title: 'Manly ferry', kind: 'half', city: 'sydney', how: { mode: 'Ferry', from: 'Circular Quay', mins: null }, party: ALLP },
+    { id: 'syd-bondi-coogee', title: 'Bondi to Coogee walk', kind: 'half', city: 'sydney', how: { mode: 'Bus', from: 'Sydney CBD to Bondi Beach', mins: null }, party: ['solo', 'couple', 'friends'] },
+    { id: 'syd-opera-house', title: 'Sydney Opera House', kind: 'half', city: 'sydney', how: { mode: 'Walk', from: 'Circular Quay', mins: null }, party: ALLP },
+    { id: 'syd-the-rocks', title: 'The Rocks', kind: 'half', city: 'sydney', how: { mode: 'Walk', from: 'Circular Quay', mins: null }, party: ALLP }
+  ];
+  var L = 'ABCDEFGHIJKLMN', MODES = ['Train', 'Bus', 'Ferry', 'Light rail'], PARTY = [['family'], ['couple'], ['friends'], ['solo', 'couple'], ['family', 'friends'], ALLP];
+  // Placeholder half days and day trips, for each host city
+  function add(city, label, kind, n, car) {
+    for (var k = 0; k < n; k++) out.push({ id: city + '-' + kind + '-' + L[k].toLowerCase(), title: label + ' ' + L[k] + ' (placeholder)', kind: kind, city: city, placeholder: true,
+      car: !!(car && car(k)), how: car && car(k) ? { mode: 'Car', from: city === 'sydney' ? 'Sydney' : 'Newcastle', mins: 90 + k * 15 } : { mode: MODES[k % 4], from: city === 'sydney' ? 'Sydney CBD' : 'Newcastle', mins: kind === 'half' ? 15 + (k % 5) * 10 : 60 + (k % 3) * 30 },
+      party: PARTY[k % PARTY.length] });
+  }
+  add('sydney', 'Sydney half-day idea', 'half', 14);
+  add('sydney', 'Sydney day trip', 'day', 6, function (k) { return k % 2 === 1; });
+  add('newcastle', 'Newcastle half-day idea', 'half', 8);
+  add('newcastle', 'Newcastle day trip', 'day', 4, function (k) { return k % 2 === 1; });
+  window.cnFreeIdeas = out;
+})();
+
+/* PLACEHOLDER VENUES for Where to watch, until real ones are supplied. Clearly marked "(placeholder)": no real business
+   is named. Spread across areas and three kinds (fan zones, pubs, clubs). Which matches each one screens follows a
+   simple rule so the prototype has a realistic mix (fan zones show every match; pubs about two in three; clubs about
+   one in two), not real programming. The rule is in cnWatchVenues below. */
+(function () {
+  var V = [
+    ['Fan zone A (placeholder)', 'fan_zone', 'Sydney CBD', 'sydney'],
+    ['Fan zone B (placeholder)', 'fan_zone', 'Newcastle', 'newcastle'],
+    ['Pub A (placeholder)', 'pub', 'Inner West, Sydney', 'sydney'],
+    ['Pub B (placeholder)', 'pub', 'Eastern Suburbs, Sydney', 'sydney'],
+    ['Pub C (placeholder)', 'pub', 'Parramatta', 'sydney'],
+    ['Pub D (placeholder)', 'pub', 'North Shore, Sydney', 'sydney'],
+    ['Pub E (placeholder)', 'pub', 'Newcastle', 'newcastle'],
+    ['Club A (placeholder)', 'club', 'Western Sydney', 'sydney'],
+    ['Club B (placeholder)', 'club', 'Northern Beaches, Sydney', 'sydney'],
+    ['Club C (placeholder)', 'club', 'Lake Macquarie', 'newcastle'],
+    ['Club D (placeholder)', 'club', 'Wollongong', 'sydney']
+  ];
+  var F = window.cnFixtures || [];
+  window.cnWatchVenues = V.map(function (v, j) {
+    var shows = [];
+    F.forEach(function (f, i) {
+      if (!f.t) return; // teams to be decided: no screening listed yet
+      var on = v[1] === 'fan_zone' || (v[1] === 'pub' ? (i + j) % 3 !== 0 : (i + j) % 2 === 0);
+      if (on) shows.push(f.d + '|' + f.t);
+    });
+    return { name: v[0], type: v[1], place: v[2], city: v[3], placeholder: true, shows: shows };
+  });
+})();
+
+/* Earlier screening data (real places, invented screenings), no longer used by Where to watch: kept for reference */
 window.cnWatchSpots = [
   { name: 'Darling Harbour fan zone', type: 'fan_zone', place: 'Tumbalong Park, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|New Zealand v Chile', 'Sat 2 Oct|Argentina v Canada', 'Sun 3 Oct|England v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Sat 16 Oct|Australia v Chile'] },
   { name: 'Rugby village, Foreshore Park', type: 'village', place: 'Foreshore Park, Newcastle', open_from: '2027-10-01', open_to: '2027-11-13', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 16 Oct|Australia v Chile', 'Sat 9 Oct|France v Japan'] },
@@ -157,7 +215,7 @@ window.cnWatchSpots = [
 /* RWC 2027 host venues: 7 cities, 8 stadiums, 1 Oct to 13 Nov 2027.
    Source: summary supplied 13 Nov 2027; verify against the official RWC 2027 matches page.
    city: plain English name used in chips and copy; cityTraditional: dual name as published.
-   nsw: true for the NSW venues (drives In NSW only and the city chips). */
+   nsw: true for the NSW venues (drives In NSW and the city control). */
 window.cnVenues = [
   { id: 'adelaide-oval',            stadium: 'Adelaide Oval',            city: 'Adelaide',   cityTraditional: 'Adelaide | Tarntanya',          state: 'South Australia',   stateCode: 'SA',  nsw: false, matches: { pool: 6, r16: 0, qf: 0, sf: 0, bronze: 0, final: 0 } },
   { id: 'brisbane-stadium',         stadium: 'Brisbane Stadium',         city: 'Brisbane',   cityTraditional: 'Brisbane | Meeanjin',           state: 'Queensland',        stateCode: 'QLD', nsw: false, matches: { pool: 6, r16: 2, qf: 2, sf: 0, bronze: 0, final: 0 } },
@@ -168,3 +226,39 @@ window.cnVenues = [
   { id: 'sydney-football-stadium',  stadium: 'Sydney Football Stadium',  city: 'Sydney',     cityTraditional: 'Sydney | Gadigal',              state: 'New South Wales',   stateCode: 'NSW', nsw: true,  matches: { pool: 3, r16: 2, qf: 0, sf: 0, bronze: 0, final: 0 } },
   { id: 'north-queensland-stadium', stadium: 'North Queensland Stadium', city: 'Townsville', cityTraditional: 'Townsville | Gurambilbarra',    state: 'Queensland',        stateCode: 'QLD', nsw: false, matches: { pool: 4, r16: 0, qf: 0, sf: 0, bronze: 0, final: 0 } }
 ];
+
+/* Getting there and back on a match day: PLACEHOLDER transport details, clearly marked, until real ones are supplied.
+   Proposed contract field getting_there.event_day (gap, docs/product-data-contract.md §11), on the venue's record.
+   Every stop name, mode and time below is a placeholder except the stadium names and the start point, which is the
+   place the person said they are staying (or the venue's default start when they have not said).
+   route(venue, start, startCity) gives the legs from that start: a walk to the nearest station unless the start is the
+   default one, a train to an interchange, an event service to the stadium stop, and a walk to the gates. */
+window.cnMatchTravel = (function () {
+  var V = {
+    'Stadium Australia':       { city: 'sydney',    default_start: 'Central', default_place: 'Sydney CBD', walk_mins: 10 },
+    'Sydney Football Stadium': { city: 'sydney',    default_start: 'Central', default_place: 'Sydney CBD', walk_mins: 8 },
+    'Newcastle Stadium':       { city: 'newcastle', default_start: 'Newcastle Interchange', default_place: 'Newcastle', walk_mins: 10 }
+  };
+  var EVENT_DAY = {
+    placeholder: true,
+    extra_services: 'Extra services after full time',
+    return_note: 'Expect queues for up to 30 min after full time',
+    last_service: null,
+    ticket_includes_travel: null,
+    accessibility: 'Accessible drop-off and entry details to come'
+  };
+  function h(s) { var n = 0; for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) % 997; return n; }
+  function route(venue, start, startCity) {
+    var v = V[venue]; if (!v) return null;
+    var fromDefault = !start || start === v.default_place, from = fromDefault ? v.default_start : start;
+    var cross = !fromDefault && startCity && startCity !== v.city, far = !fromDefault && !startCity;
+    var legs = [];
+    if (!fromDefault) legs.push({ mode: 'walk', to: 'Nearest station (placeholder)', mins: far ? null : 6 + h(from) % 6 });
+    legs.push({ mode: 'train', to: 'Interchange (placeholder)', mins: far ? null : cross ? 140 + h(from) % 30 : fromDefault ? 18 : 12 + h(from) % 26, intercity: cross || far });
+    legs.push({ mode: 'event', to: venue + ' stop (placeholder)', mins: 8 });
+    legs.push({ mode: 'walk', to: venue, mins: v.walk_mins, gates: true });
+    var total = legs.every(function (l) { return l.mins != null; }) ? legs.reduce(function (s, l) { return s + l.mins; }, 0) : null;
+    return { venue: venue, from: from, fromDefault: fromDefault, mode: far ? 'Travel' : 'Train', legs: legs, mins: total, cross: !!cross, far: !!far, event_day: EVENT_DAY, placeholder: true };
+  }
+  return { venues: V, event_day: EVENT_DAY, route: route, placeholder: true };
+})();

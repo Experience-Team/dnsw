@@ -1,0 +1,134 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#fff}</style></head><body>
+<script src="three.min.js"></script><script src="landmarks.js"></script>
+<script>
+(async()=>{
+ const W=+(new URLSearchParams(location.search).get('w')||2400);
+ const B={lon0:150.2,lon1:152.25,lat0:-34.75,lat1:-32.55};
+ const places={ sydney:{ll:[151.2254,-33.8889]}, hunter:{ll:[151.29,-32.78]}, newcastle:{ll:[151.7262,-32.9184]} };
+ const stage={dataset:{}};
+ const [geo,img]=await Promise.all([fetch('assets/geography.json').then(r=>r.json()),new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src='assets/relief.png';})]);
+    const T=THREE;
+    const renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});
+    renderer.setPixelRatio(1);
+    renderer.outputColorSpace=T.SRGBColorSpace;
+    renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.92;
+    renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
+    document.body.append(renderer.domElement);
+    const scene=new T.Scene();scene.background=new T.Color('#dfeee9');
+    
+    const camera=new T.OrthographicCamera(-10,10,6,-6,.1,100);
+    const hc=document.createElement('canvas');hc.width=img.width;hc.height=img.height;
+    const ctx=hc.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
+    const pixels=ctx.getImageData(0,0,hc.width,hc.height).data;
+    const origin=[151.1,-33.25],sx=4.63,sz=5.55;
+    const project=([lon,lat])=>new T.Vector3((lon-origin[0])*sx,0,-(lat-origin[1])*sz);
+    const unproject=(x,z)=>[x/sx+origin[0],origin[1]-z/sz];
+    const coast=geo.coast;
+    const landPoly=coast.concat([[148,-36],[148,-31]]);
+    const contains=(lon,lat)=>{
+      let inside=false;
+      for(let i=0,j=landPoly.length-1;i<landPoly.length;j=i++){
+        const a=landPoly[i],b=landPoly[j];
+        if(((a[1]>lat)!==(b[1]>lat))&&(lon<(b[0]-a[0])*(lat-a[1])/(b[1]-a[1])+a[0]))inside=!inside;
+      }
+      return inside;
+    };
+    const isLand=(x,z)=>contains(...unproject(x,z));
+    const elevation=(x,z)=>{
+      const [lon,lat]=unproject(x,z),b=geo.bounds;
+      const ix=Math.max(0,Math.min(hc.width-1,(lon-b[0])/(b[2]-b[0])*(hc.width-1)));
+      const iy=Math.max(0,Math.min(hc.height-1,(b[3]-lat)/(b[3]-b[1])*(hc.height-1)));
+      const x0=Math.floor(ix),y0=Math.floor(iy),x1=Math.min(hc.width-1,x0+1),y1=Math.min(hc.height-1,y0+1);
+      const at=(a,b)=>{const k=(b*hc.width+a)*4;return (pixels[k]*256+pixels[k+1])/65535*2000;};
+      const tx=ix-x0,ty=iy-y0;
+      return ((at(x0,y0)*(1-tx)+at(x1,y0)*tx)*(1-ty)+(at(x0,y1)*(1-tx)+at(x1,y1)*tx)*ty)*.00093;
+    };
+    const world=ll=>{const p=project(ll);p.y=isLand(p.x,p.z)?elevation(p.x,p.z):0;return p;};
+    const ambient=new T.HemisphereLight('#eff8fa','#6d8161',1.65);scene.add(ambient);
+    const sun=new T.DirectionalLight('#fff5df',2.4);sun.position.set(-6,12,3);sun.castShadow=true;
+    sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-13;sun.shadow.camera.right=13;sun.shadow.camera.top=13;sun.shadow.camera.bottom=-13;sun.shadow.normalBias=.03;sun.shadow.bias=-.0001;sun.shadow.radius=4;scene.add(sun);
+
+    const waterCanvas=document.createElement('canvas');waterCanvas.width=waterCanvas.height=1536;
+    const wc=waterCanvas.getContext('2d'),wg=wc.createLinearGradient(0,0,1536,1536);
+    wg.addColorStop(0,'#b6dacf');wg.addColorStop(.45,'#a1d1d0');wg.addColorStop(1,'#c5e4df');wc.fillStyle=wg;wc.fillRect(0,0,1536,1536);
+    let seed=1971;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
+    wc.strokeStyle='#e9f9ed';wc.lineWidth=.8;
+    for(let i=0;i<3700;i++){const x=rnd()*1536,y=rnd()*1536;wc.globalAlpha=.13+rnd()*.21;wc.beginPath();wc.moveTo(x,y);wc.bezierCurveTo(x+4,y-1,x+9,y+1,x+12+rnd()*10,y);wc.stroke();}
+    wc.globalAlpha=1;
+    const waterTexture=new T.CanvasTexture(waterCanvas);waterTexture.colorSpace=T.SRGBColorSpace;
+    const water=new T.Mesh(new T.PlaneGeometry(42,42),new T.MeshStandardMaterial({map:waterTexture,roughness:.9,metalness:0,color:'#ffffff'}));water.rotation.x=-Math.PI/2;water.position.y=-.028;water.receiveShadow=true;scene.add(water);
+
+    const mapW=22,mapH=22,cols=320,rows=320;
+    const geometry=new T.PlaneGeometry(mapW,mapH,cols,rows);geometry.rotateX(-Math.PI/2);
+    const pos=geometry.attributes.position,colors=new Float32Array(pos.count*3),land=new Uint8Array(pos.count);
+    const low=new T.Color('#b7caaa'),mid=new T.Color('#8da87c'),high=new T.Color('#aac298'),sand=new T.Color('#dfdec0');
+    for(let i=0;i<pos.count;i++){
+      const x=pos.getX(i),z=pos.getZ(i),on=isLand(x,z);land[i]=on?1:0;
+      const y=on?elevation(x,z):0;pos.setY(i,y);
+      const color=low.clone();
+      if(y>.55)color.lerp(high,Math.min(.65,(y-.55)*.55));else color.lerp(mid,Math.min(.65,y*.8));
+      if(y<.075)color.lerp(sand,(1-y/.075)*.52);
+      const texture=Math.sin(x*17+z*13)*Math.sin(z*23-x*5)*.012;
+      color.offsetHSL(0,0,texture);colors[i*3]=color.r;colors[i*3+1]=color.g;colors[i*3+2]=color.b;
+    }
+    const old=geometry.index.array,indices=[];
+    for(let i=0;i<old.length;i+=3){if(land[old[i]]&&land[old[i+1]]&&land[old[i+2]])indices.push(old[i],old[i+1],old[i+2]);}
+    geometry.setIndex(indices);geometry.setAttribute('color',new T.BufferAttribute(colors,3));geometry.computeVertexNormals();
+    const terrain=new T.Mesh(geometry,new T.MeshStandardMaterial({vertexColors:true,roughness:1,flatShading:false,side:T.DoubleSide}));terrain.receiveShadow=true;scene.add(terrain);
+
+    // Shore and rivers retain a light illustrated treatment on the measured terrain.
+    function line(lls,color,radius=.008,height=.035){
+      const ps=lls.map(ll=>{const p=world(ll);p.y=Math.max(.001,p.y*.25)+height;return p;});
+      const curve=new T.CatmullRomCurve3(ps,false,'centripetal');
+      const mesh=new T.Mesh(new T.TubeGeometry(curve,Math.max(80,lls.length*2),radius,4,false),new T.MeshStandardMaterial({color,roughness:1}));scene.add(mesh);return mesh;
+    }
+    line(coast,'#e7e4cf',.014,.012);
+    line([[151.0,-33.48],[151.06,-33.49],[151.11,-33.52],[151.15,-33.55],[151.22,-33.56],[151.28,-33.57],[151.32,-33.58]],'#9dcac3',.037,.018);
+    line([[151.63,-33.09],[151.61,-33.06],[151.58,-33.04],[151.57,-33.08],[151.56,-33.11]],'#9dcac3',.055,.012);
+
+    // A soft canopy makes woodland read as an illustration rather than a satellite texture.
+    const canopyGeo=new T.IcosahedronGeometry(1,1);
+    const canopyMat=new T.MeshStandardMaterial({color:'#73966f',roughness:1,flatShading:true});
+    const trees=new T.InstancedMesh(canopyGeo,canopyMat,1600),dummy=new T.Object3D();
+    let count=0,attempt=0;
+    while(count<1600&&attempt++<16000){
+      const x=-5+rnd()*9,z=-6+rnd()*12,y=elevation(x,z);
+      if(!isLand(x,z)||y<.07||y>1.4)continue;
+      const patch=Math.sin(x*2.7+z*.9)*Math.sin(z*1.9-x*.3);
+      if(patch<.3||rnd()>.55)continue;
+      const r=.025+rnd()*.028;dummy.position.set(x,y+r*.55,z);dummy.scale.set(r*(1+rnd()*.5),r*.8,r*(1+rnd()*.5));dummy.rotation.y=rnd()*Math.PI;dummy.updateMatrix();trees.setMatrixAt(count,dummy.matrix);
+      trees.setColorAt(count,new T.Color().setHSL(.245+rnd()*.035,.16+rnd()*.1,.40+rnd()*.13));count++;
+    }
+    trees.count=count;trees.castShadow=true;trees.receiveShadow=true;scene.add(trees);
+
+    const hunter=world(places.hunter.ll);
+    for(let row=0;row<10;row++){
+      const points=[];
+      for(let n=0;n<18;n++){const x=hunter.x-.32+row*.067,z=hunter.z-.32+n*.04;points.push(new T.Vector3(x,elevation(x,z)+.025,z));}
+      const mesh=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(points),24,.014,4,false),new T.MeshStandardMaterial({color:row%2?'#738d5a':'#819d61',roughness:1}));scene.add(mesh);
+    }
+
+    // Generic venue symbols mark the verified locations without copying stadium architecture.
+    function stadium(ll,scale=1){
+      const p=world(ll),g=new T.Group();
+      const base=new T.Mesh(new T.CylinderGeometry(.18,.20,.045,48),new T.MeshStandardMaterial({color:'#d7d9c8',roughness:1}));base.scale.z=.78;g.add(base);
+      const ring=new T.Mesh(new T.TorusGeometry(.142,.027,8,48),new T.MeshStandardMaterial({color:'#fffef5',roughness:.85}));ring.rotation.x=Math.PI/2;ring.scale.y=.75;ring.position.y=.055;ring.castShadow=true;g.add(ring);
+      const pitch=new T.Mesh(new T.PlaneGeometry(.18,.12),new T.MeshStandardMaterial({color:'#8baf7e',roughness:1}));pitch.rotation.x=-Math.PI/2;pitch.position.y=.05;g.add(pitch);
+      g.position.copy(p);g.position.y+=.055;g.scale.setScalar(scale);scene.add(g);
+    }
+    stadium(places.sydney.ll,.55);
+    stadium(places.newcastle.ll,.55);
+    // No miniatures: at true scale they would hide the suburbs; each venue gets the gallery's plain venue symbol
+ // Stadium Australia (Sydney Olympic Park) gets the same generic venue symbol
+ stadium([151.06334,-33.84689],.55);
+ // Top-down, north up, exactly the bounds above: pixels are linear in longitude and latitude
+ const x0=(B.lon0-origin[0])*sx, x1=(B.lon1-origin[0])*sx, z0=-(B.lat1-origin[1])*sz, z1=-(B.lat0-origin[1])*sz;
+ const H=Math.round(W*(z1-z0)/(x1-x0));
+ renderer.setSize(W,H);
+ const cam=new T.OrthographicCamera(x0,x1,-z0,-z1,.1,100);
+ cam.position.set(0,40,0); cam.up.set(0,0,-1); cam.lookAt(0,0,0); cam.updateProjectionMatrix();
+ renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
+ renderer.render(scene,cam);
+ window.__done={W,H,B};
+})().catch(e=>{window.__err=String(e)});
+</script></body></html>

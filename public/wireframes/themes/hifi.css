@@ -156,11 +156,18 @@
 :root[data-theme="hifi"] .cn-phone .tp-logo img { display: block; width: 72px; height: auto; }
 :root[data-theme="hifi"] .cn-phone .tp-lockup { border-color: #a3736e; }
 :root[data-theme="hifi"] .cn-phone .tp-lockup-in { border-color: var(--tth-surface-brand); background: rgba(255, 71, 2, .08); }
-:root[data-theme="hifi"] .cn-phone .tp-lockup-t { color: var(--tth-surface-brand); }
+:root[data-theme="hifi"] .cn-phone .tp-lockup-t { color: var(--tth-color-ink); } /* ink, not orange: 13px orange on the tinted box was 2.9:1 (AA needs 4.5:1); the border keeps the colourway */
 :root[data-theme="hifi"] .cn-phone .tp-lockup-s { color: var(--tth-text-primary); }
 :root[data-theme="hifi"] .cn-phone .tp-hero-img { width: 182px; height: 102px; aspect-ratio: auto; }
 :root[data-theme="hifi"] .cn-phone .tp-hero-img--a { margin-left: 24px; }
 :root[data-theme="hifi"] .cn-phone .tp-hero-img--b { align-self: flex-end; }
 :root[data-theme="hifi"] .cn-phone .tp-hero-icon { display: none; }
 :root[data-theme="hifi"] .cn-phone .tp-hero-title { font-size: 2.5rem; letter-spacing: 0; }
+/* The slogan, stylised: the payoff line in the colourway (40px is large text: orange on chalk is 3.2:1, AA for large) */
+:root[data-theme="hifi"] .cn-phone .tp-slogan-2 { color: var(--tth-surface-brand); }
+:root[data-theme="hifi"] .cn-phone .tp-pick-sub { color: var(--tth-text-primary); }
 :root[data-theme="hifi"] .cn-phone .tp-hero-cta { font-size: 1.25rem; font-weight: 600; }
+
+/* Your days, in order as a map: the gallery's illustration in its own colours */
+:root[data-theme="hifi"] .cn-phone .tp-map-img { filter: none; }
+:root[data-theme="hifi"] .cn-phone .tp-map-stage { background: #c1d5d0; }

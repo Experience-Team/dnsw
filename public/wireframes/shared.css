@@ -3119,7 +3119,7 @@ body.cp-page code { font: inherit; }
 .tp-fan-wrap > .cn-badge { top: 8px; right: 24px; }
 
 /* Pick your team: all matches, a minimal list below the picker */
-.tp-all { margin: var(--space-6) var(--space-4) 0; padding: var(--space-5) 0 var(--space-6); border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-all { margin: var(--space-4) var(--space-4) 0; padding: var(--space-5) 0 var(--space-6); border-top: var(--bw-1) solid var(--c-line-soft); }
 .tp-all[hidden] { display: none; }
 .tp-all-title { font-size: var(--fs-xl); font-weight: var(--fw-heavy); letter-spacing: -.01em; }
 .tp-all-note { position: relative; margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--c-ink-2); }
@@ -3254,6 +3254,7 @@ body.cp-page code { font: inherit; }
 /* Pick your team: Where to watch, Suits your 3rd half, the one question. Sections under All matches. */
 .tp-sec { position: relative; margin: var(--space-6) var(--space-4) 0; padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
 .tp-sec-title { font-size: var(--fs-xl); font-weight: var(--fw-heavy); letter-spacing: -.01em; }
+.tp-sec-title:focus { outline: none; } /* focused by script after a change (I have tickets), not a control */
 .tp-sec-note { position: relative; margin-top: var(--space-1); font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
 .tp-empty { margin-top: var(--space-3); padding: var(--space-3); border: var(--bw-2) dashed var(--c-line); border-radius: var(--radius-md); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 /* Where to watch: one row of portrait cards, one per screening, in date order. The row runs off the phone's right edge
@@ -3272,8 +3273,13 @@ body.cp-page code { font: inherit; }
 .tp-ws-place { display: flex; flex-direction: column; gap: 2px; margin-top: var(--space-2); }
 .tp-ws-name { font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.3; }
 .tp-ws-meta { font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink-2); }
-.tp-ws .tp-add { align-self: flex-start; margin-top: var(--space-3); min-width: 72px; min-height: 32px; font-size: var(--fs-xs); }
+.tp-ws .tp-add { align-self: flex-start; margin-top: var(--space-3); min-width: 72px; min-height: 36px; font-size: var(--fs-xs); }
 .tp-ws .tp-add::before { inset: 0; }
+/* Add and I have tickets side by side (no team picked, NSW match); they wrap if a label runs long */
+.tp-ws-acts { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.tp-ws-acts .tp-add { margin-top: 0; min-width: 0; padding: 0 10px; }
+.tp-ws-tk { padding: 0 var(--space-2); }
+.tp-ico-ticket { aspect-ratio: 1; }
 /* Where to watch supports the plan, so its heading steps down; Suits your 3rd half leads */
 #tp-watch .tp-sec-title { font-size: 1.0625rem; }
 #tp-third .tp-sec-title { font-size: 1.375rem; }
@@ -3400,7 +3406,7 @@ body.cp-page code { font: inherit; }
 .tp-tl-stay.is-suggested { background: var(--c-accent-soft); border-inline: var(--bw-1) dashed var(--c-accent-line); }
 /* Open, the strip has handed over to the axis: the panel moves up into its space (same total height, so the sheet's
    travel is unchanged) */
-.tp-tl.is-open .tp-tl-panel { position: relative; z-index: 1; margin-top: -34px; height: calc(var(--tl-p) + 34px); }
+.tp-tl.is-open .tp-tl-panel { position: relative; z-index: 1; margin-top: -22px; height: calc(var(--tl-p) + 22px); /* the bar is 88px: its count and the close button end at 59px, so the panel starts at 66px */ }
 .tp-tl-q { font-size: 11px; font-weight: var(--fw-heavy); line-height: 1; color: var(--c-ink-3); }
 .tp-tl-detail.is-empty { min-height: 0; padding: 0; border: 0; }
 .tp-tl-later { border: 0; padding: var(--space-1) 0 0; text-align: left; }
@@ -3657,7 +3663,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); padding: 0 var(--space-5); }
 .tp-hero-title { font-size: 2.25rem; font-weight: 400; line-height: 1.18; text-transform: uppercase; text-wrap: balance; }
 .tp-hero-sub { font-size: var(--fs-lg-2); line-height: 1.4; }
-.tp-hero-meta { margin-top: calc(var(--space-2) * -1); font-size: var(--fs-md); line-height: 1.4; color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
+/* The slogan: each sentence on its own line; ?slogan=b swaps in the alternative */
+.tp-slogan-1, .tp-slogan-2 { display: block; }
+:root:not([data-slogan="b"]) .tp-slogan--b, :root[data-slogan="b"] .tp-slogan--a { display: none; }
+.tp-event .tp-count { font-variant-numeric: tabular-nums; }
 /* Pick your teams: down to the hand (the tailor handler). 36px, per the page's AA sizing, not Figma's 44px */
 .tp-hero-cta { min-height: 36px; padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font: inherit; font-size: var(--fs-lg); font-weight: var(--fw-bold); cursor: pointer; transition: transform var(--dur-micro) var(--ease-out); }
 .tp-hero-cta:active { transform: scale(.98); }
@@ -3668,7 +3677,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Pick your team: the fanned hand of team cards (concepts-teams.js). Each card turns about a pivot 460px below its
    foot, so the hand curves; later cards lie on top so every code shows at the top left. Picked cards lift and turn
    dark. A pick takes effect at once; Your matches shows each picked team's card face up (.tp-flip.is-flipped). */
-.tp-pick { padding: var(--space-6) var(--space-4) var(--space-6); }
+.tp-pick { padding: var(--space-7) var(--space-4) var(--space-5); } /* 48px above the heading for room after the hero; 24px below the tap line */
 .tp-pick-title { font-size: 1.75rem; font-weight: var(--fw-heavy); line-height: 1.1; letter-spacing: -.01em; }
 .tp-pick-intro { margin-top: var(--space-2); font-size: var(--fs-base); line-height: 1.45; color: var(--c-ink-2); }
 /* The fan's box is sized to the cards, not guessed. Measured from the card geometry (116 x 168, pivot 460px below,
@@ -3694,12 +3703,18 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-card:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 3px; }
 /* TEST: the stacked hand (Figma 282:26254). Four overlapping arcs of six small cards; concepts-teams.js places each
    card (left, top, size, pivot, angle). The box is sized to the hand's real extremes, lifted cards included. */
-.tp-fan2-wrap { position: relative; height: 339px; margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: clip; }
+.tp-fan2-wrap { position: relative; height: 339px; transition: height 520ms cubic-bezier(.45, .05, .25, 1); margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: clip; }
 .tp-fan2-wrap[hidden] { display: none; }
 .tp-fan2 { position: absolute; inset: 0; }
 .tp-card2 { position: absolute; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 6px 0; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; box-shadow: -1px 0 4px rgba(0,0,0,.06); transition: transform var(--dur-large) var(--ease-out), opacity var(--dur-small) ease-out, background-color var(--dur-micro) ease-out, color var(--dur-micro) ease-out; }
 .tp-card2-code { font-family: var(--font-label); font-size: .9375rem; font-weight: var(--fw-heavy); line-height: 1; letter-spacing: -.01em; }
 .tp-card2-flag .tp-fl { height: 12px; }
+/* The full name: grid only (the fan's 57px cards are too narrow for it at 14px) */
+.tp-card2-name { display: none; font-size: .875rem; font-weight: var(--fw-semi); line-height: 1.2; text-wrap: balance; }
+.tp-fan2-wrap.is-grid .tp-card2-name { display: block; }
+.tp-fan2-wrap.is-grid .tp-card2 { gap: 6px; padding: 8px 8px 0; box-shadow: none; }
+.tp-fan2-wrap.is-grid .tp-card2 .tp-card-tick { top: 9px; right: 8px; }
+@media (prefers-reduced-motion: reduce) { .tp-fan2-wrap { transition: none; } }
 .tp-card2 .tp-card-tick { display: none; top: 25px; right: 6px; width: 11px; height: 9px; } /* beside the flag, clear of the code */
 .tp-card2.is-picked { background: var(--c-btn); color: var(--c-on-dark); }
 .tp-card2.is-picked .tp-card-tick { display: block; animation: cn-pop var(--dur-small) var(--ease-spring); }
@@ -4058,7 +4073,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-rugby { margin-top: var(--space-2); }
 
 /* Pick your team: All matches filter. In NSW only, then the NSW host cities in the same row (36px chips, AA) */
-.tp-all-filter { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); min-height: 36px; }
+.tp-all-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); min-height: 36px; } /* In NSW | All, then the cities; they wrap to a second row if the two do not fit */
 .tp-all-cities { display: flex; flex-wrap: nowrap; gap: var(--space-2); }
 .tp-all-cities[hidden] { display: none; }
 .tp-fchip { min-height: 36px; padding: 0 var(--space-3); }
@@ -4082,7 +4097,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-seg-btn[aria-pressed="false"]:hover { background: var(--c-surface-2); } }
 
 /* Pick your team: why pick (under the heading) and why a ticket is asked (by the tick) */
-.tp-pick-sub { margin-top: var(--space-1); font-size: var(--fs-md); line-height: 1.4; color: var(--c-ink-2); text-wrap: pretty; }
+.tp-pick-sub { margin-top: var(--space-2); font-size: var(--fs-lg-2); line-height: 1.4; color: var(--c-ink-2); text-wrap: pretty; } /* one line of intro, 18px */
 .tp-ticket-why { margin-top: var(--space-2); font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
 .tp-pm-acts .tp-ticket-why { margin-top: var(--space-1); }
 
@@ -4092,13 +4107,13 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-find-btn:active { transform: scale(.96); }
 .tp-find-btn:focus-visible, .tp-find-close:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-find-btn:hover, .tp-find-close:hover { background: var(--c-surface-2); } }
-.tp-pick-head .tp-find { position: absolute; left: 0; right: 0; top: 50%; margin: 0; transform: translateY(-50%); z-index: 70; background: var(--c-surface); }
-.tp-pick-head .tp-find[hidden] { display: none; }
-.tp-pick-head .tp-find-row { align-items: center; gap: var(--space-2); padding-right: 0; }
-.tp-pick-head .tp-find-in { flex: 1; min-width: 0; min-height: 40px; }
+.tp-util .tp-find { position: absolute; left: 0; right: 0; top: 50%; margin: 0; transform: translateY(-50%); z-index: 70; background: var(--c-surface); }
+.tp-util .tp-find[hidden] { display: none; }
+.tp-util .tp-find-row { align-items: center; gap: var(--space-2); padding-right: 0; }
+.tp-util .tp-find-in { flex: 1; min-width: 0; min-height: 40px; }
 .tp-find-close { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
-.tp-pick-head .tp-find-list { top: calc(100% + 8px); }
-.tp-pick-head .tp-find-in::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; } /* one cross: the close button beside the field */
+.tp-util .tp-find-list { top: calc(100% + 8px); }
+.tp-util .tp-find-in::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; } /* one cross: the close button beside the field */
 /* The ticket reason on the every-NSW-match card keeps to one column's width, so it never runs across the columns */
 .tp-rcard--rugby .tp-ticket-why { max-width: 220px; }
 /* All matches as a tab: the chips sit 16px under the tab bar (not 56px), so the panel reads as part of the tabs */
@@ -4170,6 +4185,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-range-h.is-dragging::before { transform: scale(1.15); box-shadow: 0 3px 8px rgba(0,0,0,.25); }
 .tp-range-h:focus-visible::before { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-focus); }
 .tp-range.is-unset .tp-range-fill { background: var(--c-fill-mid); }
+.tp-range.is-unset .tp-range-h { opacity: .45; } /* no days set: the handles wait at the ends, faded, so nothing reads as chosen */
+.tp-range.is-unset .tp-range-h:focus-visible { opacity: 1; }
 .tp-range-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: var(--fs-2xs); color: var(--c-ink-2); }
 .tp-range-out { display: inline-flex; align-items: center; gap: 4px; }
 .tp-range-out::before { content: ""; width: 1.5px; height: 8px; background: var(--c-fill-strong); }
@@ -4259,3 +4276,280 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-panel > * { flex: none; }
 .tp-tl-panel:has(.tp-tl-foot .tp-tl-share:not([hidden])) { padding-bottom: 0; }
 .tp-tl-foot { margin-top: auto; }
+
+/* Pick your teams: the utility row above the hand. Find, Grid / Fan and Plays in NSW, each labelled; 36px tall (AA).
+   The Find field slides across the row from its button, over the other two, so nothing below moves. */
+.tp-util { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); margin-top: var(--space-4); }
+.tp-util-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 var(--space-3); border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; }
+.tp-util-btn svg { flex: none; width: 16px; height: 16px; margin: 0; vertical-align: 0; }
+.tp-util-btn .tp-ico-grid rect { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.tp-util-btn .tp-ico-fan { width: auto; height: 15px; }
+.tp-util-btn:active { transform: scale(.98); }
+.tp-util-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (hover: hover) { .tp-util-btn:hover { background: var(--c-surface-2); } }
+.tp-util .tp-nsw-sw { margin-left: auto; font-size: var(--fs-sm); }
+/* The NSW marker on a card, only with Plays in NSW on: small, outlined, below the flag on the hand (clear of the next
+   row), beside the flag in the grid. Nothing is hidden or dimmed. */
+.tp-nsw-mark { display: none; padding: 1px 3px; border: var(--bw-1) solid currentColor; border-radius: 3px; font-family: var(--font-label); font-size: .5625rem; font-weight: var(--fw-bold); line-height: 1.1; letter-spacing: .04em; }
+.show-nsw .tp-nsw-mark { display: inline-block; }
+/* On the hand only the top of each card shows, so the marker sits in the flag row (right) and the picked tick moves up
+   beside the code (the widest code ends at about 38px of the 57px card; the tick takes 42 to 53px) */
+.tp-fan2-wrap:not(.is-grid) .tp-nsw-mark { position: absolute; top: 26px; right: 4px; padding: 0 2px; font-size: .4375rem; }
+.show-nsw .tp-fan2-wrap:not(.is-grid) .tp-card2 .tp-card-tick { top: 7px; right: 4px; }
+.tp-card .tp-nsw-mark { margin-top: auto; font-size: .6875rem; }
+.tp-fan2-wrap.is-grid .tp-nsw-mark { position: absolute; right: 8px; top: 29px; font-size: .625rem; } /* in the flag row, right; the tick takes the top right */
+
+/* Your days and Refine your plan, on the page under the team picker (they used to be in the open timeline) */
+.cn-phone > .cn-body .tp-ask, #tp-ask { margin: 0 var(--space-4) var(--space-4); padding: var(--space-4); border-radius: var(--radius-md); background: var(--c-surface-2); }
+#tp-ask[hidden] { display: none; }
+#tp-ask .tp-sec-note { margin-top: var(--space-1); }
+.tp-ask-sum { display: flex; align-items: center; flex-wrap: wrap; gap: 0 var(--space-2); margin-top: var(--space-2); }
+.tp-quick { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.tp-refine { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line); }
+.tp-refine-btn { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-semi); text-align: left; cursor: pointer; }
+.tp-refine-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-refine-chev { flex: none; transition: transform var(--dur-small) var(--ease-out); }
+.tp-refine-btn[aria-expanded="true"] .tp-refine-chev { transform: rotate(180deg); }
+.tp-refine-sum { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-refine-panel { margin-top: var(--space-2); }
+.tp-refine-q { margin-top: var(--space-3); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.tp-place { display: flex; flex-direction: column; gap: 4px; margin-top: var(--space-3); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-place input { min-height: 44px; padding: 0 var(--space-3); border: var(--bw-2) solid var(--c-line-strong); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 1rem; font-weight: 400; }
+.tp-place input:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 1px; }
+.tp-place-list { list-style: none; margin: var(--space-1) 0 0; padding: 0; border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-sm); background: var(--c-surface); }
+.tp-place-list[hidden] { display: none; }
+.tp-place-opt { display: block; width: 100%; min-height: 36px; padding: 0 var(--space-3); border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-md); text-align: left; cursor: pointer; }
+.tp-place-opt:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
+@media (hover: hover) { .tp-place-opt:hover { background: var(--c-surface-2); } }
+.tp-place-none { padding: var(--space-2) var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-place-cur { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.tp-tl-daysline { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-tl-daysline[hidden] { display: none; }
+/* Going to this match? on each screening card: the question, then Yes and No (32px, as Add). A match they are going to
+   shows one card for getting there and back instead of its screenings */
+.tp-ws-going { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.tp-ws-going-q { flex-basis: 100%; font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-ws .tp-ws-going .tp-add { margin-top: 0; min-width: 52px; }
+.tp-ws-go-h { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-bold); line-height: 1.3; }
+.tp-ws-go-h:focus { outline: none; }
+.tp-ws--going .tp-ws-place { margin-top: var(--space-1); }
+/* Where to watch, by evening: one card per evening (two of their matches on one evening share it), the match, then the
+   venues in a fair rotation (placeholders, pink with Annotations on), each with Add; then Going to this match? */
+.tp-wcs { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.tp-wc { padding: var(--space-3); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md); background: var(--c-surface); }
+.tp-wc-clash { display: inline-block; margin-bottom: var(--space-2); padding: 2px 8px; border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font-size: var(--fs-xs); font-weight: var(--fw-bold); }
+.tp-wc-m + .tp-wc-m { margin-top: var(--space-2); }
+.tp-wc-when { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-wc-when .tp-tag { margin: 0; }
+.tp-wc-teams { margin-top: 2px; font-size: var(--fs-base); font-weight: var(--fw-bold); line-height: 1.3; }
+.tp-wc-sub { margin-top: var(--space-3); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-wv { list-style: none; margin: var(--space-1) 0 0; padding: 0; }
+.tp-wv-i { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-wv-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tp-wv-t:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-wv-name { font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-decoration-color: var(--c-line-strong); text-underline-offset: 3px; }
+.tp-wv-meta { font-size: var(--fs-xs); line-height: 1.35; color: var(--c-ink-2); }
+.tp-wv-meta strong { color: var(--c-ink); }
+.tp-wv-i .tp-add { flex: none; min-height: 36px; }
+.tp-wc .tp-ws-going .tp-add { min-width: 52px; min-height: 36px; margin-top: 0; }
+.tp-wc--going .tp-wv-meta { margin-top: var(--space-1); }
+.tp-blk .tp-wc-m { margin-top: var(--space-2); }
+/* Free days: one short list per day (3 to 5 ideas, More ideas), each tagged with how to get there and how long */
+.tp-fday + .tp-fday { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-fday-done, .tp-fday-so { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
+.tp-fday-done { font-weight: var(--fw-semi); color: var(--c-ink); }
+.tp-idea .tp-pc-main { cursor: default; }
+.tp-pc-tour { display: block; margin-top: 2px; font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink-2); }
+
+/* Getting there and back on a match day (placeholder transport details). The line leads the day, before any cafés;
+   the outline button opens the travel sheet (the match sheet pattern: up from the bottom over a scrim). */
+.tp-go { margin: var(--space-2) 0 var(--space-4); padding-bottom: var(--space-4); border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tp-go-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.35; }
+.tp-go-line > .provenance-gap { flex: 1 1 200px; }
+.tp-go-ico { flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transform: translateY(3px); }
+.tp-go-tag, .tp-go-ph { padding: 1px 6px; border: var(--bw-1) dashed var(--c-line-strong); border-radius: var(--radius-sm); font-size: var(--fs-2xs); font-weight: var(--fw-regular, 400); color: var(--c-ink-2); }
+.tp-go-ph { display: block; margin-top: var(--space-3); padding: var(--space-2) var(--space-3); font-size: var(--fs-sm); line-height: 1.4; }
+.tp-go-from { margin-top: var(--space-1); padding-left: 24px; font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
+.tp-go-btn { display: inline-flex; align-items: center; min-height: 36px; margin-top: var(--space-3); padding: 0 var(--space-4); border: var(--bw-1) solid var(--c-ink); border-radius: var(--radius-pill); background: transparent; color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-semi); cursor: pointer; }
+.tp-go-btn:hover { background: var(--c-fill-soft); }
+.tp-go-p { margin-top: var(--space-2); font-size: var(--fs-md); line-height: 1.45; }
+/* The schematic route: stops on one line, each leg drawn by how you travel it (walk dotted, train thick,
+   event service thick and lighter). Dots and segments share one centre line, 10px in. */
+.tp-go-map-f { margin: var(--space-4) 0 0; padding: var(--space-4); border-radius: var(--radius-md, 8px); background: var(--c-fill-soft); }
+.tp-go-map { margin: 0; padding: 0; list-style: none; }
+.tp-go-stop { position: relative; display: flex; flex-direction: column; min-height: 20px; padding-left: 30px; }
+.tp-go-dot { position: absolute; z-index: 1; left: 4px; top: 3px; width: 12px; height: 12px; border: 2px solid var(--c-ink); border-radius: 50%; background: var(--c-surface); box-sizing: border-box; }
+.tp-go-stop.is-end .tp-go-dot { background: var(--c-ink); }
+.tp-go-stop.is-venue .tp-go-dot { left: 1px; top: 1px; width: 18px; height: 18px; border-width: 4px; background: var(--c-surface); }
+.tp-go-stop-n { font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.3; }
+.tp-go-stop-s { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.tp-go-leg { position: relative; display: flex; align-items: center; min-height: 44px; padding: var(--space-2) 0 var(--space-2) 30px; font-size: var(--fs-sm); line-height: 1.35; color: var(--c-ink-2); }
+.tp-go-seg { position: absolute; left: 9px; top: -4px; bottom: -4px; width: 2px; background: var(--c-ink); }
+.tp-go-leg.is-walk .tp-go-seg { left: 9px; width: 0; border-left: 2px dotted var(--c-ink-2); background: none; }
+.tp-go-leg.is-train .tp-go-seg { left: 7px; width: 6px; border-radius: 3px; }
+.tp-go-leg.is-event .tp-go-seg { left: 7px; width: 6px; border-radius: 3px; background: var(--c-ink-3); }
+.tp-go-cap { margin-top: var(--space-3); font-size: var(--fs-2xs); color: var(--c-ink-2); }
+.tp-pm-go .tp-go-from { padding-left: 0; margin-top: var(--space-2); }
+.tp-go-map-f { display: block; width: 100%; max-width: none; box-sizing: border-box; }
+.tp-go-from .tp-link { min-height: 0; padding: 0; vertical-align: baseline; }
+
+/* Timeline header with two or more teams: flags and codes in place of the names */
+.tp-tl-lteams { display: inline-flex; flex-wrap: nowrap; gap: var(--space-3); align-items: center; }
+.tp-tl-lteam { display: inline-flex; align-items: center; gap: 5px; font-weight: var(--fw-semi); letter-spacing: .02em; color: var(--c-ink); }
+.tp-tl-lteam .tp-fl { width: 18px; height: 12px; border-radius: 2px; box-shadow: 0 0 0 1px var(--c-line); object-fit: cover; }
+
+/* Free days on the timeline: a + per free day, a two-line label above it (Free, and how many ideas, or Full) */
+.tp-tl-free { z-index: 1; }
+.tp-tl-free-sym { display: grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); }
+.tp-tl-free-sym svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.tp-tl-free-l { position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); font-size: 10px; line-height: 1.15; text-align: center; white-space: nowrap; color: var(--c-ink-2); pointer-events: none; }
+.tp-tl-free.is-full .tp-tl-free-sym { border-style: dashed; color: var(--c-ink-2); }
+.tp-tl-free.is-open .tp-tl-free-sym { border-color: var(--c-btn); background: var(--c-btn); color: var(--c-on-dark); }
+.tp-tl-free.is-open .tp-tl-free-l { font-weight: var(--fw-semi); color: var(--c-ink); }
+.tp-tl-free:hover .tp-tl-free-sym { box-shadow: 0 0 0 3px var(--c-fill-soft); }
+/* Ideas open: the axis sticks under the sheet's header so an added idea is seen landing on its day */
+.tp-tl-panel.has-ideas .tp-tl-scroll { position: sticky; top: calc(var(--tl-head-h, 52px) - var(--space-2)); z-index: 3; background: var(--c-surface); box-shadow: 0 1px 0 var(--c-line-soft); }
+.tp-tl-ideas { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line); }
+.tp-tl-ideas[hidden] { display: none; }
+.tp-tl-ideas-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
+.tp-tl-ideas-h { font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.3; }
+.tp-tl-ideas-h:focus { outline: none; }
+.tp-tl-ideas-h:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-tl-ideas-top .tp-link { flex: none; }
+.tp-tl-ideas-next { margin-top: var(--space-3); }
+/* An idea added from the sheet: a ghost marker flies to its day, then the marker settles with a ring */
+.tp-tl-ghost { position: absolute; z-index: 1000; pointer-events: none; width: 22px; height: 22px; will-change: transform; }
+.tp-tl-ghost .cn-tl-sym { display: grid; place-items: center; width: 22px; height: 22px; border: var(--bw-2) solid var(--c-line-ink); border-radius: 5px; background: var(--c-surface); color: var(--c-ink); box-shadow: 0 8px 18px rgba(0,0,0,.28); }
+.tp-tl-mk.is-landed { z-index: 4; }
+.tp-tl-mk.is-landed .cn-tl-sym { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-accent); transition: box-shadow .3s ease-out; }
+.tp-tl-panel.has-ideas { overflow-anchor: none; } /* the sheet scrolls only when the ideas ask it to */
+
+/* ---------- Your days, in order as a map (concepts-map.js) ---------- */
+.tp-dview { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-3); }
+.tp-dview[hidden], .tp-map[hidden], .tp-map-skip[hidden] { display: none; }
+.tp-map-skip { font-size: var(--fs-sm); }
+.tp-map { position: relative; margin: var(--space-3) calc(var(--space-4) * -1) 0; }
+.tp-map-end { display: block; height: 0; }
+.tp-map-snaps span { position: absolute; left: 0; width: 1px; height: 1px; }
+/* No scroll snapping: with a snap point every day, any scroll shorter than half a step was pulled back to the same day */
+.tp-map-stage { position: sticky; top: 0; height: var(--stage-h, 600px); overflow: hidden; background: #d3d3d3; } /* the illustration’s own sea (grey in the wireframe), so its edge never shows */
+.tp-map-view { position: absolute; inset: 0; overflow: hidden; touch-action: pan-y; }
+.tp-map-view:focus { outline: none; }
+.tp-map-view:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -3px; }
+.tp-map.is-free .tp-map-view { touch-action: none; cursor: grab; }
+.tp-map-layer { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.tp-map-img { display: block; width: 2800px; height: 3602px; max-width: none; user-select: none; -webkit-user-drag: none; filter: grayscale(1) contrast(.85) brightness(1.08); }
+.tp-map-routes { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.tp-map-loop { fill: none; stroke-linecap: round; }
+.tp-map-loop.is-now { stroke: var(--c-ink); stroke-width: 3; }
+.tp-map-loop.is-idea { stroke: var(--c-ink-2); stroke-width: 2; opacity: .75; }
+.tp-map-loop.is-other { stroke: var(--c-ink-3); stroke-width: 1.5; opacity: .6; }
+.tp-map-loop.is-back { stroke-dasharray: 5 6; }
+.tp-map-chain { fill: none; stroke: var(--c-ink-2); stroke-width: 2; stroke-dasharray: 2 6; stroke-linecap: round; opacity: .8; }
+.tp-map-marks, .tp-map-pins, .tp-map-edges { position: absolute; inset: 0; pointer-events: none; }
+.tp-map-mark { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 4px; margin: -12px 0 0 -12px; }
+.tp-map-mark-i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: var(--c-surface); border: var(--bw-2) solid var(--c-ink); }
+.tp-map-mark-i:empty { width: 14px; height: 14px; margin: 5px; border-radius: 50%; background: var(--c-ink); }
+.tp-map-mark-i svg { width: 14px; height: 14px; fill: none; stroke: var(--c-ink); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.tp-map-mark.is-stadium .tp-map-mark-i { border-radius: 50%; border-color: var(--c-ink-3); }
+.tp-map-mark.is-stadium.is-now .tp-map-mark-i { border-color: var(--c-ink); background: var(--c-btn); }
+.tp-map-mark.is-stadium.is-now .tp-map-mark-i svg { stroke: var(--c-on-dark); }
+.tp-map-mark-t { padding: 1px 6px; border-radius: var(--radius-sm); background: rgba(255,255,255,.88); font-size: var(--fs-2xs); font-weight: var(--fw-semi); color: var(--c-ink); white-space: nowrap; }
+.tp-map-mark.is-stadium:not(.is-now) .tp-map-mark-t { color: var(--c-ink-2); font-weight: var(--fw-regular, 400); }
+.tp-map-pin { position: absolute; left: -16px; top: -16px; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: var(--bw-2) solid var(--c-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-bold); pointer-events: auto; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.18); transition: background .2s ease-out, color .2s ease-out, box-shadow .2s ease-out; }
+.tp-map-pin > span { transition: transform .2s ease-out; }
+.tp-map-pin.is-trip { border-style: dashed; }
+.tp-map-pin.is-done { background: var(--c-btn); color: var(--c-on-dark); border-color: var(--c-btn); }
+.tp-map-pin.is-done svg { width: 16px; height: 16px; }
+.tp-map-pin.is-hot { background: var(--c-btn); color: var(--c-on-dark); box-shadow: 0 0 0 3px var(--c-surface), 0 4px 10px rgba(0,0,0,.25); z-index: 2; }
+.tp-map-pin.is-faint { left: -12px; top: -12px; width: 24px; height: 24px; border-width: 1.5px; opacity: .75; box-shadow: none; }
+.tp-map-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.tp-map-pin:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-map-edge { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; gap: 4px; margin: -14px 0 0 -40px; padding: 4px 8px; border-radius: var(--radius-pill); background: var(--c-surface); border: var(--bw-1) solid var(--c-line-strong); font-size: var(--fs-2xs); font-weight: var(--fw-semi); white-space: nowrap; }
+.tp-map-edge-a { display: inline-block; }
+.tp-map-top { position: absolute; left: 12px; right: 12px; top: 12px; z-index: 3; display: flex; justify-content: space-between; gap: var(--space-2); }
+.tp-map-pill, .tp-map-free { display: inline-flex; align-items: center; gap: 6px; min-width: 0; height: 36px; padding: 0 var(--space-3); border: var(--bw-1) solid var(--c-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+.tp-map-pill > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tp-map-pill svg, .tp-map-free svg { flex: none; width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tp-map-free { flex: none; }
+.tp-map-zoom { position: absolute; right: 12px; top: 60px; z-index: 3; display: flex; flex-direction: column; gap: 6px; }
+.tp-map-zoom[hidden] { display: none; }
+.tp-map-zoom button { width: 36px; height: 36px; border: var(--bw-1) solid var(--c-ink); border-radius: var(--radius-md); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-lg); line-height: 1; cursor: pointer; }
+.tp-map-card { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3; display: flex; flex-direction: column; max-height: 60%; padding: var(--space-3) var(--space-3) var(--space-2); border: var(--bw-1) solid var(--c-line); border-radius: 14px; background: var(--c-surface); box-shadow: 0 8px 24px rgba(0,0,0,.16); overflow: hidden; }
+.tp-map.is-free .tp-map-card { display: none; }
+.tp-map-card-h { margin-top: 2px; font-size: var(--fs-lg); font-weight: var(--fw-bold); line-height: 1.25; }
+.tp-map-card-h:focus { outline: none; }
+.tp-map-card-h:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-map-tabs { display: flex; gap: 6px; margin-top: var(--space-2); overflow-x: auto; }
+.tp-map-tabs .tp-chip { flex: none; }
+.tp-map-note { margin-top: 4px; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-map-lead .tp-go { margin: var(--space-2) 0 var(--space-2); padding-bottom: var(--space-2); }
+.tp-map-lead .tp-go-btn { margin-top: var(--space-2); }
+.tp-map-body { flex: 1 1 auto; min-height: 0; margin-top: var(--space-2); overflow-y: auto; overscroll-behavior: contain; }
+.tp-map-body .tp-fday-done { margin-top: 0; }
+.tp-map-pcs { display: flex; gap: var(--space-2); margin: 0 calc(var(--space-3) * -1); padding: 2px var(--space-3) 6px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--space-3); }
+.tp-map-pcs .tp-pc { flex: 0 0 84%; margin: 0; scroll-snap-align: start; transition: box-shadow .2s ease-out; }
+.tp-map-pcs .tp-pc + .tp-pc { margin-top: 0; }
+.tp-map-pcs .tp-pc.is-hot { box-shadow: 0 0 0 2px var(--c-ink); }
+.tp-map-pcs .tp-pc::before { content: attr(data-pin); position: absolute; top: 6px; left: 6px; z-index: 1; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--c-btn); color: var(--c-on-dark); font-size: var(--fs-2xs); font-weight: var(--fw-bold); }
+.tp-map-pcs .tp-pc { position: relative; }
+.tp-map-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-1); padding-top: 2px; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-map-nav .tp-link { min-height: 36px; font-size: var(--fs-sm); }
+.tp-map-nav .tp-link[disabled] { opacity: .35; cursor: default; text-decoration: none; }
+.tp-map-jump { position: absolute; left: 0; right: 0; bottom: 0; top: 60px; z-index: 6; padding: var(--space-3) var(--space-4) var(--space-4); border-radius: 16px 16px 0 0; background: var(--c-surface); box-shadow: 0 -8px 24px rgba(0,0,0,.2); overflow-y: auto; overscroll-behavior: contain; animation: tp-sheet-up .3s cubic-bezier(.2, .8, .2, 1); }
+.tp-map-jump[hidden] { display: none; }
+.tp-map-jump-top { display: flex; align-items: baseline; justify-content: space-between; }
+.tp-map-jump-top h4 { font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.tp-map-jump-l { list-style: none; margin: var(--space-2) 0 0; padding: 0; }
+.tp-map-jump-l button { display: grid; grid-template-columns: 28px 1fr; grid-template-rows: auto auto; column-gap: var(--space-2); width: 100%; min-height: 44px; padding: var(--space-2) 0; border: 0; border-bottom: var(--bw-1) solid var(--c-line-soft); background: none; color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; }
+.tp-map-jump-n { grid-row: 1 / 3; align-self: center; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: var(--bw-1) solid var(--c-line-strong); font-size: var(--fs-2xs); font-weight: var(--fw-bold); }
+.tp-map-jump-l [aria-current] .tp-map-jump-n { background: var(--c-btn); color: var(--c-on-dark); border-color: var(--c-btn); }
+.tp-map-jump-d { font-weight: var(--fw-semi); }
+.tp-map-jump-k { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.tp-map-jump-list { margin-top: var(--space-3); }
+.tp-map-pop { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 4; padding: var(--space-3); border: var(--bw-1) solid var(--c-line); border-radius: 12px; background: var(--c-surface); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.tp-map-pop[hidden] { display: none; }
+.tp-map-pop-t { font-weight: var(--fw-bold); }
+.tp-map-pop-m { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-map-pop-a { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-2); }
+.tp-map-pop-done { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--fw-semi); }
+@media (prefers-reduced-motion: reduce) { .tp-map-jump { animation: none; } }
+.tp-pcs.tp-map-pcs { flex-direction: row; margin-top: 0; }
+.tp-map-marks.is-far .tp-map-mark.is-stadium:not(.is-now) .tp-map-mark-t { display: none; } /* zoomed out: only today’s stadium is named, so labels never pile up */
+.tp-map-dn { font-size: 9px; font-weight: var(--fw-bold); line-height: 1; letter-spacing: -.02em; }
+.tp-map-pin.is-faint { opacity: .9; }
+
+/* Map review fixes (critique 15 Nov): the day is the card's heading; a key for what is in view; grouped stops in
+   Explore freely; labels kept inside the frame; drawn icons; Skip the map as a clear control */
+.tp-map-card-h { margin-top: 0; font-size: var(--fs-md); font-weight: var(--fw-bold); line-height: 1.3; }
+.tp-map-title { margin-top: 2px; font-size: var(--fs-md); line-height: 1.3; color: var(--c-ink); }
+.tp-map-key { position: absolute; left: 12px; right: 12px; top: 56px; z-index: 3; display: flex; flex-wrap: wrap; gap: 4px 12px; width: fit-content; max-width: calc(100% - 24px); padding: 5px 10px; border-radius: var(--radius-md); background: rgba(255,255,255,.9); font-size: var(--fs-2xs); line-height: 1.3; color: var(--c-ink); pointer-events: none; }
+.tp-map-key:empty { display: none; }
+.tp-map.is-free .tp-map-key { right: 60px; }
+.tp-map-key span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.tp-map-key i { flex: none; font-style: normal; }
+.tp-map-key-dot { display: grid; place-items: center; width: 16px; height: 16px; border: 1.5px solid var(--c-ink); border-radius: 50%; background: var(--c-surface); font-size: 9px; font-weight: var(--fw-bold); }
+.tp-map-key-dot.is-n { background: var(--c-btn); color: var(--c-on-dark); border-color: var(--c-btn); }
+.tp-map-key-i { display: grid; place-items: center; width: 16px; height: 16px; border: 1.5px solid var(--c-ink); border-radius: 4px; background: var(--c-surface); }
+.tp-map-key-i.is-round { border-radius: 50%; }
+.tp-map-key-i svg { width: 10px; height: 10px; fill: none; stroke: var(--c-ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tp-map-key-l { width: 22px; height: 6px; border-top: 2px solid var(--c-ink); border-bottom: 2px dashed var(--c-ink); }
+.tp-map-pin[hidden] { display: none; }
+.tp-map-clusters { position: absolute; inset: 0; pointer-events: none; }
+.tp-map-cluster { position: absolute; left: -32px; top: -16px; display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 64px; height: 32px; padding: 0 10px; white-space: nowrap; border: 2px solid var(--c-surface); border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font: inherit; font-size: var(--fs-xs); font-weight: var(--fw-semi); box-shadow: 0 2px 8px rgba(0,0,0,.25); pointer-events: auto; cursor: zoom-in; }
+.tp-map-cluster:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-map-mark.is-left { flex-direction: row-reverse; }
+.tp-map-zoom button { display: grid; place-items: center; }
+.tp-map-zoom svg, .tp-map-edge-a svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tp-map-edge-a svg { width: 12px; height: 12px; display: block; }
+.tp-map-pop-l { list-style: none; margin: var(--space-2) 0 0; padding: 0; max-height: 220px; overflow-y: auto; }
+.tp-map-pop-l li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: 6px 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); }
+.tp-map-skip { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 var(--space-3); border: var(--bw-1) solid var(--c-ink); border-radius: var(--radius-pill); color: var(--c-ink); font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: none; }
+.tp-map-skip svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tp-map-skip:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+
+/* Polish pass (15 Nov) */
+.tp-map-nav .tp-link[disabled] { opacity: .5; }
+.tp-blk-more { margin-top: var(--space-3); }
+.tp-tl-free-l { font-size: 11px; }
+.tp-pm-go .cn-pp-facts dd .tp-link { min-height: 0; padding: 0; vertical-align: baseline; } /* inline in a sentence: the 2.5.8 inline exception, so no 36px box pushing the row down */

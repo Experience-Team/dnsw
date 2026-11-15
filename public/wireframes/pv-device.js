@@ -65,11 +65,18 @@
     'fan-zone': 'village',
     'newcastle-ocean-baths': 'coast-aerial',
     'nz-v-australia': 'hero-stadium',
+    // Getting there and back cards show the stadium (one stadium photo stands in for all of them)
+    'stadium-australia': 'hero-stadium', 'sydney-football-stadium': 'hero-stadium', 'newcastle-stadium': 'hero-stadium', 'adelaide-oval': 'hero-stadium', 'brisbane-stadium': 'hero-stadium', 'docklands-stadium': 'hero-stadium', 'perth-stadium': 'hero-stadium', 'north-queensland-stadium': 'hero-stadium',
     'patonga-beach': 'coast-headland'
   };
+  // The pictures in assets/images, by name and file type, so each placeholder asks for one file that exists (no
+  // .webp-then-.jpg pair, no request at all for a name with no picture: it stays a grey block). Add a picture here
+  // when one is added to the folder.
+  var IMG_FILES = {"1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW": "webp", "city-dining": "webp", "coast-aerial": "webp", "coast-headland": "webp", "golden-barley": "webp", "hero-coast": "webp", "hero-stadium": "webp", "ivy-rooftop": "jpg", "kathleen-banks-0h2KOlfkGck-unsplash": "jpg", "lord-nelson": "webp", "marickville-tavern": "webp", "river-national-park": "webp", "tth-logo": "webp", "village": "jpg"};
   function paint(el) {
     var name = el.getAttribute('data-img'); name = IMG_ALIAS[name] || name;
-    var want = hifi() ? 'url("' + IMG_DIR + name + '.webp"), url("' + IMG_DIR + name + '.jpg")' : '';
+    var ext = IMG_FILES[name];
+    var want = hifi() && ext ? 'url("' + IMG_DIR + name + '.' + ext + '")' : '';
     if (el.style.backgroundImage !== want) el.style.backgroundImage = want;
   }
   function paintAll(scope) { Array.prototype.forEach.call((scope || document).querySelectorAll('.cn-phone [data-img]'), paint); }
