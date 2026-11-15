@@ -167,3 +167,7 @@
 :root[data-theme="hifi"] .cn-phone .tp-slogan-2 { color: var(--tth-surface-brand); }
 :root[data-theme="hifi"] .cn-phone .tp-pick-sub { color: var(--tth-text-primary); }
 :root[data-theme="hifi"] .cn-phone .tp-hero-cta { font-size: 1.25rem; font-weight: 600; }
+
+/* Your days, in order as a map: the gallery's illustration in its own colours */
+:root[data-theme="hifi"] .cn-phone .tp-map-img { filter: none; }
+:root[data-theme="hifi"] .cn-phone .tp-map-stage { background: #c1d5d0; }

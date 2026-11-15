@@ -685,10 +685,140 @@
       if (m) { var k = m.dataset.tlideasMore; moreBlk[k] = !moreBlk[k]; render(true, '#tp-tl-ideas [data-tlideas-more="' + CSS.escape(k) + '"]'); }
     });
   }
+  /* ---------- The map view of Your days, in order (drawn by concepts-map.js) ----------
+     The same days, ideas and Add buttons as the list, as steps: one per day once dates are set (a long plan merges runs
+     of free days with nothing added). Each step has an anchor (home on free days, the stadium on match days), its pins
+     (made-up coordinates, concepts-geo.js) and the card's HTML, built with the list's own card functions so the ITEMS
+     behind every Add button are the same ones. Pins are numbered clockwise from north, never by rank, and a day's
+     products come in a rotating order, so no business is favoured. */
+  var LASTM = null, LASTBS = [], GEO = window.cnGeo || null;
+  var AWAY_LL = { Brisbane: [-27.47, 153.02], Melbourne: [-37.81, 144.96], Adelaide: [-34.93, 138.6], Perth: [-31.95, 115.86], Townsville: [-19.26, 146.82] };
+  function hash(str) { var n = 7; for (var i = 0; i < str.length; i++) n = (n * 31 + str.charCodeAt(i)) % 100003; return n; }
+  function homeLL() { var n = basePlace(); return n && GEO && GEO.places[n] ? { ll: GEO.places[n], name: n, home: true } : null; }
+  function stadiumLL(v) { return GEO && GEO.venues[v] ? { ll: GEO.venues[v], name: v } : null; }
+  // Without a base: the stadium of the nearest match in time, in that city
+  function nearStadium(d, city) {
+    var best = null;
+    (LASTM ? LASTM.nsw : []).forEach(function (m) { if (city && cityOf(m.f.v) !== city) return; if (!best || Math.abs(m.day - d) < Math.abs(best.day - d)) best = m; });
+    if (best) return stadiumLL(best.f.v);
+    return stadiumLL(city === 'newcastle' ? 'Newcastle Stadium' : 'Stadium Australia');
+  }
+  function stepsOf(bs) {
+    var out = [];
+    bs.forEach(function (b) {
+      if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) out.push({ kind: 'free', day: d, days: [d], b: b });
+      else out.push({ kind: b.kind, day: b.day, days: [b.day], b: b });
+    });
+    // A long plan: runs of free days with nothing added become one step (each day is a tab on its card)
+    if (out.length > 8) {
+      var merged = [];
+      out.forEach(function (st) {
+        var last = merged[merged.length - 1];
+        var empty = st.kind === 'free' && !dayItems(st.day).length;
+        if (empty && last && last.kind === 'free' && last.empty && last.days[last.days.length - 1] === st.day - 1) { last.days.push(st.day); return; }
+        st.empty = empty; merged.push(st);
+      });
+      out = merged;
+    }
+    return out;
+  }
+  function pinsOf(list, anchor) {
+    // Numbered clockwise from north around the day's anchor: geography decides the order, not a ranking
+    var a = anchor && anchor.ll;
+    list.forEach(function (p) { p.ang = a ? (Math.atan2(p.ll[1] - a[1], p.ll[0] - a[0]) * 180 / Math.PI + 360) % 360 : 0; });
+    list.sort(function (x, y) { return x.ang - y.ang; });
+    list.forEach(function (p, i) { p.n = i + 1; });
+    return list;
+  }
+  function nearProducts(venue, wd, d, n) {
+    return PRODUCTS.filter(function (p) { return p.distance_to_venue && p.distance_to_venue.venue_ref === venue && hoursOn(p, wd); })
+      .sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, n);
+  }
+  function productPins(ps, f, m) {
+    return ps.map(function (p) {
+      var o = hoursOn(p, weekdayOf(m.day)), id = 'p:' + p.id + ':' + f.d, why = reason(p, o, { m: m });
+      ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
+      MODAL[id] = { type: 'product', p: p, f: f, o: o, why: why };
+      return { key: id, title: p.title, kindLabel: PTYPE[p.type] || 'Product', ll: GEO && GEO.products[p.id], html: productCard(p, why, id, f) };
+    }).filter(function (x) { return x.ll; });
+  }
+  function mapStep(st, sub) {
+    var b = st.b, d = sub !== undefined ? sub : st.day, dl = dayLabel(d), home = homeLL(), r = { day: d, label: dl, kind: st.kind, pins: [], loops: [], home: home };
+    if (st.kind === 'match') {
+      var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, sl = stadiumLL(f.v);
+      r.anchor = sl; r.place = f.v; r.kicker = dl + ' \u00b7 Match day \u00b7 ' + (f.k || 'time to be confirmed');
+      r.title = matchName(f) + ', ' + f.v;
+      if (b.ms.length > 1) r.note = 'Also that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return matchName(x.f); }).join(', ');
+      r.lead = goBlock(m);
+      r.pins = productPins(nearProducts(f.v, weekdayOf(d), d, 3), f, m);
+      if (home && sl) r.loops.push({ from: home.ll, to: sl.ll, match: true });
+    } else if (st.kind === 'watch') {
+      var city = baseCity() || 'sydney';
+      r.anchor = home || nearStadium(d, city); r.place = home ? home.name : CITY[city];
+      r.kicker = dl + ' \u00b7 Free day'; r.title = (b.ms.length > 1 ? b.ms.length + ' of your matches tonight' : kickLine(b.ms[0])) + '. Where to watch';
+      r.body = venueRows(b.ms, evKey(b.ms));
+      r.pins = venuesFor(b.ms).map(function (c) { return { key: 'w:' + c.j + ':' + evKey(b.ms), title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', ll: GEO && GEO.watch[c.j] }; }).filter(function (x) { return x.ll; });
+    } else if (st.kind === 'half') {
+      var wd = weekdayOf(d), c2 = b.base, fx = { d: dl, v: CITY[c2] };
+      r.anchor = home || nearStadium(d, c2); r.place = home ? home.name : CITY[c2];
+      r.kicker = dl + ' \u00b7 ' + (b.first ? 'Arrival day' : 'Last day'); r.title = 'Half a day, ' + whereText(c2);
+      var ps = PRODUCTS.filter(function (p) { return p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === c2 && hoursOn(p, wd) && (p.type === 'food_and_drink' || p.type === 'attraction'); })
+        .sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
+      r.pins = ps.map(function (p) {
+        var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb].filter(Boolean).join(' \u00b7 ');
+        ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
+        MODAL[id] = { type: 'product', p: p, f: fx, o: o, why: why };
+        return { key: id, title: p.title, kindLabel: PTYPE[p.type] || 'Product', ll: GEO && GEO.products[p.id], html: productCard(p, why, id, fx) };
+      }).filter(function (x) { return x.ll; });
+    } else if (st.kind === 'away') {
+      var am = b.m, ll = AWAY_LL[am.f.a];
+      r.anchor = home || nearStadium(d, 'sydney'); r.place = am.f.a; r.away = ll ? { ll: ll, name: am.f.a } : null;
+      r.kicker = dl + ' \u00b7 Away'; r.title = matchName(am.f) + ' in ' + am.f.a + ' (your ticket)';
+      r.body = '<p class="tp-blk-note">Off this map: you\u2019re in ' + esc(am.f.a) + ' for the match.</p>';
+    } else {
+      var fd = freeInfo(d), city3 = b.base;
+      r.anchor = home || nearStadium(d, city3); r.place = home ? home.name : CITY[city3];
+      r.kicker = dl + ' \u00b7 Free day' + (home ? ' \u00b7 from ' + home.name : '');
+      r.title = st.days.length > 1 ? st.days.length + ' free days' : 'Free day';
+      var its = fd ? fd.its : dayItems(d);
+      if (fd && fd.filled) r.body = '<p class="tp-fday-done">Your day: ' + esc(its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p>';
+      else if (fd) {
+        if (its.length) r.note = 'So far: ' + its.map(function (x) { return x.title; }).join(', ') + '. Room for one more.';
+        r.pins = fd.show.map(function (i) { var key = 'i:' + i.id + '@' + d; return { key: key, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', ll: GEO && GEO.ideas[i.id], trip: i.kind === 'day', html: ideaCard(i, d) }; }).filter(function (x) { return x.ll; });
+      }
+      // What is already on that day: shown as done pins, with a loop for a day trip
+      its.forEach(function (x) {
+        var id = (x.id || '').replace(/^i:/, ''), ll = GEO && GEO.ideas[id];
+        if (ll) r.pins.push({ key: null, title: x.title, kindLabel: 'Added', ll: ll, done: true, trip: x.idea === 'day' });
+      });
+      r.pins.forEach(function (p) { if (p.trip && r.anchor) r.loops.push({ from: r.anchor.ll, to: p.ll, done: !!p.done }); });
+    }
+    pinsOf(r.pins, r.anchor);
+    if (!r.body) r.body = r.pins.filter(function (p) { return p.html; }).length ? '<div class="tp-pcs tp-map-pcs">' + r.pins.filter(function (p) { return p.html; }).map(function (p) { return p.html.replace('<article class="tp-pc', '<article data-pin="' + p.n + '" class="tp-pc'); }).join('') + '</div>' : '';
+    return r;
+  }
+  tp.mapPlan = function () {
+    if (!LASTM || !LASTM.range || !GEO) return null;
+    return stepsOf(LASTBS);
+  };
+  tp.mapStep = mapStep;
+  // See as a list: the list opens at that day's block
+  tp.listShowDay = function (d) {
+    var b = LASTBS.filter(function (x) { return x.kind === 'free' ? d >= x.a && d <= x.z : x.day === d; })[0];
+    if (!b) return;
+    openSet[b.key] = true;
+    render(true);
+    var head = thirdList.querySelector('[data-blk-toggle="' + b.key + '"]');
+    if (!head) return;
+    var top = head.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
+    body.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
+    head.focus({ preventScroll: true });
+  };
   function renderThird() {
     SUGG = {}; FREEINFO = [];
     // With no team but their days set (T16), the days still lead: free stretches with day trips and longer trips
     var M = model(), bs = blocks(M), first = teaser() && !M.range;
+    LASTM = M; LASTBS = bs;
     // Free days' ideas in date order, open or not, so nothing is suggested twice on the page
     FREE_LEFT = 0; bs.forEach(function (b) { if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) if (!dayFilled(d)) FREE_LEFT++; });
     bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b); });
@@ -1650,7 +1780,8 @@
     // The control that had focus is rebuilt, so focus goes back to its replacement
     var active = document.activeElement, keep = null;
     // Focus in the timeline's ideas stays there (the page has the same buttons): where it was, by position
-    var inIdeas = !!(active && tlIdeas && tlIdeas.contains(active)), ideasAt = inIdeas ? Array.prototype.indexOf.call(tlIdeas.querySelectorAll('.tp-add'), active) : -1;
+    var scopeEl = active && active.closest ? active.closest('#tp-tl-ideas, #tp-map') : null, inIdeas = !!scopeEl;
+    var ideasAt = inIdeas ? Array.prototype.indexOf.call(scopeEl.querySelectorAll('.tp-add'), active) : -1;
     if (active && phone.contains(active) && active.dataset) {
       if (active.dataset.item) keep = '.tp-add[data-item="' + CSS.escape(active.dataset.item) + '"]';
       else if (active.dataset.day) keep = '[data-day="' + CSS.escape(active.dataset.day) + '"]';
@@ -1666,6 +1797,7 @@
     renderDaysLine();
     renderPlan();
     renderTlIdeas();
+    if (tp.mapRender) tp.mapRender();
     // A gentle change: what is new fades up; a reason that changed glows briefly
     var now = {};
     phone.querySelectorAll('.tp-wm, .tp-pc').forEach(function (el) {
@@ -1677,9 +1809,9 @@
     });
     seen = now;
     // In the timeline's ideas the same buttons exist on the page too: look in the ideas first, so focus never jumps
-    var f = (focusSel && phone.querySelector(focusSel)) || (keep && (inIdeas ? tlIdeas.querySelector(keep) : phone.querySelector(keep)));
+    var f = (focusSel && phone.querySelector(focusSel)) || (keep && (inIdeas ? scopeEl.querySelector(keep) : phone.querySelector(keep)));
     // The idea just added leaves the list: focus goes to the idea now in its place, else the list's heading
-    if (!f && inIdeas && !tlIdeas.hidden) { var adds = tlIdeas.querySelectorAll('.tp-add'); f = (ideasAt > -1 && (adds[ideasAt] || adds[adds.length - 1])) || tlIdeas.querySelector('.tp-tl-ideas-next') || tlIdeas.querySelector('.tp-tl-ideas-h'); }
+    if (!f && inIdeas && !scopeEl.hidden) { var adds = scopeEl.querySelectorAll('.tp-add'); f = (ideasAt > -1 && (adds[ideasAt] || adds[adds.length - 1])) || scopeEl.querySelector('.tp-tl-ideas-next, .tp-map-card-h') || scopeEl.querySelector('.tp-tl-ideas-h'); }
     if (f && f !== document.activeElement) f.focus({ preventScroll: true });
     notesRefresh();
   }

@@ -4423,3 +4423,97 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-mk.is-landed { z-index: 4; }
 .tp-tl-mk.is-landed .cn-tl-sym { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-accent); transition: box-shadow .3s ease-out; }
 .tp-tl-panel.has-ideas { overflow-anchor: none; } /* the sheet scrolls only when the ideas ask it to */
+
+/* ---------- Your days, in order as a map (concepts-map.js) ---------- */
+.tp-dview { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-3); }
+.tp-dview[hidden], .tp-map[hidden], .tp-map-skip[hidden] { display: none; }
+.tp-map-skip { font-size: var(--fs-sm); }
+.tp-map { position: relative; margin: var(--space-3) calc(var(--space-4) * -1) 0; }
+.tp-map-end { display: block; height: 0; }
+.tp-map-snaps span { position: absolute; left: 0; width: 1px; height: 1px; scroll-snap-align: start; }
+.tp-map-on .tp-body { scroll-snap-type: y proximity; }
+.tp-map-stage { position: sticky; top: 0; height: var(--stage-h, 600px); overflow: hidden; background: #d3d3d3; } /* the illustration’s own sea (grey in the wireframe), so its edge never shows */
+.tp-map-view { position: absolute; inset: 0; overflow: hidden; touch-action: pan-y; }
+.tp-map-view:focus { outline: none; }
+.tp-map-view:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -3px; }
+.tp-map.is-free .tp-map-view { touch-action: none; cursor: grab; }
+.tp-map-layer { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.tp-map-img { display: block; width: 2800px; height: 3602px; max-width: none; user-select: none; -webkit-user-drag: none; filter: grayscale(1) contrast(.85) brightness(1.08); }
+.tp-map-routes { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.tp-map-loop { fill: none; stroke-linecap: round; }
+.tp-map-loop.is-now { stroke: var(--c-ink); stroke-width: 3; }
+.tp-map-loop.is-idea { stroke: var(--c-ink-2); stroke-width: 2; opacity: .75; }
+.tp-map-loop.is-other { stroke: var(--c-ink-3); stroke-width: 1.5; opacity: .6; }
+.tp-map-loop.is-back { stroke-dasharray: 5 6; }
+.tp-map-chain { fill: none; stroke: var(--c-ink-2); stroke-width: 2; stroke-dasharray: 2 6; stroke-linecap: round; opacity: .8; }
+.tp-map-marks, .tp-map-pins, .tp-map-edges { position: absolute; inset: 0; pointer-events: none; }
+.tp-map-mark { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 4px; margin: -12px 0 0 -12px; }
+.tp-map-mark-i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: var(--c-surface); border: var(--bw-2) solid var(--c-ink); }
+.tp-map-mark-i:empty { width: 14px; height: 14px; margin: 5px; border-radius: 50%; background: var(--c-ink); }
+.tp-map-mark-i svg { width: 14px; height: 14px; fill: none; stroke: var(--c-ink); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.tp-map-mark.is-stadium .tp-map-mark-i { border-radius: 50%; border-color: var(--c-ink-3); }
+.tp-map-mark.is-stadium.is-now .tp-map-mark-i { border-color: var(--c-ink); background: var(--c-btn); }
+.tp-map-mark.is-stadium.is-now .tp-map-mark-i svg { stroke: var(--c-on-dark); }
+.tp-map-mark-t { padding: 1px 6px; border-radius: var(--radius-sm); background: rgba(255,255,255,.88); font-size: var(--fs-2xs); font-weight: var(--fw-semi); color: var(--c-ink); white-space: nowrap; }
+.tp-map-mark.is-stadium:not(.is-now) .tp-map-mark-t { color: var(--c-ink-2); font-weight: var(--fw-regular, 400); }
+.tp-map-pin { position: absolute; left: -16px; top: -16px; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: var(--bw-2) solid var(--c-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-bold); pointer-events: auto; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.18); transition: background .2s ease-out, color .2s ease-out, box-shadow .2s ease-out; }
+.tp-map-pin > span { transition: transform .2s ease-out; }
+.tp-map-pin.is-trip { border-style: dashed; }
+.tp-map-pin.is-done { background: var(--c-btn); color: var(--c-on-dark); border-color: var(--c-btn); }
+.tp-map-pin.is-done svg { width: 16px; height: 16px; }
+.tp-map-pin.is-hot { background: var(--c-btn); color: var(--c-on-dark); box-shadow: 0 0 0 3px var(--c-surface), 0 4px 10px rgba(0,0,0,.25); z-index: 2; }
+.tp-map-pin.is-faint { left: -12px; top: -12px; width: 24px; height: 24px; border-width: 1.5px; opacity: .75; box-shadow: none; }
+.tp-map-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.tp-map-pin:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-map-edge { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; gap: 4px; margin: -14px 0 0 -40px; padding: 4px 8px; border-radius: var(--radius-pill); background: var(--c-surface); border: var(--bw-1) solid var(--c-line-strong); font-size: var(--fs-2xs); font-weight: var(--fw-semi); white-space: nowrap; }
+.tp-map-edge-a { display: inline-block; }
+.tp-map-top { position: absolute; left: 12px; right: 12px; top: 12px; z-index: 3; display: flex; justify-content: space-between; gap: var(--space-2); }
+.tp-map-pill, .tp-map-free { display: inline-flex; align-items: center; gap: 6px; min-width: 0; height: 36px; padding: 0 var(--space-3); border: var(--bw-1) solid var(--c-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+.tp-map-pill > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tp-map-pill svg, .tp-map-free svg { flex: none; width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tp-map-free { flex: none; }
+.tp-map-zoom { position: absolute; right: 12px; top: 60px; z-index: 3; display: flex; flex-direction: column; gap: 6px; }
+.tp-map-zoom[hidden] { display: none; }
+.tp-map-zoom button { width: 36px; height: 36px; border: var(--bw-1) solid var(--c-ink); border-radius: var(--radius-md); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-lg); line-height: 1; cursor: pointer; }
+.tp-map-card { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3; display: flex; flex-direction: column; max-height: 60%; padding: var(--space-3) var(--space-3) var(--space-2); border: var(--bw-1) solid var(--c-line); border-radius: 14px; background: var(--c-surface); box-shadow: 0 8px 24px rgba(0,0,0,.16); overflow: hidden; }
+.tp-map.is-free .tp-map-card { display: none; }
+.tp-map-kicker { font-size: var(--fs-2xs); font-weight: var(--fw-semi); letter-spacing: .04em; text-transform: uppercase; color: var(--c-ink-2); }
+.tp-map-card-h { margin-top: 2px; font-size: var(--fs-lg); font-weight: var(--fw-bold); line-height: 1.25; }
+.tp-map-card-h:focus { outline: none; }
+.tp-map-card-h:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-map-tabs { display: flex; gap: 6px; margin-top: var(--space-2); overflow-x: auto; }
+.tp-map-tabs .tp-chip { flex: none; }
+.tp-map-note { margin-top: 4px; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-map-lead .tp-go { margin: var(--space-2) 0 var(--space-2); padding-bottom: var(--space-2); }
+.tp-map-lead .tp-go-btn { margin-top: var(--space-2); }
+.tp-map-body { flex: 1 1 auto; min-height: 0; margin-top: var(--space-2); overflow-y: auto; overscroll-behavior: contain; }
+.tp-map-body .tp-fday-done { margin-top: 0; }
+.tp-map-pcs { display: flex; gap: var(--space-2); margin: 0 calc(var(--space-3) * -1); padding: 2px var(--space-3) 6px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--space-3); }
+.tp-map-pcs .tp-pc { flex: 0 0 84%; margin: 0; scroll-snap-align: start; transition: box-shadow .2s ease-out; }
+.tp-map-pcs .tp-pc + .tp-pc { margin-top: 0; }
+.tp-map-pcs .tp-pc.is-hot { box-shadow: 0 0 0 2px var(--c-ink); }
+.tp-map-pcs .tp-pc::before { content: attr(data-pin); position: absolute; top: 6px; left: 6px; z-index: 1; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--c-btn); color: var(--c-on-dark); font-size: var(--fs-2xs); font-weight: var(--fw-bold); }
+.tp-map-pcs .tp-pc { position: relative; }
+.tp-map-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-1); padding-top: 2px; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-map-nav .tp-link { min-height: 36px; font-size: var(--fs-sm); }
+.tp-map-nav .tp-link[disabled] { opacity: .35; cursor: default; text-decoration: none; }
+.tp-map-jump { position: absolute; left: 0; right: 0; bottom: 0; top: 60px; z-index: 6; padding: var(--space-3) var(--space-4) var(--space-4); border-radius: 16px 16px 0 0; background: var(--c-surface); box-shadow: 0 -8px 24px rgba(0,0,0,.2); overflow-y: auto; overscroll-behavior: contain; animation: tp-sheet-up .3s cubic-bezier(.2, .8, .2, 1); }
+.tp-map-jump[hidden] { display: none; }
+.tp-map-jump-top { display: flex; align-items: baseline; justify-content: space-between; }
+.tp-map-jump-top h4 { font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.tp-map-jump-l { list-style: none; margin: var(--space-2) 0 0; padding: 0; }
+.tp-map-jump-l button { display: grid; grid-template-columns: 28px 1fr; grid-template-rows: auto auto; column-gap: var(--space-2); width: 100%; min-height: 44px; padding: var(--space-2) 0; border: 0; border-bottom: var(--bw-1) solid var(--c-line-soft); background: none; color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; }
+.tp-map-jump-n { grid-row: 1 / 3; align-self: center; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: var(--bw-1) solid var(--c-line-strong); font-size: var(--fs-2xs); font-weight: var(--fw-bold); }
+.tp-map-jump-l [aria-current] .tp-map-jump-n { background: var(--c-btn); color: var(--c-on-dark); border-color: var(--c-btn); }
+.tp-map-jump-d { font-weight: var(--fw-semi); }
+.tp-map-jump-k { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.tp-map-jump-list { margin-top: var(--space-3); }
+.tp-map-pop { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 4; padding: var(--space-3); border: var(--bw-1) solid var(--c-line); border-radius: 12px; background: var(--c-surface); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.tp-map-pop[hidden] { display: none; }
+.tp-map-pop-t { font-weight: var(--fw-bold); }
+.tp-map-pop-m { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-map-pop-a { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-2); }
+.tp-map-pop-done { display: inline-flex; align-items: center; gap: 6px; font-weight: var(--fw-semi); }
+@media (prefers-reduced-motion: reduce) { .tp-map-jump { animation: none; } }
+.tp-pcs.tp-map-pcs { flex-direction: row; margin-top: 0; }
+.tp-map-marks.is-far .tp-map-mark.is-stadium:not(.is-now) .tp-map-mark-t { display: none; } /* zoomed out: only today’s stadium is named, so labels never pile up */

@@ -106,6 +106,8 @@
     if (rec && rec.view === 'grid') state.view = 'grid';
     if (rec && rec.nswMark === true) state.nswMark = true;
     // Matches they said No to on Going to this match? (the question is not asked again for those)
+    // Your days, in order as a map or a list (the section's switch); unset follows reduced motion
+    if (rec && (rec.dayView === 'map' || rec.dayView === 'list')) state.dayView = rec.dayView;
     if (rec && Array.isArray(rec.notGoing)) state.notGoing = rec.notGoing.filter(function (x) { return typeof x === 'string'; });
     if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
     // The trip: your days (from, to), where you are staying (base) and who is coming (party), each optional. Saved before
