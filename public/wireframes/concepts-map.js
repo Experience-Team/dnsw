@@ -19,6 +19,8 @@
   function onMap(ll) { return ll && ll[1] > B.lon0 && ll[1] < B.lon1 && ll[0] > B.lat0 && ll[0] < B.lat1; }
   var PLUS = window.tpIcons ? window.tpIcons.add : '', TICK = window.tpIcons ? window.tpIcons.added : '';
   var HOME = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7.5L8 3l5.5 4.5V13a.5.5 0 0 1-.5.5H9.5V10h-3v3.5H3a.5.5 0 0 1-.5-.5z"/></svg>';
+  var ICO = function (d) { return '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="' + d + '"/></svg>'; };
+  var I_PLUS = ICO('M8 3.5v9M3.5 8h9'), I_MINUS = ICO('M3.5 8h9'), I_CENTRE = ICO('M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3M8 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6z'), I_ARROW = ICO('M8 13V3M4 7l4-4 4 4'), I_DOWN = ICO('M8 3v10M4 9l4 4 4-4');
   var FLAG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 14V2.5M4 3h7.5l-1.8 2.5L11.5 8H4"/></svg>';
 
   /* ---------- Markup ---------- */
@@ -26,7 +28,7 @@
   dview.className = 'tp-dview'; dview.hidden = true;
   dview.innerHTML = '<div class="tp-seg has-sel tp-dview-seg" role="group" aria-label="Show your days as"><span class="tp-seg-thumb" aria-hidden="true"></span>' +
     '<button type="button" class="tp-seg-btn" data-dview="map" aria-pressed="false">Map</button><button type="button" class="tp-seg-btn" data-dview="list" aria-pressed="false">List</button></div>' +
-    '<a class="tp-link tp-map-skip" href="#tp-map-end">Skip the map</a>';
+    '<a class="tp-map-skip" href="#tp-map-end">Skip the map' + I_DOWN + '</a>';
   var mapEl = document.createElement('div');
   mapEl.className = 'tp-map'; mapEl.id = 'tp-map'; mapEl.hidden = true;
   mapEl.innerHTML = '<div class="tp-map-snaps" aria-hidden="true"></div>' +
@@ -35,9 +37,10 @@
         '<button type="button" class="tp-map-free" aria-pressed="false"><span class="tp-map-free-l">Explore freely</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9"/></svg></button></div>' +
       '<div class="tp-map-view" tabindex="-1" aria-label="Map. In Explore freely: arrow keys move, plus and minus zoom, zero resets.">' +
         '<div class="tp-map-layer"><img class="tp-map-img" src="assets/images/map/nsw-relief.webp" width="' + IW + '" height="' + IH + '" alt="" decoding="async" draggable="false"></div>' +
-        '<svg class="tp-map-routes" aria-hidden="true"></svg><div class="tp-map-marks" aria-hidden="true"></div><div class="tp-map-pins"></div><div class="tp-map-edges" aria-hidden="true"></div>' +
+        '<svg class="tp-map-routes" aria-hidden="true"></svg><div class="tp-map-marks" aria-hidden="true"></div><div class="tp-map-pins"></div><div class="tp-map-clusters"></div><div class="tp-map-edges" aria-hidden="true"></div>' +
       '</div>' +
-      '<div class="tp-map-zoom" hidden><button type="button" data-zoom="in" aria-label="Zoom in">+</button><button type="button" data-zoom="out" aria-label="Zoom out">−</button><button type="button" data-zoom="reset" aria-label="Back to this day">⌖</button></div>' +
+      '<div class="tp-map-key" aria-hidden="true"></div>' +
+      '<div class="tp-map-zoom" hidden><button type="button" data-zoom="in" aria-label="Zoom in">' + I_PLUS + '</button><button type="button" data-zoom="out" aria-label="Zoom out">' + I_MINUS + '</button><button type="button" data-zoom="reset" aria-label="Back to this day">' + I_CENTRE + '</button></div>' +
       '<div class="tp-map-pop" hidden></div>' +
       '<div class="tp-map-card"></div>' +
       '<div class="tp-map-jump" role="dialog" aria-modal="true" aria-labelledby="tp-map-jump-h" hidden></div>' +
@@ -52,6 +55,7 @@
   var svg = mapEl.querySelector('.tp-map-routes'), marksEl = mapEl.querySelector('.tp-map-marks'), pinsEl = mapEl.querySelector('.tp-map-pins'), edgesEl = mapEl.querySelector('.tp-map-edges');
   var pill = mapEl.querySelector('.tp-map-pill'), freeBtn = mapEl.querySelector('.tp-map-free'), zoomEl = mapEl.querySelector('.tp-map-zoom');
   var card = mapEl.querySelector('.tp-map-card'), jump = mapEl.querySelector('.tp-map-jump'), pop = mapEl.querySelector('.tp-map-pop'), sayEl = mapEl.querySelector('#tp-map-say');
+  var keyEl = mapEl.querySelector('.tp-map-key'), clustersEl = mapEl.querySelector('.tp-map-clusters');
   var snaps = mapEl.querySelector('.tp-map-snaps'), seg = dview.querySelector('.tp-dview-seg'), skip = dview.querySelector('.tp-map-skip');
 
   /* ---------- State ---------- */
@@ -77,7 +81,7 @@
   }
 
   /* ---------- Camera ---------- */
-  function availTop() { return 60; }
+  function availTop() { return 96; } // under the controls and the key
   function availBottom() { return stageH - (card.offsetHeight || 260) - 14; }
   function frameOf(i) {
     var c = cards[i]; if (!c) return null;
@@ -151,7 +155,7 @@
     marks = mk;
     place();
   }
-  var marks = [];
+  var marks = [], clusters = [];
   function curve(a, b, bow) {
     var mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
     var cx = mx - dy / len * len * bow, cy = my + dx / len * len * bow;
@@ -160,7 +164,40 @@
   function place() {
     // Pins close together are eased apart so each stays tappable (36px between centres), and kept off home and the stadium
     var P = pinEls.map(function (o) { var s = scr(px(o.x.p.ll)); return { x: s[0], y: s[1], o: o, r: o.x.strong ? 19 : 13 }; });
-    var M = marks.map(function (m, k) { var s = scr(px(m.ll)), t = marksEl.children[k] && marksEl.children[k].querySelector('.tp-map-mark-t'); return { x: s[0], y: s[1], w: t && t.offsetParent ? t.offsetWidth : 0 }; });
+    // A label that would run off the right edge sits to the left of its mark instead
+    var M = marks.map(function (m, k) {
+      var s = scr(px(m.ll)), el = marksEl.children[k], t = el && el.querySelector('.tp-map-mark-t'), w = t && t.offsetParent ? t.offsetWidth : 0, left = s[0] + 16 + w > vw - 8;
+      if (el) { el.classList.toggle('is-left', left); el.style.marginLeft = left ? -(w + 16) + 'px' : ''; }
+      return { x: s[0], y: s[1], w: w, left: left };
+    });
+    // Explore freely: stops close together on screen become one marker with a count (tap it to zoom in)
+    var groups = [];
+    if (free) {
+      var taken = [];
+      P.forEach(function (q, a) {
+        if (taken[a]) return;
+        var g = [q]; taken[a] = true;
+        P.forEach(function (o, b) { if (!taken[b] && Math.hypot(o.x - q.x, o.y - q.y) < 34) { g.push(o); taken[b] = true; } });
+        if (g.length > 1) groups.push(g);
+      });
+      // Groups whose markers would touch are merged, so no two markers overlap
+      var cen = function (g) { return [g.reduce(function (t, q) { return t + q.x; }, 0) / g.length, g.reduce(function (t, q) { return t + q.y; }, 0) / g.length]; };
+      for (var merged = true; merged;) {
+        merged = false;
+        for (var i1 = 0; i1 < groups.length && !merged; i1++) for (var i2 = i1 + 1; i2 < groups.length; i2++) {
+          var c1 = cen(groups[i1]), c2 = cen(groups[i2]);
+          if (Math.abs(c1[0] - c2[0]) < 80 && Math.abs(c1[1] - c2[1]) < 40) { groups[i1] = groups[i1].concat(groups[i2]); groups.splice(i2, 1); merged = true; break; }
+        }
+      }
+      groups.forEach(function (g) { g.forEach(function (q) { q.hide = true; }); });
+      clustersEl.innerHTML = groups.map(function (g, k) {
+        var cx = g.reduce(function (t, q) { return t + q.x; }, 0) / g.length, cy = g.reduce(function (t, q) { return t + q.y; }, 0) / g.length;
+        g.cx = cx; g.cy = cy;
+        return '<button type="button" class="tp-map-cluster" data-g="' + k + '" style="transform:translate(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px)" aria-label="' + g.length + ' stops here. Zoom in"><b>' + g.length + '</b> stops</button>';
+      }).join('');
+    } else if (clustersEl.firstChild) clustersEl.innerHTML = '';
+    clusters = groups;
+    P = P.filter(function (q) { q.o.el.hidden = !!q.hide; return !q.hide; });
     for (var it = 0; it < 6; it++) {
       for (var a = 0; a < P.length; a++) {
         for (var b2 = a + 1; b2 < P.length; b2++) {
@@ -171,7 +208,8 @@
           var dx2 = P[a].x - m.x, dy2 = P[a].y - m.y, d2 = Math.hypot(dx2, dy2), need2 = P[a].r + 14;
           if (d2 < need2) { if (d2 < .01) { dx2 = 0; dy2 = -1; d2 = 1; } P[a].x = m.x + dx2 / d2 * need2; P[a].y = m.y + dy2 / d2 * need2; }
           // and off its label, which sits to the right of the mark: out above or below, whichever is nearer
-          if (m.w && P[a].x + P[a].r > m.x + 12 && P[a].x - P[a].r < m.x + 14 + m.w && Math.abs(P[a].y - m.y) < P[a].r + 10) P[a].y = m.y + (P[a].y < m.y ? -1 : 1) * (P[a].r + 10);
+          var l0 = m.left ? m.x - 14 - m.w : m.x + 12, l1 = m.left ? m.x - 12 : m.x + 14 + m.w;
+          if (m.w && P[a].x + P[a].r > l0 && P[a].x - P[a].r < l1 && Math.abs(P[a].y - m.y) < P[a].r + 10) P[a].y = m.y + (P[a].y < m.y ? -1 : 1) * (P[a].r + 10);
         });
       }
     }
@@ -201,7 +239,7 @@
       var p = scr(px(o.ll)), cx = vw / 2, cy = cam.fy, ang = Math.atan2(p[1] - cy, p[0] - cx);
       var r = Math.min((vw / 2 - 70) / Math.abs(Math.cos(ang) || 1e-6), ((stageH - 120) / 2) / Math.abs(Math.sin(ang) || 1e-6));
       var x = cx + Math.cos(ang) * r, y = cy + Math.sin(ang) * r;
-      e += '<span class="tp-map-edge" style="transform:translate(' + x.toFixed(0) + 'px,' + y.toFixed(0) + 'px)"><span class="tp-map-edge-a" style="transform:rotate(' + (ang * 180 / Math.PI + 90).toFixed(0) + 'deg)">↑</span>' + esc(o.name) + '</span>';
+      e += '<span class="tp-map-edge" style="transform:translate(' + x.toFixed(0) + 'px,' + y.toFixed(0) + 'px)"><span class="tp-map-edge-a" style="transform:rotate(' + (ang * 180 / Math.PI + 90).toFixed(0) + 'deg)">' + I_ARROW + '</span>' + esc(o.name) + '</span>';
     });
     edgesEl.innerHTML = e;
   }
@@ -211,7 +249,7 @@
   function drawCard(fresh) {
     var c = cards[cur], st = steps[cur]; if (!c) { card.innerHTML = ''; return; }
     var active = document.activeElement, keep = active && card.contains(active) ? (active.dataset.mstep ? '[data-mstep="' + active.dataset.mstep + '"]' : active.dataset.mtab ? '[data-mtab="' + active.dataset.mtab + '"]' : null) : null;
-    var h = '<p class="tp-map-kicker">' + esc(c.kicker) + '</p><h4 class="tp-map-card-h" tabindex="-1">' + esc(c.title) + '</h4>';
+    var h = '<h4 class="tp-map-card-h" tabindex="-1">' + esc(c.kicker) + '</h4>' + (c.title ? '<p class="tp-map-title">' + esc(c.title) + '</p>' : '');
     if (st.days.length > 1) h += '<div class="tp-map-tabs" role="group" aria-label="Pick a day">' + st.days.map(function (d) { var x = cardsFor(st, d); return '<button type="button" class="tp-chip" data-mtab="' + d + '" aria-pressed="' + (d === c.day) + '">' + esc(x ? x.label.replace(/ (Oct|Nov)$/, '') : '') + '</button>'; }).join('') + '</div>';
     if (c.note) h += '<p class="tp-map-note">' + esc(c.note) + '</p>';
     if (c.lead) h += '<div class="tp-map-lead">' + c.lead + '</div>';
@@ -227,6 +265,18 @@
     pill.setAttribute('aria-label', 'Day ' + (cur + 1) + ' of ' + steps.length + ', ' + c.label + ', ' + placeOf(cur) + '. Jump to a day');
   }
   function cardsFor(st, d) { return tp.mapStep(st, d); }
+  // A short key for what is on the map right now: only the symbols in view
+  function drawKey() {
+    var c = cards[cur], k = [];
+    if (free) { k.push('<span><i class="tp-map-key-dot">13</i>A stop and its date</span>', '<span><i class="tp-map-key-dot is-n">3</i>Stops close together: tap to zoom</span>'); }
+    else if (c) {
+      if (c.pins.some(function (p) { return p.html; })) k.push('<span><i class="tp-map-key-dot">1</i>Ideas below</span>');
+      if (c.home && onMap(c.home.ll)) k.push('<span><i class="tp-map-key-i">' + HOME + '</i>Where you\u2019re staying</span>');
+      if (marks.some(function (m) { return /is-stadium/.test(m.cls); })) k.push('<span><i class="tp-map-key-i is-round">' + FLAG + '</i>Stadium</span>');
+      if (c.loops.length) k.push('<span><i class="tp-map-key-l"></i>There and back</span>');
+    }
+    keyEl.innerHTML = k.join('');
+  }
 
   /* ---------- Steps ---------- */
   function goTo(i, opts) {
@@ -236,9 +286,11 @@
     cur = i; curDay = cards[i] ? cards[i].day : null;
     drawCard(changed && !opts.first);
     drawPins();
+    drawKey();
+    if (card.querySelector('.tp-map-pcs')) hot(1, false); // pin 1 and card 1 go together from the start
     var to = frameOf(i);
     if (opts.first || opts.cut) { cam = to; apply(); } else glide(to);
-    if (changed && !opts.first) say('Day ' + (i + 1) + ' of ' + steps.length + ', ' + cards[i].label + ', ' + cards[i].kicker.split(' · ').slice(1).join(', ') + '. ' + cards[i].title + '.');
+    if (changed && !opts.first) say('Day ' + (i + 1) + ' of ' + steps.length + ', ' + cards[i].kicker.split(' · ').join(', ') + '.' + (cards[i].title ? ' ' + cards[i].title + '.' : ''));
   }
   function jumpTo(i, smooth) {
     i = Math.max(0, Math.min(steps.length - 1, i));
@@ -257,6 +309,14 @@
     if (i !== cur) goTo(i);
   }
   body.addEventListener('scroll', onScroll, { passive: true });
+  // Tabbing into the map can make the browser scroll the page to show the focused control, which would move the map on
+  // a day under the keyboard. While focus moves within the map, the day stays put and the page is put back.
+  stage.addEventListener('focusin', function () {
+    if (!on || free) return;
+    var t = stepTop(cur);
+    pending = { top: t, until: performance.now() + 600 };
+    requestAnimationFrame(function () { if (Math.abs(body.scrollTop - t) > 2) body.scrollTo({ top: t, behavior: 'auto' }); });
+  });
   window.addEventListener('resize', function () { if (on) { layout(); goTo(cur, { cut: true }); } });
 
   /* ---------- Render (called by concepts-third-half.js on every change) ---------- */
@@ -345,6 +405,18 @@
     pop.hidden = false;
     var f = pop.querySelector('.tp-add, [data-mgo]'); if (f) f.focus({ preventScroll: true });
   });
+  // A group of stops: zoom in on it; at the closest zoom (stops at the same place on different days) list them instead
+  clustersEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.tp-map-cluster'); if (!b) return;
+    var g = clusters[+b.dataset.g]; if (!g) return;
+    if (cam.s < 1.15) { cancelAnimationFrame(anim); var to = { x: cam.x + (g.cx - vw / 2) / cam.s, y: cam.y + (g.cy - cam.fy) / cam.s, s: Math.min(1.2, cam.s * 2.2), fy: cam.fy }; glide(clampCam(to)); return; } // closest zoom: list them
+    pop.innerHTML = '<p class="tp-map-pop-t">' + g.length + ' stops here</p><ul class="tp-map-pop-l">' + g.map(function (q) {
+      var x = q.o.x, c = x.c || cards[x.i];
+      return '<li><span><b>' + esc(x.p.title) + '</b> \u00b7 ' + esc(c.label) + '</span>' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your timeline on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') + '</li>';
+    }).join('') + '</ul><div class="tp-map-pop-a"><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
+    pop.hidden = false;
+    var f = pop.querySelector('.tp-add, [data-mpop-close]'); if (f) f.focus({ preventScroll: true });
+  });
   pop.addEventListener('click', function (e) {
     var g = e.target.closest('[data-mgo]');
     if (g) { var gi = +g.dataset.mgo, gd = +g.dataset.mday, gs = steps[gi]; if (gs && gs.days.length > 1) { sub[gs.day] = gd; cards[gi] = tp.mapStep(gs, gd); } pop.hidden = true; setFree(false, gi); return; }
@@ -393,6 +465,7 @@
     if (v) {
       body.scrollTo({ top: trackTop(), behavior: 'auto' });
       drawPins();
+      drawKey();
       // Opens on the whole plan: every stop in view, each marked with its date
       var xs = pinEls.map(function (o) { return px(o.x.p.ll); }), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       xs.forEach(function (q) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });
@@ -410,7 +483,7 @@
   function zoomBy(f, cx, cy) {
     cancelAnimationFrame(anim);
     cx = cx === undefined ? vw / 2 : cx; cy = cy === undefined ? cam.fy : cy;
-    var ns = Math.max(sMin(), Math.min(1.6, cam.s * f)), wx = cam.x + (cx - vw / 2) / cam.s, wy = cam.y + (cy - cam.fy) / cam.s;
+    var ns = Math.max(sMin(), Math.min(1.2, cam.s * f)), wx = cam.x + (cx - vw / 2) / cam.s, wy = cam.y + (cy - cam.fy) / cam.s;
     cam = { x: wx - (cx - vw / 2) / ns, y: wy - (cy - cam.fy) / ns, s: ns, fy: cam.fy }; clampCam(); apply();
   }
   function clampCam(c) {
@@ -436,7 +509,7 @@
   // Drag to pan, pinch to zoom (Explore freely only; guided, the page scroll moves the map)
   var ptrs = new Map(), drag = null;
   view.addEventListener('pointerdown', function (e) {
-    if (!free || e.target.closest('.tp-map-pin')) return;
+    if (!free || e.target.closest('.tp-map-pin, .tp-map-cluster')) return;
     ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
     try { view.setPointerCapture(e.pointerId); } catch (err) {}
     cancelAnimationFrame(anim);
@@ -450,7 +523,7 @@
     if (ids.length > 1 && drag.pts.get(ids[1])) {
       var b0 = drag.pts.get(ids[1]), b1 = ptrs.get(ids[1]);
       var f = Math.hypot(a1.x - b1.x, a1.y - b1.y) / Math.max(20, Math.hypot(a0.x - b0.x, a0.y - b0.y));
-      cam = { x: drag.cam.x - ((a1.x + b1.x) - (a0.x + b0.x)) / 2 / drag.cam.s, y: drag.cam.y - ((a1.y + b1.y) - (a0.y + b0.y)) / 2 / drag.cam.s, s: Math.max(sMin(), Math.min(1.6, drag.cam.s * f)), fy: drag.cam.fy };
+      cam = { x: drag.cam.x - ((a1.x + b1.x) - (a0.x + b0.x)) / 2 / drag.cam.s, y: drag.cam.y - ((a1.y + b1.y) - (a0.y + b0.y)) / 2 / drag.cam.s, s: Math.max(sMin(), Math.min(1.2, drag.cam.s * f)), fy: drag.cam.fy };
     } else cam = { x: drag.cam.x - (a1.x - a0.x) / drag.cam.s, y: drag.cam.y - (a1.y - a0.y) / drag.cam.s, s: drag.cam.s, fy: drag.cam.fy };
     clampCam(); apply();
   });

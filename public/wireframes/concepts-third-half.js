@@ -59,6 +59,30 @@
   function baseCity() { var n = basePlace(), p = n && PLACES.filter(function (x) { return x.n === n; })[0]; return p ? p.c : null; }
   // Until a base is given the copy says the city ("in Sydney"); once given, where they are staying
   function whereText(city) { var n = basePlace(); return n ? 'near where you\u2019re staying, ' + n : 'in ' + CITY[city]; }
+  /* Honest fit: once they say where they are staying, ideas are ranked by distance from it and each says how far
+     ("about 4 km from Bondi"; straight line, from made-up coordinates for now). Nothing is called near unless it is
+     within NEAR_KM; otherwise the copy says the ideas are in the city. */
+  var NEAR_KM = 6;
+  function kmFrom(ll) {
+    var n = basePlace(), g = window.cnGeo, b = n && g && g.places[n]; if (!b || !ll) return null;
+    var r = Math.PI / 180, dLa = (ll[0] - b[0]) * r, dLo = (ll[1] - b[1]) * r;
+    var a = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(b[0] * r) * Math.cos(ll[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 12742 * Math.asin(Math.sqrt(a));
+  }
+  function kmLine(km) { return km === null || km === undefined ? '' : (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ' from ' + basePlace(); }
+  function ideaKm(i) { return kmFrom(window.cnGeo && window.cnGeo.ideas[i.id]); }
+  function prodKm(p) { return kmFrom(window.cnGeo && window.cnGeo.products[p.id]); }
+  function byKm(fn) { return function (x, y) { var a = fn(x), b = fn(y); return (a === null ? 1e9 : a) - (b === null ? 1e9 : b); }; }
+  // A half day's places: in their city and open that day, nearest to where they are staying first
+  function halfList(b, wd) {
+    var list = PRODUCTS.filter(function (p) { return p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === b.base && hoursOn(p, wd) && (p.type === 'food_and_drink' || p.type === 'attraction'); })
+      .sort(function (x, y) { return partyRank(x) - partyRank(y) || x.distance_to_venue.km - y.distance_to_venue.km || x.title.localeCompare(y.title); });
+    if (basePlace()) list.sort(byKm(prodKm));
+    return list;
+  }
+  function halfNear(b) { var l = halfList(b, weekdayOf(b.day)), k = l.length ? prodKm(l[0]) : null; return k !== null && k <= NEAR_KM; }
+  function halfWhere(b) { return basePlace() && !halfNear(b) ? 'in ' + CITY[b.base] : whereText(b.base); }
+  function halfNote(b) { return basePlace() && !halfNear(b) ? 'Nothing listed close to ' + basePlace() + ' yet, so these are in ' + CITY[b.base] + '.' : 'Something ' + whereText(b.base) + ', nothing far.'; }
   /* Who is coming (optional): the order of ideas, never what is shown. Family: attractions and free things first;
      couple and friends: food and drink first; solo: as it is (nearest first). */
   function partyOf() { var t = trip(); return t && t.party || null; }
@@ -558,8 +582,9 @@
   }
   function ideasFor(d, city) {
     var free = function (i) { return i.city === city && !SUGG[i.id] && !ideaAdded(i); };
-    var halves = partyFirst(IDEAS.filter(function (i) { return i.kind === 'half' && free(i); }));
-    var trips = partyFirst(IDEAS.filter(function (i) { return i.kind === 'day' && free(i); }));
+    var near = basePlace() ? function (l) { return l.sort(byKm(ideaKm)); } : function (l) { return l; };
+    var halves = partyFirst(near(IDEAS.filter(function (i) { return i.kind === 'half' && free(i); })));
+    var trips = partyFirst(near(IDEAS.filter(function (i) { return i.kind === 'day' && free(i); })));
     // First-timers: Sydney half days lead (two, then a day trip); otherwise a day trip leads
     var lead = firstTimer() && city === 'sydney' ? ['h', 'h', 't', 'h', 't'] : ['t', 'h', 'h', 't', 'h'], out = [];
     for (var k = 0; out.length < halves.length + trips.length && k < 40; k++) {
@@ -575,7 +600,7 @@
   }
   function ideaCard(i, d) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), type = (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city];
-    var why = 'Fits ' + dl + ' · ' + howLine(i);
+    var km = ideaKm(i), why = 'Fits ' + dl + (km !== null ? ' · ' + kmLine(km) : '') + ' · ' + howLine(i);
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
     return '<article class="tp-pc tp-idea" data-id="' + esc(key) + '"><div class="tp-pc-main">' +
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
@@ -617,12 +642,11 @@
   }
   function halfBody(b) {
     var wd = weekdayOf(b.day), f = { d: dayLabel(b.day) };
-    var list = PRODUCTS.filter(function (p) { return p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === b.base && hoursOn(p, wd) && (p.type === 'food_and_drink' || p.type === 'attraction'); })
-      .sort(function (x, y) { return partyRank(x) - partyRank(y) || x.distance_to_venue.km - y.distance_to_venue.km || x.title.localeCompare(y.title); });
+    var list = halfList(b, wd);
     var show = moreBlk[b.key] ? list : list.slice(0, 3);
-    var h = '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': something ' + esc(whereText(b.base)) + ', nothing far.</p><div class="tp-pcs">';
+    var h = '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': ' + esc(halfNote(b).charAt(0).toLowerCase() + halfNote(b).slice(1)) + '</p><div class="tp-pcs">';
     show.forEach(function (p) {
-      var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + f.d, why = ['Open ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb].filter(Boolean).join(' · ');
+      var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + f.d, why = ['Open ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' · ');
       ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: f.d };
       MODAL[id] = { type: 'product', p: p, f: { d: f.d, v: CITY[b.base] }, o: o, why: why };
       h += productCard(p, why, id, f);
@@ -633,9 +657,9 @@
   }
   function heading(b) {
     if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || 'time to be confirmed') + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
-    if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + CITY[b.base] }; }
+    if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + (basePlace() || CITY[b.base]) }; }
     if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? b.ms.length + ' of your matches tonight' : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
-    if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + whereText(b.base) };
+    if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + halfWhere(b) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
   /* A free day's ideas inside the timeline sheet, opened from its + on the axis. The same list the page shows for that
@@ -761,11 +785,12 @@
     } else if (st.kind === 'half') {
       var wd = weekdayOf(d), c2 = b.base, fx = { d: dl, v: CITY[c2] };
       r.anchor = home || nearStadium(d, c2); r.place = home ? home.name : CITY[c2];
-      r.kicker = dl + ' \u00b7 ' + (b.first ? 'Arrival day' : 'Last day'); r.title = 'Half a day, ' + whereText(c2);
-      var ps = PRODUCTS.filter(function (p) { return p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === c2 && hoursOn(p, wd) && (p.type === 'food_and_drink' || p.type === 'attraction'); })
-        .sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
+      r.kicker = dl + ' \u00b7 ' + (b.first ? 'Arrival day' : 'Last day'); r.title = 'Half a day, ' + halfWhere(b);
+      if (basePlace() && !halfNear(b)) r.note = halfNote(b);
+      // Nearest to where they are staying once that is known; otherwise a rotating order, so no business is favoured
+      var ps = basePlace() ? halfList(b, wd).slice(0, 3) : halfList(b, wd).sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
       r.pins = ps.map(function (p) {
-        var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb].filter(Boolean).join(' \u00b7 ');
+        var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
         ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
         MODAL[id] = { type: 'product', p: p, f: fx, o: o, why: why };
         return { key: id, title: p.title, kindLabel: PTYPE[p.type] || 'Product', ll: GEO && GEO.products[p.id], html: productCard(p, why, id, fx) };
@@ -779,7 +804,7 @@
       var fd = freeInfo(d), city3 = b.base;
       r.anchor = home || nearStadium(d, city3); r.place = home ? home.name : CITY[city3];
       r.kicker = dl + ' \u00b7 Free day' + (home ? ' \u00b7 from ' + home.name : '');
-      r.title = st.days.length > 1 ? st.days.length + ' free days' : 'Free day';
+      r.title = st.days.length > 1 ? st.days.length + ' free days' : ''; // one free day: the heading already says so
       var its = fd ? fd.its : dayItems(d);
       if (fd && fd.filled) r.body = '<p class="tp-fday-done">Your day: ' + esc(its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p>';
       else if (fd) {
