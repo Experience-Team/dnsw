@@ -73,6 +73,14 @@
     return SPOTS.filter(function (sp) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; })
       .sort(function (a, b) { return (SPOT_ORDER[a.type] - SPOT_ORDER[b.type]) || a.name.localeCompare(b.name); });
   }
+  // A screening (or the village) for one match: registered so Add and its page work, wherever it is listed
+  function spotItem(sp, m) {
+    var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
+    var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
+    ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, note: open, day: m.f.d, matchName: matchName(m.f) };
+    MODAL[id] = { type: 'spot', sp: sp, m: m };
+    return id;
+  }
   function renderWatch() {
     // The person's matches without a ticket (with a ticket they will be at the ground) that a spot shows, in their days
     var ms = tp.userMatches().filter(function (m) { return !hasTicket(m) && inStay(m.day) && spotsFor(m).length; });
@@ -95,10 +103,7 @@
       var f = m.f, who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
       var tag = f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>';
       spotsFor(m).forEach(function (sp) {
-        var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
-        var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
-        ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, note: open, day: f.d, matchName: matchName(f) };
-        MODAL[id] = { type: 'spot', sp: sp, m: m };
+        var id = spotItem(sp, m), open = ITEMS[id].note;
         cards += '<li class="tp-wm tp-ws" data-key="' + esc(m.key) + '" data-id="' + esc(id) + '"><button type="button" class="tp-ws-text" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
           '<span class="tp-ws-media"><span class="ph-img tp-ws-img"' + imgKey(sp.name) + ' aria-hidden="true"></span>' + tag + '</span>' +
           '<span class="tp-ws-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</span>' +
@@ -541,6 +546,17 @@
     h += '<p class="tp-pm-type">' + esc(f.t ? f.s.replace(/ \(\d+\)$/, '') : 'Teams to be decided') + '</p>';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">' + who + '</h2>';
     h += (f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>');
+    // An interstate match leads with where to watch it in NSW: the fan zone, the village and pubs screening it (gap data)
+    if (f.a) {
+      var sps = spotsFor(m);
+      h += '<section class="tp-pm-watch" aria-labelledby="tp-pm-watch-h"><h3 class="cn-pp-h" id="tp-pm-watch-h">Where to watch it in NSW</h3>' +
+        (sps.length ? '<ul class="tp-pm-watch-list">' + sps.map(function (sp) {
+          var id = spotItem(sp, m), open = ITEMS[id].note;
+          return '<li class="tp-pm-watch-i"><span class="tp-pm-watch-t provenance-gap"><span class="tp-pm-watch-name">' + esc(sp.name) + '</span>' +
+            '<span class="tp-pm-watch-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' \u00b7 ' + esc(sp.place) + (open ? ' \u00b7 ' + esc(open) : '') + '</span></span>' +
+            addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d).replace('class="tp-add"', 'class="tp-add" data-pm-spot="' + esc(id) + '"') + '</li>';
+        }).join('') + '</ul>' : '<p class="tp-pm-note">No NSW screenings listed for this match yet.</p>') + '</section>';
+    }
     h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
       '<div><dt>Date</dt><dd>' + esc(f.d) + '</dd></div>' +
       '<div><dt>Kick-off</dt><dd>' + (f.k ? esc(f.k) + ' Sydney time' : 'Time to be confirmed') + '</dd></div>' +
@@ -548,7 +564,7 @@
       '<div><dt>City</dt><dd>' + esc(f.p) + (f.a ? ' (interstate)' : ', NSW') + '</dd></div></dl>';
     // On the timeline already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
-    if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'All matches includes every NSW match') + '</p>';
+    if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Every NSW match is on') + '</p>';
     else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my timeline' : 'Add to my timeline') + '</span><span class="visually-hidden">, ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
     if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' aria-describedby="tp-pm-ticket-why" /><span>I have a ticket</span></label><p class="tp-ticket-why" id="tp-pm-ticket-why">Tick it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
     h += '</div>';
@@ -556,7 +572,7 @@
       // The same toggle as Add to my timeline: pressed reads Added, with a tick; pressing it again takes the team off
       h += '<h3 class="cn-pp-h">Your teams</h3><div class="tp-pm-teams">' + teams.map(function (n) {
         var on = tp.isPicked(n);
-        return '<button type="button" class="tp-pm-team" data-pm-team="' + esc(n) + '" aria-pressed="' + on + '">' + (on ? '\u2713 ' + esc(n) + ' added to my teams' : 'Add ' + esc(n) + ' to my teams') + '</button>';
+        return '<button type="button" class="tp-pm-team" data-pm-team="' + esc(n) + '" aria-pressed="' + on + '">' + addLabel(on, on ? esc(n) + ' added to my teams' : 'Add ' + esc(n) + ' to my teams') + '</button>';
       }).join('') + '</div><p class="tp-pm-note">Adding a team adds all its matches, as picking its card does. Press again to take it off.</p>';
     }
     h += '<p class="tp-pm-said" aria-hidden="true">' + esc(pmSaid) + '</p></div>';
@@ -768,6 +784,16 @@
       pmSaid = tp.pickTeam(tb.dataset.pmTeam) + '.';
       pmRefresh('[data-pm-team="' + CSS.escape(tb.dataset.pmTeam) + '"]');
       return; // the pick says its own line to screen readers
+    }
+    var sb = e.target.closest('[data-pm-spot]');
+    if (sb) {
+      var si = ITEMS[sb.dataset.pmSpot]; if (!si) return;
+      var son = !added(si.id);
+      if (son) tp.addItem(Object.assign({}, si)); else tp.removeItem(si.id);
+      pmSaid = si.title + (son ? ' added to your timeline on ' + si.day + '.' : ' removed from your timeline.');
+      pmRefresh('[data-pm-spot="' + CSS.escape(si.id) + '"]');
+      tp.say(pmSaid + ' ' + state.added.length + ' added.');
+      return;
     }
     var b = e.target.closest('[data-pm-add]'); if (!b) return;
     var it = ITEMS[b.dataset.pmAdd]; if (!it) return;

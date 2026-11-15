@@ -4032,6 +4032,24 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-rugby-line { margin-top: var(--space-1); }
 .tp-rugby-line[hidden] { display: none; }
 .tp-rugby-link { font-weight: var(--fw-semi); color: var(--c-ink); text-align: left; }
+.tp-rugby-why { display: block; margin-top: -4px; font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
+.tp-rugby-why[hidden] { display: none; }
+/* Show interstate matches too, in the open timeline: a 36px switch with one quiet line under it */
+.tp-tl-inter { margin-top: var(--space-3); }
+.tp-tl-inter[hidden] { display: none; }
+.tp-switch { min-height: 36px; padding: 0; color: var(--c-ink); font-size: var(--fs-base); }
+.tp-switch[aria-checked="true"] .cn-switch-track { background: var(--c-btn); }
+.tp-switch:focus-visible { outline-color: var(--c-focus); }
+/* An interstate match's sheet leads with where to watch it in NSW: one row per place, name and meta, then Add */
+.tp-pm-watch { margin-top: var(--space-4); }
+.tp-pm-watch .cn-pp-h { margin-top: 0; }
+.tp-pm-watch-list { list-style: none; margin: var(--space-2) 0 0; padding: 0; }
+.tp-pm-watch-i { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-pm-watch-i:last-child { border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tp-pm-watch-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tp-pm-watch-name { font-weight: var(--fw-semi); }
+.tp-pm-watch-meta { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-inter-help { margin-top: var(--space-1); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 .tp-tl-rugby { margin-top: var(--space-2); }
 
 /* Pick your team: All matches filter. In NSW only, then the NSW host cities in the same row (36px chips, AA) */
