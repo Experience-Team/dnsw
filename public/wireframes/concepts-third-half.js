@@ -537,7 +537,7 @@
      ideas (or a longer trip covers it): it then shows what is in it, and its ideas move on to the next free day. First-
      time visitors (not a local and not staying in Sydney, or not said) see Sydney's half days first; who is coming puts
      the ideas that suit them first. */
-  var IDEAS = Array.isArray(window.cnFreeIdeas) ? window.cnFreeIdeas : [], SUGG = {}, FREE_LEFT = 0;
+  var IDEAS = Array.isArray(window.cnFreeIdeas) ? window.cnFreeIdeas : [], SUGG = {}, FREE_LEFT = 0, FREEINFO = [];
   function firstTimer() { var b = baseOf(); return b !== 'local' && baseCity() !== 'sydney'; }
   function ideaAdded(i) { return added('i:' + i.id); }
   function dayItems(d) {
@@ -590,6 +590,7 @@
       var dl = dayLabel(d), its = dayItems(d), dk = b.key + ':' + d;
       h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>';
       if (dayFilled(d)) {
+        FREEINFO.push({ d: d, label: dl, filled: true, count: 0, dk: dk, its: its, show: [], more: false, base: b.base });
         h += '<p class="tp-fday-done">Your day: ' + esc(its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p></div>';
         continue;
       }
@@ -598,6 +599,7 @@
       var list = ideasFor(d, b.base), per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
       FREE_LEFT--;
       show.forEach(function (i) { SUGG[i.id] = true; });
+      FREEINFO.push({ d: d, label: dl, filled: false, count: show.length, dk: dk, its: its, show: show, more: list.length > per, base: b.base });
       if (!show.length) h += '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
       else h += '<div class="tp-pcs">' + show.map(function (i) { return ideaCard(i, d); }).join('') + '</div>';
       if (list.length > per) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(dk) + '" aria-expanded="' + !!moreBlk[dk] + '">' + (moreBlk[dk] ? 'Fewer ideas' : 'More ideas') + '</button>';
@@ -636,8 +638,55 @@
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + whereText(b.base) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
+  /* A free day's ideas inside the timeline sheet, opened from its + on the axis. The same list the page shows for that
+     day (the same ideas, Fits [day], More ideas and Add buttons), so adding here or on the page is one plan. When the
+     day fills, it says so and offers the next free day, whose ideas the page has moved on to. */
+  var tlIdeas = document.getElementById('tp-tl-ideas'), tlIdeasDay = null, tlIdeasHold = null;
+  function freeInfo(d) { return FREEINFO.filter(function (x) { return x.d === d; })[0]; }
+  function renderTlIdeas() {
+    if (window.tpFreeApi) window.tpFreeApi.set(FREEINFO.map(function (x) { return { d: x.d, label: x.label, filled: x.filled, count: x.count }; }));
+    if (!tlIdeas) return;
+    var fd = tlIdeasDay !== null ? freeInfo(tlIdeasDay) : null;
+    if (!fd) { tlIdeas.innerHTML = ''; tlIdeas.style.minHeight = ''; tlIdeasHold = null; return; }
+    // While the same day stays open the list never gets shorter (a day that fills shrinks to one line), so the sheet
+    // keeps its scroll and the axis stays stuck at the top while the new marker lands
+    if (tlIdeasHold === fd.d && tlIdeas.offsetHeight) tlIdeas.style.minHeight = Math.max(parseFloat(tlIdeas.style.minHeight) || 0, tlIdeas.offsetHeight) + 'px';
+    else tlIdeas.style.minHeight = '';
+    tlIdeasHold = fd.d;
+    var line = fd.filled ? 'your day is full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
+    var h = '<div class="tp-tl-ideas-top"><h4 class="tp-tl-ideas-h" id="tp-tl-ideas-h" tabindex="-1">' + esc(fd.label) + ' · Free day · ' + esc(line) + '</h4>' +
+      '<button type="button" class="tp-link" data-tlideas-close>Hide ideas</button></div>';
+    if (fd.filled) {
+      var next = FREEINFO.filter(function (x) { return x.d > fd.d && !x.filled; })[0] || FREEINFO.filter(function (x) { return !x.filled; })[0];
+      h += '<p class="tp-fday-done">Your day: ' + esc(fd.its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p>';
+      if (next) h += '<button type="button" class="tp-go-btn tp-tl-ideas-next" data-tlideas-go="' + next.d + '">Next free day: ' + esc(next.label) + ' · ' + next.count + (next.count === 1 ? ' idea' : ' ideas') + '</button>';
+    } else {
+      if (fd.its.length) h += '<p class="tp-fday-so">So far: ' + esc(fd.its.map(function (x) { return x.title; }).join(', ')) + '. Room for one more.</p>';
+      h += fd.show.length ? '<div class="tp-pcs">' + fd.show.map(function (i) { return ideaCard(i, fd.d); }).join('') + '</div>'
+        : '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
+      if (fd.more) h += '<button type="button" class="tp-link tp-blk-more" data-tlideas-more="' + esc(fd.dk) + '" aria-expanded="' + !!moreBlk[fd.dk] + '">' + (moreBlk[fd.dk] ? 'Fewer ideas' : 'More ideas') + '</button>';
+    }
+    tlIdeas.innerHTML = h;
+    // If what the list now says (a day just filled) is hidden under the stuck axis, bring it up to just below the axis;
+    // the axis itself stays put
+    var pn = document.getElementById('tp-tl-panel'), ax = document.getElementById('tp-tl-scroll'), hd = tlIdeas.querySelector('.tp-tl-ideas-top');
+    if (pn && ax && hd && pn.classList.contains('has-ideas')) {
+      var gap = hd.getBoundingClientRect().top - ax.getBoundingClientRect().bottom;
+      if (gap < 0) pn.scrollTo({ top: pn.scrollTop + gap - 12, behavior: reduce.matches ? 'auto' : 'smooth' });
+    }
+  }
+  phone.addEventListener('tp:freeideas', function (e) { tlIdeasDay = e.detail.day; renderTlIdeas(); });
+  if (tlIdeas) {
+    tlIdeas.addEventListener('click', function (e) {
+      if (e.target.closest('[data-tlideas-close]')) { window.tpFreeApi.close(true); return; }
+      var g = e.target.closest('[data-tlideas-go]');
+      if (g) { window.tpFreeApi.go(+g.dataset.tlideasGo); return; }
+      var m = e.target.closest('[data-tlideas-more]');
+      if (m) { var k = m.dataset.tlideasMore; moreBlk[k] = !moreBlk[k]; render(true, '#tp-tl-ideas [data-tlideas-more="' + CSS.escape(k) + '"]'); }
+    });
+  }
   function renderThird() {
-    SUGG = {};
+    SUGG = {}; FREEINFO = [];
     // With no team but their days set (T16), the days still lead: free stretches with day trips and longer trips
     var M = model(), bs = blocks(M), first = teaser() && !M.range;
     // Free days' ideas in date order, open or not, so nothing is suggested twice on the page
@@ -1094,6 +1143,13 @@
     if (added(it.id)) {
       tp.removeItem(it.id);
       tp.say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
+    } else if (tlIdeas && tlIdeas.contains(b)) {
+      // Added from the timeline's ideas: the marker flies up to its day on the axis, which stays in view above
+      var from = b.getBoundingClientRect();
+      tp.addItem(Object.assign({}, it));
+      if (tp.tlLand) tp.tlLand(it.id, from);
+      tp.say(it.title + ' added to your timeline on ' + it.day + '. ' + state.added.length + ' added.');
+      return;
     } else {
       tp.flyToBar(b);
       tp.addItem(Object.assign({}, it));
@@ -1593,6 +1649,8 @@
     sig = s;
     // The control that had focus is rebuilt, so focus goes back to its replacement
     var active = document.activeElement, keep = null;
+    // Focus in the timeline's ideas stays there (the page has the same buttons): where it was, by position
+    var inIdeas = !!(active && tlIdeas && tlIdeas.contains(active)), ideasAt = inIdeas ? Array.prototype.indexOf.call(tlIdeas.querySelectorAll('.tp-add'), active) : -1;
     if (active && phone.contains(active) && active.dataset) {
       if (active.dataset.item) keep = '.tp-add[data-item="' + CSS.escape(active.dataset.item) + '"]';
       else if (active.dataset.day) keep = '[data-day="' + CSS.escape(active.dataset.day) + '"]';
@@ -1607,6 +1665,7 @@
     renderAsk();
     renderDaysLine();
     renderPlan();
+    renderTlIdeas();
     // A gentle change: what is new fades up; a reason that changed glows briefly
     var now = {};
     phone.querySelectorAll('.tp-wm, .tp-pc').forEach(function (el) {
@@ -1617,7 +1676,10 @@
       if (why) { if (whys[k] && whys[k] !== why.dataset.why) why.classList.add('is-updated'); whys[k] = why.dataset.why; }
     });
     seen = now;
-    var f = (focusSel && phone.querySelector(focusSel)) || (keep && phone.querySelector(keep));
+    // In the timeline's ideas the same buttons exist on the page too: look in the ideas first, so focus never jumps
+    var f = (focusSel && phone.querySelector(focusSel)) || (keep && (inIdeas ? tlIdeas.querySelector(keep) : phone.querySelector(keep)));
+    // The idea just added leaves the list: focus goes to the idea now in its place, else the list's heading
+    if (!f && inIdeas && !tlIdeas.hidden) { var adds = tlIdeas.querySelectorAll('.tp-add'); f = (ideasAt > -1 && (adds[ideasAt] || adds[adds.length - 1])) || tlIdeas.querySelector('.tp-tl-ideas-next') || tlIdeas.querySelector('.tp-tl-ideas-h'); }
     if (f && f !== document.activeElement) f.focus({ preventScroll: true });
     notesRefresh();
   }

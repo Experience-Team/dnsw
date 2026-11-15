@@ -1304,6 +1304,9 @@
   };
   var DAYS = 44, DAYW = 40, PADX = 28, BAR = 88;
   var tlOn = false, tlOpen = false, tlSel = -1, tlSelItem = null;
+  // Free days on the axis: a + per free day (from Your days, in order), opening that day's ideas inside the sheet
+  var tlFreeInfo = [], tlFreeEls = {}, tlPerDay = {}, tlFreeOpen = null, tlSelFree = null;
+  var tlIdeasEl = document.getElementById('tp-tl-ideas');
   function dayOf(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + (+p[1]) - 1; } // 1 Oct is day 0, 13 Nov day 43
   // Trip dates are ISO (2027-10-03); day numbers count from 1 Oct 2027 (a Friday)
   function isoDay(iso) { var p = iso.split('-'); return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - Date.UTC(2027, 9, 1)) / 864e5); }
@@ -1493,6 +1496,7 @@
         tlStripStay.style.right = Math.max(0, 100 - (sz + .5) / (DAYS - 1) * 100) + '%';
       }
     }
+    tlPerDay = {}; Object.keys(perDay).forEach(function (d) { tlPerDay[d] = perDay[d]; });
     // The canvas is as tall as the tallest day shown: 50px for the axis and dates, 28px a row, 10px above
     var rows = 1; Object.keys(perDay).forEach(function (d) { rows = Math.max(rows, perDay[d]); });
     // A longer trip's span runs along the top, so the canvas makes room for it above the markers
@@ -1509,7 +1513,13 @@
     var teams = tlTeams(), none = !state.picked.length;
     var label = none ? 'Your plan' : isPicked(RUGBY) ? 'Every NSW match' : 'Your teams: ' + list(teams);
     var added = state.added.length;
-    tlLabel.textContent = label;
+    // Two or more teams: flags and codes, so the header fits and still shows what they chose (full names for screen readers)
+    if (!none && !isPicked(RUGBY) && teams.length > 1) {
+      var vis = teams.slice(0, 4), more = teams.length - vis.length;
+      var lh = vis.map(function (n) { return '<span class="tp-tl-lteam">' + (FLAG[n] || '') + esc(TEAMS[n] ? TEAMS[n].code : n) + '</span>'; }).join('') + (more ? '<span class="tp-tl-lteam">+' + more + '</span>' : '');
+      lh = '<span aria-hidden="true" class="tp-tl-lteams">' + lh + '</span><span class="visually-hidden">' + esc(label) + '</span>';
+      if (tlLabel.innerHTML !== lh) tlLabel.innerHTML = lh;
+    } else tlLabel.textContent = label;
     tlLabel.classList.toggle('is-hook', false);
     var fsAll = shown.map(function (m) { return m.f; }), inNsw = fsAll.filter(function (f) { return !f.a; }).length;
     // Nothing of their own yet: the empty state, even though the open timeline previews every match
@@ -1557,6 +1567,7 @@
       (Object.keys(tlClash).length ? '<li><span class="tp-tl-key-clash" aria-hidden="true"></span>Clash: two things on one day</li>' : '');
     // A selected match that is no longer shown is let go
     if (tlSel > -1 && !TLM[tlSel].vis) tlSel = -1;
+    tlFreeDraw();
     tlRenderDetail();
   }
   // Every marker shown, matches and added items, in the order of the axis: by day, then bottom to top
@@ -1564,15 +1575,125 @@
     var els = [];
     TLM.forEach(function (m) { if (m.vis) els.push(m.el); });
     Object.keys(tlItemEls).forEach(function (id) { els.push(tlItemEls[id]); });
+    Object.keys(tlFreeEls).forEach(function (d) { els.push(tlFreeEls[d]); });
     return els.sort(function (a, b) { return a.offsetLeft - b.offsetLeft || (+a.style.getPropertyValue('--row') || 0) - (+b.style.getPropertyValue('--row') || 0); });
   }
-  function tlSelEl() { return tlSelItem ? tlItemEls[tlSelItem] : tlSel > -1 ? TLM[tlSel].el : null; }
+  function tlSelEl() { return tlSelFree && tlSelFree.isConnected ? tlSelFree : tlSelItem ? tlItemEls[tlSelItem] : tlSel > -1 ? TLM[tlSel].el : null; }
   function tlRoving() {
     var order = tlOrder(), sel = tlSelEl(), tab = sel || order[0];
     order.concat(TLM.filter(function (m) { return !m.vis; }).map(function (m) { return m.el; })).forEach(function (el) {
       el.tabIndex = el === tab ? 0 : -1;
-      el.setAttribute('aria-pressed', el === sel ? 'true' : 'false');
+      if (!el.dataset.free) el.setAttribute('aria-pressed', el === sel ? 'true' : 'false'); // a free day's + says expanded instead
     });
+  }
+  /* ---------- Free days on the axis ----------
+     Each free day in Your days, in order gets a + on the axis, with a short line above it (Free, and how many ideas;
+     Full once the day is filled). The + opens that day's ideas below the timeline, inside the sheet: nothing closes and
+     the page behind never moves. While ideas are open the axis sticks under the sheet's header, so an idea added from
+     the list can be seen landing on its day. The list itself is drawn by concepts-third-half.js (the same ideas, the
+     same Fits [day] rules and the same Add buttons as the page, so the two stay in step). */
+  function tlKeepInView(el) {
+    var x = el.offsetLeft;
+    if (x < tlScroll.scrollLeft + 40 || x > tlScroll.scrollLeft + tlScroll.clientWidth - 40) tlScroll.scrollTo({ left: Math.max(0, x - tlScroll.clientWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
+  }
+  var PLUS = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3.5v9M3.5 8h9"/></svg>';
+  function tlFreeDraw() {
+    var keep = {}, top = 0;
+    tlFreeInfo.forEach(function (fd) {
+      if (!(fd.d >= 0 && fd.d < DAYS)) return;
+      keep[fd.d] = true;
+      var el = tlFreeEls[fd.d];
+      if (!el) {
+        el = tlFreeEls[fd.d] = document.createElement('button');
+        el.type = 'button'; el.className = 'tp-tl-mk tp-tl-free'; el.dataset.free = fd.d; el.tabIndex = -1;
+        el.setAttribute('aria-controls', 'tp-tl-ideas');
+        el.innerHTML = '<span class="tp-tl-free-l" aria-hidden="true"></span><span class="cn-tl-sym tp-tl-free-sym">' + PLUS + '</span>';
+        el.style.left = (PADX + fd.d * DAYW) + 'px';
+        tlCanvas.appendChild(el);
+      }
+      var row = tlPerDay[fd.d] || 0; top = Math.max(top, row);
+      el.style.setProperty('--row', row);
+      var line = fd.filled ? 'Full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
+      el.querySelector('.tp-tl-free-l').innerHTML = 'Free<br>' + esc(line);
+      el.classList.toggle('is-full', !!fd.filled);
+      el.classList.toggle('is-open', tlFreeOpen === fd.d);
+      el.setAttribute('aria-expanded', tlFreeOpen === fd.d ? 'true' : 'false');
+      el.setAttribute('aria-label', fd.label + ', free day, ' + (fd.filled ? 'your day is full' : line) + (tlFreeOpen === fd.d ? '. Ideas shown below' : '. Show ideas'));
+    });
+    Object.keys(tlFreeEls).forEach(function (d) { if (!keep[d]) { if (tlFreeEls[d] === tlSelFree) tlSelFree = null; tlFreeEls[d].remove(); delete tlFreeEls[d]; } });
+    if (tlFreeOpen !== null && !keep[tlFreeOpen]) tlFreeShow(null);
+    // Room above the tallest + for its two-line label
+    if (Object.keys(keep).length) {
+      var need = 60 + (top + 1) * 32 + 28, cur = parseFloat(tlCanvas.style.height) || 0;
+      if (need > cur) tlCanvas.style.height = need + 'px';
+    }
+  }
+  function tlFreeShow(d) {
+    tlFreeOpen = d;
+    tlPanel.classList.toggle('has-ideas', d !== null);
+    if (tlIdeasEl) tlIdeasEl.hidden = d === null;
+    Object.keys(tlFreeEls).forEach(function (k) {
+      var on = +k === d; tlFreeEls[k].classList.toggle('is-open', on); tlFreeEls[k].setAttribute('aria-expanded', on ? 'true' : 'false');
+    });
+    phoneEl.dispatchEvent(new CustomEvent('tp:freeideas', { detail: { day: d } }));
+  }
+  function tlFreeToggle(d, opener) {
+    if (tlFreeOpen === d) { tlFreeShow(null); tlRoving(); return; }
+    var head = document.querySelector('.tp-tl-head');
+    tlPanel.style.setProperty('--tl-head-h', (head ? head.offsetHeight : 52) + 'px');
+    tlFreeShow(d);
+    tlRoving();
+    // The ideas sit just below the axis: scroll the sheet (never the page) only as far as needed to show their heading
+    var h = tlIdeasEl && tlIdeasEl.querySelector('.tp-tl-ideas-h');
+    if (h) {
+      var pr = tlPanel.getBoundingClientRect(), hr = h.getBoundingClientRect(), sr = tlScroll.getBoundingClientRect();
+      var stick = parseFloat(getComputedStyle(tlPanel).getPropertyValue('--tl-head-h')) - 8 + sr.height;
+      if (hr.bottom + 120 > pr.bottom) tlPanel.scrollTo({ top: tlPanel.scrollTop + (hr.top - pr.top) - stick - 12, behavior: reduce.matches ? 'auto' : 'smooth' });
+      h.focus({ preventScroll: true });
+    }
+    if (opener) tlKeepInView(opener);
+  }
+  window.tpFreeApi = {
+    set: function (list) { tlFreeInfo = list || []; tlFreeDraw(); tlRoving(); },
+    close: function (focusPlus) { var d = tlFreeOpen; tlFreeShow(null); tlRoving(); if (focusPlus && d !== null && tlFreeEls[d]) tlFreeEls[d].focus({ preventScroll: true }); },
+    go: function (d) { var el = tlFreeEls[d]; if (el) { tlPick(el, false); tlFreeToggle(d, el); } },
+    open: function () { return tlFreeOpen; }
+  };
+  /* An idea added from the sheet: its marker flies from the Add button up to its day on the axis (an even ease, so the
+     eye can follow it), arrives lifted and larger, above its neighbours, then settles with a ring. Reduced motion: the
+     marker simply appears with the ring held for a moment. */
+  function tlLand(id, from) {
+    var el = tlItemEls[id]; if (!el || !from) return;
+    el.classList.remove('is-new');
+    tlKeepInView(el);
+    var sym = el.querySelector('.cn-tl-sym');
+    if (reduce.matches || !el.animate) { el.classList.add('is-landed'); setTimeout(function () { el.classList.remove('is-landed'); }, 1400); return; }
+    // Wait a frame so the axis has scrolled the day into view before measuring where the marker is
+    el.style.visibility = 'hidden';
+    setTimeout(function () {
+      var to = sym.getBoundingClientRect(), pr = phoneEl.getBoundingClientRect();
+      var g = document.createElement('span');
+      g.className = 'tp-tl-ghost'; g.setAttribute('aria-hidden', 'true');
+      g.innerHTML = sym.outerHTML;
+      phoneEl.appendChild(g);
+      var x0 = from.left + from.width / 2 - pr.left - 11, y0 = from.top + from.height / 2 - pr.top - 11;
+      var x1 = to.left + to.width / 2 - pr.left - 11, y1 = to.top + to.height / 2 - pr.top - 11;
+      g.style.left = '0px'; g.style.top = '0px';
+      // One gentle arc: up from the button, bowing a little outward, and down onto the day
+      var pts = [], N = 10;
+      for (var i = 0; i <= N; i++) {
+        var t = i / N, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t - Math.sin(Math.PI * t) * 36;
+        pts.push({ transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + (1 + .4 * Math.sin(Math.PI / 2 * Math.min(1, t / .6)) - .05 * Math.max(0, (t - .6) / .4)).toFixed(3) + ')', opacity: t === 0 ? .4 : 1 });
+      }
+      var fly = g.animate(pts, { duration: 720, easing: 'cubic-bezier(.4, 0, .3, 1)' });
+      fly.onfinish = function () {
+        g.remove();
+        el.style.visibility = '';
+        el.classList.add('is-landed');
+        sym.animate([{ transform: 'scale(1.35)' }, { transform: 'scale(.94)', offset: .6 }, { transform: 'scale(1)' }], { duration: 380, easing: 'ease-out' });
+        setTimeout(function () { el.classList.remove('is-landed'); }, 1100);
+      };
+    }, 60);
   }
   function tlRenderDetail() {
     tlRoving();
@@ -1584,7 +1705,7 @@
   }
   function dayLabel(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + ['Oct', 'Nov'][x.getUTCMonth() - 9]; }
   function tlSelect(k, focus, itemId) {
-    tlSel = itemId ? -1 : k; tlSelItem = itemId || null;
+    tlSel = itemId ? -1 : k; tlSelItem = itemId || null; tlSelFree = null;
     tlRenderDetail();
     var el = itemId ? tlItemEls[itemId] : TLM[k].el, x = el.offsetLeft;
     // Keep the chosen marker in view, with some of the days either side
@@ -1592,10 +1713,13 @@
     if (focus) el.focus({ preventScroll: true });
     notesOnly();
   }
-  function tlPick(el, focus) { if (el.dataset.item) tlSelect(-1, focus, el.dataset.item); else tlSelect(+el.dataset.k, focus); }
+  function tlPick(el, focus) {
+    if (el.dataset.free) { tlSel = -1; tlSelItem = null; tlSelFree = el; tlRoving(); tlKeepInView(el); if (focus) el.focus({ preventScroll: true }); return; }
+    if (el.dataset.item) tlSelect(-1, focus, el.dataset.item); else tlSelect(+el.dataset.k, focus); }
   // Tap (or Enter) opens the marker's details stacked over the timeline; the arrow keys only move between markers
   tlCanvas.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-tl-mk'); if (!b) return;
+    if (b.dataset.free) { tlPick(b, false); tlFreeToggle(+b.dataset.free, b); return; }
     tlPick(b, false);
     var open = window.tpPicker.openSheet;
     if (typeof open === 'function') open(b.dataset.item ? 'item:' + b.dataset.item : 'match:' + TLM[+b.dataset.k].key, b);
@@ -1834,6 +1958,7 @@
     if (open === tlOpen) return;
     if (!open && stackEl) stackClose(false); // a sheet stacked over the timeline goes with it
     if (!open) tlZoom(false);
+    if (!open && tlFreeOpen !== null) tlFreeShow(null);
     tlOpen = open;
     tl.classList.toggle('is-open', open);
     tlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -2047,7 +2172,7 @@
   });
 
   window.tpPicker = { save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, tlLand: tlLand, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark

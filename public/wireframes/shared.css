@@ -3406,7 +3406,7 @@ body.cp-page code { font: inherit; }
 .tp-tl-stay.is-suggested { background: var(--c-accent-soft); border-inline: var(--bw-1) dashed var(--c-accent-line); }
 /* Open, the strip has handed over to the axis: the panel moves up into its space (same total height, so the sheet's
    travel is unchanged) */
-.tp-tl.is-open .tp-tl-panel { position: relative; z-index: 1; margin-top: -34px; height: calc(var(--tl-p) + 34px); }
+.tp-tl.is-open .tp-tl-panel { position: relative; z-index: 1; margin-top: -22px; height: calc(var(--tl-p) + 22px); /* the bar is 88px: its count and the close button end at 59px, so the panel starts at 66px */ }
 .tp-tl-q { font-size: 11px; font-weight: var(--fw-heavy); line-height: 1; color: var(--c-ink-3); }
 .tp-tl-detail.is-empty { min-height: 0; padding: 0; border: 0; }
 .tp-tl-later { border: 0; padding: var(--space-1) 0 0; text-align: left; }
@@ -4392,3 +4392,34 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-pm-go .tp-go-from { padding-left: 0; margin-top: var(--space-2); }
 .tp-go-map-f { display: block; width: 100%; max-width: none; box-sizing: border-box; }
 .tp-go-from .tp-link { min-height: 0; padding: 0; vertical-align: baseline; }
+
+/* Timeline header with two or more teams: flags and codes in place of the names */
+.tp-tl-lteams { display: inline-flex; flex-wrap: nowrap; gap: var(--space-3); align-items: center; }
+.tp-tl-lteam { display: inline-flex; align-items: center; gap: 5px; font-weight: var(--fw-semi); letter-spacing: .02em; color: var(--c-ink); }
+.tp-tl-lteam .tp-fl { width: 18px; height: 12px; border-radius: 2px; box-shadow: 0 0 0 1px var(--c-line); object-fit: cover; }
+
+/* Free days on the timeline: a + per free day, a two-line label above it (Free, and how many ideas, or Full) */
+.tp-tl-free { z-index: 1; }
+.tp-tl-free-sym { display: grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); }
+.tp-tl-free-sym svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.tp-tl-free-l { position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); font-size: 10px; line-height: 1.15; text-align: center; white-space: nowrap; color: var(--c-ink-2); pointer-events: none; }
+.tp-tl-free.is-full .tp-tl-free-sym { border-style: dashed; color: var(--c-ink-2); }
+.tp-tl-free.is-open .tp-tl-free-sym { border-color: var(--c-btn); background: var(--c-btn); color: var(--c-on-dark); }
+.tp-tl-free.is-open .tp-tl-free-l { font-weight: var(--fw-semi); color: var(--c-ink); }
+.tp-tl-free:hover .tp-tl-free-sym { box-shadow: 0 0 0 3px var(--c-fill-soft); }
+/* Ideas open: the axis sticks under the sheet's header so an added idea is seen landing on its day */
+.tp-tl-panel.has-ideas .tp-tl-scroll { position: sticky; top: calc(var(--tl-head-h, 52px) - var(--space-2)); z-index: 3; background: var(--c-surface); box-shadow: 0 1px 0 var(--c-line-soft); }
+.tp-tl-ideas { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line); }
+.tp-tl-ideas[hidden] { display: none; }
+.tp-tl-ideas-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
+.tp-tl-ideas-h { font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.3; }
+.tp-tl-ideas-h:focus { outline: none; }
+.tp-tl-ideas-h:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-tl-ideas-top .tp-link { flex: none; }
+.tp-tl-ideas-next { margin-top: var(--space-3); }
+/* An idea added from the sheet: a ghost marker flies to its day, then the marker settles with a ring */
+.tp-tl-ghost { position: absolute; z-index: 1000; pointer-events: none; width: 22px; height: 22px; will-change: transform; }
+.tp-tl-ghost .cn-tl-sym { display: grid; place-items: center; width: 22px; height: 22px; border: var(--bw-2) solid var(--c-line-ink); border-radius: 5px; background: var(--c-surface); color: var(--c-ink); box-shadow: 0 8px 18px rgba(0,0,0,.28); }
+.tp-tl-mk.is-landed { z-index: 4; }
+.tp-tl-mk.is-landed .cn-tl-sym { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-accent); transition: box-shadow .3s ease-out; }
+.tp-tl-panel.has-ideas { overflow-anchor: none; } /* the sheet scrolls only when the ideas ask it to */
