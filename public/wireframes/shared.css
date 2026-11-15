@@ -4185,6 +4185,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-range-h.is-dragging::before { transform: scale(1.15); box-shadow: 0 3px 8px rgba(0,0,0,.25); }
 .tp-range-h:focus-visible::before { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-focus); }
 .tp-range.is-unset .tp-range-fill { background: var(--c-fill-mid); }
+.tp-range.is-unset .tp-range-h { opacity: .45; } /* no days set: the handles wait at the ends, faded, so nothing reads as chosen */
+.tp-range.is-unset .tp-range-h:focus-visible { opacity: 1; }
 .tp-range-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: var(--fs-2xs); color: var(--c-ink-2); }
 .tp-range-out { display: inline-flex; align-items: center; gap: 4px; }
 .tp-range-out::before { content: ""; width: 1.5px; height: 8px; background: var(--c-fill-strong); }
@@ -4296,3 +4298,38 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .show-nsw .tp-fan2-wrap:not(.is-grid) .tp-card2 .tp-card-tick { top: 7px; right: 4px; }
 .tp-card .tp-nsw-mark { margin-top: auto; font-size: .6875rem; }
 .tp-fan2-wrap.is-grid .tp-nsw-mark { position: absolute; right: 8px; top: 29px; font-size: .625rem; } /* in the flag row, right; the tick takes the top right */
+
+/* Your days and Refine your plan, on the page under the team picker (they used to be in the open timeline) */
+.cn-phone > .cn-body .tp-ask, #tp-ask { margin: 0 var(--space-4) var(--space-4); padding: var(--space-4); border-radius: var(--radius-md); background: var(--c-surface-2); }
+#tp-ask[hidden] { display: none; }
+#tp-ask .tp-sec-note { margin-top: var(--space-1); }
+.tp-ask-sum { display: flex; align-items: center; flex-wrap: wrap; gap: 0 var(--space-2); margin-top: var(--space-2); }
+.tp-quick { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.tp-refine { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line); }
+.tp-refine-btn { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-semi); text-align: left; cursor: pointer; }
+.tp-refine-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-refine-chev { flex: none; transition: transform var(--dur-small) var(--ease-out); }
+.tp-refine-btn[aria-expanded="true"] .tp-refine-chev { transform: rotate(180deg); }
+.tp-refine-sum { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-refine-panel { margin-top: var(--space-2); }
+.tp-refine-q { margin-top: var(--space-3); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.tp-place { display: flex; flex-direction: column; gap: 4px; margin-top: var(--space-3); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-place input { min-height: 44px; padding: 0 var(--space-3); border: var(--bw-2) solid var(--c-line-strong); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 1rem; font-weight: 400; }
+.tp-place input:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 1px; }
+.tp-place-list { list-style: none; margin: var(--space-1) 0 0; padding: 0; border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-sm); background: var(--c-surface); }
+.tp-place-list[hidden] { display: none; }
+.tp-place-opt { display: block; width: 100%; min-height: 36px; padding: 0 var(--space-3); border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-md); text-align: left; cursor: pointer; }
+.tp-place-opt:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
+@media (hover: hover) { .tp-place-opt:hover { background: var(--c-surface-2); } }
+.tp-place-none { padding: var(--space-2) var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-place-cur { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.tp-tl-daysline { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-tl-daysline[hidden] { display: none; }
+/* Going to this match? on each screening card: the question, then Yes and No (32px, as Add). A match they are going to
+   shows one card for getting there and back instead of its screenings */
+.tp-ws-going { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.tp-ws-going-q { flex-basis: 100%; font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-ws .tp-ws-going .tp-add { margin-top: 0; min-width: 52px; }
+.tp-ws-go-h { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-bold); line-height: 1.3; }
+.tp-ws-go-h:focus { outline: none; }
+.tp-ws--going .tp-ws-place { margin-top: var(--space-1); }

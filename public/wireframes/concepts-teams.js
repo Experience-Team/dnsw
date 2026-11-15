@@ -88,7 +88,7 @@
   var KEY = 'tp-pick-v1';
   // added: things put on the timeline (screenings, the village, products); trip: the one optional question's answer
   // tab: which of Your matches and All matches is chosen once a team is picked (kept, like everything else, on reload)
-  var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: true, city: null, v: 2 }, interstate: false, view: 'fan', nswMark: false };
+  var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: true, city: null, v: 2 }, interstate: false, view: 'fan', nswMark: false, notGoing: [] };
   try {
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
     var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
@@ -105,9 +105,22 @@
     // The picker: the fan or the grid, and whether cards of teams playing in NSW are marked (kept on reload)
     if (rec && rec.view === 'grid') state.view = 'grid';
     if (rec && rec.nswMark === true) state.nswMark = true;
+    // Matches they said No to on Going to this match? (the question is not asked again for those)
+    if (rec && Array.isArray(rec.notGoing)) state.notGoing = rec.notGoing.filter(function (x) { return typeof x === 'string'; });
     if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
-    if (rec && rec.trip && /^(visiting|local|unsure)$/.test(rec.trip.mode)) state.trip = rec.trip;
+    // The trip: your days (from, to), where you are staying (base) and who is coming (party), each optional. Saved before
+    // as a Visiting / local / not sure answer: a local becomes base local; not sure is dropped; days are kept
+    if (rec && rec.trip && typeof rec.trip === 'object') state.trip = normTrip({ from: rec.trip.from, to: rec.trip.to, base: rec.trip.base || (rec.trip.mode === 'local' ? 'local' : undefined), party: rec.trip.party });
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
+  // mode follows from the answers: local if staying is I'm a local, visiting once days are set; nothing else is assumed
+  function normTrip(t) {
+    if (!t) return null;
+    var o = {};
+    ['from', 'to', 'base', 'party'].forEach(function (k) { if (typeof t[k] === 'string' && t[k]) o[k] = t[k]; });
+    if (!o.from || !o.to) { delete o.from; delete o.to; }
+    o.mode = o.base === 'local' ? 'local' : o.from ? 'visiting' : undefined;
+    return Object.keys(o).some(function (k) { return o[k]; }) ? o : null;
+  }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   // Tells the annotation layer (prototype-pick-your-team.html) that what is on screen has changed
   // Tells the annotation layer that what is on screen has changed
@@ -1459,8 +1472,9 @@
     tlClashEl.innerHTML = hatch;
     Object.keys(tlItemEls).forEach(function (id) { if (!keep[id]) { if (tlItemEls[id] !== tlCarry) tlItemEls[id].remove(); delete tlItemEls[id]; if (tlSelItem === id) tlSelItem = null; } });
     // Visiting with dates: the days in NSW are shaded on the axis
-    var trip = state.trip, confirmed = trip && trip.mode === 'visiting' && trip.from && trip.to;
-    var guess = !confirmed && trip && trip.mode === 'visiting' ? inferTrip() : null, stay = confirmed ? trip : guess;
+    // Your days as set; nothing is guessed any more (the band shows only once days are chosen)
+    var trip = state.trip, confirmed = !!(trip && trip.from && trip.to);
+    var guess = null, stay = confirmed ? trip : null;
     tlStay.hidden = !stay;
     tlStay.classList.toggle('is-suggested', !!guess);
     if (stay) {
@@ -1608,7 +1622,7 @@
   function dragMovable(it) { return it && (it.kind === 'place' || it.kind === 'product'); }
   function dragRange() {
     var t = state.trip, a = 0, z = DAYS - 1;
-    if (t && t.mode === 'visiting' && t.from && t.to) { a = Math.max(0, isoDay(t.from)); z = Math.min(DAYS - 1, isoDay(t.to)); }
+    if (t && t.from && t.to) { a = Math.max(0, isoDay(t.from)); z = Math.min(DAYS - 1, isoDay(t.to)); }
     return [a, z];
   }
   function dragDay(dx) { var r = dragRange(); return Math.max(r[0], Math.min(r[1], tdrag.day + Math.round(dx / DAYW))); }
@@ -1965,7 +1979,7 @@
     state.added = state.added.filter(function (x) { return x.id !== id; });
     if (state.added.length !== n) { save(); changed(); }
   }
-  function setTrip(t) { state.trip = t; save(); changed(); }
+  function setTrip(t) { state.trip = normTrip(t); save(); changed(); }
   // The added item travels from the button that added it to the timeline bar, then the badge pops
   function flyToBar(fromEl) {
     if (!tlOn || reduce.matches || !fromEl || !document.body.animate) return;
@@ -2019,7 +2033,7 @@
     if (allReset) allReset();
     deck.innerHTML = '';
     setNsw(false); closeFind(false); clearFind(); offset = START; dealt = false;
-    state.view = 'fan'; state.nswMark = false; showVariant(false); viewLabel(); syncNswMark();
+    state.view = 'fan'; state.nswMark = false; state.notGoing = []; showVariant(false); viewLabel(); syncNswMark();
     state.tab = 'yours';
     clearTimeout(undoTimer);
     renderChosen();
@@ -2032,8 +2046,8 @@
     say('Prototype reset. No teams picked.');
   });
 
-  window.tpPicker = { stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+  window.tpPicker = { save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
+    flyToBar: flyToBar, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark

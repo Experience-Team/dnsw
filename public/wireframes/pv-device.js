@@ -65,6 +65,8 @@
     'fan-zone': 'village',
     'newcastle-ocean-baths': 'coast-aerial',
     'nz-v-australia': 'hero-stadium',
+    // Getting there and back cards show the stadium (one stadium photo stands in for all of them)
+    'stadium-australia': 'hero-stadium', 'sydney-football-stadium': 'hero-stadium', 'newcastle-stadium': 'hero-stadium', 'adelaide-oval': 'hero-stadium', 'brisbane-stadium': 'hero-stadium', 'docklands-stadium': 'hero-stadium', 'perth-stadium': 'hero-stadium', 'north-queensland-stadium': 'hero-stadium',
     'patonga-beach': 'coast-headland'
   };
   function paint(el) {
