@@ -19,12 +19,53 @@
      block, so a picture not added yet simply leaves the block. Placeholders drawn later (sheets, cards) are picked up
      as they appear. The wireframe takes them off again. */
   var IMG_DIR = 'assets/images/';
-  // Pictures saved under their own name rather than the placeholder's: placeholder name -> file name (no extension)
+  // Placeholder name -> picture file (no extension). Pictures saved under their own name, and the closest match where
+  // there is no picture of the place itself yet (see assets/images/README.md for what is a stand-in and what is missing)
   var IMG_ALIAS = {
     'golden-barley-hotel': 'golden-barley',
     'lord-nelson-brewery-hotel': 'lord-nelson',
     'marrickville-tavern': 'marickville-tavern',
-    'rugby-village-foreshore-park': 'village'
+    'rugby-village-foreshore-park': 'village',
+    'darling-harbour-fan-zone': 'village',
+    'armory-wharf-cafe': 'city-dining',
+    'bourke-street-bakery': 'city-dining',
+    'darby-street-cafes': 'city-dining',
+    'entertainment-quarter': 'city-dining',
+    'waterview-in-bicentennial-park': 'city-dining',
+    'white-rabbit-gallery': 'city-dining',
+    'beaumont-street-bars': 'marickville-tavern',
+    'bathers-way': 'coast-headland',
+    'brickpit-ring-walk': 'river-national-park',
+    'blue-mountains-day-out': 'river-national-park',
+    'barrington-tops-overnight': 'river-national-park',
+    'lake-macquarie-by-bike': 'river-national-park',
+    'royal-national-park-coast-walk': 'coast-headland',
+    'port-stephens-bay-day': 'coast-aerial',
+    'south-coast-3-nights': 'coast-headland',
+    'hunter-valley-2-nights': 'city-dining',
+    'echo-point-lookout': 'river-national-park',
+    'prince-henry-cliff-walk': 'river-national-park',
+    'leura-mall-cafes': 'city-dining',
+    'the-coast-track': 'coast-headland',
+    'bundeena-village-cafes': 'city-dining',
+    'nelson-bay-dolphin-cruise': 'coast-aerial',
+    'stockton-bight-sand-dunes-tour': 'coast-aerial',
+    'shoal-bay-beach': 'coast-aerial',
+    'warners-bay-bike-hire': 'river-national-park',
+    'speers-point-park': 'river-national-park',
+    'pokolbin-cellar-doors': 'city-dining',
+    'hunter-valley-balloon-flight': 'river-national-park',
+    'hunter-valley-gardens': 'river-national-park',
+    'kiama-blowhole': 'coast-headland',
+    'kiama-coast-walk': 'coast-headland',
+    'jervis-bay-whale-watching-cruise': 'coast-aerial',
+    'barrington-tops-rainforest-walk': 'river-national-park',
+    'gloucester-country-pub': 'lord-nelson',
+    'centennial-parklands': 'river-national-park',
+    'fan-zone': 'village',
+    'newcastle-ocean-baths': 'coast-aerial',
+    'nz-v-australia': 'hero-stadium',
+    'patonga-beach': 'coast-headland'
   };
   function paint(el) {
     var name = el.getAttribute('data-img'); name = IMG_ALIAS[name] || name;
