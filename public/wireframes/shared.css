@@ -4064,7 +4064,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-rugby { margin-top: var(--space-2); }
 
 /* Pick your team: All matches filter. In NSW only, then the NSW host cities in the same row (36px chips, AA) */
-.tp-all-filter { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); min-height: 36px; }
+.tp-all-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); min-height: 36px; } /* In NSW | All, then the cities; they wrap to a second row if the two do not fit */
 .tp-all-cities { display: flex; flex-wrap: nowrap; gap: var(--space-2); }
 .tp-all-cities[hidden] { display: none; }
 .tp-fchip { min-height: 36px; padding: 0 var(--space-3); }

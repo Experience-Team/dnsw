@@ -157,7 +157,7 @@ window.cnWatchSpots = [
 /* RWC 2027 host venues: 7 cities, 8 stadiums, 1 Oct to 13 Nov 2027.
    Source: summary supplied 13 Nov 2027; verify against the official RWC 2027 matches page.
    city: plain English name used in chips and copy; cityTraditional: dual name as published.
-   nsw: true for the NSW venues (drives In NSW only and the city chips). */
+   nsw: true for the NSW venues (drives In NSW and the city control). */
 window.cnVenues = [
   { id: 'adelaide-oval',            stadium: 'Adelaide Oval',            city: 'Adelaide',   cityTraditional: 'Adelaide | Tarntanya',          state: 'South Australia',   stateCode: 'SA',  nsw: false, matches: { pool: 6, r16: 0, qf: 0, sf: 0, bronze: 0, final: 0 } },
   { id: 'brisbane-stadium',         stadium: 'Brisbane Stadium',         city: 'Brisbane',   cityTraditional: 'Brisbane | Meeanjin',           state: 'Queensland',        stateCode: 'QLD', nsw: false, matches: { pool: 6, r16: 2, qf: 2, sf: 0, bronze: 0, final: 0 } },
