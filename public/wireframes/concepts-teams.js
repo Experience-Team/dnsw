@@ -487,6 +487,7 @@
     fanWrap.hidden = stacked() || grid();
     fan2Wrap.classList.toggle('is-grid', grid());
     fan2Wrap.style.height = grid() ? gridHeight(seq.length) + 'px' : '';
+    fitHand();
     var help = document.getElementById('tp-fan-help'), help2 = document.getElementById('tp-fan2-help');
     if (help) help.hidden = stacked(); if (help2) help2.hidden = !stacked();
     var sw = document.getElementById('tp-fan-toggle');
@@ -494,6 +495,19 @@
     sync2(!!animate);
     if (stacked() || grid()) deal2(); else watchDeal();
   }
+  /* The hand is laid out for a 390px phone: its cards span 28 to 362px (368 with a picked card lifted). On any other width it is
+     centred on those real extremes and scaled down when it would not fit with 12px either side, and its box takes the
+     scaled height, so no card is clipped and the space above and below stays even (interaction check 6). */
+  var HAND = { l: 28, r: 365, h: 339 }; // 362 with no card picked, 368 with a picked card lifted: centred between the two
+  function fitHand() {
+    if (!fan2) return;
+    if (!stacked() || grid()) { fan2.style.transform = ''; return; }
+    var W = fan2Wrap.clientWidth || 390, k = Math.min(1, (W - 24) / (HAND.r - HAND.l)), c = (HAND.l + HAND.r) / 2;
+    fan2.style.transformOrigin = '0 0';
+    fan2.style.transform = 'translateX(' + (W / 2 - c * k).toFixed(1) + 'px) scale(' + k.toFixed(4) + ')';
+    fan2Wrap.style.height = Math.round(HAND.h * k) + 'px';
+  }
+  window.addEventListener('resize', fitHand);
   // The deal: the first time the stacked hand comes into view its cards come up into place, row by row
   function deal2() {
     if (f2Dealt || !stacked()) return;

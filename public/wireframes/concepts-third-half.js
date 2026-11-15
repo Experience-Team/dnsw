@@ -127,16 +127,15 @@
     MODAL[id] = { type: 'spot', sp: sp, m: m };
     return id;
   }
-  /* Going to this match? Asked on each screening card. Yes marks the ticket (the same tick as I have a ticket on the
-     match, so the two stay in step) and puts the match on the timeline; that match's screenings then give way to one
-     card for getting there and back (transport details are a placeholder until they are supplied). No keeps the
-     screenings and the question is not asked again for that match. */
+  /* Going? Each screening card points to the one place a ticket is marked, the match card's I have a ticket (the
+     Yes / No pair here was a second way to answer; replaced 15 Nov). Once marked, that match's screenings give way to
+     one card for getting there and back, with Not going after all? to undo. */
   function notGoing(m) { return (state.notGoing || []).indexOf(m.key) > -1; }
+  // One line, not a second way to answer: the ticket is marked in one place, the match card's I have a ticket
+  // (agreed 15 Nov). The link goes there; once marked, the card turns into getting there and back.
   function goingQ(m, named) {
-    if (notGoing(m)) return '';
-    return '<div class="tp-ws-going" role="group" aria-label="Going to ' + esc(matchName(m.f)) + '?"><span class="tp-ws-going-q" aria-hidden="true">Going to ' + (named ? esc(matchName(m.f)) : 'this match') + '?</span>' +
-      '<button type="button" class="tp-add tp-ws-yes" data-going="' + esc(m.key) + '" data-v="yes">Yes<span class="visually-hidden">, I’m going to ' + esc(matchName(m.f)) + '</span></button>' +
-      '<button type="button" class="tp-add tp-ws-no" data-going="' + esc(m.key) + '" data-v="no">No<span class="visually-hidden">, not going to ' + esc(matchName(m.f)) + '</span></button></div>';
+    if (!m.tkey || hasTicket(m)) return '';
+    return '<p class="tp-ws-going"><span class="tp-ws-going-q">Going?</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button><span class="visually-hidden">: ' + esc(matchName(m.f)) + '</span></p>';
   }
   function gettingThere(m) {
     var f = m.f, city = f.a || f.p;
@@ -221,7 +220,7 @@
       var d0 = teaserDay(), on = ms.filter(function (m) { return m.f.d === d0; });
       ms = on.length ? on : ms.slice(0, 1);
     }
-    if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : 'Every match of your teams, interstate ones too, at fan zones, pubs and clubs in NSW. Venues are placeholders until real ones are supplied.';
+    if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : 'Every match of your teams, interstate ones too, at fan zones, pubs and clubs in NSW. Venues are examples until real ones are supplied.';
     if (!ms.length) {
       h = '<p class="tp-empty">' + (s ? 'None of your matches falls in your days (' + esc(tp.isoRange(trip().from, trip().to)) + ').' : 'Pick your teams to see where to watch their matches.') + '</p>';
     }
@@ -392,7 +391,7 @@
      start, such as Central, until they say), then a button to a sheet with the schematic route and all the details. */
   var TRAVEL = window.cnMatchTravel || null;
   var TRAIN_ICO = '<svg class="tp-ico tp-go-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3.5" y="1.5" width="9" height="10" rx="2.5"/><path d="M3.5 7.5h9M6 14.5l1-3M10 14.5l-1-3"/><circle cx="6" cy="9.5" r=".6"/><circle cx="10" cy="9.5" r=".6"/></svg>';
-  var LEG = { walk: 'Walk', train: 'Train', event: 'Event service' };
+  var LEG = { walk: 'Walk', train: 'Train', event: 'Event shuttle' };
   function goRoute(f) { return TRAVEL && !f.a ? TRAVEL.route(f.v, basePlace(), baseCity()) : null; }
   function ampm(t) { t = ((t % 1440) + 1440) % 1440; var hh = Math.floor(t / 60), mm = t % 60; return ((hh % 12) || 12) + (mm ? ':' + (mm < 10 ? '0' : '') + mm : '') + (hh < 12 ? 'am' : 'pm'); }
   function lower(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
@@ -411,7 +410,7 @@
     var h = '<figure class="tp-go-map-f"><ol class="tp-go-map" aria-label="Route from ' + esc(r.from) + ' to ' + esc(r.venue) + '">';
     h += '<li class="tp-go-stop is-end"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n">' + esc(r.from) + '</span>' + (r.fromDefault ? '' : '<span class="tp-go-stop-s">Where you’re staying</span>') + '</li>';
     r.legs.forEach(function (l) {
-      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional travel (placeholder)' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + (l.mode === 'event' ? ' (placeholder)' : '') + ', ' + (l.mins ? 'about ' + mins(l.mins) : 'time to be confirmed') + '</span></li>';
+      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional coach' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + '' + ', ' + (l.mins ? 'about ' + mins(l.mins) : 'time to be confirmed') + '</span></li>';
       h += '<li class="tp-go-stop' + (l.gates ? ' is-end is-venue' : '') + '"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n' + (l.gates ? '' : ' provenance-gap') + '">' + esc(l.to) + '</span></li>';
     });
     return h + '</ol><figcaption class="tp-go-cap">Schematic, not to scale</figcaption></figure>';
@@ -607,7 +606,7 @@
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
       '<span class="tp-pc-type">' + esc(type) + '</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span>' +
-      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? A guided tour (placeholder) goes from ' + esc(i.how.from) + '.</span>' : '') + '</span></div>' +
+      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</span></div>' +
       addBtn(key, i.title + ' on ' + dl) + '</article>';
   }
   function freeBody(b) {
@@ -1266,6 +1265,20 @@
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
     if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say('Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
+    // Going? Mark your ticket on the match: to that match's I have a ticket in Your matches, else its own sheet
+    var gk = e.target.closest('[data-going-mark]');
+    if (gk) {
+      var km = tp.match(gk.dataset.goingMark); if (!km) return;
+      var box = km.tkey && document.querySelector('#tp-deck input[data-match="' + CSS.escape(km.tkey) + '"]');
+      if (!box || document.getElementById('tp-results').hidden) { openPm('match:' + km.key, gk); return; }
+      var card = box.closest('.tp-rcard'), deck = document.getElementById('tp-deck');
+      if (card) deck.scrollTo({ left: card.offsetLeft - deck.offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
+      var top = box.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 120;
+      body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+      setTimeout(function () { box.focus({ preventScroll: true }); }, reduce.matches ? 0 : 450);
+      tp.say(matchName(km.f) + ': tick I have a ticket if you are going.');
+      return;
+    }
     var gq = e.target.closest('[data-going]');
     if (gq && !pm.contains(gq)) {
       var gm = tp.match(gq.dataset.going); if (!gm) return;
