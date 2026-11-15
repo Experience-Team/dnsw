@@ -105,22 +105,29 @@
     place();
   }
   function scr(p) { return [vw / 2 + (p[0] - cam.x) * cam.s, cam.fy + (p[1] - cam.y) * cam.s]; }
-  function glide(to, far) {
+  function glide(to) {
     cancelAnimationFrame(anim);
     if (reduce.matches || !to) { if (to) cam = to; apply(); return; }
     var from = { x: cam.x, y: cam.y, s: cam.s, fy: cam.fy }, t0 = performance.now();
-    // Far apart: out, across and in, so the move can be followed; otherwise one even glide
-    var dist = Math.hypot((to.x - from.x) * Math.min(from.s, to.s), (to.y - from.y) * Math.min(from.s, to.s));
-    var dip = dist > vw * 1.2 ? .5 : 0, dur = dip ? 900 : 700;
+    var io = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+    // Far apart (it would race across more than a screen): pull back until both places are in view, travel there, then
+    // close in, so the eye can follow where it is going. Near: one even glide.
+    var dx = Math.abs(to.x - from.x), dy = Math.abs(to.y - from.y);
+    var far = Math.hypot(dx, dy) * Math.min(from.s, to.s) > vw * 1.2;
+    var sMid = far ? Math.max(sMin(), Math.min(from.s, to.s, (vw - 80) / Math.max(dx, 1), Math.max(120, availBottom() - availTop() - 40) / Math.max(dy, 1))) : 0; // fits both in the visible map above the card
+    var dur = far ? 1200 : 700, L0 = Math.log(from.s), L1 = Math.log(to.s), LM = far ? Math.log(sMid) : 0;
     (function frame(now) {
-      var t = Math.min(1, (now - t0) / dur), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      var ls = Math.log(from.s) + (Math.log(to.s) - Math.log(from.s)) * e;
-      cam = { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e, s: Math.exp(ls) * (1 - dip * Math.sin(Math.PI * e)), fy: from.fy + (to.fy - from.fy) * e };
-      cam.s = Math.max(sMin(), cam.s);
+      var t = Math.min(1, (now - t0) / dur), e = io(t), ls;
+      // Far: out (first 38%), held while it travels (both places in view), then in; it travels mostly while held
+      if (far) { ls = t < .38 ? L0 + (LM - L0) * io(t / .38) : t < .62 ? LM : LM + (L1 - LM) * io((t - .62) / .38); e = io(Math.max(0, Math.min(1, (t - .18) / .64))); }
+      else ls = L0 + (L1 - L0) * e;
+      cam = { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e, s: Math.max(sMin(), Math.exp(ls)), fy: from.fy + (to.fy - from.fy) * e };
+      if (far) clampCam(); // pulled right back, the view stays on the picture (no edge of the drawing shows)
       apply();
       if (t < 1) anim = requestAnimationFrame(frame);
     })(t0);
   }
+
 
   /* ---------- Pins, marks and routes ---------- */
   var pinEls = [];

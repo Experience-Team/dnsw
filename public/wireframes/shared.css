@@ -4430,8 +4430,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-map-skip { font-size: var(--fs-sm); }
 .tp-map { position: relative; margin: var(--space-3) calc(var(--space-4) * -1) 0; }
 .tp-map-end { display: block; height: 0; }
-.tp-map-snaps span { position: absolute; left: 0; width: 1px; height: 1px; scroll-snap-align: start; }
-.tp-map-on .tp-body { scroll-snap-type: y proximity; }
+.tp-map-snaps span { position: absolute; left: 0; width: 1px; height: 1px; }
+/* No scroll snapping: with a snap point every day, any scroll shorter than half a step was pulled back to the same day */
 .tp-map-stage { position: sticky; top: 0; height: var(--stage-h, 600px); overflow: hidden; background: #d3d3d3; } /* the illustration’s own sea (grey in the wireframe), so its edge never shows */
 .tp-map-view { position: absolute; inset: 0; overflow: hidden; touch-action: pan-y; }
 .tp-map-view:focus { outline: none; }
