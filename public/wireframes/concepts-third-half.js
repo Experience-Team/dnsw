@@ -951,7 +951,8 @@
       return;
     }
     var act = b.dataset.act;
-    if (act === 'change') { askEditing = true; askManual = false; settle('.tp-fork[aria-pressed="true"], .tp-fork', h0); return; }
+    // Change with the calendar icon (visiting) opens the dates; otherwise the choice
+    if (act === 'change') { var cal = !!b.querySelector('.tp-ico-cal'); askEditing = true; askManual = cal; settle(cal ? '#tp-from' : '.tp-fork[aria-pressed="true"], .tp-fork', h0); return; }
     if (act === 'adjust') { askManual = true; settle('#tp-from', h0); return; }
     if (act === 'confirm') {
       var inf = inferred();
@@ -1067,12 +1068,16 @@
   // From the open timeline: Change or Answer comes here
   /* The question is answered in the open timeline. Opening it there: with the choice showing (Change), and focus on the
      current answer or the first choice. */
-  function openAsk() {
-    askEditing = true; askManual = false;
+  // dates: the way in was about dates (it has the calendar icon), so the timeline opens with the date fields and slider
+  // showing (the guess filled in where there is one), not folded behind the choice; focus goes to the first date
+  function openAsk(dates) {
+    var t = trip();
+    askEditing = true; askManual = !!dates;
+    if (dates && !(t && t.mode === 'visiting')) { askOwn = true; tp.setTrip({ mode: 'visiting' }); }
     render(true);
-    tp.openTimeline('.tp-fork[aria-pressed="true"], .tp-fork');
+    tp.openTimeline(dates ? '#tp-from' : '.tp-fork[aria-pressed="true"], .tp-fork');
   }
-  phone.addEventListener('tp:ask', openAsk);
+  phone.addEventListener('tp:ask', function () { openAsk(false); });
   /* The line under Suits your 3rd half: the way to the question while it is unanswered, then the answer and Change */
   function renderTripLine() {
     if (!tripEl) return;
@@ -1091,7 +1096,8 @@
       : '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (t && t.mode === 'visiting' ? 'Visiting? Confirm your days to see what fits' : 'Visiting? Set your days to see what fits') + '</button>';
   }
   phone.addEventListener('click', function (e) {
-    if (e.target.closest('#tp-third-trip [data-act="trip"]')) { openAsk(); return; }
+    var tb = e.target.closest('#tp-third-trip [data-act="trip"]');
+    if (tb) { openAsk(!!tb.querySelector('.tp-ico-cal')); return; }
     if (!e.target.closest('#tp-third-trip [data-act="trip-ok"]')) return;
     var M = model(); if (!M.range) return;
     var before = snap();
