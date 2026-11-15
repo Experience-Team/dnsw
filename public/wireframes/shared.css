@@ -3743,7 +3743,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Here for the rugby lists all nine NSW matches: three to a column so the card fits the screen's height, and the card
    grows sideways instead. The deck's own sideways swipe moves through it, so there is no scroll inside a scroll. */
 .tp-deck .tp-rcard--rugby, .tp-deck.is-single .tp-rcard--rugby { width: max-content; }
-.tp-ms--cols { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); grid-auto-columns: 220px; column-gap: var(--space-5); }
+.tp-ms--cols { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); grid-auto-columns: 286px; column-gap: var(--space-5); }
 .tp-ms--cols .tp-m { position: relative; }
 .tp-ms--cols .tp-m:nth-child(3n) { border-bottom: 0; }
 .tp-ko--col { grid-row: 1 / -1; align-self: start; margin-top: var(--space-3); padding-left: var(--space-4); border-left: var(--bw-1) solid var(--c-line-soft); }
@@ -4553,3 +4553,18 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-blk-more { margin-top: var(--space-3); }
 .tp-tl-free-l { font-size: 11px; }
 .tp-pm-go .cn-pp-facts dd .tp-link { min-height: 0; padding: 0; vertical-align: baseline; } /* inline in a sentence: the 2.5.8 inline exception, so no 36px box pushing the row down */
+.tp-fan2 { transition: transform 520ms cubic-bezier(.45, .05, .25, 1); } @media (prefers-reduced-motion: reduce) { .tp-fan2 { transition: none; } }
+
+/* Layout pass (15 Nov): section headings on two levels, not six sizes. Main sections 22px (All matches, Around your
+   matches, Your plan so far); supporting ones 18px (Where to watch, Your days), still above 16px card titles. */
+.tp-all-title, .tp-sec-title, #tp-third .tp-sec-title, .tp-plan-title { font-size: 1.375rem; line-height: 1.2; }
+#tp-watch .tp-sec-title, .tp-ask-title { font-size: var(--fs-lg-2); line-height: 1.25; }
+/* Your days now sits below the matches, leading into Where to watch */
+.cn-phone > .cn-body #tp-ask, #tp-ask { margin-top: var(--space-6); }
+/* The day list: one gap under every day heading, whatever comes first in its body */
+.tp-blk-body { padding-top: var(--space-1); }
+.tp-blk-body > :first-child { margin-top: 0; }
+/* Match days anchor the list: more space above, a stronger rule and a larger date; free days stay hairline rows */
+.tp-blk--match { margin-top: var(--space-5); border-top: var(--bw-2) solid var(--c-line-ink); }
+.tp-blk--match .tp-blk-when { font-size: var(--fs-lg-2); }
+p.tp-ws-going { display: block; } p.tp-ws-going .tp-ws-going-q { font-size: var(--fs-sm); } /* one line: Going? and the link to the ticket */

@@ -74,7 +74,7 @@
     vw = mapEl.clientWidth || 390;
     var n = steps.length;
     // Each day is one deliberate swipe: shorter steps for a long plan, and the map lets go after the last day
-    stepPx = Math.round(stageH * (n <= 8 ? .7 : n <= 14 ? .5 : .36));
+    stepPx = Math.round(stageH * (n <= 14 ? .5 : .36)); // half a screen a day (agreed 15 Nov; was 70% up to 8 days)
     mapEl.style.setProperty('--stage-h', stageH + 'px');
     mapEl.style.height = (free ? stageH : stageH + Math.max(0, n - 1) * stepPx) + 'px';
     snaps.innerHTML = free ? '' : steps.map(function (s, i) { return '<span style="top:' + i * stepPx + 'px"></span>'; }).join('');

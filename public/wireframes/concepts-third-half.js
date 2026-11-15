@@ -127,16 +127,15 @@
     MODAL[id] = { type: 'spot', sp: sp, m: m };
     return id;
   }
-  /* Going to this match? Asked on each screening card. Yes marks the ticket (the same tick as I have a ticket on the
-     match, so the two stay in step) and puts the match on the timeline; that match's screenings then give way to one
-     card for getting there and back (transport details are a placeholder until they are supplied). No keeps the
-     screenings and the question is not asked again for that match. */
+  /* Going? Each screening card points to the one place a ticket is marked, the match card's I have a ticket (the
+     Yes / No pair here was a second way to answer; replaced 15 Nov). Once marked, that match's screenings give way to
+     one card for getting there and back, with Not going after all? to undo. */
   function notGoing(m) { return (state.notGoing || []).indexOf(m.key) > -1; }
+  // One line, not a second way to answer: the ticket is marked in one place, the match card's I have a ticket
+  // (agreed 15 Nov). The link goes there; once marked, the card turns into getting there and back.
   function goingQ(m, named) {
-    if (notGoing(m)) return '';
-    return '<div class="tp-ws-going" role="group" aria-label="Going to ' + esc(matchName(m.f)) + '?"><span class="tp-ws-going-q" aria-hidden="true">Going to ' + (named ? esc(matchName(m.f)) : 'this match') + '?</span>' +
-      '<button type="button" class="tp-add tp-ws-yes" data-going="' + esc(m.key) + '" data-v="yes">Yes<span class="visually-hidden">, I’m going to ' + esc(matchName(m.f)) + '</span></button>' +
-      '<button type="button" class="tp-add tp-ws-no" data-going="' + esc(m.key) + '" data-v="no">No<span class="visually-hidden">, not going to ' + esc(matchName(m.f)) + '</span></button></div>';
+    if (!m.tkey || hasTicket(m)) return '';
+    return '<p class="tp-ws-going"><span class="tp-ws-going-q">Going?</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button><span class="visually-hidden">: ' + esc(matchName(m.f)) + '</span></p>';
   }
   function gettingThere(m) {
     var f = m.f, city = f.a || f.p;
@@ -221,7 +220,7 @@
       var d0 = teaserDay(), on = ms.filter(function (m) { return m.f.d === d0; });
       ms = on.length ? on : ms.slice(0, 1);
     }
-    if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : 'Every match of your teams, interstate ones too, at fan zones, pubs and clubs in NSW. Venues are placeholders until real ones are supplied.';
+    if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : 'Every match of your teams, interstate ones too, at fan zones, pubs and clubs in NSW. Venues are examples until real ones are supplied.';
     if (!ms.length) {
       h = '<p class="tp-empty">' + (s ? 'None of your matches falls in your days (' + esc(tp.isoRange(trip().from, trip().to)) + ').' : 'Pick your teams to see where to watch their matches.') + '</p>';
     }
@@ -1266,6 +1265,20 @@
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
     if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say('Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
+    // Going? Mark your ticket on the match: to that match's I have a ticket in Your matches, else its own sheet
+    var gk = e.target.closest('[data-going-mark]');
+    if (gk) {
+      var km = tp.match(gk.dataset.goingMark); if (!km) return;
+      var box = km.tkey && document.querySelector('#tp-deck input[data-match="' + CSS.escape(km.tkey) + '"]');
+      if (!box || document.getElementById('tp-results').hidden) { openPm('match:' + km.key, gk); return; }
+      var card = box.closest('.tp-rcard'), deck = document.getElementById('tp-deck');
+      if (card) deck.scrollTo({ left: card.offsetLeft - deck.offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
+      var top = box.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 120;
+      body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+      setTimeout(function () { box.focus({ preventScroll: true }); }, reduce.matches ? 0 : 450);
+      tp.say(matchName(km.f) + ': tick I have a ticket if you are going.');
+      return;
+    }
     var gq = e.target.closest('[data-going]');
     if (gq && !pm.contains(gq)) {
       var gm = tp.match(gq.dataset.going); if (!gm) return;
