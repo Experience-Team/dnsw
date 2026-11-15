@@ -57,6 +57,37 @@ window.cnFixtures = [
    prototype and not confirmed with anyone. NOT IN THE PRODUCT DATA CONTRACT: the spot type and the screening link (which spot shows which
    match) have no contract field; fixture-only for now, as agreed on 13 November 2026. The village has open_from and
    open_to (also fixture-only), assumed open every day between them. Real data is still needed. */
+/* PLACEHOLDER VENUES for Where to watch, until real ones are supplied. Clearly marked "(placeholder)": no real business
+   is named. Spread across areas and three kinds (fan zones, pubs, clubs). Which matches each one screens follows a
+   simple rule so the prototype has a realistic mix (fan zones show every match; pubs about two in three; clubs about
+   one in two), not real programming. The rule is in cnWatchVenues below. */
+(function () {
+  var V = [
+    ['Fan zone A (placeholder)', 'fan_zone', 'Sydney CBD', 'sydney'],
+    ['Fan zone B (placeholder)', 'fan_zone', 'Newcastle', 'newcastle'],
+    ['Pub A (placeholder)', 'pub', 'Inner West, Sydney', 'sydney'],
+    ['Pub B (placeholder)', 'pub', 'Eastern Suburbs, Sydney', 'sydney'],
+    ['Pub C (placeholder)', 'pub', 'Parramatta', 'sydney'],
+    ['Pub D (placeholder)', 'pub', 'North Shore, Sydney', 'sydney'],
+    ['Pub E (placeholder)', 'pub', 'Newcastle', 'newcastle'],
+    ['Club A (placeholder)', 'club', 'Western Sydney', 'sydney'],
+    ['Club B (placeholder)', 'club', 'Northern Beaches, Sydney', 'sydney'],
+    ['Club C (placeholder)', 'club', 'Lake Macquarie', 'newcastle'],
+    ['Club D (placeholder)', 'club', 'Wollongong', 'sydney']
+  ];
+  var F = window.cnFixtures || [];
+  window.cnWatchVenues = V.map(function (v, j) {
+    var shows = [];
+    F.forEach(function (f, i) {
+      if (!f.t) return; // teams to be decided: no screening listed yet
+      var on = v[1] === 'fan_zone' || (v[1] === 'pub' ? (i + j) % 3 !== 0 : (i + j) % 2 === 0);
+      if (on) shows.push(f.d + '|' + f.t);
+    });
+    return { name: v[0], type: v[1], place: v[2], city: v[3], placeholder: true, shows: shows };
+  });
+})();
+
+/* Earlier screening data (real places, invented screenings), no longer used by Where to watch: kept for reference */
 window.cnWatchSpots = [
   { name: 'Darling Harbour fan zone', type: 'fan_zone', place: 'Tumbalong Park, Sydney', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 2 Oct|New Zealand v Chile', 'Sat 2 Oct|Argentina v Canada', 'Sun 3 Oct|England v Tonga', 'Sat 9 Oct|Ireland v Scotland', 'Sat 16 Oct|Australia v Chile'] },
   { name: 'Rugby village, Foreshore Park', type: 'village', place: 'Foreshore Park, Newcastle', open_from: '2027-10-01', open_to: '2027-11-13', shows: ['Fri 1 Oct|Australia v Hong Kong China', 'Sat 16 Oct|Australia v Chile', 'Sat 9 Oct|France v Japan'] },

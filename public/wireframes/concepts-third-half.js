@@ -8,7 +8,7 @@
      order the ideas (a local: nearest first, no dates needed). Each answer refines the results in
      place, says what changed under the answer, and tints each section that changed as it comes into view. It is saved
      with the picks (tp-pick-v1), shown and editable in the open timeline.
-   Data: real places, with indicative hours, prices and screenings (not confirmed). Screenings, the village and the fan zone come from window.cnWatchSpots; products from
+   Data: real places, with indicative hours, prices and screenings (not confirmed). Where to watch uses placeholder venues from window.cnWatchVenues (no real business named); products from
    window.cnThirdHalf, shaped like the product data contract (availability, pricing and distance_to_venue are gap, so
    pink). No venue or product is favoured: spots go by type then name, products by distance then name. Links go out
    only; nothing is booked here. State and the timeline live in concepts-teams.js (window.tpPicker). */
@@ -16,7 +16,8 @@
   'use strict';
   var tp = window.tpPicker, FIX = window.cnFixtures;
   if (!tp || !Array.isArray(FIX)) return;
-  var SPOTS = Array.isArray(window.cnWatchSpots) ? window.cnWatchSpots : [];
+  // Where to watch: placeholder venues (clearly marked) until real ones are supplied; see cnWatchVenues in concepts-fixtures.js
+  var SPOTS = Array.isArray(window.cnWatchVenues) ? window.cnWatchVenues : [];
   var PRODUCTS = Array.isArray(window.cnThirdHalf) ? window.cnThirdHalf : [];
   var phone = document.getElementById('tp-phone'), body = tp.body, reduce = tp.reduce, esc = tp.esc, side = tp.side;
   var watchList = document.getElementById('tp-watch-list'), watchMore = document.getElementById('tp-watch-more');
@@ -25,7 +26,7 @@
   var ask = document.getElementById('tp-ask'), tripEl = document.getElementById('tp-third-trip');
   if (!watchList || !thirdList || !ask) return;
 
-  var SPOT_TYPE = { fan_zone: 'Fan zone', village: 'Village', pub: 'Pub screening' }, SPOT_ORDER = { fan_zone: 0, village: 1, pub: 2 };
+  var SPOT_TYPE = { fan_zone: 'Fan zone', village: 'Village', pub: 'Pub', club: 'Club' }, SPOT_ORDER = { fan_zone: 0, village: 1, pub: 2, club: 3 };
   var PTYPE = { food_and_drink: 'Food and drink', attraction: 'Attraction', tour: 'Tour', event: 'Event', hire: 'Hire', accommodation: 'Accommodation' };
   var WD = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   var WD_PLURAL = { sun: 'Sundays', mon: 'Mondays', tue: 'Tuesdays', wed: 'Wednesdays', thu: 'Thursdays', fri: 'Fridays', sat: 'Saturdays' };
@@ -107,60 +108,116 @@
      card for getting there and back (transport details are a placeholder until they are supplied). No keeps the
      screenings and the question is not asked again for that match. */
   function notGoing(m) { return (state.notGoing || []).indexOf(m.key) > -1; }
-  function goingQ(m) {
+  function goingQ(m, named) {
     if (notGoing(m)) return '';
-    return '<div class="tp-ws-going" role="group" aria-label="Going to ' + esc(matchName(m.f)) + '?"><span class="tp-ws-going-q" aria-hidden="true">Going to this match?</span>' +
+    return '<div class="tp-ws-going" role="group" aria-label="Going to ' + esc(matchName(m.f)) + '?"><span class="tp-ws-going-q" aria-hidden="true">Going to ' + (named ? esc(matchName(m.f)) : 'this match') + '?</span>' +
       '<button type="button" class="tp-add tp-ws-yes" data-going="' + esc(m.key) + '" data-v="yes">Yes<span class="visually-hidden">, I’m going to ' + esc(matchName(m.f)) + '</span></button>' +
       '<button type="button" class="tp-add tp-ws-no" data-going="' + esc(m.key) + '" data-v="no">No<span class="visually-hidden">, not going to ' + esc(matchName(m.f)) + '</span></button></div>';
   }
-  function gettingThere(m, tag, who) {
+  function gettingThere(m) {
     var f = m.f, city = f.a || f.p;
-    return '<li class="tp-wm tp-ws tp-ws--going" data-key="' + esc(m.key) + '" data-id="go:' + esc(m.key) + '">' +
-      '<span class="tp-ws-media"><span class="ph-img tp-ws-img"' + imgKey(f.v) + ' aria-hidden="true"></span>' + tag + '</span>' +
-      '<span class="tp-ws-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</span>' +
-      '<span class="tp-ws-teams">' + who + '</span>' +
+    return '<li class="tp-wm tp-wc tp-wc--going" data-key="' + esc(m.key) + '">' + matchLine(m) +
       '<h4 class="tp-ws-go-h" tabindex="-1" id="go-' + esc(m.key.replace(/\W+/g, '-')) + '">You’re going: getting there and back</h4>' +
-      '<span class="tp-ws-place provenance-gap"><span class="tp-ws-name">' + esc(f.v) + ', ' + esc(city) + '</span>' +
-      '<span class="tp-ws-meta">' + (f.a ? 'Travel to ' + esc(f.a) + ' and back: placeholder until transport details are supplied.' : 'Public transport to the stadium and back: placeholder until transport details are supplied.') + '</span></span>' +
+      '<p class="tp-wv-meta provenance-gap">' + esc(f.v) + ', ' + esc(city) + '. ' + (f.a ? 'Travel to ' + esc(f.a) + ' and back: placeholder until transport details are supplied.' : 'Public transport to the stadium and back: placeholder until transport details are supplied.') + '</p>' +
       '<p class="tp-ws-going"><button type="button" class="tp-link" data-going="' + esc(m.key) + '" data-v="undo">Not going after all?</button></p></li>';
   }
-  function renderWatch() {
-    // The person's matches (in their days) that a spot shows, or that they are going to (getting there and back instead)
-    var ms = tp.userMatches().filter(function (m) { return inStay(m.day) && (spotsFor(m).length || hasTicket(m)); });
-    var s = stay(), h = '', first = teaser();
-    if (first) {
-      // The next NSW match day's screenings (any match that day, in NSW or not); failing that, the first day with one
-      var d0 = teaserDay(), on = ms.filter(function (m) { return m.f.d === d0; });
-      ms = on.length ? on : ms.filter(function (m) { return ms[0] && m.f.d === ms[0].f.d; });
-    }
-    if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : watchNoteText;
-    if (!ms.length) {
-      h = '<p class="tp-empty">' + (s ? 'None of your matches in your days (' + esc(tp.isoRange(trip().from, trip().to)) + ') has a screening listed yet.'
-        : 'None of your matches has a screening listed yet.') + '</p>';
-    }
-    // One row of portrait cards, one per screening, in date order: the place's picture (a grey block in the wireframe)
-    // with In NSW or Interstate on it, then when, the match, the place, Add, and Going to this match?. A match they are
-    // going to shows one getting there and back card instead. The row scrolls sideways.
-    var cards = '';
-    ms.forEach(function (m) {
-      var f = m.f, who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
-      var tag = f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>';
-      if (hasTicket(m)) { cards += gettingThere(m, tag, who); return; }
-      spotsFor(m).forEach(function (sp) {
-        var id = spotItem(sp, m), open = ITEMS[id].note;
-        cards += '<li class="tp-wm tp-ws" data-key="' + esc(m.key) + '" data-id="' + esc(id) + '"><button type="button" class="tp-ws-text" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
-          '<span class="tp-ws-media"><span class="ph-img tp-ws-img"' + imgKey(sp.name) + ' aria-hidden="true"></span>' + tag + '</span>' +
-          '<span class="tp-ws-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</span>' +
-          '<span class="tp-ws-teams">' + who + '</span>' +
-          '<span class="tp-ws-place provenance-gap"><span class="tp-ws-name">' + esc(sp.name) + '</span>' +
-          '<span class="tp-ws-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' · ' + esc(sp.place) + '</span>' +
-          (open ? '<span class="tp-ws-meta">' + esc(open) + '</span>' : '') + '</span></button>' +
-          addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d) + goingQ(m) + '</li>';
+
+  /* ---------- Which venues, fairly ----------
+     A government site cannot favour one business: for each evening the venues are taken in a rotation that starts at a
+     different place for each match, one of each kind first (fan zone, pub, club) and from different areas, and no venue
+     is shown for more than two evenings on the page while another would do. With two of their matches on one evening,
+     venues showing both come first. Where they are staying (Refine your plan) puts that city's venues first. Worked
+     out once per render, in date order, so a match shows the same venues in Where to watch and in Your days. */
+  var NICK = { 'South Africa': 'Boks', 'New Zealand': 'All Blacks', 'Australia': 'Wallabies', 'Argentina': 'Pumas', 'Fiji': 'Flying Fijians', 'Japan': 'Brave Blossoms' };
+  var FIX = window.cnFixtures || [];
+  function fixIndex(m) { for (var i = 0; i < FIX.length; i++) if (FIX[i].d === m.f.d && FIX[i].t === m.f.t) return i; return 0; }
+  function shows(sp, m) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }
+  var VEN = {}, VUSED = {};
+  function evKey(ms) { return ms.map(function (m) { return m.key; }).join('+'); }
+  function venuesFor(ms) {
+    var k = evKey(ms); if (VEN[k]) return VEN[k];
+    var city = baseCity(), off = fixIndex(ms[0]) % (SPOTS.length || 1);
+    var cand = SPOTS.map(function (sp, j) { return { sp: sp, j: j, all: ms.every(function (m) { return shows(sp, m); }), any: ms.some(function (m) { return shows(sp, m); }) }; })
+      .filter(function (c) { return c.any; })
+      .sort(function (x, y) {
+        return (y.all - x.all) || ((city && y.sp.city === city) - (city && x.sp.city === city)) ||
+          (((x.j - off + SPOTS.length) % SPOTS.length) - ((y.j - off + SPOTS.length) % SPOTS.length));
+      });
+    var pick = [], types = {}, areas = {};
+    // Pass 1: a different kind and area each, not over-used; pass 2: fill from what is left
+    [true, false].forEach(function (strict) {
+      cand.forEach(function (c) {
+        if (pick.length >= 3 || pick.indexOf(c) > -1) return;
+        if (strict && (types[c.sp.type] || areas[c.sp.place] || (VUSED[c.sp.name] || 0) >= 2)) return;
+        if (!strict && (VUSED[c.sp.name] || 0) >= 2 && cand.length > pick.length + 1) return;
+        pick.push(c); types[c.sp.type] = 1; areas[c.sp.place] = 1;
       });
     });
-    if (cards) h += '<ul class="tp-wm-spots" aria-label="Screenings, scroll sideways for more">' + cards + '</ul>';
+    // Keep the both-first order within the picks
+    pick.sort(function (x, y) { return (y.all - x.all); });
+    pick.forEach(function (c) { VUSED[c.sp.name] = (VUSED[c.sp.name] || 0) + 1; });
+    return (VEN[k] = pick);
+  }
+  // The person's untick matches grouped by evening (two picked teams on one evening share one card)
+  function evenings(ms) {
+    var by = {}, out = [];
+    ms.forEach(function (m) { (by[m.day] = by[m.day] || []).push(m); });
+    Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (d) { out.push(by[d]); });
+    return out;
+  }
+  function teamOf(m) { var t = (m.f.t || '').split(' v '); return t.filter(function (n) { return tp.isPicked(n); })[0] || t[0]; }
+  function kickLine(m) { var n = teamOf(m); return (NICK[n] || n) + ' on at ' + (m.f.k ? m.f.k.replace(':00', '') : 'a time to be confirmed'); } // 8pm, not 8:00pm
+  // The venues for one evening: name, kind and area, what it shows (with two matches), Add
+  function venueRows(ms, keyBase) {
+    var vs = venuesFor(ms), two = ms.length > 1;
+    if (!vs.length) return '<p class="tp-empty">No screening listed for this evening yet.</p>';
+    return '<ul class="tp-wv">' + vs.map(function (c) {
+      var showing = ms.filter(function (m) { return shows(c.sp, m); }), m0 = showing[0];
+      var id = 'w:' + c.j + ':' + keyBase;
+      ITEMS[id] = { id: id, kind: 'screening', title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', place: c.sp.place, note: '', day: m0.f.d, matchName: showing.map(function (m) { return matchName(m.f); }).join(' and ') };
+      MODAL[id] = { type: 'spot', sp: c.sp, m: m0 };
+      var what = two ? (c.all ? 'Shows both' : 'Shows ' + matchName(m0.f) + ' only') : '';
+      return '<li class="tp-wv-i"><button type="button" class="tp-wv-t" data-open="' + esc(id) + '" aria-haspopup="dialog"><span class="tp-wv-name provenance-gap">' + esc(c.sp.name) + '</span>' +
+        '<span class="tp-wv-meta">' + esc(SPOT_TYPE[c.sp.type] || 'Screening') + ' · ' + esc(c.sp.place) + (what ? ' · <strong>' + esc(what) + '</strong>' : '') + '</span></button>' +
+        addBtn(id, c.sp.name + ', ' + ITEMS[id].matchName + ' on ' + m0.f.d) + '</li>';
+    }).join('') + '</ul>';
+  }
+  function matchLine(m) {
+    var f = m.f, who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
+    var tag = f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>';
+    return '<div class="tp-wc-m"><p class="tp-wc-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + ' ' + tag + '</p><p class="tp-wc-teams">' + who + '</p></div>';
+  }
+  function renderWatch() {
+    VEN = {}; VUSED = {};
+    // Every match of every picked team, interstate included, in their days once set; one with a ticket shows getting
+    // there and back instead of screenings
+    var ms = tp.userMatches().filter(function (m) { return m.f.t && inStay(m.day); });
+    var s = stay(), h = '', first = teaser();
+    if (first) {
+      var d0 = teaserDay(), on = ms.filter(function (m) { return m.f.d === d0; });
+      ms = on.length ? on : ms.slice(0, 1);
+    }
+    if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : 'Every match of your teams, interstate ones too, at fan zones, pubs and clubs in NSW. Venues are placeholders until real ones are supplied.';
+    if (!ms.length) {
+      h = '<p class="tp-empty">' + (s ? 'None of your matches falls in your days (' + esc(tp.isoRange(trip().from, trip().to)) + ').' : 'Pick your teams to see where to watch their matches.') + '</p>';
+    }
+    var evs = evenings(ms), cards = [];
+    evs.forEach(function (ev) {
+      var going = ev.filter(hasTicket), watch = ev.filter(function (m) { return !hasTicket(m); });
+      going.forEach(function (m) { cards.push(gettingThere(m)); });
+      if (!watch.length) return;
+      var two = watch.length > 1, k = evKey(watch);
+      cards.push('<li class="tp-wm tp-wc' + (two ? ' is-clash' : '') + '" data-key="' + esc(watch[0].key) + '">' +
+        (two ? '<p class="tp-wc-clash">' + watch.length + ' of your matches tonight</p>' : '') +
+        watch.map(matchLine).join('') +
+        '<p class="tp-wc-sub">Where to watch in NSW' + (two ? ', venues showing both first' : '') + '</p>' +
+        venueRows(watch, k) + watch.map(function (m) { return goingQ(m, two); }).join('') + '</li>');
+    });
+    var showN = watchAll ? cards.length : Math.min(cards.length, 4);
+    if (cards.length) h += '<ul class="tp-wcs" aria-label="Where to watch, by evening">' + cards.slice(0, showN).join('') + '</ul>';
     watchList.innerHTML = h;
-    watchMore.hidden = true;
+    watchMore.hidden = cards.length <= 4;
+    if (!watchMore.hidden) { watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + (cards.length - 4) + ' more evenings'; watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false'); }
   }
   watchMore.addEventListener('click', function () { watchAll = !watchAll; render(true); });
 
@@ -273,10 +330,12 @@
       var dm = by[d] || [], home = dm.filter(function (m) { return !m.f.a; }), away = dm.filter(function (m) { return m.f.a && hasTicket(m); });
       if (home.length) { close(); out.push({ kind: 'match', key: 'm' + d, day: d, ms: home }); continue; }
       if (away.length) { close(); out.push({ kind: 'away', key: 'a' + d, day: d, m: away[0] }); continue; }
+      // A free day with one of their matches on (interstate, no ticket): its own card, where to watch it in NSW
+      var tv = dm.filter(function (m) { return m.f.a && m.f.t && !hasTicket(m) && M.ms.indexOf(m) > -1; });
+      if (tv.length) { close(); out.push({ kind: 'watch', key: 'w' + d, day: d, ms: tv }); continue; }
       if (a !== z && (d === a || d === z)) { close(); out.push({ kind: 'half', key: 'h' + d, day: d, first: d === a }); continue; }
-      if (!st) st = { kind: 'free', key: 'f' + d, a: d, z: d, watch: [] };
+      if (!st) st = { kind: 'free', key: 'f' + d, a: d, z: d };
       st.z = d;
-      dm.filter(function (m) { return m.f.a && m.f.t; }).forEach(function (m) { st.watch.push(m); });
     }
     close();
     // Base for each stretch and half day: from the matches either side (Sydney or Newcastle)
@@ -408,9 +467,6 @@
   tp.tripMoves = tripMoves; tp.moveTrip = moveTrip;
   function freeBody(b) {
     var n = b.z - b.a + 1, h = '';
-    b.watch.forEach(function (m) {
-      h += '<p class="tp-blk-watch">' + esc(dayLabel(m.day)) + ' evening: <button type="button" class="tp-link" data-watch="' + esc(m.key) + '">watch ' + esc(matchName(m.f)) + ' in NSW</button></p>';
-    });
     var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
     var days = TRIPS.filter(function (t) { return t.kind === 'day' && t.bases.indexOf(b.base) > -1 && starts(t, b).length; });
     longs.sort(function (x, y) { return (b.between ? (y.on_the_way ? 1 : 0) - (x.on_the_way ? 1 : 0) : 0) || byTravel(b.base)(x, y); });
@@ -421,6 +477,11 @@
     else h += '<div class="tp-pcs">' + show.map(function (t) { return tripCard(t, b); }).join('') + '</div>';
     if (all.length > 3) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Show fewer' : 'Show ' + (all.length - 3) + ' more') + '</button>';
     return h;
+  }
+  // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
+  function watchBody(b) {
+    return '<p class="tp-blk-note">' + (b.ms.length > 1 ? b.ms.length + ' of your matches tonight, so venues showing both come first. ' : '') + 'Here\u2019s where to watch in NSW.</p>' +
+      b.ms.map(matchLine).join('') + venueRows(b.ms, evKey(b.ms));
   }
   function halfBody(b) {
     var wd = weekdayOf(b.day), f = { d: dayLabel(b.day) };
@@ -441,6 +502,7 @@
   function heading(b) {
     if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || 'time to be confirmed') + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
     if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + CITY[b.base] }; }
+    if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? b.ms.length + ' of your matches tonight' : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + whereText(b.base) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
@@ -464,7 +526,7 @@
       if (b.kind === 'away') { h += '<div class="tp-blk tp-blk--away"><p class="tp-blk-line"><span class="tp-blk-when">' + esc(hd.when) + '</span> <span class="tp-blk-what">' + esc(hd.what) + '</span></p></div>'; return; }
       h += '<section class="tp-blk tp-blk--' + b.kind + '" data-blk="' + b.key + '"><h4 class="tp-blk-h"><button type="button" class="tp-blk-head" data-blk-toggle="' + b.key + '" aria-expanded="' + open + '" aria-controls="' + bid + '">' +
         '<span class="tp-blk-when">' + esc(hd.when) + '</span><span class="tp-blk-what">' + esc(hd.what) + '</span><span class="tp-blk-chev" aria-hidden="true"></span></button></h4>' +
-        '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? freeBody(b) : halfBody(b)) : '') + '</div></section>';
+        '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? freeBody(b) : b.kind === 'watch' ? watchBody(b) : halfBody(b)) : '') + '</div></section>';
     });
     if (first) h += TAILOR;
     thirdList.innerHTML = h;
@@ -492,15 +554,6 @@
       var back = thirdList.querySelector('[data-move^="' + CSS.escape(id) + '@"]') || thirdList.querySelector('.tp-add[data-item^="' + CSS.escape(id) + '@"]');
       if (back) back.focus({ preventScroll: true });
       return;
-    }
-    var w = e.target.closest('[data-watch]');
-    if (w) {
-      var g = watchList.querySelector('.tp-wm[data-key="' + CSS.escape(w.dataset.watch) + '"]') || document.getElementById('tp-watch');
-      var top = g.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
-      body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-      var rail = g.parentNode && g.parentNode.classList.contains('tp-wm-spots') ? g.parentNode : null;
-      if (rail) rail.scrollTo({ left: Math.max(0, g.offsetLeft - rail.offsetLeft - 16), behavior: reduce.matches ? 'auto' : 'smooth' });
-      var f = g.querySelector('button'); if (f) f.focus({ preventScroll: true });
     }
   });
   // Pick your team to tailor this: back up to the hand of cards, focus on the card in the middle
@@ -876,7 +929,8 @@
       var gf = gm.f, gid = matchId(gm.key), v = gq.dataset.v;
       if (v === 'no') {
         state.notGoing = (state.notGoing || []).concat([gm.key]); tp.save();
-        render(true, '.tp-ws[data-key="' + CSS.escape(gm.key) + '"] .tp-add');
+        var ck = (gq.closest('.tp-wm') || {}).dataset; ck = ck && ck.key || gm.key;
+        render(true, '.tp-wm[data-key="' + CSS.escape(ck) + '"] .tp-add');
         tp.say('Not going to ' + matchName(gf) + '. Its screenings stay listed.');
         return;
       }
@@ -893,7 +947,7 @@
       // Not going after all: the ticket comes off (and the match added for it); the screenings come back
       tp.setTicket(gm.tkey, false);
       if (added(gid)) tp.removeItem(gid);
-      render(true, '.tp-ws[data-key="' + CSS.escape(gm.key) + '"] .tp-ws-yes');
+      render(true, '.tp-wm [data-going="' + CSS.escape(gm.key) + '"][data-v="yes"]');
       tp.say('Ticket removed for ' + matchName(gf) + '. Its screenings are back.');
       return;
     }
