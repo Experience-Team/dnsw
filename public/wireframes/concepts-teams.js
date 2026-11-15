@@ -1183,7 +1183,7 @@
 
   /* ---------- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to the 390px phone) ----------
      A sheet docked over the bottom of the phone, out of the content's flow. Three states: hidden (until the match cards
-     have scrolled past the top of the phone), collapsed (the 104px bar) and open (the sheet risen by its panel height).
+     have scrolled past the top of the phone), collapsed (the 88px bar) and open (the sheet risen by its panel height).
      Only transform moves it. Matches only: every match with no team or after Skip, every NSW match for Here for the
      rugby, and only the picked teams' matches, live as picks change. The All matches list stays unfiltered.
      Fan zones and the village are gap data from cnWatchSpots (real places, indicative screenings). The number badge counts items added to
@@ -1192,7 +1192,7 @@
   var tlInter = document.getElementById('tp-tl-inter'), tlInterBtn = document.getElementById('tp-inter');
   var tlToggle = document.getElementById('tp-tl-toggle'), tlPanel = document.getElementById('tp-tl-panel'), tlScrim = document.getElementById('tp-tl-scrim');
   var tlCanvas = document.getElementById('tp-tl-canvas'), tlScroll = document.getElementById('tp-tl-scroll'), tlDetail = document.getElementById('tp-tl-detail');
-  var tlDays = document.getElementById('tp-tl-days');
+  var tlDays = document.getElementById('tp-tl-days'), tlStripStay = document.querySelector('#tp-tl-toggle .tp-tl-strip-stay');
   var tlDots = document.getElementById('tp-tl-dots'), tlLabel = document.getElementById('tp-tl-label'), tlValue = document.getElementById('tp-tl-value');
   var tlBadge = document.getElementById('tp-tl-badge'), tlPrompt = document.getElementById('tp-tl-prompt');
   var tlItemEls = {}, tlStay, tlKey = document.getElementById('tp-tl-key'), tlClash = {}, tlClashEl;
@@ -1207,7 +1207,7 @@
     route: '<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 12.5c0-3 4-2.5 4-5.5S3 4 5.5 2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="10.5" cy="3.5" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 2.5h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
     pin: '<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13s4.5-4.3 4.5-7.5a4.5 4.5 0 0 0-9 0C2.5 8.7 7 13 7 13z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="5.5" r="1.5" fill="currentColor"/></svg>'
   };
-  var DAYS = 44, DAYW = 40, PADX = 28, BAR = 104;
+  var DAYS = 44, DAYW = 40, PADX = 28, BAR = 88;
   var tlOn = false, tlOpen = false, tlSel = -1, tlSelItem = null;
   function dayOf(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + (+p[1]) - 1; } // 1 Oct is day 0, 13 Nov day 43
   // Trip dates are ISO (2027-10-03); day numbers count from 1 Oct 2027 (a Friday)
@@ -1386,6 +1386,16 @@
       a = Math.max(0, Math.min(DAYS - 1, a)); z = Math.max(a, Math.min(DAYS - 1, z));
       tlStay.style.left = (PADX + a * DAYW - DAYW / 2) + 'px';
       tlStay.style.width = ((z - a + 1) * DAYW) + 'px';
+    }
+    // The bar's strip shows the same days as a band behind its dots (the days are spelt out for screen readers)
+    if (tlStripStay) {
+      tlStripStay.hidden = !stay;
+      tlStripStay.classList.toggle('is-suggested', !!guess);
+      if (stay) {
+        var sa = Math.max(0, Math.min(DAYS - 1, isoDay(stay.from))), sz = Math.max(sa, Math.min(DAYS - 1, isoDay(stay.to)));
+        tlStripStay.style.left = Math.max(0, (sa - .5) / (DAYS - 1) * 100) + '%';
+        tlStripStay.style.right = Math.max(0, 100 - (sz + .5) / (DAYS - 1) * 100) + '%';
+      }
     }
     // The canvas is as tall as the tallest day shown: 50px for the axis and dates, 28px a row, 10px above
     var rows = 1; Object.keys(perDay).forEach(function (d) { rows = Math.max(rows, perDay[d]); });
