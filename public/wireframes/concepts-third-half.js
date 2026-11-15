@@ -65,7 +65,7 @@
      person's days in NSW once given) and one way on, Pick your team to tailor this, instead of every match at once. */
   function teaser() { return !tp.own(); }
   function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
-  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Pick your team to tailor this</button></p>';
+  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Pick your teams to tailor this</button></p>';
 
   /* ---------- Where to watch ---------- */
   var watchAll = false;
@@ -94,7 +94,7 @@
     // Every match of theirs with a screening has a ticket: they will be at the ground, so say so rather than "none"
     var atGround = !ms.length && tp.userMatches().some(function (m) { return hasTicket(m) && spotsFor(m).length; });
     if (!ms.length && atGround) {
-      h = '<p class="tp-empty">You have tickets for your matches, so you\u2019ll be at the ground: no screenings to show. Pick your team to see where to watch their other matches.</p>';
+      h = '<p class="tp-empty">You have tickets for your matches, so you\u2019ll be at the ground: no screenings to show. Pick your teams to see where to watch their other matches.</p>';
     } else if (!ms.length) {
       h = '<p class="tp-empty">' + (s ? 'None of your matches in your days in NSW (' + esc(tp.isoRange(trip().from, trip().to)) + ') has a screening listed yet.'
         : 'None of your matches has a screening listed yet.') + '</p>';
@@ -1167,7 +1167,7 @@
     // Save & share in the timeline only shows once there is a plan to keep
     if (ssBtn) ssBtn.hidden = !ms.length && !n;
     if (!ms.length && !n) {
-      planBody.innerHTML = '<p class="tp-plan-empty">' + window.tpIcons.fan + 'Pick your team, or add a screening or a place above, and your plan builds up here.</p>';
+      planBody.innerHTML = '<p class="tp-plan-empty">' + window.tpIcons.fan + 'Pick your teams, or add a screening or a place above, and your plan builds up here.</p>';
       return;
     }
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;

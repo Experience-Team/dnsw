@@ -782,7 +782,7 @@
   function tsOpen(opener) {
     if (!tlOpen) return;
     // The title matches the way in: Pick your team with nothing picked, Change your teams after. Set on open, never mid-edit
-    document.getElementById('tp-ts-title').textContent = state.picked.length ? 'Change your teams' : 'Pick your team';
+    document.getElementById('tp-ts-title').textContent = state.picked.length ? 'Change your teams' : 'Pick your teams';
     tsFind.value = ''; tsBuild(); tsSync(); tsFilter();
     clearTimeout(tsNoteT); tsNoteEl.textContent = '';
     document.getElementById('tp-ts-body').scrollTop = 0;
@@ -1428,7 +1428,7 @@
     // by the page's one counting rule (as the tab, the summary and the Your teams sheet); your days are a small note under
     // the strip; what you added is on the badge only; clashes show on the strip (and are named in the open timeline)
     var teams = tlTeams(), none = !state.picked.length;
-    var label = none ? 'Pick your team' : isPicked(RUGBY) ? 'Every NSW match' : 'Your teams: ' + list(teams);
+    var label = none ? 'Pick your teams' : isPicked(RUGBY) ? 'Every NSW match' : 'Your teams: ' + list(teams);
     var added = state.added.length;
     tlLabel.textContent = label;
     tlLabel.classList.toggle('is-hook', none);
