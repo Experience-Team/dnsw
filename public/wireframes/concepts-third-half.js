@@ -465,17 +465,82 @@
     tp.say(cur.title + ' moved to ' + nu.when + '.');
   }
   tp.tripMoves = tripMoves; tp.moveTrip = moveTrip;
+  /* ---------- Free days: three to five ideas a day ----------
+     Each free day gets its own short list: half-day ideas in the city and day trips, each tagged with how to get there
+     by public transport and how long it takes (car-only trips offer a guided tour instead). Nothing is suggested twice
+     on the page, and nothing already in the plan is suggested. A day is filled once it has a day trip, or two half-day
+     ideas (or a longer trip covers it): it then shows what is in it, and its ideas move on to the next free day. First-
+     time visitors (not a local and not staying in Sydney, or not said) see Sydney's half days first; who is coming puts
+     the ideas that suit them first. */
+  var IDEAS = Array.isArray(window.cnFreeIdeas) ? window.cnFreeIdeas : [], SUGG = {}, FREE_LEFT = 0;
+  function firstTimer() { var b = baseOf(); return b !== 'local' && baseCity() !== 'sydney'; }
+  function ideaAdded(i) { return added('i:' + i.id); }
+  function dayItems(d) {
+    var dl = dayLabel(d);
+    return state.added.filter(function (x) {
+      if (x.kind === 'match' || x.kind === 'screening') return false;
+      if (x.nights) return x.start <= d && d <= x.start + x.nights;
+      return x.day === dl;
+    });
+  }
+  function dayFilled(d) {
+    var its = dayItems(d);
+    return its.some(function (x) { return x.idea === 'day' || x.kind === 'trip'; }) || its.length >= 2;
+  }
+  function partyFirst(list) {
+    var p = partyOf(); if (!p || p === 'solo') return list;
+    return list.filter(function (i) { return i.party.indexOf(p) > -1; }).concat(list.filter(function (i) { return i.party.indexOf(p) < 0; }));
+  }
+  function ideasFor(d, city) {
+    var free = function (i) { return i.city === city && !SUGG[i.id] && !ideaAdded(i); };
+    var halves = partyFirst(IDEAS.filter(function (i) { return i.kind === 'half' && free(i); }));
+    var trips = partyFirst(IDEAS.filter(function (i) { return i.kind === 'day' && free(i); }));
+    // First-timers: Sydney half days lead (two, then a day trip); otherwise a day trip leads
+    var lead = firstTimer() && city === 'sydney' ? ['h', 'h', 't', 'h', 't'] : ['t', 'h', 'h', 't', 'h'], out = [];
+    for (var k = 0; out.length < halves.length + trips.length && k < 40; k++) {
+      var want = lead[k % lead.length], src = want === 'h' ? (halves.length ? halves : trips) : (trips.length ? trips : halves);
+      if (!src.length) break;
+      out.push(src.shift());
+    }
+    return out;
+  }
+  function howLine(i) {
+    if (i.car) return 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from + ' (no public transport)';
+    return i.how.mode + ' from ' + i.how.from + ' · ' + (i.how.mins ? mins(i.how.mins) + ' by public transport' : 'time to be confirmed');
+  }
+  function ideaCard(i, d) {
+    var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), type = (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city];
+    var why = 'Fits ' + dl + ' · ' + howLine(i);
+    ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
+    return '<article class="tp-pc tp-idea" data-id="' + esc(key) + '"><div class="tp-pc-main">' +
+      '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
+      '<span class="tp-pc-type">' + esc(type) + '</span>' +
+      '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span>' +
+      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? A guided tour (placeholder) goes from ' + esc(i.how.from) + '.</span>' : '') + '</span></div>' +
+      addBtn(key, i.title + ' on ' + dl) + '</article>';
+  }
   function freeBody(b) {
-    var n = b.z - b.a + 1, h = '';
+    var h = '', n = b.z - b.a + 1;
+    for (var d = b.a; d <= b.z; d++) {
+      var dl = dayLabel(d), its = dayItems(d), dk = b.key + ':' + d;
+      h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>';
+      if (dayFilled(d)) {
+        h += '<p class="tp-fday-done">Your day: ' + esc(its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p></div>';
+        continue;
+      }
+      if (its.length) h += '<p class="tp-fday-so">So far: ' + esc(its.map(function (x) { return x.title; }).join(', ')) + '. Room for one more.</p>';
+      // Shared out so every free day left gets three to five while there are enough (More ideas shows the rest)
+      var list = ideasFor(d, b.base), per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
+      FREE_LEFT--;
+      show.forEach(function (i) { SUGG[i.id] = true; });
+      if (!show.length) h += '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
+      else h += '<div class="tp-pcs">' + show.map(function (i) { return ideaCard(i, d); }).join('') + '</div>';
+      if (list.length > per) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(dk) + '" aria-expanded="' + !!moreBlk[dk] + '">' + (moreBlk[dk] ? 'Fewer ideas' : 'More ideas') + '</button>';
+      h += '</div>';
+    }
+    // Three or more free days: the curated longer trips, as before
     var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
-    var days = TRIPS.filter(function (t) { return t.kind === 'day' && t.bases.indexOf(b.base) > -1 && starts(t, b).length; });
-    longs.sort(function (x, y) { return (b.between ? (y.on_the_way ? 1 : 0) - (x.on_the_way ? 1 : 0) : 0) || byTravel(b.base)(x, y); });
-    days.sort(byTravel(b.base));
-    var all = partyOf() === 'family' ? days.concat(longs) : longs.concat(days), show = moreBlk[b.key] ? all : all.slice(0, 3); // a family: day trips first
-    if (b.between && longs.some(function (t) { return t.on_the_way; })) h += '<p class="tp-blk-note">Between a Newcastle match and a Sydney match: something on the way.</p>';
-    if (!all.length) h += '<p class="tp-empty">Nothing curated fits these days yet. Free days can stay free.</p>';
-    else h += '<div class="tp-pcs">' + show.map(function (t) { return tripCard(t, b); }).join('') + '</div>';
-    if (all.length > 3) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Show fewer' : 'Show ' + (all.length - 3) + ' more') + '</button>';
+    if (longs.length) h += '<h5 class="tp-grp">Or make it a longer trip</h5><div class="tp-pcs">' + longs.slice(0, 2).map(function (t) { return tripCard(t, b); }).join('') + '</div>';
     return h;
   }
   // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
@@ -507,8 +572,12 @@
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
   function renderThird() {
+    SUGG = {};
     // With no team but their days set (T16), the days still lead: free stretches with day trips and longer trips
     var M = model(), bs = blocks(M), first = teaser() && !M.range;
+    // Free days' ideas in date order, open or not, so nothing is suggested twice on the page
+    FREE_LEFT = 0; bs.forEach(function (b) { if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) if (!dayFilled(d)) FREE_LEFT++; });
+    bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b); });
     if (thirdNote) thirdNote.textContent = first ? 'A first look: around the next NSW match day. Each links out; nothing is booked here.'
       : M.range ? 'Your days in NSW, in order: match days and the free days between them. Each links out; nothing is booked here.'
       : M.own && !M.nsw.length && !M.local ? tp.list(state.picked.filter(function (n) { return tp.teams[n]; })) + ' plays interstate, so these are the NSW match days you could go to. Each links out; nothing is booked here.'
@@ -526,7 +595,7 @@
       if (b.kind === 'away') { h += '<div class="tp-blk tp-blk--away"><p class="tp-blk-line"><span class="tp-blk-when">' + esc(hd.when) + '</span> <span class="tp-blk-what">' + esc(hd.what) + '</span></p></div>'; return; }
       h += '<section class="tp-blk tp-blk--' + b.kind + '" data-blk="' + b.key + '"><h4 class="tp-blk-h"><button type="button" class="tp-blk-head" data-blk-toggle="' + b.key + '" aria-expanded="' + open + '" aria-controls="' + bid + '">' +
         '<span class="tp-blk-when">' + esc(hd.when) + '</span><span class="tp-blk-what">' + esc(hd.what) + '</span><span class="tp-blk-chev" aria-hidden="true"></span></button></h4>' +
-        '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? freeBody(b) : b.kind === 'watch' ? watchBody(b) : halfBody(b)) : '') + '</div></section>';
+        '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? b._html : b.kind === 'watch' ? watchBody(b) : halfBody(b)) : '') + '</div></section>';
     });
     if (first) h += TAILOR;
     thirdList.innerHTML = h;

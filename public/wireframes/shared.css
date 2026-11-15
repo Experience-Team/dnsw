@@ -4354,3 +4354,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-wc .tp-ws-going .tp-add { min-width: 52px; min-height: 36px; margin-top: 0; }
 .tp-wc--going .tp-wv-meta { margin-top: var(--space-1); }
 .tp-blk .tp-wc-m { margin-top: var(--space-2); }
+/* Free days: one short list per day (3 to 5 ideas, More ideas), each tagged with how to get there and how long */
+.tp-fday + .tp-fday { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-fday-done, .tp-fday-so { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
+.tp-fday-done { font-weight: var(--fw-semi); color: var(--c-ink); }
+.tp-idea .tp-pc-main { cursor: default; }
+.tp-pc-tour { display: block; margin-top: 2px; font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink-2); }

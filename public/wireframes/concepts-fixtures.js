@@ -57,6 +57,33 @@ window.cnFixtures = [
    prototype and not confirmed with anyone. NOT IN THE PRODUCT DATA CONTRACT: the spot type and the screening link (which spot shows which
    match) have no contract field; fixture-only for now, as agreed on 13 November 2026. The village has open_from and
    open_to (also fixture-only), assumed open every day between them. Real data is still needed. */
+/* FREE-DAY IDEAS for Your days, in order. The four Sydney ideas the user named (Manly ferry, Bondi to Coogee walk, Sydney
+   Opera House, The Rocks) keep their names; how to get there is the obvious start point only, and times are left to be
+   confirmed (mins: null) until real details are supplied. Everything else is a clearly marked placeholder ("(placeholder)"):
+   names, travel times, who it suits and tours. kind: half (a half day) or day (a day trip); car: true when there is no
+   public transport, so a guided tour is offered instead; party: who it suits best (placeholder tags for ordering). */
+(function () {
+  var ALLP = ['solo', 'couple', 'friends', 'family'];
+  var out = [
+    { id: 'syd-manly-ferry', title: 'Manly ferry', kind: 'half', city: 'sydney', how: { mode: 'Ferry', from: 'Circular Quay', mins: null }, party: ALLP },
+    { id: 'syd-bondi-coogee', title: 'Bondi to Coogee walk', kind: 'half', city: 'sydney', how: { mode: 'Bus', from: 'Sydney CBD to Bondi Beach', mins: null }, party: ['solo', 'couple', 'friends'] },
+    { id: 'syd-opera-house', title: 'Sydney Opera House', kind: 'half', city: 'sydney', how: { mode: 'Walk', from: 'Circular Quay', mins: null }, party: ALLP },
+    { id: 'syd-the-rocks', title: 'The Rocks', kind: 'half', city: 'sydney', how: { mode: 'Walk', from: 'Circular Quay', mins: null }, party: ALLP }
+  ];
+  var L = 'ABCDEFGHIJKLMN', MODES = ['Train', 'Bus', 'Ferry', 'Light rail'], PARTY = [['family'], ['couple'], ['friends'], ['solo', 'couple'], ['family', 'friends'], ALLP];
+  // Placeholder half days and day trips, for each host city
+  function add(city, label, kind, n, car) {
+    for (var k = 0; k < n; k++) out.push({ id: city + '-' + kind + '-' + L[k].toLowerCase(), title: label + ' ' + L[k] + ' (placeholder)', kind: kind, city: city, placeholder: true,
+      car: !!(car && car(k)), how: car && car(k) ? { mode: 'Car', from: city === 'sydney' ? 'Sydney' : 'Newcastle', mins: 90 + k * 15 } : { mode: MODES[k % 4], from: city === 'sydney' ? 'Sydney CBD' : 'Newcastle', mins: kind === 'half' ? 15 + (k % 5) * 10 : 60 + (k % 3) * 30 },
+      party: PARTY[k % PARTY.length] });
+  }
+  add('sydney', 'Sydney half-day idea', 'half', 14);
+  add('sydney', 'Sydney day trip', 'day', 6, function (k) { return k % 2 === 1; });
+  add('newcastle', 'Newcastle half-day idea', 'half', 8);
+  add('newcastle', 'Newcastle day trip', 'day', 4, function (k) { return k % 2 === 1; });
+  window.cnFreeIdeas = out;
+})();
+
 /* PLACEHOLDER VENUES for Where to watch, until real ones are supplied. Clearly marked "(placeholder)": no real business
    is named. Spread across areas and three kinds (fan zones, pubs, clubs). Which matches each one screens follows a
    simple rule so the prototype has a realistic mix (fan zones show every match; pubs about two in three; clubs about
