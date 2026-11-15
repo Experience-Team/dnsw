@@ -7,7 +7,7 @@ its grey blocks.
 ## Adding a picture
 
 1. Name the file after its placeholder, from the lists below, ending in `.webp` (preferred, smaller) or `.jpg`. For
-   example `hero-pick-your-team.webp`. Or keep your own name and add an alias (below).
+   example `brickpit-ring-walk.webp`. Or keep your own name and add an alias (below).
 2. Upload it to this folder (`public/wireframes/assets/images/`). On GitHub: open the folder, then **Add file > Upload
    files**, and commit to a branch.
 3. That's all: the placeholder picks it up by name. A picture that isn't here yet leaves the grey block.
@@ -43,7 +43,11 @@ The tables below list each placeholder's name; a file with that name (`.webp` or
 
 | Name (add .webp or .jpg) | Shows |
 |---|---|
-| `hero-pick-your-team` | The image behind the title at the top of the page |
+| `hero-stadium` | The stadium picture above the headline (in the repo, from Figma node 309:644) |
+| `hero-road` | The road picture below the button (in the repo, from Figma node 309:644) |
+
+`tth-logo.webp` is The Third Half logo in the hero header (from the same Figma node). It's an `<img>`, shown in high
+fidelity only, not a placeholder.
 
 ## Your 3rd half: places and products
 

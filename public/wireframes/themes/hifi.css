@@ -121,7 +121,7 @@
 
 /* ── 4. Components (from the TTH main components) ─────────────────────────────────────────────────────────────── */
 /* Short caps labels in Primary Mono (always caps, never sentences) */
-:root[data-theme="hifi"] .cn-phone :is(.tp-hero-kicker, .tp-tag) { text-transform: uppercase; letter-spacing: .06em; }
+:root[data-theme="hifi"] .cn-phone .tp-tag { text-transform: uppercase; letter-spacing: .06em; }
 :root[data-theme="hifi"] .cn-phone :is(.tp-card-code, .tp-back-code) { font-weight: 700; letter-spacing: .02em; }
 
 /* Team Card: chalk with a 1px ink line; Selected takes the colourway, a 2px line, the code in chalk (24px Mono is
@@ -146,17 +146,21 @@
 /* On a Where to watch picture the outline tag sits on chalk, so it reads over any photo */
 :root[data-theme="hifi"] .cn-phone .tp-ws-media .tp-tag--away { background: var(--tth-surface-page); }
 
-/* Button / Brand: one colourway moment per screen, the timeline's Save & share; ink text (chalk fails at this size) */
-:root[data-theme="hifi"] .cn-phone #tp-tl-share { border-color: var(--tth-surface-brand); background: var(--tth-surface-brand); color: var(--tth-text-on-brand-small); }
+/* Button / Brand: one colourway moment per screen: the timeline's Save & share, and the hero's Pick your teams (rarely on screen together); ink text (chalk fails at this size) */
+:root[data-theme="hifi"] .cn-phone :is(#tp-tl-share, .tp-hero-cta) { border-color: var(--tth-surface-brand); background: var(--tth-surface-brand); color: var(--tth-text-on-brand-small); }
 
-/* Hero: the headline in Secondary Condensed, the kicker in Primary Mono, and a hairline goal device (landscape) in
-   chalk framing the picture: posts top and bottom, the crossbar to one side. Decorative only. */
-:root[data-theme="hifi"] .cn-phone .tp-hero-name { letter-spacing: -.02em; line-height: 1; }
-:root[data-theme="hifi"] .cn-phone .tp-hero-kicker { font-size: .8125rem; font-weight: 700; }
-:root[data-theme="hifi"] .cn-phone .tp-hero-img::before {
-  content: ""; position: absolute; inset: 10px 0; pointer-events: none;
-  border-top: var(--tth-goal-hairline) solid var(--tth-goal-line-on-image);
-  border-bottom: var(--tth-goal-hairline) solid var(--tth-goal-line-on-image);
-  background: linear-gradient(var(--tth-goal-line-on-image), var(--tth-goal-line-on-image)) right 24px top / var(--tth-goal-hairline) 100% no-repeat;
-  opacity: .9;
-}
+/* Hero (Figma 309:644): chalk, ink, the logo, the lockup slot in the colourway's dashes, the headline in Tertiary
+   Condensed Regular caps, and the two pictures at 182 x 102, offset left then right */
+:root[data-theme="hifi"] .cn-phone .tp-logo { background: none; }
+:root[data-theme="hifi"] .cn-phone .tp-logo::after { content: none; }
+:root[data-theme="hifi"] .cn-phone .tp-logo img { display: block; width: 72px; height: auto; }
+:root[data-theme="hifi"] .cn-phone .tp-lockup { border-color: #a3736e; }
+:root[data-theme="hifi"] .cn-phone .tp-lockup-in { border-color: var(--tth-surface-brand); background: rgba(255, 71, 2, .08); }
+:root[data-theme="hifi"] .cn-phone .tp-lockup-t { color: var(--tth-surface-brand); }
+:root[data-theme="hifi"] .cn-phone .tp-lockup-s { color: var(--tth-text-primary); }
+:root[data-theme="hifi"] .cn-phone .tp-hero-img { width: 182px; height: 102px; aspect-ratio: auto; }
+:root[data-theme="hifi"] .cn-phone .tp-hero-img--a { margin-left: 24px; }
+:root[data-theme="hifi"] .cn-phone .tp-hero-img--b { align-self: flex-end; }
+:root[data-theme="hifi"] .cn-phone .tp-hero-icon { display: none; }
+:root[data-theme="hifi"] .cn-phone .tp-hero-title { font-size: 2.5rem; letter-spacing: 0; }
+:root[data-theme="hifi"] .cn-phone .tp-hero-cta { font-size: 1.25rem; font-weight: 600; }

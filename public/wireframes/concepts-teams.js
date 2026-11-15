@@ -1255,6 +1255,9 @@
   var valueNow = '';
   function setValue(v) { valueNow = v; if (!flying) tlValue.textContent = v; }
   function tlUpdate() {
+    // The hero's button follows the picker's wording: Pick your teams with nothing picked, Change your teams after
+    var heroCta = document.getElementById('tp-hero-cta');
+    if (heroCta) { var cta = state.picked.length ? 'Change your teams' : 'Pick your teams'; if (heroCta.textContent !== cta) heroCta.textContent = cta; }
     var perDay = {}, dayType = {}, shown = [];
     TLM.forEach(function (m) {
       var on = tlShown(m.f), tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1;
