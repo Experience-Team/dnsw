@@ -1563,6 +1563,8 @@
       }).join('') + '</ul><p class="tp-tl-wait-n">' + (confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Each goes into a free day once you set your days.') + '</p>' : '';
       if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
     }
+    var howEl = document.getElementById('tp-tl-how');
+    if (howEl) howEl.hidden = !(own() && shown.length);
     // A clash marks its day on the strip
     var clashDays = {};
     Object.keys(tlClash).forEach(function (id) {
@@ -1736,7 +1738,7 @@
     // Remove); this line only says so. The chosen marker keeps its pressed state for the arrow keys.
     if (tlSelItem && !state.added.some(function (x) { return x.id === tlSelItem; })) tlSelItem = null;
     tlDetail.classList.add('is-empty');
-    tlDetail.innerHTML = '<p class="tp-tl-hint">Tap a marker for its details.</p>';
+    tlDetail.innerHTML = ''; // the instruction sits above the axis now (Tap a match to ...), where people look first
   }
   function dayLabel(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + ['Oct', 'Nov'][x.getUTCMonth() - 9]; }
   function tlSelect(k, focus, itemId) {
@@ -1997,6 +1999,7 @@
     var an = z.animate(open ? frames : frames.slice().reverse(), { duration: open ? 440 : 340, easing: open ? 'cubic-bezier(.4, 0, .2, 1)' : 'cubic-bezier(.4, 0, .2, 1)' });
     an.onfinish = an.oncancel = function () { z.remove(); tlScroll.style.visibility = ''; };
   }
+  var tlNudged = false;
   function tlSetOpen(open, focusBack) {
     if (open === tlOpen) return;
     if (!open && stackEl) stackClose(false); // a sheet stacked over the timeline goes with it
@@ -2022,6 +2025,14 @@
       tlPanel.scrollTop = 0;
       tlZoom(true);
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
+      // The first time it opens with matches on it, the first one is singled out once (a ring, twice), so it is clear
+      // the matches themselves are what to tap; reduced motion: the ring shows and fades without pulsing
+      var how = document.getElementById('tp-tl-how');
+      if (how && !how.hidden && !tlNudged && nswFirst && nswFirst.el) {
+        tlNudged = true;
+        var nel = (TLM.filter(function (m) { return m.on; })[0] || nswFirst).el;
+        setTimeout(function () { nel.classList.add('is-nudge'); setTimeout(function () { nel.classList.remove('is-nudge'); }, 1900); }, 480);
+      }
     } else if (focusBack !== false) tlToggle.focus({ preventScroll: true });
     if (!open) phoneEl.dispatchEvent(new CustomEvent('tp:tlclose'));
     syncBar();

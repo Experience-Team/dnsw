@@ -560,6 +560,7 @@
   var POI = window.cnMapPoi;
   var pick = document.getElementById('tp-picker');
   if (POI && pick) ov = (function () {
+    var I_FULL = ICO('M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10'), I_SHRINK = ICO('M6 2.5V6H2.5M13.5 6H10V2.5M10 13.5V10h3.5M2.5 10H6v3.5');
     var OVH = 380, I_STAR = ICO('M8 1.8l1.8 3.9 4.2.5-3.1 2.9.8 4.2L8 11.2l-3.7 2.1.8-4.2L2 6.2l4.2-.5z');
     var sec = document.createElement('section');
     sec.className = 'tp-ov'; sec.id = 'tp-ov'; sec.setAttribute('aria-labelledby', 'tp-ov-h');
@@ -569,7 +570,7 @@
           '<div class="tp-map-layer tp-ov-layer"><img class="tp-map-img" width="' + IW + '" height="' + IH + '" alt="" decoding="async" draggable="false"></div>' +
         '</div>' +
         '<div class="tp-ov-marks"></div><div class="tp-ov-tvs"></div><div class="tp-ov-edges"></div>' +
-        '<div class="tp-map-zoom tp-ov-zoom"><button type="button" data-ozoom="in" aria-label="Zoom in">' + I_PLUS + '</button><button type="button" data-ozoom="out" aria-label="Zoom out">' + I_MINUS + '</button></div>' +
+        '<div class="tp-map-zoom tp-ov-zoom"><button type="button" data-ozoom="in" aria-label="Zoom in">' + I_PLUS + '</button><button type="button" data-ozoom="out" aria-label="Zoom out">' + I_MINUS + '</button><button type="button" class="tp-ov-fs" data-ofull aria-pressed="false" aria-label="Full screen map">' + I_FULL + '</button></div>' +
         '<p class="tp-ov-hint" aria-hidden="true"></p>' +
       '</div>' +
       '<div class="tp-ov-pop" id="tp-ov-pop" role="region" aria-labelledby="tp-ov-pop-h" hidden></div>' +
@@ -713,7 +714,8 @@
           cityBtn.setAttribute('aria-label', 'Go to ' + CITYNAME[go] + (n ? ', ' + n + (n === 1 ? ' of your matches' : ' of your matches') : ''));
           // On the right edge, under the zoom buttons when it is up (the interstate markers keep the left); its arrow points the way
           var w = cityBtn.offsetWidth || 160;
-          cityBtn.style.transform = 'translate(' + (W - 12 - w).toFixed(0) + 'px,' + (up ? 100 : OVH - 48) + 'px)';
+          var zb = box.querySelector('.tp-ov-zoom'), zEnd = zb ? zb.offsetTop + zb.offsetHeight + 10 : 100; // under the three map buttons
+          cityBtn.style.transform = 'translate(' + (W - 12 - w).toFixed(0) + 'px,' + (up ? zEnd : OVH - 48) + 'px)';
           cityBtn.classList.toggle('is-up', up);
         }
       }
@@ -792,7 +794,7 @@
     }
     function bringIn(ll) {
       var q = px(ll), s = Math.max(ocam.s, .9); oglide(oclamp({ x: q[0], y: q[1], s: s, fy: OVH / 2 }));
-      var r = opop.getBoundingClientRect(), br = body.getBoundingClientRect(), room = br.bottom - 100; if (r.bottom > room) body.scrollBy({ top: Math.min(r.bottom - room, r.top - br.top - 60), behavior: reduce.matches ? 'auto' : 'smooth' });
+      var r = opop.getBoundingClientRect(), br = body.getBoundingClientRect(), room = br.bottom - 100; if (!full && r.bottom > room) body.scrollBy({ top: Math.min(r.bottom - room, r.top - br.top - 60), behavior: reduce.matches ? 'auto' : 'smooth' });
     }
     // A screening venue's card: what it is, and which of their matches it lists (or how many it shows), with the way to
     // Where to watch, where each screening has its Add
@@ -878,6 +880,39 @@
       ocam = oclamp({ x: wx - (cx - W / 2) / ns, y: wy - (cy - ocam.fy) / ns, s: ns, fy: ocam.fy }); oapply();
     }
     sec.querySelector('.tp-ov-zoom').addEventListener('click', function (e) { var z = e.target.closest('[data-ozoom]'); if (z) ozoom(z.dataset.ozoom === 'in' ? 1.35 : 1 / 1.35); });
+    /* Full screen (16 Nov): the map fills the phone screen, over the page and the timeline bar; one finger moves it
+       there (nothing to scroll), the place cards open over its foot, and Escape or the same button brings it back to
+       where it was on the page. The map keeps its place and zoom either way */
+    var full = false, fsHome = document.createComment('map'), fsBtn = sec.querySelector('[data-ofull]'), fsInert = [];
+    function setFull(v) {
+      if (v === full) return;
+      full = v; load();
+      var cx = ocam.x, cy = ocam.y, cs = ocam.s;
+      if (v) {
+        box.parentNode.insertBefore(fsHome, box);
+        phone.appendChild(box); box.appendChild(opop);
+        fsInert = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+      } else {
+        fsHome.parentNode.insertBefore(box, fsHome); fsHome.remove(); box.parentNode.insertBefore(opop, box.nextSibling);
+        fsInert.forEach(function (p) { p[0].inert = p[1]; }); fsInert = [];
+      }
+      box.classList.toggle('is-full', v);
+      fsBtn.setAttribute('aria-pressed', v ? 'true' : 'false');
+      fsBtn.setAttribute('aria-label', v ? 'Exit full screen' : 'Full screen map');
+      fsBtn.innerHTML = v ? I_SHRINK : I_FULL;
+      W = box.clientWidth || 390; OVH = box.clientHeight || 380;
+      ocam = oclamp({ x: cx, y: cy, s: cs, fy: OVH / 2 }); oapply();
+      if (!v && popAt === null) opop.hidden = true;
+      fsBtn.focus({ preventScroll: true });
+      if (!v) { var top = sec.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12; if (top < body.scrollTop || top > body.scrollTop + body.clientHeight - 200) body.scrollTo({ top: Math.max(0, top), behavior: 'auto' }); }
+      osayT(v ? 'Full screen map. Escape or Exit full screen to go back.' : 'Map back on the page.');
+    }
+    fsBtn.addEventListener('click', function () { setFull(!full); });
+    box.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || !full) return;
+      e.stopPropagation(); e.preventDefault();
+      if (!opop.hidden) closePop(); else setFull(false);
+    });
     oview.addEventListener('keydown', function (e) {
       var k = e.key, st = 60 / ocam.s;
       if (k === 'ArrowLeft') ocam.x -= st; else if (k === 'ArrowRight') ocam.x += st; else if (k === 'ArrowUp') ocam.y -= st; else if (k === 'ArrowDown') ocam.y += st;
@@ -892,7 +927,7 @@
       if (e.target.closest('button, a, .tp-ov-pop')) return;
       optr.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
       // One finger is the page's: it scrolls past the map. Two fingers, or a mouse, move the map
-      if (e.pointerType === 'touch' && optr.size < 2) { odrag = { one: { x: e.clientX, y: e.clientY } }; return; }
+      if (e.pointerType === 'touch' && optr.size < 2 && !full) { odrag = { one: { x: e.clientX, y: e.clientY } }; return; }
       try { box.setPointerCapture(e.pointerId); } catch (err) {}
       cancelAnimationFrame(oanim);
       odrag = { cam: { x: ocam.x, y: ocam.y, s: ocam.s, fy: ocam.fy }, pts: new Map(optr) };

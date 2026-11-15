@@ -244,10 +244,14 @@
         '<p class="tp-wc-sub">Where to watch in NSW' + (two ? ', venues showing ' + (watch.length > 2 ? 'all of them' : 'both') + ' first' : '') + '</p>' +
         venueRows(watch, k) + goingQ(watch) + '</li>');
     });
-    var showN = watchAll ? cards.length : Math.min(cards.length, 4);
-    if (cards.length) h += '<ul class="tp-wcs" aria-label="Where to watch, by match day">' + cards.slice(0, showN).join('') + '</ul>';
+    // More than one match day: a carousel, one card at a time with the next peeking in, the same as the team cards
+    // (agreed 16 Nov); every card is in it, so there is no Show more
+    var car = cards.length > 1, sx = car && watchList.querySelector('.tp-wcs') ? watchList.querySelector('.tp-wcs').scrollLeft : 0;
+    if (cards.length) h += '<ul class="tp-wcs' + (car ? ' tp-wcs--car' : '') + '" aria-label="Where to watch, by match day' + (car ? ', ' + cards.length + ' cards, scroll sideways' : '') + '">' + cards.join('') + '</ul>' +
+      (car ? '<p class="tp-deck-hint tp-wcs-hint">' + cards.length + ' match days. Swipe for the others.</p>' : '');
     watchList.innerHTML = h;
-    watchMore.hidden = cards.length <= 4;
+    if (sx) watchList.querySelector('.tp-wcs').scrollLeft = sx; // a change on one card keeps the carousel where it was
+    watchMore.hidden = true;
     if (!watchMore.hidden) { watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + (cards.length - 4) + ' more match days'; watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false'); }
   }
   watchMore.addEventListener('click', function () { watchAll = !watchAll; render(true); });
@@ -410,8 +414,10 @@
     var f = m.f, r = goRoute(f); if (!r) return '';
     var id = 'go:' + m.key;
     MODAL[id] = { type: 'route', r: r, m: m };
-    return '<div class="tp-go"><p class="tp-go-line">' + TRAIN_ICO + '<span class="provenance-gap">' + esc(goLine(r)) + '</span><span class="tp-go-tag">Placeholder</span></p>' + goStay(r) +
-      '<button type="button" class="tp-go-btn" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></div>';
+    // Icon in its own column, everything else (the line, its Placeholder tag, Add where you're staying and the button)
+    // on one left edge beside it
+    return '<div class="tp-go">' + TRAIN_ICO + '<div class="tp-go-txt"><p class="tp-go-line"><span class="provenance-gap">' + esc(goLine(r)) + '</span> <span class="tp-go-tag">Placeholder</span></p>' + goStay(r) +
+      '<button type="button" class="tp-go-btn" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></div></div>';
   }
   // The schematic route: stops on a line, each leg styled by how you travel it. Not to scale.
   function goMap(r) {
@@ -450,8 +456,7 @@
   }
   // Add where you're staying: the staying question in a sheet, where they are (it jumped down to Your days)
   function openStaying(opener) {
-    if (!tp.own()) return;
-    openDays(true, opener);
+    openDays(true, opener); // with or without a team: a first look offers it too (it did nothing there)
   }
   function matchBody(b, M) {
     var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
@@ -1353,7 +1358,7 @@
 
   phone.addEventListener('click', function (e) {
     var o = e.target.closest('[data-open]');
-    if (o && !pm.contains(o)) { openPm(o.dataset.open, o); return; }
+    if (o && !pm.contains(o) && o.isConnected) { openPm(o.dataset.open, o); return; }
     var gs = e.target.closest('[data-go-stay]');
     if (gs && !pm.contains(e.target)) { openStaying(gs); return; }
   });
@@ -1401,11 +1406,31 @@
     }
     var sb = e.target.closest('[data-pm-spot]');
     if (sb) {
-      var si = ITEMS[sb.dataset.pmSpot]; if (!si) return;
+      var si = ITEMS[sb.dataset.pmSpot];
+      // The page redraws on every change and clears its list of items, so after the first Add the rest found nothing
+      // (and the first could not be undone): the sheet's own entries are rebuilt first
+      if (!si && pmOpen && pmOpen.id.indexOf('match:') === 0) { pmBody.innerHTML = pmMatch(pmOpen.id.slice(6)); si = ITEMS[sb.dataset.pmSpot]; }
+      if (!si) return;
       var son = !added(si.id);
       if (son) tp.addItem(Object.assign({}, si)); else tp.removeItem(si.id);
       pmSaid = si.title + (son ? ' added to your timeline on ' + si.day + '.' : ' removed from your timeline.');
+      e.stopPropagation(); // handled here: the page's own Add handler must not toggle it back
       pmRefresh('[data-pm-spot="' + CSS.escape(si.id) + '"]');
+      tp.say(pmSaid + ' ' + state.added.length + ' added.');
+      return;
+    }
+    // A screening's Add in a match's own sheet (Where to watch it in NSW): adds or takes it off, and the sheet redraws so
+    // every Add in it stays live (they did nothing before: the page's handler leaves the sheet alone)
+    var vb = e.target.closest('.tp-add[data-item]');
+    if (vb && pmOpen && pmOpen.id.indexOf('match:') === 0) {
+      var vid = vb.dataset.item, vi = ITEMS[vid];
+      if (!vi) { pmBody.innerHTML = pmMatch(pmOpen.id.slice(6)); vi = ITEMS[vid]; } // the page redrew and cleared the list
+      if (!vi) return;
+      var von = !added(vi.id);
+      if (von) tp.addItem(Object.assign({}, vi)); else tp.removeItem(vi.id);
+      pmSaid = vi.title + (von ? ' added to your timeline on ' + vi.day + '.' : ' removed from your timeline.');
+      e.stopPropagation();
+      pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
       tp.say(pmSaid + ' ' + state.added.length + ' added.');
       return;
     }
@@ -1479,7 +1504,8 @@
       tp.say('Ticket removed for ' + matchName(gf) + '. Its screenings are back.');
       return;
     }
-    var b = e.target.closest('.tp-add'); if (!b || pm.contains(b)) return;
+    // Not a button inside a sheet, and not one a sheet has just redrawn away (it is no longer in the page)
+    var b = e.target.closest('.tp-add'); if (!b || pm.contains(b) || !b.isConnected) return;
     var it = ITEMS[b.dataset.item]; if (!it) return;
     if (added(it.id)) {
       tp.removeItem(it.id);
