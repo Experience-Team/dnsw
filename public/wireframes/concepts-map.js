@@ -178,7 +178,11 @@
     // A label that would run off the right edge sits to the left of its mark instead
     var M = marks.map(function (m, k) {
       var s = scr(px(m.ll)), el = marksEl.children[k], t = el && el.querySelector('.tp-map-mark-t'), w = t && t.offsetParent ? t.offsetWidth : 0, left = s[0] + 16 + w > vw - 8;
-      if (el) { el.classList.toggle('is-left', left); el.style.marginLeft = left ? -(w + 16) + 'px' : ''; }
+      // A mark off the side of the map takes its label with it (a label alone at the edge was cut off); one that would
+      // run off either side flips to the side with room
+      var gone = s[0] < 4 || s[0] > vw - 4 || s[1] < 0 || s[1] > stageH;
+      if (left && s[0] - 16 - w < 8) left = false;
+      if (el) { el.classList.toggle('is-left', left); el.style.marginLeft = left ? -(w + 16) + 'px' : ''; el.style.visibility = gone ? 'hidden' : ''; }
       return { x: s[0], y: s[1], w: w, left: left };
     });
     // Explore freely: stops close together on screen become one marker with a count (tap it to zoom in)
@@ -324,9 +328,10 @@
   // a day under the keyboard. While focus moves within the map, the day stays put and the page is put back.
   stage.addEventListener('focusin', function () {
     if (!on || free) return;
-    var t = stepTop(cur);
-    pending = { top: t, until: performance.now() + 600 };
-    requestAnimationFrame(function () { if (Math.abs(body.scrollTop - t) > 2) body.scrollTo({ top: t, behavior: 'auto' }); });
+    var t = stepTop(cur), mine = pending = { top: t, until: performance.now() + 600 };
+    // Only while it is still stepping through days: a tap that switches to Explore freely or to the list moves focus too,
+    // and must not be pulled back to the day it left
+    requestAnimationFrame(function () { if (on && !free && guided && pending === mine && Math.abs(body.scrollTop - t) > 2) body.scrollTo({ top: t, behavior: 'auto' }); });
   });
   window.addEventListener('resize', function () { if (on) { layout(); goTo(cur, { cut: true }); } });
 
@@ -358,7 +363,7 @@
   function follow(v) {
     if (v === guided) return;
     var day = curDay;
-    guided = v; free = false; mapEl.classList.remove('is-free'); freeBtn.setAttribute('aria-pressed', 'false'); freeBtn.querySelector('.tp-map-free-l').textContent = 'Explore freely'; zoomEl.hidden = true;
+    guided = v; free = false; pending = null; mapEl.classList.remove('is-free'); freeBtn.setAttribute('aria-pressed', 'false'); freeBtn.querySelector('.tp-map-free-l').textContent = 'Explore freely'; zoomEl.hidden = true;
     if (!v) { on = false; }
     tp.mapRender();
     if (v) {
@@ -378,10 +383,8 @@
       e.preventDefault();
       var top = endEl.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop;
       body.scrollTo({ top: top, behavior: 'auto' });
-      // Focus goes to the next section's heading, the first thing after the map
-      var next = endEl.closest('.tp-sec'), h = null;
-      while (next && !h) { next = next.nextElementSibling; h = next && next.querySelector('h2, h3'); }
-      if (h && !h.hasAttribute('tabindex')) h.tabIndex = -1;
+      // Focus goes where the page now is: the first day in the list just after the map (what is on screen)
+      var h = list.querySelector('[data-blk-toggle]');
       (h || endEl).focus({ preventScroll: true });
     }
   });
@@ -468,7 +471,7 @@
 
   /* ---------- Explore freely ---------- */
   function setFree(v, goStep) {
-    free = v;
+    free = v; pending = null;
     mapEl.classList.toggle('is-free', v);
     freeBtn.setAttribute('aria-pressed', v ? 'true' : 'false');
     freeBtn.querySelector('.tp-map-free-l').textContent = v ? 'Back to the guided route' : 'Explore freely';
@@ -565,7 +568,7 @@
         '<div class="tp-ov-view" tabindex="0" role="application" aria-roledescription="map" aria-label="Map of the NSW stadiums and the fan village. Arrow keys move it, plus and minus zoom." aria-describedby="tp-ov-sub">' +
           '<div class="tp-map-layer tp-ov-layer"><img class="tp-map-img" width="' + IW + '" height="' + IH + '" alt="" decoding="async" draggable="false"></div>' +
         '</div>' +
-        '<div class="tp-ov-marks"></div><div class="tp-ov-edges"></div>' +
+        '<div class="tp-ov-marks"></div><div class="tp-ov-tvs"></div><div class="tp-ov-edges"></div>' +
         '<div class="tp-map-zoom tp-ov-zoom"><button type="button" data-ozoom="in" aria-label="Zoom in">' + I_PLUS + '</button><button type="button" data-ozoom="out" aria-label="Zoom out">' + I_MINUS + '</button></div>' +
         '<p class="tp-ov-hint" aria-hidden="true"></p>' +
       '</div>' +
@@ -574,7 +577,7 @@
       '<p class="visually-hidden" aria-live="polite" id="tp-ov-say"></p>';
     pick.parentNode.insertBefore(sec, pick.nextSibling);
     var box = sec.querySelector('.tp-ov-map'), oview = sec.querySelector('.tp-ov-view'), olayer = sec.querySelector('.tp-ov-layer'), oimg = olayer.querySelector('img');
-    var omarks = sec.querySelector('.tp-ov-marks'), oedges = sec.querySelector('.tp-ov-edges'), opop = sec.querySelector('.tp-ov-pop'), hint = sec.querySelector('.tp-ov-hint');
+    var otvs = sec.querySelector('.tp-ov-tvs'), omarks = sec.querySelector('.tp-ov-marks'), oedges = sec.querySelector('.tp-ov-edges'), opop = sec.querySelector('.tp-ov-pop'), hint = sec.querySelector('.tp-ov-hint');
     var osub = sec.querySelector('.tp-ov-sub'), ofollow = sec.querySelector('.tp-ov-follow'), osay = sec.querySelector('#tp-ov-say');
     function osayT(t) { osay.textContent = ''; setTimeout(function () { osay.textContent = t; }, 30); }
     var lastCity = null, W = 390, ocam = { x: 0, y: 0, s: 1, fy: OVH / 2 }, oanim = 0, loaded = false, stage = 0, popAt = null;
@@ -596,6 +599,13 @@
       return out;
     }
     LOCS.forEach(function (l) { l.near = nearOf(l); });
+    // Where to watch in NSW, on the map (in place of the edge markers for matches interstate, agreed 16 Nov): the
+    // placeholder screening venues (fan zones, pubs, clubs) as TV pins. Once a team is picked, the ones that list one of
+    // their matches are strong and the rest stay faint
+    var VENS = (Array.isArray(window.cnWatchVenues) ? window.cnWatchVenues : []).map(function (v, j) { return { v: v, j: j, ll: GEO.watch && GEO.watch[j] }; }).filter(function (x) { return x.ll; });
+    var VTYPE = { fan_zone: 'Fan zone', pub: 'Pub', club: 'Club' };
+    var I_TV = ICO('M2.5 4.5h11v7.5h-11zM6 14h4M5.5 2l2.5 2.5L10.5 2');
+    function venShows(x) { return mine().filter(function (m) { return m.f.t && x.v.shows.indexOf(m.key) > -1; }); }
     var CITYFRAME = {
       sydney: LOCS.filter(function (l) { return l.city === 'sydney'; }),
       newcastle: LOCS.filter(function (l) { return l.city === 'newcastle'; })
@@ -640,27 +650,13 @@
     function mine() { return tp.own() ? tp.userMatches() : []; }
     function teamsIn(f) { return state.picked.filter(function (n) { return f.t && f.t.indexOf(n) > -1; }); }
     function matchesAt(v) { return mine().filter(function (m) { return !m.f.a && m.f.v === v; }); }
-    var DIRS = [{ id: 'n', name: 'North', cities: ['Brisbane', 'Townsville'], ico: 'M8 13V3M4 7l4-4 4 4' }, { id: 'sw', name: 'South-west', cities: ['Melbourne', 'Adelaide', 'Perth'], ico: 'M12 4L4 12M4 6v6h6' }];
-    function edgesNow() {
-      var away = mine().filter(function (m) { return m.f.a; });
-      return DIRS.map(function (d) {
-        var ms = away.filter(function (m) { return d.cities.indexOf(m.f.a) > -1; });
-        if (!ms.length) return null;
-        var teams = [], cities = [];
-        ms.forEach(function (m) { teamsIn(m.f).forEach(function (t) { if (teams.indexOf(t) < 0) teams.push(t); }); if (cities.indexOf(m.f.a) < 0) cities.push(m.f.a); });
-        cities.sort(function (a, b) { return d.cities.indexOf(a) - d.cities.indexOf(b); });
-        teams.sort(function (a, b) { return state.picked.indexOf(a) - state.picked.indexOf(b); });
-        var who = !teams.length ? 'Your matches' : teams.length > 2 ? teams.length + ' of your teams' : tp.list(teams);
-        return { d: d, text: who + (teams.length === 1 ? ' plays' : ' play') + ' in ' + tp.list(cities), n: ms.length };
-      }).filter(Boolean);
-    }
     function homeCity() {
       var ms = mine().filter(function (m) { return !m.f.a; });
       return ms.length && ms.every(function (m) { return /Newcastle/.test(m.f.v); }) ? 'newcastle' : 'sydney';
     }
 
     function draw() {
-      var lit = stage >= 2;
+      var lit = stage >= 2 && tp.own(); // days set but no team: nothing to light up, so nothing is dimmed either
       omarks.innerHTML = LOCS.map(function (l, k) {
         var ms = l.kind === 'stadium' ? matchesAt(l.id) : [], on = ms.length > 0;
         var done = l.near.filter(function (p) { return state.added.some(function (x) { return x.id === 'poi:' + p.id; }); }).length;
@@ -677,10 +673,13 @@
           '<span class="tp-ov-dots" aria-hidden="true">' + dots + '</span><span class="tp-ov-i" aria-hidden="true">' + (l.kind === 'stadium' ? FLAG : I_STAR) + '</span>' +
           '<span class="tp-ov-t" aria-hidden="true"><b>' + esc(l.kind === 'village' ? 'Fan village' : l.name) + '</b>' + (l.kind === 'village' ? '<span class="tp-ov-m is-q">Placeholder</span>' : '') + lines + '</span></button>';
       }).join('');
-      var eh = edgesNow().map(function (e) {
-        return '<div class="tp-ov-edge is-' + e.d.id + '"><span class="tp-ov-edge-a" aria-hidden="true">' + ICO(e.d.ico) + '</span><span class="tp-ov-edge-t"><span class="visually-hidden">' + e.d.name + ', off this map: </span>' + esc(e.text) + '. <a href="#tp-watch" data-owatch>Where to watch in NSW</a></span></div>';
+      var picked = tp.own();
+      otvs.innerHTML = VENS.map(function (x, k) {
+        var ms = venShows(x), strong = picked && ms.length > 0;
+        var lbl = x.v.name + ', ' + (VTYPE[x.v.type] || 'Screening') + ', ' + x.v.place + '. ' + (picked ? (ms.length ? 'Shows ' + ms.length + (ms.length === 1 ? ' of your matches' : ' of your matches') : 'None of your matches listed') : 'Screenings') + '. Show details';
+        return '<button type="button" class="tp-ov-tv' + (picked && !strong ? ' is-faint' : '') + (popAt === 'v' + k ? ' is-sel' : '') + '" data-ven="' + k + '" aria-label="' + esc(lbl) + '" aria-expanded="' + (popAt === 'v' + k) + '" aria-controls="tp-ov-pop">' + I_TV + '</button>';
       }).join('');
-      oedges.innerHTML = eh + '<button type="button" class="tp-ov-city" data-ocity hidden></button>';
+      oedges.innerHTML = '<button type="button" class="tp-ov-city" data-ocity hidden></button>';
       oapply();
     }
     function oapply() {
@@ -713,11 +712,34 @@
           cityBtn.dataset.ocity = go;
           cityBtn.setAttribute('aria-label', 'Go to ' + CITYNAME[go] + (n ? ', ' + n + (n === 1 ? ' of your matches' : ' of your matches') : ''));
           // On the right edge, under the zoom buttons when it is up (the interstate markers keep the left); its arrow points the way
-          var w = cityBtn.offsetWidth || 160, sw = oedges.querySelector('.tp-ov-edge.is-sw');
-          cityBtn.style.transform = 'translate(' + (W - 12 - w).toFixed(0) + 'px,' + (up ? 100 : OVH - 48 - (sw ? sw.offsetHeight + 8 : 0)) + 'px)';
+          var w = cityBtn.offsetWidth || 160;
+          cityBtn.style.transform = 'translate(' + (W - 12 - w).toFixed(0) + 'px,' + (up ? 100 : OVH - 48) + 'px)';
           cityBtn.classList.toggle('is-up', up);
         }
       }
+      // TV pins are eased off the places (their mark and ring of dots) and off each other, so each stays tappable and
+      // nothing sits on a stadium; a place keeps its true position, the venue moves
+      var marksAt = LOCS.map(function (l) { return oscr(l.ll); }), tv = VENS.map(function (x) { var q = oscr(x.ll); return [q[0], q[1]]; });
+      for (var it = 0; it < 6; it++) tv.forEach(function (q, k) {
+        marksAt.forEach(function (m) { var dx = q[0] - m[0], dy = q[1] - m[1], d = Math.hypot(dx, dy) || .01; if (d < 40) { if (d < .02) { dx = 0; dy = 1; d = 1; } q[0] = m[0] + dx / d * 40; q[1] = m[1] + dy / d * 40; } });
+        tv.forEach(function (o, j) { if (j <= k) return; var dx = o[0] - q[0], dy = o[1] - q[1], d = Math.hypot(dx, dy) || .01; if (d < 32) { var push = (32 - d) / 2; if (d < .02) { dx = 1; dy = 0; d = 1; } q[0] -= dx / d * push; q[1] -= dy / d * push; o[0] += dx / d * push; o[1] += dy / d * push; } });
+      });
+      // and off every label and chip on the map (moved straight up or down, out of the box it landed in)
+      var br = box.getBoundingClientRect(), rects = [];
+      omarks.querySelectorAll('.tp-ov-loc:not(.is-out) .tp-ov-t').forEach(function (t) { rects.push(t.getBoundingClientRect()); });
+      oedges.querySelectorAll('.tp-ov-city:not([hidden])').forEach(function (t) { rects.push(t.getBoundingClientRect()); });
+      sec.querySelectorAll('.tp-ov-zoom').forEach(function (t) { rects.push(t.getBoundingClientRect()); });
+      tv.forEach(function (q) {
+        rects.forEach(function (r) {
+          var x0 = r.left - br.left - 16, x1 = r.right - br.left + 16, y0 = r.top - br.top - 16, y1 = r.bottom - br.top + 16;
+          if (q[0] > x0 && q[0] < x1 && q[1] > y0 && q[1] < y1) q[1] = q[1] - y0 < y1 - q[1] ? y0 : y1;
+        });
+      });
+      Array.prototype.forEach.call(otvs.children, function (el, k) {
+        var q = tv[k], out = q[0] < 14 || q[0] > W - 14 || q[1] < 14 || q[1] > OVH - 14;
+        el.style.transform = 'translate(' + q[0].toFixed(1) + 'px,' + q[1].toFixed(1) + 'px)';
+        el.classList.toggle('is-out', out); el.tabIndex = out ? -1 : 0;
+      });
     }
 
     /* Rendered on every change (from tp.mapRender) */
@@ -725,9 +747,9 @@
     function render(can) {
       var st = can ? 3 : tp.own() ? 2 : 1;
       var none = !state.picked.length;
-      osub.textContent = st === 1 ? 'The stadiums, the fan village and a few things near each. Pick a team to see where they play.'
-        : st === 2 ? (mine().some(function (m) { return !m.f.a; }) ? (tp.rugby() ? 'Every NSW match on its stadium, and things nearby.' : 'Where your teams play in NSW, and things nearby.') : 'Your teams play interstate. Watch them at a screening in NSW, or see the matches here.')
-        : 'Your matches and what you’ve added, around NSW.';
+      osub.textContent = st === 1 ? 'The stadiums, the fan village, things near each, and places to watch (TV pins). Pick a team to see where they play.'
+        : st === 2 ? (mine().some(function (m) { return !m.f.a; }) ? (tp.rugby() ? 'Every NSW match on its stadium, and things nearby.' : 'Where your teams play in NSW, and things nearby.') : 'Your teams play interstate. The TV pins are places in NSW to watch them.')
+        : tp.own() ? 'Your matches and what you’ve added, around NSW.' : 'The stadiums, the fan village and things near each, for your days.';
       ofollow.hidden = st !== 3;
       var sig = st + '|' + (none ? '' : state.picked.join(',')) + '|' + mine().map(function (m) { return m.key || m.f.d + m.f.t; }).join(',') + '|' + state.added.map(function (x) { return x.id; }).join(',') + '|' + (state.trip ? state.trip.from + state.trip.to : '');
       if (sig === lastSig || !loaded) { stage = st; if (!loaded) lastSig = ''; return; }
@@ -765,7 +787,32 @@
       return 'Open ' + (run ? N[o[0]] + ' to ' + N[o[o.length - 1]] : o.map(function (d) { return N[d]; }).join(', '));
     }
     function itemOf(p) { return state.added.filter(function (x) { return x.id === 'poi:' + p.id; })[0] || null; }
+    function selMark(key) {
+      [omarks, otvs].forEach(function (box) { Array.prototype.forEach.call(box.children, function (el) { var me = el.dataset.ven !== undefined ? 'v' + el.dataset.ven : +el.dataset.loc; el.classList.toggle('is-sel', me === key); el.setAttribute('aria-expanded', me === key ? 'true' : 'false'); }); });
+    }
+    function bringIn(ll) {
+      var q = px(ll), s = Math.max(ocam.s, .9); oglide(oclamp({ x: q[0], y: q[1], s: s, fy: OVH / 2 }));
+      var r = opop.getBoundingClientRect(), br = body.getBoundingClientRect(), room = br.bottom - 100; if (r.bottom > room) body.scrollBy({ top: Math.min(r.bottom - room, r.top - br.top - 60), behavior: reduce.matches ? 'auto' : 'smooth' });
+    }
+    // A screening venue's card: what it is, and which of their matches it lists (or how many it shows), with the way to
+    // Where to watch, where each screening has its Add
+    function showVen(k, keep) {
+      var x = VENS[k], ms = venShows(x), picked = tp.own(), fz = x.v.type === 'fan_zone';
+      popAt = 'v' + k;
+      var list = ms.slice(0, 5).map(function (m) { return esc(m.f.t) + ', ' + esc(m.f.d) + (m.f.k ? ', ' + esc(m.f.k) : '') + (m.f.a ? ' (in ' + esc(m.f.a) + ')' : ''); });
+      opop.innerHTML = '<div class="tp-ov-pop-top"><h4 class="tp-map-pop-t" id="tp-ov-pop-h" tabindex="-1">' + esc(x.v.name) + '</h4><button type="button" class="tp-link" data-oclose>Close</button></div>' +
+        '<p class="tp-map-pop-m">' + esc(VTYPE[x.v.type] || 'Screening') + ' \u00b7 ' + esc(x.v.place) + ' \u00b7 placeholder venue</p>' +
+        '<p class="tp-ov-pop-k">' + (picked ? 'Your matches it shows' : 'Screenings') + '</p>' +
+        (picked ? (list.length ? '<p class="tp-ov-pop-ms">' + list.join('<br>') + (ms.length > 5 ? '<br>and ' + (ms.length - 5) + ' more' : '') + '</p>' : '<p class="tp-map-pop-m">None of your matches is listed here yet.</p>')
+          : '<p class="tp-map-pop-m">' + (fz ? 'Every match of the tournament, on big screens.' : x.v.shows.length + ' matches across the tournament.') + ' Pick a team to see which of theirs.</p>') +
+        '<div class="tp-map-pop-a"><a href="#tp-watch" class="tp-link" data-owatch>See screenings in Where to watch</a></div>';
+      opop.hidden = false;
+      if (!keep) opop.querySelector('.tp-map-pop-t').focus({ preventScroll: true });
+      selMark(popAt);
+      if (!keep) bringIn(x.ll);
+    }
     function showPop(k, keep) {
+      if (typeof k === 'string') { showVen(+k.slice(1), keep); return; }
       var l = LOCS[k], ms = l.kind === 'stadium' ? matchesAt(l.id) : [];
       popAt = k;
       var h = '<div class="tp-ov-pop-top"><h4 class="tp-map-pop-t" id="tp-ov-pop-h" tabindex="-1">' + esc(l.kind === 'village' ? 'Fan village' : l.name) + '</h4><button type="button" class="tp-link" data-oclose>Close</button></div>' +
@@ -781,19 +828,19 @@
       opop.innerHTML = h; opop.hidden = false;
       var f = focusSel ? opop.querySelector(focusSel) : null;
       if (f) f.focus({ preventScroll: true }); else if (!keep) opop.querySelector('.tp-map-pop-t').focus({ preventScroll: true });
-      // The place it is about is picked out on the map and glides to the middle, the card opening just under the map
-      Array.prototype.forEach.call(omarks.children, function (el, j) { el.classList.toggle('is-sel', j === k); el.setAttribute('aria-expanded', j === k ? 'true' : 'false'); });
-      if (!keep) { var q = px(l.ll), s = Math.max(ocam.s, .9); oglide(oclamp({ x: q[0], y: q[1], s: s, fy: OVH / 2 })); }
+      // The place it is about is picked out on the map and glides to the middle, the card opening just under the map,
       // and the card is brought into view above the timeline bar if it opened below the screen
-      if (!keep) { var r = opop.getBoundingClientRect(), br = body.getBoundingClientRect(), room = br.bottom - 100; if (r.bottom > room) body.scrollBy({ top: Math.min(r.bottom - room, r.top - br.top - 60), behavior: reduce.matches ? 'auto' : 'smooth' }); }
+      selMark(k);
+      if (!keep) bringIn(l.ll);
     }
     function closePop() {
       var k = popAt; opop.hidden = true; popAt = null;
-      Array.prototype.forEach.call(omarks.children, function (el) { el.classList.remove('is-sel'); el.setAttribute('aria-expanded', 'false'); });
-      var b = k !== null && omarks.querySelector('[data-loc="' + k + '"]');
+      selMark(null);
+      var b = k === null ? null : typeof k === 'string' ? otvs.querySelector('[data-ven="' + k.slice(1) + '"]') : omarks.querySelector('[data-loc="' + k + '"]');
       if (b) b.focus({ preventScroll: true });
     }
     omarks.addEventListener('click', function (e) { var b = e.target.closest('[data-loc]'); if (b) showPop(+b.dataset.loc); });
+    otvs.addEventListener('click', function (e) { var b = e.target.closest('[data-ven]'); if (b) showVen(+b.dataset.ven); });
     opop.addEventListener('click', function (e) {
       if (e.target.closest('[data-oclose]')) { closePop(); return; }
       var a = e.target.closest('[data-oadd]'); if (!a) return;
@@ -811,7 +858,9 @@
     sec.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !opop.hidden) { e.stopPropagation(); closePop(); } });
     oedges.addEventListener('click', function (e) {
       var c = e.target.closest('[data-ocity]');
-      if (c) { opop.hidden = true; popAt = null; oglide(frame(c.dataset.ocity)); osayT('Showing ' + CITYNAME[c.dataset.ocity] + '.'); return; }
+      if (c) { opop.hidden = true; popAt = null; selMark(null); oglide(frame(c.dataset.ocity)); osayT('Showing ' + CITYNAME[c.dataset.ocity] + '.'); }
+    });
+    opop.addEventListener('click', function (e) {
       if (e.target.closest('[data-owatch]')) {
         e.preventDefault();
         var w = document.getElementById('tp-watch'); if (!w) return;

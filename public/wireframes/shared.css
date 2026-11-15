@@ -25,7 +25,7 @@
   --ease-out: cubic-bezier(.2, .8, .2, 1);
   --ease-in: cubic-bezier(.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(.65, 0, .35, 1);
-  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-spring: cubic-bezier(.3, 1.25, .5, 1); /* a slight settle, not a bounce (was 1.56 overshoot) */
 
   /* Prototype design tokens (the phone in prototype-*.html, .cn-* and .tp-*). These are the wireframe values; the high
      fidelity theme (themes/hifi.css, html[data-theme="hifi"]) overrides them inside .cn-phone only, so the viewer panel
@@ -3004,6 +3004,8 @@ body.cp-page code { font: inherit; }
 .cn-check input:checked::after { content: ""; width: 10px; height: 5px; margin-top: -2px; border-left: var(--bw-3) solid var(--c-surface); border-bottom: var(--bw-3) solid var(--c-surface); transform: rotate(-45deg); }
 .cn-check span { padding-top: 1px; }
 .cn-legal { margin-top: var(--space-2); font-size: var(--fs-2xs); color: var(--c-ink-3); }
+.cn-legal-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.cn-legal-link:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .cn-pill { display: flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; height: 48px; border-radius: var(--radius-pill); border: var(--bw-2) solid var(--c-line-ink); font: inherit; font-size: var(--fs-base); font-weight: var(--fw-semi); cursor: pointer; }
 .cn-pill--dark { margin-top: var(--space-4); background: var(--c-btn); color: var(--c-on-dark); }
 .cn-pill--outline { background: var(--c-surface); color: var(--c-ink); }
@@ -3146,7 +3148,7 @@ body.cp-page code { font: inherit; }
    by the panel's height). Only transform moves it. --tl-p is the panel height, set by the script to fit the phone. */
 .tp-tl { --tl-p: 420px; position: absolute; left: 0; right: 0; bottom: 0; z-index: 100; transform: translateY(100%); visibility: hidden; transition: transform .2s cubic-bezier(.4, 0, 1, 1), visibility 0s linear .2s; }
 .tp-tl.is-on { visibility: visible; transform: translateY(var(--tl-p)); transition: transform .36s cubic-bezier(.2, .8, .2, 1), visibility 0s; } /* not expo-out: the 104px rise stays readable frame by frame */
-.tp-tl.is-on.is-open { transform: none; transition: transform .4s cubic-bezier(.32, .72, 0, 1); }
+.tp-tl.is-on.is-open { transform: none; transition: transform .44s cubic-bezier(.4, 0, .2, 1); } /* even ease-out: the old curve covered ~90% in the first 140ms and read as a jump (check 1) */
 .tp-tl-scrim { position: absolute; inset: 0; z-index: 99; background: var(--c-scrim); opacity: 0; visibility: hidden; transition: opacity .22s ease-in, visibility 0s linear .22s; }
 .tp-tl-scrim.is-on { opacity: 1; visibility: visible; transition: opacity .3s ease-out, visibility 0s; }
 /* The bar: one button. Layout as in the design: label 20px down, summary 38px, the expand circle on the right, the strip */
@@ -3419,7 +3421,7 @@ body.cp-page code { font: inherit; }
    timeline bar and the flying item */
 .cn-pp.tp-pm { z-index: 140; } /* above the timeline bar (100) and the flying item (120) */
 .tp-pm .cn-pp-body:focus { outline: none; }
-.tp-pm-type { align-self: flex-start; padding: 0 4px; font-size: var(--fs-xs); color: var(--c-ink-2); }
+.tp-pm-type { align-self: flex-start; padding: 0; font-size: var(--fs-xs); color: var(--c-ink-2); }
 .tp-pm-why { padding: 2px 4px; font-size: var(--fs-md); line-height: 1.4; }
 .tp-pm-summary { margin-top: var(--space-3); }
 .tp-pm-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-5); }
@@ -3762,6 +3764,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-back-meta { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--c-ink-2); }
 .tp-ms { list-style: none; }
 .tp-m { padding: var(--space-3) 0; border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tp-m-open .tp-m-teams { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--c-line-strong); }
+.tp-m-open:hover .tp-m-teams { text-decoration-color: currentColor; }
 .tp-m-when { font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
 .tp-m-teams { margin-top: var(--space-1); font-size: var(--fs-base); font-weight: var(--fw-bold); line-height: 1.3; }
 .tp-m-where { margin-top: var(--space-1); font-size: var(--fs-sm); color: var(--c-ink-2); }
@@ -4042,6 +4046,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ss.is-sent .cn-again { display: block; }
 .tp-ss.is-sent .cn-note-dot { background: var(--c-accent); }
 .tp-ss .cn-toast { position: sticky; left: auto; right: auto; bottom: 0; flex: none; margin-top: var(--space-3); }
+.tp-ss .cn-view { padding-bottom: 72px; } /* room under the last line, so the toast never sits on the opt-in when scrolled to the end */
 
 /* Pick your team: the timeline sheet drags by its bar (handle included): down to close, up to open */
 .tp-tl-bar { touch-action: none; }
@@ -4399,7 +4404,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-lteam .tp-fl { width: 18px; height: 12px; border-radius: 2px; box-shadow: 0 0 0 1px var(--c-line); object-fit: cover; }
 
 /* Free days on the timeline: a + per free day, a two-line label above it (Free, and how many ideas, or Full) */
-.tp-tl-free { z-index: 1; }
+.tp-tl-free { z-index: 1; font: inherit; } /* a button: takes the page font, not the browser's (was Arial in hifi) */
+.tp-tl-free.is-full .tp-tl-free-sym svg { width: 14px; height: 14px; }
 .tp-tl-free-sym { display: grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); }
 .tp-tl-free-sym svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .tp-tl-free-l { position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); font-size: 10px; line-height: 1.15; text-align: center; white-space: nowrap; color: var(--c-ink-2); pointer-events: none; }
@@ -4580,7 +4586,8 @@ p.tp-ws-going { display: block; } p.tp-ws-going .tp-ws-going-q { font-size: var(
 .tp-ov-layer { transition: opacity .3s ease; }
 .tp-ov-view { position: absolute; inset: 0; cursor: grab; }
 .tp-ov-view:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -3px; }
-.tp-ov-marks, .tp-ov-edges { position: absolute; inset: 0; pointer-events: none; }
+.tp-ov-tvs, .tp-ov-marks, .tp-ov-edges { position: absolute; inset: 0; pointer-events: none; }
+.tp-ov-marks { z-index: 2; } .tp-ov-tvs { z-index: 1; } .tp-ov-edges { z-index: 3; } /* places first in reading order, TV pins drawn under them */
 .tp-ov-loc { position: absolute; left: 0; top: 0; pointer-events: auto; display: block; width: 36px; height: 36px; margin: -18px 0 0 -18px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; cursor: pointer; }
 .tp-ov-loc.is-out { visibility: hidden; }
 .tp-ov-i { position: absolute; left: 5px; top: 5px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--c-surface); border: var(--bw-2) solid var(--c-ink); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
@@ -4609,16 +4616,21 @@ p.tp-ws-going { display: block; } p.tp-ws-going .tp-ws-going-q { font-size: var(
 .tp-ov-loc:focus-visible { outline: none; }
 .tp-ov-loc:focus-visible .tp-ov-i { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-ov-loc:hover .tp-ov-t b { text-decoration: underline; }
-.tp-ov-edge, .tp-ov-city { position: absolute; pointer-events: auto; display: flex; align-items: flex-start; gap: 6px; max-width: 250px; padding: 6px 10px; border-radius: 10px; background: var(--c-surface); border: var(--bw-1) solid var(--c-line-strong); box-shadow: 0 2px 6px rgba(0,0,0,.12); font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink); }
-.tp-ov-edge.is-n { left: 12px; top: 12px; }
-.tp-ov-edge.is-sw { left: 12px; bottom: 12px; }
-.tp-ov-edge a { color: var(--c-ink); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 2px; }
+.tp-ov-city { position: absolute; pointer-events: auto; display: flex; align-items: flex-start; gap: 6px; max-width: 250px; padding: 6px 10px; border-radius: 10px; background: var(--c-surface); border: var(--bw-1) solid var(--c-line-strong); box-shadow: 0 2px 6px rgba(0,0,0,.12); font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink); }
 .tp-ov-edge-a { flex: none; display: block; width: 12px; height: 12px; margin-top: 1px; }
 .tp-ov-edge-a svg { display: block; width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tp-ov-city { left: 0; top: 0; align-items: center; min-height: 36px; border-color: var(--c-ink); font: inherit; font-size: var(--fs-2xs); font-weight: var(--fw-semi); white-space: nowrap; cursor: pointer; border-radius: var(--radius-pill); }
 .tp-ov-city[hidden] { display: none; }
-.tp-ov-city:focus-visible, .tp-ov-edge a:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-ov-city:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-ov-zoom { top: 12px; bottom: auto; }
+/* Where to watch in NSW on the map: placeholder screening venues as TV pins, under the places (16 Nov) */
+.tp-ov-tv { position: absolute; left: 0; top: 0; pointer-events: auto; display: grid; place-items: center; width: 28px; height: 28px; margin: -14px 0 0 -14px; padding: 0; border: var(--bw-1) solid var(--c-ink); border-radius: 8px; background: var(--c-surface); color: var(--c-ink); box-shadow: 0 1px 3px rgba(0,0,0,.18); cursor: pointer; transition: transform .2s ease, opacity .2s ease; }
+.tp-ov-tv svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tp-ov-tv.is-faint { opacity: .55; border-color: var(--c-ink-3); color: var(--c-ink-2); box-shadow: none; }
+.tp-ov-tv.is-out { visibility: hidden; }
+.tp-ov-tv.is-sel { z-index: 2; opacity: 1; box-shadow: 0 0 0 3px rgba(255,255,255,.9), 0 0 0 5px var(--c-ink); }
+.tp-ov-tv:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-ov-pop-a { margin-top: var(--space-2); }
 .tp-ov-hint { position: absolute; left: 50%; top: 50%; z-index: 5; margin: 0; padding: 8px 14px; border-radius: var(--radius-pill); background: rgba(20,20,20,.82); color: #fff; font-size: var(--fs-sm); font-weight: var(--fw-semi); white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(-50%, -50%) scale(.96); transition: opacity .2s ease, transform .2s ease; }
 .tp-ov-hint.is-on { opacity: 1; transform: translate(-50%, -50%); }
 .tp-ov-pop { margin-top: var(--space-3); padding: var(--space-3); border: var(--bw-1) solid var(--c-line); border-radius: 12px; background: var(--c-surface); }

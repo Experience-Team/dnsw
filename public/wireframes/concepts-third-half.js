@@ -133,9 +133,13 @@
   function notGoing(m) { return (state.notGoing || []).indexOf(m.key) > -1; }
   // One line, not a second way to answer: the ticket is marked in one place, the match card's I have a ticket
   // (agreed 15 Nov). The link goes there; once marked, the card turns into getting there and back.
-  function goingQ(m, named) {
-    if (!m.tkey || hasTicket(m)) return '';
-    return '<p class="tp-ws-going"><span class="tp-ws-going-q">Going?</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button><span class="visually-hidden">: ' + esc(matchName(m.f)) + '</span></p>';
+  // One line per card, not one per match (a card with four matches said it four times in a row): the match is named
+  // when there is one; with several it asks once and the link goes to the first one's ticket box
+  function goingQ(ms) {
+    var open = ms.filter(function (m) { return m.tkey && !hasTicket(m); });
+    if (!open.length) return '';
+    var m = open[0], q = open.length === 1 ? 'Going to ' + matchName(m.f) + '?' : 'Going to one of these?';
+    return '<p class="tp-ws-going"><span class="tp-ws-going-q">' + esc(q) + '</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button></p>';
   }
   function gettingThere(m) {
     var f = m.f, city = f.a || f.p;
@@ -151,7 +155,7 @@
      is shown for more than two evenings on the page while another would do. With two of their matches on one evening,
      venues showing both come first. Where they are staying (Refine your plan) puts that city's venues first. Worked
      out once per render, in date order, so a match shows the same venues in Where to watch and in Your days. */
-  var NICK = { 'South Africa': 'Boks', 'New Zealand': 'All Blacks', 'Australia': 'Wallabies', 'Argentina': 'Pumas', 'Fiji': 'Flying Fijians', 'Japan': 'Brave Blossoms' };
+  // Team names, never nicknames (Boks, All Blacks ...): not every fan knows them (agreed 16 Nov)
   var FIX = window.cnFixtures || [];
   function fixIndex(m) { for (var i = 0; i < FIX.length; i++) if (FIX[i].d === m.f.d && FIX[i].t === m.f.t) return i; return 0; }
   function shows(sp, m) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }
@@ -189,17 +193,21 @@
     return out;
   }
   function teamOf(m) { var t = (m.f.t || '').split(' v '); return t.filter(function (n) { return tp.isPicked(n); })[0] || t[0]; }
-  function kickLine(m) { var n = teamOf(m); return (NICK[n] || n) + ' on at ' + (m.f.k ? m.f.k.replace(':00', '') : 'a time to be confirmed'); } // 8pm, not 8:00pm
+  function kickLine(m) { var n = teamOf(m); return n + ' plays at ' + (m.f.k ? m.f.k.replace(':00', '') : 'a time to be confirmed'); } // 8pm, not 8:00pm
+  // Several matches on one day: "of your matches" only once they have picked something, and "tonight" only when every
+  // kick-off is 5pm or later (a 12:15pm match is not tonight)
+  function lateAll(ms) { return ms.every(function (m) { var k = kickMins(m.f.k); return k !== null && k >= 17 * 60; }); }
+  function manyLine(ms) { return ms.length + (tp.own() ? ' of your matches ' : ' matches ') + (lateAll(ms) ? 'tonight' : 'that day'); }
   // The venues for one evening: name, kind and area, what it shows (with two matches), Add
   function venueRows(ms, keyBase) {
     var vs = venuesFor(ms), two = ms.length > 1;
-    if (!vs.length) return '<p class="tp-empty">No screening listed for this evening yet.</p>';
+    if (!vs.length) return '<p class="tp-empty">No screening listed for this match yet.</p>';
     return '<ul class="tp-wv">' + vs.map(function (c) {
       var showing = ms.filter(function (m) { return shows(c.sp, m); }), m0 = showing[0];
       var id = 'w:' + c.j + ':' + keyBase;
       ITEMS[id] = { id: id, kind: 'screening', title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', place: c.sp.place, note: '', day: m0.f.d, matchName: showing.map(function (m) { return matchName(m.f); }).join(' and ') };
       MODAL[id] = { type: 'spot', sp: c.sp, m: m0 };
-      var what = two ? (c.all ? 'Shows both' : 'Shows ' + matchName(m0.f) + ' only') : '';
+      var what = two ? (c.all ? (ms.length > 2 ? 'Shows all ' + ms.length : 'Shows both') : 'Shows ' + matchName(m0.f) + ' only') : '';
       return '<li class="tp-wv-i"><button type="button" class="tp-wv-t" data-open="' + esc(id) + '" aria-haspopup="dialog"><span class="tp-wv-name provenance-gap">' + esc(c.sp.name) + '</span>' +
         '<span class="tp-wv-meta">' + esc(SPOT_TYPE[c.sp.type] || 'Screening') + ' · ' + esc(c.sp.place) + (what ? ' · <strong>' + esc(what) + '</strong>' : '') + '</span></button>' +
         addBtn(id, c.sp.name + ', ' + ITEMS[id].matchName + ' on ' + m0.f.d) + '</li>';
@@ -231,16 +239,16 @@
       if (!watch.length) return;
       var two = watch.length > 1, k = evKey(watch);
       cards.push('<li class="tp-wm tp-wc' + (two ? ' is-clash' : '') + '" data-key="' + esc(watch[0].key) + '">' +
-        (two ? '<p class="tp-wc-clash">' + watch.length + ' of your matches tonight</p>' : '') +
+        (two ? '<p class="tp-wc-clash">' + manyLine(watch) + '</p>' : '') +
         watch.map(matchLine).join('') +
-        '<p class="tp-wc-sub">Where to watch in NSW' + (two ? ', venues showing both first' : '') + '</p>' +
-        venueRows(watch, k) + watch.map(function (m) { return goingQ(m, two); }).join('') + '</li>');
+        '<p class="tp-wc-sub">Where to watch in NSW' + (two ? ', venues showing ' + (watch.length > 2 ? 'all of them' : 'both') + ' first' : '') + '</p>' +
+        venueRows(watch, k) + goingQ(watch) + '</li>');
     });
     var showN = watchAll ? cards.length : Math.min(cards.length, 4);
-    if (cards.length) h += '<ul class="tp-wcs" aria-label="Where to watch, by evening">' + cards.slice(0, showN).join('') + '</ul>';
+    if (cards.length) h += '<ul class="tp-wcs" aria-label="Where to watch, by match day">' + cards.slice(0, showN).join('') + '</ul>';
     watchList.innerHTML = h;
     watchMore.hidden = cards.length <= 4;
-    if (!watchMore.hidden) { watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + (cards.length - 4) + ' more evenings'; watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false'); }
+    if (!watchMore.hidden) { watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + (cards.length - 4) + ' more match days'; watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false'); }
   }
   watchMore.addEventListener('click', function () { watchAll = !watchAll; render(true); });
 
@@ -454,7 +462,7 @@
   }
   function matchBody(b, M) {
     var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
-    var groups = { before: [], after: [], near: [] }, h = goBlock(m);
+    var groups = { before: [], after: [], near: [] }, h = goBlock(m) + alsoLine(m.day);
     if (b.ms.length > 1) h += '<p class="tp-blk-note">Also in NSW that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return esc(matchName(x.f)) + ', ' + esc(x.f.k || 'time to be confirmed') + ', ' + esc(x.f.v); }).join('; ') + '.</p>';
     PRODUCTS.filter(function (p) { return p.distance_to_venue && p.distance_to_venue.venue_ref === f.v; }).forEach(function (p) {
       var o = hoursOn(p, wd);
@@ -572,6 +580,10 @@
       return x.day === dl;
     });
   }
+  // What they added to a match, half or watch day that its own cards do not show (a place saved from the map and slotted
+  // there, for example): one line, so nothing on their plan goes missing from its day
+  function alsoItems(d) { return dayItems(d).filter(function (x) { return x.kind !== 'product'; }); }
+  function alsoLine(d) { var its = alsoItems(d); return its.length ? '<p class="tp-blk-note tp-blk-also">Also on your plan that day: ' + esc(its.map(function (x) { return x.title; }).join(', ')) + '.</p>' : ''; }
   function dayFilled(d) {
     var its = dayItems(d);
     return its.some(function (x) { return x.idea === 'day' || x.kind === 'trip'; }) || its.length >= 2;
@@ -637,14 +649,18 @@
   }
   // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
   function watchBody(b) {
-    return '<p class="tp-blk-note">' + (b.ms.length > 1 ? b.ms.length + ' of your matches tonight, so venues showing both come first. ' : '') + 'Here\u2019s where to watch in NSW.</p>' +
+    return alsoLine(b.day) + '<p class="tp-blk-note">' + (b.ms.length > 1 ? manyLine(b.ms) + ', so venues showing ' + (b.ms.length > 2 ? 'all of them' : 'both') + ' come first. ' : '') + 'Here\u2019s where to watch in NSW.</p>' +
       b.ms.map(matchLine).join('') + venueRows(b.ms, evKey(b.ms));
   }
   function halfBody(b) {
     var wd = weekdayOf(b.day), f = { d: dayLabel(b.day) };
     var list = halfList(b, wd);
-    var show = moreBlk[b.key] ? list : list.slice(0, 3);
-    var h = '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': ' + esc(halfNote(b).charAt(0).toLowerCase() + halfNote(b).slice(1)) + '</p><div class="tp-pcs">';
+    // Half a day holds two things at most, as a free day does: once full it shows what is in it, and no more Add
+    var full = dayFilled(b.day);
+    if (full) list = list.filter(function (p) { return added('p:' + p.id + ':' + f.d); });
+    var show = moreBlk[b.key] || full ? list : list.slice(0, 3);
+    var h = alsoLine(b.day) + (full ? '<p class="tp-fday-done">Your half day: ' + esc(dayItems(b.day).map(function (x) { return x.title; }).join(' and ')) + '. That’s plenty for ' + (b.first ? 'an arrival day' : 'a last day') + '; remove one to see other ideas.</p>'
+      : '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': ' + esc(halfNote(b).charAt(0).toLowerCase() + halfNote(b).slice(1)) + '</p>') + '<div class="tp-pcs">';
     show.forEach(function (p) {
       var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + f.d, why = ['Open ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' · ');
       ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: f.d };
@@ -652,13 +668,13 @@
       h += productCard(p, why, id, f);
     });
     h += '</div>';
-    if (list.length > 3) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Show fewer' : 'Show ' + (list.length - 3) + ' more') + '</button>';
+    if (list.length > 3 && !full) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Fewer places' : 'More places') + '</button>';
     return h;
   }
   function heading(b) {
     if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || 'time to be confirmed') + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
     if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + (basePlace() || CITY[b.base]) }; }
-    if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? b.ms.length + ' of your matches tonight' : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
+    if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + halfWhere(b) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
@@ -746,6 +762,13 @@
     }
     return out;
   }
+  // Where something they added sits: an idea, a product, or a place saved from the map (each has its own coordinates)
+  function addedLL(x) {
+    if (!GEO) return null;
+    if (x.kind === 'poi') { var p = poiOf(x); return p ? p.ll : null; }
+    if (x.kind === 'product') { var pid = (x.id || '').split(':')[1]; return GEO.products[pid] || null; }
+    return GEO.ideas[(x.id || '').replace(/^i:/, '').replace(/@.*$/, '')] || null;
+  }
   function pinsOf(list, anchor) {
     // Numbered clockwise from north around the day's anchor: geography decides the order, not a ranking
     var a = anchor && anchor.ll;
@@ -779,7 +802,7 @@
     } else if (st.kind === 'watch') {
       var city = baseCity() || 'sydney';
       r.anchor = home || nearStadium(d, city); r.place = home ? home.name : CITY[city];
-      r.kicker = dl + ' \u00b7 Free day'; r.title = (b.ms.length > 1 ? b.ms.length + ' of your matches tonight' : kickLine(b.ms[0])) + '. Where to watch';
+      r.kicker = dl + ' \u00b7 Free day'; r.title = (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Where to watch';
       r.body = venueRows(b.ms, evKey(b.ms));
       r.pins = venuesFor(b.ms).map(function (c) { return { key: 'w:' + c.j + ':' + evKey(b.ms), title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', ll: GEO && GEO.watch[c.j] }; }).filter(function (x) { return x.ll; });
     } else if (st.kind === 'half') {
@@ -789,6 +812,7 @@
       if (basePlace() && !halfNear(b)) r.note = halfNote(b);
       // Nearest to where they are staying once that is known; otherwise a rotating order, so no business is favoured
       var ps = basePlace() ? halfList(b, wd).slice(0, 3) : halfList(b, wd).sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
+      if (dayFilled(d)) { ps = halfList(b, wd).filter(function (p) { return added('p:' + p.id + ':' + dl); }); r.note = 'Your half day is full.'; }
       r.pins = ps.map(function (p) {
         var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
         ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
@@ -813,10 +837,16 @@
       }
       // What is already on that day: shown as done pins, with a loop for a day trip
       its.forEach(function (x) {
-        var id = (x.id || '').replace(/^i:/, ''), ll = GEO && GEO.ideas[id];
+        var ll = addedLL(x);
         if (ll) r.pins.push({ key: null, title: x.title, kindLabel: 'Added', ll: ll, done: true, trip: x.idea === 'day' });
       });
       r.pins.forEach(function (p) { if (p.trip && r.anchor) r.loops.push({ from: r.anchor.ll, to: p.ll, done: !!p.done }); });
+    }
+    // Match, half and watch days: what else is on their plan that day (a place saved from the map), said and pinned
+    if (st.kind !== 'free' && st.kind !== 'away') {
+      var also = alsoItems(d);
+      if (also.length) r.note = (r.note ? r.note + ' ' : '') + 'Also on your plan: ' + also.map(function (x) { return x.title; }).join(', ') + '.';
+      also.forEach(function (x) { var ll = addedLL(x); if (ll) r.pins.push({ key: null, title: x.title, kindLabel: 'Added', ll: ll, done: true }); });
     }
     pinsOf(r.pins, r.anchor);
     if (!r.body) r.body = r.pins.filter(function (p) { return p.html; }).length ? '<div class="tp-pcs tp-map-pcs">' + r.pins.filter(function (p) { return p.html; }).map(function (p) { return p.html.replace('<article class="tp-pc', '<article data-pin="' + p.n + '" class="tp-pc'); }).join('') + '</div>' : '';
@@ -999,7 +1029,7 @@
     // On the timeline already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
     if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Every NSW match is on') + '</p>';
-    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my timeline' : 'Add to my timeline') + '</span><span class="visually-hidden">, ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
+    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my timeline' : 'Add to my timeline') + '</span><span class="visually-hidden"> for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
     if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' aria-describedby="tp-pm-ticket-why" /><span>I have a ticket</span></label><p class="tp-ticket-why" id="tp-pm-ticket-why">Tick it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
     h += '</div>';
     if (teams.length) {
@@ -1368,7 +1398,7 @@
   });
 
   /* ---------- The one question ---------- */
-  var askEditing = false, askManual = false, askError = '';
+  var askEditing = false, askManual = false, askError = '', askDraft = null; // askDraft: what they typed, kept through an error
   /* What an answer changed: a line under the answer ("Suggestions now for 9 to 16 Oct. Updated below: …"), gone once
      the person moves on, and a brief tint on each section that changed, played as it comes into view (the sections
      sit below the question, often off screen when it is answered). */
@@ -1436,8 +1466,8 @@
       var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-quick="' + kind + '" aria-pressed="' + (has && r.from === t.from && r.to === t.to) + '">' + label + '</button>' : ''; };
       h += '<p class="tp-sec-note">Optional. Add them and the ideas below fit around your matches.</p>' +
         '<div class="tp-quick" role="group" aria-label="Quick picks">' + Q('matches', qm, 'Around my matches') + Q('week', qw, 'About a week') + '</div>' +
-        '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" min="2027-09-29" max="2027-11-15" value="' + esc(t.from || '') + '"></label>' +
-        '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc(t.to || '') + '"></label></div>' +
+        '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
+        '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
@@ -1492,7 +1522,7 @@
     askNews = '';
     if (b.dataset.quick) {
       var r = quickRange(b.dataset.quick); if (!r) return;
-      askEditing = false; askError = '';
+      askEditing = false; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ from: r.from, to: r.to, base: t.base, party: t.party });
       said = changedSince(before, 'Your days: ' + tp.isoRange(r.from, r.to) + '.');
       settle('[data-act="change"]', h0); tp.say(said); return;
@@ -1513,16 +1543,21 @@
     if (act === 'refine') { refineOpen = !refineOpen; settle('[data-act="refine"]', h0); return; }
     if (act === 'change') { askEditing = true; settle('#tp-from', h0); return; }
     if (act === 'clear') {
-      askEditing = false; askError = '';
+      askEditing = false; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ base: t.base, party: t.party });
       said = changedSince(before, 'Your days are removed.');
       settle('#tp-from', h0); tp.say(said); return;
     }
     if (act === 'use') {
       var a = document.getElementById('tp-from').value, z = document.getElementById('tp-to').value;
+      // An error keeps what they typed, so it can be put right rather than typed again
+      askDraft = { from: a, to: z };
       if (!a || !z) { askError = 'Add both days, or leave this for later: everything works without them.'; settle(a ? '#tp-to' : '#tp-from', h0); return; }
+      // Typed dates skip the fields' min and max, so the range is checked here: the tournament and two days either side
+      var lo = '2027-09-29', hi = '2027-11-15';
+      if (a < lo || a > hi || z < lo || z > hi) { askError = 'Pick days between 29 Sep and 15 Nov, around the tournament.'; settle(a < lo || a > hi ? '#tp-from' : '#tp-to', h0); return; }
       if (z < a) { askError = 'The last day is before the first day.'; settle('#tp-to', h0); return; }
-      askError = ''; askEditing = false;
+      askError = ''; askEditing = false; askDraft = null;
       askOwn = true; tp.setTrip({ from: a, to: z, base: t.base, party: t.party });
       said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
       settle('[data-act="change"]', h0); tp.say(said);
@@ -1715,8 +1750,9 @@
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
     // With days confirmed, how many of their matches fall in them: the same figure the timeline bar shows
     if (when && t.from && ms.length) {
-      var a = tp.isoDay(t.from), z = tp.isoDay(t.to), inD = ms.filter(function (m) { return m.day >= a && m.day <= z; }).length;
-      if (inD !== ms.length) when += ', ' + inD + (inD === 1 ? ' match' : ' matches') + ' in your days';
+      // Only NSW matches count as in your days: an interstate one in the same dates is watched here, not gone to
+      var a = tp.isoDay(t.from), z = tp.isoDay(t.to), msN = ms.filter(function (m) { return !m.f.a; }), inD = msN.filter(function (m) { return m.day >= a && m.day <= z; }).length;
+      if (msN.length && inD !== msN.length) when += ', ' + inD + ' of your NSW ' + (msN.length === 1 ? 'match' : 'matches') + ' in your days';
     }
     if (when) facts.push('<li>' + esc(when) + '</li>');
     // A trip that clashes is said here too, with the way to fix it, not only in the open timeline
@@ -1741,7 +1777,8 @@
     }
     function fallback() {
       // Copying is blocked: show the text selected, to copy by hand
-      planBody.insertAdjacentHTML('beforeend', '<label class="tp-plan-fallback"><span>Copying is blocked here. The text is selected: copy it with your device\u2019s Copy.</span><textarea readonly rows="6"></textarea></label>');
+      // One fallback box at most: pressed again, the same box is filled and selected again
+      if (!planBody.querySelector('.tp-plan-fallback')) planBody.insertAdjacentHTML('beforeend', '<label class="tp-plan-fallback"><span>Copying is blocked here. The text is selected: copy it with your device\u2019s Copy.</span><textarea readonly rows="6"></textarea></label>');
       var ta = planBody.querySelector('textarea'); ta.value = text; ta.focus(); ta.select();
     }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
@@ -1761,7 +1798,7 @@
     });
     state.added.forEach(function (it) {
       if (it.kind === 'match') return;
-      if (it.unplaced) { rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: it.kindLabel || 'Place', where: it.place || '', place: it.place || '', note: 'Saved from the map' }); return; }
+      if (it.unplaced) { rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: KIND[it.kind] || 'Place', where: it.place || '', place: it.place || '', note: 'Saved from the map' }); return; }
       var at = it.start != null ? it.start : (function () { try { return tp.dayOf(it.day); } catch (e) { return 99; } })();
       var trip = it.kind === 'trip', c = trip && tp.clashes()[it.id];
       rows.push({ at: at, date: trip && it.nights ? spanLabel(it.start, it.start + it.nights) : it.day, time: '', what: it.title,
@@ -1905,6 +1942,6 @@
   phone.addEventListener('tp:state', function () { render(false); });
   // Reset prototype (a reviewer tool): this section's own choices go back to a first visit too
   var resetBtn = document.getElementById('tp-reset');
-  if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); refineOpen = false; placeQ = ''; openSet = null; blkSig = ''; moreBlk = {}; moveOpen = null; watchAll = false; openCard = null; askEditing = false; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
+  if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); refineOpen = false; placeQ = ''; openSet = null; blkSig = ''; moreBlk = {}; moveOpen = null; watchAll = false; openCard = null; askEditing = false; askDraft = null; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
   render(true);
 })();

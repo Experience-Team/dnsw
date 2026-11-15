@@ -67,14 +67,35 @@
     'nz-v-australia': 'hero-stadium',
     // Getting there and back cards show the stadium (one stadium photo stands in for all of them)
     'stadium-australia': 'hero-stadium', 'sydney-football-stadium': 'hero-stadium', 'newcastle-stadium': 'hero-stadium', 'adelaide-oval': 'hero-stadium', 'brisbane-stadium': 'hero-stadium', 'docklands-stadium': 'hero-stadium', 'perth-stadium': 'hero-stadium', 'north-queensland-stadium': 'hero-stadium',
-    'patonga-beach': 'coast-headland'
+    'patonga-beach': 'coast-headland',
+    'sydney-opera-house': 'coast-aerial', 'the-rocks': 'lord-nelson', 'manly-ferry': 'coast-aerial', 'bondi-to-coogee-walk': 'coast-headland'
   };
   // The pictures in assets/images, by name and file type, so each placeholder asks for one file that exists (no
   // .webp-then-.jpg pair, no request at all for a name with no picture: it stays a grey block). Add a picture here
   // when one is added to the folder.
   var IMG_FILES = {"1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW": "webp", "city-dining": "webp", "coast-aerial": "webp", "coast-headland": "webp", "golden-barley": "webp", "hero-coast": "webp", "hero-stadium": "webp", "ivy-rooftop": "jpg", "kathleen-banks-0h2KOlfkGck-unsplash": "jpg", "lord-nelson": "webp", "marickville-tavern": "webp", "river-national-park": "webp", "tth-logo": "webp", "village": "jpg"};
+  // No grey boxes in high fidelity (agreed 16 Nov): a name with no picture of its own gets the closest one by the words
+  // in it, so every placeholder shows a photo. The order matters: the first group that matches wins
+  var IMG_GUESS = [
+    [/stadium|match|final|quarter|semi/, 'hero-stadium'],
+    [/fan-zone|village|swing|screen/, 'village'],
+    [/kayak|river|canoe|paddle/, '1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW'],
+    [/whale|cruise|dolphin|ferry|bay|harbour|wharf|port|island|sail/, 'coast-aerial'],
+    [/coast|beach|blowhole|cliff|ocean|baths|surf|headland|dune|sand|cove|swim|tide|pool/, 'coast-headland'],
+    [/cafe|kitchen|deli|bakery|dining|oyster|food|market|lunch|eat|restaurant|tea-rooms/, 'city-dining'],
+    [/brew|pub|hotel|arms|inn|tavern|club|bowls|leagues/, 'lord-nelson'],
+    [/bars|wine|cellar|winer|vineyard|distill/, 'golden-barley'],
+    [/walk|park|track|national|mountain|garden|bike|lookout|bird|boardwalk|wetland|bush|forest|rainforest|tops|loop|trail|hike|hill|creek|falls/, 'river-national-park'],
+    [/gallery|museum|print|rooms|legends|story|art|theatre|opera|history|heritage|culture/, 'ivy-rooftop'],
+    [/rocks|city|street|lane|quarter|mall|town/, 'city-dining']
+  ];
+  function guess(name) {
+    for (var i = 0; i < IMG_GUESS.length; i++) if (IMG_GUESS[i][0].test(name)) return IMG_GUESS[i][1];
+    return 'hero-coast';
+  }
   function paint(el) {
     var name = el.getAttribute('data-img'); name = IMG_ALIAS[name] || name;
+    if (!IMG_FILES[name]) name = guess(name || '');
     var ext = IMG_FILES[name];
     var want = hifi() && ext ? 'url("' + IMG_DIR + name + '.' + ext + '")' : '';
     if (el.style.backgroundImage !== want) el.style.backgroundImage = want;
