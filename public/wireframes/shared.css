@@ -3703,12 +3703,18 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-card:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 3px; }
 /* TEST: the stacked hand (Figma 282:26254). Four overlapping arcs of six small cards; concepts-teams.js places each
    card (left, top, size, pivot, angle). The box is sized to the hand's real extremes, lifted cards included. */
-.tp-fan2-wrap { position: relative; height: 339px; margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: clip; }
+.tp-fan2-wrap { position: relative; height: 339px; transition: height 520ms cubic-bezier(.45, .05, .25, 1); margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: clip; }
 .tp-fan2-wrap[hidden] { display: none; }
 .tp-fan2 { position: absolute; inset: 0; }
 .tp-card2 { position: absolute; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 6px 0; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; box-shadow: -1px 0 4px rgba(0,0,0,.06); transition: transform var(--dur-large) var(--ease-out), opacity var(--dur-small) ease-out, background-color var(--dur-micro) ease-out, color var(--dur-micro) ease-out; }
 .tp-card2-code { font-family: var(--font-label); font-size: .9375rem; font-weight: var(--fw-heavy); line-height: 1; letter-spacing: -.01em; }
 .tp-card2-flag .tp-fl { height: 12px; }
+/* The full name: grid only (the fan's 57px cards are too narrow for it at 14px) */
+.tp-card2-name { display: none; font-size: .875rem; font-weight: var(--fw-semi); line-height: 1.2; text-wrap: balance; }
+.tp-fan2-wrap.is-grid .tp-card2-name { display: block; }
+.tp-fan2-wrap.is-grid .tp-card2 { gap: 6px; padding: 8px 8px 0; box-shadow: none; }
+.tp-fan2-wrap.is-grid .tp-card2 .tp-card-tick { top: 9px; right: 8px; }
+@media (prefers-reduced-motion: reduce) { .tp-fan2-wrap { transition: none; } }
 .tp-card2 .tp-card-tick { display: none; top: 25px; right: 6px; width: 11px; height: 9px; } /* beside the flag, clear of the code */
 .tp-card2.is-picked { background: var(--c-btn); color: var(--c-on-dark); }
 .tp-card2.is-picked .tp-card-tick { display: block; animation: cn-pop var(--dur-small) var(--ease-spring); }
@@ -4101,13 +4107,13 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-find-btn:active { transform: scale(.96); }
 .tp-find-btn:focus-visible, .tp-find-close:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-find-btn:hover, .tp-find-close:hover { background: var(--c-surface-2); } }
-.tp-pick-head .tp-find { position: absolute; left: 0; right: 0; top: 50%; margin: 0; transform: translateY(-50%); z-index: 70; background: var(--c-surface); }
-.tp-pick-head .tp-find[hidden] { display: none; }
-.tp-pick-head .tp-find-row { align-items: center; gap: var(--space-2); padding-right: 0; }
-.tp-pick-head .tp-find-in { flex: 1; min-width: 0; min-height: 40px; }
+.tp-util .tp-find { position: absolute; left: 0; right: 0; top: 50%; margin: 0; transform: translateY(-50%); z-index: 70; background: var(--c-surface); }
+.tp-util .tp-find[hidden] { display: none; }
+.tp-util .tp-find-row { align-items: center; gap: var(--space-2); padding-right: 0; }
+.tp-util .tp-find-in { flex: 1; min-width: 0; min-height: 40px; }
 .tp-find-close { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
-.tp-pick-head .tp-find-list { top: calc(100% + 8px); }
-.tp-pick-head .tp-find-in::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; } /* one cross: the close button beside the field */
+.tp-util .tp-find-list { top: calc(100% + 8px); }
+.tp-util .tp-find-in::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; } /* one cross: the close button beside the field */
 /* The ticket reason on the every-NSW-match card keeps to one column's width, so it never runs across the columns */
 .tp-rcard--rugby .tp-ticket-why { max-width: 220px; }
 /* All matches as a tab: the chips sit 16px under the tab bar (not 56px), so the panel reads as part of the tabs */
@@ -4268,3 +4274,25 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-panel > * { flex: none; }
 .tp-tl-panel:has(.tp-tl-foot .tp-tl-share:not([hidden])) { padding-bottom: 0; }
 .tp-tl-foot { margin-top: auto; }
+
+/* Pick your teams: the utility row above the hand. Find, Grid / Fan and Plays in NSW, each labelled; 36px tall (AA).
+   The Find field slides across the row from its button, over the other two, so nothing below moves. */
+.tp-util { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); margin-top: var(--space-4); }
+.tp-util-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 var(--space-3); border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; }
+.tp-util-btn svg { flex: none; width: 16px; height: 16px; margin: 0; vertical-align: 0; }
+.tp-util-btn .tp-ico-grid rect { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.tp-util-btn .tp-ico-fan { width: auto; height: 15px; }
+.tp-util-btn:active { transform: scale(.98); }
+.tp-util-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (hover: hover) { .tp-util-btn:hover { background: var(--c-surface-2); } }
+.tp-util .tp-nsw-sw { margin-left: auto; font-size: var(--fs-sm); }
+/* The NSW marker on a card, only with Plays in NSW on: small, outlined, below the flag on the hand (clear of the next
+   row), beside the flag in the grid. Nothing is hidden or dimmed. */
+.tp-nsw-mark { display: none; padding: 1px 3px; border: var(--bw-1) solid currentColor; border-radius: 3px; font-family: var(--font-label); font-size: .5625rem; font-weight: var(--fw-bold); line-height: 1.1; letter-spacing: .04em; }
+.show-nsw .tp-nsw-mark { display: inline-block; }
+/* On the hand only the top of each card shows, so the marker sits in the flag row (right) and the picked tick moves up
+   beside the code (the widest code ends at about 38px of the 57px card; the tick takes 42 to 53px) */
+.tp-fan2-wrap:not(.is-grid) .tp-nsw-mark { position: absolute; top: 26px; right: 4px; padding: 0 2px; font-size: .4375rem; }
+.show-nsw .tp-fan2-wrap:not(.is-grid) .tp-card2 .tp-card-tick { top: 7px; right: 4px; }
+.tp-card .tp-nsw-mark { margin-top: auto; font-size: .6875rem; }
+.tp-fan2-wrap.is-grid .tp-nsw-mark { position: absolute; right: 8px; top: 29px; font-size: .625rem; } /* in the flag row, right; the tick takes the top right */
