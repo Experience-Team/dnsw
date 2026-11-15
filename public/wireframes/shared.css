@@ -3291,7 +3291,7 @@ body.cp-page code { font: inherit; }
 .tp-add { position: relative; z-index: 1; flex: none; min-width: 72px; min-height: 36px; padding: 0 var(--space-3); border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-bold); cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .tp-add::before { content: ""; position: absolute; inset: 0; }
 .tp-add[aria-pressed="true"] { background: var(--c-btn); color: var(--c-on-dark); }
-.tp-add[aria-pressed="true"] span[aria-hidden]::before { content: "\2713  "; }
+.tp-add > span[aria-hidden], .tp-pm-add-l { display: inline-flex; align-items: center; }
 .tp-add:active { transform: scale(.96); }
 .tp-add:focus-visible, .tp-chip:focus-visible, .tp-pc-main:focus-visible, .tp-pill:focus-visible, .tp-out:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 /* Day chips and the fork: single-choice pills */
@@ -4088,6 +4088,11 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ico-fan { aspect-ratio: 36 / 33; }
 .tp-ico-cal { aspect-ratio: 28 / 32; height: 1em; vertical-align: -.15em; }
 .tp-ico path { fill: currentColor; } /* Figma artwork: one filled path each */
+/* Add, remove and added: outline circles in the text colour, before the verb. On a link, only the words underline */
+.tp-ico-circ { aspect-ratio: 1; height: 1.15em; margin-right: .35em; vertical-align: -.24em; }
+.tp-ico-circ :is(circle, path) { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tp-link:has(.tp-u) { text-decoration: none; }
+.tp-link .tp-u { text-decoration: underline; text-underline-offset: 3px; }
 .tp-tl-pick, .tp-pill { display: inline-flex; align-items: center; justify-content: center; }
 
 /* Pick your team: the indicative keyboard (a static picture, greyscale), over the bottom of the phone while search is open */

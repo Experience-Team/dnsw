@@ -50,10 +50,12 @@
   function notesRefresh() { phone.dispatchEvent(new CustomEvent('tp:state')); }
   // key: what the card's button looks up in ITEMS; the item it adds can have its own id (a trip card is keyed by
   // trip and free stretch, the trip itself is one item in the plan)
+  // An add toggle's visible label: a circled plus to add, a circled tick once added (pressing again removes)
+  function addLabel(on, text) { return (on ? window.tpIcons.added : window.tpIcons.add) + '<span class="tp-add-t">' + text + '</span>'; }
   function addBtn(id, label) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
     return '<button type="button" class="tp-add" data-item="' + esc(id) + '" aria-pressed="' + on + '">' +
-      '<span aria-hidden="true">' + (on ? 'Added' : 'Add') + '</span><span class="visually-hidden">' + (on ? 'Added: ' : 'Add ') + esc(label) + (on ? '. Press to remove' : ' to your timeline') + '</span></button>';
+      '<span aria-hidden="true">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden">' + (on ? 'Added: ' : 'Add ') + esc(label) + (on ? '. Press to remove' : ' to your timeline') + '</span></button>';
   }
   // Items the add buttons put on the timeline, by id, rebuilt on each render; and what each one's page shows
   var ITEMS = {}, MODAL = {};
@@ -490,7 +492,7 @@
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
   function pmActions(id, label) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
-    return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '">' + (on ? '\u2713 Added to your timeline' : 'Add to your timeline') + '<span class="visually-hidden">, ' + esc(label) + '</span></button>' +
+    return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to your timeline' : 'Add to your timeline') + '</span><span class="visually-hidden">, ' + esc(label) + '</span></button>' +
       '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>';
   }
   function pmProduct(id, x) {
@@ -547,7 +549,7 @@
     // On the timeline already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
     if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'All matches includes every NSW match') + '</p>';
-    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '">' + (on ? '\u2713 Added to my timeline' : 'Add to my timeline') + '<span class="visually-hidden">, ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
+    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my timeline' : 'Add to my timeline') + '</span><span class="visually-hidden">, ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
     if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' aria-describedby="tp-pm-ticket-why" /><span>I have a ticket</span></label><p class="tp-ticket-why" id="tp-pm-ticket-why">Tick it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
     h += '</div>';
     if (teams.length) {
@@ -651,7 +653,7 @@
     else if (mv.length) h += '<h3 class="cn-pp-h">Move it to</h3><div class="tp-move" role="group" aria-label="Move ' + esc(it.title) + ' to">' + mv.map(function (m) { return '<button type="button" class="tp-chip" data-pm-move="' + m.day + '">' + esc(m.label) + '</button>'; }).join('') + '</div>' +
       (it.kind === 'trip' ? '' : '<p class="tp-pm-note">Days it is open<span class="provenance-gap"> (indicative opening hours)</span>' + (stay() ? ', within your days in NSW.' : '.') + '</p>');
     else h += '<p class="tp-pm-note">No other days fit it now. Remove it, or change your days.</p>';
-    h += '<div class="tp-pm-acts"><button type="button" class="tp-link" data-pm-remove="' + esc(id) + '">Remove from timeline</button></div>';
+    h += '<div class="tp-pm-acts"><button type="button" class="tp-link" data-pm-remove="' + esc(id) + '">' + window.tpIcons.remove + '<span class="tp-u">Remove from timeline</span></button></div>';
     h += '<p class="tp-pm-said" aria-hidden="true">' + esc(pmSaid) + '</p></div>';
     return h;
   }
@@ -773,7 +775,7 @@
     if (on) tp.addItem(Object.assign({}, it)); else tp.removeItem(it.id);
     // The page stays open; its button follows (the card behind updates with the page)
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
-    b.firstChild.textContent = on ? '\u2713 Added to your timeline' : 'Add to your timeline';
+    b.querySelector('.tp-pm-add-l').innerHTML = addLabel(on, on ? 'Added to your timeline' : 'Add to your timeline');
     tp.say(it.title + (on ? ' added to your timeline on ' + it.day + '. ' : ' removed from your timeline. ') + state.added.length + ' added.');
   });
   pm.addEventListener('change', function (e) {
