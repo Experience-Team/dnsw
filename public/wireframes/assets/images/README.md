@@ -44,7 +44,7 @@ The tables below list each placeholder's name; a file with that name (`.webp` or
 | Name (add .webp or .jpg) | Shows |
 |---|---|
 | `hero-stadium` | The stadium picture above the headline (in the repo, from Figma node 309:644) |
-| `hero-road` | The road picture below the button (in the repo, from Figma node 309:644) |
+| `hero-coast` | The coastal picture below the button: a headland at sunset, cropped from `kathleen-banks-0h2KOlfkGck-unsplash.jpg` (Unsplash; confirm DNSW may use it). It replaced the Figma road picture |
 
 `tth-logo.webp` is The Third Half logo in the hero header (from the same Figma node). It's an `<img>`, shown in high
 fidelity only, not a placeholder.
