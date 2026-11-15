@@ -59,8 +59,8 @@ window.cnFixtures = [
    open_to (also fixture-only), assumed open every day between them. Real data is still needed. */
 /* FREE-DAY IDEAS for Your days, in order. The four Sydney ideas the user named (Manly ferry, Bondi to Coogee walk, Sydney
    Opera House, The Rocks) keep their names; how to get there is the obvious start point only, and times are left to be
-   confirmed (mins: null) until real details are supplied. Everything else is a clearly marked placeholder ("(placeholder)"):
-   names, travel times, who it suits and tours. kind: half (a half day) or day (a day trip); car: true when there is no
+   confirmed (mins: null) until real details are supplied. Everything else is dummy data (invented names, travel times, who it
+   suits and tours), marked as gap data with the pink marker when annotations are on. kind: half (a half day) or day (a day trip); car: true when there is no
    public transport, so a guided tour is offered instead; party: who it suits best (placeholder tags for ordering). */
 (function () {
   var ALLP = ['solo', 'couple', 'friends', 'family'];
@@ -71,9 +71,16 @@ window.cnFixtures = [
     { id: 'syd-the-rocks', title: 'The Rocks', kind: 'half', city: 'sydney', how: { mode: 'Walk', from: 'Circular Quay', mins: null }, party: ALLP }
   ];
   var L = 'ABCDEFGHIJKLMN', MODES = ['Train', 'Bus', 'Ferry', 'Light rail'], PARTY = [['family'], ['couple'], ['friends'], ['solo', 'couple'], ['family', 'friends'], ALLP];
-  // Placeholder half days and day trips, for each host city
+  // Dummy half days and day trips for each host city: invented names (asked for on 15 November 2026 in place of
+  // "Sydney half-day idea A (placeholder)" and so on), with the same ids so their made-up coordinates still apply
+  var NAMES = {
+    'sydney-half': ['Wattle Bay harbour walk', 'Kingsbury Street food market', 'Halyard Point lookout', 'Eastgate art laneways', 'Mariner\u2019s Wharf kayak hire', 'Blue Gum Creek bushwalk', 'Ferryman\u2019s Reserve picnic lawns', 'Copperleaf Gallery', 'Sandstone Steps coastal track', 'Brickworks night market', 'Ironbark Cove swim spot', 'Lantern Lane small bars', 'Banksia Gardens', 'Old Customs Wharf tour'],
+    'sydney-day': ['Mount Ellery escarpment walk', 'Cedar Valley wineries', 'Ridgeback lookouts and waterfalls', 'Hollow Creek farm gate trail', 'Pelican Bay coast trip', 'Stringybark Hills cellar doors'],
+    'newcastle-half': ['Harbourmaster\u2019s Walk', 'Foundry Lane makers market', 'Breakwall lighthouse stroll', 'Tidepool ocean baths', 'Signal Hill lookout', 'Rail Yard brewery tasting', 'Saltwater Point kayak hire', 'Ironside Gallery'],
+    'newcastle-day': ['Lake Merrin sailing day', 'Kurrajong Ridge vineyards', 'Dune Coast sandboarding', 'Eastvale tea rooms and orchards']
+  };
   function add(city, label, kind, n, car) {
-    for (var k = 0; k < n; k++) out.push({ id: city + '-' + kind + '-' + L[k].toLowerCase(), title: label + ' ' + L[k] + ' (placeholder)', kind: kind, city: city, placeholder: true,
+    for (var k = 0; k < n; k++) out.push({ id: city + '-' + kind + '-' + L[k].toLowerCase(), title: NAMES[city + '-' + kind][k], kind: kind, city: city, placeholder: true,
       car: !!(car && car(k)), how: car && car(k) ? { mode: 'Car', from: city === 'sydney' ? 'Sydney' : 'Newcastle', mins: 90 + k * 15 } : { mode: MODES[k % 4], from: city === 'sydney' ? 'Sydney CBD' : 'Newcastle', mins: kind === 'half' ? 15 + (k % 5) * 10 : 60 + (k % 3) * 30 },
       party: PARTY[k % PARTY.length] });
   }
@@ -84,23 +91,24 @@ window.cnFixtures = [
   window.cnFreeIdeas = out;
 })();
 
-/* PLACEHOLDER VENUES for Where to watch, until real ones are supplied. Clearly marked "(placeholder)": no real business
+/* DUMMY VENUES for Where to watch, until real ones are supplied (dummy names asked for on 15 November 2026, in place of
+   Pub A, Club A and so on; they are invented, any likeness to a real venue is chance): no real business
    is named. Spread across areas and three kinds (fan zones, pubs, clubs). Which matches each one screens follows a
    simple rule so the prototype has a realistic mix (fan zones show every match; pubs about two in three; clubs about
    one in two), not real programming. The rule is in cnWatchVenues below. */
 (function () {
   var V = [
-    ['Fan zone A (placeholder)', 'fan_zone', 'Sydney CBD', 'sydney'],
-    ['Fan zone B (placeholder)', 'fan_zone', 'Newcastle', 'newcastle'],
-    ['Pub A (placeholder)', 'pub', 'Inner West, Sydney', 'sydney'],
-    ['Pub B (placeholder)', 'pub', 'Eastern Suburbs, Sydney', 'sydney'],
-    ['Pub C (placeholder)', 'pub', 'Parramatta', 'sydney'],
-    ['Pub D (placeholder)', 'pub', 'North Shore, Sydney', 'sydney'],
-    ['Pub E (placeholder)', 'pub', 'Newcastle', 'newcastle'],
-    ['Club A (placeholder)', 'club', 'Western Sydney', 'sydney'],
-    ['Club B (placeholder)', 'club', 'Northern Beaches, Sydney', 'sydney'],
-    ['Club C (placeholder)', 'club', 'Lake Macquarie', 'newcastle'],
-    ['Club D (placeholder)', 'club', 'Wollongong', 'sydney']
+    ['Harbour Square Fan Zone', 'fan_zone', 'Sydney CBD', 'sydney'],
+    ['Foreshore Park Fan Zone', 'fan_zone', 'Newcastle', 'newcastle'],
+    ["The Tanner's Arms", 'pub', 'Inner West, Sydney', 'sydney'],
+    ['The Breakwater Hotel', 'pub', 'Eastern Suburbs, Sydney', 'sydney'],
+    ['The River Oak Hotel', 'pub', 'Parramatta', 'sydney'],
+    ['The Wattle Tree Inn', 'pub', 'North Shore, Sydney', 'sydney'],
+    ['The Coal Wharf Hotel', 'pub', 'Newcastle', 'newcastle'],
+    ['Westvale Rugby Club', 'club', 'Western Sydney', 'sydney'],
+    ['Headland Surf Life Saving Club', 'club', 'Northern Beaches, Sydney', 'sydney'],
+    ['Lakeside Leagues Club', 'club', 'Lake Macquarie', 'newcastle'],
+    ['Escarpment Bowls Club', 'club', 'Wollongong', 'sydney']
   ];
   var F = window.cnFixtures || [];
   window.cnWatchVenues = V.map(function (v, j) {
@@ -253,9 +261,9 @@ window.cnMatchTravel = (function () {
     var fromDefault = !start || start === v.default_place, from = fromDefault ? v.default_start : start;
     var cross = !fromDefault && startCity && startCity !== v.city, far = !fromDefault && !startCity;
     var legs = [];
-    if (!fromDefault) legs.push({ mode: 'walk', to: 'Nearest station (placeholder)', mins: far ? null : 6 + h(from) % 6 });
-    legs.push({ mode: 'train', to: 'Interchange (placeholder)', mins: far ? null : cross ? 140 + h(from) % 30 : fromDefault ? 18 : 12 + h(from) % 26, intercity: cross || far });
-    legs.push({ mode: 'event', to: venue + ' stop (placeholder)', mins: 8 });
+    if (!fromDefault) legs.push({ mode: 'walk', to: from + ' station', mins: far ? null : 6 + h(from) % 6 });
+    legs.push({ mode: 'train', to: v.city === 'newcastle' ? 'Hamlin Junction' : 'Kingsbury Junction', mins: far ? null : cross ? 140 + h(from) % 30 : fromDefault ? 18 : 12 + h(from) % 26, intercity: cross || far });
+    legs.push({ mode: 'event', to: venue + ' Halt', mins: 8 }); // dummy stop and interchange names
     legs.push({ mode: 'walk', to: venue, mins: v.walk_mins, gates: true });
     var total = legs.every(function (l) { return l.mins != null; }) ? legs.reduce(function (s, l) { return s + l.mins; }, 0) : null;
     return { venue: venue, from: from, fromDefault: fromDefault, mode: far ? 'Travel' : 'Train', legs: legs, mins: total, cross: !!cross, far: !!far, event_day: EVENT_DAY, placeholder: true };

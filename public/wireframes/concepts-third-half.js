@@ -392,7 +392,7 @@
      start, such as Central, until they say), then a button to a sheet with the schematic route and all the details. */
   var TRAVEL = window.cnMatchTravel || null;
   var TRAIN_ICO = '<svg class="tp-ico tp-go-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3.5" y="1.5" width="9" height="10" rx="2.5"/><path d="M3.5 7.5h9M6 14.5l1-3M10 14.5l-1-3"/><circle cx="6" cy="9.5" r=".6"/><circle cx="10" cy="9.5" r=".6"/></svg>';
-  var LEG = { walk: 'Walk', train: 'Train', event: 'Event service' };
+  var LEG = { walk: 'Walk', train: 'Train', event: 'Event shuttle' };
   function goRoute(f) { return TRAVEL && !f.a ? TRAVEL.route(f.v, basePlace(), baseCity()) : null; }
   function ampm(t) { t = ((t % 1440) + 1440) % 1440; var hh = Math.floor(t / 60), mm = t % 60; return ((hh % 12) || 12) + (mm ? ':' + (mm < 10 ? '0' : '') + mm : '') + (hh < 12 ? 'am' : 'pm'); }
   function lower(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
@@ -411,7 +411,7 @@
     var h = '<figure class="tp-go-map-f"><ol class="tp-go-map" aria-label="Route from ' + esc(r.from) + ' to ' + esc(r.venue) + '">';
     h += '<li class="tp-go-stop is-end"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n">' + esc(r.from) + '</span>' + (r.fromDefault ? '' : '<span class="tp-go-stop-s">Where you’re staying</span>') + '</li>';
     r.legs.forEach(function (l) {
-      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional travel (placeholder)' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + (l.mode === 'event' ? ' (placeholder)' : '') + ', ' + (l.mins ? 'about ' + mins(l.mins) : 'time to be confirmed') + '</span></li>';
+      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional coach' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + '' + ', ' + (l.mins ? 'about ' + mins(l.mins) : 'time to be confirmed') + '</span></li>';
       h += '<li class="tp-go-stop' + (l.gates ? ' is-end is-venue' : '') + '"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n' + (l.gates ? '' : ' provenance-gap') + '">' + esc(l.to) + '</span></li>';
     });
     return h + '</ol><figcaption class="tp-go-cap">Schematic, not to scale</figcaption></figure>';
@@ -607,7 +607,7 @@
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
       '<span class="tp-pc-type">' + esc(type) + '</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span>' +
-      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? A guided tour (placeholder) goes from ' + esc(i.how.from) + '.</span>' : '') + '</span></div>' +
+      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</span></div>' +
       addBtn(key, i.title + ' on ' + dl) + '</article>';
   }
   function freeBody(b) {
