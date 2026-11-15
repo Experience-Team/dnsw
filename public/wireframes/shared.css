@@ -3291,7 +3291,7 @@ body.cp-page code { font: inherit; }
 .tp-add { position: relative; z-index: 1; flex: none; min-width: 72px; min-height: 36px; padding: 0 var(--space-3); border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-bold); cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .tp-add::before { content: ""; position: absolute; inset: 0; }
 .tp-add[aria-pressed="true"] { background: var(--c-btn); color: var(--c-on-dark); }
-.tp-add[aria-pressed="true"] span[aria-hidden]::before { content: "\2713  "; }
+.tp-add > span[aria-hidden], .tp-pm-add-l { display: inline-flex; align-items: center; }
 .tp-add:active { transform: scale(.96); }
 .tp-add:focus-visible, .tp-chip:focus-visible, .tp-pc-main:focus-visible, .tp-pill:focus-visible, .tp-out:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 /* Day chips and the fork: single-choice pills */
@@ -3624,29 +3624,40 @@ body.cp-page code { font: inherit; }
 /* Gap fields in the product page show the contract's pink marker (the page-wide grey override is for the planner) */
 body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); }
 
-/* Concepts: Pick your team. The hero sits edge to edge under the bar: a grey image placeholder, a scrim for the text,
-   the title, the countdown to the opening match and the tournament dates. Greyscale and the system font, as every
-   wireframe; no Rugby World Cup theme. */
+/* Concepts: Pick your team. The hero (Figma 309:644): a header with the logo and the reserved host city lockup, the
+   event strip, then a picture, the headline, one line, the countdown, Pick your teams and a second picture.
+   Greyscale and the system font, as every wireframe; the high fidelity theme (themes/hifi.css) gives it the TTH look. */
 .tp-body { padding: 0 0 120px; } /* 120px clear at the bottom: the timeline bar (104px) never covers the last match */
 /* Reset prototype: a reviewer tool at the right of the top bar, quiet so it is not read as part of the design */
 .tp-reset { margin-left: auto; min-height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink-2); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .tp-reset:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-reset:hover { color: var(--c-ink); } }
-/* A short hero: a band of placeholder photo above the title, the dates and one countdown line, so the find field and
-   the fan are above the fold on a 390 x 844 phone */
-.tp-hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 200px; color: var(--c-on-dark); isolation: isolate; }
-.tp-hero-img { position: absolute; inset: 0; z-index: -1; background: var(--c-hero); }
-.tp-hero-img::after { align-items: flex-start; justify-content: flex-end; padding: var(--space-2) var(--space-3) 0 0; font-size: var(--fs-xs); color: rgba(255,255,255,.55); } /* the placeholder label sits in the corner, clear of the title */
-/* The scrim darkens only where the text sits, so the placeholder still reads as a photo above it */
-.tp-hero::before { content: ""; position: absolute; inset: 20% 0 0; z-index: -1; background: linear-gradient(to bottom, rgba(17,17,17,0), rgba(17,17,17,.82) 55%); pointer-events: none; }
-.tp-hero-content { padding: var(--space-6) var(--space-4) var(--space-4); }
-.tp-hero-title { display: flex; flex-direction: column; gap: 2px; font-weight: var(--fw-heavy); line-height: 1.05; text-wrap: balance; }
-.tp-hero-kicker { font-family: var(--font-label); font-size: var(--fs-md); font-weight: var(--fw-semi); letter-spacing: .01em; }
-.tp-hero-name { font-size: var(--fs-hero); letter-spacing: -.02em; }
-.tp-hero-sub { margin-top: var(--space-2); max-width: 22rem; font-size: var(--fs-lg); line-height: 1.4; color: var(--c-on-dark-2); text-wrap: balance; }
-.tp-hero-dates { margin-top: var(--space-3); font-size: var(--fs-md); font-weight: var(--fw-bold); }
-.tp-hero-tz { font-weight: 500; color: var(--c-on-dark-2); }
-.tp-count { margin-top: 2px; font-size: var(--fs-md); font-variant-numeric: tabular-nums; color: var(--c-on-dark-2); }
+/* Header: the logo on the left, the host city lockup's reserved space (incl. clear space) on the right */
+.tp-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-5); border-bottom: var(--bw-1) solid var(--c-line-ink); }
+.tp-logo { display: grid; place-items: center; flex: none; width: 72px; height: 54px; background: var(--color-placeholder); }
+.tp-logo::after { content: "Logo"; font-size: var(--fs-xs); color: var(--c-ink-2); }
+.tp-logo img { display: none; }
+.tp-lockup { flex: none; padding: var(--space-2); border: var(--bw-1) dashed var(--c-line-strong); }
+.tp-lockup-in { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 168px; height: 44px; padding: 0 var(--space-2); border: var(--bw-2) dashed var(--c-ink-3); text-align: center; white-space: nowrap; }
+.tp-lockup-t { font-family: var(--font-label); font-size: var(--fs-2xs); font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
+.tp-lockup-s { font-size: .625rem; line-height: 1.3; color: var(--c-ink-2); }
+/* Event strip: what and when, in caps */
+.tp-event { padding: var(--space-3) var(--space-5) var(--space-5); font-family: var(--font-label); font-size: var(--fs-sm); font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
+.tp-nowrap { white-space: nowrap; }
+.tp-hero { display: flex; flex-direction: column; gap: var(--space-5); } /* no bottom padding: the picker below opens with its own 32px */
+/* Pictures: full-width grey blocks with an image icon in the wireframe (182:102, as in Figma) */
+.tp-hero-img { display: grid; place-items: center; width: 100%; aspect-ratio: 182 / 102; }
+.tp-hero-img::after { content: none; }
+.tp-hero-icon { color: var(--c-ink-3); }
+.tp-hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); padding: 0 var(--space-5); }
+.tp-hero-title { font-size: 2.25rem; font-weight: 400; line-height: 1.18; text-transform: uppercase; text-wrap: balance; }
+.tp-hero-sub { font-size: var(--fs-lg-2); line-height: 1.4; }
+.tp-hero-meta { margin-top: calc(var(--space-2) * -1); font-size: var(--fs-md); line-height: 1.4; color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
+/* Pick your teams: down to the hand (the tailor handler). 36px, per the page's AA sizing, not Figma's 44px */
+.tp-hero-cta { min-height: 36px; padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font: inherit; font-size: var(--fs-lg); font-weight: var(--fw-bold); cursor: pointer; transition: transform var(--dur-micro) var(--ease-out); }
+.tp-hero-cta:active { transform: scale(.98); }
+.tp-hero-cta:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (hover: hover) { .tp-hero-cta:hover { background: #333; } }
 
 
 /* Pick your team: the fanned hand of team cards (concepts-teams.js). Each card turns about a pivot 460px below its
@@ -4021,6 +4032,24 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-rugby-line { margin-top: var(--space-1); }
 .tp-rugby-line[hidden] { display: none; }
 .tp-rugby-link { font-weight: var(--fw-semi); color: var(--c-ink); text-align: left; }
+.tp-rugby-why { display: block; margin-top: -4px; font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
+.tp-rugby-why[hidden] { display: none; }
+/* Show interstate matches too, in the open timeline: a 36px switch with one quiet line under it */
+.tp-tl-inter { margin-top: var(--space-3); }
+.tp-tl-inter[hidden] { display: none; }
+.tp-switch { min-height: 36px; padding: 0; color: var(--c-ink); font-size: var(--fs-base); }
+.tp-switch[aria-checked="true"] .cn-switch-track { background: var(--c-btn); }
+.tp-switch:focus-visible { outline-color: var(--c-focus); }
+/* An interstate match's sheet leads with where to watch it in NSW: one row per place, name and meta, then Add */
+.tp-pm-watch { margin-top: var(--space-4); }
+.tp-pm-watch .cn-pp-h { margin-top: 0; }
+.tp-pm-watch-list { list-style: none; margin: var(--space-2) 0 0; padding: 0; }
+.tp-pm-watch-i { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-pm-watch-i:last-child { border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tp-pm-watch-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tp-pm-watch-name { font-weight: var(--fw-semi); }
+.tp-pm-watch-meta { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-inter-help { margin-top: var(--space-1); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 .tp-tl-rugby { margin-top: var(--space-2); }
 
 /* Pick your team: All matches filter. In NSW only, then the NSW host cities in the same row (36px chips, AA) */
@@ -4077,6 +4106,11 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ico-fan { aspect-ratio: 36 / 33; }
 .tp-ico-cal { aspect-ratio: 28 / 32; height: 1em; vertical-align: -.15em; }
 .tp-ico path { fill: currentColor; } /* Figma artwork: one filled path each */
+/* Add, remove and added: outline circles in the text colour, before the verb. On a link, only the words underline */
+.tp-ico-circ { aspect-ratio: 1; height: 1.15em; margin-right: .35em; vertical-align: -.24em; }
+.tp-ico-circ :is(circle, path) { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tp-link:has(.tp-u) { text-decoration: none; }
+.tp-link .tp-u { text-decoration: underline; text-underline-offset: 3px; }
 .tp-tl-pick, .tp-pill { display: inline-flex; align-items: center; justify-content: center; }
 
 /* Pick your team: the indicative keyboard (a static picture, greyscale), over the bottom of the phone while search is open */
