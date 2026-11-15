@@ -226,3 +226,39 @@ window.cnVenues = [
   { id: 'sydney-football-stadium',  stadium: 'Sydney Football Stadium',  city: 'Sydney',     cityTraditional: 'Sydney | Gadigal',              state: 'New South Wales',   stateCode: 'NSW', nsw: true,  matches: { pool: 3, r16: 2, qf: 0, sf: 0, bronze: 0, final: 0 } },
   { id: 'north-queensland-stadium', stadium: 'North Queensland Stadium', city: 'Townsville', cityTraditional: 'Townsville | Gurambilbarra',    state: 'Queensland',        stateCode: 'QLD', nsw: false, matches: { pool: 4, r16: 0, qf: 0, sf: 0, bronze: 0, final: 0 } }
 ];
+
+/* Getting there and back on a match day: PLACEHOLDER transport details, clearly marked, until real ones are supplied.
+   Proposed contract field getting_there.event_day (gap, docs/product-data-contract.md §11), on the venue's record.
+   Every stop name, mode and time below is a placeholder except the stadium names and the start point, which is the
+   place the person said they are staying (or the venue's default start when they have not said).
+   route(venue, start, startCity) gives the legs from that start: a walk to the nearest station unless the start is the
+   default one, a train to an interchange, an event service to the stadium stop, and a walk to the gates. */
+window.cnMatchTravel = (function () {
+  var V = {
+    'Stadium Australia':       { city: 'sydney',    default_start: 'Central', default_place: 'Sydney CBD', walk_mins: 10 },
+    'Sydney Football Stadium': { city: 'sydney',    default_start: 'Central', default_place: 'Sydney CBD', walk_mins: 8 },
+    'Newcastle Stadium':       { city: 'newcastle', default_start: 'Newcastle Interchange', default_place: 'Newcastle', walk_mins: 10 }
+  };
+  var EVENT_DAY = {
+    placeholder: true,
+    extra_services: 'Extra services after full time',
+    return_note: 'Expect queues for up to 30 min after full time',
+    last_service: null,
+    ticket_includes_travel: null,
+    accessibility: 'Accessible drop-off and entry details to come'
+  };
+  function h(s) { var n = 0; for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) % 997; return n; }
+  function route(venue, start, startCity) {
+    var v = V[venue]; if (!v) return null;
+    var fromDefault = !start || start === v.default_place, from = fromDefault ? v.default_start : start;
+    var cross = !fromDefault && startCity && startCity !== v.city, far = !fromDefault && !startCity;
+    var legs = [];
+    if (!fromDefault) legs.push({ mode: 'walk', to: 'Nearest station (placeholder)', mins: far ? null : 6 + h(from) % 6 });
+    legs.push({ mode: 'train', to: 'Interchange (placeholder)', mins: far ? null : cross ? 140 + h(from) % 30 : fromDefault ? 18 : 12 + h(from) % 26, intercity: cross || far });
+    legs.push({ mode: 'event', to: venue + ' stop (placeholder)', mins: 8 });
+    legs.push({ mode: 'walk', to: venue, mins: v.walk_mins, gates: true });
+    var total = legs.every(function (l) { return l.mins != null; }) ? legs.reduce(function (s, l) { return s + l.mins; }, 0) : null;
+    return { venue: venue, from: from, fromDefault: fromDefault, mode: far ? 'Travel' : 'Train', legs: legs, mins: total, cross: !!cross, far: !!far, event_day: EVENT_DAY, placeholder: true };
+  }
+  return { venues: V, event_day: EVENT_DAY, route: route, placeholder: true };
+})();

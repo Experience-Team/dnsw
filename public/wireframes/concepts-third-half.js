@@ -363,9 +363,74 @@
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
       addBtn(id, p.title + ' on ' + f.d) + '</article>';
   }
+  /* Getting there and back on a match day (PLACEHOLDER transport details, proposed contract field
+     getting_there.event_day, gap). One line at the top of the day, from where they are staying (the venue's default
+     start, such as Central, until they say), then a button to a sheet with the schematic route and all the details. */
+  var TRAVEL = window.cnMatchTravel || null;
+  var TRAIN_ICO = '<svg class="tp-ico tp-go-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3.5" y="1.5" width="9" height="10" rx="2.5"/><path d="M3.5 7.5h9M6 14.5l1-3M10 14.5l-1-3"/><circle cx="6" cy="9.5" r=".6"/><circle cx="10" cy="9.5" r=".6"/></svg>';
+  var LEG = { walk: 'Walk', train: 'Train', event: 'Event service' };
+  function goRoute(f) { return TRAVEL && !f.a ? TRAVEL.route(f.v, basePlace(), baseCity()) : null; }
+  function ampm(t) { t = ((t % 1440) + 1440) % 1440; var hh = Math.floor(t / 60), mm = t % 60; return ((hh % 12) || 12) + (mm ? ':' + (mm < 10 ? '0' : '') + mm : '') + (hh < 12 ? 'am' : 'pm'); }
+  function lower(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
+  function goLine(r) { return r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed') + ' · ' + lower(r.event_day.extra_services); }
+  function goStay(r) { return r.fromDefault && !baseOf() ? '<p class="tp-go-from">From ' + esc(r.from) + '. <button type="button" class="tp-link" data-go-stay>Add where you’re staying</button> to see your own route.</p>' : ''; }
+  function goBlock(m) {
+    var f = m.f, r = goRoute(f); if (!r) return '';
+    var id = 'go:' + m.key;
+    MODAL[id] = { type: 'route', r: r, m: m };
+    return '<div class="tp-go"><p class="tp-go-line">' + TRAIN_ICO + '<span class="provenance-gap">' + esc(goLine(r)) + '</span><span class="tp-go-tag">Placeholder</span></p>' + goStay(r) +
+      '<button type="button" class="tp-go-btn" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></div>';
+  }
+  // The schematic route: stops on a line, each leg styled by how you travel it. Not to scale.
+  function goMap(r) {
+    var h = '<figure class="tp-go-map-f"><ol class="tp-go-map" aria-label="Route from ' + esc(r.from) + ' to ' + esc(r.venue) + '">';
+    h += '<li class="tp-go-stop is-end"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n">' + esc(r.from) + '</span>' + (r.fromDefault ? '' : '<span class="tp-go-stop-s">Where you’re staying</span>') + '</li>';
+    r.legs.forEach(function (l) {
+      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional travel (placeholder)' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + (l.mode === 'event' ? ' (placeholder)' : '') + ', ' + (l.mins ? 'about ' + mins(l.mins) : 'time to be confirmed') + '</span></li>';
+      h += '<li class="tp-go-stop' + (l.gates ? ' is-end is-venue' : '') + '"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n' + (l.gates ? '' : ' provenance-gap') + '">' + esc(l.to) + '</span></li>';
+    });
+    return h + '</ol><figcaption class="tp-go-cap">Schematic, not to scale</figcaption></figure>';
+  }
+  function pmRoute(id, x) {
+    var r = x.r, f = x.m.f, k = kickMins(f.k), e = r.event_day, h = '';
+    var leave = k !== null && r.mins ? ampm(k - 45 - r.mins) : null, ft = k !== null ? k + 100 : null;
+    h += '<div class="plan-modal-body tp-pm-go">';
+    h += '<p class="tp-pm-type">' + esc(f.d) + ' · Match day</p>';
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">Getting there and back</h2>';
+    h += '<p class="cn-pp-venue">' + esc(matchName(f)) + ', ' + esc(f.k || 'time to be confirmed') + ', ' + esc(f.v) + '</p>';
+    h += '<p class="tp-go-ph" role="note">Placeholder transport details. Real routes, times and services to come.</p>';
+    h += goMap(r) + goStay(r);
+    h += '<h3 class="cn-pp-h">Getting there</h3><dl class="pl-option-facts cn-pp-facts">' +
+      '<div><dt>From</dt><dd>' + esc(r.from) + (r.fromDefault && !baseOf() ? ' (until you add where you’re staying)' : '') + '</dd></div>' +
+      '<div><dt>Journey</dt><dd><span class="provenance-gap">' + esc(r.mode) + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed') + '</span></dd></div>' +
+      (leave ? '<div><dt>Leave by</dt><dd><span class="provenance-gap">About ' + leave + ', to be at the gates 45 min before kick-off</span></dd></div>' : '') +
+      '<div><dt>Your ticket</dt><dd><span class="provenance-gap">Whether match tickets include public transport is to be confirmed</span></dd></div></dl>';
+    h += '<h3 class="cn-pp-h">Getting back</h3><dl class="pl-option-facts cn-pp-facts">' +
+      (ft !== null ? '<div><dt>Full time</dt><dd><span class="provenance-gap">About ' + ampm(ft) + '</span></dd></div>' : '') +
+      '<div><dt>Services</dt><dd><span class="provenance-gap">' + esc(e.extra_services) + '. ' + esc(e.return_note) + '</span></dd></div>' +
+      '<div><dt>Last service</dt><dd><span class="provenance-gap">' + esc(e.last_service || 'Time to be confirmed') + '</span></dd></div>' +
+      (ft !== null && r.mins ? '<div><dt>Back by</dt><dd><span class="provenance-gap">About ' + ampm(ft + 30 + r.mins) + ' in ' + esc(r.from) + '</span></dd></div>' : '') + '</dl>';
+    // A long way back after an evening match: say so plainly, and that staying closer that night is an option
+    if ((r.cross || r.far) && (ft === null || ft + 30 + (r.mins || 0) >= 23 * 60)) h += '<p class="tp-go-p">That\u2019s a late, long trip back. Think about staying in ' + esc(CITY[cityOf(f.v)]) + ' the night of the match.</p>';
+    h += '<h3 class="cn-pp-h">Accessibility</h3><p class="tp-go-p provenance-gap">' + esc(e.accessibility) + '</p>';
+    h += '<div class="tp-pm-acts"><span class="tp-pm-full" role="link" aria-disabled="true">Learn more on Practical info</span><span class="tp-pm-soon">Not linked yet</span></div></div>';
+    return h;
+  }
+  // Add where you're staying: the Refine panel opens on the page, at the staying question
+  function openStaying() {
+    if (!tp.own()) return;
+    refineOpen = true;
+    if (tp.closeTimeline) tp.closeTimeline();
+    render(true);
+    var q = ask.querySelector('#tp-q-base') || ask;
+    var top = q.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
+    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+    var el = ask.querySelector('[data-base][aria-pressed="true"]') || ask.querySelector('[data-base]') || q;
+    setTimeout(function () { el.focus({ preventScroll: true }); }, 30);
+  }
   function matchBody(b, M) {
     var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
-    var groups = { before: [], after: [], near: [] }, h = '';
+    var groups = { before: [], after: [], near: [] }, h = goBlock(m);
     if (b.ms.length > 1) h += '<p class="tp-blk-note">Also in NSW that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return esc(matchName(x.f)) + ', ' + esc(x.f.k || 'time to be confirmed') + ', ' + esc(x.f.v); }).join('; ') + '.</p>';
     PRODUCTS.filter(function (p) { return p.distance_to_venue && p.distance_to_venue.venue_ref === f.v; }).forEach(function (p) {
       var o = hoursOn(p, wd);
@@ -857,9 +922,10 @@
     var x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
-    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : pmSpot(id, x);
+    var isRoute = x.type === 'route', asSheet = isMatch || isRoute;
+    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day travel' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
@@ -878,14 +944,14 @@
     }
     pm.classList.remove('tp-stack', 'is-stacked');
     pm.classList.toggle('is-match', isMatch);
-    pm.classList.toggle('is-sheet', isMatch);
-    pmScrim.hidden = !isMatch;
+    pm.classList.toggle('is-sheet', asSheet);
+    pmScrim.hidden = !asSheet;
     // Everything behind waits; remember what was already inert so closing puts it back as it was
     pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : x.sp.name) + ', page opened.');
+    tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
   function closePm() {
@@ -909,9 +975,12 @@
   phone.addEventListener('click', function (e) {
     var o = e.target.closest('[data-open]');
     if (o && !pm.contains(o)) { openPm(o.dataset.open, o); return; }
+    if (e.target.closest('[data-go-stay]') && !pm.contains(e.target)) { openStaying(); return; }
   });
   pm.addEventListener('click', function (e) {
     if (e.target.closest('[data-pm-close]')) { closePm(); return; }
+    // From the travel sheet: close it, then open Where are you staying? on the page
+    if (e.target.closest('[data-go-stay]')) { closePm(); openStaying(); return; }
     // An added item's sheet: Move to another day, or Remove
     var mvb = e.target.closest('[data-pm-move]');
     if (mvb && pmOpen && pmOpen.id.indexOf('item:') === 0) {

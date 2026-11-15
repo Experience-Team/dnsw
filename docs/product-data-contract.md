@@ -421,6 +421,27 @@ Ranked by how much they block the build.
 
 **`pickup_point`** — `gap`, `source: atdw_proposed`. Mirrors `extension.tour.meeting_point` (§6) for tour products specifically — for a tour record, populate one and treat the other as a read of it rather than authoring both independently; for every other type, `pickup_point` is the only place this information lives.
 
+**`event_day`** — `gap`, proposed 15 November 2026 for the Rugby World Cup planner (Pick your team prototype), not yet confirmed. Lives on a venue's record (a stadium), not on a product. How to get to and from the venue on an event day, as a route from a start point, for a one-line summary at the top of a match day and a sheet with a schematic route. Renders from placeholder fixtures only (`cnMatchTravel` in `public/wireframes/concepts-fixtures.js`). Empty state: no line and no button on the match day. Shape:
+
+```json
+"event_day": {
+  "routes": [{
+    "from": "string",
+    "mode": "string",
+    "minutes": "number | null",
+    "legs": [{ "mode": "walk | train | bus | light_rail | ferry | event_service", "to": "string", "minutes": "number | null" }]
+  }],
+  "default_from": "string",
+  "extra_services": "string | null",
+  "return_note": "string | null",
+  "last_service": "string | null",
+  "ticket_includes_travel": "boolean | null",
+  "accessibility": "string | null"
+}
+```
+
+`routes[]` and `legs[]`: `source: third_party` (Transport for NSW trip planning) or `derived`. `from` is the start point, the place the person said they are staying, or `default_from` (such as Central) until they say. `extra_services`, `return_note`, `last_service` and `ticket_includes_travel`: `source: third_party`, from the event's transport plan. `accessibility`: `source: atdw_proposed` or the venue. Open questions: who supplies the event transport plan, and whether routes are stored per start point or computed at render time.
+
 **`distance_from_cbd_km` is not a new field.** See the existing `distance_from_cbd` row in the Derived fields table (§7).
 
 ---
