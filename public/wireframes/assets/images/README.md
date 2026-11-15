@@ -20,22 +20,90 @@ keep the subject near the middle.
 **Names come from the titles.** A placeholder's name is its title in lower case, accents dropped, anything that isn't
 a letter or number turned into a hyphen. If a title in the fixtures changes, its file name changes with it.
 
-## Aliases: pictures saved under their own name
+## Aliases: which picture each placeholder shows
 
-A picture can keep its own file name if it's mapped to a placeholder in `IMG_ALIAS`, near the top of
-`public/wireframes/pv-device.js` (one line each: placeholder name, then file name without the extension).
+`IMG_ALIAS`, near the top of `public/wireframes/pv-device.js`, maps a placeholder name to a picture file (no
+extension). It covers pictures saved under their own name, and, until the right picture exists, the **closest match**
+from what is in this folder. Adding a file named after the placeholder (for example `bathers-way.webp`) and deleting its
+line in `IMG_ALIAS` shows the real picture instead.
 
-| File | Shows for | Where |
+**Files used as stand-ins** (web-sized copies; the uploads they come from are kept as they are):
+
+| File | From | Shows |
 |---|---|---|
-| `golden-barley.webp` | `golden-barley-hotel` | Pick your team, Where to watch: the Golden Barley Hotel card and its sheet |
-| `lord-nelson.webp` | `lord-nelson-brewery-hotel` | Where to watch: the Lord Nelson Brewery Hotel card and its sheet |
-| `marickville-tavern.webp` | `marrickville-tavern` | Where to watch: the Marrickville Tavern card and its sheet |
-| `village.jpg` | `rugby-village-foreshore-park` | Where to watch: the Rugby village, Foreshore Park card and its sheet |
+| `city-dining.webp` | `ivy-rooftop.jpg` | A busy city courtyard bar and restaurant |
+| `coast-headland.webp` | `kathleen-banks-0h2KOlfkGck-unsplash.jpg` (Unsplash) | A forested headland and surf at sunset |
+| `coast-aerial.webp` | `NSW hero image.png` | Turquoise water and reef from above |
+| `river-national-park.webp` | `1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW.webp` (DNSW) | Kayaking a river in Wollemi National Park |
+| `village.jpg` | | An outdoor big-screen crowd at night |
+| `hero-stadium.webp` | Figma | A full stadium under lights |
 
-The places are real; which matches each one screens, and the fan zone and village sites and dates, are invented for the
-prototype and not confirmed with anyone.
+| Placeholder | Shows | |
+|---|---|---|
+| `golden-barley-hotel` | `golden-barley` | the place itself |
+| `lord-nelson-brewery-hotel` | `lord-nelson` | the place itself |
+| `marrickville-tavern` | `marickville-tavern` | the place itself |
+| `rugby-village-foreshore-park` | `village` | the place itself |
+| `darling-harbour-fan-zone` | `village` | stand-in, closest match |
+| `armory-wharf-cafe` | `city-dining` | stand-in, closest match |
+| `bourke-street-bakery` | `city-dining` | stand-in, closest match |
+| `darby-street-cafes` | `city-dining` | stand-in, closest match |
+| `entertainment-quarter` | `city-dining` | stand-in, closest match |
+| `waterview-in-bicentennial-park` | `city-dining` | stand-in, closest match |
+| `white-rabbit-gallery` | `city-dining` | stand-in, closest match |
+| `beaumont-street-bars` | `marickville-tavern` | stand-in, closest match |
+| `bathers-way` | `coast-headland` | stand-in, closest match |
+| `brickpit-ring-walk` | `river-national-park` | stand-in, closest match |
+| `blue-mountains-day-out` | `river-national-park` | stand-in, closest match |
+| `barrington-tops-overnight` | `river-national-park` | stand-in, closest match |
+| `lake-macquarie-by-bike` | `river-national-park` | stand-in, closest match |
+| `royal-national-park-coast-walk` | `coast-headland` | stand-in, closest match |
+| `port-stephens-bay-day` | `coast-aerial` | stand-in, closest match |
+| `south-coast-3-nights` | `coast-headland` | stand-in, closest match |
+| `hunter-valley-2-nights` | `city-dining` | stand-in, closest match |
+| `echo-point-lookout` | `river-national-park` | stand-in, closest match |
+| `prince-henry-cliff-walk` | `river-national-park` | stand-in, closest match |
+| `leura-mall-cafes` | `city-dining` | stand-in, closest match |
+| `the-coast-track` | `coast-headland` | stand-in, closest match |
+| `bundeena-village-cafes` | `city-dining` | stand-in, closest match |
+| `nelson-bay-dolphin-cruise` | `coast-aerial` | stand-in, closest match |
+| `stockton-bight-sand-dunes-tour` | `coast-aerial` | stand-in, closest match |
+| `shoal-bay-beach` | `coast-aerial` | stand-in, closest match |
+| `warners-bay-bike-hire` | `river-national-park` | stand-in, closest match |
+| `speers-point-park` | `river-national-park` | stand-in, closest match |
+| `pokolbin-cellar-doors` | `city-dining` | stand-in, closest match |
+| `hunter-valley-balloon-flight` | `river-national-park` | stand-in, closest match |
+| `hunter-valley-gardens` | `river-national-park` | stand-in, closest match |
+| `kiama-blowhole` | `coast-headland` | stand-in, closest match |
+| `kiama-coast-walk` | `coast-headland` | stand-in, closest match |
+| `jervis-bay-whale-watching-cruise` | `coast-aerial` | stand-in, closest match |
+| `barrington-tops-rainforest-walk` | `river-national-park` | stand-in, closest match |
+| `gloucester-country-pub` | `lord-nelson` | stand-in, closest match |
+| `centennial-parklands` | `river-national-park` | stand-in, closest match |
+| `fan-zone` | `village` | stand-in, closest match |
+| `newcastle-ocean-baths` | `coast-aerial` | stand-in, closest match |
+| `nz-v-australia` | `hero-stadium` | the place itself |
+| `patonga-beach` | `coast-headland` | stand-in, closest match |
 
-Use hyphens, not spaces, in file names (spaces break web addresses), and `.jpg` rather than `.jpeg`.
+**Kinds of picture still missing** (each placeholder above marked "stand-in" needs its own):
+
+- **Cafés, bakeries and food:** Armory Wharf Cafe, Bourke Street Bakery, Darby Street cafés, Leura Mall cafés,
+  Bundeena village cafés, Waterview in Bicentennial Park. All show the city courtyard bar.
+- **Culture and indoor venues:** White Rabbit Gallery, Entertainment Quarter.
+- **Small bars and country pubs:** Beaumont Street bars (shows Marrickville Tavern), Gloucester country pub (shows the
+  Lord Nelson).
+- **Wine country:** Hunter Valley, Pokolbin cellar doors, Hunter Valley Gardens, balloon flight. Shown with the bar or
+  the national park river.
+- **Mountains, lookouts and bush walks:** Blue Mountains, Echo Point, Prince Henry Cliff Walk, Barrington Tops, Brickpit
+  Ring Walk. All show the Wollemi river.
+- **Lakes, parks and cycling:** Lake Macquarie, Warners Bay, Speers Point Park, Centennial Parklands. Also the river.
+- **Beaches, bays and cruises:** Port Stephens, Nelson Bay dolphins, Jervis Bay whales, Shoal Bay, Stockton dunes,
+  Newcastle Ocean Baths, Patonga Beach. Shown with the aerial reef or the headland.
+- **Coastal walks:** Bathers Way, the Coast Track, Kiama. Shown with the headland, which is close.
+- **A daytime fan zone:** the Darling Harbour fan zone shares the village's night-time screening.
+
+**Rights:** `ivy-rooftop.jpg` and the pub pictures show real businesses, and the stand-ins put one venue's picture on
+another's listing. Fine for a prototype; check the source and licence of each upload before anything is shared outside.
 
 The tables below list each placeholder's name; a file with that name (`.webp` or `.jpg`) needs no alias.
 
