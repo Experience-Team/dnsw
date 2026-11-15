@@ -35,6 +35,8 @@
     // Add, remove, and added (an add toggle that is on: pressing it again removes): outline circles, in the text colour
     add: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg>',
     remove: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M4.75 8h6.5"/></svg>',
+    // A ticket (as on the timeline's ticket marker), outline, in the text colour
+    ticket: '<svg class="tp-ico tp-ico-circ tp-ico-ticket" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z"/></svg>',
     added: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M5 8.2l2 2 4-4.2"/></svg>'
   };
   var body = document.querySelector('#tp-phone .cn-body');

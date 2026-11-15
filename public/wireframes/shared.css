@@ -3254,6 +3254,7 @@ body.cp-page code { font: inherit; }
 /* Pick your team: Where to watch, Suits your 3rd half, the one question. Sections under All matches. */
 .tp-sec { position: relative; margin: var(--space-6) var(--space-4) 0; padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
 .tp-sec-title { font-size: var(--fs-xl); font-weight: var(--fw-heavy); letter-spacing: -.01em; }
+.tp-sec-title:focus { outline: none; } /* focused by script after a change (I have tickets), not a control */
 .tp-sec-note { position: relative; margin-top: var(--space-1); font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
 .tp-empty { margin-top: var(--space-3); padding: var(--space-3); border: var(--bw-2) dashed var(--c-line); border-radius: var(--radius-md); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 /* Where to watch: one row of portrait cards, one per screening, in date order. The row runs off the phone's right edge
@@ -3274,6 +3275,11 @@ body.cp-page code { font: inherit; }
 .tp-ws-meta { font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink-2); }
 .tp-ws .tp-add { align-self: flex-start; margin-top: var(--space-3); min-width: 72px; min-height: 32px; font-size: var(--fs-xs); }
 .tp-ws .tp-add::before { inset: 0; }
+/* Add and I have tickets side by side (no team picked, NSW match); they wrap if a label runs long */
+.tp-ws-acts { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.tp-ws-acts .tp-add { margin-top: 0; min-width: 0; padding: 0 10px; }
+.tp-ws-tk { padding: 0 var(--space-2); }
+.tp-ico-ticket { aspect-ratio: 1; }
 /* Where to watch supports the plan, so its heading steps down; Suits your 3rd half leads */
 #tp-watch .tp-sec-title { font-size: 1.0625rem; }
 #tp-third .tp-sec-title { font-size: 1.375rem; }

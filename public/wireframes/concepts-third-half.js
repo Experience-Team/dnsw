@@ -91,7 +91,11 @@
       ms = on.length ? on : ms.filter(function (m) { return ms[0] && m.f.d === ms[0].f.d; });
     }
     if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.' : watchNoteText;
-    if (!ms.length) {
+    // Every match of theirs with a screening has a ticket: they will be at the ground, so say so rather than "none"
+    var atGround = !ms.length && tp.userMatches().some(function (m) { return hasTicket(m) && spotsFor(m).length; });
+    if (!ms.length && atGround) {
+      h = '<p class="tp-empty">You have tickets for your matches, so you\u2019ll be at the ground: no screenings to show. Pick your team to see where to watch their other matches.</p>';
+    } else if (!ms.length) {
       h = '<p class="tp-empty">' + (s ? 'None of your matches in your days in NSW (' + esc(tp.isoRange(trip().from, trip().to)) + ') has a screening listed yet.'
         : 'None of your matches has a screening listed yet.') + '</p>';
     }
@@ -111,7 +115,11 @@
           '<span class="tp-ws-place provenance-gap"><span class="tp-ws-name">' + esc(sp.name) + '</span>' +
           '<span class="tp-ws-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' · ' + esc(sp.place) + '</span>' +
           (open ? '<span class="tp-ws-meta">' + esc(open) + '</span>' : '') + '</span></button>' +
-          addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d) + '</li>';
+          // Before any team is picked, an NSW match also offers I have tickets: it marks the ticket and puts the match on
+          // the timeline, as the match page's checkbox does (and its screenings then leave this list: they will be there)
+          (first && !f.a && f.t ? '<span class="tp-ws-acts">' + addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d) +
+            '<button type="button" class="tp-add tp-ws-tk" data-tk="' + esc(m.key) + '">' + window.tpIcons.ticket + '<span aria-hidden="true">I have tickets</span><span class="visually-hidden">I have tickets for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button></span>'
+            : addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d)) + '</li>';
       });
     });
     if (cards) h += '<ul class="tp-wm-spots" aria-label="Screenings, scroll sideways for more">' + cards + '</ul>';
@@ -827,6 +835,17 @@
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
     if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say('Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
+    var tk = e.target.closest('[data-tk]');
+    if (tk) {
+      var tm = tp.match(tk.dataset.tk); if (!tm) return;
+      var tf = tm.f, mid = matchId(tm.key);
+      tp.flyToBar(tk);
+      if (!added(mid)) tp.addItem({ id: mid, kind: 'match', key: tm.key, title: matchName(tf), kindLabel: 'Match', day: tf.d, place: tf.v + ', ' + tf.p });
+      tp.setTicket(tm.tkey, true);
+      render(true, '#tp-watch-title');
+      tp.say('Ticket marked for ' + matchName(tf) + ', ' + tf.d + '. It is on your timeline. You\u2019ll be at the ground, so its screenings are no longer listed.');
+      return;
+    }
     var b = e.target.closest('.tp-add'); if (!b || pm.contains(b)) return;
     var it = ITEMS[b.dataset.item]; if (!it) return;
     if (added(it.id)) {
