@@ -106,8 +106,6 @@
     if (rec && rec.view === 'grid') state.view = 'grid';
     if (rec && rec.nswMark === true) state.nswMark = true;
     // Matches they said No to on Going to this match? (the question is not asked again for those)
-    // Your days, in order as a map or a list (the section's switch); unset follows reduced motion
-    if (rec && (rec.dayView === 'map' || rec.dayView === 'list')) state.dayView = rec.dayView;
     if (rec && Array.isArray(rec.notGoing)) state.notGoing = rec.notGoing.filter(function (x) { return typeof x === 'string'; });
     if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
     // The trip: your days (from, to), where you are staying (base) and who is coming (party), each optional. Saved before
@@ -129,7 +127,7 @@
   function notesOnly() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
   // Picks, tickets or the screen changed: the timeline follows, then the annotations
   var tlReady = false;
-  function changed() { if (tlReady) { tlUpdate(); syncBar(); markRows(); } if (tlClearBtn) tlClearSync(); notesOnly(); }
+  function changed() { if (window.tpPicker && window.tpPicker.slotSaved) window.tpPicker.slotSaved(); if (tlReady) { tlUpdate(); syncBar(); markRows(); } if (tlClearBtn) tlClearSync(); notesOnly(); }
   // All matches: a row whose match was added on its own says so
   function markRows() {
     var on = {};
@@ -1546,6 +1544,16 @@
         tlDays.textContent = (!shown.length ? 'Your days' : inDays === shown.length ? 'All in your days' : inDays + ' in your days') + ' \u00b7 ' + isoRange(trip.from, trip.to);
       } else tlDays.textContent = own() && shown.length ? tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : 'No matches yet';
     }
+    // Saved, not placed yet: what was added from the map before their days were set, waiting for a free day
+    var tlWait = document.getElementById('tp-tl-wait');
+    if (tlWait) {
+      var wl = state.added.filter(function (it) { return it.unplaced; });
+      tlWait.hidden = !wl.length;
+      var wh = wl.length ? '<h4 class="tp-tl-wait-h" id="tp-tl-wait-h">Saved, not placed yet</h4><ul>' + wl.map(function (it) {
+        return '<li><span class="tp-tl-wait-t">' + esc(it.title) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
+      }).join('') + '</ul><p class="tp-tl-wait-n">' + (confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Each goes into a free day once you set your days.') + '</p>' : '';
+      if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
+    }
     // A clash marks its day on the strip
     var clashDays = {};
     Object.keys(tlClash).forEach(function (id) {
@@ -1861,6 +1869,14 @@
      the cross, Escape, the strip above or dragging it down keeps everything; focus goes back to Clear timeline. */
   var tlCC = document.getElementById('tp-cc');
   function tlCount(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  document.getElementById('tp-tl-wait').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-wait-rm]'); if (!b) return;
+    var it = state.added.filter(function (x) { return x.id === b.dataset.waitRm; })[0];
+    removeItem(b.dataset.waitRm);
+    if (it) say(it.title + ' removed. ' + state.added.length + ' added.');
+    var next = document.querySelector('#tp-tl-wait [data-wait-rm]');
+    if (next) next.focus({ preventScroll: true }); else { if (!tlCanvas.hasAttribute('tabindex')) tlCanvas.tabIndex = -1; tlCanvas.focus({ preventScroll: true }); }
+  });
   tlClearBtn.addEventListener('click', function () {
     var by = {}; state.added.forEach(function (x) { var k = x.kind === 'product' ? 'place' : x.kind; by[k] = (by[k] || 0) + 1; });
     var gone = tlClearGone(), off = [], keep = [];

@@ -1061,14 +1061,55 @@
   function productOf(it) { var pid = it.id.split(':')[1]; return PRODUCTS.filter(function (p) { return p.id === pid; })[0] || null; }
   function spotOf(it) { return SPOTS[+it.id.split(':')[1]] || null; }
   function openOn(it, d) {
+    if (it.kind === 'poi') { var pp = poiOf(it); return !pp || pp.open.indexOf(weekdayOf(d)) > -1; }
     if (it.kind === 'product') { var p = productOf(it); return !p || !p.availability || p.availability.kind !== 'opening_hours' ? true : !!hoursOn(p, weekdayOf(d)); }
     if (it.kind === 'place') { var sp = spotOf(it); return !sp || !sp.open_from ? true : d >= tp.isoDay(sp.open_from) && d <= tp.isoDay(sp.open_to); }
     return true;
   }
-  tp.itemClosed = function (it, d) { return (it.kind === 'product' || it.kind === 'place') && !openOn(it, d); };
+  tp.itemClosed = function (it, d) { return (it.kind === 'product' || it.kind === 'place' || it.kind === 'poi') && !it.unplaced && !openOn(it, d); };
+
+  /* ---------- Saved, not placed yet ----------
+     A place added from the map before their days are set has no day yet (day '', unplaced). It waits in a "Saved, not
+     placed yet" group in the plan and the timeline, and is slotted once days are set, without asking: near a stadium,
+     that stadium's match day if it is in their days; otherwise the first free day with room (none or one idea so far);
+     always a day it is open. If nothing fits it stays in the group, saying so. Agreed 15 November 2026. */
+  var POI = window.cnMapPoi || null;
+  function poiOf(it) { return POI && it.poi ? POI.pois.filter(function (p) { return p.id === it.poi; })[0] || null : null; }
+  tp.poiItem = function (p) { return { id: 'poi:' + p.id, kind: 'poi', poi: p.id, title: p.title, kindLabel: p.cat, place: p.area, day: '', unplaced: true }; };
+  tp.unplaced = function () { return state.added.filter(function (it) { return it.unplaced; }); };
+  function slotDay(it, s) {
+    var p = poiOf(it), open = function (d) { return openOn(it, d); };
+    var bs = blocks(model()), mine = (tp.own() ? tp.userMatches() : []).filter(function (m) { return !m.f.a && m.day >= s.a && m.day <= s.z; });
+    if (p && p.near !== 'village') {
+      var md = mine.filter(function (m) { return m.f.v === p.near && open(m.day); })[0];
+      if (md) return md.day;
+    }
+    var free = [];
+    bs.forEach(function (b) { if (b.kind === 'free') { for (var d = b.a; d <= b.z; d++) free.push(d); } else if (b.kind === 'watch') free.push(b.day); });
+    free.sort(function (a, b) { return a - b; });
+    for (var i = 0; i < free.length; i++) if (open(free[i]) && !dayFilled(free[i]) && dayItems(free[i]).length < 2) return free[i];
+    return null;
+  }
+  tp.slotSaved = function () {
+    var s = stay(), out = [];
+    state.added.forEach(function (it) {
+      if (!it.unplaced) return;
+      var d = s ? slotDay(it, s) : null;
+      it.nofit = !!s && d === null;
+      if (d === null) return;
+      it.day = dayLabel(d); delete it.unplaced; delete it.nofit; out.push(it);
+    });
+    if (out.length) {
+      tp.save();
+      // Said after whatever else the change says (Your days: ...), so it is not talked over
+      var msg = out.length === 1 ? 'Saved, now placed: ' + out[0].title + ' on ' + out[0].day + '.' : out.length + ' saved places placed into your days: ' + tp.list(out.map(function (x) { return x.title + ' on ' + x.day; })) + '.';
+      setTimeout(function () { tp.say(msg); }, 1500);
+    }
+    return out;
+  };
   function itemMoves(it) {
     if (it.kind === 'trip') return tripMoves(it.id).map(function (m) { return { day: m.start, label: m.label, trip: true }; });
-    if (it.kind !== 'product' && it.kind !== 'place') return [];
+    if ((it.kind !== 'product' && it.kind !== 'place' && it.kind !== 'poi') || it.unplaced) return [];
     var cur = tp.dayOf(it.day), s = stay(), a = s ? Math.max(0, s.a) : 0, z = s ? Math.min(43, s.z) : 43, out = []; // the axis runs 1 Oct to 13 Nov
     var mine = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mine[m.day] = true; });
     for (var d = a; d <= z; d++) if (d !== cur && openOn(it, d)) out.push(d);
@@ -1642,7 +1683,7 @@
         lines.push('- ' + f.d + ', ' + (f.k || 'time to be confirmed') + ': ' + matchName(f) + ', ' + f.v + ', ' + f.p + (f.a ? ' (interstate)' : '') + (hasTicket(m) ? ' (ticket)' : ''));
       });
     }
-    var things = state.added.filter(function (it) { return it.kind !== 'match'; });
+    var things = state.added.filter(function (it) { return it.kind !== 'match' && !it.unplaced; }), waiting = tp.unplaced();
     if (things.length) {
       lines.push('', 'Added:');
       things.forEach(function (it) {
@@ -1650,8 +1691,12 @@
         if (it.kind === 'trip') { var c = tp.clashes()[it.id]; lines.push('- ' + (it.nights ? spanLabel(it.start, it.start + it.nights) : it.day) + ': ' + it.title + (it.nights ? ' (' + it.nights + (it.nights === 1 ? ' night' : ' nights') + ')' : ' (day trip)') + (c ? ' [clashes with ' + c.map(function (x) { return x.name + ', ' + x.day; }).join('; ') + ']' : '')); return; }
         lines.push('- ' + it.day + ': ' + it.title + (it.place ? ', ' + it.place : '') + (it.matchName ? ' (for ' + it.matchName + ')' : ''));
       });
-      lines.push('', 'Hours, prices and screenings are indicative in this prototype, not confirmed.');
     }
+    if (waiting.length) {
+      lines.push('', 'Saved, not placed yet' + (stay() ? ' (no free day fits these yet):' : ' (they go into free days once you set your days):'));
+      waiting.forEach(function (it) { lines.push('- ' + it.title + (it.place ? ', ' + it.place : '')); });
+    }
+    if (things.length || waiting.length) lines.push('', 'Hours, prices and screenings are indicative in this prototype, not confirmed.');
     return lines.join('\n');
   }
   function renderPlan() {
@@ -1678,7 +1723,9 @@
     var cls = tp.clashes(), clash = state.added.filter(function (it) { return cls[it.id]; }).map(function (it) {
       return '<p class="tp-plan-clash">' + esc(it.title) + ' (' + esc(it.when || it.day) + '): ' + 'clashes with ' + esc(tp.list(cls[it.id].map(function (c) { return c.name + ', ' + c.day; }))) + '</p>';
     }).join('');
-    planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' + (clash ? clash + '<p class="tp-plan-clash-how">Open your timeline to move or remove it.</p>' : '') +
+    // Saved from the map before their days were set: a group of its own until a free day takes them
+    var wait = tp.unplaced(), waitH = wait.length ? '<div class="tp-plan-wait"><h4 class="tp-plan-wait-h">Saved, not placed yet</h4><ul>' + wait.map(function (it) { return '<li>' + esc(it.title) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</li>'; }).join('') + '</ul><p class="tp-plan-wait-n">' + (stay() ? 'No free day fits ' + (wait.length === 1 ? 'this' : 'these') + ' yet: your free days are full, or ' + (wait.length === 1 ? 'it is' : 'they are') + ' closed on them. Change your days, or remove ' + (wait.length === 1 ? 'it' : 'them') + ' in your timeline.' : 'Each goes into a free day once you set your days.') + '</p></div>' : '';
+    planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' + waitH + (clash ? clash + '<p class="tp-plan-clash-how">Open your timeline to move or remove it.</p>' : '') +
       '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="open">Open your timeline</button>' +
       '<button type="button" class="tp-plan-btn" data-plan="copy">' + (copied ? 'Copied' : 'Copy plan') + '</button></div>' +
       '<p class="tp-plan-note">Copies as plain text for your notes or a message. Nothing leaves this device unless you paste it.</p>';
@@ -1703,7 +1750,7 @@
   /* ---------- Save & share: a second sheet stacked over the open timeline ----------
      The options come from the Share/edit itinerary prototype's sheet; what they keep or send is this plan. */
   var ssBtn = document.getElementById('tp-tl-share'), ss = document.getElementById('tp-ss');
-  var KIND = { screening: 'Screening', place: 'Place', product: 'Thing to do' };
+  var KIND = { screening: 'Screening', place: 'Place', product: 'Thing to do', poi: 'Place' };
   // One row per match or thing added, in date order: for the table, the spreadsheet and the route
   function planRows() {
     var rows = [];
@@ -1714,6 +1761,7 @@
     });
     state.added.forEach(function (it) {
       if (it.kind === 'match') return;
+      if (it.unplaced) { rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: it.kindLabel || 'Place', where: it.place || '', place: it.place || '', note: 'Saved from the map' }); return; }
       var at = it.start != null ? it.start : (function () { try { return tp.dayOf(it.day); } catch (e) { return 99; } })();
       var trip = it.kind === 'trip', c = trip && tp.clashes()[it.id];
       rows.push({ at: at, date: trip && it.nights ? spanLabel(it.start, it.start + it.nights) : it.day, time: '', what: it.title,
