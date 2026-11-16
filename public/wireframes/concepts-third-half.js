@@ -608,16 +608,37 @@
     if (i.car) return 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from + ' (no public transport)';
     return i.how.mode + ' from ' + i.how.from + ' · ' + (i.how.mins ? mins(i.how.mins) + ' by public transport' : 'time to be confirmed');
   }
-  function ideaCard(i, d) {
+  // In the timeline's ideas sheet (open) the card's main part is a button that shows the idea's details in the sheet
+  function ideaCard(i, d, open) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), type = (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city];
     var km = ideaKm(i), why = 'Fits ' + dl + (km !== null ? ' · ' + kmLine(km) : '') + ' · ' + howLine(i);
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
-    return '<article class="tp-pc tp-idea" data-id="' + esc(key) + '"><div class="tp-pc-main">' +
+    return '<article class="tp-pc tp-idea" data-id="' + esc(key) + '">' + (open ? '<button type="button" class="tp-pc-main" data-idea-open="' + esc(key) + '">' : '<div class="tp-pc-main">') +
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
       '<span class="tp-pc-type">' + esc(type) + '</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span>' +
-      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</span></div>' +
+      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</span>' + (open ? '</button>' : '</div>') +
       addBtn(key, i.title + ' on ' + dl) + '</article>';
+  }
+  /* An idea's details, in place of the list in the ideas sheet: Back to [day] ideas, a placeholder image, title and
+     type, why it fits that day, how to get there and how long it takes, then opening hours, price and a short
+     description. Ideas are fixture-only (cnFreeIdeas has no hours, price or description), so those three are
+     bracketed placeholders, pink with Annotations on. Add to your timeline and View full page (not linked yet). */
+  function ideaDetail(i, d) {
+    var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), km = ideaKm(i);
+    ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
+    var back = '<svg class="tp-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg>';
+    var h = '<button type="button" class="tp-link tp-ico-link tp-idea-back" data-idea-back>' + back + 'Back to ' + esc(dl) + ' ideas</button>';
+    h += '<div class="plan-modal-img ph-img tp-idea-img"' + imgKey(i.title) + ' role="img" aria-label="Placeholder image of ' + esc(i.title) + '"></div>';
+    h += '<p class="tp-pm-type">' + esc((i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city]) + '</p>';
+    h += '<h2 class="cn-pp-title' + (i.placeholder ? ' provenance-gap' : '') + '" id="tp-pm-title" tabindex="-1">' + esc(i.title) + '</h2>';
+    h += '<p class="tp-pm-why provenance-gap">Fits ' + esc(dl) + (i.kind === 'half' ? ': it takes about half the day' : ': it takes the whole day') + (km !== null ? ', ' + esc(kmLine(km)) : '') + '.</p>';
+    h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
+      '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + esc(howLine(i)) + '</span>' + (i.car ? '<br><span class="provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</dd></div>' +
+      '<div><dt>Opening hours</dt><dd><span class="provenance-gap">[Opening hours to come]</span></dd></div>' +
+      '<div><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div></dl>';
+    h += '<p class="cn-pp-text provenance-gap tp-idea-desc">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
+    return h + pmActions(key, i.title + ' on ' + dl);
   }
   function freeBody(b) {
     var h = '', n = b.z - b.a + 1;
@@ -682,6 +703,7 @@
      whose ideas the page has moved on to. Under the list, See all ideas for this day stands for the full page (not
      linked yet). What was added lands on the axis once the sheet closes. */
   var tlIdeas = document.getElementById('tp-tl-ideas'), tlIdeasDay = null, tlIdeasHold = null, tlIdeasHome = tlIdeas && tlIdeas.parentNode, tlIdeasNext = tlIdeas && tlIdeas.nextSibling, tlIdeasAdded = [];
+  var tlIdeasDetail = null, tlIdeasScroll = 0, tlIdeasOrder = {}; // the idea whose details are shown ({ id, d, key }), and the list's scroll to go back to
   function freeInfo(d) { return FREEINFO.filter(function (x) { return x.d === d; })[0]; }
   function renderTlIdeas() {
     if (window.tpFreeApi) window.tpFreeApi.set(FREEINFO.map(function (x) { return { d: x.d, label: x.label, filled: x.filled, count: x.count }; }));
@@ -693,16 +715,31 @@
     if (tlIdeasHold === fd.d && tlIdeas.offsetHeight) tlIdeas.style.minHeight = Math.max(parseFloat(tlIdeas.style.minHeight) || 0, tlIdeas.offsetHeight) + 'px';
     else tlIdeas.style.minHeight = '';
     tlIdeasHold = fd.d;
+    // An idea's details, in place of the list (Back returns to it)
+    var det = tlIdeasDetail && tlIdeasDetail.d === fd.d ? IDEAS.filter(function (x) { return x.id === tlIdeasDetail.id; })[0] : null;
+    if (det) { tlIdeas.style.minHeight = ''; tlIdeasHold = null; tlIdeas.innerHTML = ideaDetail(det, fd.d); return; }
+    tlIdeasDetail = null;
+    // Ideas added to this day stay in the list, first, marked Added (tap again to take one off); anything else on the
+    // day (a place saved from the map, say) is named in one line
+    var kept = IDEAS.filter(function (i) { return fd.its.some(function (x) { return x.id === 'i:' + i.id; }); });
+    var other = fd.its.filter(function (x) { return !kept.some(function (i) { return x.id === 'i:' + i.id; }); });
     var line = fd.filled ? 'Your day is full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
     var h = '<h2 class="cn-pp-title tp-tl-ideas-h" id="tp-pm-title" tabindex="-1">' + esc(fd.label) + '</h2><p class="tp-tl-ideas-sub" id="tp-tl-ideas-h">Free day · ' + esc(line) + '</p>';
+    if (other.length) h += '<p class="tp-fday-so">Also on your plan that day: ' + esc(other.map(function (x) { return x.title; }).join(', ')) + '.</p>';
+    // Cards keep the order they were shown in, so adding one leaves it where it was (Back lands on the same place);
+    // new ones go after
+    var pool = kept.concat(fd.filled ? [] : fd.show), seenOrd = tlIdeasOrder[fd.d] || [];
+    var cards = seenOrd.map(function (id) { return pool.filter(function (i) { return i.id === id; })[0]; }).filter(Boolean)
+      .concat(pool.filter(function (i) { return seenOrd.indexOf(i.id) < 0; }));
+    tlIdeasOrder[fd.d] = cards.map(function (i) { return i.id; }).concat(seenOrd.filter(function (id) { return !cards.some(function (i) { return i.id === id; }); }));
+    if (cards.length) h += '<div class="tp-pcs">' + cards.map(function (i) { return ideaCard(i, fd.d, true); }).join('') + '</div>';
     if (fd.filled) {
+      // Full: the list stays, with what is in the day marked Added, then the next free day
       var next = FREEINFO.filter(function (x) { return x.d > fd.d && !x.filled; })[0] || FREEINFO.filter(function (x) { return !x.filled; })[0];
-      h += '<p class="tp-fday-done">Your day: ' + esc(fd.its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p>';
+      h += '<p class="tp-fday-done">Your day is full' + (kept.length ? '' : ': ' + esc(fd.its.map(function (x) { return x.title; }).join(' and '))) + '. New ideas move on to your next free day; take one off to see others here.</p>';
       if (next) h += '<button type="button" class="tp-go-btn tp-tl-ideas-next" data-tlideas-go="' + next.d + '">Next free day: ' + esc(next.label) + ' · ' + next.count + (next.count === 1 ? ' idea' : ' ideas') + '</button>';
     } else {
-      if (fd.its.length) h += '<p class="tp-fday-so">So far: ' + esc(fd.its.map(function (x) { return x.title; }).join(', ')) + '. Room for one more.</p>';
-      h += fd.show.length ? '<div class="tp-pcs">' + fd.show.map(function (i) { return ideaCard(i, fd.d); }).join('') + '</div>'
-        : '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
+      if (!fd.show.length) h += '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
       if (fd.more) h += '<button type="button" class="tp-link tp-blk-more" data-tlideas-more="' + esc(fd.dk) + '" aria-expanded="' + !!moreBlk[fd.dk] + '">' + (moreBlk[fd.dk] ? 'Fewer ideas' : 'More ideas') + '</button>';
     }
     h += '<div class="tp-pm-acts tp-tl-ideas-full"><span class="tp-pm-full" role="link" aria-disabled="true">See all ideas for this day</span><span class="tp-pm-soon">Not linked yet</span></div>';
@@ -712,16 +749,34 @@
   function tlIdeasReturn() {
     if (!tlIdeas || !tlIdeasHome || tlIdeas.parentNode === tlIdeasHome) return;
     tlIdeasHome.insertBefore(tlIdeas, tlIdeasNext && tlIdeasNext.parentNode === tlIdeasHome ? tlIdeasNext : null);
-    tlIdeas.hidden = true; tlIdeas.style.minHeight = ''; tlIdeasHold = null;
+    tlIdeas.hidden = true; tlIdeas.style.minHeight = ''; tlIdeasHold = null; tlIdeasDetail = null;
   }
   phone.addEventListener('tp:freeideas', function (e) {
-    tlIdeasDay = e.detail.day;
+    tlIdeasDay = e.detail.day; tlIdeasDetail = null;
     // Next free day: the open sheet swaps to that day, from its top
     if (tlIdeasDay !== null && pmOpen && pmOpen.id.indexOf('ideas:') === 0) { pmOpen.id = 'ideas:' + tlIdeasDay; tlIdeas.style.minHeight = ''; tlIdeasHold = null; pmBody.scrollTop = 0; }
     renderTlIdeas();
   });
   if (tlIdeas) {
     tlIdeas.addEventListener('click', function (e) {
+      var op = e.target.closest('[data-idea-open]');
+      if (op) {
+        var k = op.dataset.ideaOpen, at = k.lastIndexOf('@');
+        tlIdeasScroll = pmBody.scrollTop;
+        tlIdeasDetail = { id: k.slice(2, at), d: +k.slice(at + 1), key: k };
+        renderTlIdeas(); pmBody.scrollTop = 0;
+        var ti = tlIdeas.querySelector('#tp-pm-title'); if (ti) ti.focus({ preventScroll: true });
+        tp.say((ITEMS[k] ? ITEMS[k].title : 'Idea') + ', details.');
+        return;
+      }
+      if (e.target.closest('[data-idea-back]')) {
+        var was = tlIdeasDetail; tlIdeasDetail = null;
+        renderTlIdeas(); pmBody.scrollTop = tlIdeasScroll;
+        var card = was && tlIdeas.querySelector('[data-idea-open="' + CSS.escape(was.key) + '"]');
+        if (card) { card.focus({ preventScroll: true }); var cr = card.getBoundingClientRect(), br = pmBody.getBoundingClientRect(); if (cr.top < br.top || cr.bottom > br.bottom) card.scrollIntoView({ block: 'nearest' }); }
+        else { var hh2 = tlIdeas.querySelector('.tp-tl-ideas-h'); if (hh2) hh2.focus({ preventScroll: true }); }
+        return;
+      }
       var g = e.target.closest('[data-tlideas-go]');
       if (g) { window.tpFreeApi.go(+g.dataset.tlideasGo); var hh = tlIdeas.querySelector('.tp-tl-ideas-h'); if (hh) hh.focus({ preventScroll: true }); return; }
       var m = e.target.closest('[data-tlideas-more]');
@@ -1562,6 +1617,7 @@
     var b = e.target.closest('[data-pm-add]'); if (!b) return;
     var it = ITEMS[b.dataset.pmAdd]; if (!it) return;
     var on = !added(it.id);
+    if (on && tlIdeas && tlIdeas.contains(b)) tlIdeasAdded.push(it.id); // from an idea's details: lands on the axis when the sheet closes
     if (on) tp.addItem(Object.assign({}, it)); else tp.removeItem(it.id);
     // The page stays open; its button follows (the card behind updates with the page)
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -2265,6 +2321,7 @@
     var ideasAt = inIdeas ? Array.prototype.indexOf.call(scopeEl.querySelectorAll('.tp-add'), active) : -1;
     if (active && phone.contains(active) && active.dataset) {
       if (active.dataset.item) keep = '.tp-add[data-item="' + CSS.escape(active.dataset.item) + '"]';
+      else if (active.dataset.pmAdd) keep = '[data-pm-add="' + CSS.escape(active.dataset.pmAdd) + '"]';
       else if (active.dataset.day) keep = '[data-day="' + CSS.escape(active.dataset.day) + '"]';
       else if (active.dataset.mode) keep = '.tp-fork[data-mode="' + CSS.escape(active.dataset.mode) + '"]';
       else if (active.dataset.act === 'trip') keep = '#tp-third-trip [data-act="trip"]';

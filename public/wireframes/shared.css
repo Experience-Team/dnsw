@@ -4515,6 +4515,11 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-ideas-h:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-tl-ideas-sub { margin: var(--space-1) 0 var(--space-4); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-tl-ideas .tp-pcs { margin-top: var(--space-3); }
+/* An idea's details, in place of the list in the same sheet */
+.tp-idea-back { margin-bottom: var(--space-3); }
+.tp-tl-ideas .tp-idea-img { width: 100%; margin-bottom: var(--space-3); }
+.tp-tl-ideas .tp-pm-why { margin-top: var(--space-2); padding: 0; }
+.tp-tl-ideas .tp-idea-desc { margin-top: var(--space-3); }
 .tp-tl-ideas-next { margin-top: var(--space-3); }
 /* An idea added from the sheet: a ghost marker flies to its day, then the marker settles with a ring */
 .tp-tl-ghost { position: absolute; z-index: 1000; pointer-events: none; width: 22px; height: 22px; will-change: transform; }
