@@ -21,7 +21,7 @@
     .launch h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: .5rem; }
     .launch-header p { color: #888; font-size: .9375rem; }
     .lib-link-btn {
-      flex-shrink: 0; margin-top: 2.4rem;
+      flex-shrink: 0;
       display: inline-flex; align-items: center; gap: .5rem;
       padding: .75rem 1.25rem;
       background: #fff; border: 1px solid #ddd; border-radius: 6px;
@@ -29,7 +29,8 @@
       transition: box-shadow .15s;
     }
     .lib-link-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    .launch-links { display: flex; gap: .75rem; flex-wrap: wrap; }
+    .launch-links { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 2.4rem; } /* the margin sits on the row, so wrapped buttons stay .75rem apart */
+    @media (max-width: 560px) { .launch-links { margin-top: 0; } }
     .launch-columns {
       display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem;
     }
@@ -46,12 +47,20 @@
     }
     .launch-col ul li a:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
     .launch-col ul li a.disabled { color: #bbb; pointer-events: none; background: #fafafa; }
-    .launch-col ul li a span { flex-shrink: 0; font-size: .75rem; color: #bbb; padding-top: .1rem; }
+    .launch-col ul li a > span:last-child { flex-shrink: 0; font-size: .75rem; color: #bbb; padding-top: .1rem; }
+    .launch-txt { display: flex; flex-direction: column; gap: .125rem; min-width: 0; }
+    .launch-txt small { font-size: .8125rem; color: #767676; line-height: 1.4; }
+    /* Two equal parts: the Rugby World Cup section first, then the other wireframes */
+    .launch-section + .launch-section { margin-top: 4rem; }
+    .launch-section-head { margin-bottom: 1.5rem; padding-bottom: .75rem; border-bottom: 1px solid #ddd; }
+    .launch-section-head h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: .25rem; }
+    .launch-section-head p { color: #767676; font-size: .9375rem; }
+    .launch-columns--rwc { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     @media (max-width: 900px) {
-      .launch-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .launch-columns, .launch-columns--rwc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 560px) {
-      .launch-columns { grid-template-columns: 1fr; }
+      .launch-columns, .launch-columns--rwc { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -66,10 +75,58 @@
       <div class="launch-links">
         <a href="components-library.html" class="lib-link-btn" target="_blank" rel="noopener">Component library ↗</a>
         <a href="experiments.html" class="lib-link-btn" target="_blank" rel="noopener">Experiments ↗</a>
-        <a href="prototype-pick-your-team.html" class="lib-link-btn" target="_blank" rel="noopener">Concepts ↗</a>
       </div>
     </div>
 
+    <!-- Rugby World Cup 2027. To add a link: put it at the top of its group (newest first). Start a new group, as one
+         more .launch-col, once three or more links share a purpose (for example Research or Archive); the grid wraps
+         to fit, so the layout needs no change. -->
+    <section class="launch-section" aria-labelledby="rwc-h">
+      <div class="launch-section-head">
+        <h2 id="rwc-h">Rugby World Cup 2027</h2>
+        <p>Prototypes, pages and the Plan your 3rd half screens for the Rugby World Cup.</p>
+      </div>
+      <div class="launch-columns launch-columns--rwc">
+
+        <div class="launch-col">
+          <p class="launch-col-title">Prototypes</p>
+          <ul>
+            <li><a href="prototype-pick-your-team.html" target="_blank" rel="noopener"><span class="launch-txt">Pick your team<small>Pick teams, plan around matches, build a timeline</small></span> <span>↗</span></a></li>
+            <li><a href="prototype-itinerary.html" target="_blank" rel="noopener"><span class="launch-txt">Share/edit itinerary<small>Share a plan and edit it together</small></span> <span>↗</span></a></li>
+          </ul>
+        </div>
+
+        <div class="launch-col">
+          <p class="launch-col-title">Pages</p>
+          <ul>
+            <li><a href="pages/rugby-world-cup.html" target="_blank" rel="noopener">Rugby World Cup <span>↗</span></a></li>
+            <li><a href="pages/rugby-world-cup-v1.html" target="_blank" rel="noopener">Rugby World Cup V1 <span>↗</span></a></li>
+            <li><a href="pages/rugby-world-cup-v2.html" target="_blank" rel="noopener">Rugby World Cup V2 <span>↗</span></a></li>
+            <li><a href="rugby-world-cup-team.html" target="_blank" rel="noopener">Choose your team (before, South Africa, Japan, Japan watching) <span>↗</span></a></li>
+          </ul>
+        </div>
+
+        <div class="launch-col">
+          <p class="launch-col-title">Plan your 3rd half</p>
+          <ul>
+            <li><a href="planner-screen-1.html" target="_blank" rel="noopener">1 · Entry points and set-up <span>↗</span></a></li>
+            <li><a href="planner-screen-2.html" target="_blank" rel="noopener">2 · Plan view and maps <span>↗</span></a></li>
+            <li><a href="planner-screen-3.html" target="_blank" rel="noopener">3 · Editing and Surprise me <span>↗</span></a></li>
+            <li><a href="planner-screen-4.html" target="_blank" rel="noopener">4 · Check my plan <span>↗</span></a></li>
+            <li><a href="planner-screen-5.html" target="_blank" rel="noopener">5 · Take it with you <span>↗</span></a></li>
+            <li><a href="planner-screen-6.html" target="_blank" rel="noopener">6 · States and review <span>↗</span></a></li>
+            <li><a href="planner-components.html" target="_blank" rel="noopener">Components <span>↗</span></a></li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="launch-section" aria-labelledby="other-h">
+      <div class="launch-section-head">
+        <h2 id="other-h">Other wireframes</h2>
+        <p>Destination NSW pages, product pages and what is coming next.</p>
+      </div>
     <div class="launch-columns">
 
       <div class="launch-col">
@@ -79,10 +136,6 @@
           <li><a href="pages/events.html" target="_blank" rel="noopener">Events <span>↗</span></a></li>
           <li><a href="pages/accommodation.html" target="_blank" rel="noopener">Accommodation <span>↗</span></a></li>
           <li><a href="pages/destination-visitnsw.html" target="_blank" rel="noopener">Destination Page (VisitNSW) <span>↗</span></a></li>
-          <li><a href="pages/rugby-world-cup.html" target="_blank" rel="noopener">Rugby World Cup <span>↗</span></a></li>
-          <li><a href="pages/rugby-world-cup-v1.html" target="_blank" rel="noopener">Rugby World Cup V1 <span>↗</span></a></li>
-          <li><a href="pages/rugby-world-cup-v2.html" target="_blank" rel="noopener">Rugby World Cup V2 <span>↗</span></a></li>
-          <li><a href="rugby-world-cup-team.html" target="_blank" rel="noopener">Rugby World Cup: choose your team (before, South Africa, Japan, Japan watching) <span>↗</span></a></li>
         </ul>
       </div>
 
@@ -119,6 +172,7 @@
       </div>
 
     </div>
+    </section>
   </div>
 </body>
 </html>
