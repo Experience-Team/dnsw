@@ -4027,6 +4027,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ask-title { font-size: var(--fs-lg); font-weight: var(--fw-heavy); }
 .tp-tl-ask .tp-ask-step { background: var(--c-surface); }
 .tp-tl-device { margin-top: var(--space-2); font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
+.tp-tl-foot .tp-tl-device { margin: 0 0 var(--space-2); } /* in the footer, just above Save & share */
 /* Under Suits your 3rd half: the way to the question, then the answer */
 .tp-third-trip { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink); }
 .tp-third-trip-a { font-weight: var(--fw-bold); }
