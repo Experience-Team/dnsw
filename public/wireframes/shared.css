@@ -5138,3 +5138,10 @@ span.tp-map-arrow { display: block; }
    regular) and its place: 24px under the event line, as it was inside the hero */
 .tp-pick-title.tp-pick-lead { font-size: var(--fs-lg-2); font-weight: var(--fw-regular, 400); line-height: 1.4; letter-spacing: 0; text-wrap: pretty; }
 .tp-pick:has(.tp-pick-lead) { padding-top: var(--space-5); }
+
+/* 17 Nov, alignment and room: the heading and the utility row share the hero's 24px left edge (the slogan, the event
+   line and the photos above sit 24px in), 24px between the heading and the utilities. When the row is too narrow for
+   Plays in NSW (a 320 phone), the switch wraps to the left edge under Find rather than hanging on the right */
+.tp-pick-lead, .tp-pick #tp-util { margin-inline: calc(var(--space-5) - var(--space-4)); }
+.tp-pick #tp-util { margin-top: var(--space-5); row-gap: var(--space-3); container-type: inline-size; }
+@container (max-width: 335px) { .tp-pick #tp-util .tp-nsw-sw { margin-left: 0; } }
