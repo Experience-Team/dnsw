@@ -5037,3 +5037,14 @@ span.tp-map-arrow { display: block; }
   .tp-map-pcs .tp-pc { grid-template-columns: minmax(0, 1fr); align-items: start; }
   .tp-map-pcs .tp-pc .tp-add { justify-self: start; }
 }
+
+/* ---------- Close and Add: optical polish (16 Nov) ----------
+   Every sheet's cross sits 16px from the edge with even space above and below it in its bar; under a grabber, 10px
+   below the grabber (as the stacked sheets already were). The product, trip and spot sheets had 14px above and 3px
+   below, so the cross nearly touched the rule. */
+.cn-pp.tp-pm.is-sheet .cn-bar { height: auto; padding-top: 20px; padding-bottom: 10px; }
+/* Add buttons: the label "Add" has no descenders, so centring its line box left the ink about 2px high, and the
+   text sat about 1px above the icon. The text drops 1px to the icon's centre and both drop 1.5px to the button's. */
+.tp-add > span[aria-hidden] { transform: translateY(var(--add-nudge, 2px)); } /* 2px for the system font; the high fidelity theme sets 1.5px */
+.tp-add .tp-add-t { position: relative; top: 1px; }
+/* Add to your timeline and the team toggles were already centred (their longer labels balance the line box), so they are left as they are */

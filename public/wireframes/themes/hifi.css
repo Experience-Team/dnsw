@@ -168,3 +168,6 @@
 /* Your days, in order as a map: the gallery's illustration in its own colours */
 :root[data-theme="hifi"] .cn-phone .tp-map-img { filter: none; }
 :root[data-theme="hifi"] .cn-phone .tp-map-stage { background: #c1d5d0; }
+
+/* Add buttons: the optical nudge for this theme's condensed face (shared.css, Close and Add: optical polish) */
+:root[data-theme="hifi"] .cn-phone { --add-nudge: 1.5px; }
