@@ -147,7 +147,7 @@
 :root[data-theme="hifi"] .cn-phone .tp-ws-media .tp-tag--away { background: var(--tth-surface-page); }
 
 /* Button / Brand: one colourway moment per screen: the timeline's Save & share, and the hero's Pick your teams (rarely on screen together); ink text (chalk fails at this size) */
-:root[data-theme="hifi"] .cn-phone :is(#tp-tl-share, .tp-hero-cta) { border-color: var(--tth-surface-brand); background: var(--tth-surface-brand); color: var(--tth-text-on-brand-small); }
+:root[data-theme="hifi"] .cn-phone #tp-tl-share { border-color: var(--tth-surface-brand); background: var(--tth-surface-brand); color: var(--tth-text-on-brand-small); }
 
 /* Hero (Figma 309:644): chalk, ink, the logo, the lockup slot in the colourway's dashes, the headline in Tertiary
    Condensed Regular caps, and the two pictures at 182 x 102, offset left then right */
@@ -163,7 +163,6 @@
 /* The slogan, stylised: the payoff line in the colourway (40px is large text: orange on chalk is 3.2:1, AA for large) */
 :root[data-theme="hifi"] .cn-phone .tp-slogan-2 { color: var(--tth-surface-brand); }
 :root[data-theme="hifi"] .cn-phone .tp-pick-sub { color: var(--tth-text-primary); }
-:root[data-theme="hifi"] .cn-phone .tp-hero-cta { font-size: 1.25rem; font-weight: 600; }
 
 /* Your days, in order as a map: the gallery's illustration in its own colours */
 :root[data-theme="hifi"] .cn-phone .tp-map-img { filter: none; }
