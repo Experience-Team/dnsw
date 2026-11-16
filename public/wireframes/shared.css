@@ -2939,7 +2939,7 @@ body.cp-page code { font: inherit; }
 .cn-phone :is(h1, h2, h3, h4) { font-family: var(--font-display); } /* headings take the display face (the body face in the wireframe) */
 .cn-bar { flex: none; display: flex; align-items: center; gap: var(--space-4); height: 52px; padding: 0 var(--space-4); border-bottom: var(--bw-1) solid var(--c-line); }
 .cn-close { flex: none; width: 36px; height: 36px; display: inline-grid; place-items: center; border: var(--bw-2) solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
-.cn-bar-title { font-size: var(--fs-md); font-weight: var(--fw-semi); }
+.cn-bar-title { flex: 1; min-width: 0; font-size: var(--fs-md); font-weight: var(--fw-semi); }
 .cn-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3) var(--space-4) var(--space-5); }
 .cn-seg { position: relative; display: flex; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); overflow: hidden; background: var(--c-surface); }
 /* The dark thumb slides to the chosen view, so the switch reads as one control moving, not two buttons repainting */
@@ -3322,8 +3322,8 @@ body.cp-page code { font: inherit; }
 .tp-pc-img::after { content: none; }
 .tp-pc-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .tp-pc-title { font-size: var(--fs-md); font-weight: var(--fw-bold); line-height: 1.3; }
-.tp-pc-type { align-self: flex-start; padding: 0 4px; font-size: var(--fs-2xs); color: var(--c-ink-2); }
-.tp-pc-why { padding: 1px 4px; font-size: var(--fs-xs); line-height: 1.35; color: var(--c-ink); border-radius: 3px; transition: box-shadow .6s ease-out; }
+.tp-pc-type { align-self: flex-start; padding: 0; /* flush with the title (16 Nov) */ font-size: var(--fs-2xs); color: var(--c-ink-2); }
+.tp-pc-why { padding: 1px 0; font-size: var(--fs-xs); line-height: 1.35; color: var(--c-ink); border-radius: 3px; transition: box-shadow .6s ease-out; }
 .tp-pc-why.is-updated { animation: tp-glow 1.2s ease-out; }
 @keyframes tp-glow { from { box-shadow: 0 0 0 2px var(--c-accent); } to { box-shadow: 0 0 0 2px rgba(38,102,217,0); } }
 .tp-pc-more { grid-column: 1 / -1; padding: var(--space-2) var(--space-1) var(--space-1); border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); }
@@ -3422,7 +3422,7 @@ body.cp-page code { font: inherit; }
 .cn-pp.tp-pm { z-index: 140; } /* above the timeline bar (100) and the flying item (120) */
 .tp-pm .cn-pp-body:focus { outline: none; }
 .tp-pm-type { align-self: flex-start; padding: 0; font-size: var(--fs-xs); color: var(--c-ink-2); }
-.tp-pm-why { padding: 2px 4px; font-size: var(--fs-md); line-height: 1.4; }
+.tp-pm-why { padding: 2px 0; font-size: var(--fs-md); line-height: 1.4; } /* flush with the title, as the card lines are */
 .tp-pm-summary { margin-top: var(--space-3); }
 .tp-pm-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-5); }
 .tp-pm-add[aria-pressed="true"] { background: var(--c-surface); color: var(--c-ink); box-shadow: inset 0 0 0 1.5px var(--c-line-ink); }
@@ -3668,17 +3668,18 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-cap-wrap .tp-cap { transform-origin: 50% 0; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), box-shadow 200ms ease, opacity 200ms ease, visibility 0s; }
 /* Floating: a soft drop shadow, plus a faint light hairline so the dark capsule keeps its edge over dark photos */
 .tp-cap-wrap.is-stuck .tp-cap { box-shadow: 0 6px 18px rgba(17, 17, 17, .22), 0 0 0 1px rgba(250, 247, 240, .35); }
-.tp-cap-wrap.is-small .tp-cap { transform: scale(.8); }
+.tp-cap-wrap.is-small .tp-cap { transform: scale(var(--cap-small, .8)); } /* fitCap raises it on narrow phones so labels stay 12px or more */
 .tp-cap-wrap.is-away .tp-cap { transform: translateY(calc(-100% - 12px)); opacity: 0; visibility: hidden; pointer-events: none; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), opacity 200ms ease, visibility 0s 280ms; }
 .tp-cap { position: relative; display: flex; align-items: center; gap: 2px; height: 44px; padding: 4px; border-radius: 22px; background: var(--c-btn); }
 .tp-cap-pill { position: absolute; top: 4px; left: 0; height: 36px; border-radius: 18px; background: var(--c-surface); transition: transform 360ms cubic-bezier(.4, 0, .2, 1), width 360ms cubic-bezier(.4, 0, .2, 1); pointer-events: none; }
-.tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--space-2); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1em; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
+.tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--cap-pad, var(--space-3)); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1em; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
 /* One line, always: outranks the phone-wide rule that lets button text wrap. The page script shrinks the capsule's
    type (1em of the capsule's 16px) just enough when the labels would not fit, as with the wireframe's system font at
    360px; this breaks the type scale on purpose. */
 .cn-phone .tp-cap-i { white-space: nowrap; text-wrap: nowrap; overflow: hidden; }
 .tp-cap { font-size: 1rem; }
-.tp-cap-i.is-on { flex: 0 0 auto; padding: 0 var(--space-4); color: var(--c-ink); font-weight: 600; cursor: default; }
+.tp-cap.is-tight { overflow-x: auto; scrollbar-width: none; } .tp-cap.is-tight::-webkit-scrollbar { display: none; } .tp-cap.is-tight .tp-cap-i { flex: none; min-width: auto; }
+.tp-cap-i.is-on { flex: 1 1 auto; padding: 0 var(--cap-pad, var(--space-3)); /* the same side padding as the other tabs, so the gaps between labels are even (16 Nov) */ color: var(--c-ink); font-weight: 600; cursor: default; }
 /* Focus: a ring inside the item in its own text colour (light on the dark capsule, ink on the light pill), so it never
    rides the capsule's edge */
 .tp-cap-i:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
@@ -3727,7 +3728,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ph[hidden], .tp-ph-scrim[hidden] { display: none; }
 .tp-ph-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .tp-ph-where { margin: 0; font-family: var(--font-label); font-size: .75rem; line-height: 1.33; letter-spacing: .06em; text-transform: uppercase; }
-.tp-ph-close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; padding: 0; border: var(--bw-1) solid var(--c-line-ink); border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
+.tp-ph-close { display: grid; place-items: center; flex: none; margin-right: calc(var(--space-4) - var(--space-5)); /* the same 16px from the edge as every other close cross */ width: 36px; height: 36px; padding: 0; border: var(--bw-1) solid var(--c-line-ink); border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
 .tp-ph-close:focus-visible, .tp-ph-go:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-ph-img { display: grid; place-items: center; width: 100%; aspect-ratio: 342 / 192; }
 .tp-ph-title { margin: var(--space-1) 0 0; font-size: 1.5rem; font-weight: var(--fw-semi); line-height: 1.17; letter-spacing: -.01em; }
@@ -4027,6 +4028,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ask-title { font-size: var(--fs-lg); font-weight: var(--fw-heavy); }
 .tp-tl-ask .tp-ask-step { background: var(--c-surface); }
 .tp-tl-device { margin-top: var(--space-2); font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
+.tp-tl-foot .tp-tl-device { margin: 0 0 var(--space-2); } /* in the footer, just above Save & share */
 /* Under Suits your 3rd half: the way to the question, then the answer */
 .tp-third-trip { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink); }
 .tp-third-trip-a { font-weight: var(--fw-bold); }
@@ -4295,6 +4297,13 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-drop[hidden] { display: none; }
 .tp-tl-drop-t { position: absolute; left: 50%; bottom: -25px; transform: translateX(-50%); padding: 1px 6px; border-radius: 4px; background: var(--c-btn); color: var(--c-on-dark); font-size: var(--fs-2xs); font-weight: var(--fw-semi); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .tp-tl-mk--item.is-settling { transition: none; } .tp-tl-mk--item.is-lifted { transform: translate(var(--dx, 0px), calc(var(--row, 0) * -32px)); } }
+/* A longer trip's span lifts and drags as a whole, the same way (concepts-teams.js, hold-and-drag) */
+.tp-tl-span.is-movable { touch-action: pan-x; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.tp-tl-span.is-lifted { z-index: 5; cursor: grabbing; transition: transform .16s cubic-bezier(.25, .6, .3, 1); transform: translate(var(--dx, 0px), -4px) scale(1.04); box-shadow: 0 6px 14px rgba(0,0,0,.28); }
+.tp-tl-span.is-lifted.is-following { transition: none; }
+.tp-tl-span.is-settling { z-index: 5; transform: translateX(var(--dx, 0px)); transition: transform .22s cubic-bezier(.25, .6, .3, 1); }
+.tp-tl-drop.is-span { top: 4px; }
+@media (prefers-reduced-motion: reduce) { .tp-tl-span.is-settling { transition: none; } .tp-tl-span.is-lifted { transform: translateX(var(--dx, 0px)); } }
 /* Pick your team: team flags (Figma Flag Pack SVGs, 25 x 16). A hairline edge keeps white flags (England, Japan) apart
    from a white ground. Sized to the text where they sit beside a name. */
 .tp-fl { display: inline-block; height: .78em; width: auto; aspect-ratio: 25 / 16; border-radius: 1.5px; outline: .5px solid rgba(0,0,0,.18); outline-offset: -.5px; vertical-align: -.05em; object-fit: cover; }
@@ -4406,6 +4415,18 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-place-cur { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); }
 .tp-tl-daysline { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-tl-daysline[hidden] { display: none; }
+/* Hold and drag, its own line above the axis once something can be moved */
+.tp-tl-drag { display: flex; align-items: flex-start; gap: var(--space-2); margin: var(--space-1) 0 var(--space-1); font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink); }
+.tp-tl-drag[hidden] { display: none; }
+.tp-tl-drag .tp-ico { flex: none; width: 16px; height: 16px; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+/* No days set: the date slider in place of the Add your days link (concepts-third-half.js, renderDaysLine) */
+.tp-tl-daysline.is-edit { display: block; margin-top: var(--space-3); padding: var(--space-3) var(--space-4) var(--space-2); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md, 8px); }
+.tp-tl-setdays-h { display: block; font-size: var(--fs-md); font-weight: var(--fw-semi); color: var(--c-ink); line-height: 1.3; }
+.tp-tl-setdays-n { display: block; margin-top: var(--space-1); }
+.tp-tl-daysline .tp-range, .tp-tl-daysline .tp-range-ends, .tp-tl-daysline .tp-ask-acts { display: block; }
+.tp-tl-daysline .tp-range-track { display: block; }
+.tp-tl-daysline .tp-range-ends, .tp-tl-daysline .tp-ask-acts--links { display: flex; }
+.tp-tl-daysline .tp-ask-err { display: block; } /* a span in the line's paragraph */
 /* Going to this match? on each screening card: the question, then Yes and No (32px, as Add). A match they are going to
    shows one card for getting there and back instead of its screenings */
 .tp-ws-going { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
@@ -4490,22 +4511,37 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-free.is-open .tp-tl-free-sym { border-color: var(--c-btn); background: var(--c-btn); color: var(--c-on-dark); }
 .tp-tl-free.is-open .tp-tl-free-l { font-weight: var(--fw-semi); color: var(--c-ink); }
 .tp-tl-free:hover .tp-tl-free-sym { box-shadow: 0 0 0 3px var(--c-fill-soft); }
-/* Ideas open: the axis sticks under the sheet's header so an added idea is seen landing on its day */
-.tp-tl-panel.has-ideas .tp-tl-scroll { position: sticky; top: calc(var(--tl-head-h, 52px) - var(--space-2)); z-index: 3; background: var(--c-surface); box-shadow: 0 1px 0 var(--c-line-soft); }
-.tp-tl-ideas { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line); }
+/* A free day's ideas, in the sheet stacked over the timeline (16 Nov; they used to open inline under the axis) */
 .tp-tl-ideas[hidden] { display: none; }
-.tp-tl-ideas-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
-.tp-tl-ideas-h { font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.3; }
 .tp-tl-ideas-h:focus { outline: none; }
 .tp-tl-ideas-h:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
-.tp-tl-ideas-top .tp-link { flex: none; }
+.tp-tl-ideas-sub { margin: var(--space-1) 0 var(--space-4); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-tl-ideas .tp-pcs { margin-top: var(--space-3); }
+/* Idea cards in the sheet (polish, 16 Nov): one left edge for every line of text, the image and Add on the title's
+   line rather than floating mid-card, and the card answers a tap like the button it is */
+.tp-idea--open { align-items: start; transition: border-color .15s ease-out; }
+.tp-idea--open .tp-pc-main { align-items: flex-start; cursor: pointer; transition: transform .15s ease-out; }
+.tp-idea--open .tp-pc-main:active { transform: scale(.98); }
+.tp-idea--open .tp-pc-why { color: var(--c-ink-2); }
+.tp-idea--open .tp-add { margin-top: 2px; }
+@media (hover: hover) { .tp-idea--open:has(.tp-pc-main:hover) { border-color: var(--c-line-ink); } }
+@media (prefers-reduced-motion: reduce) { .tp-idea--open .tp-pc-main:active { transform: none; } }
+/* Details: Add on its own line, View full page and its Not linked yet tag together under it */
+/* Every sheet with Add to your timeline: View full page and its Not linked yet tag sit together under it */
+.tp-pm .tp-pm-acts:has(> .tp-pm-add) { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: var(--space-3) var(--space-2); }
+.tp-pm .tp-pm-acts:has(> .tp-pm-add) .tp-pm-add { grid-column: 1 / -1; justify-self: start; }
+/* An idea's details, in place of the list in the same sheet */
+.cn-pp-body:has(> .tp-pm-ideas) { overflow-x: hidden; } /* the slide between list and details never shows a sideways scroll */
+.tp-idea-back { margin-bottom: var(--space-3); }
+.tp-tl-ideas .tp-idea-img { width: 100%; margin-bottom: var(--space-3); }
+.tp-tl-ideas .tp-pm-why { margin-top: var(--space-2); padding: 0; }
+.tp-tl-ideas .tp-idea-desc { margin-top: var(--space-3); }
 .tp-tl-ideas-next { margin-top: var(--space-3); }
 /* An idea added from the sheet: a ghost marker flies to its day, then the marker settles with a ring */
 .tp-tl-ghost { position: absolute; z-index: 1000; pointer-events: none; width: 22px; height: 22px; will-change: transform; }
 .tp-tl-ghost .cn-tl-sym { display: grid; place-items: center; width: 22px; height: 22px; border: var(--bw-2) solid var(--c-line-ink); border-radius: 5px; background: var(--c-surface); color: var(--c-ink); box-shadow: 0 8px 18px rgba(0,0,0,.28); }
 .tp-tl-mk.is-landed { z-index: 4; }
 .tp-tl-mk.is-landed .cn-tl-sym { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-accent); transition: box-shadow .3s ease-out; }
-.tp-tl-panel.has-ideas { overflow-anchor: none; } /* the sheet scrolls only when the ideas ask it to */
 
 /* ---------- Your days, in order as a map (concepts-map.js) ---------- */
 .tp-dview { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-3); }
@@ -4513,6 +4549,11 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-map-skip { font-size: var(--fs-sm); }
 .tp-map { position: relative; margin: var(--space-3) calc(var(--space-4) * -1) 0; }
 .tp-map-end { display: block; height: 0; }
+/* Following day by day, full screen (16 Nov): over the whole phone with a close bar; the map steps as this layer scrolls */
+.tp-mapfs { position: absolute; inset: 0; z-index: 120; display: flex; flex-direction: column; background: var(--c-surface); }
+.tp-mapfs[hidden] { display: none; }
+.tp-mapfs-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+.tp-mapfs .tp-map { margin: 0; }
 .tp-map-snaps span { position: absolute; left: 0; width: 1px; height: 1px; }
 /* No scroll snapping: with a snap point every day, any scroll shorter than half a step was pulled back to the same day */
 .tp-map-stage { position: sticky; top: 0; height: var(--stage-h, 600px); overflow: hidden; background: #d3d3d3; } /* the illustration’s own sea (grey in the wireframe), so its edge never shows */
@@ -4724,6 +4765,10 @@ p.tp-ws-going { display: block; } p.tp-ws-going .tp-ws-going-q { font-size: var(
 .tp-ov-pop .tp-map-pop-l { margin-top: 4px; max-height: none; overflow: visible; }
 .tp-ov-pop .tp-map-pop-l li > span { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .tp-ov-pop-d { font-size: var(--fs-2xs); color: var(--c-ink-2); }
+/* Each nearby place shows its picture, the same 56px thumbnail as the cards on the page; its name reads left-aligned */
+.tp-ov-pop .tp-map-pop-l li { gap: var(--space-3); padding: var(--space-2) 0; }
+.tp-ov-pop .tp-map-pop-l li > .tp-ov-pop-txt { flex: 1; }
+.tp-ov-pop .tp-place-link { align-self: flex-start; min-height: 24px; text-align: left; }
 .tp-ov-pop-n { font-size: var(--fs-2xs); font-weight: var(--fw-semi); color: var(--c-ink); }
 .tp-ov-pop .tp-add { flex: none; }
 .tp-ov-follow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); margin-top: var(--space-3); padding: var(--space-3); border-radius: 12px; background: var(--c-surface-2); }
@@ -4774,6 +4819,11 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-days-sum { margin: var(--space-3) 0 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
 .tp-days-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); }
 .tp-days-acts .tp-pill[disabled] { opacity: .4; cursor: default; }
+/* The days sheet: what is picked and Use these dates stay fixed to the bottom of the sheet while the calendar scrolls */
+.tp-days-bar { position: sticky; bottom: 0; z-index: 2; align-self: stretch; margin: var(--space-2) calc(-1 * var(--space-4)) calc(-1 * var(--space-4)); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); }
+.tp-days-bar .tp-days-sum { margin: 0; }
+.cn-pp.tp-pm .cn-pp-body:has(.tp-days-bar) { padding-bottom: 0; scroll-padding-bottom: 120px; } /* the bar sits flush with the bottom, scrolled or not */
+.tp-days-bar .tp-days-acts { margin-top: var(--space-2); }
 .tp-days-acts .tp-pill .tp-ico { margin-right: 6px; }
 
 /* Timeline: the matches are what to tap (16 Nov). One plain line above the axis; the markers lift on hover; the first
@@ -4879,3 +4929,134 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-pick.is-peek #tp-picker { position: relative; z-index: 1; }
 .tp-pick.is-peek :is(.tp-pick-head, #tp-pick-sub, #tp-util) { position: relative; z-index: 0; }
 .tp-pick.is-hidden-intro :is(.tp-pick-head, #tp-pick-sub, #tp-util) { pointer-events: none; }
+
+/* ---------- Section rhythm (layout pass, 16 Nov) ----------
+   Every section of the Pick your team page is one level: the same 24px title, at least 64px of space before it, and
+   the same steps inside (8px title to intro, 16px intro to content). Space does the grouping: 4-16px inside a
+   component, 24px between parts of one section, 64px between sections. Replaces the 22px / 18px split and the
+   32px / 48px section gaps. The hero to Pick your teams keeps the Figma peek spacing (337:40429). */
+:root { --sec-gap: var(--space-8); --sec-title: 1.5rem; }
+.tp-pick-title, .tp-ov-h, .tp-ask-title, .tp-sec-title, #tp-third .tp-sec-title, #tp-watch .tp-sec-title, .tp-plan-title {
+  font-size: var(--sec-title); line-height: 1.2; font-weight: var(--fw-heavy); letter-spacing: -.01em;
+}
+/* 64px between sections */
+.tp-ov, .tp-tabs, .cn-phone > .cn-body #tp-ask, #tp-ask, .tp-sec, .tp-plan { margin-top: var(--sec-gap); }
+/* The map under the cards is its own section: the same hairline rule and 24px above its title as the others */
+.tp-ov { padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
+/* Title to intro 8px, intro to content 16px */
+.tp-sec-note, #tp-ask .tp-sec-note, .tp-ov-sub { margin-top: var(--space-2); }
+.tp-ov-sub { margin-bottom: var(--space-4); }
+.tp-wcs { margin-top: var(--space-4); }
+.tp-third-trip { margin-top: var(--space-3); }
+
+/* ---------- Match sheet polish (16 Nov) ----------
+   I have a ticket is the sheet's main action once the match is on the timeline: a full-width 48px toggle (the one
+   prominent action at the foot of a sheet, per DESIGN.md), still a real checkbox inside, with the ticket icon. Marked,
+   it fills dark and its box shows a tick. The on-your-timeline line uses the drawn tick icon, not a text glyph. The
+   team toggles share one width so they read as a pair. */
+.tp-pm-acts--match { align-items: stretch; gap: var(--space-3); margin-top: var(--space-5); }
+.tp-pm-on { display: flex; align-items: flex-start; gap: var(--space-2); }
+.tp-pm-on .tp-ico { flex: none; width: 18px; height: 18px; margin-top: 3px; }
+.tp-pm-acts--match .tp-pm-add { align-self: stretch; justify-content: center; min-height: 48px; }
+.tp-pm-ticket { justify-content: flex-start; gap: var(--space-3); min-height: 48px; margin: 0; padding: 0 var(--space-4); border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font-size: var(--fs-md); font-weight: var(--fw-bold); transition: background-color .15s ease-out, color .15s ease-out, transform .15s ease-out; }
+.tp-pm-ticket-l { display: inline-flex; align-items: center; gap: var(--space-2); }
+.tp-pm-ticket-l .tp-ico { width: 18px; height: 18px; }
+.tp-pm-ticket input:focus-visible { outline: none; }
+.tp-pm-ticket:has(input:focus-visible) { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-pm-ticket:active { transform: scale(.98); }
+.tp-pm-ticket:has(input:checked) { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-on-dark); }
+.tp-pm-ticket input:checked { background: var(--c-surface); border-color: var(--c-surface); }
+.tp-pm-ticket input:checked::after { border-color: var(--c-btn); }
+@media (hover: hover) { .tp-pm-ticket:not(:has(input:checked)):hover { background: var(--c-surface-2); } }
+@media (prefers-reduced-motion: reduce) { .tp-pm-ticket:active { transform: none; } }
+.tp-pm-acts--match .tp-ticket-why { margin-top: calc(var(--space-1) * -1); }
+.tp-pm-match .tp-pm-acts--match + .cn-pp-h { margin-top: var(--space-6); }
+.tp-pm-teams { align-self: stretch; align-items: stretch; } /* the sheet body shrink-wraps its children */
+.tp-pm-team { display: flex; align-items: center; gap: var(--space-2); width: 100%; text-align: left; }
+/* The days sheet from a team card: that team's NSW match with no ticket yet, and the same ticket toggle, above the dates */
+.tp-days-tk { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-2); align-self: stretch; margin-top: var(--space-4); padding-bottom: var(--space-5); border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tp-days-tk-m { font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.4; }
+.tp-days-tk .tp-ticket-why { margin-top: 0; }
+
+/* ---------- Follow day by day: explicit day stepping (16 Nov) ----------
+   One fixed screen. The card's top row is the day and See as a list; its bottom row is ← Day n, a dot per day (24px
+   targets, the current one filled) and Day n →, the arrow with nowhere to go left out. The last day adds one summary
+   line. A hidden copy of the card measures the next day's card so the map frames around it before it arrives. */
+.tp-mapfs-scroll { overflow: hidden; }
+.tp-map-measure { visibility: hidden; pointer-events: none; }
+.tp-map-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.tp-map-card-top .tp-map-card-h { flex: 1; min-width: 0; }
+.tp-map-aslist { flex: none; min-height: 24px; font-size: var(--fs-sm); }
+.tp-map-nav { justify-content: space-between; }
+.tp-map-arrow { flex: 0 0 72px; }
+span.tp-map-arrow { display: block; }
+.tp-map-nav .tp-map-arrow[data-mstep="1"] { text-align: right; justify-content: flex-end; }
+.tp-map-dots { display: flex; justify-content: center; flex: 1; min-width: 0; }
+.tp-map-dot { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; background: none; color: var(--c-ink); cursor: pointer; }
+.tp-map-dot i { width: 8px; height: 8px; border: var(--bw-2) solid currentColor; border-radius: 50%; transition: transform .2s ease-out, background-color .2s ease-out; }
+.tp-map-dot[aria-current="step"] i { background: currentColor; transform: scale(1.25); }
+.tp-map-dot:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; border-radius: 6px; }
+@media (hover: hover) { .tp-map-dot:not([aria-current]):hover i { background: var(--c-fill-mid); } }
+.tp-map-dots-t { flex: 1; text-align: center; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-map-sum { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.4; }
+@media (prefers-reduced-motion: reduce) { .tp-map-dot i { transition: none; } }
+
+/* ---------- Follow day by day: match day as the hero (16 Nov) ----------
+   The two teams' stripes run along the card's top edge (the bands from their cards on the page), the date sits small
+   above the teams, which are the heading, with kick-off and the venue under them. Getting there is one line with the
+   full details behind Getting there and back. */
+.tp-map-band { display: flex; gap: 3px; height: 6px; margin: calc(var(--space-3) * -1) calc(var(--space-3) * -1) var(--space-3); border-radius: 13px 13px 0 0; overflow: hidden; }
+.tp-map-band-t { display: flex; flex: 1; }
+.tp-map-band-t i { flex: 1; }
+.tp-map-kick { flex: 1; min-width: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-map-match-h { display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--space-2); margin-top: var(--space-1); font-size: var(--fs-xl); font-weight: var(--fw-heavy); line-height: 1.2; }
+.tp-map-team { display: inline-flex; align-items: center; gap: 6px; }
+.tp-map-team img, .tp-map-team svg { width: 24px; height: auto; border-radius: 2px; }
+.tp-map-v { font-size: var(--fs-md); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-map-match-m { margin-top: 2px; font-size: var(--fs-md); font-weight: var(--fw-semi); }
+.tp-go-one { display: flex; align-items: flex-start; gap: var(--space-2); margin-top: var(--space-2); padding-top: var(--space-2); border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.4; }
+.tp-go-one .tp-go-ico { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+.tp-go-one .tp-link { min-height: 24px; padding: 0; font-size: inherit; }
+
+/* ---------- Follow day by day: the card as a bottom sheet (16 Nov) ----------
+   Collapsed: the day, getting there, the ideas row and the way between days, about a third of the screen; the map is
+   framed against this height at 390 and 320. Open: the ideas too, up to 72% of the map, scrolling inside. A grabber
+   at the top drags it open or shut (the row is the keyboard and screen reader control); its height glides. */
+.tp-map-card { padding-top: 18px; overflow: hidden; }
+.tp-map-card.is-open { max-height: 72%; }
+.tp-map-band { margin-top: -18px; }
+.tp-map-grab { position: absolute; top: 4px; left: 50%; width: 48px; height: 14px; margin-left: -24px; cursor: grab; touch-action: none; }
+.tp-map-grab::before { content: ""; position: absolute; left: 6px; right: 6px; top: 5px; height: 4px; border-radius: 2px; background: var(--c-fill-mid); }
+.tp-map-more { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); width: 100%; min-height: 36px; margin-top: var(--space-2); padding: 0; border: 0; border-top: var(--bw-1) solid var(--c-line-soft); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-align: left; cursor: pointer; }
+.tp-map-more-a { display: inline-flex; align-items: center; gap: 4px; text-decoration: underline; text-underline-offset: 3px; }
+.tp-map-more svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease-out; }
+.tp-map-more[aria-expanded="true"] svg { transform: rotate(180deg); } /* up to open (the sheet grows up), down to close */
+.tp-map-more:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-map-body[hidden] { display: none; }
+.tp-map-card.is-open .tp-map-body { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .tp-map-more svg { transition: none; } }
+/* Narrow sheet (a 320 phone): an idea card gives its text the full width and puts Add under it */
+.tp-map-pcs { container: mappcs / inline-size; }
+@container mappcs (max-width: 300px) {
+  .tp-map-pcs .tp-pc { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .tp-map-pcs .tp-pc .tp-add { justify-self: start; }
+}
+
+/* ---------- Close and Add: optical polish (16 Nov) ----------
+   Every sheet's cross sits 16px from the edge with even space above and below it in its bar; under a grabber, 10px
+   below the grabber (as the stacked sheets already were). The product, trip and spot sheets had 14px above and 3px
+   below, so the cross nearly touched the rule. */
+.cn-pp.tp-pm.is-sheet .cn-bar { height: auto; padding-top: 20px; padding-bottom: 10px; }
+/* Add buttons: the label "Add" has no descenders, so centring its line box left the ink about 2px high, and the
+   text sat about 1px above the icon. The text drops 1px to the icon's centre and both drop 1.5px to the button's. */
+.tp-add > span[aria-hidden] { transform: translateY(var(--add-nudge, 2px)); } /* 2px for the system font; the high fidelity theme sets 1.5px */
+.tp-add .tp-add-t { position: relative; top: 1px; }
+/* Optical centring that holds in any font (16 Nov): the label's box is trimmed to the capital letters, so the icon and
+   the capitals centre on the button whatever font the system draws them in. The nudges above are only the fallback */
+@supports (text-box: trim-both cap alphabetic) {
+  .tp-add-t { text-box: trim-both cap alphabetic; }
+  .tp-add > span[aria-hidden] { transform: none; }
+  .tp-add .tp-add-t { top: 0; }
+  .tp-add, .tp-pm-add { display: inline-flex; align-items: center; justify-content: center; }
+}
+/* Add to your timeline and the team toggles were already centred (their longer labels balance the line box), so they are left as they are */

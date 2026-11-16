@@ -29,21 +29,20 @@
     'rugby-village-foreshore-park': 'village',
     'darling-harbour-fan-zone': 'village',
     'armory-wharf-cafe': 'city-dining',
-    'bourke-street-bakery': 'city-dining',
-    'darby-street-cafes': 'city-dining',
-    'entertainment-quarter': 'city-dining',
-    'waterview-in-bicentennial-park': 'city-dining',
-    'white-rabbit-gallery': 'city-dining',
+    'bourke-street-bakery': 'marickville-tavern',
+    'darby-street-cafes': 'lord-nelson',
+    'entertainment-quarter': 'village',
+    'waterview-in-bicentennial-park': 'marickville-tavern',
     'beaumont-street-bars': 'marickville-tavern',
     'bathers-way': 'coast-headland',
     'brickpit-ring-walk': 'river-national-park',
     'blue-mountains-day-out': 'river-national-park',
-    'barrington-tops-overnight': 'river-national-park',
+    'barrington-tops-overnight': '1004868_Basalt_Luxury_Accomodation_Canobolas',
     'lake-macquarie-by-bike': 'river-national-park',
     'royal-national-park-coast-walk': 'coast-headland',
     'port-stephens-bay-day': 'coast-aerial',
-    'south-coast-3-nights': 'coast-headland',
-    'hunter-valley-2-nights': 'city-dining',
+    'south-coast-3-nights': 'Tanja_Lagoon_Camp_interior_view_tent',
+    'hunter-valley-2-nights': '172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0',
     'echo-point-lookout': 'river-national-park',
     'prince-henry-cliff-walk': 'river-national-park',
     'leura-mall-cafes': 'city-dining',
@@ -54,10 +53,10 @@
     'shoal-bay-beach': 'coast-aerial',
     'warners-bay-bike-hire': 'river-national-park',
     'speers-point-park': 'river-national-park',
-    'pokolbin-cellar-doors': 'city-dining',
+    'pokolbin-cellar-doors': 'hunter',
     'hunter-valley-balloon-flight': 'river-national-park',
-    'hunter-valley-gardens': 'river-national-park',
-    'kiama-blowhole': 'coast-headland',
+    'hunter-valley-gardens': 'krinklewood-vineyard',
+    'kiama-blowhole': 'Kiama',
     'kiama-coast-walk': 'coast-headland',
     'jervis-bay-whale-watching-cruise': 'coast-aerial',
     'barrington-tops-rainforest-walk': 'river-national-park',
@@ -69,29 +68,35 @@
     // Getting there and back cards show the stadium (one stadium photo stands in for all of them)
     'stadium-australia': 'hero-stadium', 'sydney-football-stadium': 'hero-stadium', 'newcastle-stadium': 'hero-stadium', 'adelaide-oval': 'hero-stadium', 'brisbane-stadium': 'hero-stadium', 'docklands-stadium': 'hero-stadium', 'perth-stadium': 'hero-stadium', 'north-queensland-stadium': 'hero-stadium',
     'patonga-beach': 'coast-headland',
-    'sydney-opera-house': 'coast-aerial', 'the-rocks': 'lord-nelson', 'manly-ferry': 'coast-aerial', 'bondi-to-coogee-walk': 'coast-headland'
+    'sydney-opera-house': 'coast-aerial', 'the-rocks': 'lord-nelson', 'manly-ferry': 'hero-coast', 'bondi-to-coogee-walk': 'coast-headland'
   };
   // The pictures in assets/images, by name and file type, so each placeholder asks for one file that exists (no
   // .webp-then-.jpg pair, no request at all for a name with no picture: it stays a grey block). Add a picture here
   // when one is added to the folder.
-  var IMG_FILES = {"1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW": "webp", "city-dining": "webp", "coast-aerial": "webp", "coast-headland": "webp", "golden-barley": "webp", "hero-coast": "webp", "hero-stadium": "webp", "ivy-rooftop": "jpg", "kathleen-banks-0h2KOlfkGck-unsplash": "jpg", "lord-nelson": "webp", "marickville-tavern": "webp", "river-national-park": "webp", "tth-logo": "webp", "village": "jpg"};
+  var IMG_FILES = {"1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW": "webp", "city-dining": "webp", "coast-aerial": "webp", "coast-headland": "webp", "golden-barley": "webp", "hero-coast": "webp", "hero-stadium": "webp", "ivy-rooftop": "jpg", "kathleen-banks-0h2KOlfkGck-unsplash": "jpg", "lord-nelson": "webp", "marickville-tavern": "webp", "river-national-park": "webp", "tth-logo": "webp", "village": "jpg", "white-rabbit-gallery": "jpg", "1004868_Basalt_Luxury_Accomodation_Canobolas": "webp", "172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0": "webp", "Kiama": "webp", "Tanja_Lagoon_Camp_interior_view_tent": "webp", "hunter": "webp", "krinklewood-vineyard": "webp"};
   // No grey boxes in high fidelity (agreed 16 Nov): a name with no picture of its own gets the closest one by the words
   // in it, so every placeholder shows a photo. The order matters: the first group that matches wins
   var IMG_GUESS = [
     [/stadium|match|final|quarter|semi/, 'hero-stadium'],
+    // Galleries and museums: the White Rabbit Gallery picture (added 16 Nov) is the closest match (before walks, so Brickpit Lookout Gallery is a gallery)
+    [/gallery|museum|print|legends|story|art|history|heritage|culture/, 'white-rabbit-gallery'],
     [/fan-zone|village|swing|screen/, 'village'],
     [/kayak|river|canoe|paddle/, '1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW'],
-    [/whale|cruise|dolphin|ferry|bay|harbour|wharf|port|island|sail/, 'coast-aerial'],
-    [/coast|beach|blowhole|cliff|ocean|baths|surf|headland|dune|sand|cove|swim|tide|pool/, 'coast-headland'],
-    [/cafe|kitchen|deli|bakery|dining|oyster|food|market|lunch|eat|restaurant|tea-rooms/, 'city-dining'],
+    [/whale|cruise|dolphin|ferry|bay|harbour|wharf|port|island|sail/, ['coast-aerial', 'hero-coast']],
+    [/coast|beach|blowhole|cliff|ocean|baths|surf|headland|dune|sand|cove|swim|tide|pool/, ['coast-headland', 'Kiama']],
+    [/cafe|kitchen|deli|bakery|dining|oyster|food|market|lunch|eat|restaurant|tea-rooms/, ['city-dining', 'marickville-tavern']],
     [/brew|pub|hotel|arms|inn|tavern|club|bowls|leagues/, 'lord-nelson'],
-    [/bars|wine|cellar|winer|vineyard|distill/, 'golden-barley'],
+    [/wine|cellar|winer|vineyard|distill/, ['hunter', '172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0', 'krinklewood-vineyard']],
+    [/bars/, 'golden-barley'],
+    [/overnight|nights|stay|camp|glamp|retreat/, ['Tanja_Lagoon_Camp_interior_view_tent', '1004868_Basalt_Luxury_Accomodation_Canobolas']],
     [/walk|park|track|national|mountain|garden|bike|lookout|bird|boardwalk|wetland|bush|forest|rainforest|tops|loop|trail|hike|hill|creek|falls/, 'river-national-park'],
-    [/gallery|museum|print|rooms|legends|story|art|theatre|opera|history|heritage|culture/, 'ivy-rooftop'],
-    [/rocks|city|street|lane|quarter|mall|town/, 'city-dining']
+    [/rooms|theatre|opera/, 'ivy-rooftop'],
+    [/rocks|city|street|lane|quarter|mall|town/, ['city-dining', 'lord-nelson']]
   ];
+  // A kind with several pictures picks one by the name, the same every time, so similar places differ
+  function pick(list, name) { if (typeof list === 'string') return list; var h = 0; for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 9973; return list[h % list.length]; }
   function guess(name) {
-    for (var i = 0; i < IMG_GUESS.length; i++) if (IMG_GUESS[i][0].test(name)) return IMG_GUESS[i][1];
+    for (var i = 0; i < IMG_GUESS.length; i++) if (IMG_GUESS[i][0].test(name)) return pick(IMG_GUESS[i][1], name);
     return 'hero-coast';
   }
   function paint(el) {
