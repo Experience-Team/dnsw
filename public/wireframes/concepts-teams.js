@@ -872,18 +872,20 @@
     });
   }
   function tsOpen(opener) {
-    if (!tlOpen) return;
     // The title matches the way in: Pick your team with nothing picked, Change your teams after. Set on open, never mid-edit
     document.getElementById('tp-ts-title').textContent = state.picked.length ? 'Change your teams' : 'Pick your teams';
     tsFind.value = ''; tsBuild(); tsSync(); tsFilter();
     clearTimeout(tsNoteT); tsNoteEl.textContent = '';
     document.getElementById('tp-ts-body').scrollTop = 0;
-    stackOpen(tsSheet, opener);
+    // From the timeline it stacks over it; from the page (Your plan so far) it opens on its own, over the page
+    if (tlOpen) stackOpen(tsSheet, opener); else stackOpenSolo(tsSheet, opener);
     // After a frame: with reduced motion the sheet's contents become visible over 1ms, and a hidden field cannot take focus
     setTimeout(function () { if (stackEl === tsSheet) tsFind.focus({ preventScroll: true }); }, 30);
   }
-  if (tsSheet) tsSheet.addEventListener('tp:stackclose', function () {
+  if (tsSheet) tsSheet.addEventListener('tp:stackclose', function (e) {
     var a = document.activeElement;
+    // Opened from the page: back to what opened it, or, rebuilt by the picks, to Your plan so far's first control
+    if (e.detail && e.detail.solo) { if (!a || a === document.body || !a.offsetParent || tsSheet.contains(a) || !body.contains(a)) { var f = document.querySelector('#tp-plan-body button') || document.getElementById('tp-plan-title'); if (f) { if (!f.matches('button')) f.tabIndex = -1; f.focus({ preventScroll: true }); } } return; }
     if (!a || a === document.body || !tl.contains(a) || !a.offsetParent) (tsLink.hidden ? document.getElementById('tp-tl-pick') : tsLinkBtn).focus({ preventScroll: true });
   });
 
@@ -1972,7 +1974,7 @@
     if (on === tlOn) return;
     tlOn = on;
     tl.classList.toggle('is-on', on);
-    tl.inert = !on;
+    tl.inert = !on || stackSolo; // behind the team list opened from the page, it waits
     notesOnly();
   }
   var barIntro = false, barRaf = 0;
@@ -2115,9 +2117,45 @@
     sheet.focus({ preventScroll: true });
     notesOnly();
   }
+  // The same sheet over the page rather than over the timeline (the team list from Your plan so far): page and bar wait
+  // under the scrim, Tab stays in the sheet, Escape and the scrim close it
+  var stackSolo = false, soloAnchor = null, soloY = 0;
+  // Picks made in the sheet rebuild the page above (tabs, cards, the map): the section it was opened from is held
+  // where it was, so closing the sheet shows the same place
+  function soloHold() { if (soloAnchor && soloAnchor.isConnected) body.scrollTop += soloAnchor.getBoundingClientRect().top - soloY; }
+  function stackOpenSolo(sheet, opener) {
+    if (stackEl) return;
+    stackOpener = opener || document.activeElement; stackEl = sheet; stackSolo = true;
+    soloAnchor = opener && opener.closest('section'); soloY = soloAnchor ? soloAnchor.getBoundingClientRect().top : 0;
+    sheet.style.setProperty('--stack-top', '56px');
+    sheet.scrollTop = 0; sheet.inert = false; sheet.classList.add('is-open');
+    tl.inert = true; body.inert = true;
+    stackScrim.classList.add('is-on');
+    sheet.focus({ preventScroll: true });
+    notesOnly();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab' || !stackSolo || !stackEl) return;
+    var fs = Array.prototype.filter.call(stackEl.querySelectorAll('button, a[href], input, [tabindex]:not([tabindex="-1"])'), function (el) { return !el.disabled && !el.closest('[hidden]') && el.getClientRects().length; });
+    if (!fs.length) return;
+    var a = fs[0], z = fs[fs.length - 1], at = document.activeElement;
+    if (!stackEl.contains(at)) { e.preventDefault(); (e.shiftKey ? z : a).focus(); }
+    else if (e.shiftKey && at === a) { e.preventDefault(); z.focus(); }
+    else if (!e.shiftKey && at === z) { e.preventDefault(); a.focus(); }
+  });
   function stackClose(focusBack) {
     if (!stackEl) return;
     var sh = stackEl; stackEl = null;
+    if (stackSolo) {
+      stackSolo = false; stackHide(sh);
+      soloHold(); soloAnchor = null;
+      body.inert = false; stackScrim.classList.remove('is-on'); tl.inert = !tlOn; syncBar();
+      if (focusBack !== false && stackOpener && stackOpener.isConnected) stackOpener.focus({ preventScroll: true });
+      stackOpener = null;
+      sh.dispatchEvent(new CustomEvent('tp:stackclose', { bubbles: true, detail: { solo: true } }));
+      notesOnly();
+      return;
+    }
     stackHide(sh);
     tl.classList.add('is-fwd'); // the way back has the sheet's closing timing, so the two still move as one
     tl.classList.remove('is-back');
@@ -2250,7 +2288,9 @@
     pickTeam: function (n) { var c = TEAMS[n]; if (!c) return ''; var i = CARDS.indexOf(c); if (pos(i) < 0) setNsw(false); return toggle(i, null, true); },
     setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; },
     // Trips that clash, by item id: [{ name, day }] (filled by the timeline; read by the plan and the trip cards)
-    clashes: function () { return tlClash; } };
+    clashes: function () { return tlClash; },
+    // The team list as a sheet, from anywhere on the page (Your plan so far)
+    openTeams: function (opener) { tsOpen(opener); } };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
 })();

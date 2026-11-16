@@ -2,7 +2,7 @@
    Experience principles (CLAUDE.md): reward early, then build on it; don't make people do the work.
    - Both result sections show straight away for the person's matches (picked teams, ticket marks, every NSW match for
      Here for the rugby). Nothing waits for dates. With no team picked they are a first look only: the next NSW match
-     day (in their days in NSW once they have said so), with one Pick your team to tailor this, not every match at once.
+     day (in their days in NSW once they have said so), not every match at once; the empty Your plan so far offers Pick your teams (the team list in a sheet).
    - Your days (optional), on the page under the team picker once there is something to plan around; nothing is
      guessed, with two quick picks. Refine your plan (folded): where they are staying and who is coming, which choose and
      order the ideas (a local: nearest first, no dates needed). Each answer refines the results in
@@ -108,10 +108,10 @@
 
   /* ---------- First look: no team picked yet ----------
      Without a pick there is nothing to tailor to, so both sections show one day only (the next NSW match day, in the
-     person's days in NSW once given) and one way on, Pick your team to tailor this, instead of every match at once. */
+     person's days in NSW once given) instead of every match at once; Your plan so far, below, is the way on (Pick your teams opens the team list). */
   function teaser() { return !tp.own(); }
   function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
-  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Go up to pick your teams</button></p>'; // says where it goes: the one control here that moves the page (16 Nov)
+  // (Pick your teams to tailor this is gone: Your plan so far, just below, opens the team list in a sheet; 16 Nov)
 
   /* ---------- Where to watch ---------- */
   var watchAll = false;
@@ -883,7 +883,7 @@
     var sigNow = bs.map(function (b) { return b.key; }).join(',');
     if (sigNow !== blkSig || !openSet) { blkSig = sigNow; openSet = {}; var nx = bs.filter(function (b) { return b.kind !== 'away'; })[0]; if (nx) openSet[nx.key] = true; }
     if (!bs.length) {
-      thirdList.innerHTML = '<p class="tp-empty">' + (stay() ? 'No NSW match falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your days, or see Where to watch above.' : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>' + (first ? TAILOR : '');
+      thirdList.innerHTML = '<p class="tp-empty">' + (stay() ? 'No NSW match falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your days, or see Where to watch above.' : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>';
       return;
     }
     var h = '';
@@ -894,7 +894,6 @@
         '<span class="tp-blk-when">' + esc(hd.when) + '</span><span class="tp-blk-what">' + esc(hd.what) + '</span><span class="tp-blk-chev" aria-hidden="true"></span></button></h4>' +
         '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? b._html : b.kind === 'watch' ? watchBody(b) : halfBody(b)) : '') + '</div></section>';
     });
-    if (first) h += TAILOR;
     thirdList.innerHTML = h;
   }
   thirdList.addEventListener('click', function (e) {
@@ -921,14 +920,6 @@
       if (back) back.focus({ preventScroll: true });
       return;
     }
-  });
-  // Pick your team to tailor this: back up to the hand of cards, focus on the card in the middle
-  phone.addEventListener('click', function (e) {
-    if (!e.target.closest('[data-act="tailor"]')) return;
-    var pick = document.getElementById('tp-pick'), card = document.querySelector('.tp-fan2-wrap:not([hidden]) [tabindex="0"]') || document.querySelector('#tp-fan [tabindex="0"]');
-    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    if (card) card.focus({ preventScroll: true });
   });
 
   /* ---------- Full-screen pages: a product, or a place to watch (summarised) ----------
@@ -1789,6 +1780,15 @@
     openDays(false, opener);
   }
   phone.addEventListener('tp:ask', function () { openAsk(true); });
+  // The hero's Pick your teams: down to the hand of cards (a button that names the cards it goes to), focus on the card
+  // in the middle. The page's other Pick your teams (Your plan so far) opens the team list in a sheet instead
+  phone.addEventListener('click', function (e) {
+    if (!e.target.closest('#tp-hero-cta')) return;
+    var pick = document.getElementById('tp-pick'), card = document.querySelector('.tp-fan2-wrap:not([hidden]) [tabindex="0"]') || document.querySelector('#tp-fan [tabindex="0"]');
+    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
+    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+    if (card) card.focus({ preventScroll: true });
+  });
   /* The line under Suits your 3rd half: your days and Change, or the way to set them. Nothing guessed. */
   function renderTripLine() {
     if (!tripEl) return;
@@ -1861,7 +1861,9 @@
     // Save & share in the timeline only shows once there is a plan to keep
     if (ssBtn) ssBtn.hidden = !ms.length && !n;
     if (!ms.length && !n) {
-      planBody.innerHTML = '<p class="tp-plan-empty">' + window.tpIcons.fan + 'Pick your teams, or add a screening or a place above, and your plan builds up here.</p>';
+      // Nothing yet: the way in is right here, the team list in a sheet (no jump back up to the cards)
+      planBody.innerHTML = '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="teams" aria-haspopup="dialog">' + window.tpIcons.fan + 'Pick your teams</button></div>' +
+        '<p class="tp-plan-empty">Or add a screening or a place above, and your plan builds up here.</p>';
       return;
     }
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
@@ -1890,6 +1892,7 @@
   if (planBody) planBody.addEventListener('click', function (e) {
     var b = e.target.closest('[data-plan]'); if (!b) return;
     if (b.dataset.plan === 'open') { tp.openTimeline(); return; }
+    if (b.dataset.plan === 'teams') { if (tp.openTeams) tp.openTeams(b); return; }
     var text = planText();
     function done() {
       copied = true; render(true, '[data-plan="copy"]');
