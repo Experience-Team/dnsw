@@ -86,6 +86,19 @@
           <span class="tp-logo" role="img" aria-label="The Third Half"><img src="assets/images/tth-logo.webp" alt="" width="72" height="54"></span>
           <span class="tp-lockup" role="img" aria-label="Host city lockup, reserved space"><span class="tp-lockup-in" aria-hidden="true"><span class="tp-lockup-t">Host city lockup</span><span class="tp-lockup-s">Host city + Feel New + World Rugby</span></span></span>
         </header>
+        <!-- Capsule nav (Option B2, step 1): the page's three sections in a dark capsule under the header. Items are
+             36px tall in a 44px capsule, per the page's WCAG 2.2 AA sizing (the brief's 44px items, 52px capsule, were
+             changed with the user's go-ahead). The selected item is a light pill that glides to whichever is picked.
+             Event details and Kick goal are not built yet: each opens a "being built" page in place of the planner, and
+             going back to Plan your 3rd half returns to the same scroll position. Script at the end of this file. -->
+        <div class="tp-cap-wrap">
+          <nav class="tp-cap" id="tp-cap" aria-label="Sections">
+            <span class="tp-cap-pill" id="tp-cap-pill" aria-hidden="true"></span>
+            <button type="button" class="tp-cap-i" data-view="event">Event details</button>
+            <button type="button" class="tp-cap-i" data-view="kick">Kick goal</button>
+            <button type="button" class="tp-cap-i is-on" data-view="plan" aria-current="page">Plan your 3rd half</button>
+          </nav>
+        </div>
         <!-- Event details, one line that wraps at the bullets: the event, its dates (day then month), the countdown and the
              page's one note that every kick-off is Sydney time. The countdown script below fills .tp-count. -->
         <p class="tp-event"><span class="tp-nowrap">Men&rsquo;s Rugby World Cup</span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">. </span><span class="tp-nowrap">Kick-offs in Sydney time</span></p>
@@ -93,7 +106,7 @@
           <span class="ph-img tp-hero-img tp-hero-img--a" data-img="hero-stadium" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span>
           <div class="tp-hero-copy">
             <!-- The slogan, A by default; ?slogan=b shows B (set on <html> by the script in <head>) to test both -->
-            <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-slogan tp-slogan--a"><span class="tp-slogan-1">Come for the match.</span> <span class="tp-slogan-2">Stay for the third half.</span></span><span class="tp-slogan tp-slogan--b"><span class="tp-slogan-1">Your team&rsquo;s matches.</span> <span class="tp-slogan-2">Your days in NSW.</span></span></h3>
+            <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-slogan tp-slogan--a"><span class="tp-slogan-1">Come for the match.</span> <span class="tp-slogan-2">Stay for the <span aria-hidden="true">1/3</span><span class="visually-hidden">third</span> half.</span></span><span class="tp-slogan tp-slogan--b"><span class="tp-slogan-1">Your team&rsquo;s matches.</span> <span class="tp-slogan-2">Your days in NSW.</span></span></h3>
             <p class="tp-hero-sub">Pick your teams, see their matches, and plan your NSW days around game time.</p>
             <button type="button" class="tp-hero-cta" id="tp-hero-cta" data-act="hero-pick">Pick your teams</button>
           </div>
@@ -214,6 +227,14 @@
         <section class="tp-plan" id="tp-plan" aria-labelledby="tp-plan-title">
           <h3 class="tp-plan-title" id="tp-plan-title">Your plan so far</h3>
           <div id="tp-plan-body"></div>
+        </section>
+        <!-- Being built: shown in place of the planner when Event details or Kick goal is picked in the capsule.
+             The title follows the section picked. -->
+        <section class="tp-soon" id="tp-soon" aria-labelledby="tp-soon-title" hidden>
+          <span class="tp-soon-ico" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 23h20M7 23V12l7-5 7 5v11M11 23v-6h6v6"/></svg></span>
+          <h3 class="tp-soon-title" id="tp-soon-title" tabindex="-1">Event details</h3>
+          <p class="tp-soon-p">This page is being built. Plan your 3rd half is ready to use now.</p>
+          <button type="button" class="tp-soon-back" data-view="plan">Back to Plan your 3rd half</button>
         </section>
       </div>
       <!-- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to 390px). Docked over the bottom of the phone,
@@ -460,7 +481,8 @@
       { sel: '#tp-kbd', title: 'Indicative keyboard (not functional)', text: 'While Find your team is open, a static grey keyboard rises from the bottom of the phone, only to show that the phone keyboard would come up. On a real phone it is the native keyboard. Tapping it does nothing and keeps the field focused. Opening the search brings the heading row near the top of the phone, so the suggestions under it are never covered (they end by about 220px; the keyboard starts at 614px). Reduced motion: it appears and goes at once. In phone view (the QR code in the panel, ?phone, or any touch screen under 500px wide) it is never shown: the phone\u2019s own keyboard comes up, with a Search key, and the screen shrinks to the space above it so the suggestions stay in view.' },
     { sel: '.tp-tl-pick .tp-ico', title: 'Prompt icons', text: 'Prompts to pick a team carry the card-fan icon (the Rugby World Cup Figma artwork, node 252:13225): Pick your teams and Change your teams in the timeline, and Pick your teams in the empty Your plan so far. Prompts and buttons to set or change your days carry the calendar (Figma node 254:13291): Set your days in NSW, Staying longer? Set your days, Visiting? Set or Confirm your days, the dates step in the trip question, Change dates, Use these dates, and Change beside your days in NSW (in the timeline and under Suits your 3rd half; not when the answer is I live in NSW or Not sure yet, as that Change is not about dates). Greyscale, sized to the text, decorative (aria-hidden).' },
     { sel: '#tp-find-open', title: 'Find (utility row)', text: 'In the utility row above the hand, labelled Find (with a search icon), on phone and desktop alike. Tapped, the field slides across the utility row from the button, over Grid and Plays in NSW, so nothing below moves; suggestions float over the hand. Name or code, start of a word (zea finds New Zealand, rsa South Africa); Enter picks the first; Escape or the cross folds it back and focus returns to Find.' },
-      { sel: '#tp-hero-cta', title: 'Hero (Figma 309:644)', text: 'Option A, lockup in header: The Third Half logo, and a dashed box that holds the space (with its clear space) for the host city lockup (Host city + Feel New + World Rugby), not drawn yet. Then one event line that wraps at its bullets: Men\u2019s Rugby World Cup \u2022 1 Oct\u201313 Nov \u201927 \u2022 320 days to go \u2022 Kick-offs in Sydney time (dates day then month throughout; screen readers hear 1 October to 13 November 2027). Then a picture, the slogan with its explaining line directly under it, this button and a second picture. Slogan A: Come for the match. Stay for the third half. Slogan B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. Each sentence takes its own line; in high fidelity the second is in the colourway (40px, large text). Wireframe: the pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset left then right, as in Figma. The button is 36px tall, per the page\u2019s WCAG 2.2 AA sizing, not Figma\u2019s 44px. It says Pick your teams, then Change your teams once a team is picked, matching the picker\u2019s heading, and goes down to the hand of cards and focuses the middle card (a jump with reduced motion). The hand is below the fold on a 390 x 844 phone; this button is the way down.' },
+      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Event details, Kick goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, so every label fits whichever is picked, at 360px too. Event details and Kick goal are not built: each opens a being-built page in place of the planner (the timeline bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Kick goal stays (the capsule also works with two items). Not sticky yet (step 2).' },
+      { sel: '#tp-hero-cta', title: 'Hero (Figma 309:644)', text: 'Option A, lockup in header: The Third Half logo, and a dashed box that holds the space (with its clear space) for the host city lockup (Host city + Feel New + World Rugby), not drawn yet. Then one event line that wraps at its bullets: Men\u2019s Rugby World Cup \u2022 1 Oct\u201313 Nov \u201927 \u2022 320 days to go \u2022 Kick-offs in Sydney time (dates day then month throughout; screen readers hear 1 October to 13 November 2027). Then a picture, the slogan with its explaining line directly under it, this button and a second picture. Slogan A: Come for the match. Stay for the 1/3 half (screen readers hear third half). Slogan B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. Each sentence takes its own line and never wraps: 31px in the wireframe (B2 brief), 40px in high fidelity with the second line in the colourway, and the page shrinks the size just enough when a line would not fit (360px, or a wider fallback font). This breaks the type scale on purpose. Wireframe: the pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset left then right, as in Figma. The button is 36px tall, per the page\u2019s WCAG 2.2 AA sizing, not Figma\u2019s 44px. It says Pick your teams, then Change your teams once a team is picked, matching the picker\u2019s heading, and goes down to the hand of cards and focuses the middle card (a jump with reduced motion). The hand is below the fold on a 390 x 844 phone; this button is the way down.' },
       { sel: '.tp-count', title: 'Countdown', text: 'Part of the event line: days to go to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says Under way, final Sat 13 Nov, then The tournament is over. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '#tp-pick-sub', title: 'Why pick', text: 'The heading, Pick your teams, matches the hero button. One 18px line under it says what a pick is for, with no subheading: Pick your teams to see their matches, then fill the days in between. 48px above the heading gives it room after the hero; the gap under the tap line is 24px shorter so All matches peeks in. The fan is described by it (aria-describedby, with the keyboard help), so screen readers hear it with the fan.' },
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Every NSW match. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
@@ -538,6 +560,74 @@
   notesList.addEventListener('mouseover', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, true); });
   notesList.addEventListener('mouseout', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, false); });
   renderNotes();
+})();
+</script>
+<script>
+/* Slogan fit: each slogan line stays on one line. The size starts at the theme's own (31px in the wireframe, as the
+   B2 brief; 40px in high fidelity) and steps down until the widest line fits the copy column, so it holds at 360px
+   and with whatever system font the wireframe falls back to. Runs again on resize and once the fonts have loaded. */
+(function () {
+  var t = document.getElementById('tp-hero-title'); if (!t) return;
+  function fit() {
+    t.style.fontSize = '';
+    var room = t.parentNode.clientWidth - parseFloat(getComputedStyle(t.parentNode).paddingLeft) - parseFloat(getComputedStyle(t.parentNode).paddingRight);
+    var lines = [].slice.call(t.querySelectorAll('.tp-slogan-1, .tp-slogan-2')).filter(function (l) { return l.offsetParent; });
+    var widest = Math.max.apply(null, lines.map(function (l) { return l.getBoundingClientRect().width; }));
+    if (widest > room) t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * room / widest * 0.99).toFixed(2) + 'px';
+  }
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(t.parentNode);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+/* Capsule nav (Option B2, step 1). Picking an item moves the light pill to it with an even glide, and the other
+   items slide to their new places (FLIP), so nothing jumps. Event details and Kick goal show the "being built"
+   page in place of the planner; Plan your 3rd half brings the planner back at the scroll position it was left at. */
+(function () {
+  var phone = document.getElementById('tp-phone'), cap = document.getElementById('tp-cap');
+  if (!phone || !cap) return;
+  var body = phone.querySelector('.cn-body'), pill = document.getElementById('tp-cap-pill');
+  var items = [].slice.call(cap.querySelectorAll('.tp-cap-i')), wrap = cap.parentNode;
+  var soon = document.getElementById('tp-soon'), soonT = document.getElementById('tp-soon-title');
+  var NAMES = { event: 'Event details', kick: 'Kick goal' };
+  var view = 'plan', planY = 0;
+  var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  function place(anim) {
+    var on = cap.querySelector('.tp-cap-i.is-on');
+    pill.style.transition = anim && !still() ? '' : 'none';
+    pill.style.width = on.offsetWidth + 'px';
+    pill.style.transform = 'translateX(' + on.offsetLeft + 'px)';
+    if (!anim) { void pill.offsetWidth; pill.style.transition = ''; }
+  }
+  function pick(v, from) {
+    if (v === view) return;
+    var before = items.map(function (b) { return b.getBoundingClientRect().left; });
+    items.forEach(function (b) { var on = b.dataset.view === v; b.classList.toggle('is-on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    // The buttons swap widths: slide each from where it was so the labels glide rather than jump
+    if (!still()) items.forEach(function (b, i) {
+      var dx = before[i] - b.getBoundingClientRect().left; if (!dx) return;
+      b.style.transition = 'none'; b.style.transform = 'translateX(' + dx + 'px)';
+      void b.offsetWidth; b.style.transition = ''; b.style.transform = '';
+    });
+    place(true);
+    var leaving = view; view = v;
+    if (leaving === 'plan') planY = body.scrollTop;
+    var top = cap.getBoundingClientRect().top;
+    phone.classList.toggle('is-soon', v !== 'plan');
+    soon.hidden = v === 'plan';
+    if (v !== 'plan') { soonT.textContent = NAMES[v]; body.scrollTop += cap.getBoundingClientRect().top - top; }
+    else {
+      body.scrollTop = planY;
+      window.dispatchEvent(new Event('resize')); // anything sized while hidden (the map, the hand) measures again
+    }
+    if (from && from.classList.contains('tp-soon-back')) { var p = cap.querySelector('[data-view="plan"]'); p.focus({ preventScroll: true }); }
+  }
+  phone.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-view]'); if (!b || !phone.contains(b)) return;
+    pick(b.dataset.view, b);
+  });
+  place(false);
+  if (window.ResizeObserver) new ResizeObserver(function () { place(false); }).observe(cap);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { place(false); });
 })();
 </script>
 <script src="vendor/qrcode.js"></script>

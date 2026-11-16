@@ -3654,6 +3654,31 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-lockup-in { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 168px; height: 44px; padding: 0 var(--space-2); border: var(--bw-2) dashed var(--c-ink-3); text-align: center; white-space: nowrap; }
 .tp-lockup-t { font-family: var(--font-label); font-size: var(--fs-2xs); font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
 .tp-lockup-s { font-size: .625rem; line-height: 1.3; color: var(--c-ink-2); }
+/* Capsule nav (Option B2): a dark capsule under the header, 44px with 36px items (WCAG 2.2 AA sizing, not the brief's
+   52/44). The light pill is one element that glides to the picked item; the items slide to their new widths (FLIP in
+   the page script). Unpicked items share the spare width on top of their own label width, so the longest label
+   always fits whichever item is picked, at 360px too. */
+.tp-cap-wrap { margin: var(--space-3) var(--space-4) var(--space-4); }
+.tp-cap { position: relative; display: flex; align-items: center; gap: 2px; height: 44px; padding: 4px; border-radius: 22px; background: var(--c-btn); }
+.tp-cap-pill { position: absolute; top: 4px; left: 0; height: 36px; border-radius: 18px; background: var(--c-surface); transition: transform 360ms cubic-bezier(.4, 0, .2, 1), width 360ms cubic-bezier(.4, 0, .2, 1); pointer-events: none; }
+.tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--space-2); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1rem; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
+.tp-cap-i.is-on { flex: 0 0 auto; padding: 0 var(--space-4); color: var(--c-ink); font-weight: 600; cursor: default; }
+.tp-cap-i:focus-visible { outline: 2px solid var(--c-on-dark); outline-offset: 1px; }
+@media (hover: hover) { .tp-cap-i:not(.is-on):hover { text-decoration: underline; text-underline-offset: 3px; } }
+@media (prefers-reduced-motion: reduce) { .tp-cap-pill, .tp-cap-i { transition: none; } }
+/* Being built: in place of the planner while Event details or Kick goal is picked. Tall enough that the capsule
+   stays where it was when the page swaps. The planner's sections, the timeline bar and its skip link step aside. */
+#tp-phone.is-soon .tp-body > :not(.tp-top):not(.tp-cap-wrap):not(.tp-soon) { display: none !important; }
+#tp-phone.is-soon :is(.tp-tl, .tp-tl-scrim, .tp-skip) { visibility: hidden; }
+.tp-soon { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); min-height: 720px; padding: var(--space-6) var(--space-5) 0; }
+.tp-soon[hidden] { display: none; }
+.tp-soon-ico { display: grid; place-items: center; width: 56px; height: 56px; border: var(--bw-1) dashed var(--c-line-strong); color: var(--c-ink-2); }
+.tp-soon-title { margin: var(--space-2) 0 0; font-size: var(--fs-xl); font-weight: var(--fw-semi); line-height: 1.2; }
+.tp-soon-title:focus { outline: none; }
+.tp-soon-p { margin: 0; color: var(--c-ink-2); }
+.tp-soon-back { min-height: 36px; margin-top: var(--space-2); padding: 0 var(--space-5); border: var(--bw-1) solid var(--c-line-ink); background: none; color: var(--c-ink); font: inherit; font-weight: var(--fw-semi); cursor: pointer; }
+.tp-soon-back:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (hover: hover) { .tp-soon-back:hover { background: var(--c-line-soft); } }
 /* Event strip: what and when, in caps */
 .tp-event { padding: var(--space-3) var(--space-5) var(--space-5); font-family: var(--font-label); font-size: var(--fs-sm); font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
 .tp-nowrap { white-space: nowrap; }
@@ -3663,10 +3688,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-hero-img::after { content: none; }
 .tp-hero-icon { color: var(--c-ink-3); }
 .tp-hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); padding: 0 var(--space-5); }
-.tp-hero-title { font-size: 2.25rem; font-weight: 400; line-height: 1.18; text-transform: uppercase; text-wrap: balance; }
+.tp-hero-title { font-size: 1.9375rem; font-weight: 400; line-height: 1.19; text-transform: uppercase; } /* 31/37, B2; the page script shrinks it if a line would wrap */
 .tp-hero-sub { font-size: var(--fs-lg-2); line-height: 1.4; }
 /* The slogan: each sentence on its own line; ?slogan=b swaps in the alternative */
-.tp-slogan-1, .tp-slogan-2 { display: block; }
+.tp-slogan-1, .tp-slogan-2 { display: block; width: max-content; white-space: nowrap; } /* one line each, never wrapped */
 :root:not([data-slogan="b"]) .tp-slogan--b, :root[data-slogan="b"] .tp-slogan--a { display: none; }
 .tp-event .tp-count { font-variant-numeric: tabular-nums; }
 /* Pick your teams: down to the hand (the tailor handler). 36px, per the page's AA sizing, not Figma's 44px */
