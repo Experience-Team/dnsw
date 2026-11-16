@@ -541,7 +541,7 @@
   function clashText(cl) { return 'Clashes with ' + tp.list(cl.map(function (c) { return c.name + ', ' + c.day; })) + '.'; }
   /* Where a trip can go now: every valid start in every free stretch it suits, for Move in the timeline's detail (a
      trip whose stretch has split has no card on the page any more) */
-  function tripMoves(id) {
+  function tripMoves(id, all) {
     var it = state.added.filter(function (x) { return x.id === id; })[0]; if (!it) return [];
     var t = TRIPS.filter(function (x) { return x.id === it.tripId; })[0]; if (!t) return [];
     var out = [];
@@ -550,7 +550,7 @@
       if (t.kind === 'day' && t.bases.indexOf(b.base) < 0) return;
       starts(t, b).forEach(function (x) { if (x !== it.start) out.push({ start: x, label: t.kind === 'long' ? spanLabel(x, x + t.nights) : dayLabel(x) }); });
     });
-    return out.slice(0, 6);
+    return all ? out : out.slice(0, 6);
   }
   function moveTrip(id, s) {
     var cur = state.added.filter(function (x) { return x.id === id; })[0]; if (!cur) return;
@@ -676,10 +676,12 @@
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + halfWhere(b) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
-  /* A free day's ideas inside the timeline sheet, opened from its + on the axis. The same list the page shows for that
-     day (the same ideas, Fits [day], More ideas and Add buttons), so adding here or on the page is one plan. When the
-     day fills, it says so and offers the next free day, whose ideas the page has moved on to. */
-  var tlIdeas = document.getElementById('tp-tl-ideas'), tlIdeasDay = null, tlIdeasHold = null;
+  /* A free day's ideas, opened from its + on the axis in the sheet stacked over the timeline (16 Nov: they used to open
+     inline under the axis). The same list the page shows for that day (the same ideas, Fits [day], More ideas and Add
+     buttons), so adding here or on the page is one plan. When the day fills, it says so and offers the next free day,
+     whose ideas the page has moved on to. Under the list, See all ideas for this day stands for the full page (not
+     linked yet). What was added lands on the axis once the sheet closes. */
+  var tlIdeas = document.getElementById('tp-tl-ideas'), tlIdeasDay = null, tlIdeasHold = null, tlIdeasHome = tlIdeas && tlIdeas.parentNode, tlIdeasNext = tlIdeas && tlIdeas.nextSibling, tlIdeasAdded = [];
   function freeInfo(d) { return FREEINFO.filter(function (x) { return x.d === d; })[0]; }
   function renderTlIdeas() {
     if (window.tpFreeApi) window.tpFreeApi.set(FREEINFO.map(function (x) { return { d: x.d, label: x.label, filled: x.filled, count: x.count }; }));
@@ -687,13 +689,12 @@
     var fd = tlIdeasDay !== null ? freeInfo(tlIdeasDay) : null;
     if (!fd) { tlIdeas.innerHTML = ''; tlIdeas.style.minHeight = ''; tlIdeasHold = null; return; }
     // While the same day stays open the list never gets shorter (a day that fills shrinks to one line), so the sheet
-    // keeps its scroll and the axis stays stuck at the top while the new marker lands
+    // keeps its scroll
     if (tlIdeasHold === fd.d && tlIdeas.offsetHeight) tlIdeas.style.minHeight = Math.max(parseFloat(tlIdeas.style.minHeight) || 0, tlIdeas.offsetHeight) + 'px';
     else tlIdeas.style.minHeight = '';
     tlIdeasHold = fd.d;
-    var line = fd.filled ? 'your day is full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
-    var h = '<div class="tp-tl-ideas-top"><h4 class="tp-tl-ideas-h" id="tp-tl-ideas-h" tabindex="-1">' + esc(fd.label) + ' · Free day · ' + esc(line) + '</h4>' +
-      '<button type="button" class="tp-link" data-tlideas-close>Hide ideas</button></div>';
+    var line = fd.filled ? 'Your day is full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
+    var h = '<h2 class="cn-pp-title tp-tl-ideas-h" id="tp-pm-title" tabindex="-1">' + esc(fd.label) + '</h2><p class="tp-tl-ideas-sub" id="tp-tl-ideas-h">Free day · ' + esc(line) + '</p>';
     if (fd.filled) {
       var next = FREEINFO.filter(function (x) { return x.d > fd.d && !x.filled; })[0] || FREEINFO.filter(function (x) { return !x.filled; })[0];
       h += '<p class="tp-fday-done">Your day: ' + esc(fd.its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p>';
@@ -704,21 +705,25 @@
         : '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
       if (fd.more) h += '<button type="button" class="tp-link tp-blk-more" data-tlideas-more="' + esc(fd.dk) + '" aria-expanded="' + !!moreBlk[fd.dk] + '">' + (moreBlk[fd.dk] ? 'Fewer ideas' : 'More ideas') + '</button>';
     }
+    h += '<div class="tp-pm-acts tp-tl-ideas-full"><span class="tp-pm-full" role="link" aria-disabled="true">See all ideas for this day</span><span class="tp-pm-soon">Not linked yet</span></div>';
     tlIdeas.innerHTML = h;
-    // If what the list now says (a day just filled) is hidden under the stuck axis, bring it up to just below the axis;
-    // the axis itself stays put
-    var pn = document.getElementById('tp-tl-panel'), ax = document.getElementById('tp-tl-scroll'), hd = tlIdeas.querySelector('.tp-tl-ideas-top');
-    if (pn && ax && hd && pn.classList.contains('has-ideas')) {
-      var gap = hd.getBoundingClientRect().top - ax.getBoundingClientRect().bottom;
-      if (gap < 0) pn.scrollTo({ top: pn.scrollTop + gap - 12, behavior: reduce.matches ? 'auto' : 'smooth' });
-    }
   }
-  phone.addEventListener('tp:freeideas', function (e) { tlIdeasDay = e.detail.day; renderTlIdeas(); });
+  // The list is one element, lent to the sheet while it is open and put back after
+  function tlIdeasReturn() {
+    if (!tlIdeas || !tlIdeasHome || tlIdeas.parentNode === tlIdeasHome) return;
+    tlIdeasHome.insertBefore(tlIdeas, tlIdeasNext && tlIdeasNext.parentNode === tlIdeasHome ? tlIdeasNext : null);
+    tlIdeas.hidden = true; tlIdeas.style.minHeight = ''; tlIdeasHold = null;
+  }
+  phone.addEventListener('tp:freeideas', function (e) {
+    tlIdeasDay = e.detail.day;
+    // Next free day: the open sheet swaps to that day, from its top
+    if (tlIdeasDay !== null && pmOpen && pmOpen.id.indexOf('ideas:') === 0) { pmOpen.id = 'ideas:' + tlIdeasDay; tlIdeas.style.minHeight = ''; tlIdeasHold = null; pmBody.scrollTop = 0; }
+    renderTlIdeas();
+  });
   if (tlIdeas) {
     tlIdeas.addEventListener('click', function (e) {
-      if (e.target.closest('[data-tlideas-close]')) { window.tpFreeApi.close(true); return; }
       var g = e.target.closest('[data-tlideas-go]');
-      if (g) { window.tpFreeApi.go(+g.dataset.tlideasGo); return; }
+      if (g) { window.tpFreeApi.go(+g.dataset.tlideasGo); var hh = tlIdeas.querySelector('.tp-tl-ideas-h'); if (hh) hh.focus({ preventScroll: true }); return; }
       var m = e.target.closest('[data-tlideas-more]');
       if (m) { var k = m.dataset.tlideasMore; moreBlk[k] = !moreBlk[k]; render(true, '#tp-tl-ideas [data-tlideas-more="' + CSS.escape(k) + '"]'); }
     });
@@ -1139,7 +1144,8 @@
   function moveItem(id, d) {
     var cur = addedItem(id); if (!cur) return id;
     if (cur.kind === 'trip') { moveTrip(id, d); return id; }
-    var nid = cur.kind === 'product' ? 'p:' + cur.id.split(':')[1] + ':' + dayLabel(d) : 'w:' + cur.id.split(':')[1] + ':moved:' + dayLabel(d);
+    // A place saved from the map keeps its id (poi:...), so the map still shows it as saved
+    var nid = cur.kind === 'poi' ? cur.id : cur.kind === 'product' ? 'p:' + cur.id.split(':')[1] + ':' + dayLabel(d) : 'w:' + cur.id.split(':')[1] + ':moved:' + dayLabel(d);
     var nu = Object.assign({}, cur, { id: nid, day: dayLabel(d) });
     delete nu.matchName; // it was suggested for a match on its old day
     tp.removeItem(id); tp.addItem(nu);
@@ -1175,23 +1181,42 @@
   var pmStacked = false, pmUnstackT = 0;
   pm.addEventListener('tp:stackclose', function () {
     if (!pmStacked) return;
+    var wasIdeas = pmOpen && pmOpen.id.indexOf('ideas:') === 0;
     pmStacked = false; pmOpen = null;
+    if (wasIdeas) {
+      var landed = tlIdeasAdded.filter(function (id) { return added(id); }); tlIdeasAdded = [];
+      if (window.tpFreeApi) window.tpFreeApi.close(false);
+      // After the sheet has slid away, so the ring is seen
+      setTimeout(function () { tlIdeasReturn(); if (tp.tlSettle && landed.length) tp.tlSettle(landed); }, reduce.matches ? 0 : 320);
+    }
     clearTimeout(pmUnstackT);
     pmUnstackT = setTimeout(function () { if (!pmStacked) { pm.hidden = true; pm.classList.remove('tp-stack', 'is-stacked'); } notesRefresh(); }, reduce.matches ? 0 : 340);
   });
   tp.openSheet = function (id, opener) { openPm(id, opener, true); };
   tp.moveItem = moveItem; // the timeline's hold-and-drag
+  // The days a dragged item may land on: a trip only on the start days it runs; anything else on any day it is open in
+  // their days (every day of the axis without days)
+  tp.itemStarts = function (id) {
+    var it = addedItem(id); if (!it) return [];
+    if (it.kind === 'trip') return tripMoves(id, true).map(function (m) { return m.start; }).concat([it.start]);
+    var s = stay(), a = s ? Math.max(0, s.a) : 0, z = s ? Math.min(43, s.z) : 43, out = [];
+    for (var d = a; d <= z; d++) if (openOn(it, d)) out.push(d);
+    var cur = tp.dayOf(it.day); if (out.indexOf(cur) < 0) out.push(cur);
+    return out;
+  };
   function openPm(id, opener, stacked) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
-    var isKo = id.indexOf('ko:') === 0, isWt = id.indexOf('wt:') === 0;
-    var x = isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
+    var isKo = id.indexOf('ko:') === 0, isWt = id.indexOf('wt:') === 0, isIdeas = id.indexOf('ideas:') === 0;
+    tlIdeasReturn(); // the ideas list is lent to the sheet; take it back before the body is replaced
+    var x = isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
-    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt;
+    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt || isIdeas;
     pmOpenerEl = null;
-    pmBody.innerHTML = isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    pmBody.innerHTML = isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    if (isIdeas) { tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
-    pmKind.textContent = isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
@@ -1199,12 +1224,12 @@
       pmStacked = true;
       pm.classList.remove('is-sheet', 'is-open', 'is-closing');
       pm.classList.add('tp-stack', 'is-stacked');
-      pm.classList.toggle('is-match', isMatch || isDays);
+      pm.classList.toggle('is-match', isMatch || isDays || isIdeas);
       pm.hidden = false;
       void pm.offsetWidth;
       tp.stackOpen(pm, opener);
       pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-      tp.say(isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
+      tp.say(isIdeas ? 'Ideas for ' + (freeInfo(tlIdeasDay) || {}).label + ', opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
       notesRefresh();
       return;
     }
@@ -1603,16 +1628,16 @@
       return;
     }
     // Not a button inside a sheet, and not one a sheet has just redrawn away (it is no longer in the page)
-    var b = e.target.closest('.tp-add'); if (!b || pm.contains(b) || !b.isConnected) return;
+    var inIdeas = !!(tlIdeas && tlIdeas.contains(e.target));
+    var b = e.target.closest('.tp-add'); if (!b || (pm.contains(b) && !inIdeas) || !b.isConnected) return;
     var it = ITEMS[b.dataset.item]; if (!it) return;
     if (added(it.id)) {
       tp.removeItem(it.id);
       tp.say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
-    } else if (tlIdeas && tlIdeas.contains(b)) {
-      // Added from the timeline's ideas: the marker flies up to its day on the axis, which stays in view above
-      var from = b.getBoundingClientRect();
+    } else if (inIdeas) {
+      // Added from the ideas sheet: the axis is behind the sheet, so its marker settles with a ring once the sheet closes
       tp.addItem(Object.assign({}, it));
-      if (tp.tlLand) tp.tlLand(it.id, from);
+      tlIdeasAdded.push(it.id);
       tp.say(it.title + ' added to your timeline on ' + it.day + '. ' + state.added.length + ' added.');
       return;
     } else {
@@ -1696,14 +1721,14 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
       h += '<p class="tp-sec-note">Optional. Set them and the ideas below fit around your matches' + (Object.keys(mdays).length ? ', dotted on the bar' : '') + '.</p>' +
-        '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
-        '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
+        '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" data-f="from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
+        '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" data-f="to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
         Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45"></span></div>' +
-        '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out" id="tp-range-out"></span><span>15 Nov</span></div></div>' +
+        '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out"></span><span>15 Nov</span></div></div>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
           (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
@@ -1728,7 +1753,7 @@
     }
     h += '</div>';
     ask.innerHTML = h;
-    if (ask.querySelector('#tp-range')) rangeFromFields();
+    if (ask.querySelector('#tp-range')) { var keep = rRoot; rRoot = ask; rangeFromFields(); rRoot = keep; }
   }
   function placeList() {
     var q = placeQ.trim().toLowerCase(); if (!q) return '';
@@ -1774,22 +1799,27 @@
     var act = b.dataset.act;
     if (act === 'refine') { refineOpen = !refineOpen; settle('[data-act="refine"]', h0); return; }
     if (act === 'change') { askEditing = true; settle('#tp-from', h0); return; }
+    if (act === 'clear' || act === 'undo') { rRoot = ask; askHold(); daysStep(act, '#tp-from'); }
+    // (Use these dates is gone: days apply as they are set, see applyDays below)
+  });
+  // Undo and Reset, from either slider (rRoot): one history. Undoing the change that placed saved places puts them back
+  // in Saved, not placed yet, as they were
+  function daysStep(act, fallback) {
+    var t = trip() || {}, before = snap(), said;
     if (act === 'clear') {
       if (t.from || t.to) askUndo.push({ from: t.from || '', to: t.to || '' });
       askEditing = true; askDraft = null; askError = '';
-      askOwn = true; askHold(); tp.setTrip({ base: t.base, party: t.party });
+      askOwn = true; tp.setTrip({ base: t.base, party: t.party });
       said = changedSince(before, 'Your days are reset.');
-      askQuiet(askUndo.length ? '[data-act="undo"]' : '#tp-from'); tp.say(said); return;
-    }
-    if (act === 'undo') {
+    } else {
       var prev = askUndo.pop(); if (!prev) return;
       askEditing = true; askDraft = null; askError = ''; askOwn = true;
-      askHold(); tp.setTrip(prev.from ? { from: prev.from, to: prev.to, base: t.base, party: t.party } : { base: t.base, party: t.party });
-      said = changedSince(before, prev.from ? 'Back to ' + tp.isoRange(prev.from, prev.to) + '.' : 'Your days are removed again.');
-      askQuiet(askUndo.length ? '[data-act="undo"]' : '#tp-from'); tp.say(said); return;
+      (prev.placed || []).forEach(function (id) { var it = addedItem(id); if (it) { it.day = ''; it.unplaced = true; } });
+      tp.setTrip(prev.from ? { from: prev.from, to: prev.to, base: t.base, party: t.party } : { base: t.base, party: t.party });
+      said = changedSince(before, prev.from ? 'Back to ' + tp.isoRange(prev.from, prev.to) + '.' : 'Your days are removed again.') + ((prev.placed || []).length ? ' ' + prev.placed.length + (prev.placed.length === 1 ? ' saved place is' : ' saved places are') + ' back in Saved, not placed yet.' : '');
     }
-    // (Use these dates is gone: days apply as they are set, see applyDays below)
-  });
+    askQuiet(askUndo.length ? '[data-act="undo"]' : fallback); tp.say(said);
+  }
   // Days apply as they are set: on letting go of a slider handle, a short pause after the arrow keys, or a date field
   // changing. Each change can be undone. The panel redraws quietly (no fade), focus stays where it was
   // Setting days can grow what sits above the panel (the map's Follow day by day line): the panel is held where it was
@@ -1799,8 +1829,11 @@
   function askQuiet(sel) {
     render(true);
     if (askY !== null) { body.scrollTop += ask.getBoundingClientRect().top - askY; askY = null; }
-    var el = sel && ask.querySelector(sel); if (el) el.focus({ preventScroll: true });
+    var el = sel && (rRoot || ask).querySelector(sel); if (el) el.focus({ preventScroll: true });
   }
+  // The slider is in two places: Your days on the page (#tp-ask) and, while no days are set, the open timeline
+  // (#tp-tl-daysline). rRoot is the one in use, set as each event comes in; both share one Undo history
+  var rRoot = null;
   function applyDays(a, z, sel) {
     var t = trip() || {}, lo = '2027-09-29', hi = '2027-11-15', before = snap();
     askDraft = { from: a, to: z };
@@ -1808,16 +1841,37 @@
     if (a < lo || a > hi || z < lo || z > hi) { askError = 'Pick days between 29 Sep and 15 Nov, around the tournament.'; askQuiet(sel); return; }
     if (z < a) { askError = 'The last day is before the first day.'; askQuiet(sel); return; }
     if (t.from === a && t.to === z) { askDraft = null; return; }
-    askUndo.push({ from: t.from || '', to: t.to || '' });
+    var step = { from: t.from || '', to: t.to || '' }, wait = tp.unplaced().map(function (x) { return x.id; });
+    askUndo.push(step);
     askError = ''; askDraft = null; askEditing = true; askOwn = true;
-    askHold(); tp.setTrip({ from: a, to: z, base: t.base, party: t.party });
+    if (rRoot !== daysLine) askHold();
+    var land = tlWaitRects();
+    tp.setTrip({ from: a, to: z, base: t.base, party: t.party });
+    step.placed = wait.filter(function (id) { var it = addedItem(id); return it && !it.unplaced; });
+    tlWaitLand(land);
     // Work out what changed before the panel redraws, so its line under the slider is about this change, not the last
     var said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
     askQuiet(sel);
     tp.say(said);
   }
-  function applyFromFields(sel) { var f = ask.querySelector('#tp-from'), z = ask.querySelector('#tp-to'); if (f && z) applyDays(f.value, z.value, sel); }
-  ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') applyFromFields('#' + e.target.id); });
+  function applyFromFields(sel) { var p = rangeParts(); if (p.from && p.to) applyDays(p.from.value, p.to.value, sel); }
+  ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') { rRoot = ask; applyFromFields('#' + e.target.id); } });
+  /* Saved, not placed yet, going onto days as the days are set in the open timeline: each glides from its row in the
+     list to its day on the axis (the same flight as an idea landing), one after another */
+  function tlWaitRects() {
+    var out = {}, tl = document.getElementById('tp-tl');
+    if (!tl || !tl.classList.contains('is-open')) return out;
+    document.querySelectorAll('#tp-tl-wait [data-wait-rm]').forEach(function (b) { var li = b.closest('li'); if (li && li.getClientRects().length) out[b.dataset.waitRm] = li.getBoundingClientRect(); });
+    return out;
+  }
+  function tlWaitLand(rects) {
+    var n = 0;
+    Object.keys(rects).forEach(function (id) {
+      var it = addedItem(id); if (!it || it.unplaced || !tp.tlLand) return;
+      var r = rects[id], at = n++;
+      setTimeout(function () { tp.tlLand(id, { left: r.left + 16, top: r.top, width: 22, height: r.height }); }, at * 160);
+    });
+  }
   var lastTrip = '', askOwn = false;
   /* ---------- The date slider: 29 Sep to 15 Nov (the tournament and two days either side), two handles ----------
      Each handle is a slider (arrows a day, Page Up and Down a week, Home and End to the limit); they never cross. It
@@ -1827,7 +1881,7 @@
   function rangeClamp(d) { return Math.max(RMIN, Math.min(RMAX, d)); }
   function rangeAt(x, rect) { return rangeClamp(RMIN + Math.round((x - rect.left) / rect.width * RSPAN)); } // snaps to whole days
   function rangeDay(iso, fb) { if (!iso) return { d: fb, out: '' }; var d = tp.isoDay(iso); return { d: rangeClamp(d), out: d < RMIN || d > RMAX ? dayLabel(d) + (d < RMIN ? ', before 29 Sep' : ', after 15 Nov') : '' }; }
-  function rangeParts() { return { r: ask.querySelector('#tp-range'), from: ask.querySelector('#tp-from'), to: ask.querySelector('#tp-to') }; }
+  function rangeParts() { var root = rRoot || ask; return { r: root.querySelector('.tp-range'), from: root.querySelector('[data-f="from"]'), to: root.querySelector('[data-f="to"]') }; }
   function rangeDraw(a, z, outA, outZ) {
     var p = rangeParts(); if (!p.r) return;
     var hs = p.r.querySelectorAll('.tp-range-h'), pct = function (d) { return ((d - RMIN) / RSPAN * 100) + '%'; };
@@ -1838,7 +1892,7 @@
     });
     var fill = p.r.querySelector('.tp-range-fill');
     fill.style.left = pct(a); fill.style.width = ((z - a) / RSPAN * 100) + '%';
-    var o = p.r.querySelector('#tp-range-out');
+    var o = p.r.querySelector('.tp-range-out');
     o.textContent = outA || outZ || 'Tournament 1 Oct to 13 Nov'; // the marks' key, unless a typed date is past an end
     o.classList.toggle('is-out', !!(outA || outZ));
   }
@@ -1857,11 +1911,14 @@
     p.from.value = isoOf(a); p.to.value = isoOf(z);
     p.r.classList.remove('is-unset');
     rangeDraw(a, z, '', '');
-    if (askError) { askError = ''; var er = ask.querySelector('.tp-ask-err'); if (er) er.remove(); }
+    if (askError) { askError = ''; var er = (rRoot || ask).querySelector('.tp-ask-err'); if (er) er.remove(); }
   }
   var rangeDrag = null;
-  ask.addEventListener('pointerdown', function (e) {
+  function bindRange(root) {
+  if (!root) return;
+  root.addEventListener('pointerdown', function (e) {
     var tr = e.target.closest('.tp-range-track'); if (!tr) return;
+    rRoot = root;
     var h = e.target.closest('.tp-range-h');
     var rect = tr.getBoundingClientRect(), at = rangeAt(e.clientX, rect);
     if (!h) { // a tap on the track moves the nearer handle there
@@ -1877,28 +1934,31 @@
     try { tr.setPointerCapture(e.pointerId); } catch (err) {}
     h.classList.add('is-dragging');
   });
-  ask.addEventListener('pointermove', function (e) {
+  root.addEventListener('pointermove', function (e) {
     if (!rangeDrag) return;
     if (rangeDrag.pending) {
       if (Math.abs(e.clientX - rangeDrag.x0) < 4) return;
       rangeDrag.h.classList.remove('is-dragging');
-      rangeDrag.h = ask.querySelector('.tp-range-h[data-h="' + (e.clientX < rangeDrag.x0 ? 'from' : 'to') + '"]');
+      rangeDrag.h = root.querySelector('.tp-range-h[data-h="' + (e.clientX < rangeDrag.x0 ? 'from' : 'to') + '"]');
       rangeDrag.h.classList.add('is-dragging'); rangeDrag.h.focus({ preventScroll: true });
       rangeDrag.pending = false;
     }
     rangeSet(rangeDrag.h.dataset.h, rangeAt(e.clientX, rangeDrag.rect));
   });
   function rangeEnd() { if (!rangeDrag) return; var w = rangeDrag.h.dataset.h; rangeDrag.h.classList.remove('is-dragging'); rangeDrag = null; applyFromFields('.tp-range-h[data-h="' + w + '"]'); }
-  ask.addEventListener('pointerup', rangeEnd); ask.addEventListener('pointercancel', rangeEnd);
-  ask.addEventListener('keydown', function (e) {
+  root.addEventListener('pointerup', rangeEnd); root.addEventListener('pointercancel', rangeEnd);
+  root.addEventListener('keydown', function (e) {
     var h = e.target.closest('.tp-range-h'); if (!h) return;
+    rRoot = root;
     var v = +h.getAttribute('aria-valuenow'), step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 7, PageDown: -7 }[e.key];
     if (e.key === 'Home') v = RMIN; else if (e.key === 'End') v = RMAX; else if (step) v += step; else return;
     e.preventDefault();
     rangeSet(h.dataset.h, v);
     clearTimeout(askKeyT); askKeyT = setTimeout(function () { applyFromFields('.tp-range-h[data-h="' + h.dataset.h + '"]'); }, 450);
   });
-  ask.addEventListener('input', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') rangeFromFields(); });
+  }
+  bindRange(ask); bindRange(document.getElementById('tp-tl-daysline'));
+  ask.addEventListener('input', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') { rRoot = ask; rangeFromFields(); } });
   // The question collapsing to its answer (or opening again) glides between the two heights
   function settle(focusSel, h0) {
     render(true);
@@ -1938,17 +1998,50 @@
     }
     tripEl.innerHTML = '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (M.how === 'one' ? 'Staying longer? Set your days' : 'Set your days to see what fits your free days') + '</button>';
   }
-  // In the open timeline: one line that says what is set and goes to it on the page
-  var daysLine = document.getElementById('tp-tl-daysline');
+  /* In the open timeline. Days set: one line that says what is set, with Change (the days sheet, stacked).
+     No days yet (16 Nov): the date slider itself, in place of the small Add your days link, because setting days is
+     what places anything saved from the map; a line says so when something is waiting. It applies as it is set, with
+     Undo and Reset (one history with the page's), and stays a slider until the timeline closes, so the days can be
+     adjusted; Pick on a calendar opens the days sheet. */
+  var daysLine = document.getElementById('tp-tl-daysline'), tlDaysEdit = false;
   function renderDaysLine() {
     if (!daysLine) return;
-    var t = trip() || {}, bits = [];
-    if (t.from && t.to) bits.push('Your days: ' + tp.isoRange(t.from, t.to));
+    var t = trip() || {}, bits = [], has = !!(t.from && t.to), wait = tp.unplaced().length;
+    if (has) bits.push('Your days: ' + tp.isoRange(t.from, t.to));
     if (t.base) bits.push(baseLabel(t.base));
     if (t.party) bits.push(partyLabel(t.party));
-    daysLine.hidden = !tp.own();
-    daysLine.innerHTML = (bits.length ? '<span>' + esc(bits.join(' · ')) + '</span> · ' : '') + '<button type="button" class="tp-link" data-act="days">' + window.tpIcons.cal + (t.from ? 'Change' : 'Add your days') + '</button>';
+    daysLine.hidden = !tp.own() && !wait;
+    if (!has && !daysLine.hidden) tlDaysEdit = true;
+    daysLine.classList.toggle('is-edit', tlDaysEdit && !daysLine.hidden);
+    if (!tlDaysEdit) {
+      daysLine.innerHTML = (bits.length ? '<span>' + esc(bits.join(' · ')) + '</span> · ' : '') + '<button type="button" class="tp-link" data-act="days">' + window.tpIcons.cal + (t.from ? 'Change' : 'Add your days') + '</button>';
+      return;
+    }
+    var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
+    var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Drag either end to change them.'
+      : wait ? 'Set your days and ' + (wait === 1 ? 'the place you saved goes' : 'the ' + wait + ' places you saved go') + ' onto free days.'
+      : 'Optional. Ideas then fit around your matches' + (Object.keys(mdays).length ? ', dotted on the bar' : '') + '.';
+    daysLine.innerHTML = '<span class="tp-tl-setdays-h" id="tp-tl-setdays-h">Your days in NSW</span>' +
+      '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' +
+      '<input type="hidden" data-f="from" value="' + esc(t.from || '') + '"><input type="hidden" data-f="to" value="' + esc(t.to || '') + '">' +
+      '<span class="tp-range tp-tl-range" role="group" aria-labelledby="tp-tl-setdays-h"><span class="tp-range-track"><span class="tp-range-fill"></span>' +
+      '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
+      Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
+      '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
+      '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45"></span></span>' +
+      '<span class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out"></span><span>15 Nov</span></span></span>' +
+      '<span class="tp-ask-acts tp-ask-acts--links">' +
+        (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
+        (has ? '<button type="button" class="tp-link tp-ico-link" data-act="clear">' + I_RESET + 'Reset</button>' : '') +
+        '<button type="button" class="tp-link tp-ico-link" data-act="days">' + window.tpIcons.cal + 'Pick on a calendar</button></span>';
+    var keep = rRoot; rRoot = daysLine; rangeFromFields(); rRoot = keep;
   }
+  if (daysLine) daysLine.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act="undo"], [data-act="clear"]'); if (!b) return;
+    rRoot = daysLine; daysStep(b.dataset.act, '.tp-range-h[data-h="from"]');
+  });
+  // Closed and opened again, the timeline shows the days as one line with Change
+  phone.addEventListener('tp:tlclose', function () { if (tlDaysEdit) { tlDaysEdit = false; renderDaysLine(); } });
   phone.addEventListener('click', function (e) {
     var tb = e.target.closest('#tp-third-trip [data-act="trip"], #tp-tl-daysline [data-act="days"]');
     if (tb) openAsk(true, tb);
