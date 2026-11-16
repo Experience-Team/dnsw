@@ -1183,14 +1183,15 @@
   tp.moveItem = moveItem; // the timeline's hold-and-drag
   function openPm(id, opener, stacked) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
-    var x = isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
+    var isKo = id.indexOf('ko:') === 0, isWt = id.indexOf('wt:') === 0;
+    var x = isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
-    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays;
+    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt;
     pmOpenerEl = null;
-    pmBody.innerHTML = isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    pmBody.innerHTML = isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
@@ -1203,7 +1204,7 @@
       void pm.offsetWidth;
       tp.stackOpen(pm, opener);
       pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-      tp.say(isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
+      tp.say(isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
       notesRefresh();
       return;
     }
@@ -1216,7 +1217,7 @@
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say(isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
+    tp.say(isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
   function closePm() {
@@ -1236,8 +1237,58 @@
     else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
     var el = back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
     if (!el && pmOpenerEl && document.contains(pmOpenerEl)) el = pmOpenerEl;
+    // The control that opened it was redrawn while the sheet was open (a card showing a new chip): its replacement
+    if (!el && pmOpenerEl) {
+      var d = pmOpenerEl.dataset || {}, k = ['openWatch', 'watchTeam', 'ko', 'open', 'goingMark'].filter(function (n) { return d[n] !== undefined; })[0];
+      var sel = k ? '[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(d[k]) + '"]' : d.planDays !== undefined ? '[data-plan-days]' : null;
+      if (sel) el = phone.querySelector('#tp-deck ' + sel) || phone.querySelector(sel);
+    }
     if (el) el.focus({ preventScroll: true });
   }
+  /* ---------- From the team cards (redesigned 16 Nov): small sheets, never a page jump ----------
+     The knockout line opens the knockout path in NSW; See where to watch all N opens the screenings for each of the
+     team's matches (with Add); Watch in NSW on a row opens that match's sheet at Where to watch it in NSW; Plan around
+     your match day opens the days sheet. */
+  function pmKo(key) {
+    var c = tp.teams[key], ko = (window.cnFixtures || []).filter(function (f) { return !/^Pool /.test(f.s) && !f.a; });
+    var mine = c ? ko.filter(function (f) { return f.t && f.t.indexOf(c.pool) > -1; })[0] : null, h = '<div class="plan-modal-body tp-pm-ko">';
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">' + (c ? esc(c.name) + '\u2019s way through' : 'Knockouts in NSW') + '</h2>';
+    if (mine) {
+      var pos = /(\w+) Pool /.exec(mine.t.split(' v ').filter(function (x) { return x.indexOf(c.pool) > -1; })[0])[1];
+      h += '<p class="tp-ko-lead">If ' + esc(c.name) + ' finishes ' + (pos === '2nd' ? 'second' : pos === '1st' ? 'first' : esc(pos)) + ' in ' + esc(c.pool) + ', its Round of 16 match is in Sydney: <b>' + esc(mine.d) + (mine.k ? ', ' + esc(mine.k) : '') + ', ' + esc(mine.v) + '</b> (' + esc(mine.t) + ').</p>';
+    } else if (c) h += '<p class="tp-ko-lead">' + esc(c.name) + '\u2019s Round of 16 would be interstate. If it goes through, the semi-finals and the final are in Sydney.</p>';
+    h += '<p class="tp-ko-note">Knockouts in NSW, all in Sydney. Teams are known when the pools finish.</p><ol class="tp-ko-list">' + ko.map(function (f) {
+      var hit = mine && f === mine;
+      return '<li' + (hit ? ' class="is-hit"' : '') + '><span class="tp-ko-d">' + esc(f.d) + (f.k ? ', ' + esc(f.k) : '') + '</span><span class="tp-ko-s">' + esc(f.s.replace(/ \(\d+\)$/, '')) + (f.t ? ': ' + esc(f.t) : '') + '</span><span class="tp-ko-v">' + esc(f.v) + '</span></li>';
+    }).join('') + '</ol></div>';
+    return h;
+  }
+  function pmWt(name) {
+    var ms = tp.userMatches().filter(function (m) { return m.f.t && m.f.t.split(' v ').indexOf(name) > -1; });
+    var h = '<div class="plan-modal-body tp-pm-wt"><h2 class="cn-pp-title" id="tp-pm-title">Watch ' + esc(name) + ' in NSW</h2>' +
+      '<p class="tp-ko-note">' + ms.length + (ms.length === 1 ? ' match' : ' matches') + ', each at fan zones, pubs and clubs in NSW. Add the one you\u2019ll go to. Venues are examples until real ones are supplied.</p>';
+    ms.forEach(function (m) { h += '<section class="tp-wt-m">' + matchLine(m) + venueRows([m], evKey([m])) + '</section>'; });
+    return h + '</div>';
+  }
+  tp.openMatchAt = function (key, opener, where) {
+    openPm('match:' + key, opener); pmOpenerEl = opener || null;
+    var t = pm.querySelector(where === 'ticket' ? '[data-pm-ticket]' : '#tp-pm-watch-h');
+    if (!t) return;
+    if (where !== 'ticket') { t.tabIndex = -1; pmBody.scrollTop = Math.max(0, t.getBoundingClientRect().top - pmBody.getBoundingClientRect().top + pmBody.scrollTop - 12); }
+    t.focus({ preventScroll: where !== 'ticket' });
+  };
+  phone.addEventListener('click', function (e) {
+    if (pm.contains(e.target)) return;
+    var w = e.target.closest('[data-open-watch]');
+    if (w) { tp.openMatchAt(w.dataset.openWatch, w, 'watch'); return; }
+    var k = e.target.closest('[data-ko]');
+    if (k) { openPm('ko:' + k.dataset.ko, k); pmOpenerEl = k; return; }
+    var wt = e.target.closest('[data-watch-team]');
+    if (wt) { openPm('wt:' + wt.dataset.watchTeam, wt); pmOpenerEl = wt; return; }
+    var pd = e.target.closest('[data-plan-days]');
+    if (pd) { openDays(false, pd); return; }
+  });
+
   /* ---------- Your days, and where you're staying, in a sheet (16 Nov) ----------
      Every way to the days from elsewhere on the page (Staying longer? Set your days, Set your days to see what fits,
      Change, the timeline's Add your days) opens this sheet where the person is, instead of jumping the page down to
@@ -1413,15 +1464,17 @@
     // A screening's Add in a match's own sheet (Where to watch it in NSW): adds or takes it off, and the sheet redraws so
     // every Add in it stays live (they did nothing before: the page's handler leaves the sheet alone)
     var vb = e.target.closest('.tp-add[data-item]');
-    if (vb && pmOpen && pmOpen.id.indexOf('match:') === 0) {
-      var vid = vb.dataset.item, vi = ITEMS[vid];
-      if (!vi) { pmBody.innerHTML = pmMatch(pmOpen.id.slice(6)); vi = ITEMS[vid]; } // the page redrew and cleared the list
+    if (vb && pmOpen && (pmOpen.id.indexOf('match:') === 0 || pmOpen.id.indexOf('wt:') === 0)) {
+      var vid = vb.dataset.item, vi = ITEMS[vid], isWt = pmOpen.id.indexOf('wt:') === 0;
+      var redraw = function () { pmBody.innerHTML = isWt ? pmWt(pmOpen.id.slice(3)) : pmMatch(pmOpen.id.slice(6)); };
+      if (!vi) { redraw(); vi = ITEMS[vid]; } // the page redrew and cleared the list
       if (!vi) return;
       var von = !added(vi.id);
       if (von) tp.addItem(Object.assign({}, vi)); else tp.removeItem(vi.id);
       pmSaid = vi.title + (von ? ' added to your timeline on ' + vi.day + '.' : ' removed from your timeline.');
       e.stopPropagation();
-      pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
+      if (isWt) { var st = pmBody.scrollTop; redraw(); pmBody.scrollTop = st; var fb = pm.querySelector('.tp-add[data-item="' + CSS.escape(vid) + '"]'); if (fb) fb.focus({ preventScroll: true }); }
+      else pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
       tp.say(pmSaid + ' ' + state.added.length + ' added.');
       return;
     }

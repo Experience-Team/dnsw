@@ -127,7 +127,18 @@
   function notesOnly() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
   // Picks, tickets or the screen changed: the timeline follows, then the annotations
   var tlReady = false;
-  function changed() { if (window.tpPicker && window.tpPicker.slotSaved) window.tpPicker.slotSaved(); if (tlReady) { tlUpdate(); syncBar(); markRows(); } if (tlClearBtn) tlClearSync(); notesOnly(); }
+  // A ticket or a screening set from a sheet shows on its card's row as a chip: the deck redraws when either changes
+  var lastDeckSig = '';
+  function deckSig() { return state.tickets.join(',') + '|' + state.added.filter(function (x) { return x.kind === 'screening'; }).map(function (x) { return x.id; }).join(','); }
+  function deckFollow() {
+    if (!tabsOn || !deck.children.length) return;
+    var ds = deckSig(); if (ds === lastDeckSig) return;
+    lastDeckSig = ds;
+    var a = document.activeElement, keepSel = a && deck.contains(a) ? (a.dataset.openWatch ? '[data-open-watch="' + CSS.escape(a.dataset.openWatch) + '"]' : a.dataset.open ? '[data-open="' + CSS.escape(a.dataset.open) + '"]' : null) : null;
+    buildDeck();
+    var f = keepSel && deck.querySelector(keepSel); if (f) f.focus({ preventScroll: true });
+  }
+  function changed() { if (window.tpPicker && window.tpPicker.slotSaved) window.tpPicker.slotSaved(); deckFollow(); if (tlReady) { tlUpdate(); syncBar(); markRows(); } if (tlClearBtn) tlClearSync(); notesOnly(); }
   // All matches: a row whose match was added on its own says so
   function markRows() {
     var on = {};
@@ -981,23 +992,65 @@
     // Picked teams also in this match, other than the card it sits on
     return f.t.split(' v ').filter(function (n) { return n !== self && state.picked.indexOf(n) > -1; });
   }
-  var TICKET_WHY = 'Tick \u2018I have a ticket\u2019 for the ones you\u2019ll be at, so we skip their screenings and plan your days around them.', TICKET_WHY_P = '<p class="tp-ticket-why">' + TICKET_WHY + '</p>';
-  function row(f, self, full) {
-    var id = idOf(f), opp = full ? f.t : 'v ' + f.t.split(' v ').filter(function (n) { return n !== self; })[0];
-    var also = full ? f.t.split(' v ').filter(function (n) { return state.picked.indexOf(n) > -1; }) : others(f, self);
-    var tag = f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>';
-    var note = also.length ? '<p class="tp-m-also">' + (full ? 'Your team: ' : 'Also your team: ') + esc(list(also)) + '</p>' : '';
-    var has = state.tickets.indexOf(id) > -1;
-    // The match itself opens its sheet, as a row in All matches does (agreed 16 Nov); the ticket box stays outside it
-    return '<li class="tp-m' + (has ? ' has-ticket' : '') + '"><button type="button" class="tp-all-btn tp-m-open" data-open="match:' + esc(f.d + '|' + (f.t || f.s)) + '" aria-haspopup="dialog"><span class="tp-m-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + '</span>' +
-      '<span class="tp-m-teams">' + esc(opp) + '</span><span class="tp-m-where">' + esc(f.v + ', ' + f.p) + '</span></button>' + tag + note +
-      '<label class="tp-ticket"><input type="checkbox" data-match="' + esc(id) + '"' + (has ? ' checked' : '') + ' /><span>I have a ticket</span></label></li>';
+  /* ---------- Team cards (redesigned 16 Nov, mock-up approved) ----------
+     Lead with the team: a band in its colours, a large flag, its name and one line of what is ahead; a quiet meta line.
+     One compact row per match (date block, opponent and flag, city and kick-off), the whole row opening the match's
+     sheet; interstate rows carry Watch in NSW, which opens that sheet at its screenings; a chip only once something is
+     set (Ticket, Watching at ...). No form fields on the card: the ticket question and its reason live in the match
+     sheet. One knockout line (its own small sheet) and one next step per card. */
+  var TEAM_BAND = {
+    'Argentina': ['#74ACDF', '#fff', '#74ACDF'], 'Australia': ['#012169', '#FFCD00', '#00843D'], 'Canada': ['#D80621', '#fff', '#D80621'],
+    'Chile': ['#0039A6', '#fff', '#D52B1E'], 'England': ['#fff', '#CE1124', '#fff'], 'Fiji': ['#68BFE5', '#012169', '#fff'],
+    'France': ['#0055A4', '#fff', '#EF4135'], 'Georgia': ['#fff', '#E8112D', '#fff'], 'Hong Kong China': ['#DE2910', '#fff', '#DE2910'],
+    'Ireland': ['#169B62', '#fff', '#FF883E'], 'Italy': ['#009246', '#fff', '#CE2B37'], 'Japan': ['#fff', '#BC002D', '#fff'],
+    'New Zealand': ['#000', '#fff', '#000'], 'Portugal': ['#006600', '#FF0000', '#FF0000'], 'Romania': ['#002B7F', '#FCD116', '#CE1126'],
+    'Samoa': ['#CE1126', '#002B7F', '#CE1126'], 'Scotland': ['#005EB8', '#fff', '#005EB8'], 'South Africa': ['#007749', '#FFB81C', '#E03C31'],
+    'Spain': ['#AA151B', '#F1BF00', '#AA151B'], 'Tonga': ['#C10000', '#fff', '#C10000'], 'United States': ['#B22234', '#fff', '#3C3B6E'],
+    'Uruguay': ['#0038A8', '#fff', '#FCD116'], 'Wales': ['#fff', '#00AB39', '#D30731'], 'Zimbabwe': ['#006400', '#FFD200', '#D40000']
+  };
+  var I_TV = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 4.5h11v7.5h-11zM6 14h4M5.5 2l2.5 2.5L10.5 2"/></svg>';
+  var I_GO = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 14V2.5M4 3h7.5l-1.8 2.5L11.5 8H4"/></svg>';
+  var I_CUP = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 2.5h6v3a3 3 0 0 1-6 0zM5 3.5H3v1a2 2 0 0 0 2 2M11 3.5h2v1a2 2 0 0 1-2 2M8 8.5v3M5.5 13.5h5"/></svg>';
+  var I_NEXT = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5"/></svg>';
+  var I_CAL = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg>';
+  var WDAY = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+  function flagBig(n) { var m = FLAG[n] && /src="([^"]+)"/.exec(FLAG[n]); return m ? '<img class="tc-flag" src="' + m[1] + '" alt="" width="64" height="43" decoding="async">' : '<span class="tc-flag tc-flag--code" aria-hidden="true">' + esc((TEAMS[n] && TEAMS[n].code) || n.slice(0, 3)) + '</span>'; }
+  function band(cols) { return '<div class="tc-band" aria-hidden="true">' + cols.map(function (c) { return '<i' + (c === '#fff' ? ' class="is-white"' : '') + ' style="background:' + c + '"></i>'; }).join('') + '</div>'; }
+  function cityShort(f) { return f.a || (/Newcastle/.test(f.v) ? 'Newcastle' : 'Sydney'); }
+  function kick(f) { return f.k ? f.k.replace(':00', '') : 'time to be confirmed'; }
+  function daysSpan(fs) { if (!fs.length) return 0; var a = dayOf(fs[0].d), z = dayOf(fs[fs.length - 1].d); return z - a + 1; }
+  // What is set on a match, as a chip: a ticket, or the screening they added for it
+  function watchingAt(f) {
+    var k = idOf(f), it = state.added.filter(function (x) { return x.kind === 'screening' && x.id.indexOf(k) > -1; })[0];
+    return it ? it.title.replace(/ Fan Zone$/, '') : '';
   }
-  function koNote(c) {
-    if (c.rugby) return 'Knockouts in NSW: Round of 16 on Sat 23 and Sun 24 Oct (Sydney Football Stadium), quarter-finals on Sat 30 and Sun 31 Oct, semi-finals on Fri 5 and Sat 6 Nov, and the final on Sat 13 Nov (all Stadium Australia). Teams are known when the pools finish.';
-    var p = c.pool.replace('Pool ', ''), r = R16.filter(function (f) { return f.t && f.t.indexOf('Pool ' + p) > -1; })[0], line = '';
-    if (r) { var pos = /(\w+) Pool /.exec(r.t.split(' v ').filter(function (x) { return x.indexOf('Pool ' + p) > -1; })[0])[1]; line = 'If ' + c.name + ' finishes ' + (pos === '2nd' ? 'second' : pos) + ' in ' + c.pool + ', its Round of 16 match is in Sydney on ' + r.d + '. '; }
-    return line + 'Knockouts in NSW run from Sat 23 Oct to the final on Sat 13 Nov. Teams are known when the pools finish.';
+  function row(f, self, full) {
+    var id = idOf(f), has = state.tickets.indexOf(id) > -1, w = !has && watchingAt(f);
+    var p = f.d.split(' '), sides = f.t ? f.t.split(' v ') : [];
+    var who = full ? sides.map(function (n) { return '<span class="tc-team">' + (FLAG[n] || '') + esc(n) + '</span>'; }).join('<span class="tc-vs">v</span>')
+      : (function () { var o = sides.filter(function (n) { return n !== self; })[0] || f.s; return '<span class="tc-vs">v</span><span class="tc-team">' + (FLAG[o] || '') + esc(o) + '</span>'; })();
+    var name = full ? (f.t || f.s) : 'v ' + (sides.filter(function (n) { return n !== self; })[0] || f.s);
+    var also = full ? [] : others(f, self);
+    var chip = has ? '<span class="tc-chip is-ticket">Ticket</span>' : w ? '<span class="tc-chip is-watch">Watching at ' + esc(w) + '</span>' : '';
+    var lbl = (WDAY[p[0]] || p[0]) + ' ' + p[1] + ' ' + p[2] + ', ' + kick(f) + ', ' + name + ', ' + f.v + ', ' + (f.a ? f.a + ' (interstate)' : cityShort(f) + ' (in NSW)') + (has ? ', you have a ticket' : w ? ', watching at ' + w : '') + (also.length ? ', also your ' + list(also) : '') + '. Details';
+    return '<li class="tc-row' + (f.a ? ' is-away' : ' is-nsw') + (has ? ' has-ticket' : '') + '" data-key="' + esc(id) + '">' +
+      '<button type="button" class="tc-open" data-open="match:' + esc(id) + '" aria-haspopup="dialog" aria-label="' + esc(lbl) + '">' +
+        '<span class="tc-date" aria-hidden="true"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b><em>' + esc(p[2]) + '</em></span>' +
+        '<span class="tc-who" aria-hidden="true"><span class="tc-opp">' + who + '</span><span class="tc-where">' + esc(cityShort(f)) + ' · ' + esc(kick(f)) + (also.length ? ' · also your ' + esc(list(also)) : '') + '</span>' + chip + '</span>' +
+        (f.a ? '' : '<span class="tc-go" aria-hidden="true"><span class="tc-go-dot">' + I_GO + '</span>' + (full ? '' : '<span>In NSW</span>') + '</span>') +
+      '</button>' +
+      (f.a ? '<button type="button" class="tc-act" data-open-watch="' + esc(id) + '" aria-haspopup="dialog">' + I_TV + '<span>Watch in NSW</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
+      '</li>';
+  }
+  // The knockout line: only what matters in NSW, one line; its sheet has the whole path
+  function koLine(c) {
+    if (c.rugby) return { text: 'Knockouts in NSW: ', strong: 'Round of 16 to the final, 23 Oct to 13 Nov', key: 'all' };
+    var p = c.pool.replace('Pool ', ''), r = R16.filter(function (f) { return f.t && f.t.indexOf('Pool ' + p) > -1; })[0];
+    if (r) {
+      var pos = /(\w+) Pool /.exec(r.t.split(' v ').filter(function (x) { return x.indexOf('Pool ' + p) > -1; })[0])[1];
+      return { text: 'If ' + c.name + ' finishes ' + (pos === '2nd' ? 'second' : pos === '1st' ? 'first' : pos) + ' in ' + c.pool + ': ', strong: 'Round of 16 in Sydney, ' + r.d, key: c.name };
+    }
+    return { text: 'If ' + c.name + ' goes through: ', strong: 'semi-finals and the final in Sydney, from Fri 5 Nov', key: c.name };
   }
   function back(c, seen, isNew) {
     var ms = c.rugby ? nswPool : c.matches, own = [], elsewhere = [];
@@ -1005,24 +1058,46 @@
       var at = seen[idOf(f)];
       if (at && at !== c.name) elsewhere.push([f, at]); else { own.push(f); seen[idOf(f)] = c.name; }
     });
-    var head = c.rugby ? countPhrase(nswPool.concat(nswKo)) + ' in NSW' : c.pool + ' &middot; ' + countPhrase(c.matches) + ', ' + esc(nswCount(c));
-    var moved = elsewhere.map(function (x) { return '<p class="tp-m-moved">' + esc(x[0].d) + ', v ' + esc(x[0].t.split(' v ').filter(function (n) { return n !== c.name; })[0]) + ': on your ' + esc(x[1]) + ' card.</p>'; }).join('');
-    return '<div class="tp-back-head"><span class="tp-back-code">' + esc(c.code) + '</span><div><h4 class="tp-back-name">' + (FLAG[c.name] ? '<span aria-hidden="true">' + FLAG[c.name] + '</span> ' : '') + esc(c.name) + '</h4><p class="tp-back-meta">' + head + '</p></div>' +
-      (isNew ? '<span class="tp-rcard-new">Just added</span>' : '') + '</div>' +
-      // Why the ticket tick is asked, once per card, under the card's head; each tick points to it (aria-describedby)
-      TICKET_WHY_P +
-      '<ol class="tp-ms' + (c.rugby ? ' tp-ms--cols' : '') + '">' + own.map(function (f) { return row(f, c.name, c.rugby); }).join('') +
-      // On the columned card the knockout note is a column of its own, so it adds width, not height
-      (c.rugby ? '<li class="tp-ko tp-ko--col">' + esc(koNote(c)) + '</li></ol>' : '</ol>' + moved + '<p class="tp-ko">' + esc(koNote(c)) + '</p>');
+    var h = '';
+    if (c.rugby) {
+      var nx = nswPool[0];
+      h += band(['var(--c-accent)']) + '<header class="tc-head tc-head--all"><div><h4 class="tc-name">' + esc(c.name) + '</h4>' +
+        '<p class="tc-ahead">' + esc(countPhrase(nswPool.concat(nswKo), { short: true })) + ', all in NSW' + (nx ? ' · next: ' + esc(nx.t) + ', ' + esc(nx.d) : '') + '</p></div>' +
+        (isNew ? '<span class="tp-rcard-new">Just added</span>' : '') + '</header>';
+    } else {
+      var fs = c.matches.slice().sort(function (a, b) { return dayOf(a.d) - dayOf(b.d); }), n0 = fs[0], opp0 = n0 && n0.t.split(' v ').filter(function (n) { return n !== c.name; })[0];
+      h += band(TEAM_BAND[c.name] || ['var(--c-btn)']) + '<header class="tc-head">' + flagBig(c.name) +
+        '<div><h4 class="tc-name">' + esc(c.name) + '</h4><p class="tc-ahead">' + fs.length + (fs.length === 1 ? ' match' : ' matches') + (fs.length > 1 ? ' in ' + daysSpan(fs) + ' days' : '') + (n0 ? ' · next: v ' + esc(opp0) + ', ' + esc(n0.d) : '') + '</p></div>' +
+        (isNew ? '<span class="tp-rcard-new">Just added</span>' : '') +
+        '<p class="tc-meta"><b>' + esc(c.pool) + '</b> · ' + fs.length + ' pool ' + (fs.length === 1 ? 'match' : 'matches') + ' · <b>' + (c.nsw ? c.nsw + ' in NSW' : 'all interstate') + '</b></p></header>';
+    }
+    // Every NSW match: the first four, then the rest behind one control (the card stays short)
+    var cut = c.rugby && !rugbyAll ? 4 : own.length;
+    h += '<ol class="tc-rows">' + own.slice(0, cut).map(function (f) { return row(f, c.name, c.rugby); }).join('') + '</ol>';
+    if (own.length > cut) h += '<button type="button" class="tc-more" data-rugby-more aria-expanded="false">' + (own.length - cut) + ' more pool matches</button>';
+    else if (c.rugby && rugbyAll) h += '<button type="button" class="tc-more" data-rugby-more aria-expanded="true">Fewer matches</button>';
+    h += elsewhere.map(function (x) { return '<p class="tc-moved">' + esc(x[0].d) + ', v ' + esc(x[0].t.split(' v ').filter(function (n) { return n !== c.name; })[0]) + ': on your ' + esc(x[1]) + ' card.</p>'; }).join('');
+    var ko = koLine(c);
+    h += '<button type="button" class="tc-ko" data-ko="' + esc(ko.key) + '" aria-haspopup="dialog">' + I_CUP + '<span>' + esc(ko.text) + '<b>' + esc(ko.strong) + '</b></span>' + I_NEXT + '</button>';
+    // One next step: a team that plays in NSW plans around its match day; one that does not finds where to watch
+    var next = c.rugby ? '<button type="button" class="tc-next" data-plan-days aria-haspopup="dialog">' + I_CAL + 'Plan around your match days</button>'
+      : c.nsw ? '<button type="button" class="tc-next" data-plan-days aria-haspopup="dialog">' + I_CAL + 'Plan around your match day' + (c.nsw > 1 ? 's' : '') + '</button>'
+      : '<button type="button" class="tc-next" data-watch-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_TV + 'See where to watch all ' + c.matches.length + ' in NSW</button>';
+    return h + '<div class="tc-foot">' + next + '</div>';
   }
+  var rugbyAll = false;
   // Single matches added from All matches that no picked team's card already shows
   function addedMatches() { return state.added.filter(function (it) { return it.kind === 'match'; }).map(function (it) { return TLM_BY[it.key]; }).filter(Boolean); }
   function addedCard(seen) {
     var ms = addedMatches().filter(function (m) { return !seen[idOf(m.f)]; });
     if (!ms.length) return '';
     return '<article class="tp-rcard tp-rcard--added" data-name="added" aria-label="Matches you added"><div class="tp-flip is-flipped"><div class="tp-face tp-face--back">' +
-      '<div class="tp-back-head"><span class="tp-back-code">+</span><div><h4 class="tp-back-name">Matches you added</h4><p class="tp-back-meta">' + countPhrase(ms.map(function (m) { return m.f; })) + ', from All matches</p></div></div>' +
-      TICKET_WHY_P + '<ol class="tp-ms">' + ms.map(function (m) { return m.f.t ? row(m.f, '', true) : '<li class="tp-m"><p class="tp-m-when">' + esc(m.f.d) + ', ' + esc(m.f.k || 'time to be confirmed') + '</p><p class="tp-m-teams">' + esc(m.f.s) + '</p><p class="tp-m-where">' + esc(m.f.v + ', ' + m.f.p) + '</p><span class="tp-tag">Teams to be decided</span></li>'; }).join('') + '</ol></div></div></article>';
+      band(['var(--c-ink-3)']) + '<header class="tc-head tc-head--all"><div><h4 class="tc-name">Matches you added</h4><p class="tc-ahead">' + countPhrase(ms.map(function (m) { return m.f; })) + ', from All matches</p></div></header>' +
+      '<ol class="tc-rows">' + ms.map(function (m) {
+        if (m.f.t) return row(m.f, '', true);
+        var p = m.f.d.split(' ');
+        return '<li class="tc-row is-nsw"><button type="button" class="tc-open" data-open="match:' + esc(idOf(m.f)) + '" aria-haspopup="dialog" aria-label="' + esc(m.f.d + ', ' + m.f.s + ', ' + m.f.v + ', teams to be decided. Details') + '"><span class="tc-date" aria-hidden="true"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b><em>' + esc(p[2]) + '</em></span><span class="tc-who" aria-hidden="true"><span class="tc-opp"><span class="tc-team">' + esc(m.f.s) + '</span></span><span class="tc-where">' + esc(cityShort(m.f)) + ' \u00b7 teams to be decided</span></span></button></li>';
+      }).join('') + '</ol></div></div></article>';
   }
   function pickedCards() {
     // Teams in the order they were picked, then Here for the rugby last
@@ -1038,7 +1113,7 @@
     var who = teams.length ? list(teams) + (isPicked(RUGBY) ? ', plus every NSW match' : '') : 'Every NSW match';
     // A match between two of your teams counts once
     var fs = all.map(function (k) { return ids[k]; });
-    return who + ': ' + countPhrase(fs) + (nsw === all.length ? ', all in NSW. ' : ', ' + nsw + ' in NSW. ') + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : 'No tickets marked yet.');
+    return who + ': ' + countPhrase(fs) + (nsw === all.length ? ', all in NSW. ' : !nsw ? ', all interstate. ' : ', ' + nsw + ' in NSW. ') + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : 'No tickets marked yet.');
   }
   function buildDeck(newName) {
     var cs = pickedCards(), seen = {};
@@ -1048,12 +1123,6 @@
     }).join('') + addedCard(seen);
     var keep = deck.scrollLeft;
     deck.innerHTML = html;
-    // Each card's ticks are described by that card's line on why a ticket is asked
-    [].forEach.call(deck.querySelectorAll('.tp-rcard'), function (card, i) {
-      var w = card.querySelector('.tp-ticket-why'); if (!w) return;
-      w.id = 'tp-tw-' + i;
-      [].forEach.call(card.querySelectorAll('input[data-match]'), function (inp) { inp.setAttribute('aria-describedby', w.id); });
-    });
     deck.classList.toggle('is-single', deck.children.length === 1);
     deck.scrollLeft = keep;
     // The hint shows whenever there is more to the side: other cards, or the columns of Here for the rugby
@@ -1061,13 +1130,8 @@
     hint.textContent = deck.children.length > 1 ? 'Swipe for your other cards.' : 'Swipe sideways for more matches.';
     requestAnimationFrame(function () { hint.hidden = deck.scrollWidth <= deck.clientWidth + 2; });
     sum.textContent = summary();
-    // Teams that play all their pool matches interstate: say so plainly, and point to watching in NSW
-    var away = cs.filter(function (c) { return !c.rugby && !c.nsw; }).map(function (c) { return c.name; });
-    var awayEl = document.getElementById('tp-results-away');
-    if (awayEl) {
-      awayEl.hidden = !away.length;
-      awayEl.querySelector('.tp-results-away-text').textContent = away.length ? list(away) + (away.length === 1 ? ' plays all its' : ' play all their') + ' pool matches interstate. You can still watch them in NSW, and go to an NSW match while you’re here.' : '';
-    }
+    lastDeckSig = deckSig();
+    // (The box saying a team plays all its pool matches interstate is gone: each card's meta line says all interstate)
     // The newest card comes in gently and says it is new: it rises into place, the deck slides to it, and its
     // "Just added" label stays for a moment before fading
     var el = newName && deck.querySelector('.tp-rcard[data-name="' + CSS.escape(newName) + '"]');
@@ -1274,6 +1338,13 @@
       allScroll.scrollTo({ left: col.offsetLeft - allScroll.offsetLeft - 16, behavior: reduce.matches ? 'auto' : 'smooth' });
     });
   }
+  // Every NSW match: the rest of the pool matches, in place (no jump), focus on the same control
+  deck.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-rugby-more]')) return;
+    rugbyAll = !rugbyAll; buildDeck();
+    var b = deck.querySelector('[data-rugby-more]'); if (b) b.focus({ preventScroll: true });
+    say(rugbyAll ? 'All ' + nswPool.length + ' pool matches shown.' : 'First four pool matches shown.');
+  });
   // A ticket on a match is one ticket, whichever card it is marked on
   deck.addEventListener('change', function (e) {
     var cb = e.target.closest('input[data-match]'); if (!cb) return;
@@ -1284,11 +1355,6 @@
     state.tickets = state.tickets.filter(function (x) { return x !== id; });
     if (on) state.tickets.push(id);
     save();
-    deck.querySelectorAll('input[data-match]').forEach(function (x) {
-      if (x.dataset.match !== id) return;
-      x.checked = on;
-      x.closest('.tp-m').classList.toggle('has-ticket', on);
-    });
     if (tabsOn) sum.textContent = summary();
     changed(); // rewriting the summary wipes its annotation badge
   }
@@ -1545,7 +1611,7 @@
     tlLabel.classList.toggle('is-hook', false);
     var fsAll = shown.map(function (m) { return m.f; }), inNsw = fsAll.filter(function (f) { return !f.a; }).length;
     // Nothing of their own yet: the empty state, even though the open timeline previews every match
-    setValue(own() && fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + inNsw + ' in NSW' : 'No matches yet');
+    setValue(own() && fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + (inNsw ? inNsw + ' in NSW' : 'all interstate') : 'No matches yet');
     if (tlDays) {
       if (confirmed) {
         // NSW matches only: one interstate in the same dates is watched here, not gone to (as Your plan so far says)

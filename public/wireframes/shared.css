@@ -4716,3 +4716,65 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-wcs--car::-webkit-scrollbar { display: none; }
 .tp-wcs--car > .tp-wm { flex: none; width: calc(100% - 28px); scroll-snap-align: start; }
 .tp-wcs-hint { margin-top: var(--space-1); }
+
+/* ---------- Team cards in Your matches (redesigned 16 Nov, mock-up approved) ----------
+   Lead with the team (colour band, large flag, name, what is ahead, quiet meta); compact rows with no form fields;
+   Watch in NSW on interstate rows; a chip only once something is set; one knockout line; one next step. */
+.tp-rcard .tp-face--back { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.tp-deck .tp-rcard--rugby, .tp-deck.is-single .tp-rcard--rugby { width: calc(100% - 28px); }
+.tp-deck.is-single .tp-rcard--rugby { width: 100%; }
+.tc-band { display: flex; height: 6px; flex: none; }
+.tc-band i { flex: 1; }
+.tc-band i.is-white { box-shadow: inset 0 -1px 0 var(--c-line-soft); }
+.tc-head { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr); column-gap: 14px; align-items: center; padding: var(--space-4) var(--space-4) 14px; }
+.tc-head--all { grid-template-columns: minmax(0, 1fr); }
+.tc-head .tp-rcard-new { position: absolute; top: 10px; right: 12px; }
+.tc-flag { display: block; width: 64px; height: 43px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+.tc-flag--code { display: grid; place-items: center; background: var(--c-btn); color: var(--c-on-dark); font-weight: var(--fw-bold); }
+.tc-name { margin: 0; font-size: 28px; font-weight: var(--fw-bold); line-height: 1; letter-spacing: -.01em; }
+.tc-ahead { margin: 6px 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.3; }
+.tc-meta { grid-column: 1 / -1; margin: 12px 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tc-meta b { font-weight: var(--fw-semi); color: var(--c-ink); }
+.tc-rows { list-style: none; margin: 0; padding: 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tc-row { display: flex; align-items: center; gap: var(--space-2); padding-right: var(--space-4); border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tc-open { flex: 1; min-width: 0; display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; column-gap: 12px; align-items: center; min-height: 60px; padding: 8px 0 8px var(--space-4); border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tc-open:hover .tc-team { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.tc-open:focus-visible, .tc-act:focus-visible, .tc-ko:focus-visible, .tc-more:focus-visible, .tc-next:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
+.tc-date { text-align: center; line-height: 1.05; }
+.tc-date small { display: block; font-size: 11px; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .04em; color: var(--c-ink-2); }
+.tc-date b { display: block; font-size: 20px; font-weight: var(--fw-bold); }
+.tc-date em { display: block; font-style: normal; font-size: 11px; color: var(--c-ink-2); }
+.tc-who { min-width: 0; }
+.tc-opp { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; font-size: 17px; font-weight: var(--fw-bold); line-height: 1.2; }
+.tc-team { display: inline-flex; align-items: center; gap: 6px; }
+.tc-team .tp-fl { width: 22px; height: 15px; flex: none; }
+.tc-vs { font-weight: 400; color: var(--c-ink-2); }
+.tp-rcard--rugby .tc-opp, .tp-rcard--added .tc-opp { font-size: var(--fs-md); }
+.tc-where { display: block; margin-top: 2px; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tc-chip { display: flex; align-items: center; width: max-content; max-width: 100%; height: 20px; margin-top: 4px; padding: 0 7px; border-radius: 10px; font-size: 11px; font-weight: var(--fw-semi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tc-chip.is-ticket { background: var(--c-accent); color: var(--c-on-accent); }
+.tc-chip.is-watch { background: var(--c-surface-2); color: var(--c-ink); box-shadow: inset 0 0 0 1px var(--c-line-strong); }
+.tc-go { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 64px; font-size: 11px; font-weight: var(--fw-semi); }
+.tp-rcard--rugby .tc-go, .tp-rcard--added .tc-go { width: 36px; }
+.tc-go-dot { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--c-btn); color: var(--c-on-dark); }
+.tc-go-dot svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tc-act { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 64px; min-height: 44px; padding: 4px 2px; border: var(--bw-1) solid var(--c-line-ink); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 11px; font-weight: var(--fw-semi); line-height: 1.1; text-align: center; cursor: pointer; }
+.tc-act:hover { background: var(--c-fill-soft); }
+.tc-act svg, .tc-ko svg, .tc-next svg { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tc-more { display: block; width: 100%; min-height: 44px; padding: 0 var(--space-4) 0 74px; border: 0; border-bottom: var(--bw-1) solid var(--c-line-soft); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-align: left; cursor: pointer; }
+.tc-moved { margin: 0; padding: 8px var(--space-4); font-size: var(--fs-sm); color: var(--c-ink-2); border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tc-ko { display: grid; grid-template-columns: 20px minmax(0, 1fr) 14px; column-gap: 10px; align-items: center; width: 100%; min-height: 56px; padding: 10px var(--space-4); border: 0; border-bottom: var(--bw-1) solid var(--c-line-soft); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); line-height: 1.35; text-align: left; cursor: pointer; }
+.tc-ko b { font-weight: var(--fw-bold); }
+.tc-ko:hover { background: var(--c-fill-soft); }
+.tc-foot { margin-top: auto; padding: 14px var(--space-4) var(--space-4); }
+.tc-next { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-bold); cursor: pointer; }
+/* The knockout path and where-to-watch-all sheets */
+.tp-ko-lead { margin: var(--space-2) 0 0; font-size: var(--fs-md); line-height: 1.45; }
+.tp-ko-note { margin: var(--space-2) 0 var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-ko-list { list-style: none; margin: 0; padding: 0; }
+.tp-ko-list li { display: grid; gap: 1px; padding: 10px 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); }
+.tp-ko-list li.is-hit { margin: 0 -8px; padding: 10px 8px; background: var(--c-fill-soft); }
+.tp-ko-d { font-weight: var(--fw-semi); }
+.tp-ko-s { font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.tp-ko-v { color: var(--c-ink-2); }
+.tp-wt-m { padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
