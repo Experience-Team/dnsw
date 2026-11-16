@@ -1623,7 +1623,9 @@
   });
 
   /* ---------- The one question ---------- */
-  var askEditing = false, askManual = false, askError = '', askDraft = null; // askDraft: what they typed, kept through an error
+  var askEditing = false, askManual = false, askError = '', askDraft = null, askUndo = [], askKeyT = 0;
+  var I_UNDO = '<svg class="tp-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5.5 3.5L2.5 6.5l3 3M2.8 6.5H10a3.5 3.5 0 0 1 0 7H7"/></svg>';
+  var I_RESET = '<svg class="tp-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8a5 5 0 1 0 1.5-3.6M4.5 1.8v2.8H7.3"/></svg>'; // askDraft: what they typed, kept through an error
   /* What an answer changed: a line under the answer ("Suggestions now for 9 to 16 Oct. Updated below: …"), gone once
      the person moves on, and a brief tint on each section that changed, played as it comes into view (the sections
      sit below the question, often off screen when it is answered). */
@@ -1691,20 +1693,21 @@
     if (has && !askEditing) {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
-      var qm = quickRange('pm1'), qw = quickRange('week'), PM = [1, 2, 3, 7, 14];
-      var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-quick="' + kind + '" aria-pressed="' + (has && r.from === t.from && r.to === t.to) + '">' + label + '</button>' : ''; };
-      h += '<p class="tp-sec-note">Optional. Add them and the ideas below fit around your matches.</p>' +
-        '<div class="tp-quick" role="group" aria-label="Quick picks">' + Q('matches', qm, 'Around my matches') + Q('week', qw, 'About a week') + '</div>' +
+      // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
+      var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
+      h += '<p class="tp-sec-note">Optional. Set them and the ideas below fit around your matches' + (Object.keys(mdays).length ? ', dotted on the bar' : '') + '.</p>' +
         '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
         '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
+        Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45"></span></div>' +
         '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out" id="tp-range-out"></span><span>15 Nov</span></div></div>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
-        '<div class="tp-ask-acts"><button type="button" class="tp-pill" data-act="use">' + window.tpIcons.cal + 'Use these dates</button>' +
-        (has ? '<button type="button" class="tp-link" data-act="clear">Remove my days</button>' : '') + '</div>';
+        ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
+          (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
+          (has || (askDraft && (askDraft.from || askDraft.to)) ? '<button type="button" class="tp-link tp-ico-link" data-act="clear">' + I_RESET + 'Reset</button>' : '') + '</div>' : '');
     }
     if (askNews) h += '<p class="tp-ask-news">' + esc(askNews) + '</p>';
     // Refine your plan: folded; a line under it says what is set
@@ -1772,26 +1775,47 @@
     if (act === 'refine') { refineOpen = !refineOpen; settle('[data-act="refine"]', h0); return; }
     if (act === 'change') { askEditing = true; settle('#tp-from', h0); return; }
     if (act === 'clear') {
-      askEditing = false; askDraft = null; askError = '';
-      askOwn = true; tp.setTrip({ base: t.base, party: t.party });
-      said = changedSince(before, 'Your days are removed.');
-      settle('#tp-from', h0); tp.say(said); return;
+      if (t.from || t.to) askUndo.push({ from: t.from || '', to: t.to || '' });
+      askEditing = true; askDraft = null; askError = '';
+      askOwn = true; askHold(); tp.setTrip({ base: t.base, party: t.party });
+      said = changedSince(before, 'Your days are reset.');
+      askQuiet(askUndo.length ? '[data-act="undo"]' : '#tp-from'); tp.say(said); return;
     }
-    if (act === 'use') {
-      var a = document.getElementById('tp-from').value, z = document.getElementById('tp-to').value;
-      // An error keeps what they typed, so it can be put right rather than typed again
-      askDraft = { from: a, to: z };
-      if (!a || !z) { askError = 'Add both days, or leave this for later: everything works without them.'; settle(a ? '#tp-to' : '#tp-from', h0); return; }
-      // Typed dates skip the fields' min and max, so the range is checked here: the tournament and two days either side
-      var lo = '2027-09-29', hi = '2027-11-15';
-      if (a < lo || a > hi || z < lo || z > hi) { askError = 'Pick days between 29 Sep and 15 Nov, around the tournament.'; settle(a < lo || a > hi ? '#tp-from' : '#tp-to', h0); return; }
-      if (z < a) { askError = 'The last day is before the first day.'; settle('#tp-to', h0); return; }
-      askError = ''; askEditing = false; askDraft = null;
-      askOwn = true; tp.setTrip({ from: a, to: z, base: t.base, party: t.party });
-      said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
-      settle('[data-act="change"]', h0); tp.say(said);
+    if (act === 'undo') {
+      var prev = askUndo.pop(); if (!prev) return;
+      askEditing = true; askDraft = null; askError = ''; askOwn = true;
+      askHold(); tp.setTrip(prev.from ? { from: prev.from, to: prev.to, base: t.base, party: t.party } : { base: t.base, party: t.party });
+      said = changedSince(before, prev.from ? 'Back to ' + tp.isoRange(prev.from, prev.to) + '.' : 'Your days are removed again.');
+      askQuiet(askUndo.length ? '[data-act="undo"]' : '#tp-from'); tp.say(said); return;
     }
+    // (Use these dates is gone: days apply as they are set, see applyDays below)
   });
+  // Days apply as they are set: on letting go of a slider handle, a short pause after the arrow keys, or a date field
+  // changing. Each change can be undone. The panel redraws quietly (no fade), focus stays where it was
+  // Setting days can grow what sits above the panel (the map's Follow day by day line): the panel is held where it was
+  // on screen, so nothing jumps under the person's finger
+  var askY = null;
+  function askHold() { askY = ask.getBoundingClientRect().top; }
+  function askQuiet(sel) {
+    render(true);
+    if (askY !== null) { body.scrollTop += ask.getBoundingClientRect().top - askY; askY = null; }
+    var el = sel && ask.querySelector(sel); if (el) el.focus({ preventScroll: true });
+  }
+  function applyDays(a, z, sel) {
+    var t = trip() || {}, lo = '2027-09-29', hi = '2027-11-15', before = snap();
+    askDraft = { from: a, to: z };
+    if (!a || !z) { askError = ''; return; } // waiting for the other day
+    if (a < lo || a > hi || z < lo || z > hi) { askError = 'Pick days between 29 Sep and 15 Nov, around the tournament.'; askQuiet(sel); return; }
+    if (z < a) { askError = 'The last day is before the first day.'; askQuiet(sel); return; }
+    if (t.from === a && t.to === z) { askDraft = null; return; }
+    askUndo.push({ from: t.from || '', to: t.to || '' });
+    askError = ''; askDraft = null; askEditing = true; askOwn = true;
+    askHold(); tp.setTrip({ from: a, to: z, base: t.base, party: t.party });
+    askQuiet(sel);
+    tp.say(changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.'));
+  }
+  function applyFromFields(sel) { var f = ask.querySelector('#tp-from'), z = ask.querySelector('#tp-to'); if (f && z) applyDays(f.value, z.value, sel); }
+  ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') applyFromFields('#' + e.target.id); });
   var lastTrip = '', askOwn = false;
   /* ---------- The date slider: 29 Sep to 15 Nov (the tournament and two days either side), two handles ----------
      Each handle is a slider (arrows a day, Page Up and Down a week, Home and End to the limit); they never cross. It
@@ -1862,7 +1886,7 @@
     }
     rangeSet(rangeDrag.h.dataset.h, rangeAt(e.clientX, rangeDrag.rect));
   });
-  function rangeEnd() { if (!rangeDrag) return; rangeDrag.h.classList.remove('is-dragging'); rangeDrag = null; }
+  function rangeEnd() { if (!rangeDrag) return; var w = rangeDrag.h.dataset.h; rangeDrag.h.classList.remove('is-dragging'); rangeDrag = null; applyFromFields('.tp-range-h[data-h="' + w + '"]'); }
   ask.addEventListener('pointerup', rangeEnd); ask.addEventListener('pointercancel', rangeEnd);
   ask.addEventListener('keydown', function (e) {
     var h = e.target.closest('.tp-range-h'); if (!h) return;
@@ -1870,6 +1894,7 @@
     if (e.key === 'Home') v = RMIN; else if (e.key === 'End') v = RMAX; else if (step) v += step; else return;
     e.preventDefault();
     rangeSet(h.dataset.h, v);
+    clearTimeout(askKeyT); askKeyT = setTimeout(function () { applyFromFields('.tp-range-h[data-h="' + h.dataset.h + '"]'); }, 450);
   });
   ask.addEventListener('input', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') rangeFromFields(); });
   // The question collapsing to its answer (or opening again) glides between the two heights
