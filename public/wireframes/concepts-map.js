@@ -102,7 +102,8 @@
   /* ---------- Camera ---------- */
   function availTop() { return 96; } // under the controls and the key
   var nextH = null; // the height of a held card that has not been drawn yet, so the map frames the day around it
-  function availBottom() { return stageH - (nextH || card.offsetHeight || 260) - 14; }
+  // The map is framed against the collapsed sheet, so opening the ideas never moves it
+  function availBottom() { return stageH - (nextH || collapsedH || card.offsetHeight || 260) - 14; }
   function frameOf(i) {
     var c = cards[i]; if (!c) return null;
     var pts = [];
@@ -312,14 +313,20 @@
       '<h4 class="tp-map-card-h tp-map-match-h" tabindex="-1">' + who + '</h4>' +
       '<p class="tp-map-match-m">' + esc((x.k ? x.k + ' kick-off' : 'Kick-off to be confirmed') + ' \u00b7 ' + x.v) + '</p>';
   }
+  var sheetOpen = false, collapsedH = 0;
   function cardHtml(i) {
     var c = cards[i], st = steps[i]; if (!c) return '';
     var n = steps.length, last = i === n - 1;
-    var h = c.hero ? heroHtml(c) : '<div class="tp-map-card-top"><h4 class="tp-map-card-h" tabindex="-1">' + esc(c.kicker) + '</h4><button type="button" class="tp-link tp-map-aslist" data-mlist>See as a list</button></div>' + (c.title ? '<p class="tp-map-title">' + esc(c.title) + '</p>' : '');
+    var grab = '<span class="tp-map-grab" aria-hidden="true"></span>';
+    var h = grab + (c.hero ? heroHtml(c) : '<div class="tp-map-card-top"><h4 class="tp-map-card-h" tabindex="-1">' + esc(c.kicker) + '</h4><button type="button" class="tp-link tp-map-aslist" data-mlist>See as a list</button></div>' + (c.title ? '<p class="tp-map-title">' + esc(c.title) + '</p>' : ''));
     if (st.days.length > 1) h += '<div class="tp-map-tabs" role="group" aria-label="Pick a day">' + st.days.map(function (d) { var x = cardsFor(st, d); return '<button type="button" class="tp-chip" data-mtab="' + d + '" aria-pressed="' + (d === c.day) + '">' + esc(x ? x.label.replace(/ (Oct|Nov)$/, '') : '') + '</button>'; }).join('') + '</div>';
     if (c.note) h += '<p class="tp-map-note">' + esc(c.note) + '</p>';
     if (c.lead) h += '<div class="tp-map-lead">' + c.lead + '</div>';
-    h += '<div class="tp-map-body">' + (c.body || '') + '</div>';
+    // A bottom sheet (16 Nov): collapsed it shows the day, getting there and how to move between days; the day's ideas
+    // open with the row below (or by dragging the grabber up, or tapping a pin). The choice carries from day to day.
+    var nIdeas = c.pins.filter(function (p) { return p.html; }).length, hasBody = !!(c.body && c.body.replace(/<[^>]+>/g, '').trim());
+    if (hasBody) h += '<button type="button" class="tp-map-more" data-msheet aria-expanded="' + sheetOpen + '" aria-controls="tp-map-body"><span>' + (nIdeas ? nIdeas + (nIdeas === 1 ? ' idea' : ' ideas') + ' for this day' : 'Details for this day') + '</span><span class="tp-map-more-a">' + (sheetOpen ? 'Hide' : 'Show') + '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5"/></svg></span></button>' +
+      '<div class="tp-map-body" id="tp-map-body"' + (sheetOpen ? '' : ' hidden') + '>' + c.body + '</div>';
     if (last) h += '<p class="tp-map-sum">' + esc(summary()) + '</p>';
     h += '<div class="tp-map-nav">' + (i ? '<button type="button" class="tp-link tp-map-arrow" data-mstep="-1">← ' + esc(navLbl(i - 1)) + '</button>' : '<span class="tp-map-arrow" aria-hidden="true"></span>') +
       dotsHtml(i) +
@@ -334,10 +341,27 @@
     card.querySelectorAll('[data-mjump]').forEach(function (d) { if (+d.dataset.mjump === i) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
     var dt = card.querySelector('.tp-map-dots-t'); if (dt) dt.textContent = 'Day ' + (i + 1) + ' of ' + steps.length;
   }
+  function collapsedHeight(i) { var o = sheetOpen; sheetOpen = false; measure.innerHTML = cardHtml(i); sheetOpen = o; var hh = measure.offsetHeight; measure.innerHTML = ''; return hh; }
+  // Open or close the sheet: its height glides between the two (240ms; reduced motion: at once); the map stays put
+  function setSheet(v, focusSel) {
+    if (v === sheetOpen) return;
+    var h0 = card.offsetHeight;
+    sheetOpen = v;
+    var b = card.querySelector('.tp-map-body'), t = card.querySelector('[data-msheet]');
+    if (b) b.hidden = !v;
+    if (t) { t.setAttribute('aria-expanded', v ? 'true' : 'false'); t.querySelector('.tp-map-more-a').firstChild.textContent = v ? 'Hide' : 'Show'; }
+    card.classList.toggle('is-open', v);
+    var h1 = card.offsetHeight;
+    if (!reduce.matches && card.animate && h0 !== h1) card.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 240, easing: 'cubic-bezier(.3, .2, .25, 1)' });
+    if (focusSel) { var f = card.querySelector(focusSel); if (f) f.focus({ preventScroll: true }); }
+    say(v ? 'Ideas shown.' : 'Ideas hidden.');
+  }
   function paintCard(i, dir) {
     var active = document.activeElement, inCard = active && card.contains(active);
     var keep = inCard ? (active.dataset.mstep ? '[data-mstep="' + active.dataset.mstep + '"]' : active.dataset.mjump !== undefined ? '[data-mjump="' + i + '"]' : active.dataset.mtab ? '[data-mtab="' + active.dataset.mtab + '"]' : active.dataset.mlist !== undefined ? '[data-mlist]' : null) : null;
     card.innerHTML = cardHtml(i);
+    card.classList.toggle('is-open', sheetOpen);
+    collapsedH = sheetOpen ? collapsedHeight(i) : card.offsetHeight;
     // The new day comes in from the side it was asked for (later days from the right), an even glide the eye can follow
     if (dir && !reduce.matches && card.animate) card.animate([{ opacity: 0, transform: 'translateX(' + (dir * 40) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.3, .2, .25, 1)' });
     var f = keep && card.querySelector(keep);
@@ -377,7 +401,7 @@
     var hold = changed && !opts.first && !opts.cut && !reduce.matches && !!card.animate;
     if (hold) {
       // Measure the card that is coming, so the map frames the day around it before it is drawn
-      measure.innerHTML = cardHtml(i); nextH = measure.offsetHeight; measure.innerHTML = '';
+      var keepOpen = sheetOpen; sheetOpen = false; measure.innerHTML = cardHtml(i); sheetOpen = keepOpen; nextH = measure.offsetHeight; measure.innerHTML = '';
       drawStatus(i);
       cardOut = card.animate([{ opacity: 1, transform: 'none' }, { opacity: .45, transform: 'translateX(' + (-dir * 12) + 'px)' }], { duration: 200, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' });
     } else { nextH = null; paintCard(i, 0); }
@@ -389,6 +413,16 @@
     if (changed && !opts.first) say('Day ' + (i + 1) + ' of ' + steps.length + ', ' + cards[i].kicker.split(' · ').join(', ') + '.' + (cards[i].title ? ' ' + cards[i].title + '.' : '') + (i === steps.length - 1 ? ' ' + summary() + '.' : ''));
   }
   function jumpTo(i) { goTo(i); }
+  // Drag the sheet's grabber up to open it or down to close it; a tap toggles it
+  var gdrag = null;
+  // (the release is heard on the window, so it counts wherever the finger or mouse ends up)
+  card.addEventListener('pointerdown', function (e) { if (e.target.closest('.tp-map-grab')) { e.preventDefault(); gdrag = { id: e.pointerId, y: e.clientY }; } });
+  window.addEventListener('pointerup', function (e) {
+    if (!gdrag || e.pointerId !== gdrag.id) return;
+    var dy = e.clientY - gdrag.y; gdrag = null;
+    if (dy < -24) setSheet(true); else if (dy > 24) setSheet(false); else if (Math.abs(dy) < 6) setSheet(!sheetOpen);
+  });
+  window.addEventListener('pointercancel', function () { gdrag = null; });
   // Swipe the map sideways to change day (guided only; in Explore freely a drag pans). A tap on a pin is not a swipe.
   var swipe = null;
   view.addEventListener('pointerdown', function (e) { if (free || !on) return; swipe = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
@@ -437,6 +471,7 @@
     var day = curDay;
     guided = v; free = false; pending = null; mapEl.classList.remove('is-free'); freeBtn.setAttribute('aria-pressed', 'false'); freeBtn.querySelector('.tp-map-free-l').textContent = 'Explore freely'; zoomEl.hidden = true;
     if (!v) { on = false; }
+    if (v) sheetOpen = false; // each visit starts with the map in view and the ideas one tap away
     fsShow(v);
     tp.mapRender();
     if (v) {
@@ -496,6 +531,7 @@
   card.addEventListener('click', function (e) {
     var s = e.target.closest('[data-mstep]');
     if (s) { goTo(cur + +s.dataset.mstep); return; }
+    if (e.target.closest('[data-msheet]')) { setSheet(!sheetOpen); return; }
     var dj = e.target.closest('[data-mjump]');
     if (dj) { goTo(+dj.dataset.mjump); return; }
     var t = e.target.closest('[data-mtab]');
@@ -518,7 +554,7 @@
   pinsEl.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-map-pin'); if (!b) return;
     var x = pinEls[+b.dataset.k].x;
-    if (!free) { if (x.p.html) hot(x.p.n, true); return; }
+    if (!free) { if (x.p.html) { setSheet(true); hot(x.p.n, true); } return; }
     // Explore freely: a small card for the pin, with Add for its day and a way to that day
     var c = x.c || cards[x.i];
     pop.innerHTML = '<p class="tp-map-pop-t">' + esc(x.p.title) + '</p><p class="tp-map-pop-m">' + esc(x.p.kindLabel) + ' · ' + esc(c.label) + '</p>' +
@@ -567,6 +603,7 @@
     if (e.key === 'Escape') {
       if (!jump.hidden) { e.stopPropagation(); e.preventDefault(); closeJump(); }
       else if (!pop.hidden) { e.stopPropagation(); e.preventDefault(); pop.hidden = true; view.focus({ preventScroll: true }); }
+      else if (sheetOpen && !free) { e.stopPropagation(); e.preventDefault(); setSheet(false, '[data-msheet]'); } // the open sheet closes first
       return;
     }
     if (e.key === 'Tab' && !jump.hidden) {

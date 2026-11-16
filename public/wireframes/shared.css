@@ -5013,3 +5013,27 @@ span.tp-map-arrow { display: block; }
 .tp-go-one { display: flex; align-items: flex-start; gap: var(--space-2); margin-top: var(--space-2); padding-top: var(--space-2); border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.4; }
 .tp-go-one .tp-go-ico { flex: none; width: 16px; height: 16px; margin-top: 2px; }
 .tp-go-one .tp-link { min-height: 24px; padding: 0; font-size: inherit; }
+
+/* ---------- Follow day by day: the card as a bottom sheet (16 Nov) ----------
+   Collapsed: the day, getting there, the ideas row and the way between days, about a third of the screen; the map is
+   framed against this height at 390 and 320. Open: the ideas too, up to 72% of the map, scrolling inside. A grabber
+   at the top drags it open or shut (the row is the keyboard and screen reader control); its height glides. */
+.tp-map-card { padding-top: 18px; overflow: hidden; }
+.tp-map-card.is-open { max-height: 72%; }
+.tp-map-band { margin-top: -18px; }
+.tp-map-grab { position: absolute; top: 4px; left: 50%; width: 48px; height: 14px; margin-left: -24px; cursor: grab; touch-action: none; }
+.tp-map-grab::before { content: ""; position: absolute; left: 6px; right: 6px; top: 5px; height: 4px; border-radius: 2px; background: var(--c-fill-mid); }
+.tp-map-more { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); width: 100%; min-height: 36px; margin-top: var(--space-2); padding: 0; border: 0; border-top: var(--bw-1) solid var(--c-line-soft); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-align: left; cursor: pointer; }
+.tp-map-more-a { display: inline-flex; align-items: center; gap: 4px; text-decoration: underline; text-underline-offset: 3px; }
+.tp-map-more svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease-out; }
+.tp-map-more[aria-expanded="true"] svg { transform: rotate(180deg); } /* up to open (the sheet grows up), down to close */
+.tp-map-more:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-map-body[hidden] { display: none; }
+.tp-map-card.is-open .tp-map-body { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .tp-map-more svg { transition: none; } }
+/* Narrow sheet (a 320 phone): an idea card gives its text the full width and puts Add under it */
+.tp-map-pcs { container: mappcs / inline-size; }
+@container mappcs (max-width: 300px) {
+  .tp-map-pcs .tp-pc { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .tp-map-pcs .tp-pc .tp-add { justify-self: start; }
+}
