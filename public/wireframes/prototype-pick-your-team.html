@@ -481,7 +481,7 @@
       { sel: '#tp-kbd', title: 'Indicative keyboard (not functional)', text: 'While Find your team is open, a static grey keyboard rises from the bottom of the phone, only to show that the phone keyboard would come up. On a real phone it is the native keyboard. Tapping it does nothing and keeps the field focused. Opening the search brings the heading row near the top of the phone, so the suggestions under it are never covered (they end by about 220px; the keyboard starts at 614px). Reduced motion: it appears and goes at once. In phone view (the QR code in the panel, ?phone, or any touch screen under 500px wide) it is never shown: the phone\u2019s own keyboard comes up, with a Search key, and the screen shrinks to the space above it so the suggestions stay in view.' },
     { sel: '.tp-tl-pick .tp-ico', title: 'Prompt icons', text: 'Prompts to pick a team carry the card-fan icon (the Rugby World Cup Figma artwork, node 252:13225): Pick your teams and Change your teams in the timeline, and Pick your teams in the empty Your plan so far. Prompts and buttons to set or change your days carry the calendar (Figma node 254:13291): Set your days in NSW, Staying longer? Set your days, Visiting? Set or Confirm your days, the dates step in the trip question, Change dates, Use these dates, and Change beside your days in NSW (in the timeline and under Suits your 3rd half; not when the answer is I live in NSW or Not sure yet, as that Change is not about dates). Greyscale, sized to the text, decorative (aria-hidden).' },
     { sel: '#tp-find-open', title: 'Find (utility row)', text: 'In the utility row above the hand, labelled Find (with a search icon), on phone and desktop alike. Tapped, the field slides across the utility row from the button, over Grid and Plays in NSW, so nothing below moves; suggestions float over the hand. Name or code, start of a word (zea finds New Zealand, rsa South Africa); Enter picks the first; Escape or the cross folds it back and focus returns to Find.' },
-      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Event details, Kick goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, so every label fits whichever is picked, at 360px too. Event details and Kick goal are not built: each opens a being-built page in place of the planner (the timeline bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Kick goal stays (the capsule also works with two items). Not sticky yet (step 2).' },
+      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Event details, Kick goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, so every label fits whichever is picked, at 360px too. Event details and Kick goal are not built: each opens a being-built page in place of the planner (the timeline bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Kick goal stays (the capsule also works with two items). Step 2, floating (changed from the brief at the user\u2019s request): it sticks 8px from the top once the header scrolls away, lifts with a shadow, shrinks to 80% while you scroll down and returns to full size when you scroll up or tab into it (items stay over the 24px AA minimum). It sits under the timeline bar and every sheet, steps out of the way while the guided map of your days is on screen, and the page\u2019s own jumps (Pick your teams, See where to watch, Find your team) land below it.' },
       { sel: '#tp-hero-cta', title: 'Hero (Figma 309:644)', text: 'Option A, lockup in header: The Third Half logo, and a dashed box that holds the space (with its clear space) for the host city lockup (Host city + Feel New + World Rugby), not drawn yet. Then one event line that wraps at its bullets: Men\u2019s Rugby World Cup \u2022 1 Oct\u201313 Nov \u201927 \u2022 320 days to go \u2022 Kick-offs in Sydney time (dates day then month throughout; screen readers hear 1 October to 13 November 2027). Then a picture, the slogan with its explaining line directly under it, this button and a second picture. Slogan A: Come for the match. Stay for the 1/3 half (screen readers hear third half). Slogan B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. Each sentence takes its own line and never wraps: 31px in the wireframe (B2 brief), 40px in high fidelity with the second line in the colourway, and the page shrinks the size just enough when a line would not fit (360px, or a wider fallback font). This breaks the type scale on purpose. Wireframe: the pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset left then right, as in Figma. The button is 36px tall, per the page\u2019s WCAG 2.2 AA sizing, not Figma\u2019s 44px. It says Pick your teams, then Change your teams once a team is picked, matching the picker\u2019s heading, and goes down to the hand of cards and focuses the middle card (a jump with reduced motion). The hand is below the fold on a 390 x 844 phone; this button is the way down.' },
       { sel: '.tp-count', title: 'Countdown', text: 'Part of the event line: days to go to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says Under way, final Sat 13 Nov, then The tournament is over. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '#tp-pick-sub', title: 'Why pick', text: 'The heading, Pick your teams, matches the hero button. One 18px line under it says what a pick is for, with no subheading: Pick your teams to see their matches, then fill the days in between. 48px above the heading gives it room after the hero; the gap under the tap line is 24px shorter so All matches peeks in. The fan is described by it (aria-describedby, with the keyboard help), so screen readers hear it with the fan.' },
@@ -576,7 +576,9 @@
     if (widest > room) t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * room / widest * 0.99).toFixed(2) + 'px';
   }
   fit();
-  if (window.ResizeObserver) new ResizeObserver(fit).observe(t.parentNode);
+  // Only a change of width can make a line wrap; refitting on height changes (its own) would loop and nudge the page
+  var lastW = t.parentNode.clientWidth;
+  if (window.ResizeObserver) new ResizeObserver(function () { var w = t.parentNode.clientWidth; if (w !== lastW) { lastW = w; fit(); } }).observe(t.parentNode);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
 })();
 /* Capsule nav (Option B2, step 1). Picking an item moves the light pill to it with an even glide, and the other
@@ -627,6 +629,29 @@
   });
   place(false);
   if (window.ResizeObserver) new ResizeObserver(function () { place(false); }).observe(cap);
+
+  /* Floating bar (step 2). Stuck once its top reaches 8px. Scrolling down shrinks it to 80%, scrolling up brings it back
+     to full size; small jitters (under 6px) are ignored so it never flickers. It goes back to full size when focus
+     moves into it, and steps out of the way while the guided map of your days is on screen. tpCapRoom() tells the
+     page's own jumps (Pick your teams, See where to watch, Find your team) how much room to leave under it. */
+  var lastY = body.scrollTop, small = false, mapEl = null;
+  function onScroll() {
+    var y = body.scrollTop, bTop = body.getBoundingClientRect().top;
+    var stuck = y > 0 && wrap.getBoundingClientRect().top - bTop <= 8.5;
+    if (!stuck) { small = false; lastY = y; }
+    else if (Math.abs(y - lastY) >= 6) { small = y > lastY; lastY = y; }
+    mapEl = mapEl || document.getElementById('tp-map');
+    var stage = mapEl && !mapEl.hidden && mapEl.querySelector('.tp-map-stage');
+    var away = !!(stage && phone.classList.contains('tp-map-on') && stage.getBoundingClientRect().top - bTop < 64);
+    if (away && wrap.contains(document.activeElement)) away = false;
+    wrap.classList.toggle('is-stuck', stuck);
+    wrap.classList.toggle('is-small', stuck && small && !wrap.contains(document.activeElement));
+    wrap.classList.toggle('is-away', away);
+  }
+  body.addEventListener('scroll', onScroll, { passive: true });
+  wrap.addEventListener('focusin', function () { small = false; onScroll(); });
+  window.tpCapRoom = function () { return wrap.classList.contains('is-away') ? 0 : wrap.offsetHeight + 16; };
+  onScroll();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { place(false); });
 })();
 </script>

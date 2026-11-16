@@ -3658,14 +3658,24 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    52/44). The light pill is one element that glides to the picked item; the items slide to their new widths (FLIP in
    the page script). Unpicked items share the spare width on top of their own label width, so the longest label
    always fits whichever item is picked, at 360px too. */
-.tp-cap-wrap { margin: var(--space-3) var(--space-4) var(--space-4); }
+/* Floating (B2 step 2, changed by the user 16 Nov): the capsule sticks 8px from the top once the header has scrolled
+   away, lifts with a shadow, shrinks to 80% while scrolling down and comes back to full size on scrolling up (36px
+   items become 28.8px, still over the 24px AA minimum). Scaling from the top centre leaves the layout alone, so the
+   page never moves. The body is its own stacking context, so the bar stays under the timeline bar, sheets and full
+   screen map. It steps up and out of the way while the guided map of your days fills the screen. */
+.tp-body { position: relative; z-index: 0; }
+.tp-cap-wrap { position: sticky; top: 8px; z-index: 40; margin: var(--space-3) var(--space-4) var(--space-4); }
+.tp-cap-wrap .tp-cap { transform-origin: 50% 0; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), box-shadow 200ms ease, opacity 200ms ease, visibility 0s; }
+.tp-cap-wrap.is-stuck .tp-cap { box-shadow: 0 6px 18px rgba(17, 17, 17, .22); }
+.tp-cap-wrap.is-small .tp-cap { transform: scale(.8); }
+.tp-cap-wrap.is-away .tp-cap { transform: translateY(calc(-100% - 12px)); opacity: 0; visibility: hidden; pointer-events: none; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), opacity 200ms ease, visibility 0s 280ms; }
 .tp-cap { position: relative; display: flex; align-items: center; gap: 2px; height: 44px; padding: 4px; border-radius: 22px; background: var(--c-btn); }
 .tp-cap-pill { position: absolute; top: 4px; left: 0; height: 36px; border-radius: 18px; background: var(--c-surface); transition: transform 360ms cubic-bezier(.4, 0, .2, 1), width 360ms cubic-bezier(.4, 0, .2, 1); pointer-events: none; }
 .tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--space-2); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1rem; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
 .tp-cap-i.is-on { flex: 0 0 auto; padding: 0 var(--space-4); color: var(--c-ink); font-weight: 600; cursor: default; }
 .tp-cap-i:focus-visible { outline: 2px solid var(--c-on-dark); outline-offset: 1px; }
 @media (hover: hover) { .tp-cap-i:not(.is-on):hover { text-decoration: underline; text-underline-offset: 3px; } }
-@media (prefers-reduced-motion: reduce) { .tp-cap-pill, .tp-cap-i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tp-cap-pill, .tp-cap-i, .tp-cap-wrap .tp-cap, .tp-cap-wrap.is-away .tp-cap { transition: none; } }
 /* Being built: in place of the planner while Event details or Kick goal is picked. Tall enough that the capsule
    stays where it was when the page swaps. The planner's sections, the timeline bar and its skip link step aside. */
 #tp-phone.is-soon .tp-body > :not(.tp-top):not(.tp-cap-wrap):not(.tp-soon) { display: none !important; }

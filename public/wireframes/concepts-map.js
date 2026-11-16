@@ -867,7 +867,7 @@
       if (e.target.closest('[data-owatch]')) {
         e.preventDefault();
         var w = document.getElementById('tp-watch'); if (!w) return;
-        body.scrollTo({ top: w.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12, behavior: reduce.matches ? 'auto' : 'smooth' });
+        body.scrollTo({ top: w.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12 - (window.tpCapRoom ? window.tpCapRoom() : 0), behavior: reduce.matches ? 'auto' : 'smooth' });
         var h = document.getElementById('tp-watch-title'); if (h) h.focus({ preventScroll: true });
       }
     });
@@ -905,7 +905,7 @@
       ocam = oclamp({ x: cx, y: cy, s: cs, fy: OVH / 2 }); oapply();
       if (!v && popAt === null) opop.hidden = true;
       fsBtn.focus({ preventScroll: true });
-      if (!v) { var top = sec.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12; if (top < body.scrollTop || top > body.scrollTop + body.clientHeight - 200) body.scrollTo({ top: Math.max(0, top), behavior: 'auto' }); }
+      if (!v) { var top = sec.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12 - (window.tpCapRoom ? window.tpCapRoom() : 0); if (top < body.scrollTop || top > body.scrollTop + body.clientHeight - 200) body.scrollTo({ top: Math.max(0, top), behavior: 'auto' }); }
       osayT(v ? 'Full screen map. Escape or Exit full screen to go back.' : 'Map back on the page.');
     }
     fsBtn.addEventListener('click', function () { setFull(!full); });
@@ -963,7 +963,7 @@
     return {
       render: render,
       show: function () {
-        var top = sec.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12;
+        var top = sec.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12 - (window.tpCapRoom ? window.tpCapRoom() : 0);
         body.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
         load();
         var b = ofollow.querySelector('[data-ofollow]');

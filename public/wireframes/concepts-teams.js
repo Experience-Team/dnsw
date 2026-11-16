@@ -680,7 +680,8 @@
     if (findAnim) findAnim.cancel();
     findBox.hidden = false; findOpen.setAttribute('aria-expanded', 'true');
     var head = root.querySelector('.tp-util'), top = head.getBoundingClientRect().top - body.getBoundingClientRect().top;
-    if (top < 8 || top > 120) body.scrollTo({ top: Math.max(0, body.scrollTop + top - 16), behavior: reduce.matches ? 'auto' : 'smooth' });
+    var room = (window.tpCapRoom ? window.tpCapRoom() : 0);
+    if (top < 8 + room || top > 120 + room) body.scrollTo({ top: Math.max(0, body.scrollTop + top - 16 - room), behavior: reduce.matches ? 'auto' : 'smooth' });
     showKbd(true);
     if (!reduce.matches && findBox.animate) findAnim = findBox.animate([{ clipPath: 'inset(0 0 0 calc(100% - 40px) round 999px)', opacity: .6 }, { clipPath: 'inset(0 0 0 0 round 999px)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.3, .4, .3, 1)' });
     findIn.focus({ preventScroll: true });

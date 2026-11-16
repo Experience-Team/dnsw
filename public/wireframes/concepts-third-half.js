@@ -863,7 +863,7 @@
     render(true);
     var head = thirdList.querySelector('[data-blk-toggle="' + b.key + '"]');
     if (!head) return;
-    var top = head.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
+    var top = head.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16 - (window.tpCapRoom ? window.tpCapRoom() : 0);
     body.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
     head.focus({ preventScroll: true });
   };
@@ -1921,7 +1921,7 @@
   phone.addEventListener('click', function (e) {
     if (!e.target.closest('#tp-hero-cta')) return;
     var pick = document.getElementById('tp-pick'), card = document.querySelector('.tp-fan2-wrap:not([hidden]) [tabindex="0"]') || document.querySelector('#tp-fan [tabindex="0"]');
-    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
+    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8 - (window.tpCapRoom ? window.tpCapRoom() : 0);
     body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
     if (card) card.focus({ preventScroll: true });
   });
@@ -1955,7 +1955,7 @@
   // From the results' interstate note: down to the screenings of their matches
   var toWatch = document.getElementById('tp-to-watch');
   if (toWatch) toWatch.addEventListener('click', function () {
-    var w = document.getElementById('tp-watch'), top = w.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
+    var w = document.getElementById('tp-watch'), top = w.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16 - (window.tpCapRoom ? window.tpCapRoom() : 0);
     body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
     document.getElementById('tp-watch-title').setAttribute('tabindex', '-1');
     document.getElementById('tp-watch-title').focus({ preventScroll: true });
