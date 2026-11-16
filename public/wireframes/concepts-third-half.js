@@ -1434,6 +1434,7 @@
   }
   function pmPop() {
     var prev = pmHistory.pop(); if (!prev) return;
+    var from = pm.style.transform || 'none'; pm.style.transform = ''; // a drag lets go part way down: slide on from there
     function back() {
       openPm(prev.id, null, false, true);
       pmOpen.opener = prev.opener; pmOpenerEl = prev.openerEl;
@@ -1446,8 +1447,10 @@
     }
     if (reduce.matches || !pm.animate) { back(); return; }
     prev.ghost.animate([{ transform: 'translateY(-10px) scale(.94)', filter: 'brightness(.88)' }, { transform: 'none', filter: 'none' }], { duration: 260, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' });
-    pm.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 260, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = back;
+    pm.animate([{ transform: from }, { transform: 'translateY(100%)' }], { duration: 260, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = back;
   }
+  // Dragging the grabber down over the timeline closes one level when there is one
+  pm.addEventListener('tp:stackdismiss', function (e) { if (pmHistory.length) { e.preventDefault(); pmPop(); } });
   function openPm(id, opener, stacked, swap) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
     var isKo = id.indexOf('ko:') === 0, isWt = id.indexOf('wt:') === 0, isIdeas = id.indexOf('ideas:') === 0;

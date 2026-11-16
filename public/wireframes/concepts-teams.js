@@ -2073,7 +2073,10 @@
       if (y0 == null) return;
       var v = dy / Math.max(1, e.timeStamp - t0); y0 = null;
       sh.classList.remove('is-dragging');
-      if (dy > sh.offsetHeight / 3 || (v > .6 && dy > 24)) stackClose(); else sh.style.transform = '';
+      if (dy > sh.offsetHeight / 3 || (v > .6 && dy > 24)) {
+        // A sheet with its own levels (a sheet over a sheet) can take the dismiss and close one level instead
+        if (sh.dispatchEvent(new CustomEvent('tp:stackdismiss', { cancelable: true }))) stackClose();
+      } else sh.style.transform = '';
     }
     grab.addEventListener('pointerup', letGo); grab.addEventListener('pointercancel', letGo);
   }
