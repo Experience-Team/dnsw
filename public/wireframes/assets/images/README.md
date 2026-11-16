@@ -96,6 +96,8 @@ picks one by the place's name, the same every time, so neighbouring cards rarely
 | `nz-v-australia` | `hero-stadium` | the place itself |
 | `patonga-beach` | `coast-headland` | stand-in, closest match |
 
+`ivy-rooftop.jpg` is the same photo as `city-dining.webp`, so cafés have only two real pictures between them (city dining and Marrickville Tavern). A few more café or bakery photos would cut the repeats most.
+
 **Real places still without a picture of their own (16 Nov).** Each shows a stand-in until its picture is added:
 
 - Around your matches: Armory Wharf Cafe, Brickpit Ring Walk, Waterview in Bicentennial Park, Bourke Street Bakery, Entertainment Quarter, Darby Street cafés, Bathers Way, Beaumont Street bars.

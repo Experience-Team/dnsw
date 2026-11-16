@@ -29,10 +29,10 @@
     'rugby-village-foreshore-park': 'village',
     'darling-harbour-fan-zone': 'village',
     'armory-wharf-cafe': 'city-dining',
-    'bourke-street-bakery': 'city-dining',
-    'darby-street-cafes': 'city-dining',
-    'entertainment-quarter': 'city-dining',
-    'waterview-in-bicentennial-park': 'city-dining',
+    'bourke-street-bakery': 'marickville-tavern',
+    'darby-street-cafes': 'lord-nelson',
+    'entertainment-quarter': 'village',
+    'waterview-in-bicentennial-park': 'marickville-tavern',
     'beaumont-street-bars': 'marickville-tavern',
     'bathers-way': 'coast-headland',
     'brickpit-ring-walk': 'river-national-park',
@@ -68,7 +68,7 @@
     // Getting there and back cards show the stadium (one stadium photo stands in for all of them)
     'stadium-australia': 'hero-stadium', 'sydney-football-stadium': 'hero-stadium', 'newcastle-stadium': 'hero-stadium', 'adelaide-oval': 'hero-stadium', 'brisbane-stadium': 'hero-stadium', 'docklands-stadium': 'hero-stadium', 'perth-stadium': 'hero-stadium', 'north-queensland-stadium': 'hero-stadium',
     'patonga-beach': 'coast-headland',
-    'sydney-opera-house': 'coast-aerial', 'the-rocks': 'lord-nelson', 'manly-ferry': 'coast-aerial', 'bondi-to-coogee-walk': 'coast-headland'
+    'sydney-opera-house': 'coast-aerial', 'the-rocks': 'lord-nelson', 'manly-ferry': 'hero-coast', 'bondi-to-coogee-walk': 'coast-headland'
   };
   // The pictures in assets/images, by name and file type, so each placeholder asks for one file that exists (no
   // .webp-then-.jpg pair, no request at all for a name with no picture: it stays a grey block). Add a picture here
@@ -84,14 +84,14 @@
     [/kayak|river|canoe|paddle/, '1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW'],
     [/whale|cruise|dolphin|ferry|bay|harbour|wharf|port|island|sail/, ['coast-aerial', 'hero-coast']],
     [/coast|beach|blowhole|cliff|ocean|baths|surf|headland|dune|sand|cove|swim|tide|pool/, ['coast-headland', 'Kiama']],
-    [/cafe|kitchen|deli|bakery|dining|oyster|food|market|lunch|eat|restaurant|tea-rooms/, 'city-dining'],
+    [/cafe|kitchen|deli|bakery|dining|oyster|food|market|lunch|eat|restaurant|tea-rooms/, ['city-dining', 'marickville-tavern']],
     [/brew|pub|hotel|arms|inn|tavern|club|bowls|leagues/, 'lord-nelson'],
     [/wine|cellar|winer|vineyard|distill/, ['hunter', '172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0', 'krinklewood-vineyard']],
     [/bars/, 'golden-barley'],
     [/overnight|nights|stay|camp|glamp|retreat/, ['Tanja_Lagoon_Camp_interior_view_tent', '1004868_Basalt_Luxury_Accomodation_Canobolas']],
     [/walk|park|track|national|mountain|garden|bike|lookout|bird|boardwalk|wetland|bush|forest|rainforest|tops|loop|trail|hike|hill|creek|falls/, 'river-national-park'],
     [/rooms|theatre|opera/, 'ivy-rooftop'],
-    [/rocks|city|street|lane|quarter|mall|town/, 'city-dining']
+    [/rocks|city|street|lane|quarter|mall|town/, ['city-dining', 'lord-nelson']]
   ];
   // A kind with several pictures picks one by the name, the same every time, so similar places differ
   function pick(list, name) { if (typeof list === 'string') return list; var h = 0; for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 9973; return list[h % list.length]; }
