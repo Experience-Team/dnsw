@@ -4944,3 +4944,28 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-ov-sub { margin-bottom: var(--space-4); }
 .tp-wcs { margin-top: var(--space-4); }
 .tp-third-trip { margin-top: var(--space-3); }
+
+/* ---------- Match sheet polish (16 Nov) ----------
+   I have a ticket is the sheet's main action once the match is on the timeline: a full-width 48px toggle (the one
+   prominent action at the foot of a sheet, per DESIGN.md), still a real checkbox inside, with the ticket icon. Marked,
+   it fills dark and its box shows a tick. The on-your-timeline line uses the drawn tick icon, not a text glyph. The
+   team toggles share one width so they read as a pair. */
+.tp-pm-acts--match { align-items: stretch; gap: var(--space-3); margin-top: var(--space-5); }
+.tp-pm-on { display: flex; align-items: flex-start; gap: var(--space-2); }
+.tp-pm-on .tp-ico { flex: none; width: 18px; height: 18px; margin-top: 3px; }
+.tp-pm-acts--match .tp-pm-add { align-self: stretch; justify-content: center; min-height: 48px; }
+.tp-pm-ticket { justify-content: flex-start; gap: var(--space-3); min-height: 48px; margin: 0; padding: 0 var(--space-4); border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font-size: var(--fs-md); font-weight: var(--fw-bold); transition: background-color .15s ease-out, color .15s ease-out, transform .15s ease-out; }
+.tp-pm-ticket-l { display: inline-flex; align-items: center; gap: var(--space-2); }
+.tp-pm-ticket-l .tp-ico { width: 18px; height: 18px; }
+.tp-pm-ticket input:focus-visible { outline: none; }
+.tp-pm-ticket:has(input:focus-visible) { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-pm-ticket:active { transform: scale(.98); }
+.tp-pm-ticket:has(input:checked) { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-on-dark); }
+.tp-pm-ticket input:checked { background: var(--c-surface); border-color: var(--c-surface); }
+.tp-pm-ticket input:checked::after { border-color: var(--c-btn); }
+@media (hover: hover) { .tp-pm-ticket:not(:has(input:checked)):hover { background: var(--c-surface-2); } }
+@media (prefers-reduced-motion: reduce) { .tp-pm-ticket:active { transform: none; } }
+.tp-pm-acts--match .tp-ticket-why { margin-top: calc(var(--space-1) * -1); }
+.tp-pm-match .tp-pm-acts--match + .cn-pp-h { margin-top: var(--space-6); }
+.tp-pm-teams { align-self: stretch; align-items: stretch; } /* the sheet body shrink-wraps its children */
+.tp-pm-team { display: flex; align-items: center; gap: var(--space-2); width: 100%; text-align: left; }
