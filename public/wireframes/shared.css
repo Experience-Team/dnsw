@@ -4973,3 +4973,26 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-days-tk { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-2); align-self: stretch; margin-top: var(--space-4); padding-bottom: var(--space-5); border-bottom: var(--bw-1) solid var(--c-line-soft); }
 .tp-days-tk-m { font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.4; }
 .tp-days-tk .tp-ticket-why { margin-top: 0; }
+
+/* ---------- Follow day by day: explicit day stepping (16 Nov) ----------
+   One fixed screen. The card's top row is the day and See as a list; its bottom row is ← Day n, a dot per day (24px
+   targets, the current one filled) and Day n →, the arrow with nowhere to go left out. The last day adds one summary
+   line. A hidden copy of the card measures the next day's card so the map frames around it before it arrives. */
+.tp-mapfs-scroll { overflow: hidden; }
+.tp-map-measure { visibility: hidden; pointer-events: none; }
+.tp-map-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.tp-map-card-top .tp-map-card-h { flex: 1; min-width: 0; }
+.tp-map-aslist { flex: none; min-height: 24px; font-size: var(--fs-sm); }
+.tp-map-nav { justify-content: space-between; }
+.tp-map-arrow { flex: 0 0 72px; }
+span.tp-map-arrow { display: block; }
+.tp-map-nav .tp-map-arrow[data-mstep="1"] { text-align: right; justify-content: flex-end; }
+.tp-map-dots { display: flex; justify-content: center; flex: 1; min-width: 0; }
+.tp-map-dot { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; background: none; color: var(--c-ink); cursor: pointer; }
+.tp-map-dot i { width: 8px; height: 8px; border: var(--bw-2) solid currentColor; border-radius: 50%; transition: transform .2s ease-out, background-color .2s ease-out; }
+.tp-map-dot[aria-current="step"] i { background: currentColor; transform: scale(1.25); }
+.tp-map-dot:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; border-radius: 6px; }
+@media (hover: hover) { .tp-map-dot:not([aria-current]):hover i { background: var(--c-fill-mid); } }
+.tp-map-dots-t { flex: 1; text-align: center; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-map-sum { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.4; }
+@media (prefers-reduced-motion: reduce) { .tp-map-dot i { transition: none; } }
