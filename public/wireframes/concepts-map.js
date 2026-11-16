@@ -958,6 +958,8 @@
       selMark(popAt);
       if (!keep) bringIn(x.ll);
     }
+    // A place's sheet added or removed it: the pop-up it was opened from follows
+    tp.ovRefresh = function () { if (!opop.hidden && popAt !== null) showPop(popAt, true); };
     function showPop(k, keep) {
       if (typeof k === 'string') { showVen(+k.slice(1), keep); return; }
       var l = LOCS[k], ms = l.kind === 'stadium' ? matchesAt(l.id) : [];
@@ -968,7 +970,7 @@
         '<p class="tp-ov-pop-k">Nearby</p><ul class="tp-map-pop-l">' + l.near.map(function (p) {
           var it = itemOf(p), on = !!it;
           var note = !it ? '' : it.unplaced ? (state.trip && state.trip.from ? 'Saved, not placed yet. No free day fits it yet.' : 'Saved, not placed yet. It goes into a free day once you set your days.') : 'On your plan: ' + it.day;
-          return '<li><span><b>' + esc(p.title) + '</b><span class="tp-ov-pop-d">' + esc(p.cat) + ' · ' + esc(p.area) + ' · ' + esc(openDays(p)) + '</span>' + (note ? '<span class="tp-ov-pop-n" data-onote="' + p.id + '">' + esc(note) + '</span>' : '') + '</span>' +
+          return '<li><span><button type="button" class="tp-link tp-place-link" data-open="poi:' + p.id + '" aria-haspopup="dialog">' + esc(p.title) + '</button><span class="tp-ov-pop-d">' + esc(p.cat) + ' · ' + esc(p.area) + ' · ' + esc(openDays(p)) + '</span>' + (note ? '<span class="tp-ov-pop-n" data-onote="' + p.id + '">' + esc(note) + '</span>' : '') + '</span>' +
             '<button type="button" class="tp-add" data-oadd="' + p.id + '" aria-pressed="' + on + '"><span aria-hidden="true">' + (on ? TICK : PLUS) + '<span class="tp-add-t">' + (on ? 'Added' : 'Add') + '</span></span><span class="visually-hidden">' + (on ? 'Remove ' : 'Add ') + esc(p.title) + (on ? ' from your plan' : ' to your plan') + '</span></button></li>';
         }).join('') + '</ul>';
       var focusSel = keep && document.activeElement && opop.contains(document.activeElement) && document.activeElement.dataset.oadd ? '[data-oadd="' + document.activeElement.dataset.oadd + '"]' : null;

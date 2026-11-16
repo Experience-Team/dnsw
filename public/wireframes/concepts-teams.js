@@ -1637,7 +1637,7 @@
       var wl = state.added.filter(function (it) { return it.unplaced; });
       tlWait.hidden = !wl.length;
       var wh = wl.length ? '<h4 class="tp-tl-wait-h" id="tp-tl-wait-h">Saved, not placed yet</h4><ul>' + wl.map(function (it) {
-        return '<li><span class="tp-tl-wait-t">' + esc(it.title) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
+        return '<li><span class="tp-tl-wait-t">' + (it.poi ? '<button type="button" class="tp-link tp-place-link" data-open="poi:' + esc(it.poi) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' : esc(it.title)) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
       }).join('') + '</ul><p class="tp-tl-wait-n">' + (confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Each goes into a free day once you set your days above.') + '</p>' : '';
       if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
     }

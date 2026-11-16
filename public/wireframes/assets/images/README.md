@@ -37,6 +37,17 @@ line in `IMG_ALIAS` shows the real picture instead.
 | `river-national-park.webp` | `1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW.webp` (DNSW) | Kayaking a river in Wollemi National Park |
 | `village.jpg` | | An outdoor big-screen crowd at night |
 | `hero-stadium.webp` | Figma | A full stadium under lights |
+| `white-rabbit-gallery.jpg` | upload 16 Nov | White Rabbit Gallery (its own picture); also galleries and museums with made-up names |
+| `Kiama.webp` | upload 16 Nov (DNSW) | Kiama Blowhole (its own picture); also some made-up coast and swim spots |
+| `Tanja_Lagoon_Camp_interior_view_tent.webp` | upload 16 Nov (DNSW) | South Coast, 3 nights (Tanja is on the South Coast); also made-up overnight stays |
+| `172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0.webp` | upload 16 Nov (DNSW) | Hunter Valley, 2 nights (a Pokolbin vineyard); also made-up wineries |
+| `hunter.webp` | upload 16 Nov | Pokolbin cellar doors (wine and cheese); also made-up cellar doors |
+| `krinklewood-vineyard.webp` | `180274 - Krinklewood Vineyard … Credit Nikki To.webp` (DNSW, 1200px web copy) | Hunter Valley Gardens; also made-up vineyards |
+| `1004868_Basalt_Luxury_Accomodation_Canobolas.webp` | upload 16 Nov (DNSW) | Barrington Tops overnight (stand-in: a country stay near Orange) |
+| `23090deb477ebe636f2ddbd27480b6bb.webp` | upload 16 Nov | Not used yet: an Aboriginal cultural experience. Waiting to be told which experience it shows, so it is not used as a stand-in for unrelated places |
+
+Where a kind of place has several pictures (vineyards, coast, overnight stays, harbour), `IMG_GUESS` in `pv-device.js`
+picks one by the place's name, the same every time, so neighbouring cards rarely share a picture.
 
 | Placeholder | Shows | |
 |---|---|---|
@@ -84,6 +95,19 @@ line in `IMG_ALIAS` shows the real picture instead.
 | `newcastle-ocean-baths` | `coast-aerial` | stand-in, closest match |
 | `nz-v-australia` | `hero-stadium` | the place itself |
 | `patonga-beach` | `coast-headland` | stand-in, closest match |
+
+**Real places still without a picture of their own (16 Nov).** Each shows a stand-in until its picture is added:
+
+- Around your matches: Armory Wharf Cafe, Brickpit Ring Walk, Waterview in Bicentennial Park, Bourke Street Bakery, Entertainment Quarter, Darby Street cafés, Bathers Way, Beaumont Street bars.
+- Free-day ideas: Manly ferry, Bondi to Coogee walk, Sydney Opera House, The Rocks.
+- Curated trips: Blue Mountains day out, Royal National Park coast walk, Port Stephens bay day, Lake Macquarie by bike, Barrington Tops overnight.
+- Trip stops: Echo Point lookout, Prince Henry Cliff Walk, Leura Mall cafés, The Coast Track, Bundeena village cafés, Nelson Bay dolphin cruise, Stockton Bight sand dunes tour, Shoal Bay beach, Warners Bay bike hire, Speers Point Park, Hunter Valley balloon flight, Kiama Coast Walk, Jervis Bay whale-watching cruise, Barrington Tops rainforest walk, Gloucester country pub.
+- Where to watch: Darling Harbour fan zone, Rugby village, Foreshore Park.
+- Itinerary prototype: Centennial Parklands, Patonga Beach, Newcastle Ocean Baths.
+- Stadiums: Stadium Australia, Sydney Football Stadium and Newcastle Stadium share one stadium photo.
+
+Places with made-up names (the map's places near the stadiums, most free-day ideas, the screening venues) keep
+stand-ins on purpose: there is no real place to photograph.
 
 **Kinds of picture still missing** (each placeholder above marked "stand-in" needs its own):
 

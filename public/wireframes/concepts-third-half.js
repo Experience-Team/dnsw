@@ -595,7 +595,14 @@
   // What they added to a match, half or watch day that its own cards do not show (a place saved from the map and slotted
   // there, for example): one line, so nothing on their plan goes missing from its day
   function alsoItems(d) { return dayItems(d).filter(function (x) { return x.kind !== 'product'; }); }
-  function alsoLine(d) { var its = alsoItems(d); return its.length ? '<p class="tp-blk-note tp-blk-also">Also on your plan that day: ' + esc(its.map(function (x) { return x.title; }).join(', ')) + '.</p>' : ''; }
+  /* Every mention of a place opens its details (16 Nov): something on their plan opens its own sheet (Move, Remove);
+     a place saved from the map and not yet placed opens the place */
+  function placeLink(x) {
+    var id = x.unplaced && x.poi ? 'poi:' + x.poi : 'item:' + x.id;
+    return '<button type="button" class="tp-link tp-place-link" data-open="' + esc(id) + '" aria-haspopup="dialog">' + esc(x.title) + '</button>';
+  }
+  function placeLinks(its, sep) { return its.map(placeLink).join(sep || ', '); }
+  function alsoLine(d) { var its = alsoItems(d); return its.length ? '<p class="tp-blk-note tp-blk-also">Also on your plan that day: ' + placeLinks(its) + '.</p>' : ''; }
   function dayFilled(d) {
     var its = dayItems(d);
     return its.some(function (x) { return x.idea === 'day' || x.kind === 'trip'; }) || its.length >= 2;
@@ -630,22 +637,22 @@
     // Ferry from Sydney CBD, 35 min · about 9 km away (the details give the full wording)
     if (open) why = (i.car ? 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from : i.how.mode + ' from ' + i.how.from + (i.how.mins ? ', ' + mins(i.how.mins) : ', time to be confirmed')) + (km !== null ? ' · ' + (km < 1 ? 'under\u00a01\u00a0km' : 'about\u00a0' + Math.round(km) + '\u00a0km') + '\u00a0away' : '');
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
-    return '<article class="tp-pc tp-idea' + (open ? ' tp-idea--open' : '') + '" data-id="' + esc(key) + '">' + (open ? '<button type="button" class="tp-pc-main" data-idea-open="' + esc(key) + '">' : '<div class="tp-pc-main">') +
+    return '<article class="tp-pc tp-idea' + (open ? ' tp-idea--open' : '') + '" data-id="' + esc(key) + '">' + (open ? '<button type="button" class="tp-pc-main" data-idea-open="' + esc(key) + '">' : '<button type="button" class="tp-pc-main" data-open="idea:' + esc(key) + '" aria-haspopup="dialog">') +
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
       '<span class="tp-pc-type">' + esc(type) + '</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span>' +
-      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day' + (open ? '' : ' from ' + esc(i.how.from)) + '.</span>' : '') + '</span>' + (open ? '</button>' : '</div>') +
+      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day' + (open ? '' : ' from ' + esc(i.how.from)) + '.</span>' : '') + '</span></button>' +
       addBtn(key, i.title + ' on ' + dl) + '</article>';
   }
   /* An idea's details, in place of the list in the ideas sheet: Back to [day] ideas, a placeholder image, title and
      type, why it fits that day, how to get there and how long it takes, then opening hours, price and a short
      description. Ideas are fixture-only (cnFreeIdeas has no hours, price or description), so those three are
      bracketed placeholders, pink with Annotations on. Add to your timeline and View full page (not linked yet). */
-  function ideaDetail(i, d) {
+  function ideaDetail(i, d, noBack) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), km = ideaKm(i);
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
     var back = '<svg class="tp-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg>';
-    var h = '<button type="button" class="tp-link tp-ico-link tp-idea-back" data-idea-back>' + back + 'Back to ' + esc(dl) + ' ideas</button>';
+    var h = noBack ? '' : '<button type="button" class="tp-link tp-ico-link tp-idea-back" data-idea-back>' + back + 'Back to ' + esc(dl) + ' ideas</button>';
     h += '<div class="plan-modal-img ph-img tp-idea-img"' + imgKey(i.title) + ' role="img" aria-label="Placeholder image of ' + esc(i.title) + '"></div>';
     h += '<p class="tp-pm-type">' + esc((i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city]) + '</p>';
     h += '<h2 class="cn-pp-title' + (i.placeholder ? ' provenance-gap' : '') + '" id="tp-pm-title" tabindex="-1">' + esc(i.title) + '</h2>';
@@ -664,10 +671,10 @@
       h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>';
       if (dayFilled(d)) {
         FREEINFO.push({ d: d, label: dl, filled: true, count: 0, dk: dk, its: its, show: [], more: false, base: b.base });
-        h += '<p class="tp-fday-done">Your day: ' + esc(its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p></div>';
+        h += '<p class="tp-fday-done">Your day: ' + placeLinks(its, ' and ') + '. New ideas move on to your next free day.</p></div>';
         continue;
       }
-      if (its.length) h += '<p class="tp-fday-so">So far: ' + esc(its.map(function (x) { return x.title; }).join(', ')) + '. Room for one more.</p>';
+      if (its.length) h += '<p class="tp-fday-so">So far: ' + placeLinks(its) + '. Room for one more.</p>';
       // Shared out so every free day left gets three to five while there are enough (More ideas shows the rest)
       var list = ideasFor(d, b.base), per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
       FREE_LEFT--;
@@ -695,7 +702,7 @@
     var full = dayFilled(b.day);
     if (full) list = list.filter(function (p) { return added('p:' + p.id + ':' + f.d); });
     var show = moreBlk[b.key] || full ? list : list.slice(0, 3);
-    var h = alsoLine(b.day) + (full ? '<p class="tp-fday-done">Your half day: ' + esc(dayItems(b.day).map(function (x) { return x.title; }).join(' and ')) + '. That’s plenty for ' + (b.first ? 'an arrival day' : 'a last day') + '; remove one to see other ideas.</p>'
+    var h = alsoLine(b.day) + (full ? '<p class="tp-fday-done">Your half day: ' + placeLinks(dayItems(b.day), ' and ') + '. That’s plenty for ' + (b.first ? 'an arrival day' : 'a last day') + '; remove one to see other ideas.</p>'
       : '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': ' + esc(halfNote(b).charAt(0).toLowerCase() + halfNote(b).slice(1)) + '</p>') + '<div class="tp-pcs">';
     show.forEach(function (p) {
       var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + f.d, why = ['Open ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' · ');
@@ -917,7 +924,7 @@
       r.kicker = dl + ' \u00b7 Free day' + (home ? ' \u00b7 from ' + home.name : '');
       r.title = st.days.length > 1 ? st.days.length + ' free days' : ''; // one free day: the heading already says so
       var its = fd ? fd.its : dayItems(d);
-      if (fd && fd.filled) r.body = '<p class="tp-fday-done">Your day: ' + esc(its.map(function (x) { return x.title; }).join(' and ')) + '. New ideas move on to your next free day.</p>';
+      if (fd && fd.filled) r.body = '<p class="tp-fday-done">Your day: ' + placeLinks(its, ' and ') + '. New ideas move on to your next free day.</p>';
       else if (fd) {
         if (its.length) r.note = 'So far: ' + its.map(function (x) { return x.title; }).join(', ') + '. Room for one more.';
         r.pins = fd.show.map(function (i) { var key = 'i:' + i.id + '@' + d; return { key: key, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', ll: GEO && GEO.ideas[i.id], trip: i.kind === 'day', html: ideaCard(i, d) }; }).filter(function (x) { return x.ll; });
@@ -1183,6 +1190,27 @@
      always a day it is open. If nothing fits it stays in the group, saying so. Agreed 15 November 2026. */
   var POI = window.cnMapPoi || null;
   function poiOf(it) { return POI && it.poi ? POI.pois.filter(function (p) { return p.id === it.poi; })[0] || null : null; }
+  // A place near a stadium (from the map above the matches): its own sheet, with Add to your plan
+  function poiDays(p) {
+    var order = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], N = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
+    var o = order.filter(function (d) { return p.open.indexOf(d) > -1; });
+    if (o.length === 7) return 'Every day';
+    var a = order.indexOf(o[0]), z = order.indexOf(o[o.length - 1]);
+    return z - a + 1 === o.length ? N[o[0]] + ' to ' + N[o[o.length - 1]] : o.map(function (d) { return N[d]; }).join(', ');
+  }
+  function pmPoi(p) {
+    var it = addedItem('poi:' + p.id), on = !!it, near = p.near === 'village' ? 'the fan village' : p.near;
+    var h = '<div class="plan-modal-img ph-img"' + imgKey(p.title) + ' role="img" aria-label="Placeholder image of ' + esc(p.title) + '"></div><div class="plan-modal-body">';
+    h += '<p class="tp-pm-type provenance-gap">' + esc(p.cat) + '</p>';
+    h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(p.title) + '</h2>';
+    h += '<p class="cn-pp-venue provenance-gap">' + esc(p.area) + ' \u00b7 near ' + esc(near) + '</p>';
+    h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
+      '<div><dt>Open</dt><dd><span class="provenance-gap">' + esc(poiDays(p)) + '</span></dd></div>' +
+      '<div><dt>On your plan</dt><dd>' + (!it ? 'Not yet' : it.unplaced ? 'Saved, not placed yet' + (stay() ? ': no free day fits it yet' : ': it goes into a free day once you set your days') : esc(it.day)) + '</dd></div></dl>';
+    h += '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-poi="' + esc(p.id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to your plan' : 'Add to your plan') + '</span><span class="visually-hidden">, ' + esc(p.title) + '</span></button>' +
+      '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div></div>';
+    return h;
+  }
   tp.poiItem = function (p) { return { id: 'poi:' + p.id, kind: 'poi', poi: p.id, title: p.title, kindLabel: p.cat, place: p.area, day: '', unplaced: true }; };
   tp.unplaced = function () { return state.added.filter(function (it) { return it.unplaced; }); };
   function slotDay(it, s) {
@@ -1291,18 +1319,22 @@
   function openPm(id, opener, stacked) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
     var isKo = id.indexOf('ko:') === 0, isWt = id.indexOf('wt:') === 0, isIdeas = id.indexOf('ideas:') === 0;
+    var isPoi = id.indexOf('poi:') === 0, isIdea = id.indexOf('idea:') === 0;
+    var poiP = isPoi && POI ? POI.pois.filter(function (q) { return q.id === id.slice(4); })[0] : null;
+    var ideaK = isIdea ? id.slice(5) : '', ideaAt = ideaK.lastIndexOf('@'), ideaI = isIdea ? IDEAS.filter(function (q) { return q.id === ideaK.slice(2, ideaAt); })[0] : null;
+    if ((isPoi && !poiP) || (isIdea && !ideaI)) return;
     tlIdeasReturn(); // the ideas list is lent to the sheet; take it back before the body is replaced
-    var x = isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
+    var x = isPoi ? { type: 'poi' } : isIdea ? { type: 'idea' } : isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
     // Products, curated trips and watch spots open as sheets too (16 Nov), not full-screen pages: the page stays in view
     // above, and the cross, the scrim or Escape closes them
-    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot';
+    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot' || isPoi || isIdea || isItem;
     pmOpenerEl = null;
-    pmBody.innerHTML = isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    pmBody.innerHTML = isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     if (isIdeas) { tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
-    pmKind.textContent = isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
@@ -1315,7 +1347,7 @@
       void pm.offsetWidth;
       tp.stackOpen(pm, opener);
       pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-      tp.say(isIdeas ? 'Ideas for ' + (freeInfo(tlIdeasDay) || {}).label + ', opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
+      tp.say(isPoi || isIdea ? (isPoi ? poiP.title : ideaI.title) + ', details opened.' : isIdeas ? 'Ideas for ' + (freeInfo(tlIdeasDay) || {}).label + ', opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
       notesRefresh();
       return;
     }
@@ -1330,7 +1362,7 @@
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say(isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
+    tp.say(isPoi || isIdea || isItem ? (isPoi ? poiP.title : isIdea ? ideaI.title : x.it.title) + ', details opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
   function closePm() {
@@ -1588,7 +1620,7 @@
 
   phone.addEventListener('click', function (e) {
     var o = e.target.closest('[data-open]');
-    if (o && !pm.contains(o) && o.isConnected) { openPm(o.dataset.open, o); return; }
+    if (o && !pm.contains(o) && o.isConnected) { var tlEl = document.getElementById('tp-tl'); openPm(o.dataset.open, o, !!(tlEl && tlEl.classList.contains('is-open') && tlEl.contains(o))); return; }
     var gs = e.target.closest('[data-go-stay]');
     if (gs && !pm.contains(e.target)) { openStaying(gs); return; }
   });
@@ -1664,6 +1696,21 @@
       if (isWt) { var st = pmBody.scrollTop; redraw(); pmBody.scrollTop = st; var fb = pm.querySelector('.tp-add[data-item="' + CSS.escape(vid) + '"]'); if (fb) fb.focus({ preventScroll: true }); }
       else pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
       tp.say(pmSaid + ' ' + state.added.length + ' added.');
+      return;
+    }
+    var pb = e.target.closest('[data-pm-poi]');
+    if (pb && POI) {
+      var pp = POI.pois.filter(function (q) { return q.id === pb.dataset.pmPoi; })[0]; if (!pp) return;
+      var pit = addedItem('poi:' + pp.id);
+      if (pit) { tp.removeItem(pit.id); tp.say(pp.title + ' removed from your plan.'); }
+      else {
+        tp.addItem(tp.poiItem(pp));
+        var nu = addedItem('poi:' + pp.id);
+        tp.say(!nu ? '' : nu.unplaced ? pp.title + ' saved, not placed yet. ' + (stay() ? 'No free day fits it yet.' : 'It goes into a free day once you set your days.') : pp.title + ' added to your plan on ' + nu.day + '.');
+      }
+      pmBody.innerHTML = pmPoi(pp);
+      var pf = pm.querySelector('[data-pm-poi]'); if (pf) pf.focus({ preventScroll: true });
+      if (tp.ovRefresh) tp.ovRefresh();
       return;
     }
     var b = e.target.closest('[data-pm-add]'); if (!b) return;
