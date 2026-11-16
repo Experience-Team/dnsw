@@ -4413,6 +4413,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-place-cur { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); }
 .tp-tl-daysline { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-tl-daysline[hidden] { display: none; }
+/* Hold and drag, its own line above the axis once something can be moved */
+.tp-tl-drag { display: flex; align-items: flex-start; gap: var(--space-2); margin: var(--space-1) 0 var(--space-1); font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink); }
+.tp-tl-drag[hidden] { display: none; }
+.tp-tl-drag .tp-ico { flex: none; width: 16px; height: 16px; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 /* No days set: the date slider in place of the Add your days link (concepts-third-half.js, renderDaysLine) */
 .tp-tl-daysline.is-edit { display: block; margin-top: var(--space-3); padding: var(--space-3) var(--space-4) var(--space-2); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md, 8px); }
 .tp-tl-setdays-h { display: block; font-size: var(--fs-md); font-weight: var(--fw-semi); color: var(--c-ink); line-height: 1.3; }

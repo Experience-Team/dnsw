@@ -1642,12 +1642,10 @@
       if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
     }
     var howEl = document.getElementById('tp-tl-how');
-    if (howEl) {
-      var canDrag = state.added.some(dragMovable);
-      howEl.hidden = !(own() && shown.length) && !canDrag;
-      var ht = (own() && shown.length ? 'Tap a match to see where to watch it in NSW, add a screening or mark your ticket.' : '') + (canDrag ? (own() && shown.length ? ' ' : '') + 'Hold and drag something you added to move it to another day.' : '');
-      if (howEl.textContent !== ht) howEl.textContent = ht;
-    }
+    if (howEl) howEl.hidden = !(own() && shown.length);
+    // Hold and drag gets its own line, shown once there is something to move
+    var dragEl = document.getElementById('tp-tl-drag');
+    if (dragEl) dragEl.hidden = !state.added.some(dragMovable);
     // A clash marks its day on the strip
     var clashDays = {};
     Object.keys(tlClash).forEach(function (id) {
