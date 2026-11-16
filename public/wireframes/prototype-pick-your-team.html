@@ -3,15 +3,22 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-<!-- Phone view: ?phone (the QR code in the panel), or a touch screen under 500px wide, shows only the phone screen, edge
-     to edge, with the phone's own keyboard and controls. Theme: ?theme=hifi or ?theme=wireframe, else the last choice
-     in this browser (pv-theme), else the wireframe; data-theme="hifi" on <html> switches the phone to the high
-     fidelity tokens in themes/hifi.css. Both set before the first paint; see pv-device.js -->
+<!-- Two addresses, one file. This address shows the prototype in the low fidelity (wireframe) theme only, with every side
+     control except the High fidelity switch. Add ?tools (prototype-pick-your-team.html?tools) for the version we work
+     in: every side control, the High fidelity switch included. Nothing is copied, so a change shows on both.
+     Tools version theme: ?theme=hifi or ?theme=wireframe, else the last choice in this browser (pv-theme), else the
+     wireframe; data-theme="hifi" on <html> switches the phone to the high fidelity tokens in themes/hifi.css. Without
+     ?tools the page never reads or writes that choice and ignores ?theme=, so this address is always the wireframe.
+     Phone view: ?phone (the QR code in the panel), or a touch screen under 500px wide, shows only the phone screen, edge
+     to edge, with the phone's own keyboard and controls. All set before the first paint; see pv-device.js -->
 <script>(function () {
-  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
+  var d = document.documentElement, q = location.search, tools = /[?&]tools\b/.test(q), m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
   if (/[?&]phone\b/.test(q) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) d.classList.add('pv-device');
-  try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
-  if (t === 'hifi') d.setAttribute('data-theme', 'hifi');
+  if (tools) {
+    d.classList.add('pv-tools');
+    try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
+    if (t === 'hifi') d.setAttribute('data-theme', 'hifi');
+  }
   if (/[?&]slogan=b\b/.test(q)) d.setAttribute('data-slogan', 'b'); // the alternative slogan, for testing
 })();</script>
 <title>Pick your team · RWC prototypes</title>
@@ -29,6 +36,8 @@
     <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
   </header>
   <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab is-active" href="prototype-pick-your-team.html" aria-current="page">Pick your team</a><a class="pv-tab" href="prototype-itinerary.html">Share/edit itinerary</a><span class="pv-tab pv-tab--next" aria-disabled="true">[next] prototype</span></nav>
+  <!-- On the tools version, this page's own tab keeps ?tools, so clicking it never drops you back to the low fidelity address -->
+  <script>if (document.documentElement.classList.contains('pv-tools')) document.querySelector('.pv-tabs [aria-current="page"]').setAttribute('href', 'prototype-pick-your-team.html?tools');</script>
   <div class="pv-concept">
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team</h2>
@@ -41,6 +50,8 @@
       <!-- The phone in the wireframe or the high fidelity theme (pv-device.js; remembered in this browser). High fidelity
            follows the draft Third Half guidelines (Figma: Rugby World Cup, Styling page, node 261:13292), in themes/hifi.css -->
       <button type="button" class="cn-switch pv-switch" id="pv-theme-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>High fidelity</button>
+      <!-- Only on the tools version (?tools): this address stays low fidelity, so the switch is taken out before it shows -->
+      <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('pv-theme-toggle').remove();</script>
       <!-- TEST: which hand of team cards shows: the stacked hand (on) or the original fan (off). Remembered in this browser -->
       <button type="button" class="cn-switch pv-switch" id="tp-fan-toggle" role="switch" aria-checked="true"><span class="cn-switch-track" aria-hidden="true"></span>Stacked hand (test)</button>
     </div>
@@ -505,10 +516,11 @@
     { sel: '.tp-tl-pick .tp-ico', title: 'Prompt icons', text: 'Prompts to pick a team carry the card-fan icon (the Rugby World Cup Figma artwork, node 252:13225): the hero\u2019s Pick your teams (Change your teams once a team is picked), Pick your teams and Change your teams in the timeline, and Pick your teams in the empty Your plan so far. Prompts and buttons to set or change your days carry the calendar (Figma node 254:13291): Set your days in NSW, Staying longer? Set your days, Visiting? Set or Confirm your days, the dates step in the trip question, Change dates, Use these dates, and Change beside your days in NSW (in the timeline and under Suits your 3rd half; not when the answer is I live in NSW or Not sure yet, as that Change is not about dates). Greyscale, sized to the text, decorative (aria-hidden).' },
     { sel: '#tp-find-open', title: 'Find (utility row)', text: 'In the utility row above the hand, labelled Find (with a search icon), on phone and desktop alike. Tapped, the field slides across the utility row from the button, over Grid and Plays in NSW, so nothing below moves; suggestions float over the hand. Name or code, start of a word (zea finds New Zealand, rsa South Africa); Enter picks the first; Escape or the cross folds it back and focus returns to Find.' },
       { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Event details, Kick goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, and every label stays on one line: where the labels would not fit (the wireframe\u2019s system font, or 360px and narrower) the capsule\u2019s type shrinks just enough, one size for every pick so it never changes as the pill moves. Event details and Kick goal are not built: each opens a being-built page in place of the planner (the timeline bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Each section keeps its own scroll: the planner always comes back where it was left; Event details and Kick goal open at their top (under the floating capsule, which stays put) and keep a position of their own only once they have been scrolled. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Kick goal stays (the capsule also works with two items). Step 2, floating (changed from the brief at the user\u2019s request): it sticks 8px from the top once the header scrolls away, lifts with a shadow, shrinks to 80% while you scroll down and returns to full size when you scroll up, tap it or tab into it, and shrinks again on the next scroll down (items stay over the 24px AA minimum). While floating it keeps a faint light edge so it stays distinct over dark photos. Keyboard focus is a ring inside the item, and a tap dims an unpicked item. It sits under the timeline bar and every sheet, steps out of the way while the guided map of your days is on screen, and the page\u2019s own jumps (Pick your teams, See where to watch, Find your team) land below it.' },
-      { sel: '#tp-hero-cta', title: 'Hero (Option B2)', text: 'Top to bottom: the header (The Third Half logo and the reserved host city lockup, scrolls away), the capsule nav, the photo row, the slogan, the event line, one line on what the page does, and this button. Slogan A: Come for the match. Stay for the 1/3 half (screen readers hear third half); B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. 31px with 37px lines in both themes, one line per sentence (shrunk just enough if a line would wrap, at 360px or with a wider fallback font); the second line in the orange until the colour is decided (coral #EC5A5B or orange). Event line under the slogan, two lines: Men\u2019s Rugby World Cup, then 1 Oct\u201313 Nov \u201927 \u2022 days to go (screen readers hear 1 October to 13 November 2027). The reference drops the old Kick-offs in Sydney time. Spacing (more air than the brief\u2019s 16 / 24 / 16, agreed 16 Nov): 24px under the capsule, 32px from the photo row to the slogan, 12px from the slogan to its event line (they pair), then 24px to the body and 24px to the button (one group); 24px at the sides; the first section starts 64px below. The page keeps one rhythm: 4 to 16px inside a component, 24px between parts of a family, 48px between families (the hand of cards, the map, your match cards) and before each section\u2019s rule. The button is 36px tall (WCAG 2.2 AA), says Pick your teams, then Change your teams once a team is picked, and goes down to the hand of cards, landing below the floating nav.' },
+      { sel: '#tp-hero-cta', title: 'Hero (Option B2)', text: 'Top to bottom: the header (The Third Half logo and the reserved host city lockup, scrolls away), the capsule nav, the photo row, the slogan, the event line, one line on what the page does, and this button. Slogan A: Come for the match. Stay for the 1/3 half (screen readers hear third half); B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. 31px with 37px lines in both themes, one line per sentence (shrunk just enough if a line would wrap, at 360px or with a wider fallback font); the second line in the orange until the colour is decided (coral #EC5A5B or orange). Event line under the slogan, two lines: Men\u2019s Rugby World Cup, then 1 Oct\u201313 Nov \u201927 \u2022 days to go (screen readers hear 1 October to 13 November 2027). The reference drops the old Kick-offs in Sydney time. Spacing (more air than the brief\u2019s 16 / 24 / 16, agreed 16 Nov; Figma 337:40429 for the capsule and the heading): 44px under the capsule, 32px from the photo row to the slogan, 12px from the slogan to its event line (they pair), then 24px to the body and 24px to the button (one group); 24px at the sides; the first section starts 44px below, where the peek of the cards sits at the top of the page. The page keeps one rhythm: 4 to 16px inside a component, 24px between parts of a family, 48px between families (the hand of cards, the map, your match cards) and before each section\u2019s rule. The button is 36px tall (WCAG 2.2 AA), says Pick your teams, then Change your teams once a team is picked, and goes down to the hand of cards, landing below the floating nav.' },
       { sel: '.tp-photos', title: 'Photo row (B2 step 4)', text: 'One row of 182 x 102 tiles, 8px apart, starting 24px in and running off the right edge. Swipe or trackpad sideways; no scrollbar. It never moves on its own in this version (no auto-scroll, marquee or timer). Each tile is a button named for its photo, for example Stadium photo, see details. Stadium and ocean first, then two more so the row is long enough to swipe (high fidelity uses the closest pictures in assets; still to decide how many photos, which ones and what each panel says).' },
       { sel: '.tp-photo', title: 'Photo details (B2 step 5)', text: 'Tap a tile: a panel slides up from the bottom over a dark layer (#111 at 50%). Place label (mono 12px caps) with a round close button, the photo at 342 x 192, a title (24px semibold), a line or two (18px) and one outlined button. All copy is placeholder in square brackets; the button is marked Not linked yet. Close button, the dark layer or Escape closes it and focus goes back to the tile; Tab stays inside while it is open. Close and outlined buttons are 36px (AA sizing), not the brief\u2019s 44px.' },
       { sel: '.tp-count', title: 'Countdown', text: 'Part of the event line: days to go to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says Under way, final Sat 13 Nov, then The tournament is over. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
+      { sel: '#tp-picker', title: 'Peek and reveal (Figma 337:40429)', text: 'At the top of the page the hand of cards peeks in 44px under the hero button, and glides up into view once on arrival. As you scroll the first stretch (the heading, its line and the controls, plus 32px), the cards hold still on screen while the heading, its line and the Find / Grid / Plays in NSW row fade in and rise from behind them, in step with the scroll; scrolling back reverses it. Then everything scrolls as normal: 44px from the button to the heading, 32px from the controls to the cards, 32px from the cards to the map. Reading and Tab order never change; tabbing into the controls before they are out scrolls just far enough to show them. Reduced motion: the finished layout, no peek. Works with the stacked hand, the original fan and Grid.' },
       { sel: '#tp-pick-sub', title: 'Why pick', text: 'The heading, Pick your teams, matches the hero button. One 18px line under it says what a pick is for, with no subheading: Pick your teams to see their matches, then fill the days in between. 48px above the heading gives it room after the hero; the gap under the tap line is 24px shorter so All matches peeks in. The fan is described by it (aria-describedby, with the keyboard help), so screen readers hear it with the fan.' },
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Every NSW match. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
       { sel: '#tp-fan2-wrap', title: 'TEST: the stacked hand', text: 'From Figma node 282:26254: all 24 teams at once, alphabetical, in rows of six on four overlapping arcs; each card turns about a pivot below its row and later rows lie over earlier ones, so every card shows its code and flag at the top. Tap or Space/Enter picks or unpicks, through the same engine as the fan (Undo, the timeline, saving and the Your teams sheet behave the same). A pick is singled out: the card rises out of its row, larger and above its neighbours, then settles a little lifted while picked, in the picked colours with a tick. Keyboard: left and right arrows move along the hand, up and down between rows, Home and End, a letter jumps to the next team starting with it. The first time it comes into view the rows come up into place one after another. It is a test: the original fan is kept, hidden; the panel switch Stacked hand (test) or ?fan=classic brings it back, and the choice is remembered.' },
@@ -785,6 +797,43 @@
     if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
     else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
   });
+})();
+</script>
+<script>
+/* Peek and reveal (Figma 337:40429). The real layout is the finished one: heading, its line and the Find / Grid / Plays
+   in NSW row, then the cards, so reading and Tab order never change. At the top of the page the cards are drawn up by
+   D (the intro's height plus the 32px under it) to peek 44px under the hero button, and the intro is faded out behind
+   them. Over the first D pixels of scroll, p goes from 0 to 1: the cards come down exactly as fast as the page goes up,
+   so they hold still on screen, while the intro fades in and rises 16px into place from behind them. Scrolling back
+   reverses it. On load at the top, the peek glides up into view once. Reduced motion: the finished layout, no peek.
+   Focus landing in the intro before it is out (Tab, Find) scrolls the page just far enough to show it whole. */
+(function () {
+  var phone = document.getElementById('tp-phone'); if (!phone) return;
+  var body = phone.querySelector('.cn-body'), pick = document.getElementById('tp-pick'), picker = document.getElementById('tp-picker');
+  var intro = [pick.querySelector('.tp-pick-head'), document.getElementById('tp-pick-sub'), document.getElementById('tp-util')].filter(Boolean);
+  if (!body || !picker || !intro.length) return;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)'), D = 0, raf = 0;
+  function measure() { D = Math.max(0, picker.offsetTop - intro[0].offsetTop); }
+  function apply() {
+    raf = 0;
+    var p = reduce.matches || !D || pick.offsetParent === null ? 1 : Math.max(0, Math.min(1, body.scrollTop / D));
+    picker.style.transform = p < 1 ? 'translateY(' + (-(1 - p) * D).toFixed(1) + 'px)' : '';
+    intro.forEach(function (el) {
+      el.style.opacity = p < 1 ? p.toFixed(3) : '';
+      el.style.transform = p < 1 ? 'translateY(' + ((1 - p) * 16).toFixed(1) + 'px)' : '';
+    });
+    pick.classList.toggle('is-peek', p < 1);
+    pick.classList.toggle('is-hidden-intro', p < 0.5);
+  }
+  function soon() { if (!raf) raf = requestAnimationFrame(apply); }
+  measure(); apply();
+  body.addEventListener('scroll', soon, { passive: true });
+  reduce.addEventListener('change', apply);
+  if (window.ResizeObserver) new ResizeObserver(function () { measure(); soon(); }).observe(pick);
+  // Focus in the intro while it is still behind the cards: bring it fully out
+  intro.forEach(function (el) { el.addEventListener('focusin', function () { measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
+  // The peek glides up into view once, on arrival at the top of the page
+  if (!reduce.matches && body.scrollTop < 4 && picker.animate) picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
 })();
 </script>
 <script src="vendor/qrcode.js"></script>
