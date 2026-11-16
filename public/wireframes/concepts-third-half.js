@@ -2143,15 +2143,6 @@
     openDays(false, opener);
   }
   phone.addEventListener('tp:ask', function () { openAsk(true); });
-  // The hero's Pick your teams: down to the hand of cards (a button that names the cards it goes to), focus on the card
-  // in the middle. The page's other Pick your teams (Your plan so far) opens the team list in a sheet instead
-  phone.addEventListener('click', function (e) {
-    if (!e.target.closest('#tp-hero-cta')) return;
-    var pick = document.getElementById('tp-pick'), card = document.querySelector('.tp-fan2-wrap:not([hidden]) [tabindex="0"]') || document.querySelector('#tp-fan [tabindex="0"]');
-    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8 - (window.tpCapRoom ? window.tpCapRoom() : 0);
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    if (card) card.focus({ preventScroll: true });
-  });
   /* The line under Suits your 3rd half: your days and Change, or the way to set them. Nothing guessed. */
   function renderTripLine() {
     if (!tripEl) return;
