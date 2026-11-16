@@ -4788,6 +4788,11 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-days-sum { margin: var(--space-3) 0 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
 .tp-days-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); }
 .tp-days-acts .tp-pill[disabled] { opacity: .4; cursor: default; }
+/* The days sheet: what is picked and Use these dates stay fixed to the bottom of the sheet while the calendar scrolls */
+.tp-days-bar { position: sticky; bottom: 0; z-index: 2; align-self: stretch; margin: var(--space-2) calc(-1 * var(--space-4)) calc(-1 * var(--space-4)); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); }
+.tp-days-bar .tp-days-sum { margin: 0; }
+.cn-pp.tp-pm .cn-pp-body:has(.tp-days-bar) { padding-bottom: 0; scroll-padding-bottom: 120px; } /* the bar sits flush with the bottom, scrolled or not */
+.tp-days-bar .tp-days-acts { margin-top: var(--space-2); }
 .tp-days-acts .tp-pill .tp-ico { margin-right: 6px; }
 
 /* Timeline: the matches are what to tap (16 Nov). One plain line above the axis; the markers lift on hover; the first

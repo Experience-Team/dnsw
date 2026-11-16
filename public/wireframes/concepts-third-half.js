@@ -1373,9 +1373,11 @@
         '<span class="tp-range-h" role="slider" tabindex="0" data-dh="to" aria-label="Last day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '"></span></div>' +
         '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span>Tournament 1 Oct to 13 Nov</span><span>15 Nov</span></div></div>' +
       '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
-      '<p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
+      // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
+      // dates stay in view and it is clear the timeline waits for that tap
+      '<div class="tp-days-bar"><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
       '<div class="tp-days-acts"><button type="button" class="tp-pill tp-pill--dark" data-duse' + (n ? '' : ' disabled') + '>' + window.tpIcons.cal + 'Use these dates</button>' +
-      (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div>';
+      (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div></div>';
     return h + '</div>';
   }
   function openDays(stay, opener) {
