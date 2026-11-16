@@ -4765,6 +4765,10 @@ p.tp-ws-going { display: block; } p.tp-ws-going .tp-ws-going-q { font-size: var(
 .tp-ov-pop .tp-map-pop-l { margin-top: 4px; max-height: none; overflow: visible; }
 .tp-ov-pop .tp-map-pop-l li > span { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .tp-ov-pop-d { font-size: var(--fs-2xs); color: var(--c-ink-2); }
+/* Each nearby place shows its picture, the same 56px thumbnail as the cards on the page; its name reads left-aligned */
+.tp-ov-pop .tp-map-pop-l li { gap: var(--space-3); padding: var(--space-2) 0; }
+.tp-ov-pop .tp-map-pop-l li > .tp-ov-pop-txt { flex: 1; }
+.tp-ov-pop .tp-place-link { align-self: flex-start; min-height: 24px; text-align: left; }
 .tp-ov-pop-n { font-size: var(--fs-2xs); font-weight: var(--fw-semi); color: var(--c-ink); }
 .tp-ov-pop .tp-add { flex: none; }
 .tp-ov-follow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); margin-top: var(--space-3); padding: var(--space-3); border-radius: 12px; background: var(--c-surface-2); }
