@@ -5133,3 +5133,8 @@ span.tp-map-arrow { display: block; }
 .tp-tl-head .tp-tl-teams .tp-link { min-height: 24px; }
 .tp-dc { margin-top: 0; }
 .tp-dc-strip { padding-top: var(--space-3); } /* 12px under the dates line, as the title row is above it */
+
+/* 17 Nov: the hero's closing line is the Pick your teams section's heading. It keeps the hero line's look (18px,
+   regular) and its place: 24px under the event line, as it was inside the hero */
+.tp-pick-title.tp-pick-lead { font-size: var(--fs-lg-2); font-weight: var(--fw-regular, 400); line-height: 1.4; letter-spacing: 0; text-wrap: pretty; }
+.tp-pick:has(.tp-pick-lead) { padding-top: var(--space-5); }
