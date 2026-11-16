@@ -86,18 +86,39 @@
           <span class="tp-logo" role="img" aria-label="The Third Half"><img src="assets/images/tth-logo.webp" alt="" width="72" height="54"></span>
           <span class="tp-lockup" role="img" aria-label="Host city lockup, reserved space"><span class="tp-lockup-in" aria-hidden="true"><span class="tp-lockup-t">Host city lockup</span><span class="tp-lockup-s">Host city + Feel New + World Rugby</span></span></span>
         </header>
-        <!-- Event details, one line that wraps at the bullets: the event, its dates (day then month), the countdown and the
-             page's one note that every kick-off is Sydney time. The countdown script below fills .tp-count. -->
-        <p class="tp-event"><span class="tp-nowrap">Men&rsquo;s Rugby World Cup</span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">. </span><span class="tp-nowrap">Kick-offs in Sydney time</span></p>
+        <!-- Capsule nav (Option B2, step 1): the page's three sections in a dark capsule under the header. Items are
+             36px tall in a 44px capsule, per the page's WCAG 2.2 AA sizing (the brief's 44px items, 52px capsule, were
+             changed with the user's go-ahead). The selected item is a light pill that glides to whichever is picked.
+             Event details and Kick goal are not built yet: each opens a "being built" page in place of the planner, and
+             going back to Plan your 3rd half returns to the same scroll position. Script at the end of this file. -->
+        <div class="tp-cap-wrap">
+          <nav class="tp-cap" id="tp-cap" aria-label="Sections">
+            <span class="tp-cap-pill" id="tp-cap-pill" aria-hidden="true"></span>
+            <button type="button" class="tp-cap-i" data-view="event">Event details</button>
+            <button type="button" class="tp-cap-i" data-view="kick">Kick goal</button>
+            <button type="button" class="tp-cap-i is-on" data-view="plan" aria-current="page">Plan your 3rd half</button>
+          </nav>
+        </div>
+        <!-- Hero (Option B2): the photo row, then the slogan, the event line, one line on what the page does, and the
+             button. The row swipes sideways and never moves on its own (low fidelity: no auto-scroll, marquee or timer);
+             each tile opens its photo details panel. The stadium and ocean photos first, then two more so there is
+             something to swipe (hifi: the closest pictures in assets; wireframe: grey with an image icon). -->
         <section class="tp-hero" aria-labelledby="tp-hero-title">
-          <span class="ph-img tp-hero-img tp-hero-img--a" data-img="hero-stadium" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span>
+          <div class="tp-photos" role="group" aria-label="Photos">
+            <button type="button" class="tp-photo" data-photo="stadium" aria-label="Stadium photo, see details"><span class="ph-img tp-photo-img" data-img="hero-stadium" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="coast" aria-label="Ocean photo, see details"><span class="ph-img tp-photo-img" data-img="hero-coast" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="photo3" aria-label="Photo 3, see details"><span class="ph-img tp-photo-img" data-img="coast-aerial" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="photo4" aria-label="Photo 4, see details"><span class="ph-img tp-photo-img" data-img="village" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+          </div>
           <div class="tp-hero-copy">
             <!-- The slogan, A by default; ?slogan=b shows B (set on <html> by the script in <head>) to test both -->
-            <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-slogan tp-slogan--a"><span class="tp-slogan-1">Come for the match.</span> <span class="tp-slogan-2">Stay for the third half.</span></span><span class="tp-slogan tp-slogan--b"><span class="tp-slogan-1">Your team&rsquo;s matches.</span> <span class="tp-slogan-2">Your days in NSW.</span></span></h3>
+            <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-slogan tp-slogan--a"><span class="tp-slogan-1">Come for the match.</span> <span class="tp-slogan-2">Stay for the <span aria-hidden="true">1/3</span><span class="visually-hidden">third</span> half.</span></span><span class="tp-slogan tp-slogan--b"><span class="tp-slogan-1">Your team&rsquo;s matches.</span> <span class="tp-slogan-2">Your days in NSW.</span></span></h3>
+            <!-- Event line, under the slogan (B2): the event, then its dates (day then month) and the countdown, two
+                 lines. The countdown script below fills .tp-count. -->
+            <p class="tp-event"><span class="tp-event-l">Men&rsquo;s Rugby World Cup</span><span class="visually-hidden">, </span><span class="tp-event-l"><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span></span></p>
             <p class="tp-hero-sub">Pick your teams, see their matches, and plan your NSW days around game time.</p>
             <button type="button" class="tp-hero-cta" id="tp-hero-cta" data-act="hero-pick">Pick your teams</button>
           </div>
-          <span class="ph-img tp-hero-img tp-hero-img--b" data-img="hero-coast" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span>
         </section>
 
         <!-- Team picker: a fanned hand of 24 team cards plus "Here for the rugby", built by concepts-teams.js from
@@ -215,6 +236,14 @@
           <h3 class="tp-plan-title" id="tp-plan-title">Your plan so far</h3>
           <div id="tp-plan-body"></div>
         </section>
+        <!-- Being built: shown in place of the planner when Event details or Kick goal is picked in the capsule.
+             The title follows the section picked. -->
+        <section class="tp-soon" id="tp-soon" aria-labelledby="tp-soon-title" hidden>
+          <span class="tp-soon-ico" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 23h20M7 23V12l7-5 7 5v11M11 23v-6h6v6"/></svg></span>
+          <h3 class="tp-soon-title" id="tp-soon-title" tabindex="-1">Event details</h3>
+          <p class="tp-soon-p">This page is being built. Plan your 3rd half is ready to use now.</p>
+          <button type="button" class="tp-soon-back" data-view="plan">Back to Plan your 3rd half</button>
+        </section>
       </div>
       <!-- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to 390px). Docked over the bottom of the phone,
            outside the scrolling body, so it never moves the content; the body has 104px of room at the bottom so it never
@@ -283,6 +312,21 @@
         <div class="tp-kbd-row"><span class="tp-kbd-k tp-kbd-k--fn">&#8679;</span><span class="tp-kbd-k">z</span><span class="tp-kbd-k">x</span><span class="tp-kbd-k">c</span><span class="tp-kbd-k">v</span><span class="tp-kbd-k">b</span><span class="tp-kbd-k">n</span><span class="tp-kbd-k">m</span><span class="tp-kbd-k tp-kbd-k--fn">&#9003;</span></div>
         <div class="tp-kbd-row"><span class="tp-kbd-k tp-kbd-k--fn tp-kbd-k--wide">123</span><span class="tp-kbd-k tp-kbd-k--space">space</span><span class="tp-kbd-k tp-kbd-k--fn tp-kbd-k--wide">search</span></div>
         <span class="tp-kbd-note">Indicative keyboard</span>
+      </div>
+      <!-- Photo details (B2 step 5): opened by a tile in the hero's photo row. Slides up from the bottom over a dark layer
+           (#111 at 50%). Place label and close, the photo (342 x 192), a title, a line or two and one outlined button. All
+           copy is placeholder in square brackets until it is decided. Closes by the close button, the dark layer or
+           Escape, and focus goes back to the tile. Filled by the script at the end of this file. -->
+      <div class="tp-ph-scrim" id="tp-ph-scrim" hidden></div>
+      <div class="tp-ph" id="tp-ph" role="dialog" aria-modal="true" aria-labelledby="tp-ph-title" hidden>
+        <div class="tp-ph-top">
+          <p class="tp-ph-where" id="tp-ph-where"></p>
+          <button type="button" class="tp-ph-close" data-ph-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        <span class="ph-img tp-ph-img" id="tp-ph-img" role="img"></span>
+        <h2 class="tp-ph-title" id="tp-ph-title"></h2>
+        <p class="tp-ph-p" id="tp-ph-p"></p>
+        <div class="tp-ph-acts"><button type="button" class="tp-ph-go" id="tp-ph-go" aria-disabled="true" aria-describedby="tp-ph-soon"></button><span class="tp-ph-soon" id="tp-ph-soon">Not linked yet</span></div>
       </div>
       <div class="tp-stack-scrim" id="tp-stack-scrim"></div>
       <div class="cn-sheet tp-stack tp-ss" id="tp-ss" role="dialog" aria-modal="true" aria-labelledby="tp-ss-title" tabindex="-1" inert>
@@ -423,7 +467,7 @@
     { sel: '#tp-tl-ideas', title: 'A free day\u2019s ideas, in the sheet', text: 'The same ideas, Fits [day] lines, More ideas and Add buttons as that day on the page, drawn from the same list, so adding here or there is one plan, and the + labels and the page update together. While the ideas are open the timeline sticks under the sheet\u2019s header, so an added idea is seen landing: its marker flies in one arc from the Add button to its day, arrives lifted and larger, then settles with a ring (reduced motion: it appears with the ring held for a moment). Focus moves to the next idea\u2019s Add. When the day fills, the list says Your day: \u2026 and offers Next free day, whose ideas the page has moved on to; the list keeps its height while that day is open so the sheet does not jump. Above the axis, one plain line says what to do: Tap a match to see where to watch it in NSW, add a screening or mark your ticket (the matches themselves are the way in, there is no separate marker); the first time the timeline opens, the first match is singled out with a ring that pulses twice (reduced motion: shown, then fades). In a match\u2019s sheet, each screening\u2019s Add adds or takes it off, any number of them. A full day\u2019s marker shows a tick instead of +, labelled Free / Full in the page font. While the timeline is open, Tab stays inside it, and removing something keeps the axis on the days it was showing.' },
     { sel: '#tp-tl-toggle', at: 'tc', title: 'Timeline bar', text: 'Up from the start, empty: 0.7s after the page loads it rises into view (a fade with reduced motion) reading Your plan, No matches yet, with no dots on its strip, so the plan is seen before anything is in it (the open timeline still previews every match). Every pick is seen working there: the team\u2019s matches glide as dots from the picked card into the bar\u2019s strip and land on their dates, 60ms apart (closer and shorter for picks in quick succession; one sweep for Every NSW match; a match already there does not fly again), then the count changes. Unpicking lifts that team\u2019s dots out as they fade, and the count drops; with nothing picked the bar sinks away. Reduced motion: no flight, the dots fade in. At 390 x 844 the risen bar sits clear of the fan, the caption and Clear all. With no team it also slides up once the match list has scrolled past the top of the phone, or, where the list is too short for that, once you reach the end of the page with them in view. Never over the fan; it slides away when you scroll back above the cards. Matches only, on one axis from 1 Oct to 13 Nov: every match as a preview with no team, every NSW match for Every NSW match, your teams\u2019 matches as you pick, and any single match you add from All matches (with no team, only those). The All matches list stays unfiltered. With no team the label says Pick your teams. The count follows the page\u2019s one counting rule (pool matches and knockouts named apart, as 9 pool + 8 knockouts), and once your days in NSW are confirmed it says so when it counts only those (2 matches in your days \u00b7 12 to 20 Oct; Your plan so far adds the same figure beside its total). With no days and nothing added, opening it lands on your first NSW match. Tap the bar or its handle to open it. It opens on what matters: a marker you chose, else your days in NSW (a short stay centred, with the days either side), else the first thing you added, else the first match: the mini strip opens out into the big axis as the sheet rises, and folds back into it on close (a fade with reduced motion). Month labels stay pinned while the axis scrolls. Tap again or press Escape to close. The number badge counts what you add from Where to watch and Suits your 3rd half, and the label says how many. The page keeps 104px clear at the bottom so the 88px bar never covers the last match. Drag the bar or its handle: up past a third of the way (or a flick) opens the sheet, down past a third (or a flick) closes it, and a shorter drag springs back; a tap or Enter still toggles. How the bar reads (one reading, never a different meaning): the top line always names your teams (Pick your teams with none; Every NSW match when that is on); the value is the plan’s total by the page’s one counting rule, as the Your matches tab and the summary say it (3 pool matches · 1 in NSW); the strip runs between the tournament’s end dates, 1 Oct and 13 Nov, which sit either side of it on one row so the bar is 88px, not 104px; your days, once set, are a band behind the strip’s dots (as in the open timeline; nothing is guessed), and the days or the matches’ span are still read out with the bar (2 in your days · 5 to 17 Oct, or All in your days); what you added is only on the badge; interstate matches shown by Show interstate matches too are for watching in NSW, on the axis only, never counted; a clash marks its day on the strip with a red ring and is named in the open timeline. With two or more teams the label shows flags and codes (RSA, ENG; up to four, then +N) instead of the names, so it fits at 390px and still shows what was chosen; screen readers hear the full names. Open, the sheet starts below the count and the close button, so neither is clipped.' },
     { sel: '#tp-skip', title: 'Go to your timeline (skip link)', text: 'The bar is last in the page’s markup, so a keyboard would reach it after every card, tick and Add (23 to 30 presses). This link is the first Tab stop in the phone, shown only while the bar is up: hidden until focused, then a 36px pill at the top; Enter moves focus to the bar, and Enter again opens the timeline (Save & share is then one step in). Pointer users never see it.' },
-    { sel: '#tp-ask', title: 'Your days and Refine your plan (on the page)', text: 'Ask only for what the next step needs, when it matters. Hidden until there is something to plan around (a team, every NSW match or a match of their own); then, below the matches (moved there on 15 Nov so the matches come first) and leading into Where to watch: Your days. Optional, and nothing is guessed: the fields and slider start empty (the slider\u2019s handles wait faded at the ends). Two quick picks fill them in one tap: Around my matches (the day before their first NSW match to the day after their last) and About a week (seven days from the day before their first NSW match); or type or slide them and Use these dates. Once set, one line with Change; Remove my days clears them. Under it, folded: Refine your plan by adding more details. Do you know where you\u2019re staying? I\u2019m a local, Sydney CBD, Newcastle, Bondi or Outside NSW (one option; no places outside NSW are listed), or find a place in NSW (a short searchable list, each place tied to the nearer host city or neither). Who\u2019s coming? Solo, couple, friends, family. Answers apply as they are tapped (tap again to clear) and choose and order the ideas: where you stay sets the city for free days and half days (a local gets nearest first, no dates needed); a family gets attractions and free things first and day trips before longer ones, a couple or friends food and drink first. Until a place is given the copy says in Sydney (or the city), never near your base. The open timeline has one line for these with Change, which closes it and comes here. This replaces the Visiting or local? question in the timeline and its Looks like you\u2019re here guess. Since 16 Nov there are no quick picks and no Use these dates: the days apply as they are set (letting go of a slider handle, a short pause after the arrow keys, or a date field changing), the panel is held where it is on screen while the page below updates, and quiet Undo and Reset text links with icons sit under the slider (Undo steps back one change at a time, Reset clears the days and can itself be undone).' },
+    { sel: '#tp-ask', title: 'Your days and Refine your plan (on the page)', text: 'Ask only for what the next step needs, when it matters. Hidden until there is something to plan around (a team, every NSW match or a match of their own); then, below the matches (moved there on 15 Nov so the matches come first) and leading into Where to watch: Your days. Optional, and nothing is guessed: the fields and slider start empty (the slider\u2019s handles wait faded at the ends). Type or slide them and they apply as they are set (your matches are dotted on the slider), with Undo and Reset as text links. Once set, one line with Change; Remove my days clears them. Under it, folded: Refine your plan by adding more details. Do you know where you\u2019re staying? I\u2019m a local, Sydney CBD, Newcastle, Bondi or Outside NSW (one option; no places outside NSW are listed), or find a place in NSW (a short searchable list, each place tied to the nearer host city or neither). Who\u2019s coming? Solo, couple, friends, family. Answers apply as they are tapped (tap again to clear) and choose and order the ideas: where you stay sets the city for free days and half days (a local gets nearest first, no dates needed); a family gets attractions and free things first and day trips before longer ones, a couple or friends food and drink first. Until a place is given the copy says in Sydney (or the city), never near your base. The open timeline has one line for these with Change, which closes it and comes here. This replaces the Visiting or local? question in the timeline and its Looks like you\u2019re here guess. Since 16 Nov there are no quick picks and no Use these dates: the days apply as they are set (letting go of a slider handle, a short pause after the arrow keys, or a date field changing), the panel is held where it is on screen while the page below updates, and quiet Undo and Reset text links with icons sit under the slider (Undo steps back one change at a time, Reset clears the days and can itself be undone).' },
     { sel: '.tp-tl-device', title: 'Saved on this device', text: 'Picks, ticket marks, what you added, your trip answer and the tab you chose are kept in this browser, so a reload puts you back where you were. Moved here from under the fan, beside the trip question. Reset prototype, or ?reset on the address, clears them. Phone view keeps its own copy, in the phone\u2019s browser; ?phone&reset clears it there.' },
     { sel: '.tp-tl-head', title: 'The open timeline: as tall as it can be', text: 'Open, the sheet fills the phone except a 48px strip at the top where the dimmed page shows; a tap there closes it, as the scrim did. Its content scrolls inside the sheet; the bar, handle and this title row stay put, and a faint line appears under the title row once the content scrolls under it.' },
     { sel: '#tp-tl-share', title: 'Save & share', text: 'A prominent full-width button pinned to the foot of the timeline sheet (sticky, so it stays in reach as the sheet scrolls), shown once there is a plan to keep (a team picked or something added). Opens a second sheet stacked over the timeline, with the save and share options from the Share/edit itinerary prototype and nothing else from it. Stacked sheets are one pattern (tpPicker.stackOpen, any .tp-stack): the timeline moves back (94% from its top centre, top raised 10px, dimmed) as the sheet slides up to 16px below it, in one motion with one timing; a strip of the timeline shows above. One level only: a third sheet replaces the second. Close with the cross, Escape (top sheet only), a tap on the strip of timeline or page above, or by dragging the handle down past a third of the way (or a flick); the timeline comes forward and focus returns to this button. Tab stays in the top sheet. Reduced motion: no slide or scale, both states appear at once.' },
@@ -439,7 +483,7 @@
   // Where to watch, Suits your 3rd half and the question, on every screen they show on
   var EXTRA = [
     { sel: '#tp-watch-note', title: 'Where to watch (dummy venues, gap data)', text: 'Delivers on You can still watch them in NSW: every match of every picked team, interstate included, filtered by your days once set (South Africa v Romania, Fri 15 Oct, shows for 12 to 18 Oct). One card per evening: the match (or two), then up to three venues in NSW, each with Add, then Going to this match?. Venues are dummy data with invented names (Harbour Square Fan Zone, The Tanner\u2019s Arms, Westvale Rugby Club and so on, in different areas), pink with Annotations on, until real ones are supplied; which matches each screens follows a simple rule, not real programming. Fairness, as a government site: venues come in a rotation that starts at a different place for each match, one of each kind (fan zone, pub, club) and from different areas first, and no venue is shown for more than two evenings while another would do; where you are staying puts that city first. Two of your matches on one evening share a card marked 2 of your matches tonight, with venues showing both first (Shows both) and the rest saying which match they show (South Africa and England on Sun 3 Oct). Each card has one line, With more than one match day the cards are a carousel, one at a time with the next peeking in, as the team cards are (N match days. Swipe for the others.); adding on a card keeps the carousel where it was. One line per card: Going to [match]? Mark your ticket on the match (with several matches on a card: Going to one of these?, to the first one), which goes to that match\u2019s I have a ticket (the one place a ticket is marked; the match\u2019s sheet when it is not in Your matches). Once marked, that match\u2019s screenings give way to getting there and back, with Not going after all? to undo. More than four evenings: Show more evenings.' },
-    { sel: '#tp-third-trip', title: 'Where the days come from', text: 'Your days as set above, with Change, or Set your days (Staying longer? Set your days with one NSW match); both open Your days in a sheet where you are, with the calendar inline (October and November 2027, 29 Sep to 15 Nov; your NSW match days carry a dot; tap your first day, then your last; or the slider above it, the same two handles as on the page with your matches dotted, drag either end or tap the track; or a flexible-dates chip in one swipeable row, \u00b1 1, 2, 3, 7 or 14 days either side of your first and last match, then About a week; selected days are true circles, and a match day is bold with an orange ring and dot that stay visible inside the chosen range), so the page never jumps. The timeline\u2019s Add your days opens the same sheet over the timeline, and Add where you\u2019re staying opens it on the staying and who\u2019s coming questions. Setting days holds the page so the link (now Change) stays where it was, with focus back on it. Going? Mark your ticket on the match opens that match\u2019s sheet at its I have a ticket, rather than scrolling up to its card. Nothing is guessed: with no days, the ideas follow their match days only.' },
+    { sel: '#tp-third-trip', title: 'Where the days come from', text: 'Your days as set above, with Change, or Set your days (Staying longer? Set your days with one NSW match); both open Your days in a sheet where you are, with the calendar inline (October and November 2027, 29 Sep to 15 Nov; your NSW match days carry a dot; tap your first day, then your last; or the slider above it, the same two handles as on the page with your matches dotted, drag either end or tap the track; or a flexible-dates chip in one swipeable row, \u00b1 1, 2, 3, 7 or 14 days either side of your first and last match; selected days are true circles, and a match day is bold with an orange ring and dot that stay visible inside the chosen range), so the page never jumps. The timeline\u2019s Add your days opens the same sheet over the timeline, and Add where you\u2019re staying opens it on the staying and who\u2019s coming questions. Setting days holds the page so the link (now Change) stays where it was, with focus back on it. Going? Mark your ticket on the match opens that match\u2019s sheet at its I have a ticket, rather than scrolling up to its card. Nothing is guessed: with no days, the ideas follow their match days only.' },
     { sel: '#tp-third-note', title: 'Around your matches', text: 'Was Suits your 3rd half; that name stays as the product name in the hero only. The fan\u2019s days in NSW, in order, as blocks with plain headings instead of date pills. A match day keeps Before the match, After the final whistle and Near the stadium. A free stretch (4 free days \u00b7 Tue 12 to Fri 15 Oct): one or two free days get day trips; three or more get longer trips first, then day trips. The first and last day of a stay are half days (Arrival day, Last day): only things near the base, never counted towards a free stretch. An interstate match they have a ticket for is a day away and splits the stretch; a free day when one of their teams plays interstate (no ticket) is its own card in order, for example Fri 15 Oct \u00b7 Free day, South Africa plays at 8pm. Here\u2019s where to watch, with the same fair dummy venues as Where to watch and Add on each (two of their matches that day: 2 of your matches tonight, or that day when one kicks off before 5pm, venues showing both first). It replaces the line that sat inside the free-days block and only linked away. Base city (Sydney or Newcastle) comes from the matches either side; a stretch between a Newcastle match and a Sydney match suggests something on the way first. With no team: a first look at the next NSW match day.' },
     { sel: '#tp-ov', title: 'Around the matches in NSW (map under the team cards)', text: 'Calm context, never a step: the team cards stay the first thing to do, and this map is not sticky (a fixed 380px box). Three stages by what they have told us. 1. Nothing picked: the three NSW stadiums and a fan village (a placeholder at Darling Harbour), each with three things nearby shown as small dots around it, one per category (food and drink, outdoors, culture, attraction) in an order that changes each day, so no business is favoured. 2. A team picked: its NSW matches light up on their stadiums (one match, or how many and between which dates); other stadiums go quiet; where to watch in NSW is on the map itself: the placeholder screening venues (fan zones, pubs, clubs) are TV pins at every stage, drawn under the places and eased off them, their labels and the controls; once a team is picked the ones listing one of its matches are strong and the rest faint. A TV pin\u2019s card (under the map) names the venue and which of your matches it shows, interstate ones included, and links to See screenings in Where to watch. (Replaced the edge markers for matches interstate, 16 Nov.) With days set but no team, nothing is dimmed. A team that plays only in Newcastle opens on Newcastle; the other city is a chip in the bottom-right corner (Newcastle Stadium from Sydney, Sydney from Newcastle; slightly see-through over the map; above an open card in full screen), its arrow pointing the way, and tapping it glides there (pulled back until both cities are in view, labels stepping aside while it moves). 3. Their days set: Your trip is ready to follow day by day, with Follow day by day; the guided map further down only starts from that button, so scrolling never turns into stepping through a map. Tap a place for its card under the map: its matches and the things nearby, each with Add. Added before their days are set, a place is Saved, not placed yet (in the plan and the timeline) and goes into a free day once days are set, without asking: near a stadium, that stadium\u2019s match day if it is in their days; otherwise the first free day with room (one idea or none); only a day it is open. If nothing fits it stays in the group and says so. Full screen (the third map button): the map fills the phone, over the page and the timeline bar; there one finger moves it, place cards open over its foot, and Escape or Exit full screen puts it back where it was, at the same place and zoom. Touch: one finger scrolls the page, two move or pinch the map (a hint says so); a mouse drags, Ctrl and scroll zooms; + and \u2212 buttons; on the keyboard the map takes arrow keys, plus and minus. The picture loads only when the map comes near the screen. All places, names and opening days here are made up (concepts-geo.js, cnMapPoi), except the stadium positions.' },
     { sel: '.tp-dview', title: 'Following day by day: the way out', text: 'Shown only while following day by day. Back to the overview returns to the map under the team cards (focus on Follow day by day); Skip the map goes straight past it to the list. See as a list (on the card) and the list of days also leave it. Not kept on reload: a new visit starts on the overview.' },
@@ -460,7 +504,10 @@
       { sel: '#tp-kbd', title: 'Indicative keyboard (not functional)', text: 'While Find your team is open, a static grey keyboard rises from the bottom of the phone, only to show that the phone keyboard would come up. On a real phone it is the native keyboard. Tapping it does nothing and keeps the field focused. Opening the search brings the heading row near the top of the phone, so the suggestions under it are never covered (they end by about 220px; the keyboard starts at 614px). Reduced motion: it appears and goes at once. In phone view (the QR code in the panel, ?phone, or any touch screen under 500px wide) it is never shown: the phone\u2019s own keyboard comes up, with a Search key, and the screen shrinks to the space above it so the suggestions stay in view.' },
     { sel: '.tp-tl-pick .tp-ico', title: 'Prompt icons', text: 'Prompts to pick a team carry the card-fan icon (the Rugby World Cup Figma artwork, node 252:13225): Pick your teams and Change your teams in the timeline, and Pick your teams in the empty Your plan so far. Prompts and buttons to set or change your days carry the calendar (Figma node 254:13291): Set your days in NSW, Staying longer? Set your days, Visiting? Set or Confirm your days, the dates step in the trip question, Change dates, Use these dates, and Change beside your days in NSW (in the timeline and under Suits your 3rd half; not when the answer is I live in NSW or Not sure yet, as that Change is not about dates). Greyscale, sized to the text, decorative (aria-hidden).' },
     { sel: '#tp-find-open', title: 'Find (utility row)', text: 'In the utility row above the hand, labelled Find (with a search icon), on phone and desktop alike. Tapped, the field slides across the utility row from the button, over Grid and Plays in NSW, so nothing below moves; suggestions float over the hand. Name or code, start of a word (zea finds New Zealand, rsa South Africa); Enter picks the first; Escape or the cross folds it back and focus returns to Find.' },
-      { sel: '#tp-hero-cta', title: 'Hero (Figma 309:644)', text: 'Option A, lockup in header: The Third Half logo, and a dashed box that holds the space (with its clear space) for the host city lockup (Host city + Feel New + World Rugby), not drawn yet. Then one event line that wraps at its bullets: Men\u2019s Rugby World Cup \u2022 1 Oct\u201313 Nov \u201927 \u2022 320 days to go \u2022 Kick-offs in Sydney time (dates day then month throughout; screen readers hear 1 October to 13 November 2027). Then a picture, the slogan with its explaining line directly under it, this button and a second picture. Slogan A: Come for the match. Stay for the third half. Slogan B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. Each sentence takes its own line; in high fidelity the second is in the colourway (40px, large text). Wireframe: the pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset left then right, as in Figma. The button is 36px tall, per the page\u2019s WCAG 2.2 AA sizing, not Figma\u2019s 44px. It says Pick your teams, then Change your teams once a team is picked, matching the picker\u2019s heading, and goes down to the hand of cards and focuses the middle card (a jump with reduced motion). The hand is below the fold on a 390 x 844 phone; this button is the way down.' },
+      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Event details, Kick goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, and every label stays on one line: where the labels would not fit (the wireframe\u2019s system font, or 360px and narrower) the capsule\u2019s type shrinks just enough, one size for every pick so it never changes as the pill moves. Event details and Kick goal are not built: each opens a being-built page in place of the planner (the timeline bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Kick goal stays (the capsule also works with two items). Step 2, floating (changed from the brief at the user\u2019s request): it sticks 8px from the top once the header scrolls away, lifts with a shadow, shrinks to 80% while you scroll down and returns to full size when you scroll up or tab into it (items stay over the 24px AA minimum). It sits under the timeline bar and every sheet, steps out of the way while the guided map of your days is on screen, and the page\u2019s own jumps (Pick your teams, See where to watch, Find your team) land below it.' },
+      { sel: '#tp-hero-cta', title: 'Hero (Option B2)', text: 'Top to bottom: the header (The Third Half logo and the reserved host city lockup, scrolls away), the capsule nav, the photo row, the slogan, the event line, one line on what the page does, and this button. Slogan A: Come for the match. Stay for the 1/3 half (screen readers hear third half); B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. 31px with 37px lines in both themes, one line per sentence (shrunk just enough if a line would wrap, at 360px or with a wider fallback font); the second line in the orange until the colour is decided (coral #EC5A5B or orange). Event line under the slogan, two lines: Men\u2019s Rugby World Cup, then 1 Oct\u201313 Nov \u201927 \u2022 days to go (screen readers hear 1 October to 13 November 2027). The reference drops the old Kick-offs in Sydney time. Spacing: 24px from the photo row to the slogan, then 16px between slogan, event line, body and button; 24px at the sides. The button is 36px tall (WCAG 2.2 AA), says Pick your teams, then Change your teams once a team is picked, and goes down to the hand of cards, landing below the floating nav.' },
+      { sel: '.tp-photos', title: 'Photo row (B2 step 4)', text: 'One row of 182 x 102 tiles, 8px apart, starting 24px in and running off the right edge. Swipe or trackpad sideways; no scrollbar. It never moves on its own in this version (no auto-scroll, marquee or timer). Each tile is a button named for its photo, for example Stadium photo, see details. Stadium and ocean first, then two more so the row is long enough to swipe (high fidelity uses the closest pictures in assets; still to decide how many photos, which ones and what each panel says).' },
+      { sel: '.tp-photo', title: 'Photo details (B2 step 5)', text: 'Tap a tile: a panel slides up from the bottom over a dark layer (#111 at 50%). Place label (mono 12px caps) with a round close button, the photo at 342 x 192, a title (24px semibold), a line or two (18px) and one outlined button. All copy is placeholder in square brackets; the button is marked Not linked yet. Close button, the dark layer or Escape closes it and focus goes back to the tile; Tab stays inside while it is open. Close and outlined buttons are 36px (AA sizing), not the brief\u2019s 44px.' },
       { sel: '.tp-count', title: 'Countdown', text: 'Part of the event line: days to go to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says Under way, final Sat 13 Nov, then The tournament is over. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '#tp-pick-sub', title: 'Why pick', text: 'The heading, Pick your teams, matches the hero button. One 18px line under it says what a pick is for, with no subheading: Pick your teams to see their matches, then fill the days in between. 48px above the heading gives it room after the hero; the gap under the tap line is 24px shorter so All matches peeks in. The fan is described by it (aria-describedby, with the keyboard help), so screen readers hear it with the fan.' },
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Every NSW match. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
@@ -538,6 +585,185 @@
   notesList.addEventListener('mouseover', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, true); });
   notesList.addEventListener('mouseout', function (e) { var li = e.target.closest('li'); if (li) lift(li.dataset.n, false); });
   renderNotes();
+})();
+</script>
+<script>
+/* One line each: the slogan's two sentences and the event line's two lines never wrap. Each starts at its own size
+   (slogan 31px, event line 14px, the B2 brief) and steps down just enough when its widest line would not fit the copy
+   column, so it holds at 360px, at 320px, and with whatever system font the wireframe falls back to. This breaks the
+   type scale on purpose. Runs again when the width changes, once the fonts have loaded, and when the countdown's
+   text changes (Under way, final Sat 13 Nov is longer than 319 days to go). */
+(function () {
+  var col = document.querySelector('#tp-phone .tp-hero-copy'); if (!col) return;
+  var SETS = [['#tp-hero-title', '.tp-slogan-1, .tp-slogan-2'], ['.tp-event', '.tp-event-l']];
+  function fit() {
+    var cs = getComputedStyle(col), room = col.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    SETS.forEach(function (set) {
+      var t = col.querySelector(set[0]); if (!t) return;
+      t.style.fontSize = '';
+      var lines = [].slice.call(t.querySelectorAll(set[1])).filter(function (l) { return l.offsetParent; });
+      var widest = Math.max.apply(null, lines.map(function (l) { return l.getBoundingClientRect().width; }));
+      if (widest > room) t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * room / widest * 0.99).toFixed(2) + 'px';
+    });
+  }
+  fit();
+  // Only a change of width can make a line wrap; refitting on height changes (its own) would loop and nudge the page
+  var lastW = col.clientWidth;
+  if (window.ResizeObserver) new ResizeObserver(function () { var w = col.clientWidth; if (w !== lastW) { lastW = w; fit(); } }).observe(col);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  var count = col.querySelector('.tp-count');
+  if (count && window.MutationObserver) new MutationObserver(fit).observe(count, { childList: true, characterData: true, subtree: true });
+})();
+/* Capsule nav (Option B2, step 1). Picking an item moves the light pill to it with an even glide, and the other
+   items slide to their new places (FLIP), so nothing jumps. Event details and Kick goal show the "being built"
+   page in place of the planner; Plan your 3rd half brings the planner back at the scroll position it was left at. */
+(function () {
+  var phone = document.getElementById('tp-phone'), cap = document.getElementById('tp-cap');
+  if (!phone || !cap) return;
+  var body = phone.querySelector('.cn-body'), pill = document.getElementById('tp-cap-pill');
+  var items = [].slice.call(cap.querySelectorAll('.tp-cap-i')), wrap = cap.parentNode;
+  var soon = document.getElementById('tp-soon'), soonT = document.getElementById('tp-soon-title');
+  var NAMES = { event: 'Event details', kick: 'Kick goal' };
+  var view = 'plan', planY = 0;
+  var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  // Shrink the labels just enough to sit on one line each (measured with the font in use, picked item included)
+  // One size for every pick (the worst case: each label in turn as the bold, wider picked item), so the type never
+  // changes size as the pill moves. Padding does not scale, so only the text share is scaled.
+  function fitCap() {
+    cap.style.fontSize = '';
+    var room = cap.clientWidth - 8 - 2 * (items.length - 1), scale = 1;
+    var was = items.filter(function (b) { return b.classList.contains('is-on'); })[0];
+    items.forEach(function (on) {
+      var text = 0, pad = 0;
+      items.forEach(function (b) { b.classList.toggle('is-on', b === on); b.style.flex = 'none'; var cs = getComputedStyle(b), p = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight); pad += p; text += b.scrollWidth - p; });
+      if (text + pad > room) scale = Math.min(scale, (room - pad) / text);
+    });
+    items.forEach(function (b) { b.style.flex = ''; b.classList.toggle('is-on', b === was); });
+    if (scale < 1) cap.style.fontSize = (16 * scale * 0.98).toFixed(2) + 'px';
+  }
+  function place(anim) {
+    var on = cap.querySelector('.tp-cap-i.is-on');
+    pill.style.transition = anim && !still() ? '' : 'none';
+    pill.style.width = on.offsetWidth + 'px';
+    pill.style.transform = 'translateX(' + on.offsetLeft + 'px)';
+    if (!anim) { void pill.offsetWidth; pill.style.transition = ''; }
+  }
+  function pick(v, from) {
+    if (v === view) return;
+    var before = items.map(function (b) { return b.getBoundingClientRect().left; });
+    items.forEach(function (b) { var on = b.dataset.view === v; b.classList.toggle('is-on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    // The buttons swap widths: slide each from where it was so the labels glide rather than jump
+    if (!still()) items.forEach(function (b, i) {
+      var dx = before[i] - b.getBoundingClientRect().left; if (!dx) return;
+      b.style.transition = 'none'; b.style.transform = 'translateX(' + dx + 'px)';
+      void b.offsetWidth; b.style.transition = ''; b.style.transform = '';
+    });
+    place(true);
+    var leaving = view; view = v;
+    if (leaving === 'plan') planY = body.scrollTop;
+    var top = cap.getBoundingClientRect().top;
+    phone.classList.toggle('is-soon', v !== 'plan');
+    soon.hidden = v === 'plan';
+    if (v !== 'plan') { soonT.textContent = NAMES[v]; body.scrollTop += cap.getBoundingClientRect().top - top; }
+    else {
+      body.scrollTop = planY;
+      window.dispatchEvent(new Event('resize')); // anything sized while hidden (the map, the hand) measures again
+    }
+    if (from && from.classList.contains('tp-soon-back')) { var p = cap.querySelector('[data-view="plan"]'); p.focus({ preventScroll: true }); }
+  }
+  phone.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-view]'); if (!b || !phone.contains(b)) return;
+    pick(b.dataset.view, b);
+  });
+  fitCap(); place(false);
+  var capW = cap.clientWidth;
+  if (window.ResizeObserver) new ResizeObserver(function () { if (cap.clientWidth !== capW) { capW = cap.clientWidth; fitCap(); } place(false); }).observe(cap);
+
+  /* Floating bar (step 2). Stuck once its top reaches 8px. Scrolling down shrinks it to 80%, scrolling up brings it back
+     to full size; small jitters (under 6px) are ignored so it never flickers. It goes back to full size when focus
+     moves into it, and steps out of the way while the guided map of your days is on screen. tpCapRoom() tells the
+     page's own jumps (Pick your teams, See where to watch, Find your team) how much room to leave under it. */
+  var lastY = body.scrollTop, small = false, mapEl = null;
+  function onScroll() {
+    var y = body.scrollTop, bTop = body.getBoundingClientRect().top;
+    var stuck = y > 0 && wrap.getBoundingClientRect().top - bTop <= 8.5;
+    if (!stuck) { small = false; lastY = y; }
+    else if (Math.abs(y - lastY) >= 6) { small = y > lastY; lastY = y; }
+    mapEl = mapEl || document.getElementById('tp-map');
+    var stage = mapEl && !mapEl.hidden && mapEl.querySelector('.tp-map-stage');
+    var away = !!(stage && phone.classList.contains('tp-map-on') && stage.getBoundingClientRect().top - bTop < 64);
+    if (away && wrap.contains(document.activeElement)) away = false;
+    wrap.classList.toggle('is-stuck', stuck);
+    wrap.classList.toggle('is-small', stuck && small && !wrap.contains(document.activeElement));
+    wrap.classList.toggle('is-away', away);
+  }
+  body.addEventListener('scroll', onScroll, { passive: true });
+  wrap.addEventListener('focusin', function () { small = false; onScroll(); });
+  window.tpCapRoom = function () { return wrap.classList.contains('is-away') ? 0 : wrap.offsetHeight + 16; };
+  onScroll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitCap(); place(false); });
+})();
+</script>
+<script>
+/* Photo details (B2 step 5). Each tile in the hero's photo row opens the panel with its own picture and placeholder copy.
+   The panel slides up (and back down) with an even curve; everything behind waits (inert) while it is open; Tab stays
+   inside; the dark layer, the close button and Escape close it, and focus goes back to the tile that opened it. */
+(function () {
+  var phone = document.getElementById('tp-phone'), ph = document.getElementById('tp-ph'), scrim = document.getElementById('tp-ph-scrim');
+  if (!phone || !ph) return;
+  var PHOTOS = {
+    stadium: { where: '[Suburb, Sydney]', img: 'hero-stadium', alt: 'Stadium photo', title: '[Stadium name]' },
+    coast: { where: '[Town, NSW region]', img: 'hero-coast', alt: 'Ocean photo', title: '[Place name]' },
+    photo3: { where: '[Town, NSW region]', img: 'coast-aerial', alt: 'Photo 3', title: '[Place name]' },
+    photo4: { where: '[Town, NSW region]', img: 'village', alt: 'Photo 4', title: '[Place name]' }
+  };
+  var TEXT = '[One or two lines about this place and how it fits around a match day.]', GO = '[See this place]';
+  var opener = null, behind = [], img = document.getElementById('tp-ph-img');
+  var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  function open(key, from) {
+    var d = PHOTOS[key]; if (!d) return;
+    opener = from;
+    document.getElementById('tp-ph-where').textContent = d.where;
+    document.getElementById('tp-ph-title').textContent = d.title;
+    document.getElementById('tp-ph-p').textContent = TEXT;
+    document.getElementById('tp-ph-go').textContent = GO;
+    // A fresh element each time, so the high fidelity theme paints the new picture (it paints elements as they arrive)
+    var fresh = img.cloneNode(false);
+    fresh.setAttribute('aria-label', d.alt); fresh.setAttribute('data-img', d.img); fresh.style.backgroundImage = '';
+    fresh.innerHTML = from.querySelector('svg') ? from.querySelector('svg').outerHTML : '';
+    img.replaceWith(fresh); img = fresh;
+    behind = [phone.querySelector('.cn-body'), document.getElementById('tp-tl'), document.getElementById('tp-skip')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    scrim.hidden = false; ph.hidden = false;
+    if (!still() && ph.animate) {
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 280, easing: 'ease-out' });
+      ph.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.4, 0, .2, 1)' });
+    }
+    ph.querySelector('[data-ph-close]').focus({ preventScroll: true });
+  }
+  function close() {
+    if (ph.hidden) return;
+    behind.forEach(function (p) { p[0].inert = p[1]; }); behind = [];
+    function done() { ph.hidden = true; scrim.hidden = true; }
+    if (!still() && ph.animate) {
+      scrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in' });
+      ph.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
+    } else done();
+    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    opener = null;
+  }
+  phone.addEventListener('click', function (e) {
+    var t = e.target.closest('.tp-photo[data-photo]');
+    if (t) { open(t.dataset.photo, t); return; }
+    if (e.target.closest('[data-ph-close]')) close();
+  });
+  scrim.addEventListener('click', close);
+  ph.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key !== 'Tab') return;
+    var f = [].slice.call(ph.querySelectorAll('button')), i = f.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+  });
 })();
 </script>
 <script src="vendor/qrcode.js"></script>
