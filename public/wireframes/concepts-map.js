@@ -714,8 +714,9 @@
           cityBtn.setAttribute('aria-label', 'Go to ' + CITYNAME[go] + (n ? ', ' + n + (n === 1 ? ' of your matches' : ' of your matches') : ''));
           // On the right edge, under the zoom buttons when it is up (the interstate markers keep the left); its arrow points the way
           var w = cityBtn.offsetWidth || 160;
-          var zb = box.querySelector('.tp-ov-zoom'), zEnd = zb ? zb.offsetTop + zb.offsetHeight + 10 : 100; // under the three map buttons
-          cityBtn.style.transform = 'translate(' + (W - 12 - w).toFixed(0) + 'px,' + (up ? zEnd : OVH - 48) + 'px)';
+          // Always the bottom-right corner, whichever way it points (agreed 16 Nov); in full screen it sits above an open card
+          var lift = full && !opop.hidden && box.contains(opop) ? opop.offsetHeight + 8 : 0;
+          cityBtn.style.transform = 'translate(' + (W - 12 - w).toFixed(0) + 'px,' + (OVH - 12 - (cityBtn.offsetHeight || 36) - lift) + 'px)';
           cityBtn.classList.toggle('is-up', up);
         }
       }
