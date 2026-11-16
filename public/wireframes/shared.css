@@ -4548,6 +4548,11 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-map-skip { font-size: var(--fs-sm); }
 .tp-map { position: relative; margin: var(--space-3) calc(var(--space-4) * -1) 0; }
 .tp-map-end { display: block; height: 0; }
+/* Following day by day, full screen (16 Nov): over the whole phone with a close bar; the map steps as this layer scrolls */
+.tp-mapfs { position: absolute; inset: 0; z-index: 120; display: flex; flex-direction: column; background: var(--c-surface); }
+.tp-mapfs[hidden] { display: none; }
+.tp-mapfs-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+.tp-mapfs .tp-map { margin: 0; }
 .tp-map-snaps span { position: absolute; left: 0; width: 1px; height: 1px; }
 /* No scroll snapping: with a snap point every day, any scroll shorter than half a step was pulled back to the same day */
 .tp-map-stage { position: sticky; top: 0; height: var(--stage-h, 600px); overflow: hidden; background: #d3d3d3; } /* the illustration’s own sea (grey in the wireframe), so its edge never shows */

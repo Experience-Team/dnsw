@@ -50,8 +50,19 @@
   var endEl = document.createElement('span');
   endEl.id = 'tp-map-end'; endEl.tabIndex = -1; endEl.className = 'tp-map-end';
   list.parentNode.insertBefore(dview, list);
-  list.parentNode.insertBefore(mapEl, list);
   list.parentNode.insertBefore(endEl, list);
+  /* Full screen (16 Nov): following day by day opens over the whole phone with a close cross at the top, so it is
+     always one tap to leave; the map steps through the days as this layer (not the page) scrolls. The page behind
+     never moves, and closing puts focus back on Follow day by day. Escape closes it too. */
+  var fs = document.createElement('div');
+  fs.className = 'tp-mapfs'; fs.hidden = true;
+  fs.setAttribute('role', 'dialog'); fs.setAttribute('aria-modal', 'true'); fs.setAttribute('aria-labelledby', 'tp-mapfs-h');
+  fs.innerHTML = '<div class="cn-bar tp-mapfs-bar"><button type="button" class="cn-close" data-mclose aria-label="Close day by day"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><p class="cn-bar-title" id="tp-mapfs-h">Your days, day by day</p></div>' +
+    '<div class="tp-mapfs-scroll"></div>';
+  var sc = fs.querySelector('.tp-mapfs-scroll');
+  sc.appendChild(mapEl);
+  phone.appendChild(fs);
+  var fsBehind = [], fsOpener = null;
   var stage = mapEl.querySelector('.tp-map-stage'), view = mapEl.querySelector('.tp-map-view'), layer = mapEl.querySelector('.tp-map-layer');
   var svg = mapEl.querySelector('.tp-map-routes'), marksEl = mapEl.querySelector('.tp-map-marks'), pinsEl = mapEl.querySelector('.tp-map-pins'), edgesEl = mapEl.querySelector('.tp-map-edges');
   var pill = mapEl.querySelector('.tp-map-pill'), freeBtn = mapEl.querySelector('.tp-map-free'), zoomEl = mapEl.querySelector('.tp-map-zoom');
@@ -67,14 +78,14 @@
   // so scrolling the page never quietly turns into stepping through a map
   var guided = false;
   function say(t) { sayEl.textContent = ''; setTimeout(function () { sayEl.textContent = t; }, 30); }
-  function trackTop() { return mapEl.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop; }
+  function trackTop() { return mapEl.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop; }
   function stepTop(i) { return Math.round(trackTop() + i * stepPx); }
   function placeOf(i) { var c = cards[i]; return c ? c.place || '' : ''; }
 
   /* ---------- Layout ---------- */
   function layout() {
     var bar = document.getElementById('tp-tl');
-    stageH = Math.max(420, body.clientHeight - (bar && !bar.hidden ? BAR : 0));
+    stageH = Math.max(360, sc.clientHeight); // the full-screen layer under its close bar
     vw = mapEl.clientWidth || 390;
     var n = steps.length;
     // Each day is one deliberate swipe: shorter steps for a long plan, and the map lets go after the last day
@@ -314,16 +325,16 @@
     // While the page glides to the step, the days it passes are not stepped through
     var top = stepTop(i);
     pending = { top: top, until: performance.now() + 1200 };
-    body.scrollTo({ top: top, behavior: smooth && !reduce.matches ? 'smooth' : 'auto' });
+    sc.scrollTo({ top: top, behavior: smooth && !reduce.matches ? 'smooth' : 'auto' });
   }
   var pending = null;
   function onScroll() {
     if (!on || free || !steps.length) return;
-    if (pending) { if (Math.abs(body.scrollTop - pending.top) > 4 && performance.now() < pending.until) return; pending = null; }
-    var raw = (body.scrollTop - trackTop()) / stepPx, i = Math.max(0, Math.min(steps.length - 1, Math.round(raw)));
+    if (pending) { if (Math.abs(sc.scrollTop - pending.top) > 4 && performance.now() < pending.until) return; pending = null; }
+    var raw = (sc.scrollTop - trackTop()) / stepPx, i = Math.max(0, Math.min(steps.length - 1, Math.round(raw)));
     if (i !== cur) goTo(i);
   }
-  body.addEventListener('scroll', onScroll, { passive: true });
+  sc.addEventListener('scroll', onScroll, { passive: true });
   // Tabbing into the map can make the browser scroll the page to show the focused control, which would move the map on
   // a day under the keyboard. While focus moves within the map, the day stays put and the page is put back.
   stage.addEventListener('focusin', function () {
@@ -331,7 +342,7 @@
     var t = stepTop(cur), mine = pending = { top: t, until: performance.now() + 600 };
     // Only while it is still stepping through days: a tap that switches to Explore freely or to the list moves focus too,
     // and must not be pulled back to the day it left
-    requestAnimationFrame(function () { if (on && !free && guided && pending === mine && Math.abs(body.scrollTop - t) > 2) body.scrollTo({ top: t, behavior: 'auto' }); });
+    requestAnimationFrame(function () { if (on && !free && guided && pending === mine && Math.abs(sc.scrollTop - t) > 2) sc.scrollTo({ top: t, behavior: 'auto' }); });
   });
   window.addEventListener('resize', function () { if (on) { layout(); goTo(cur, { cut: true }); } });
 
@@ -341,7 +352,7 @@
     var plan = tp.mapPlan(), can = !!(plan && plan.length);
     if (!can) guided = false;
     var want = can && guided;
-    dview.hidden = !want;
+    dview.hidden = true; // the full-screen layer's cross replaces Back to the overview and Skip the map
     mapEl.hidden = !want; list.hidden = false;
     if (want && !gImg.getAttribute('src')) gImg.src = IMG;
     if (ov) ov.render(can);
@@ -357,7 +368,7 @@
     layout();
     var shapeChanged = keyNow !== seenDays; seenDays = keyNow;
     cur = -1; goTo(idx, { first: first || shapeChanged, cut: !first && !shapeChanged });
-    if (!first && shapeChanged && !free && body.scrollTop >= trackTop() - 4) body.scrollTo({ top: stepTop(idx), behavior: 'auto' });
+    if (!first && shapeChanged && !free && sc.scrollTop >= trackTop() - 4) sc.scrollTo({ top: stepTop(idx), behavior: 'auto' });
   };
   // In and out of following day by day
   function follow(v) {
@@ -365,24 +376,57 @@
     var day = curDay;
     guided = v; free = false; pending = null; mapEl.classList.remove('is-free'); freeBtn.setAttribute('aria-pressed', 'false'); freeBtn.querySelector('.tp-map-free-l').textContent = 'Explore freely'; zoomEl.hidden = true;
     if (!v) { on = false; }
+    fsShow(v);
     tp.mapRender();
     if (v) {
-      body.scrollTo({ top: trackTop(), behavior: 'auto' });
+      sc.scrollTo({ top: trackTop(), behavior: 'auto' });
       var h = card.querySelector('.tp-map-card-h'); if (h) h.focus({ preventScroll: true });
       say('Following your days, one at a time as you scroll. Day 1 of ' + steps.length + '.');
     }
     return day;
   }
+  function fsShow(v) {
+    if (v === !fs.hidden) return;
+    if (v) {
+      fsOpener = document.activeElement;
+      // Everything behind waits; what was already inert is put back as it was
+      fsBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+      fs.hidden = false;
+      if (!reduce.matches && fs.animate) fs.animate([{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+      return;
+    }
+    fsBehind.forEach(function (pair) { pair[0].inert = pair[1]; }); fsBehind = [];
+    var done = function () { fs.hidden = true; };
+    if (!reduce.matches && fs.animate) fs.animate([{ opacity: 1 }, { transform: 'translateY(16px)', opacity: 0 }], { duration: 220, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; else done();
+  }
+  // Close (the cross, Escape, Back to the overview): the page is where they left it, focus back on Follow day by day
+  function closeFs() {
+    follow(false);
+    var b = document.querySelector('[data-ofollow]');
+    var f = fsOpener && document.contains(fsOpener) && !fsOpener.closest('.tp-mapfs') ? fsOpener : b;
+    if (f) f.focus({ preventScroll: true });
+    say('Day by day closed.');
+  }
+  fs.addEventListener('click', function (e) { if (e.target.closest('[data-mclose]')) closeFs(); });
+  fs.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !e.defaultPrevented) { e.preventDefault(); closeFs(); } });
+  // Tab stays in the layer while it is open
+  fs.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab' || !jump.hidden) return;
+    var f = [].filter.call(fs.querySelectorAll('button, a[href], [tabindex="0"]'), function (x) { return !x.disabled && x.offsetParent !== null; });
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
   function toList(day) { follow(false); if (day !== null && day !== undefined && tp.listShowDay) tp.listShowDay(day); }
-  function toOverview() { follow(false); if (ov) ov.show(); }
+  function toOverview() { closeFs(); }
 
   /* ---------- Controls ---------- */
   dview.addEventListener('click', function (e) {
     if (e.target.closest('[data-mback]')) { toOverview(); return; }
     if (e.target.closest('a.tp-map-skip')) {
       e.preventDefault();
-      var top = endEl.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop;
-      body.scrollTo({ top: top, behavior: 'auto' });
+      var top = endEl.getBoundingClientRect().top - body.getBoundingClientRect().top + sc.scrollTop;
+      sc.scrollTo({ top: top, behavior: 'auto' });
       // Focus goes where the page now is: the first day in the list just after the map (what is on screen)
       var h = list.querySelector('[data-blk-toggle]');
       (h || endEl).focus({ preventScroll: true });
@@ -458,8 +502,8 @@
   });
   stage.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-      if (!jump.hidden) { e.stopPropagation(); closeJump(); }
-      else if (!pop.hidden) { e.stopPropagation(); pop.hidden = true; view.focus({ preventScroll: true }); }
+      if (!jump.hidden) { e.stopPropagation(); e.preventDefault(); closeJump(); }
+      else if (!pop.hidden) { e.stopPropagation(); e.preventDefault(); pop.hidden = true; view.focus({ preventScroll: true }); }
       return;
     }
     if (e.key === 'Tab' && !jump.hidden) {
@@ -479,7 +523,7 @@
     phone.classList.toggle('tp-map-on', on && !v);
     layout();
     if (v) {
-      body.scrollTo({ top: trackTop(), behavior: 'auto' });
+      sc.scrollTo({ top: trackTop(), behavior: 'auto' });
       drawPins();
       drawKey();
       // Opens on the whole plan: every stop in view, each marked with its date
@@ -491,7 +535,7 @@
     } else {
       var i = goStep !== undefined ? goStep : cur;
       cur = -1; goTo(i, { first: false });
-      body.scrollTo({ top: stepTop(i), behavior: 'auto' });
+      sc.scrollTo({ top: stepTop(i), behavior: 'auto' });
       freeBtn.focus({ preventScroll: true });
     }
   }
