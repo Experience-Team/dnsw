@@ -886,7 +886,7 @@
       var br = box.getBoundingClientRect(), rects = [];
       omarks.querySelectorAll('.tp-ov-loc:not(.is-out) .tp-ov-t').forEach(function (t) { rects.push(t.getBoundingClientRect()); });
       oedges.querySelectorAll('.tp-ov-city:not([hidden])').forEach(function (t) { rects.push(t.getBoundingClientRect()); });
-      sec.querySelectorAll('.tp-ov-zoom').forEach(function (t) { rects.push(t.getBoundingClientRect()); });
+      box.querySelectorAll('.tp-ov-zoom').forEach(function (t) { rects.push(t.getBoundingClientRect()); });
       tv.forEach(function (q) {
         rects.forEach(function (r) {
           var x0 = r.left - br.left - 16, x1 = r.right - br.left + 16, y0 = r.top - br.top - 16, y1 = r.bottom - br.top + 16;
@@ -953,7 +953,8 @@
       STOPS.forEach(function (st, si) { st.items.forEach(function (it) { FLAT.push({ it: it, st: st, si: si }); }); });
       var on = FLAT.length > 0, was = railOn();
       rail.hidden = !on; box.classList.toggle('has-rail', on);
-      box.style.height = (on ? OVH = 460 : OVH = 380) + 'px';
+      // Inline, the map grows to make room for the cards; in full screen it already fills the phone
+      if (full) OVH = box.clientHeight || OVH; else box.style.height = (on ? OVH = 460 : OVH = 380) + 'px';
       if (!on) { opins.innerHTML = ''; railSig = ''; oapply(); return; }
       var sig = FLAT.map(function (x) { return x.it.key; }).join(',');
       var keepKey = FLAT[rcur] && was ? null : null, act = document.activeElement, focusSel = null;
@@ -988,8 +989,9 @@
       var x = FLAT[i];
       rstop.textContent = x.st.label;
       rpos.textContent = (i + 1) + ' of ' + FLAT.length;
-      sec.querySelector('[data-oprev]').disabled = i === 0;
-      sec.querySelector('[data-onext]').disabled = i === FLAT.length - 1;
+      // In the card row itself: in full screen the map and its cards leave the section for the whole phone
+      rail.querySelector('[data-oprev]').disabled = i === 0;
+      rail.querySelector('[data-onext]').disabled = i === FLAT.length - 1;
       Array.prototype.forEach.call(track.children, function (c, k) { c.classList.toggle('is-cur', k === i); });
       drawPins();
       if (o.scroll) { var c = cardEl(i); if (c) track.scrollTo({ left: c.offsetLeft - track.offsetLeft - 16, behavior: o.jump || reduce.matches ? 'auto' : 'smooth' }); }
@@ -1183,6 +1185,8 @@
       fsBtn.innerHTML = v ? I_SHRINK : I_FULL;
       W = box.clientWidth || 390; OVH = box.clientHeight || 380;
       ocam = oclamp({ x: cx, y: cy, s: cs, fy: OVH / 2 }); oapply();
+      // The current card's place, centred above the cards at the new size
+      if (railOn()) setCur(rcur, { jump: true, scroll: true });
       if (!v && popAt === null) opop.hidden = true;
       fsBtn.focus({ preventScroll: true });
       if (!v) { var top = sec.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12 - (window.tpCapRoom ? window.tpCapRoom() : 0); if (top < body.scrollTop || top > body.scrollTop + body.clientHeight - 200) body.scrollTo({ top: Math.max(0, top), behavior: 'auto' }); }
