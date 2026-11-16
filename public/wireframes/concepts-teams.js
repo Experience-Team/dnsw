@@ -1541,7 +1541,11 @@
         if (hit.length) tlClash[it.id] = hit;
       }
       var el = tlItemEls[it.id];
-      if (!el && tlCarry && !span) { el = tlItemEls[it.id] = tlCarry; el.dataset.item = it.id; tlCarry = null; el.style.left = (PADX + day * DAYW) + 'px'; }
+      if (!el && tlCarry && span === tlCarry.classList.contains('tp-tl-span')) {
+        el = tlItemEls[it.id] = tlCarry; el.dataset.item = it.id; tlCarry = null;
+        if (span) { el.style.left = (PADX + day * DAYW - DAYW / 2 + 3) + 'px'; el.querySelector('.tp-tl-span-t').textContent = it.title + ' \u00b7 ' + it.nights + (it.nights === 1 ? ' night' : ' nights'); }
+        else el.style.left = (PADX + day * DAYW) + 'px';
+      }
       if (!el) {
         el = tlItemEls[it.id] = document.createElement('button');
         el.type = 'button'; el.dataset.item = it.id;
@@ -1560,7 +1564,7 @@
         setTimeout(function () { el.classList.remove('is-new'); }, 20);
       }
       el.classList.toggle('is-clash', !!tlClash[it.id]);
-      el.classList.toggle('is-movable', it.kind === 'place' || it.kind === 'product');
+      el.classList.toggle('is-movable', dragMovable(it));
       if (span) { el.setAttribute('aria-label', (it.when || it.day + ' to ' + it.endDay) + ', added: ' + it.title + ', ' + it.nights + (it.nights === 1 ? ' night' : ' nights') + (tlClash[it.id] ? ', clashes with a match' : '')); return; }
       var row = perDay[day] || 0; perDay[day] = row + 1;
       el.style.setProperty('--row', row);
@@ -1634,11 +1638,14 @@
       tlWait.hidden = !wl.length;
       var wh = wl.length ? '<h4 class="tp-tl-wait-h" id="tp-tl-wait-h">Saved, not placed yet</h4><ul>' + wl.map(function (it) {
         return '<li><span class="tp-tl-wait-t">' + esc(it.title) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
-      }).join('') + '</ul><p class="tp-tl-wait-n">' + (confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Each goes into a free day once you set your days.') + '</p>' : '';
+      }).join('') + '</ul><p class="tp-tl-wait-n">' + (confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Each goes into a free day once you set your days above.') + '</p>' : '';
       if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
     }
     var howEl = document.getElementById('tp-tl-how');
     if (howEl) howEl.hidden = !(own() && shown.length);
+    // Hold and drag gets its own line, shown once there is something to move
+    var dragEl = document.getElementById('tp-tl-drag');
+    if (dragEl) dragEl.hidden = !state.added.some(dragMovable);
     // A clash marks its day on the strip
     var clashDays = {};
     Object.keys(tlClash).forEach(function (id) {
@@ -1715,7 +1722,7 @@
       if (!el) {
         el = tlFreeEls[fd.d] = document.createElement('button');
         el.type = 'button'; el.className = 'tp-tl-mk tp-tl-free'; el.dataset.free = fd.d; el.tabIndex = -1;
-        el.setAttribute('aria-controls', 'tp-tl-ideas');
+        el.setAttribute('aria-haspopup', 'dialog');
         el.innerHTML = '<span class="tp-tl-free-l" aria-hidden="true"></span><span class="cn-tl-sym tp-tl-free-sym">' + PLUS + '</span>';
         el.style.left = (PADX + fd.d * DAYW) + 'px';
         tlCanvas.appendChild(el);
@@ -1728,48 +1735,53 @@
       if (el.classList.contains('is-full') !== !!fd.filled || !el.dataset.sym) { el.querySelector('.tp-tl-free-sym').innerHTML = fd.filled ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.8 8.3l2.7 2.7 5.7-5.9"/></svg>' : PLUS; el.dataset.sym = '1'; }
       el.classList.toggle('is-full', !!fd.filled);
       el.classList.toggle('is-open', tlFreeOpen === fd.d);
-      el.setAttribute('aria-expanded', tlFreeOpen === fd.d ? 'true' : 'false');
-      el.setAttribute('aria-label', fd.label + ', free day, ' + (fd.filled ? 'your day is full' : line) + (tlFreeOpen === fd.d ? '. Ideas shown below' : '. Show ideas'));
+      el.setAttribute('aria-label', fd.label + ', free day, ' + (fd.filled ? 'your day is full' : line) + '. Show ideas');
     });
     Object.keys(tlFreeEls).forEach(function (d) { if (!keep[d]) { if (tlFreeEls[d] === tlSelFree) tlSelFree = null; tlFreeEls[d].remove(); delete tlFreeEls[d]; } });
     if (tlFreeOpen !== null && !keep[tlFreeOpen]) tlFreeShow(null);
     // Room above the tallest + for its two-line label
     if (Object.keys(keep).length) {
-      var need = 60 + (top + 1) * 32 + 28, cur = parseFloat(tlCanvas.style.height) || 0;
+      // and room above that for a longer trip's span, so the two never overlap
+      var spanRoom = state.added.some(function (it) { return it.kind === 'trip' && it.nights > 0; }) ? 34 : 0;
+      var need = 60 + (top + 1) * 32 + 28 + spanRoom, cur = parseFloat(tlCanvas.style.height) || 0;
       if (need > cur) tlCanvas.style.height = need + 'px';
     }
   }
   function tlFreeShow(d) {
     tlFreeOpen = d;
-    tlPanel.classList.toggle('has-ideas', d !== null);
-    if (tlIdeasEl) tlIdeasEl.hidden = d === null;
-    Object.keys(tlFreeEls).forEach(function (k) {
-      var on = +k === d; tlFreeEls[k].classList.toggle('is-open', on); tlFreeEls[k].setAttribute('aria-expanded', on ? 'true' : 'false');
-    });
+    Object.keys(tlFreeEls).forEach(function (k) { tlFreeEls[k].classList.toggle('is-open', +k === d); });
     phoneEl.dispatchEvent(new CustomEvent('tp:freeideas', { detail: { day: d } }));
   }
+  // The + opens that day's ideas in the sheet stacked over the timeline (concepts-third-half.js draws them); closing
+  // it puts focus back on the +
   function tlFreeToggle(d, opener) {
-    if (tlFreeOpen === d) { tlFreeShow(null); tlRoving(); return; }
-    var head = document.querySelector('.tp-tl-head');
-    tlPanel.style.setProperty('--tl-head-h', (head ? head.offsetHeight : 52) + 'px');
+    if (opener) tlKeepInView(opener);
     tlFreeShow(d);
     tlRoving();
-    // The ideas sit just below the axis: scroll the sheet (never the page) only as far as needed to show their heading
-    var h = tlIdeasEl && tlIdeasEl.querySelector('.tp-tl-ideas-h');
-    if (h) {
-      var pr = tlPanel.getBoundingClientRect(), hr = h.getBoundingClientRect(), sr = tlScroll.getBoundingClientRect();
-      var stick = parseFloat(getComputedStyle(tlPanel).getPropertyValue('--tl-head-h')) - 8 + sr.height;
-      if (hr.bottom + 120 > pr.bottom) tlPanel.scrollTo({ top: tlPanel.scrollTop + (hr.top - pr.top) - stick - 12, behavior: reduce.matches ? 'auto' : 'smooth' });
-      h.focus({ preventScroll: true });
-    }
-    if (opener) tlKeepInView(opener);
+    if (typeof window.tpPicker.openSheet === 'function') window.tpPicker.openSheet('ideas:' + d, opener);
   }
   window.tpFreeApi = {
     set: function (list) { tlFreeInfo = list || []; tlFreeDraw(); tlRoving(); },
     close: function (focusPlus) { var d = tlFreeOpen; tlFreeShow(null); tlRoving(); if (focusPlus && d !== null && tlFreeEls[d]) tlFreeEls[d].focus({ preventScroll: true }); },
-    go: function (d) { var el = tlFreeEls[d]; if (el) { tlPick(el, false); tlFreeToggle(d, el); } },
+    // Next free day, from inside the sheet: the sheet swaps to that day, and closing it goes back to that day's +
+    go: function (d) { var el = tlFreeEls[d]; if (el) { tlPick(el, false); tlKeepInView(el); tlFreeShow(d); if (stackEl) stackOpener = el; } },
     open: function () { return tlFreeOpen; }
   };
+  /* What was added in the ideas sheet, once it closes: each new marker on the axis is singled out in turn (lifted,
+     larger, above its neighbours, a ring) and settles, so the person sees where it went. Reduced motion: the ring only. */
+  function tlSettle(ids) {
+    ids.forEach(function (id, i) {
+      setTimeout(function () {
+        var el = tlItemEls[id]; if (!el) return;
+        el.classList.remove('is-new');
+        if (i === 0) tlKeepInView(el);
+        el.classList.add('is-landed');
+        var sym = el.querySelector('.cn-tl-sym');
+        if (sym && sym.animate && !reduce.matches) sym.animate([{ transform: 'translateY(0) scale(1)' }, { transform: 'translateY(-8px) scale(1.4)', offset: .35 }, { transform: 'translateY(0) scale(.94)', offset: .75 }, { transform: 'translateY(0) scale(1)' }], { duration: 640, easing: 'cubic-bezier(.4, 0, .3, 1)' });
+        setTimeout(function () { el.classList.remove('is-landed'); }, 1400);
+      }, i * 260);
+    });
+  }
   /* An idea added from the sheet: its marker flies from the Add button up to its day on the axis (an even ease, so the
      eye can follow it), arrives lifted and larger, above its neighbours, then settles with a ring. Reduced motion: the
      marker simply appears with the ring held for a moment. */
@@ -1846,25 +1858,30 @@
     e.preventDefault();
     tlPick(to, true);
   });
-  /* Hold a place (or a product) for 350ms to lift it, then drag it to another day; let go and it settles onto that
-     day. Moving before the hold ends scrolls the axis as normal, and a quick tap still opens its sheet. Screenings stay
-     with their match and trips move by their own rules, so neither is dragged. The keyboard way is Move in the sheet.
-     Clashes are allowed and shown, as with Move. On a phone: a light haptic tick on lift and per day crossed. */
+  /* Hold anything that is not fixed for 350ms to lift it, then drag it to another day; let go and it settles onto that
+     day. That is places, products, places saved from the map, day trips and longer trips (the span lifts as a whole).
+     Matches and screenings (which belong to their match) stay put. It snaps only to days it can go on: a place or
+     product on days it is open within your days, a trip on the start days it runs. Moving before the hold ends scrolls
+     the axis as normal, and a quick tap still opens its sheet. The keyboard way is Move in the sheet. Clashes are
+     allowed and shown, as with Move. On a phone: a light haptic tick on lift and per day crossed. */
   var HOLD = 350, tdrag = null, dragSwallow = false, tlCarry = null;
   var tlDrop = document.createElement('span'); tlDrop.className = 'tp-tl-drop'; tlDrop.hidden = true; tlDrop.setAttribute('aria-hidden', 'true');
   tlDrop.innerHTML = '<span class="tp-tl-drop-t"></span>';
   function dragItem(el) { var id = el && el.dataset.item; return id ? state.added.filter(function (x) { return x.id === id; })[0] : null; }
-  function dragMovable(it) { return it && (it.kind === 'place' || it.kind === 'product'); }
-  function dragRange() {
-    var t = state.trip, a = 0, z = DAYS - 1;
-    if (t && t.from && t.to) { a = Math.max(0, isoDay(t.from)); z = Math.min(DAYS - 1, isoDay(t.to)); }
-    return [a, z];
+  function dragMovable(it) { return !!it && !it.unplaced && (it.kind === 'place' || it.kind === 'product' || it.kind === 'poi' || it.kind === 'trip'); }
+  // The nearest day it may go on to where the finger is
+  function dragDay(dx) {
+    var want = tdrag.day + dx / DAYW, best = tdrag.day;
+    tdrag.ok.forEach(function (d) { if (Math.abs(d - want) < Math.abs(best - want)) best = d; });
+    return best;
   }
-  function dragDay(dx) { var r = dragRange(); return Math.max(r[0], Math.min(r[1], tdrag.day + Math.round(dx / DAYW))); }
   function dragShow(d) {
     if (!tlDrop.isConnected) tlCanvas.appendChild(tlDrop);
+    var n = tdrag.it.nights || 0;
     tlDrop.style.left = (PADX + d * DAYW) + 'px';
-    tlDrop.firstChild.textContent = dayLabel(d);
+    tlDrop.style.width = ((n + 1) * DAYW) + 'px'; // a longer trip's drop covers all its days
+    tlDrop.classList.toggle('is-span', !!n);
+    tlDrop.firstChild.textContent = n ? 'From ' + dayLabel(d) + ', ' + n + (n === 1 ? ' night' : ' nights') : dayLabel(d);
     tlDrop.hidden = false;
   }
   function dragEdge() { // near either edge of the axis, it scrolls along with the tdrag
@@ -1914,10 +1931,12 @@
     if (to === g.day) say(g.it.title + ' stays on ' + dayLabel(g.day) + '.');
   }
   tlCanvas.addEventListener('pointerdown', function (e) {
-    var el = e.target.closest('.tp-tl-mk--item'), it = dragItem(el);
+    var el = e.target.closest('.tp-tl-mk--item, .tp-tl-span'), it = dragItem(el);
     if (!dragMovable(it) || (e.pointerType === 'mouse' && e.button !== 0)) return;
     dragEnd(true);
-    tdrag = { el: el, it: it, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, day: dayOf(it.day), lifted: false, scroll: 0 };
+    var day = it.kind === 'trip' ? it.start : dayOf(it.day);
+    var ok = typeof window.tpPicker.itemStarts === 'function' ? window.tpPicker.itemStarts(it.id) : [day];
+    tdrag = { el: el, it: it, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, day: day, ok: ok, lifted: false, scroll: 0 };
     tdrag.t = setTimeout(dragLift, HOLD);
   });
   tlCanvas.addEventListener('pointermove', function (e) {
@@ -1929,7 +1948,7 @@
   tlCanvas.addEventListener('pointerup', function (e) { if (tdrag && e.pointerId === tdrag.pid) dragEnd(false); });
   tlCanvas.addEventListener('pointercancel', function (e) { if (tdrag && e.pointerId === tdrag.pid) dragEnd(true); });
   tlCanvas.addEventListener('touchmove', function (e) { if (tdrag && tdrag.lifted) e.preventDefault(); }, { passive: false }); // the axis does not scroll under a lifted place
-  tlCanvas.addEventListener('contextmenu', function (e) { if (e.target.closest('.tp-tl-mk--item')) e.preventDefault(); });
+  tlCanvas.addEventListener('contextmenu', function (e) { if (e.target.closest('.tp-tl-mk--item, .tp-tl-span')) e.preventDefault(); });
   tlCanvas.addEventListener('click', function (e) { if (dragSwallow) { e.stopImmediatePropagation(); e.preventDefault(); } }, true); // a tdrag is not a tap
   document.addEventListener('keydown', function (e) { if (tdrag && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); dragEnd(true); } }, true);
   /* Clear timeline: takes off everything they added (screenings, places, products, trips, single matches added from All
@@ -2352,7 +2371,7 @@
   });
 
   window.tpPicker = { save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, tlLand: tlLand, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, tlLand: tlLand, tlSettle: tlSettle, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark
