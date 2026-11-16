@@ -708,19 +708,29 @@
     var OVH = 380, I_STAR = ICO('M8 1.8l1.8 3.9 4.2.5-3.1 2.9.8 4.2L8 11.2l-3.7 2.1.8-4.2L2 6.2l4.2-.5z');
     var sec = document.createElement('section');
     sec.className = 'tp-ov'; sec.id = 'tp-ov'; sec.setAttribute('aria-labelledby', 'tp-ov-h');
+    var I_PREV = ICO('M10 3.5L5.5 8l4.5 4.5'), I_NEXT = ICO('M6 3.5L10.5 8 6 12.5');
     sec.innerHTML = '<h3 class="tp-ov-h" id="tp-ov-h">Around the matches in NSW</h3><p class="tp-ov-sub" id="tp-ov-sub"></p>' +
+      // A way past the map that never needs the map itself: before it in tab order, and it says it moves the page
+      '<a class="tp-link tp-ov-skip" href="#tp-ov-end" data-oskip>Skip the map' + I_DOWN + '</a>' +
       '<div class="tp-ov-map is-wait" style="height:' + OVH + 'px">' +
         '<div class="tp-ov-view" tabindex="0" role="application" aria-roledescription="map" aria-label="Map of the NSW stadiums and the fan village. Arrow keys move it, plus and minus zoom." aria-describedby="tp-ov-sub">' +
           '<div class="tp-map-layer tp-ov-layer"><img class="tp-map-img" width="' + IW + '" height="' + IH + '" alt="" decoding="async" draggable="false"></div>' +
         '</div>' +
-        '<div class="tp-ov-marks"></div><div class="tp-ov-tvs"></div><div class="tp-ov-edges"></div>' +
+        '<div class="tp-ov-marks"></div><div class="tp-ov-tvs"></div><div class="tp-ov-pins"></div><div class="tp-ov-edges"></div>' +
+        // Once a team is picked: the things along their route as cards over the foot of the map (17 Nov)
+        '<div class="tp-ov-rail" hidden><p class="tp-ov-rstop" id="tp-ov-rstop"></p><div class="tp-ov-rnav"><p class="tp-ov-rpos" aria-hidden="true"></p>' +
+          '<button type="button" class="tp-ov-rbtn" data-oprev aria-label="Previous place">' + I_PREV + '</button>' +
+          '<button type="button" class="tp-ov-rbtn" data-onext aria-label="Next place">' + I_NEXT + '</button></div>' +
+          '<div class="tp-ov-track" role="group" aria-labelledby="tp-ov-rstop"></div></div>' +
         '<div class="tp-map-zoom tp-ov-zoom"><button type="button" data-ozoom="in" aria-label="Zoom in">' + I_PLUS + '</button><button type="button" data-ozoom="out" aria-label="Zoom out">' + I_MINUS + '</button><button type="button" class="tp-ov-fs" data-ofull aria-pressed="false" aria-label="Full screen map">' + I_FULL + '</button></div>' +
         '<p class="tp-ov-hint" aria-hidden="true"></p>' +
       '</div>' +
       '<div class="tp-ov-pop" id="tp-ov-pop" role="region" aria-labelledby="tp-ov-pop-h" hidden></div>' +
       '<div class="tp-ov-follow" hidden><p>Your trip is ready to follow day by day.</p><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-ofollow>Follow day by day</button></div>' +
-      '<p class="visually-hidden" aria-live="polite" id="tp-ov-say"></p>';
-    pick.parentNode.insertBefore(sec, pick.nextSibling);
+      '<p class="visually-hidden" aria-live="polite" id="tp-ov-say"></p><span class="tp-ov-end" id="tp-ov-end" tabindex="-1"></span>';
+    // Under Your days in NSW (17 Nov): the date question sits right above the map, appearing once a team is picked
+    var askSec = document.getElementById('tp-ask');
+    if (askSec) askSec.parentNode.insertBefore(sec, askSec.nextSibling); else pick.parentNode.insertBefore(sec, pick.nextSibling);
     var box = sec.querySelector('.tp-ov-map'), oview = sec.querySelector('.tp-ov-view'), olayer = sec.querySelector('.tp-ov-layer'), oimg = olayer.querySelector('img');
     var otvs = sec.querySelector('.tp-ov-tvs'), omarks = sec.querySelector('.tp-ov-marks'), oedges = sec.querySelector('.tp-ov-edges'), opop = sec.querySelector('.tp-ov-pop'), hint = sec.querySelector('.tp-ov-hint');
     var osub = sec.querySelector('.tp-ov-sub'), ofollow = sec.querySelector('.tp-ov-follow'), osay = sec.querySelector('#tp-ov-say');
@@ -785,7 +795,7 @@
         // Far (Sydney to Newcastle): out first, across, then in, so the eye can follow where it goes
         if (far) { ls = t < .35 ? L0 + (LM - L0) * io(t / .35) : t < .65 ? LM : LM + (L1 - LM) * io((t - .65) / .35); e = io(Math.max(0, Math.min(1, (t - .15) / .7))); }
         else ls = L0 + (L1 - L0) * e;
-        ocam = { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e, s: Math.exp(ls), fy: OVH / 2 };
+        ocam = { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e, s: Math.exp(ls), fy: from.fy + ((to.fy || OVH / 2) - from.fy) * e };
         oclamp(ocam); oapply();
         if (t < 1) oanim = requestAnimationFrame(f);
       })(t0);
@@ -828,6 +838,7 @@
       oapply();
     }
     function oapply() {
+      placePins();
       olayer.style.transform = 'translate(' + (W / 2 - ocam.x * ocam.s).toFixed(1) + 'px,' + (ocam.fy - ocam.y * ocam.s).toFixed(1) + 'px) scale(' + ocam.s.toFixed(4) + ')';
       var off = { sydney: 0, newcastle: 0 }, seen = { sydney: 0, newcastle: 0 };
       Array.prototype.forEach.call(omarks.children, function (el, k) {
@@ -895,13 +906,14 @@
       var st = can ? 3 : tp.own() ? 2 : 1;
       var none = !state.picked.length;
       osub.textContent = st === 1 ? 'The stadiums, the fan village, things near each, and places to watch (TV pins). Pick a team to see where they play.'
-        : st === 2 ? (mine().some(function (m) { return !m.f.a; }) ? (tp.rugby() ? 'Every NSW match on its stadium, and things nearby.' : 'Where your teams play in NSW, and things nearby.') : 'Your teams play interstate. The TV pins are places in NSW to watch them.')
+        : st === 2 ? (mine().some(function (m) { return !m.f.a; }) ? (tp.rugby() ? 'Every NSW match on its stadium, and things nearby.' : 'Where your teams play in NSW, and things near each, as cards over the map. Swipe them, or use Previous and Next.') : 'Your teams play interstate. The cards over the map are places in NSW to watch them.')
         : tp.own() ? 'Your matches and what you’ve added, around NSW.' : 'The stadiums, the fan village and things near each, for your days.';
       ofollow.hidden = st !== 3;
       var sig = st + '|' + (none ? '' : state.picked.join(',')) + '|' + mine().map(function (m) { return m.key || m.f.d + m.f.t; }).join(',') + '|' + state.added.map(function (x) { return x.id; }).join(',') + '|' + (state.trip ? state.trip.from + state.trip.to : '');
       if (sig === lastSig || !loaded) { stage = st; if (!loaded) lastSig = ''; return; }
       lastSig = sig; stage = st;
       draw();
+      railRender();
       if (popAt !== null && !opop.hidden) showPop(popAt, true);
       // A team that plays only in Newcastle: the map goes there (a glide the eye can follow), and back for Sydney
       var city = homeCity();
@@ -924,6 +936,128 @@
       io.observe(box);
     } else load();
     window.addEventListener('resize', function () { if (!loaded) return; W = box.clientWidth || 390; oclamp(ocam); oapply(); });
+
+    /* ---------- The route as cards over the map (17 Nov) ----------
+       Once a team is picked, the things along their route sit as cards over the foot of the map, stop by stop in day order
+       (tp.mapStops: near each NSW match's stadium, NSW screenings of an interstate match, and, with days set, ideas for
+       each free day). Swipe the row, or Previous and Next: the map glides to the card's place, its photo pin is singled
+       out and the stop's other pins fade back. Tapping a pin brings its card. Add on a card is the page's own Add (the
+       same item, on that day), so it lands on its day card in Your plan and the status line says where it went. Before
+       a team is picked the map stays as it was. Reduced motion: the map jumps and the pin is marked. */
+    var opins = sec.querySelector('.tp-ov-pins'), rail = sec.querySelector('.tp-ov-rail'), track = sec.querySelector('.tp-ov-track');
+    var rstop = sec.querySelector('.tp-ov-rstop'), rpos = sec.querySelector('.tp-ov-rpos'), STOPS = [], FLAT = [], rcur = 0, railSig = '';
+    function railOn() { return !rail.hidden; }
+    function railH() { return railOn() ? rail.offsetHeight : 0; }
+    function railRender() {
+      STOPS = tp.mapStops ? tp.mapStops() : []; FLAT = [];
+      STOPS.forEach(function (st, si) { st.items.forEach(function (it) { FLAT.push({ it: it, st: st, si: si }); }); });
+      var on = FLAT.length > 0, was = railOn();
+      rail.hidden = !on; box.classList.toggle('has-rail', on);
+      box.style.height = (on ? OVH = 460 : OVH = 380) + 'px';
+      if (!on) { opins.innerHTML = ''; railSig = ''; oapply(); return; }
+      var sig = FLAT.map(function (x) { return x.it.key; }).join(',');
+      var keepKey = FLAT[rcur] && was ? null : null, act = document.activeElement, focusSel = null;
+      if (act && track.contains(act)) focusSel = act.dataset.item ? '[data-item="' + CSS.escape(act.dataset.item) + '"]' : act.dataset.open ? '[data-open="' + CSS.escape(act.dataset.open) + '"]' : null;
+      var sl = track.scrollLeft;
+      track.innerHTML = FLAT.map(function (x, i) {
+        var it = x.it, day = x.st.label.split(' · ')[0];
+        return '<article class="tp-ov-card" data-i="' + i + '" aria-label="' + esc(it.title + ', ' + it.type + ', ' + x.st.label) + '">' +
+          '<span class="ph-img tp-ov-cimg"' + tp.imgAttr(it.title) + ' aria-hidden="true"></span>' +
+          '<span class="tp-ov-cbody"><button type="button" class="tp-link tp-ov-cname" data-open="' + esc(it.open) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' +
+          '<span class="tp-ov-ctype' + (it.made ? ' provenance-gap' : '') + '">' + esc(it.type) + '</span>' +
+          (it.time ? '<span class="tp-ov-ctime provenance-gap">' + esc(it.time) + '</span>' : '') +
+          tp.addBtnHtml(it.key, it.title + ' on ' + day) + '</span></article>';
+      }).join('');
+      track.scrollLeft = sl;
+      if (focusSel) { var f = track.querySelector(focusSel); if (f) f.focus({ preventScroll: true }); }
+      if (sig !== railSig) { railSig = sig; if (rcur >= FLAT.length) rcur = 0; setCur(rcur, { jump: !was, scroll: !was }); }
+      else setCur(rcur, { keep: true });
+    }
+    function cardEl(i) { return track.children[i]; }
+    var I_TICK = ICO('M3.8 8.3l2.7 2.7 5.7-5.9');
+    // The item id behind a card's Add: a map place is poi:id, an idea i:id (its day is in the key), the rest as keyed
+    function isAdded(key) {
+      var id = key.indexOf('mp:') === 0 ? 'poi:' + key.split(':')[1] : key.indexOf('i:') === 0 ? key.split('@')[0] : key;
+      return state.added.some(function (a) { return a.id === id; });
+    }
+    // The current card: the stop line and position, its pin singled out, the map gliding to it
+    function setCur(i, o) {
+      o = o || {};
+      if (!FLAT.length) return;
+      i = Math.max(0, Math.min(FLAT.length - 1, i)); rcur = i;
+      var x = FLAT[i];
+      rstop.textContent = x.st.label;
+      rpos.textContent = (i + 1) + ' of ' + FLAT.length;
+      sec.querySelector('[data-oprev]').disabled = i === 0;
+      sec.querySelector('[data-onext]').disabled = i === FLAT.length - 1;
+      Array.prototype.forEach.call(track.children, function (c, k) { c.classList.toggle('is-cur', k === i); });
+      drawPins();
+      if (o.scroll) { var c = cardEl(i); if (c) track.scrollTo({ left: c.offsetLeft - track.offsetLeft - 16, behavior: o.jump || reduce.matches ? 'auto' : 'smooth' }); }
+      if (!o.keep) {
+        var q = px(x.it.ll), s = Math.max(ocam.s, .95), fy = Math.max(70, (OVH - railH()) / 2);
+        var to = oclamp({ x: q[0], y: q[1], s: Math.min(S_MAX, s), fy: fy });
+        if (o.jump) { ocam = to; oapply(); } else oglide(to);
+      }
+    }
+    // The current stop's photo pins: the current one larger and ringed, the rest faded back; added ones carry a tick
+    function drawPins() {
+      if (!railOn()) { opins.innerHTML = ''; return; }
+      var x = FLAT[rcur], st = x.st, h = '';
+      FLAT.forEach(function (y, i) {
+        if (y.st !== st) return;
+        var on = isAdded(y.it.key);
+        h += '<button type="button" class="tp-ov-pin' + (i === rcur ? ' is-cur' : '') + (on ? ' is-added' : '') + '" data-opin="' + i + '" aria-label="' + esc(y.it.title + ', ' + y.it.type + (on ? ', added to your plan' : '') + '. Show its card') + '" style="--z:' + (i === rcur ? 3 : 1) + '">' +
+          '<span class="ph-img tp-ov-pimg"' + tp.imgAttr(y.it.title) + ' aria-hidden="true"></span>' + (on ? '<span class="tp-ov-ptick" aria-hidden="true">' + I_TICK + '</span>' : '') + '</button>';
+      });
+      opins.innerHTML = h; placePins();
+    }
+    function placePins() {
+      if (!opins || !opins.children.length) return;
+      Array.prototype.forEach.call(opins.children, function (el) {
+        var y = FLAT[+el.dataset.opin]; if (!y) return;
+        var q = oscr(y.it.ll), out = q[0] < -16 || q[0] > W + 16 || q[1] < -16 || q[1] > OVH - railH() + 8;
+        el.style.transform = 'translate(' + q[0].toFixed(1) + 'px,' + q[1].toFixed(1) + 'px)';
+        el.classList.toggle('is-out', out); el.tabIndex = out ? -1 : 0;
+      });
+    }
+    // A stadium tapped while the cards are on: its first card comes into view
+    function cardAtPlace(v) {
+      for (var i = 0; i < FLAT.length; i++) if (FLAT[i].st.kind === 'match' && FLAT[i].st.ms[0].f.v === v) { setCur(i, { scroll: true }); return true; }
+      return false;
+    }
+    var trackT = 0;
+    track.addEventListener('scroll', function () {
+      clearTimeout(trackT);
+      trackT = setTimeout(function () {
+        var mid = track.scrollLeft + 16 + 4, best = rcur, bd = Infinity;
+        Array.prototype.forEach.call(track.children, function (c, k) { var d = Math.abs(c.offsetLeft - track.offsetLeft - mid + 4); if (d < bd) { bd = d; best = k; } });
+        if (best !== rcur) setCur(best);
+      }, 110);
+    }, { passive: true });
+    track.addEventListener('focusin', function (e) { var c = e.target.closest('.tp-ov-card'); if (c && +c.dataset.i !== rcur) setCur(+c.dataset.i, { scroll: true }); });
+    rail.addEventListener('click', function (e) {
+      if (e.target.closest('[data-oprev]')) { setCur(rcur - 1, { scroll: true }); return; }
+      if (e.target.closest('[data-onext]')) { setCur(rcur + 1, { scroll: true }); return; }
+    });
+    opins.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-opin]'); if (!b) return;
+      setCur(+b.dataset.opin, { scroll: true });
+      var n = cardEl(rcur) && cardEl(rcur).querySelector('.tp-ov-cname'); if (n) n.focus({ preventScroll: true });
+      osayT(FLAT[rcur].it.title + ', card ' + (rcur + 1) + ' of ' + FLAT.length + '.');
+    });
+    // Skip the map: to what follows it, saying so (its label says it moves the page)
+    sec.querySelector('[data-oskip]').addEventListener('click', function (e) {
+      e.preventDefault();
+      // The next thing on the page that is showing (a section can be hidden, for example All matches once a team is picked)
+      var end = sec.querySelector('#tp-ov-end'), next = sec.nextElementSibling;
+      while (next && (next.hidden || !next.offsetHeight)) next = next.nextElementSibling;
+      next = next || end;
+      body.scrollTo({ top: Math.max(0, next.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12 - (window.tpCapRoom ? window.tpCapRoom() : 0)), behavior: reduce.matches ? 'auto' : 'smooth' });
+      var h = next.querySelector && next.querySelector('h2, h3') || end;
+      if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+      h.focus({ preventScroll: true });
+      osayT('Skipped the map.');
+    });
 
     /* A place's things nearby, with Add */
     function openDays(p) {
@@ -988,7 +1122,7 @@
       var b = k === null ? null : typeof k === 'string' ? otvs.querySelector('[data-ven="' + k.slice(1) + '"]') : omarks.querySelector('[data-loc="' + k + '"]');
       if (b) b.focus({ preventScroll: true });
     }
-    omarks.addEventListener('click', function (e) { var b = e.target.closest('[data-loc]'); if (b) showPop(+b.dataset.loc); });
+    omarks.addEventListener('click', function (e) { var b = e.target.closest('[data-loc]'); if (!b) return; if (railOn() && cardAtPlace(LOCS[+b.dataset.loc].id)) return; showPop(+b.dataset.loc); });
     otvs.addEventListener('click', function (e) { var b = e.target.closest('[data-ven]'); if (b) showVen(+b.dataset.ven); });
     opop.addEventListener('click', function (e) {
       if (e.target.closest('[data-oclose]')) { closePop(); return; }
@@ -1071,7 +1205,7 @@
     function showHint(t) { hint.textContent = t; hint.classList.add('is-on'); clearTimeout(hintT); hintT = setTimeout(function () { hint.classList.remove('is-on'); }, 1400); }
     var optr = new Map(), odrag = null;
     box.addEventListener('pointerdown', function (e) {
-      if (e.target.closest('button, a, .tp-ov-pop')) return;
+      if (e.target.closest('button, a, .tp-ov-pop, .tp-ov-rail')) return;
       optr.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
       // One finger is the page's: it scrolls past the map. Two fingers, or a mouse, move the map
       if (e.pointerType === 'touch' && optr.size < 2 && !full) { odrag = { one: { x: e.clientX, y: e.clientY } }; return; }
