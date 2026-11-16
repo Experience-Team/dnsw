@@ -3666,7 +3666,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-body { position: relative; z-index: 0; }
 .tp-cap-wrap { position: sticky; top: 8px; z-index: 40; margin: var(--space-3) var(--space-4) var(--space-4); }
 .tp-cap-wrap .tp-cap { transform-origin: 50% 0; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), box-shadow 200ms ease, opacity 200ms ease, visibility 0s; }
-.tp-cap-wrap.is-stuck .tp-cap { box-shadow: 0 6px 18px rgba(17, 17, 17, .22); }
+/* Floating: a soft drop shadow, plus a faint light hairline so the dark capsule keeps its edge over dark photos */
+.tp-cap-wrap.is-stuck .tp-cap { box-shadow: 0 6px 18px rgba(17, 17, 17, .22), 0 0 0 1px rgba(250, 247, 240, .35); }
 .tp-cap-wrap.is-small .tp-cap { transform: scale(.8); }
 .tp-cap-wrap.is-away .tp-cap { transform: translateY(calc(-100% - 12px)); opacity: 0; visibility: hidden; pointer-events: none; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), opacity 200ms ease, visibility 0s 280ms; }
 .tp-cap { position: relative; display: flex; align-items: center; gap: 2px; height: 44px; padding: 4px; border-radius: 22px; background: var(--c-btn); }
@@ -3678,9 +3679,12 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .cn-phone .tp-cap-i { white-space: nowrap; text-wrap: nowrap; overflow: hidden; }
 .tp-cap { font-size: 1rem; }
 .tp-cap-i.is-on { flex: 0 0 auto; padding: 0 var(--space-4); color: var(--c-ink); font-weight: 600; cursor: default; }
-.tp-cap-i:focus-visible { outline: 2px solid var(--c-on-dark); outline-offset: 1px; }
+/* Focus: a ring inside the item in its own text colour (light on the dark capsule, ink on the light pill), so it never
+   rides the capsule's edge */
+.tp-cap-i:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
+.tp-cap-i:not(.is-on):active { opacity: .72; }
 @media (hover: hover) { .tp-cap-i:not(.is-on):hover { text-decoration: underline; text-underline-offset: 3px; } }
-@media (prefers-reduced-motion: reduce) { .tp-cap-pill, .tp-cap-i, .tp-cap-wrap .tp-cap, .tp-cap-wrap.is-away .tp-cap { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tp-cap-pill, .tp-cap-i, .tp-cap-wrap .tp-cap, .tp-cap-wrap.is-away .tp-cap, .tp-photo { transition: none; } .tp-photo:active { transform: none; } }
 /* Being built: in place of the planner while Event details or Kick goal is picked. Tall enough that the capsule
    stays where it was when the page swaps. The planner's sections, the timeline bar and its skip link step aside. */
 #tp-phone.is-soon .tp-body > :not(.tp-top):not(.tp-cap-wrap):not(.tp-soon) { display: none !important; }
@@ -3706,7 +3710,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    bottom keeps the focus ring inside the row. */
 .tp-photos { display: flex; gap: var(--space-2); margin: -4px 0; padding: 4px var(--space-5); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; }
 .tp-photos::-webkit-scrollbar { display: none; }
-.tp-photo { flex: none; padding: 0; border: 0; background: none; cursor: pointer; }
+.tp-photo { flex: none; padding: 0; border: 0; background: none; cursor: pointer; transition: transform 120ms ease; }
+.tp-photo:active { transform: scale(.98); }
 .tp-photo:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-photo-img { display: grid; place-items: center; width: 182px; height: 102px; }
 .tp-photo-img::after, .tp-ph-img::after { content: none; }
