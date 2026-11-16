@@ -1082,7 +1082,7 @@
     h += '<button type="button" class="tc-ko" data-ko="' + esc(ko.key) + '" aria-haspopup="dialog">' + I_CUP + '<span>' + esc(ko.text) + '<b>' + esc(ko.strong) + '</b></span>' + I_NEXT + '</button>';
     // One next step: a team that plays in NSW plans around its match day; one that does not finds where to watch
     var next = c.rugby ? '<button type="button" class="tc-next" data-plan-days aria-haspopup="dialog">' + I_CAL + 'Plan around your match days</button>'
-      : c.nsw ? '<button type="button" class="tc-next" data-plan-days aria-haspopup="dialog">' + I_CAL + 'Plan around your match day' + (c.nsw > 1 ? 's' : '') + '</button>'
+      : c.nsw ? '<button type="button" class="tc-next" data-plan-days data-plan-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_CAL + 'Plan around your match day' + (c.nsw > 1 ? 's' : '') + '</button>'
       : '<button type="button" class="tc-next" data-watch-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_TV + 'See where to watch all ' + c.matches.length + ' in NSW</button>';
     return h + '<div class="tc-foot">' + next + '</div>';
   }
@@ -1637,7 +1637,7 @@
       var wl = state.added.filter(function (it) { return it.unplaced; });
       tlWait.hidden = !wl.length;
       var wh = wl.length ? '<h4 class="tp-tl-wait-h" id="tp-tl-wait-h">Saved, not placed yet</h4><ul>' + wl.map(function (it) {
-        return '<li><span class="tp-tl-wait-t">' + esc(it.title) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
+        return '<li><span class="tp-tl-wait-t">' + (it.poi ? '<button type="button" class="tp-link tp-place-link" data-open="poi:' + esc(it.poi) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' : esc(it.title)) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
       }).join('') + '</ul><p class="tp-tl-wait-n">' + (confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Each goes into a free day once you set your days above.') + '</p>' : '';
       if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
     }
@@ -2377,7 +2377,7 @@
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark
     match: function (key) { return TLM_BY[key] || null; }, isPicked: function (n) { return state.picked.indexOf(n) > -1; },
     pickTeam: function (n) { var c = TEAMS[n]; if (!c) return ''; var i = CARDS.indexOf(c); if (pos(i) < 0) setNsw(false); return toggle(i, null, true); },
-    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; },
+    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; }, teamBand: function (n) { return TEAM_BAND[n] || null; },
     // Trips that clash, by item id: [{ name, day }] (filled by the timeline; read by the plan and the trip cards)
     clashes: function () { return tlClash; },
     // The team list as a sheet, from anywhere on the page (Your plan so far)

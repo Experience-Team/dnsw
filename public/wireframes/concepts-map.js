@@ -57,7 +57,7 @@
   var fs = document.createElement('div');
   fs.className = 'tp-mapfs'; fs.hidden = true;
   fs.setAttribute('role', 'dialog'); fs.setAttribute('aria-modal', 'true'); fs.setAttribute('aria-labelledby', 'tp-mapfs-h');
-  fs.innerHTML = '<div class="cn-bar tp-mapfs-bar"><button type="button" class="cn-close" data-mclose aria-label="Close day by day"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><p class="cn-bar-title" id="tp-mapfs-h">Your days, day by day</p></div>' +
+  fs.innerHTML = '<div class="cn-bar tp-mapfs-bar"><p class="cn-bar-title" id="tp-mapfs-h">Your days, day by day</p><button type="button" class="cn-close" data-mclose aria-label="Close day by day"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div>' +
     '<div class="tp-mapfs-scroll"></div>';
   var sc = fs.querySelector('.tp-mapfs-scroll');
   sc.appendChild(mapEl);
@@ -68,6 +68,8 @@
   var pill = mapEl.querySelector('.tp-map-pill'), freeBtn = mapEl.querySelector('.tp-map-free'), zoomEl = mapEl.querySelector('.tp-map-zoom');
   var card = mapEl.querySelector('.tp-map-card'), jump = mapEl.querySelector('.tp-map-jump'), pop = mapEl.querySelector('.tp-map-pop'), sayEl = mapEl.querySelector('#tp-map-say');
   var keyEl = mapEl.querySelector('.tp-map-key'), clustersEl = mapEl.querySelector('.tp-map-clusters');
+  var measure = document.createElement('div'); measure.className = 'tp-map-card tp-map-measure'; measure.setAttribute('aria-hidden', 'true');
+  mapEl.querySelector('.tp-map-stage').appendChild(measure);
   var snaps = mapEl.querySelector('.tp-map-snaps'), skip = dview.querySelector('a.tp-map-skip'), gImg = mapEl.querySelector('.tp-map-img');
   var IMG = 'assets/images/map/nsw-relief.webp';
 
@@ -91,23 +93,28 @@
     // Each day is one deliberate swipe: shorter steps for a long plan, and the map lets go after the last day
     stepPx = Math.round(stageH * (n <= 14 ? .5 : .36)); // half a screen a day (agreed 15 Nov; was 70% up to 8 days)
     mapEl.style.setProperty('--stage-h', stageH + 'px');
-    mapEl.style.height = (free ? stageH : stageH + Math.max(0, n - 1) * stepPx) + 'px';
-    snaps.innerHTML = free ? '' : steps.map(function (s, i) { return '<span style="top:' + i * stepPx + 'px"></span>'; }).join('');
+    // Since 16 Nov the layer is one fixed screen: days are stepped explicitly (swipe the map, the arrows, a dot, the day
+    // list or the arrow keys), never by scrolling
+    mapEl.style.height = stageH + 'px';
+    snaps.innerHTML = '';
   }
 
   /* ---------- Camera ---------- */
   function availTop() { return 96; } // under the controls and the key
-  function availBottom() { return stageH - (card.offsetHeight || 260) - 14; }
+  var nextH = null; // the height of a held card that has not been drawn yet, so the map frames the day around it
+  // The map is framed against the collapsed sheet, so opening the ideas never moves it
+  function availBottom() { return stageH - (nextH || collapsedH || card.offsetHeight || 260) - 14; }
   function frameOf(i) {
     var c = cards[i]; if (!c) return null;
     var pts = [];
     if (c.anchor && onMap(c.anchor.ll)) pts.push(px(c.anchor.ll));
     c.pins.forEach(function (p) { if (onMap(p.ll)) pts.push(px(p.ll)); });
-    if (c.kind === 'match' && c.home && onMap(c.home.ll)) pts.push(px(c.home.ll));
+    if (c.kind === 'match' && c.start && onMap(c.start.ll)) pts.push(px(c.start.ll)); // where the day starts, and the stadium
     if (!pts.length) pts.push(px([-33.8688, 151.2093]));
     var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     pts.forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
-    var at = availTop(), ab = Math.max(at + 160, availBottom()), aw = vw - 120, ah = ab - at - 64;
+    // Match day frames a journey, so its pins, pushed off the stadium's mark, need more room above the card
+    var at = availTop(), ab = Math.max(at + 160, availBottom() - (c.kind === 'match' ? 48 : 0)), aw = vw - 120, ah = ab - at - 64;
     var span = 140; // never closer than about 8 km across
     var s = Math.min(aw / Math.max(x1 - x0, span), ah / Math.max(y1 - y0, span));
     s = Math.max(sMin(), Math.min(1.35, s));
@@ -122,7 +129,7 @@
   function scr(p) { return [vw / 2 + (p[0] - cam.x) * cam.s, cam.fy + (p[1] - cam.y) * cam.s]; }
   function glide(to) {
     cancelAnimationFrame(anim);
-    if (reduce.matches || !to) { if (to) cam = to; apply(); return; }
+    if (reduce.matches || !to) { if (to) cam = to; apply(); return 0; }
     var from = { x: cam.x, y: cam.y, s: cam.s, fy: cam.fy }, t0 = performance.now();
     var io = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
     // Far apart (it would race across more than a screen): pull back until both places are in view, travel there, then
@@ -141,6 +148,7 @@
       apply();
       if (t < 1) anim = requestAnimationFrame(frame);
     })(t0);
+    return dur;
   }
 
 
@@ -172,6 +180,7 @@
     var seen = {};
     cards.forEach(function (cc, i) { if (cc.kind === 'match' && cc.anchor && !seen[cc.anchor.name]) { seen[cc.anchor.name] = 1; mk.push({ ll: cc.anchor.ll, cls: 'is-stadium' + (i === cur ? ' is-now' : ''), ico: FLAG, t: cc.anchor.name }); } });
     if (c && !home && c.anchor && c.kind !== 'match') mk.push({ ll: c.anchor.ll, cls: 'is-base', ico: '', t: c.anchor.name });
+    if (c && !home && c.kind === 'match' && c.start && onMap(c.start.ll)) mk.push({ ll: c.start.ll, cls: 'is-base', ico: '', t: c.start.name });
     var names = {}; mk = mk.filter(function (m) { if (names[m.t]) return false; names[m.t] = 1; return true; });
     marksEl.innerHTML = mk.map(function (m, k) { return '<span class="tp-map-mark ' + m.cls + '" data-m="' + k + '"><span class="tp-map-mark-i">' + m.ico + '</span><span class="tp-map-mark-t">' + esc(m.t) + '</span></span>'; }).join('');
     marks = mk;
@@ -272,23 +281,95 @@
 
   /* ---------- The card ---------- */
   function navLbl(i) { return steps[i] ? 'Day ' + (i + 1) : ''; }
-  function drawCard(fresh) {
-    var c = cards[cur], st = steps[cur]; if (!c) { card.innerHTML = ''; return; }
-    var active = document.activeElement, keep = active && card.contains(active) ? (active.dataset.mstep ? '[data-mstep="' + active.dataset.mstep + '"]' : active.dataset.mtab ? '[data-mtab="' + active.dataset.mtab + '"]' : null) : null;
-    var h = '<h4 class="tp-map-card-h" tabindex="-1">' + esc(c.kicker) + '</h4>' + (c.title ? '<p class="tp-map-title">' + esc(c.title) + '</p>' : '');
+  /* The card's bottom row: ← Day n, a dot per day, Day n →. The arrow with nowhere to go is left out (a spacer keeps
+     the dots centred). The dots are 24px targets, so they show only while they fit; past that the row says Day n of N. */
+  function dotsHtml(i) {
+    var n = steps.length; if (n < 2) return '';
+    var room = Math.max(0, (card.clientWidth || vw - 20) - 24 - 2 * 72);
+    if (n * 24 > room) return '<span class="tp-map-dots-t" aria-hidden="true">Day ' + (i + 1) + ' of ' + n + '</span>';
+    return '<span class="tp-map-dots" role="group" aria-label="Your days">' + steps.map(function (st, k) {
+      return '<button type="button" class="tp-map-dot" data-mjump="' + k + '" aria-label="Day ' + (k + 1) + ' of ' + n + ', ' + esc(cards[k] ? cards[k].label : '') + '"' + (k === i ? ' aria-current="step"' : '') + '><i></i></button>';
+    }).join('') + '</span>';
+  }
+  // The last day ends on one line: how many days, and how much is planned in them (matches are not counted)
+  function summary() {
+    var t = state.trip || {}, a = t.from ? tp.isoDay(t.from) : null, z = t.to ? tp.isoDay(t.to) : null;
+    var days = a !== null && z !== null ? z - a + 1 : steps.reduce(function (n, st) { return n + st.days.length; }, 0);
+    var n = state.added.filter(function (x) {
+      if (x.kind === 'match' || x.unplaced) return false;
+      var d = x.kind === 'trip' && x.start !== undefined ? x.start : x.day ? tp.dayOf(x.day) : null;
+      return d === null || a === null ? true : d >= a && d <= z;
+    }).length;
+    return days + (days === 1 ? ' day, ' : ' days, ') + (n ? n + (n === 1 ? ' thing' : ' things') + ' added' : 'nothing added yet');
+  }
+  /* Match day leads with the match (16 Nov): the two teams' stripes along the top edge (the same bands as their cards on
+     the page), the date, then the teams with their flags as the card's heading, then kick-off and the venue */
+  function bandHtml(n) { var cols = tp.teamBand ? tp.teamBand(n) : null; return '<span class="tp-map-band-t">' + (cols || ['var(--c-btn)']).map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span>'; }
+  function heroHtml(c) {
+    var x = c.hero, t = x.teams;
+    var who = t.length ? t.map(function (n) { return '<span class="tp-map-team">' + (tp.flag(n) ? '<span aria-hidden="true">' + tp.flag(n) + '</span>' : '') + esc(n) + '</span>'; }).join(' <span class="tp-map-v">v</span> ') : 'Teams to be decided';
+    return (t.length ? '<div class="tp-map-band" aria-hidden="true">' + t.map(bandHtml).join('') + '</div>' : '') +
+      '<div class="tp-map-card-top"><p class="tp-map-kick">' + esc(c.kicker) + (x.ticket ? ' \u00b7 Your ticket' : '') + '</p><button type="button" class="tp-link tp-map-aslist" data-mlist>See as a list</button></div>' +
+      '<h4 class="tp-map-card-h tp-map-match-h" tabindex="-1">' + who + '</h4>' +
+      '<p class="tp-map-match-m">' + esc((x.k ? x.k + ' kick-off' : 'Kick-off to be confirmed') + ' \u00b7 ' + x.v) + '</p>';
+  }
+  var sheetOpen = false, collapsedH = 0;
+  function cardHtml(i) {
+    var c = cards[i], st = steps[i]; if (!c) return '';
+    var n = steps.length, last = i === n - 1;
+    var grab = '<span class="tp-map-grab" aria-hidden="true"></span>';
+    var h = grab + (c.hero ? heroHtml(c) : '<div class="tp-map-card-top"><h4 class="tp-map-card-h" tabindex="-1">' + esc(c.kicker) + '</h4><button type="button" class="tp-link tp-map-aslist" data-mlist>See as a list</button></div>' + (c.title ? '<p class="tp-map-title">' + esc(c.title) + '</p>' : ''));
     if (st.days.length > 1) h += '<div class="tp-map-tabs" role="group" aria-label="Pick a day">' + st.days.map(function (d) { var x = cardsFor(st, d); return '<button type="button" class="tp-chip" data-mtab="' + d + '" aria-pressed="' + (d === c.day) + '">' + esc(x ? x.label.replace(/ (Oct|Nov)$/, '') : '') + '</button>'; }).join('') + '</div>';
     if (c.note) h += '<p class="tp-map-note">' + esc(c.note) + '</p>';
     if (c.lead) h += '<div class="tp-map-lead">' + c.lead + '</div>';
-    h += '<div class="tp-map-body">' + (c.body || '') + '</div>';
-    h += '<div class="tp-map-nav"><button type="button" class="tp-link" data-mstep="-1"' + (cur ? '' : ' disabled') + '>← ' + esc(navLbl(cur - 1) || 'Day 1') + '</button>' +
-      '<button type="button" class="tp-link" data-mlist>See as a list</button>' +
-      '<button type="button" class="tp-link" data-mstep="1"' + (cur < steps.length - 1 ? '' : ' disabled') + '>' + esc(navLbl(cur + 1) || 'Last day') + ' →</button></div>';
-    card.innerHTML = h;
-    if (fresh && !reduce.matches && card.animate) card.animate([{ opacity: .35, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    // A bottom sheet (16 Nov): collapsed it shows the day, getting there and how to move between days; the day's ideas
+    // open with the row below (or by dragging the grabber up, or tapping a pin). The choice carries from day to day.
+    var nIdeas = c.pins.filter(function (p) { return p.html; }).length, hasBody = !!(c.body && c.body.replace(/<[^>]+>/g, '').trim());
+    if (hasBody) h += '<button type="button" class="tp-map-more" data-msheet aria-expanded="' + sheetOpen + '" aria-controls="tp-map-body"><span>' + (nIdeas ? nIdeas + (nIdeas === 1 ? ' idea' : ' ideas') + ' for this day' : 'Details for this day') + '</span><span class="tp-map-more-a">' + (sheetOpen ? 'Hide' : 'Show') + '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5L6 4l3.5 3.5"/></svg></span></button>' +
+      '<div class="tp-map-body" id="tp-map-body"' + (sheetOpen ? '' : ' hidden') + '>' + c.body + '</div>';
+    if (last) h += '<p class="tp-map-sum">' + esc(summary()) + '</p>';
+    h += '<div class="tp-map-nav">' + (i ? '<button type="button" class="tp-link tp-map-arrow" data-mstep="-1">← ' + esc(navLbl(i - 1)) + '</button>' : '<span class="tp-map-arrow" aria-hidden="true"></span>') +
+      dotsHtml(i) +
+      (last ? '<span class="tp-map-arrow" aria-hidden="true"></span>' : '<button type="button" class="tp-link tp-map-arrow" data-mstep="1">' + esc(navLbl(i + 1)) + ' →</button>') + '</div>';
+    return h;
+  }
+  // Status changes at once (the pill and the dots); the card itself may be held until the map has mostly arrived
+  function drawStatus(i) {
+    var c = cards[i]; if (!c) return;
+    pill.innerHTML = '<span>Day ' + (i + 1) + ' of ' + steps.length + ' · ' + esc(placeOf(i)) + '</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg>';
+    pill.setAttribute('aria-label', 'Day ' + (i + 1) + ' of ' + steps.length + ', ' + c.label + ', ' + placeOf(i) + '. Jump to a day');
+    card.querySelectorAll('[data-mjump]').forEach(function (d) { if (+d.dataset.mjump === i) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
+    var dt = card.querySelector('.tp-map-dots-t'); if (dt) dt.textContent = 'Day ' + (i + 1) + ' of ' + steps.length;
+  }
+  function collapsedHeight(i) { var o = sheetOpen; sheetOpen = false; measure.innerHTML = cardHtml(i); sheetOpen = o; var hh = measure.offsetHeight; measure.innerHTML = ''; return hh; }
+  // Open or close the sheet: its height glides between the two (240ms; reduced motion: at once); the map stays put
+  function setSheet(v, focusSel) {
+    if (v === sheetOpen) return;
+    var h0 = card.offsetHeight;
+    sheetOpen = v;
+    var b = card.querySelector('.tp-map-body'), t = card.querySelector('[data-msheet]');
+    if (b) b.hidden = !v;
+    if (t) { t.setAttribute('aria-expanded', v ? 'true' : 'false'); t.querySelector('.tp-map-more-a').firstChild.textContent = v ? 'Hide' : 'Show'; }
+    card.classList.toggle('is-open', v);
+    var h1 = card.offsetHeight;
+    if (!reduce.matches && card.animate && h0 !== h1) card.animate([{ height: h0 + 'px' }, { height: h1 + 'px' }], { duration: 240, easing: 'cubic-bezier(.3, .2, .25, 1)' });
+    if (focusSel) { var f = card.querySelector(focusSel); if (f) f.focus({ preventScroll: true }); }
+    say(v ? 'Ideas shown.' : 'Ideas hidden.');
+  }
+  function paintCard(i, dir) {
+    var active = document.activeElement, inCard = active && card.contains(active);
+    var keep = inCard ? (active.dataset.mstep ? '[data-mstep="' + active.dataset.mstep + '"]' : active.dataset.mjump !== undefined ? '[data-mjump="' + i + '"]' : active.dataset.mtab ? '[data-mtab="' + active.dataset.mtab + '"]' : active.dataset.mlist !== undefined ? '[data-mlist]' : null) : null;
+    card.innerHTML = cardHtml(i);
+    card.classList.toggle('is-open', sheetOpen);
+    collapsedH = sheetOpen ? collapsedHeight(i) : card.offsetHeight;
+    // The new day comes in from the side it was asked for (later days from the right), an even glide the eye can follow
+    if (dir && !reduce.matches && card.animate) card.animate([{ opacity: 0, transform: 'translateX(' + (dir * 40) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.3, .2, .25, 1)' });
     var f = keep && card.querySelector(keep);
-    if (f && !f.disabled) f.focus({ preventScroll: true }); else if (keep) card.querySelector('.tp-map-card-h').focus({ preventScroll: true });
-    pill.innerHTML = '<span>Day ' + (cur + 1) + ' of ' + steps.length + ' · ' + esc(placeOf(cur)) + '</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg>';
-    pill.setAttribute('aria-label', 'Day ' + (cur + 1) + ' of ' + steps.length + ', ' + c.label + ', ' + placeOf(cur) + '. Jump to a day');
+    // An arrow that is gone (the first or last day reached) hands focus to the other one, else to the day's heading
+    if (!f && keep && keep.indexOf('data-mstep') > -1) f = card.querySelector('[data-mstep]');
+    if (f) f.focus({ preventScroll: true }); else if (inCard) card.querySelector('.tp-map-card-h').focus({ preventScroll: true });
+    drawStatus(i);
+    if (card.querySelector('.tp-map-pcs')) hot(1, false); // pin 1 and card 1 go together from the start
   }
   function cardsFor(st, d) { return tp.mapStep(st, d); }
   // A short key for what is on the map right now: only the symbols in view
@@ -305,44 +386,58 @@
   }
 
   /* ---------- Steps ---------- */
+  /* A change of day (16 Nov): the map leads and the card follows. The pill and the dots change at once; the old card
+     dims and eases a little the other way; the map glides to the new day (0.7s, or 1.2s when it pulls back to travel
+     far); the new card is held until the map is 60% of the way there, then comes in from the side asked for. Stepping
+     again mid-way picks up from wherever things are. Reduced motion: the map and the card change together, at once. */
+  var cardT = 0, cardOut = null, pending = null;
   function goTo(i, opts) {
     opts = opts || {};
     i = Math.max(0, Math.min(steps.length - 1, i));
-    var changed = i !== cur;
+    var prev = cur, changed = i !== cur;
     cur = i; curDay = cards[i] ? cards[i].day : null;
-    drawCard(changed && !opts.first);
+    clearTimeout(cardT); if (cardOut) { cardOut.cancel(); cardOut = null; }
+    var dir = prev < 0 || i === prev ? 0 : i > prev ? 1 : -1;
+    var hold = changed && !opts.first && !opts.cut && !reduce.matches && !!card.animate;
+    if (hold) {
+      // Measure the card that is coming, so the map frames the day around it before it is drawn
+      var keepOpen = sheetOpen; sheetOpen = false; measure.innerHTML = cardHtml(i); sheetOpen = keepOpen; nextH = measure.offsetHeight; measure.innerHTML = '';
+      drawStatus(i);
+      cardOut = card.animate([{ opacity: 1, transform: 'none' }, { opacity: .45, transform: 'translateX(' + (-dir * 12) + 'px)' }], { duration: 200, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' });
+    } else { nextH = null; paintCard(i, 0); }
     drawPins();
     drawKey();
-    if (card.querySelector('.tp-map-pcs')) hot(1, false); // pin 1 and card 1 go together from the start
-    var to = frameOf(i);
-    if (opts.first || opts.cut) { cam = to; apply(); } else glide(to);
-    if (changed && !opts.first) say('Day ' + (i + 1) + ' of ' + steps.length + ', ' + cards[i].kicker.split(' · ').join(', ') + '.' + (cards[i].title ? ' ' + cards[i].title + '.' : ''));
+    var to = frameOf(i), dur = 0;
+    if (opts.first || opts.cut) { cam = to; apply(); } else dur = glide(to);
+    if (hold) cardT = setTimeout(function () { if (cardOut) { cardOut.cancel(); cardOut = null; } nextH = null; paintCard(i, dir); }, Math.round((dur || 700) * .6));
+    if (changed && !opts.first) say('Day ' + (i + 1) + ' of ' + steps.length + ', ' + cards[i].kicker.split(' · ').join(', ') + '.' + (cards[i].title ? ' ' + cards[i].title + '.' : '') + (i === steps.length - 1 ? ' ' + summary() + '.' : ''));
   }
-  function jumpTo(i, smooth) {
-    i = Math.max(0, Math.min(steps.length - 1, i));
-    if (free) { goTo(i); return; }
-    goTo(i);
-    // While the page glides to the step, the days it passes are not stepped through
-    var top = stepTop(i);
-    pending = { top: top, until: performance.now() + 1200 };
-    sc.scrollTo({ top: top, behavior: smooth && !reduce.matches ? 'smooth' : 'auto' });
-  }
-  var pending = null;
-  function onScroll() {
-    if (!on || free || !steps.length) return;
-    if (pending) { if (Math.abs(sc.scrollTop - pending.top) > 4 && performance.now() < pending.until) return; pending = null; }
-    var raw = (sc.scrollTop - trackTop()) / stepPx, i = Math.max(0, Math.min(steps.length - 1, Math.round(raw)));
-    if (i !== cur) goTo(i);
-  }
-  sc.addEventListener('scroll', onScroll, { passive: true });
-  // Tabbing into the map can make the browser scroll the page to show the focused control, which would move the map on
-  // a day under the keyboard. While focus moves within the map, the day stays put and the page is put back.
-  stage.addEventListener('focusin', function () {
-    if (!on || free) return;
-    var t = stepTop(cur), mine = pending = { top: t, until: performance.now() + 600 };
-    // Only while it is still stepping through days: a tap that switches to Explore freely or to the list moves focus too,
-    // and must not be pulled back to the day it left
-    requestAnimationFrame(function () { if (on && !free && guided && pending === mine && Math.abs(sc.scrollTop - t) > 2) sc.scrollTo({ top: t, behavior: 'auto' }); });
+  function jumpTo(i) { goTo(i); }
+  // Drag the sheet's grabber up to open it or down to close it; a tap toggles it
+  var gdrag = null;
+  // (the release is heard on the window, so it counts wherever the finger or mouse ends up)
+  card.addEventListener('pointerdown', function (e) { if (e.target.closest('.tp-map-grab')) { e.preventDefault(); gdrag = { id: e.pointerId, y: e.clientY }; } });
+  window.addEventListener('pointerup', function (e) {
+    if (!gdrag || e.pointerId !== gdrag.id) return;
+    var dy = e.clientY - gdrag.y; gdrag = null;
+    if (dy < -24) setSheet(true); else if (dy > 24) setSheet(false); else if (Math.abs(dy) < 6) setSheet(!sheetOpen);
+  });
+  window.addEventListener('pointercancel', function () { gdrag = null; });
+  // Swipe the map sideways to change day (guided only; in Explore freely a drag pans). A tap on a pin is not a swipe.
+  var swipe = null;
+  view.addEventListener('pointerdown', function (e) { if (free || !on) return; swipe = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+  view.addEventListener('pointerup', function (e) {
+    if (!swipe || e.pointerId !== swipe.id) return;
+    var dx = e.clientX - swipe.x, dy = e.clientY - swipe.y; swipe = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) goTo(cur + (dx < 0 ? 1 : -1));
+  });
+  view.addEventListener('pointercancel', function () { swipe = null; });
+  // The arrow keys step too, anywhere in the layer except inside the ideas row or the day tabs (they scroll sideways)
+  stage.addEventListener('keydown', function (e) {
+    if (free || !on || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') || !jump.hidden || !pop.hidden) return;
+    if (e.target.closest('.tp-map-pcs, .tp-map-tabs, input')) return;
+    e.preventDefault();
+    goTo(cur + (e.key === 'ArrowRight' ? 1 : -1));
   });
   window.addEventListener('resize', function () { if (on) { layout(); goTo(cur, { cut: true }); } });
 
@@ -376,6 +471,7 @@
     var day = curDay;
     guided = v; free = false; pending = null; mapEl.classList.remove('is-free'); freeBtn.setAttribute('aria-pressed', 'false'); freeBtn.querySelector('.tp-map-free-l').textContent = 'Explore freely'; zoomEl.hidden = true;
     if (!v) { on = false; }
+    if (v) sheetOpen = false; // each visit starts with the map in view and the ideas one tap away
     fsShow(v);
     tp.mapRender();
     if (v) {
@@ -434,7 +530,10 @@
   });
   card.addEventListener('click', function (e) {
     var s = e.target.closest('[data-mstep]');
-    if (s) { jumpTo(cur + +s.dataset.mstep, true); return; }
+    if (s) { goTo(cur + +s.dataset.mstep); return; }
+    if (e.target.closest('[data-msheet]')) { setSheet(!sheetOpen); return; }
+    var dj = e.target.closest('[data-mjump]');
+    if (dj) { goTo(+dj.dataset.mjump); return; }
     var t = e.target.closest('[data-mtab]');
     if (t) { var st = steps[cur], d = +t.dataset.mtab; sub[st.day] = d; cards[cur] = tp.mapStep(st, d); curDay = d; goTo(cur, { cut: false }); var f = card.querySelector('[data-mtab="' + d + '"]'); if (f) f.focus({ preventScroll: true }); return; }
     if (e.target.closest('[data-mlist]')) toList(curDay);
@@ -455,7 +554,7 @@
   pinsEl.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-map-pin'); if (!b) return;
     var x = pinEls[+b.dataset.k].x;
-    if (!free) { if (x.p.html) hot(x.p.n, true); return; }
+    if (!free) { if (x.p.html) { setSheet(true); hot(x.p.n, true); } return; }
     // Explore freely: a small card for the pin, with Add for its day and a way to that day
     var c = x.c || cards[x.i];
     pop.innerHTML = '<p class="tp-map-pop-t">' + esc(x.p.title) + '</p><p class="tp-map-pop-m">' + esc(x.p.kindLabel) + ' · ' + esc(c.label) + '</p>' +
@@ -504,6 +603,7 @@
     if (e.key === 'Escape') {
       if (!jump.hidden) { e.stopPropagation(); e.preventDefault(); closeJump(); }
       else if (!pop.hidden) { e.stopPropagation(); e.preventDefault(); pop.hidden = true; view.focus({ preventScroll: true }); }
+      else if (sheetOpen && !free) { e.stopPropagation(); e.preventDefault(); setSheet(false, '[data-msheet]'); } // the open sheet closes first
       return;
     }
     if (e.key === 'Tab' && !jump.hidden) {
@@ -858,6 +958,8 @@
       selMark(popAt);
       if (!keep) bringIn(x.ll);
     }
+    // A place's sheet added or removed it: the pop-up it was opened from follows
+    tp.ovRefresh = function () { if (!opop.hidden && popAt !== null) showPop(popAt, true); };
     function showPop(k, keep) {
       if (typeof k === 'string') { showVen(+k.slice(1), keep); return; }
       var l = LOCS[k], ms = l.kind === 'stadium' ? matchesAt(l.id) : [];
@@ -868,7 +970,7 @@
         '<p class="tp-ov-pop-k">Nearby</p><ul class="tp-map-pop-l">' + l.near.map(function (p) {
           var it = itemOf(p), on = !!it;
           var note = !it ? '' : it.unplaced ? (state.trip && state.trip.from ? 'Saved, not placed yet. No free day fits it yet.' : 'Saved, not placed yet. It goes into a free day once you set your days.') : 'On your plan: ' + it.day;
-          return '<li><span><b>' + esc(p.title) + '</b><span class="tp-ov-pop-d">' + esc(p.cat) + ' · ' + esc(p.area) + ' · ' + esc(openDays(p)) + '</span>' + (note ? '<span class="tp-ov-pop-n" data-onote="' + p.id + '">' + esc(note) + '</span>' : '') + '</span>' +
+          return '<li><span class="ph-img tp-pc-img tp-ov-pop-img" data-img="' + esc(String(p.title || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')) + '" aria-hidden="true"></span><span class="tp-ov-pop-txt"><button type="button" class="tp-link tp-place-link" data-open="poi:' + p.id + '" aria-haspopup="dialog">' + esc(p.title) + '</button><span class="tp-ov-pop-d">' + esc(p.cat) + ' · ' + esc(p.area) + ' · ' + esc(openDays(p)) + '</span>' + (note ? '<span class="tp-ov-pop-n" data-onote="' + p.id + '">' + esc(note) + '</span>' : '') + '</span>' +
             '<button type="button" class="tp-add" data-oadd="' + p.id + '" aria-pressed="' + on + '"><span aria-hidden="true">' + (on ? TICK : PLUS) + '<span class="tp-add-t">' + (on ? 'Added' : 'Add') + '</span></span><span class="visually-hidden">' + (on ? 'Remove ' : 'Add ') + esc(p.title) + (on ? ' from your plan' : ' to your plan') + '</span></button></li>';
         }).join('') + '</ul>';
       var focusSel = keep && document.activeElement && opop.contains(document.activeElement) && document.activeElement.dataset.oadd ? '[data-oadd="' + document.activeElement.dataset.oadd + '"]' : null;
