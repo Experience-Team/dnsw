@@ -2377,7 +2377,7 @@
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark
     match: function (key) { return TLM_BY[key] || null; }, isPicked: function (n) { return state.picked.indexOf(n) > -1; },
     pickTeam: function (n) { var c = TEAMS[n]; if (!c) return ''; var i = CARDS.indexOf(c); if (pos(i) < 0) setNsw(false); return toggle(i, null, true); },
-    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; },
+    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; }, teamBand: function (n) { return TEAM_BAND[n] || null; },
     // Trips that clash, by item id: [{ name, day }] (filled by the timeline; read by the plan and the trip cards)
     clashes: function () { return tlClash; },
     // The team list as a sheet, from anywhere on the page (Your plan so far)

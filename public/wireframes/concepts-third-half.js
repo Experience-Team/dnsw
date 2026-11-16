@@ -420,6 +420,19 @@
     return '<div class="tp-go">' + TRAIN_ICO + '<div class="tp-go-txt"><p class="tp-go-line"><span class="provenance-gap">' + esc(goLine(r)) + '</span> <span class="tp-go-tag">Placeholder</span></p>' + goStay(r) +
       '<button type="button" class="tp-go-btn" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></div></div>';
   }
+  // Getting there in one line for the day-by-day map's match day (16 Nov): how and how long, then the full details
+  function goOne(m) {
+    var f = m.f, r = goRoute(f); if (!r) return '';
+    var id = 'go:' + m.key;
+    MODAL[id] = { type: 'route', r: r, m: m };
+    return '<p class="tp-go-one">' + TRAIN_ICO + '<span><span class="provenance-gap">' + esc(r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed')) + '</span> \u00b7 ' +
+      '<button type="button" class="tp-link" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></span></p>';
+  }
+  // Where a match day starts from when they have not said where they are staying: the city centre the route starts at
+  function startOf(f) {
+    var r = goRoute(f), c = cityOf(f.v), ll = GEO && GEO.places[c === 'newcastle' ? 'Newcastle' : 'Sydney CBD'];
+    return ll ? { ll: ll, name: r ? r.from : (c === 'newcastle' ? 'Newcastle' : 'Sydney CBD') } : null;
+  }
   // The schematic route: stops on a line, each leg styled by how you travel it. Not to scale.
   function goMap(r) {
     var h = '<figure class="tp-go-map-f"><ol class="tp-go-map" aria-label="Route from ' + esc(r.from) + ' to ' + esc(r.venue) + '">';
@@ -862,12 +875,17 @@
     var b = st.b, d = sub !== undefined ? sub : st.day, dl = dayLabel(d), home = homeLL(), r = { day: d, label: dl, kind: st.kind, pins: [], loops: [], home: home };
     if (st.kind === 'match') {
       var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, sl = stadiumLL(f.v);
-      r.anchor = sl; r.place = CITY[cityOf(f.v)]; r.kicker = dl + ' \u00b7 Match day \u00b7 ' + (f.k || 'time to be confirmed');
-      r.title = matchName(f) + ', ' + f.v;
+      r.anchor = sl; r.place = CITY[cityOf(f.v)]; r.kicker = dl + ' \u00b7 Match day';
+      // Match day is the hero of the walk-through (16 Nov): the teams with their stripes, kick-off and venue lead the card
+      r.title = matchName(f) + ', ' + (f.k ? f.k + ' kick-off' : 'kick-off to be confirmed') + ', ' + f.v;
+      r.hero = { teams: f.t ? f.t.split(' v ') : [], k: f.k, v: f.v, ticket: hasTicket(m) };
       if (b.ms.length > 1) r.note = 'Also that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return matchName(x.f); }).join(', ');
-      r.lead = goBlock(m);
+      r.lead = goOne(m);
       r.pins = productPins(nearProducts(f.v, weekdayOf(d), d, 3), f, m);
-      if (home && sl) r.loops.push({ from: home.ll, to: sl.ll, match: true });
+      // The map frames where the day starts (where they are staying, else the city centre the route starts at) and the
+      // stadium, with the way there and back between them
+      r.start = home || startOf(f);
+      if (r.start && sl) r.loops.push({ from: r.start.ll, to: sl.ll, match: true });
     } else if (st.kind === 'watch') {
       var city = baseCity() || 'sydney';
       r.anchor = home || nearStadium(d, city); r.place = home ? home.name : CITY[city];

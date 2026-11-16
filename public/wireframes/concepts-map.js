@@ -108,11 +108,12 @@
     var pts = [];
     if (c.anchor && onMap(c.anchor.ll)) pts.push(px(c.anchor.ll));
     c.pins.forEach(function (p) { if (onMap(p.ll)) pts.push(px(p.ll)); });
-    if (c.kind === 'match' && c.home && onMap(c.home.ll)) pts.push(px(c.home.ll));
+    if (c.kind === 'match' && c.start && onMap(c.start.ll)) pts.push(px(c.start.ll)); // where the day starts, and the stadium
     if (!pts.length) pts.push(px([-33.8688, 151.2093]));
     var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     pts.forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
-    var at = availTop(), ab = Math.max(at + 160, availBottom()), aw = vw - 120, ah = ab - at - 64;
+    // Match day frames a journey, so its pins, pushed off the stadium's mark, need more room above the card
+    var at = availTop(), ab = Math.max(at + 160, availBottom() - (c.kind === 'match' ? 48 : 0)), aw = vw - 120, ah = ab - at - 64;
     var span = 140; // never closer than about 8 km across
     var s = Math.min(aw / Math.max(x1 - x0, span), ah / Math.max(y1 - y0, span));
     s = Math.max(sMin(), Math.min(1.35, s));
@@ -178,6 +179,7 @@
     var seen = {};
     cards.forEach(function (cc, i) { if (cc.kind === 'match' && cc.anchor && !seen[cc.anchor.name]) { seen[cc.anchor.name] = 1; mk.push({ ll: cc.anchor.ll, cls: 'is-stadium' + (i === cur ? ' is-now' : ''), ico: FLAG, t: cc.anchor.name }); } });
     if (c && !home && c.anchor && c.kind !== 'match') mk.push({ ll: c.anchor.ll, cls: 'is-base', ico: '', t: c.anchor.name });
+    if (c && !home && c.kind === 'match' && c.start && onMap(c.start.ll)) mk.push({ ll: c.start.ll, cls: 'is-base', ico: '', t: c.start.name });
     var names = {}; mk = mk.filter(function (m) { if (names[m.t]) return false; names[m.t] = 1; return true; });
     marksEl.innerHTML = mk.map(function (m, k) { return '<span class="tp-map-mark ' + m.cls + '" data-m="' + k + '"><span class="tp-map-mark-i">' + m.ico + '</span><span class="tp-map-mark-t">' + esc(m.t) + '</span></span>'; }).join('');
     marks = mk;
@@ -299,10 +301,21 @@
     }).length;
     return days + (days === 1 ? ' day, ' : ' days, ') + (n ? n + (n === 1 ? ' thing' : ' things') + ' added' : 'nothing added yet');
   }
+  /* Match day leads with the match (16 Nov): the two teams' stripes along the top edge (the same bands as their cards on
+     the page), the date, then the teams with their flags as the card's heading, then kick-off and the venue */
+  function bandHtml(n) { var cols = tp.teamBand ? tp.teamBand(n) : null; return '<span class="tp-map-band-t">' + (cols || ['var(--c-btn)']).map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span>'; }
+  function heroHtml(c) {
+    var x = c.hero, t = x.teams;
+    var who = t.length ? t.map(function (n) { return '<span class="tp-map-team">' + (tp.flag(n) ? '<span aria-hidden="true">' + tp.flag(n) + '</span>' : '') + esc(n) + '</span>'; }).join(' <span class="tp-map-v">v</span> ') : 'Teams to be decided';
+    return (t.length ? '<div class="tp-map-band" aria-hidden="true">' + t.map(bandHtml).join('') + '</div>' : '') +
+      '<div class="tp-map-card-top"><p class="tp-map-kick">' + esc(c.kicker) + (x.ticket ? ' \u00b7 Your ticket' : '') + '</p><button type="button" class="tp-link tp-map-aslist" data-mlist>See as a list</button></div>' +
+      '<h4 class="tp-map-card-h tp-map-match-h" tabindex="-1">' + who + '</h4>' +
+      '<p class="tp-map-match-m">' + esc((x.k ? x.k + ' kick-off' : 'Kick-off to be confirmed') + ' \u00b7 ' + x.v) + '</p>';
+  }
   function cardHtml(i) {
     var c = cards[i], st = steps[i]; if (!c) return '';
     var n = steps.length, last = i === n - 1;
-    var h = '<div class="tp-map-card-top"><h4 class="tp-map-card-h" tabindex="-1">' + esc(c.kicker) + '</h4><button type="button" class="tp-link tp-map-aslist" data-mlist>See as a list</button></div>' + (c.title ? '<p class="tp-map-title">' + esc(c.title) + '</p>' : '');
+    var h = c.hero ? heroHtml(c) : '<div class="tp-map-card-top"><h4 class="tp-map-card-h" tabindex="-1">' + esc(c.kicker) + '</h4><button type="button" class="tp-link tp-map-aslist" data-mlist>See as a list</button></div>' + (c.title ? '<p class="tp-map-title">' + esc(c.title) + '</p>' : '');
     if (st.days.length > 1) h += '<div class="tp-map-tabs" role="group" aria-label="Pick a day">' + st.days.map(function (d) { var x = cardsFor(st, d); return '<button type="button" class="tp-chip" data-mtab="' + d + '" aria-pressed="' + (d === c.day) + '">' + esc(x ? x.label.replace(/ (Oct|Nov)$/, '') : '') + '</button>'; }).join('') + '</div>';
     if (c.note) h += '<p class="tp-map-note">' + esc(c.note) + '</p>';
     if (c.lead) h += '<div class="tp-map-lead">' + c.lead + '</div>';
