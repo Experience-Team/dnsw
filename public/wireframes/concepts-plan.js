@@ -176,7 +176,9 @@
     if (!M.n) { root.innerHTML = ''; return; }
     G = groups(M);
     var cards = G.map(function (g, i) { return cardHtml(g, i, G.length, M); }).join('');
-    var h = '<div class="tp-dc-strip"><p class="tp-dc-strip-h" id="tp-dc-strip-h">' + esc(M.range ? 'Your days' : 'Your match days') + '</p>' +
+    // With days set, the line above the strip already says Your days (and their dates), so its label is for screen
+    // readers only; with match days only, it says so on screen, as the days are not in a row
+    var h = '<div class="tp-dc-strip"><p class="tp-dc-strip-h' + (M.range ? ' visually-hidden' : '') + '" id="tp-dc-strip-h">' + esc(M.range ? 'Your days' : 'Your match days') + '</p>' +
       '<div class="tp-dc-days" role="group" aria-labelledby="tp-dc-strip-h">' + stripHtml(M) + '</div></div>';
     if (swipe()) {
       h += '<div class="tp-dc-nav"><button type="button" class="tp-dc-step" data-dc-prev>' + '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Previous day</span></button>' +
@@ -203,9 +205,10 @@
   // the fixed foot with Save & share (nothing that takes focus sits under it)
   function measure() {
     if (!panel) return;
-    var hh = head ? head.offsetHeight : 0, sh = root.querySelector('.tp-dc-strip'), fh = foot && foot.offsetParent ? foot.offsetHeight : 0;
-    panel.style.setProperty('--dc-top', Math.max(0, hh - 8) + 'px');
-    panel.style.scrollPaddingTop = (hh + (sh && !swipe() ? sh.offsetHeight : 0) + 8) + 'px';
+    // Only the strip sticks now (16 Nov polish): the title row scrolls away with the rest
+    var sh = root.querySelector('.tp-dc-strip'), fh = foot && foot.offsetParent ? foot.offsetHeight : 0;
+    panel.style.setProperty('--dc-top', '-8px');
+    panel.style.scrollPaddingTop = ((sh && !swipe() ? sh.offsetHeight : 0) + 8) + 'px';
     panel.style.scrollPaddingBottom = (fh + 8) + 'px';
   }
 
