@@ -11,6 +11,10 @@
 - Share preview links only from the Vercel project the user can open (`mopo123-gmailcoms-projects`), in chat and in PR
   descriptions, and point to the page that changed. Another Vercel project also deploys this repo, and its previews are
   behind sign-in for that account, so its links ask for access.
+- When a change alters what an existing address does (a flag added, a default changed, a theme moved behind `?tools`),
+  say which links already shared now behave differently, and give the new form. For example, links ending
+  `?theme=hifi` on the plain prototype address opened in low fidelity after the two addresses were split; high
+  fidelity now needs `?tools&theme=hifi`.
 
 # Adding standing flags
 
@@ -40,7 +44,11 @@ list as set out in "Adding standing flags" above, and add it once the user has a
 4. **Walk every combination before handing over.** Pick, unpick, mix, clear, change your mind, reload, keyboard only
    and reduced motion. Use every control from every place it appears and in every starting state: inside sheets and
    stacked sheets as well as on the page, and before a team is picked as well as after. Press it twice to check it can
-   be undone. Fix the gaps you find rather than leaving them for the user to spot.
+   be undone. Use each control again after it has been used, and treat a tap differently from keyboard focus: a
+   tapped button keeps focus, and focus rules meant for the keyboard must not catch it (for example, tap the floating
+   tab bar, then scroll; it must still shrink). Make several changes in a row and check that every status or summary
+   line describes the latest one, not the one before. Fix the gaps you find rather than leaving them for the user to
+   spot.
 5. **The movement that matters is obvious, not just present.** A change the user should notice must be clear at real
    size and speed. When a whole group moves together (a fan turning, a list shifting), the item the user acted on
    gets lost, so single it out: lift it, scale it, bring it above its neighbours, then settle it. Judge it from a
@@ -50,9 +58,13 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    container from the content's real extremes in every state it can be in (dragged to either end, picked, lifted,
    focused), not from a guess, and measure the rendered result. Clip only the sides that are meant to run on (a fan
    or carousel running off the edge); let a brief lift or pull rise out of the box rather than reserving space for it.
+   Text meant to sit on one line (a tab label, a slogan line, a button) holds on one line in every theme and font,
+   from 320 to 390px wide, not only in the theme being worked in; the wireframe's system font is wider than the high
+   fidelity one, and a page-wide rule can let text wrap.
 7. **Patterns go everywhere they apply.** When a visual or behavioural cue is attached to a kind of control (an icon,
    a confirm step, a focus rule), find every control of that kind and apply it to all of them, not just the one in the
    brief. List them before handing over. For example, the calendar icon belongs on every button that sets or changes
+   dates, not only the prompts, and the card-fan icon on every Pick your teams prompt, the hero button included.
    dates, not only the prompts; and every close cross sits in the same corner (top right, 16px from the edge) on every
    sheet, stacked sheet and full-screen layer.
 8. **The page only moves when people expect it to.** A control never scrolls or jumps the page to another section
@@ -61,6 +73,18 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    returns focus to what opened it. When an action changes content above the person, hold the page so what they were
    looking at stays put. For example, "Staying longer? Set your days" used to scroll down to the date fields; it now
    opens the calendar in a sheet.
+9. **Check the build against the whole brief before handing over.** Go through the brief line by line and say what is
+   done, what is deliberately not done yet and why (a stop-and-show step, an open question, a conflict with these
+   rules), and what is next. When a brief is built in steps, say at each stop which steps remain. For example,
+   stopping after steps 1 and 2 of a five-step brief without saying so left the user to find "a lot is missing".
+
+# Build notes
+
+Implementation lessons that testing caught; they are about the code, not the experience.
+
+- Code that measures layout (fitting text to a width, sizing a panel) skips anything hidden, where widths read as
+  zero, and re-runs only when the measured width actually changes, never on its own height changes. For example, the
+  slogan fit measured the planner while another tab was showing and shifted it 6px on every return.
 9. **Look, don't only measure.** Check every change by eye from screenshots in both themes (low and high fidelity) at
    390 and 320 wide, in each state the change touches. Use `?phone&tools&theme=wireframe` or `&theme=hifi`: without
    `?phone` the phone frame stays 358 wide at any window size, and without `?tools` the theme switch is ignored.
@@ -96,3 +120,8 @@ even when not asked.
 3. **Accessibility target: WCAG 2.2 AA, not AAA.** Size controls to AA: at least 24px to tap (2.5.8), with
    36px as the usual button height, rather than the 44px AAA size. Don't pad tap areas out to 44px. For example,
    buttons in the Pick your team prototype were moved from 44px to 36px.
+4. **White space groups what belongs together.** Use one spacing rhythm on the 4px scale, so distance shows how things
+   relate: tight inside a component (4 to 16px), 24px between parts of one family, 48px between families and before
+   each section's rule, and the largest break after the hero. Pairs that belong together sit closer than their
+   neighbours (a slogan and its event line). Prefer space to boxes and dividers for grouping. For example, the hand of
+   cards, the map and the match cards read as one block until 48px separated them.
