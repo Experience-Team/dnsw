@@ -317,7 +317,8 @@
   function dayLabel(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return WD_SHORT[x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + MONTHS[x.getUTCMonth()]; }
   function spanLabel(a, z) { return a === z ? dayLabel(a) : WD_SHORT[new Date(Date.UTC(2027, 9, 1 + a)).getUTCDay()] + ' ' + tp.isoRange(isoOf(a), isoOf(z)).replace(' to ', ' to ' + WD_SHORT[new Date(Date.UTC(2027, 9, 1 + z)).getUTCDay()] + ' '); }
   function cityOf(venue) { return /Newcastle/.test(venue || '') ? 'newcastle' : 'sydney'; }
-  function mins(m) { return m < 60 ? m + ' min' : m % 60 ? Math.floor(m / 60) + ' hr ' + (m % 60) + ' min' : (m / 60) + ' hr'; }
+  // Non-breaking spaces, so a duration never splits across lines (2 / hr 15 min)
+  function mins(m) { return m < 60 ? m + '\u00a0min' : m % 60 ? Math.floor(m / 60) + '\u00a0hr ' + (m % 60) + '\u00a0min' : (m / 60) + '\u00a0hr'; }
   // Worked out from the stops, not written by hand: the days every stop is open, and the dearest stop's price band
   function tripDays(t) { return WD_ORDER.filter(function (wd) { return t.stops.every(function (s) { return s.days.indexOf(wd) > -1; }); }); }
   function tripBand(t) { return t.stops.reduce(function (b, s) { return s.band.length > b.length ? s.band : b; }, '') || 'free'; }
@@ -612,12 +613,15 @@
   function ideaCard(i, d, open) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), type = (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city];
     var km = ideaKm(i), why = 'Fits ' + dl + (km !== null ? ' · ' + kmLine(km) : '') + ' · ' + howLine(i);
+    // In the ideas sheet the day is the heading, so the line leads with how to get there and how long, then distance:
+    // Ferry from Sydney CBD, 35 min · about 9 km away (the details give the full wording)
+    if (open) why = (i.car ? 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from : i.how.mode + ' from ' + i.how.from + (i.how.mins ? ', ' + mins(i.how.mins) : ', time to be confirmed')) + (km !== null ? ' · ' + (km < 1 ? 'under\u00a01\u00a0km' : 'about\u00a0' + Math.round(km) + '\u00a0km') + '\u00a0away' : '');
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
-    return '<article class="tp-pc tp-idea" data-id="' + esc(key) + '">' + (open ? '<button type="button" class="tp-pc-main" data-idea-open="' + esc(key) + '">' : '<div class="tp-pc-main">') +
+    return '<article class="tp-pc tp-idea' + (open ? ' tp-idea--open' : '') + '" data-id="' + esc(key) + '">' + (open ? '<button type="button" class="tp-pc-main" data-idea-open="' + esc(key) + '">' : '<div class="tp-pc-main">') +
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
       '<span class="tp-pc-type">' + esc(type) + '</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span>' +
-      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</span>' + (open ? '</button>' : '</div>') +
+      (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day' + (open ? '' : ' from ' + esc(i.how.from)) + '.</span>' : '') + '</span>' + (open ? '</button>' : '</div>') +
       addBtn(key, i.title + ' on ' + dl) + '</article>';
   }
   /* An idea's details, in place of the list in the ideas sheet: Back to [day] ideas, a placeholder image, title and

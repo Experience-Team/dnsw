@@ -4515,6 +4515,19 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-ideas-h:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-tl-ideas-sub { margin: var(--space-1) 0 var(--space-4); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-tl-ideas .tp-pcs { margin-top: var(--space-3); }
+/* Idea cards in the sheet (polish, 16 Nov): one left edge for every line of text, the image and Add on the title's
+   line rather than floating mid-card, and the card answers a tap like the button it is */
+.tp-idea--open { align-items: start; transition: border-color .15s ease-out; }
+.tp-idea--open .tp-pc-main { align-items: flex-start; cursor: pointer; transition: transform .15s ease-out; }
+.tp-idea--open .tp-pc-main:active { transform: scale(.98); }
+.tp-idea--open .tp-pc-type, .tp-idea--open .tp-pc-why { padding-left: 0; padding-right: 0; }
+.tp-idea--open .tp-pc-why { color: var(--c-ink-2); }
+.tp-idea--open .tp-add { margin-top: 2px; }
+@media (hover: hover) { .tp-idea--open:has(.tp-pc-main:hover) { border-color: var(--c-line-ink); } }
+@media (prefers-reduced-motion: reduce) { .tp-idea--open .tp-pc-main:active { transform: none; } }
+/* Details: Add on its own line, View full page and its Not linked yet tag together under it */
+.tp-tl-ideas .tp-pm-acts:not(.tp-tl-ideas-full) { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: var(--space-3) var(--space-2); }
+.tp-tl-ideas .tp-pm-acts:not(.tp-tl-ideas-full) .tp-pm-add { grid-column: 1 / -1; justify-self: start; }
 /* An idea's details, in place of the list in the same sheet */
 .cn-pp-body:has(> .tp-pm-ideas) { overflow-x: hidden; } /* the slide between list and details never shows a sideways scroll */
 .tp-idea-back { margin-bottom: var(--space-3); }
