@@ -2091,23 +2091,31 @@
       return;
     }
     var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
-    var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Drag either end to change them.'
+    var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Type new dates or drag either end to change them.'
       : wait ? 'Set your days and ' + (wait === 1 ? 'the place you saved goes' : 'the ' + wait + ' places you saved go') + ' onto free days.'
       : 'Optional. Ideas then fit around your matches' + (Object.keys(mdays).length ? ', dotted on the bar' : '') + '.';
     daysLine.innerHTML = '<span class="tp-tl-setdays-h" id="tp-tl-setdays-h">Your days in NSW</span>' +
       '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' +
-      '<input type="hidden" data-f="from" value="' + esc(t.from || '') + '"><input type="hidden" data-f="to" value="' + esc(t.to || '') + '">' +
+      // The same First day and Last day fields as the page (16 Nov): typing a date is the precise and accessible way in,
+      // and the slider and fields follow each other
+      '<span class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-tl-from" data-f="from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
+      '<label class="tp-date"><span>Last day</span><input type="date" id="tp-tl-to" data-f="to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></span>' +
       '<span class="tp-range tp-tl-range" role="group" aria-labelledby="tp-tl-setdays-h"><span class="tp-range-track"><span class="tp-range-fill"></span>' +
       '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
       Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
       '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
       '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45"></span></span>' +
       '<span class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out"></span><span>15 Nov</span></span></span>' +
+      (askError && rRoot === daysLine ? '<span class="tp-ask-err" role="alert">' + esc(askError) + '</span>' : '') +
       '<span class="tp-ask-acts tp-ask-acts--links">' +
         (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
         (has ? '<button type="button" class="tp-link tp-ico-link" data-act="clear">' + I_RESET + 'Reset</button>' : '') +
         '<button type="button" class="tp-link tp-ico-link" data-act="days">' + window.tpIcons.cal + 'Pick on a calendar</button></span>';
     var keep = rRoot; rRoot = daysLine; rangeFromFields(); rRoot = keep;
+  }
+  if (daysLine) {
+    daysLine.addEventListener('change', function (e) { if (e.target.dataset.f) { rRoot = daysLine; applyFromFields('#' + e.target.id); } });
+    daysLine.addEventListener('input', function (e) { if (e.target.dataset.f) { rRoot = daysLine; rangeFromFields(); } });
   }
   if (daysLine) daysLine.addEventListener('click', function (e) {
     var b = e.target.closest('[data-act="undo"], [data-act="clear"]'); if (!b) return;

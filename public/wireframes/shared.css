@@ -4425,6 +4425,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-daysline .tp-range, .tp-tl-daysline .tp-range-ends, .tp-tl-daysline .tp-ask-acts { display: block; }
 .tp-tl-daysline .tp-range-track { display: block; }
 .tp-tl-daysline .tp-range-ends, .tp-tl-daysline .tp-ask-acts--links { display: flex; }
+.tp-tl-daysline .tp-ask-err { display: block; } /* a span in the line's paragraph */
 /* Going to this match? on each screening card: the question, then Yes and No (32px, as Add). A match they are going to
    shows one card for getting there and back instead of its screenings */
 .tp-ws-going { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
