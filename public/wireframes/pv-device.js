@@ -3,9 +3,10 @@
    phone screen, edge to edge, so a real phone uses its own keyboard and controls. Here it keeps the screen the height
    of what is visible above the keyboard: Android resizes the page itself (interactive-widget=resizes-content), iOS
    only shrinks the visual viewport, so its height is copied into --pv-vh and the page is held at the top.
-   In the desktop viewer, #pv-qr draws a QR code for this page with ?phone&theme=hifi, so a scan always opens the
-   high fidelity version whichever theme the viewer shows (the wireframe on a phone: ?phone&theme=wireframe), and Copy
-   link copies the same address. The High fidelity switch (#pv-theme-toggle) sets data-theme="hifi" on <html> (the <head> script
+   In the desktop viewer, #pv-qr draws a QR code for this page with ?phone&theme=hifi when the page has the High
+   fidelity switch, so a scan opens the high fidelity version whichever theme the viewer shows (the wireframe on a
+   phone: ?phone&theme=wireframe); a page without the switch (Pick your team's low fidelity address) gives ?phone
+   only, and ?tools is kept, so the code opens the address the person is on. Copy link copies the same address. The High fidelity switch (#pv-theme-toggle) sets data-theme="hifi" on <html> (the <head> script
    sets it first, from ?theme= or the last choice) and remembers it in this browser.
    In the high fidelity theme, each placeholder with data-img shows assets/images/<name>.webp (or .jpg).
    QR encoding: vendor/qrcode.js (qrcode-generator, Kazuhiko Arase, MIT). */
@@ -142,8 +143,13 @@
   var box = document.getElementById('pv-qr');
   var code, text, copy, status, shown, url = '';
   var local = location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0$|\[::1\]$)/.test(location.hostname);
-  // Always the high fidelity version: that is what someone scanning the code should see
-  function phoneUrl() { return location.origin + location.pathname + '?phone&theme=hifi'; }
+  // The same address the person is on, as the phone view: a page with the High fidelity switch (a tools version) opens
+  // in high fidelity, as that is what someone scanning the code should see; a page without it (the low fidelity
+  // address of Pick your team) opens as it is. ?tools carries over, so a scan of the tools version opens the tools version
+  function phoneUrl() {
+    var tools = /[?&]tools\b/.test(location.search);
+    return location.origin + location.pathname + '?' + (tools ? 'tools&' : '') + 'phone' + (themeBtn ? '&theme=hifi' : '');
+  }
   function drawQr() {
     if (!box) return;
     url = phoneUrl();
