@@ -2,7 +2,7 @@
    Experience principles (CLAUDE.md): reward early, then build on it; don't make people do the work.
    - Both result sections show straight away for the person's matches (picked teams, ticket marks, every NSW match for
      Here for the rugby). Nothing waits for dates. With no team picked they are a first look only: the next NSW match
-     day (in their days in NSW once they have said so), with one Pick your team to tailor this, not every match at once.
+     day (in their days in NSW once they have said so), not every match at once; the empty Your plan so far offers Pick your teams (the team list in a sheet).
    - Your days (optional), on the page under the team picker once there is something to plan around; nothing is
      guessed, with two quick picks. Refine your plan (folded): where they are staying and who is coming, which choose and
      order the ideas (a local: nearest first, no dates needed). Each answer refines the results in
@@ -108,10 +108,10 @@
 
   /* ---------- First look: no team picked yet ----------
      Without a pick there is nothing to tailor to, so both sections show one day only (the next NSW match day, in the
-     person's days in NSW once given) and one way on, Pick your team to tailor this, instead of every match at once. */
+     person's days in NSW once given) instead of every match at once; Your plan so far, below, is the way on (Pick your teams opens the team list). */
   function teaser() { return !tp.own(); }
   function teaserDay() { var d = nswDays()[0]; return d ? d.m.f.d : null; }
-  var TAILOR = '<p class="tp-tailor"><button type="button" class="tp-pill" data-act="tailor">' + window.tpIcons.fan + 'Pick your teams to tailor this</button></p>';
+  // (Pick your teams to tailor this is gone: Your plan so far, just below, opens the team list in a sheet; 16 Nov)
 
   /* ---------- Where to watch ---------- */
   var watchAll = false;
@@ -133,9 +133,13 @@
   function notGoing(m) { return (state.notGoing || []).indexOf(m.key) > -1; }
   // One line, not a second way to answer: the ticket is marked in one place, the match card's I have a ticket
   // (agreed 15 Nov). The link goes there; once marked, the card turns into getting there and back.
-  function goingQ(m, named) {
-    if (!m.tkey || hasTicket(m)) return '';
-    return '<p class="tp-ws-going"><span class="tp-ws-going-q">Going?</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button><span class="visually-hidden">: ' + esc(matchName(m.f)) + '</span></p>';
+  // One line per card, not one per match (a card with four matches said it four times in a row): the match is named
+  // when there is one; with several it asks once and the link goes to the first one's ticket box
+  function goingQ(ms) {
+    var open = ms.filter(function (m) { return m.tkey && !hasTicket(m); });
+    if (!open.length) return '';
+    var m = open[0], q = open.length === 1 ? 'Going to ' + matchName(m.f) + '?' : 'Going to one of these?';
+    return '<p class="tp-ws-going"><span class="tp-ws-going-q">' + esc(q) + '</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button></p>';
   }
   function gettingThere(m) {
     var f = m.f, city = f.a || f.p;
@@ -151,7 +155,7 @@
      is shown for more than two evenings on the page while another would do. With two of their matches on one evening,
      venues showing both come first. Where they are staying (Refine your plan) puts that city's venues first. Worked
      out once per render, in date order, so a match shows the same venues in Where to watch and in Your days. */
-  var NICK = { 'South Africa': 'Boks', 'New Zealand': 'All Blacks', 'Australia': 'Wallabies', 'Argentina': 'Pumas', 'Fiji': 'Flying Fijians', 'Japan': 'Brave Blossoms' };
+  // Team names, never nicknames (Boks, All Blacks ...): not every fan knows them (agreed 16 Nov)
   var FIX = window.cnFixtures || [];
   function fixIndex(m) { for (var i = 0; i < FIX.length; i++) if (FIX[i].d === m.f.d && FIX[i].t === m.f.t) return i; return 0; }
   function shows(sp, m) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }
@@ -189,17 +193,21 @@
     return out;
   }
   function teamOf(m) { var t = (m.f.t || '').split(' v '); return t.filter(function (n) { return tp.isPicked(n); })[0] || t[0]; }
-  function kickLine(m) { var n = teamOf(m); return (NICK[n] || n) + ' on at ' + (m.f.k ? m.f.k.replace(':00', '') : 'a time to be confirmed'); } // 8pm, not 8:00pm
+  function kickLine(m) { var n = teamOf(m); return n + ' plays at ' + (m.f.k ? m.f.k.replace(':00', '') : 'a time to be confirmed'); } // 8pm, not 8:00pm
+  // Several matches on one day: "of your matches" only once they have picked something, and "tonight" only when every
+  // kick-off is 5pm or later (a 12:15pm match is not tonight)
+  function lateAll(ms) { return ms.every(function (m) { var k = kickMins(m.f.k); return k !== null && k >= 17 * 60; }); }
+  function manyLine(ms) { return ms.length + (tp.own() ? ' of your matches ' : ' matches ') + (lateAll(ms) ? 'tonight' : 'that day'); }
   // The venues for one evening: name, kind and area, what it shows (with two matches), Add
   function venueRows(ms, keyBase) {
     var vs = venuesFor(ms), two = ms.length > 1;
-    if (!vs.length) return '<p class="tp-empty">No screening listed for this evening yet.</p>';
+    if (!vs.length) return '<p class="tp-empty">No screening listed for this match yet.</p>';
     return '<ul class="tp-wv">' + vs.map(function (c) {
       var showing = ms.filter(function (m) { return shows(c.sp, m); }), m0 = showing[0];
       var id = 'w:' + c.j + ':' + keyBase;
       ITEMS[id] = { id: id, kind: 'screening', title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', place: c.sp.place, note: '', day: m0.f.d, matchName: showing.map(function (m) { return matchName(m.f); }).join(' and ') };
       MODAL[id] = { type: 'spot', sp: c.sp, m: m0 };
-      var what = two ? (c.all ? 'Shows both' : 'Shows ' + matchName(m0.f) + ' only') : '';
+      var what = two ? (c.all ? (ms.length > 2 ? 'Shows all ' + ms.length : 'Shows both') : 'Shows ' + matchName(m0.f) + ' only') : '';
       return '<li class="tp-wv-i"><button type="button" class="tp-wv-t" data-open="' + esc(id) + '" aria-haspopup="dialog"><span class="tp-wv-name provenance-gap">' + esc(c.sp.name) + '</span>' +
         '<span class="tp-wv-meta">' + esc(SPOT_TYPE[c.sp.type] || 'Screening') + ' · ' + esc(c.sp.place) + (what ? ' · <strong>' + esc(what) + '</strong>' : '') + '</span></button>' +
         addBtn(id, c.sp.name + ', ' + ITEMS[id].matchName + ' on ' + m0.f.d) + '</li>';
@@ -231,16 +239,20 @@
       if (!watch.length) return;
       var two = watch.length > 1, k = evKey(watch);
       cards.push('<li class="tp-wm tp-wc' + (two ? ' is-clash' : '') + '" data-key="' + esc(watch[0].key) + '">' +
-        (two ? '<p class="tp-wc-clash">' + watch.length + ' of your matches tonight</p>' : '') +
+        (two ? '<p class="tp-wc-clash">' + manyLine(watch) + '</p>' : '') +
         watch.map(matchLine).join('') +
-        '<p class="tp-wc-sub">Where to watch in NSW' + (two ? ', venues showing both first' : '') + '</p>' +
-        venueRows(watch, k) + watch.map(function (m) { return goingQ(m, two); }).join('') + '</li>');
+        '<p class="tp-wc-sub">Where to watch in NSW' + (two ? ', venues showing ' + (watch.length > 2 ? 'all of them' : 'both') + ' first' : '') + '</p>' +
+        venueRows(watch, k) + goingQ(watch) + '</li>');
     });
-    var showN = watchAll ? cards.length : Math.min(cards.length, 4);
-    if (cards.length) h += '<ul class="tp-wcs" aria-label="Where to watch, by evening">' + cards.slice(0, showN).join('') + '</ul>';
+    // More than one match day: a carousel, one card at a time with the next peeking in, the same as the team cards
+    // (agreed 16 Nov); every card is in it, so there is no Show more
+    var car = cards.length > 1, sx = car && watchList.querySelector('.tp-wcs') ? watchList.querySelector('.tp-wcs').scrollLeft : 0;
+    if (cards.length) h += '<ul class="tp-wcs' + (car ? ' tp-wcs--car' : '') + '" aria-label="Where to watch, by match day' + (car ? ', ' + cards.length + ' cards, scroll sideways' : '') + '">' + cards.join('') + '</ul>' +
+      (car ? '<p class="tp-deck-hint tp-wcs-hint">' + cards.length + ' match days. Swipe for the others.</p>' : '');
     watchList.innerHTML = h;
-    watchMore.hidden = cards.length <= 4;
-    if (!watchMore.hidden) { watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + (cards.length - 4) + ' more evenings'; watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false'); }
+    if (sx) watchList.querySelector('.tp-wcs').scrollLeft = sx; // a change on one card keeps the carousel where it was
+    watchMore.hidden = true;
+    if (!watchMore.hidden) { watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + (cards.length - 4) + ' more match days'; watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false'); }
   }
   watchMore.addEventListener('click', function () { watchAll = !watchAll; render(true); });
 
@@ -402,8 +414,10 @@
     var f = m.f, r = goRoute(f); if (!r) return '';
     var id = 'go:' + m.key;
     MODAL[id] = { type: 'route', r: r, m: m };
-    return '<div class="tp-go"><p class="tp-go-line">' + TRAIN_ICO + '<span class="provenance-gap">' + esc(goLine(r)) + '</span><span class="tp-go-tag">Placeholder</span></p>' + goStay(r) +
-      '<button type="button" class="tp-go-btn" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></div>';
+    // Icon in its own column, everything else (the line, its Placeholder tag, Add where you're staying and the button)
+    // on one left edge beside it
+    return '<div class="tp-go">' + TRAIN_ICO + '<div class="tp-go-txt"><p class="tp-go-line"><span class="provenance-gap">' + esc(goLine(r)) + '</span> <span class="tp-go-tag">Placeholder</span></p>' + goStay(r) +
+      '<button type="button" class="tp-go-btn" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></div></div>';
   }
   // The schematic route: stops on a line, each leg styled by how you travel it. Not to scale.
   function goMap(r) {
@@ -440,21 +454,13 @@
     h += '<div class="tp-pm-acts"><span class="tp-pm-full" role="link" aria-disabled="true">Learn more on Practical info</span><span class="tp-pm-soon">Not linked yet</span></div></div>';
     return h;
   }
-  // Add where you're staying: the Refine panel opens on the page, at the staying question
-  function openStaying() {
-    if (!tp.own()) return;
-    refineOpen = true;
-    if (tp.closeTimeline) tp.closeTimeline();
-    render(true);
-    var q = ask.querySelector('#tp-q-base') || ask;
-    var top = q.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    var el = ask.querySelector('[data-base][aria-pressed="true"]') || ask.querySelector('[data-base]') || q;
-    setTimeout(function () { el.focus({ preventScroll: true }); }, 30);
+  // Add where you're staying: the staying question in a sheet, where they are (it jumped down to Your days)
+  function openStaying(opener) {
+    openDays(true, opener); // with or without a team: a first look offers it too (it did nothing there)
   }
   function matchBody(b, M) {
     var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
-    var groups = { before: [], after: [], near: [] }, h = goBlock(m);
+    var groups = { before: [], after: [], near: [] }, h = goBlock(m) + alsoLine(m.day);
     if (b.ms.length > 1) h += '<p class="tp-blk-note">Also in NSW that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return esc(matchName(x.f)) + ', ' + esc(x.f.k || 'time to be confirmed') + ', ' + esc(x.f.v); }).join('; ') + '.</p>';
     PRODUCTS.filter(function (p) { return p.distance_to_venue && p.distance_to_venue.venue_ref === f.v; }).forEach(function (p) {
       var o = hoursOn(p, wd);
@@ -572,6 +578,10 @@
       return x.day === dl;
     });
   }
+  // What they added to a match, half or watch day that its own cards do not show (a place saved from the map and slotted
+  // there, for example): one line, so nothing on their plan goes missing from its day
+  function alsoItems(d) { return dayItems(d).filter(function (x) { return x.kind !== 'product'; }); }
+  function alsoLine(d) { var its = alsoItems(d); return its.length ? '<p class="tp-blk-note tp-blk-also">Also on your plan that day: ' + esc(its.map(function (x) { return x.title; }).join(', ')) + '.</p>' : ''; }
   function dayFilled(d) {
     var its = dayItems(d);
     return its.some(function (x) { return x.idea === 'day' || x.kind === 'trip'; }) || its.length >= 2;
@@ -637,14 +647,18 @@
   }
   // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
   function watchBody(b) {
-    return '<p class="tp-blk-note">' + (b.ms.length > 1 ? b.ms.length + ' of your matches tonight, so venues showing both come first. ' : '') + 'Here\u2019s where to watch in NSW.</p>' +
+    return alsoLine(b.day) + '<p class="tp-blk-note">' + (b.ms.length > 1 ? manyLine(b.ms) + ', so venues showing ' + (b.ms.length > 2 ? 'all of them' : 'both') + ' come first. ' : '') + 'Here\u2019s where to watch in NSW.</p>' +
       b.ms.map(matchLine).join('') + venueRows(b.ms, evKey(b.ms));
   }
   function halfBody(b) {
     var wd = weekdayOf(b.day), f = { d: dayLabel(b.day) };
     var list = halfList(b, wd);
-    var show = moreBlk[b.key] ? list : list.slice(0, 3);
-    var h = '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': ' + esc(halfNote(b).charAt(0).toLowerCase() + halfNote(b).slice(1)) + '</p><div class="tp-pcs">';
+    // Half a day holds two things at most, as a free day does: once full it shows what is in it, and no more Add
+    var full = dayFilled(b.day);
+    if (full) list = list.filter(function (p) { return added('p:' + p.id + ':' + f.d); });
+    var show = moreBlk[b.key] || full ? list : list.slice(0, 3);
+    var h = alsoLine(b.day) + (full ? '<p class="tp-fday-done">Your half day: ' + esc(dayItems(b.day).map(function (x) { return x.title; }).join(' and ')) + '. That’s plenty for ' + (b.first ? 'an arrival day' : 'a last day') + '; remove one to see other ideas.</p>'
+      : '<p class="tp-blk-note">' + (b.first ? 'Arrival day' : 'Last day') + ': ' + esc(halfNote(b).charAt(0).toLowerCase() + halfNote(b).slice(1)) + '</p>') + '<div class="tp-pcs">';
     show.forEach(function (p) {
       var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + f.d, why = ['Open ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' · ');
       ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: f.d };
@@ -652,13 +666,13 @@
       h += productCard(p, why, id, f);
     });
     h += '</div>';
-    if (list.length > 3) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Show fewer' : 'Show ' + (list.length - 3) + ' more') + '</button>';
+    if (list.length > 3 && !full) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Fewer places' : 'More places') + '</button>';
     return h;
   }
   function heading(b) {
     if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || 'time to be confirmed') + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
     if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + (basePlace() || CITY[b.base]) }; }
-    if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? b.ms.length + ' of your matches tonight' : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
+    if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + halfWhere(b) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
@@ -746,6 +760,13 @@
     }
     return out;
   }
+  // Where something they added sits: an idea, a product, or a place saved from the map (each has its own coordinates)
+  function addedLL(x) {
+    if (!GEO) return null;
+    if (x.kind === 'poi') { var p = poiOf(x); return p ? p.ll : null; }
+    if (x.kind === 'product') { var pid = (x.id || '').split(':')[1]; return GEO.products[pid] || null; }
+    return GEO.ideas[(x.id || '').replace(/^i:/, '').replace(/@.*$/, '')] || null;
+  }
   function pinsOf(list, anchor) {
     // Numbered clockwise from north around the day's anchor: geography decides the order, not a ranking
     var a = anchor && anchor.ll;
@@ -779,7 +800,7 @@
     } else if (st.kind === 'watch') {
       var city = baseCity() || 'sydney';
       r.anchor = home || nearStadium(d, city); r.place = home ? home.name : CITY[city];
-      r.kicker = dl + ' \u00b7 Free day'; r.title = (b.ms.length > 1 ? b.ms.length + ' of your matches tonight' : kickLine(b.ms[0])) + '. Where to watch';
+      r.kicker = dl + ' \u00b7 Free day'; r.title = (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Where to watch';
       r.body = venueRows(b.ms, evKey(b.ms));
       r.pins = venuesFor(b.ms).map(function (c) { return { key: 'w:' + c.j + ':' + evKey(b.ms), title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', ll: GEO && GEO.watch[c.j] }; }).filter(function (x) { return x.ll; });
     } else if (st.kind === 'half') {
@@ -789,6 +810,7 @@
       if (basePlace() && !halfNear(b)) r.note = halfNote(b);
       // Nearest to where they are staying once that is known; otherwise a rotating order, so no business is favoured
       var ps = basePlace() ? halfList(b, wd).slice(0, 3) : halfList(b, wd).sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
+      if (dayFilled(d)) { ps = halfList(b, wd).filter(function (p) { return added('p:' + p.id + ':' + dl); }); r.note = 'Your half day is full.'; }
       r.pins = ps.map(function (p) {
         var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
         ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
@@ -813,10 +835,16 @@
       }
       // What is already on that day: shown as done pins, with a loop for a day trip
       its.forEach(function (x) {
-        var id = (x.id || '').replace(/^i:/, ''), ll = GEO && GEO.ideas[id];
+        var ll = addedLL(x);
         if (ll) r.pins.push({ key: null, title: x.title, kindLabel: 'Added', ll: ll, done: true, trip: x.idea === 'day' });
       });
       r.pins.forEach(function (p) { if (p.trip && r.anchor) r.loops.push({ from: r.anchor.ll, to: p.ll, done: !!p.done }); });
+    }
+    // Match, half and watch days: what else is on their plan that day (a place saved from the map), said and pinned
+    if (st.kind !== 'free' && st.kind !== 'away') {
+      var also = alsoItems(d);
+      if (also.length) r.note = (r.note ? r.note + ' ' : '') + 'Also on your plan: ' + also.map(function (x) { return x.title; }).join(', ') + '.';
+      also.forEach(function (x) { var ll = addedLL(x); if (ll) r.pins.push({ key: null, title: x.title, kindLabel: 'Added', ll: ll, done: true }); });
     }
     pinsOf(r.pins, r.anchor);
     if (!r.body) r.body = r.pins.filter(function (p) { return p.html; }).length ? '<div class="tp-pcs tp-map-pcs">' + r.pins.filter(function (p) { return p.html; }).map(function (p) { return p.html.replace('<article class="tp-pc', '<article data-pin="' + p.n + '" class="tp-pc'); }).join('') + '</div>' : '';
@@ -855,7 +883,7 @@
     var sigNow = bs.map(function (b) { return b.key; }).join(',');
     if (sigNow !== blkSig || !openSet) { blkSig = sigNow; openSet = {}; var nx = bs.filter(function (b) { return b.kind !== 'away'; })[0]; if (nx) openSet[nx.key] = true; }
     if (!bs.length) {
-      thirdList.innerHTML = '<p class="tp-empty">' + (stay() ? 'No NSW match falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your days, or see Where to watch above.' : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>' + (first ? TAILOR : '');
+      thirdList.innerHTML = '<p class="tp-empty">' + (stay() ? 'No NSW match falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your days, or see Where to watch above.' : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>';
       return;
     }
     var h = '';
@@ -866,7 +894,6 @@
         '<span class="tp-blk-when">' + esc(hd.when) + '</span><span class="tp-blk-what">' + esc(hd.what) + '</span><span class="tp-blk-chev" aria-hidden="true"></span></button></h4>' +
         '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? b._html : b.kind === 'watch' ? watchBody(b) : halfBody(b)) : '') + '</div></section>';
     });
-    if (first) h += TAILOR;
     thirdList.innerHTML = h;
   }
   thirdList.addEventListener('click', function (e) {
@@ -893,14 +920,6 @@
       if (back) back.focus({ preventScroll: true });
       return;
     }
-  });
-  // Pick your team to tailor this: back up to the hand of cards, focus on the card in the middle
-  phone.addEventListener('click', function (e) {
-    if (!e.target.closest('[data-act="tailor"]')) return;
-    var pick = document.getElementById('tp-pick'), card = document.querySelector('.tp-fan2-wrap:not([hidden]) [tabindex="0"]') || document.querySelector('#tp-fan [tabindex="0"]');
-    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    if (card) card.focus({ preventScroll: true });
   });
 
   /* ---------- Full-screen pages: a product, or a place to watch (summarised) ----------
@@ -999,7 +1018,7 @@
     // On the timeline already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
     if (by.length || rugby) h += '<p class="tp-pm-on">\u2713 On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Every NSW match is on') + '</p>';
-    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my timeline' : 'Add to my timeline') + '</span><span class="visually-hidden">, ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
+    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my timeline' : 'Add to my timeline') + '</span><span class="visually-hidden"> for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
     if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' aria-describedby="tp-pm-ticket-why" /><span>I have a ticket</span></label><p class="tp-ticket-why" id="tp-pm-ticket-why">Tick it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
     h += '</div>';
     if (teams.length) {
@@ -1163,14 +1182,15 @@
   tp.openSheet = function (id, opener) { openPm(id, opener, true); };
   tp.moveItem = moveItem; // the timeline's hold-and-drag
   function openPm(id, opener, stacked) {
-    var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0;
-    var x = isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
+    var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
+    var x = isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
-    var isRoute = x.type === 'route', asSheet = isMatch || isRoute;
-    pmBody.innerHTML = isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays;
+    pmOpenerEl = null;
+    pmBody.innerHTML = isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     pmBody.scrollTop = 0;
-    pmKind.textContent = isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
@@ -1178,17 +1198,17 @@
       pmStacked = true;
       pm.classList.remove('is-sheet', 'is-open', 'is-closing');
       pm.classList.add('tp-stack', 'is-stacked');
-      pm.classList.toggle('is-match', isMatch);
+      pm.classList.toggle('is-match', isMatch || isDays);
       pm.hidden = false;
       void pm.offsetWidth;
       tp.stackOpen(pm, opener);
       pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-      tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
+      tp.say(isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
       notesRefresh();
       return;
     }
     pm.classList.remove('tp-stack', 'is-stacked');
-    pm.classList.toggle('is-match', isMatch);
+    pm.classList.toggle('is-match', isMatch || isDays);
     pm.classList.toggle('is-sheet', asSheet);
     pmScrim.hidden = !asSheet;
     // Everything behind waits; remember what was already inert so closing puts it back as it was
@@ -1196,7 +1216,7 @@
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say((isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
+    tp.say(isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
   function closePm() {
@@ -1215,12 +1235,123 @@
     }
     else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
     var el = back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
+    if (!el && pmOpenerEl && document.contains(pmOpenerEl)) el = pmOpenerEl;
     if (el) el.focus({ preventScroll: true });
   }
+  /* ---------- Your days, and where you're staying, in a sheet (16 Nov) ----------
+     Every way to the days from elsewhere on the page (Staying longer? Set your days, Set your days to see what fits,
+     Change, the timeline's Add your days) opens this sheet where the person is, instead of jumping the page down to
+     Your days: the calendar is inline (October and November 2027, the tournament and two days either side), their NSW
+     matches are marked, the first tap sets the first day and the second the last. Add where you're staying opens the
+     same sheet on the staying question. Nothing moves behind it, and closing returns focus to what opened it. */
+  var dsel = null, dStay = false, pmOpenerEl = null, pmAnchor = null;
+  // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
+  function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
+  function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
+  function dMatches() { var o = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
+  function calMonth(y, mo, ms) {
+    // Monday-first weeks; days outside 29 Sep to 15 Nov are shown but cannot be picked
+    var first = new Date(Date.UTC(y, mo, 1)), lead = (first.getUTCDay() + 6) % 7, days = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+    var name = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][mo];
+    var h = '<div class="tp-cal-m"><h4 class="tp-cal-h">' + name + ' ' + y + '</h4><div class="tp-cal-g" role="group" aria-label="' + name + ' ' + y + '">' +
+      ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(function (d) { return '<span class="tp-cal-wd" aria-hidden="true">' + d + '</span>'; }).join('');
+    var start = Math.round((first - Date.UTC(2027, 9, 1)) / 864e5) - lead, cells = Math.ceil((lead + days) / 7) * 7;
+    cells = Math.min(cells, Math.ceil((RMAX - start + 1) / 7) * 7); // no weeks after 15 Nov
+    for (var k = 0; k < cells; k++) {
+      var d = start + k, dt = new Date(Date.UTC(2027, 9, 1 + d)), inMonth = dt.getUTCMonth() === mo;
+      if (!inMonth && !(mo === 9 && d >= RMIN && d < 0)) { h += '<span class="tp-cal-x" aria-hidden="true"></span>'; continue; }
+      var can = d >= RMIN && d <= RMAX, mm = ms[d] || [], a = dsel && dsel.a, z = dsel && dsel.z;
+      var st = dsel ? (d === a ? ' is-start' : '') + (z !== null && d === z ? ' is-end' : '') + (z !== null && d > a && d < z ? ' is-in' : '') : '';
+      var lbl = dayLabel(d) + (mm.length ? ', ' + mm.map(function (m) { return matchName(m.f); }).join(' and ') : '') + (dsel && d === a ? ', first day' : '') + (z !== null && dsel && d === z ? ', last day' : '');
+      h += can ? '<button type="button" class="tp-cal-d' + (mm.length ? ' is-match' : '') + (inMonth ? '' : ' is-other') + st + '" data-dday="' + d + '" aria-pressed="' + !!st + '" aria-label="' + esc(lbl) + '">' + dt.getUTCDate() + '</button>'
+        : '<span class="tp-cal-d is-off" aria-hidden="true">' + dt.getUTCDate() + '</span>';
+    }
+    return h + '</div></div>';
+  }
+  function pmDays() {
+    var t = trip() || {}, ms = dMatches(), has = !!(t.from && t.to);
+    var h = '<div class="plan-modal-body tp-days">';
+    if (dStay) {
+      var cur = t.base || '';
+      h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying?</h2><p class="tp-days-note">Optional. Ideas then start near it, and match days show your own way there and back.</p>' +
+        '<div class="tp-quick" role="group" aria-label="Where you’re staying">' + BASE_Q.map(function (x) { return chip('sbase', x[0], x[1], cur === x[0]); }).join('') + '</div>' +
+        (basePlace() && !BASE_Q.some(function (x) { return x[0] === cur; }) ? '<p class="tp-days-note">' + esc(baseLabel(cur)) + '</p>' : '') +
+        '<h3 class="tp-days-q">Who’s coming?</h3><div class="tp-quick" role="group" aria-label="Who’s coming">' + PARTY_Q.map(function (x) { return chip('sparty', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
+        '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
+      return h + '</div>';
+    }
+    var qm = quickRange('matches'), qw = quickRange('week');
+    var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-dquick="' + kind + '" aria-pressed="' + !!(dsel && dsel.z !== null && isoOf(dsel.a) === r.from && isoOf(dsel.z) === r.to) + '">' + label + '</button>' : ''; };
+    var n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
+    if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
+    var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
+      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW</h2><p class="tp-days-note">Optional. The ideas then fit around your matches' + (Object.keys(ms).length ? ', which are marked' : '') + '.</p>' +
+      (qm ? '<div class="tp-quick" role="group" aria-label="Quick picks">' + Q('matches', qm, 'Around my matches') + Q('week', qw, 'About a week') + '</div>' : '') +
+      '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
+      '<p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
+      '<div class="tp-days-acts"><button type="button" class="tp-pill tp-pill--dark" data-duse' + (n ? '' : ' disabled') + '>' + window.tpIcons.cal + 'Use these dates</button>' +
+      (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div>';
+    return h + '</div>';
+  }
+  function openDays(stay, opener) {
+    dStay = !!stay; dsel = dRange();
+    var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
+    openPm(stay ? 'days:stay' : 'days', opener, overTl);
+    pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
+  }
+  // Setting the days rebuilds the sections above the link that opened the sheet; the page is held so that link (now
+  // Change) stays exactly where it was on screen, and focus goes back to it
+  function holdPlace(fn) {
+    var op = pmOpenerEl, sel = op && op.closest('#tp-third-trip') ? '#tp-third-trip [data-act="trip"]' : op && op.closest('#tp-tl-daysline') ? '#tp-tl-daysline [data-act="days"]' : op && op.closest('#tp-ask') ? '#tp-ask [data-act="change"], #tp-ask .tp-ask-title' : null;
+    var an = pmAnchor && document.querySelector(pmAnchor), ref = op && document.contains(op) ? op : an;
+    var y0 = ref ? ref.getBoundingClientRect().top : null, inPage = ref && body.contains(ref);
+    fn();
+    var nu = sel && document.querySelector(sel);
+    if (!nu && op && document.contains(op)) nu = op;
+    if (!nu && pmAnchor) { var an2 = document.querySelector(pmAnchor); nu = an2 && (an2.querySelector('[data-go-stay], .tp-go-btn, button, a[href]') || an2); }
+    if (nu && y0 !== null && inPage) body.scrollTop += nu.getBoundingClientRect().top - y0;
+    if (nu) { pmOpenerEl = nu; requestAnimationFrame(function () { nu.focus({ preventScroll: true }); }); }
+  }
+  function daysRefresh(focusSel) {
+    pmBody.innerHTML = pmDays();
+    var el = focusSel && pm.querySelector(focusSel);
+    if (el && !el.disabled) el.focus({ preventScroll: true });
+  }
+  pm.addEventListener('click', function (e) {
+    if (!pmOpen || pmOpen.id.indexOf('days') !== 0) return;
+    var b = e.target.closest('[data-dday], [data-dquick], [data-duse], [data-dclear], [data-sbase], [data-sparty], [data-dclose]'); if (!b) return;
+    var t = trip() || {};
+    if (b.dataset.dday !== undefined) {
+      var d = +b.dataset.dday;
+      if (!dsel || dsel.z !== null || d < dsel.a) dsel = { a: d, z: null }; else dsel.z = d;
+      daysRefresh('[data-dday="' + d + '"]');
+      tp.say(dsel.z === null ? 'First day ' + dayLabel(d) + '. Now pick your last day.' : 'Last day ' + dayLabel(d) + '. ' + tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.');
+      return;
+    }
+    if (b.dataset.dquick) { var r = quickRange(b.dataset.dquick); if (r) dsel = { a: tp.isoDay(r.from), z: tp.isoDay(r.to) }; daysRefresh('[data-dquick="' + b.dataset.dquick + '"]'); return; }
+    if (b.hasAttribute('data-duse')) {
+      if (!dsel || dsel.z === null) return;
+      var from = isoOf(dsel.a), to = isoOf(dsel.z);
+      askEditing = false; askDraft = null; askError = ''; askOwn = true;
+      holdPlace(function () { tp.setTrip({ from: from, to: to, base: t.base, party: t.party }); });
+      closePm(); tp.say('Your days: ' + tp.isoRange(from, to) + '.');
+      return;
+    }
+    if (b.hasAttribute('data-dclear')) {
+      askEditing = false; askDraft = null; askError = ''; askOwn = true; dsel = null;
+      holdPlace(function () { tp.setTrip({ base: t.base, party: t.party }); }); closePm(); tp.say('Your days are removed.'); return;
+    }
+    if (b.dataset.sbase !== undefined) { var v = t.base === b.dataset.sbase ? undefined : b.dataset.sbase; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: v, party: t.party }); }); daysRefresh('[data-sbase="' + CSS.escape(b.dataset.sbase) + '"]'); tp.say(v ? baseLabel(v) + '.' : 'Where you’re staying is removed.'); return; }
+    if (b.dataset.sparty !== undefined) { var pv = t.party === b.dataset.sparty ? undefined : b.dataset.sparty; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, party: pv }); }); daysRefresh('[data-sparty="' + CSS.escape(b.dataset.sparty) + '"]'); return; }
+    if (b.hasAttribute('data-dclose')) closePm();
+  });
+
   phone.addEventListener('click', function (e) {
     var o = e.target.closest('[data-open]');
-    if (o && !pm.contains(o)) { openPm(o.dataset.open, o); return; }
-    if (e.target.closest('[data-go-stay]') && !pm.contains(e.target)) { openStaying(); return; }
+    if (o && !pm.contains(o) && o.isConnected) { openPm(o.dataset.open, o); return; }
+    var gs = e.target.closest('[data-go-stay]');
+    if (gs && !pm.contains(e.target)) { openStaying(gs); return; }
   });
   pm.addEventListener('click', function (e) {
     if (e.target.closest('[data-pm-close]')) { closePm(); return; }
@@ -1266,11 +1397,31 @@
     }
     var sb = e.target.closest('[data-pm-spot]');
     if (sb) {
-      var si = ITEMS[sb.dataset.pmSpot]; if (!si) return;
+      var si = ITEMS[sb.dataset.pmSpot];
+      // The page redraws on every change and clears its list of items, so after the first Add the rest found nothing
+      // (and the first could not be undone): the sheet's own entries are rebuilt first
+      if (!si && pmOpen && pmOpen.id.indexOf('match:') === 0) { pmBody.innerHTML = pmMatch(pmOpen.id.slice(6)); si = ITEMS[sb.dataset.pmSpot]; }
+      if (!si) return;
       var son = !added(si.id);
       if (son) tp.addItem(Object.assign({}, si)); else tp.removeItem(si.id);
       pmSaid = si.title + (son ? ' added to your timeline on ' + si.day + '.' : ' removed from your timeline.');
+      e.stopPropagation(); // handled here: the page's own Add handler must not toggle it back
       pmRefresh('[data-pm-spot="' + CSS.escape(si.id) + '"]');
+      tp.say(pmSaid + ' ' + state.added.length + ' added.');
+      return;
+    }
+    // A screening's Add in a match's own sheet (Where to watch it in NSW): adds or takes it off, and the sheet redraws so
+    // every Add in it stays live (they did nothing before: the page's handler leaves the sheet alone)
+    var vb = e.target.closest('.tp-add[data-item]');
+    if (vb && pmOpen && pmOpen.id.indexOf('match:') === 0) {
+      var vid = vb.dataset.item, vi = ITEMS[vid];
+      if (!vi) { pmBody.innerHTML = pmMatch(pmOpen.id.slice(6)); vi = ITEMS[vid]; } // the page redrew and cleared the list
+      if (!vi) return;
+      var von = !added(vi.id);
+      if (von) tp.addItem(Object.assign({}, vi)); else tp.removeItem(vi.id);
+      pmSaid = vi.title + (von ? ' added to your timeline on ' + vi.day + '.' : ' removed from your timeline.');
+      e.stopPropagation();
+      pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
       tp.say(pmSaid + ' ' + state.added.length + ' added.');
       return;
     }
@@ -1306,17 +1457,13 @@
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
     if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say('Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
-    // Going? Mark your ticket on the match: to that match's I have a ticket in Your matches, else its own sheet
+    // Going? Mark your ticket on the match: the match's own sheet opens over the page, at its I have a ticket (it used
+    // to scroll the page up to the match card in Your matches, a jump nobody asked for)
     var gk = e.target.closest('[data-going-mark]');
     if (gk) {
       var km = tp.match(gk.dataset.goingMark); if (!km) return;
-      var box = km.tkey && document.querySelector('#tp-deck input[data-match="' + CSS.escape(km.tkey) + '"]');
-      if (!box || document.getElementById('tp-results').hidden) { openPm('match:' + km.key, gk); return; }
-      var card = box.closest('.tp-rcard'), deck = document.getElementById('tp-deck');
-      if (card) deck.scrollTo({ left: card.offsetLeft - deck.offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
-      var top = box.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 120;
-      body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-      setTimeout(function () { box.focus({ preventScroll: true }); }, reduce.matches ? 0 : 450);
+      openPm('match:' + km.key, gk); pmOpenerEl = gk;
+      var tb2 = pm.querySelector('[data-pm-ticket]'); if (tb2) tb2.focus({ preventScroll: true });
       tp.say(matchName(km.f) + ': tick I have a ticket if you are going.');
       return;
     }
@@ -1348,7 +1495,8 @@
       tp.say('Ticket removed for ' + matchName(gf) + '. Its screenings are back.');
       return;
     }
-    var b = e.target.closest('.tp-add'); if (!b || pm.contains(b)) return;
+    // Not a button inside a sheet, and not one a sheet has just redrawn away (it is no longer in the page)
+    var b = e.target.closest('.tp-add'); if (!b || pm.contains(b) || !b.isConnected) return;
     var it = ITEMS[b.dataset.item]; if (!it) return;
     if (added(it.id)) {
       tp.removeItem(it.id);
@@ -1368,7 +1516,7 @@
   });
 
   /* ---------- The one question ---------- */
-  var askEditing = false, askManual = false, askError = '';
+  var askEditing = false, askManual = false, askError = '', askDraft = null; // askDraft: what they typed, kept through an error
   /* What an answer changed: a line under the answer ("Suggestions now for 9 to 16 Oct. Updated below: …"), gone once
      the person moves on, and a brief tint on each section that changed, played as it comes into view (the sections
      sit below the question, often off screen when it is answered). */
@@ -1436,8 +1584,8 @@
       var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-quick="' + kind + '" aria-pressed="' + (has && r.from === t.from && r.to === t.to) + '">' + label + '</button>' : ''; };
       h += '<p class="tp-sec-note">Optional. Add them and the ideas below fit around your matches.</p>' +
         '<div class="tp-quick" role="group" aria-label="Quick picks">' + Q('matches', qm, 'Around my matches') + Q('week', qw, 'About a week') + '</div>' +
-        '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" min="2027-09-29" max="2027-11-15" value="' + esc(t.from || '') + '"></label>' +
-        '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc(t.to || '') + '"></label></div>' +
+        '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
+        '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
@@ -1492,7 +1640,7 @@
     askNews = '';
     if (b.dataset.quick) {
       var r = quickRange(b.dataset.quick); if (!r) return;
-      askEditing = false; askError = '';
+      askEditing = false; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ from: r.from, to: r.to, base: t.base, party: t.party });
       said = changedSince(before, 'Your days: ' + tp.isoRange(r.from, r.to) + '.');
       settle('[data-act="change"]', h0); tp.say(said); return;
@@ -1513,16 +1661,21 @@
     if (act === 'refine') { refineOpen = !refineOpen; settle('[data-act="refine"]', h0); return; }
     if (act === 'change') { askEditing = true; settle('#tp-from', h0); return; }
     if (act === 'clear') {
-      askEditing = false; askError = '';
+      askEditing = false; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ base: t.base, party: t.party });
       said = changedSince(before, 'Your days are removed.');
       settle('#tp-from', h0); tp.say(said); return;
     }
     if (act === 'use') {
       var a = document.getElementById('tp-from').value, z = document.getElementById('tp-to').value;
+      // An error keeps what they typed, so it can be put right rather than typed again
+      askDraft = { from: a, to: z };
       if (!a || !z) { askError = 'Add both days, or leave this for later: everything works without them.'; settle(a ? '#tp-to' : '#tp-from', h0); return; }
+      // Typed dates skip the fields' min and max, so the range is checked here: the tournament and two days either side
+      var lo = '2027-09-29', hi = '2027-11-15';
+      if (a < lo || a > hi || z < lo || z > hi) { askError = 'Pick days between 29 Sep and 15 Nov, around the tournament.'; settle(a < lo || a > hi ? '#tp-from' : '#tp-to', h0); return; }
       if (z < a) { askError = 'The last day is before the first day.'; settle('#tp-to', h0); return; }
-      askError = ''; askEditing = false;
+      askError = ''; askEditing = false; askDraft = null;
       askOwn = true; tp.setTrip({ from: a, to: z, base: t.base, party: t.party });
       said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
       settle('[data-act="change"]', h0); tp.say(said);
@@ -1620,19 +1773,22 @@
     var el = focusSel && ask.querySelector(focusSel);
     if (el) el.focus({ preventScroll: true });
   }
-  /* Every way to the days (Set your days, Change, the timeline's line): down to the days on the page, open, focus on
-     the first day. With the timeline open it closes first. */
-  function openAsk(dates) {
+  /* Every way to the days from elsewhere (Set your days, Change, the timeline's line) opens them in a sheet where the
+     person is; the page no longer jumps down to Your days (agreed 16 Nov) */
+  function openAsk(dates, opener) {
     if (!tp.own()) return;
-    askEditing = true;
-    if (tp.closeTimeline) tp.closeTimeline();
-    render(true);
-    var top = ask.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16;
-    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
-    var el = ask.querySelector(dates === false ? '#tp-ask-title' : '#tp-from') || ask;
-    setTimeout(function () { el.focus({ preventScroll: true }); }, 30);
+    openDays(false, opener);
   }
   phone.addEventListener('tp:ask', function () { openAsk(true); });
+  // The hero's Pick your teams: down to the hand of cards (a button that names the cards it goes to), focus on the card
+  // in the middle. The page's other Pick your teams (Your plan so far) opens the team list in a sheet instead
+  phone.addEventListener('click', function (e) {
+    if (!e.target.closest('#tp-hero-cta')) return;
+    var pick = document.getElementById('tp-pick'), card = document.querySelector('.tp-fan2-wrap:not([hidden]) [tabindex="0"]') || document.querySelector('#tp-fan [tabindex="0"]');
+    var top = pick.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8;
+    body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
+    if (card) card.focus({ preventScroll: true });
+  });
   /* The line under Suits your 3rd half: your days and Change, or the way to set them. Nothing guessed. */
   function renderTripLine() {
     if (!tripEl) return;
@@ -1657,7 +1813,7 @@
   }
   phone.addEventListener('click', function (e) {
     var tb = e.target.closest('#tp-third-trip [data-act="trip"], #tp-tl-daysline [data-act="days"]');
-    if (tb) openAsk(true);
+    if (tb) openAsk(true, tb);
   });
 
   // From the results' interstate note: down to the screenings of their matches
@@ -1705,7 +1861,9 @@
     // Save & share in the timeline only shows once there is a plan to keep
     if (ssBtn) ssBtn.hidden = !ms.length && !n;
     if (!ms.length && !n) {
-      planBody.innerHTML = '<p class="tp-plan-empty">' + window.tpIcons.fan + 'Pick your teams, or add a screening or a place above, and your plan builds up here.</p>';
+      // Nothing yet: the way in is right here, the team list in a sheet (no jump back up to the cards)
+      planBody.innerHTML = '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="teams" aria-haspopup="dialog">' + window.tpIcons.fan + 'Pick your teams</button></div>' +
+        '<p class="tp-plan-empty">Or add a screening or a place above, and your plan builds up here.</p>';
       return;
     }
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
@@ -1715,8 +1873,9 @@
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
     // With days confirmed, how many of their matches fall in them: the same figure the timeline bar shows
     if (when && t.from && ms.length) {
-      var a = tp.isoDay(t.from), z = tp.isoDay(t.to), inD = ms.filter(function (m) { return m.day >= a && m.day <= z; }).length;
-      if (inD !== ms.length) when += ', ' + inD + (inD === 1 ? ' match' : ' matches') + ' in your days';
+      // Only NSW matches count as in your days: an interstate one in the same dates is watched here, not gone to
+      var a = tp.isoDay(t.from), z = tp.isoDay(t.to), msN = ms.filter(function (m) { return !m.f.a; }), inD = msN.filter(function (m) { return m.day >= a && m.day <= z; }).length;
+      if (msN.length && inD !== msN.length) when += ', ' + inD + ' of your NSW ' + (msN.length === 1 ? 'match' : 'matches') + ' in your days';
     }
     if (when) facts.push('<li>' + esc(when) + '</li>');
     // A trip that clashes is said here too, with the way to fix it, not only in the open timeline
@@ -1733,6 +1892,7 @@
   if (planBody) planBody.addEventListener('click', function (e) {
     var b = e.target.closest('[data-plan]'); if (!b) return;
     if (b.dataset.plan === 'open') { tp.openTimeline(); return; }
+    if (b.dataset.plan === 'teams') { if (tp.openTeams) tp.openTeams(b); return; }
     var text = planText();
     function done() {
       copied = true; render(true, '[data-plan="copy"]');
@@ -1741,7 +1901,8 @@
     }
     function fallback() {
       // Copying is blocked: show the text selected, to copy by hand
-      planBody.insertAdjacentHTML('beforeend', '<label class="tp-plan-fallback"><span>Copying is blocked here. The text is selected: copy it with your device\u2019s Copy.</span><textarea readonly rows="6"></textarea></label>');
+      // One fallback box at most: pressed again, the same box is filled and selected again
+      if (!planBody.querySelector('.tp-plan-fallback')) planBody.insertAdjacentHTML('beforeend', '<label class="tp-plan-fallback"><span>Copying is blocked here. The text is selected: copy it with your device\u2019s Copy.</span><textarea readonly rows="6"></textarea></label>');
       var ta = planBody.querySelector('textarea'); ta.value = text; ta.focus(); ta.select();
     }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
@@ -1761,7 +1922,7 @@
     });
     state.added.forEach(function (it) {
       if (it.kind === 'match') return;
-      if (it.unplaced) { rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: it.kindLabel || 'Place', where: it.place || '', place: it.place || '', note: 'Saved from the map' }); return; }
+      if (it.unplaced) { rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: KIND[it.kind] || 'Place', where: it.place || '', place: it.place || '', note: 'Saved from the map' }); return; }
       var at = it.start != null ? it.start : (function () { try { return tp.dayOf(it.day); } catch (e) { return 99; } })();
       var trip = it.kind === 'trip', c = trip && tp.clashes()[it.id];
       rows.push({ at: at, date: trip && it.nights ? spanLabel(it.start, it.start + it.nights) : it.day, time: '', what: it.title,
@@ -1905,6 +2066,6 @@
   phone.addEventListener('tp:state', function () { render(false); });
   // Reset prototype (a reviewer tool): this section's own choices go back to a first visit too
   var resetBtn = document.getElementById('tp-reset');
-  if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); refineOpen = false; placeQ = ''; openSet = null; blkSig = ''; moreBlk = {}; moveOpen = null; watchAll = false; openCard = null; askEditing = false; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
+  if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); refineOpen = false; placeQ = ''; openSet = null; blkSig = ''; moreBlk = {}; moveOpen = null; watchAll = false; openCard = null; askEditing = false; askDraft = null; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });
   render(true);
 })();
