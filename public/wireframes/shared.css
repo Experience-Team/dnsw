@@ -3422,7 +3422,7 @@ body.cp-page code { font: inherit; }
 .cn-pp.tp-pm { z-index: 140; } /* above the timeline bar (100) and the flying item (120) */
 .tp-pm .cn-pp-body:focus { outline: none; }
 .tp-pm-type { align-self: flex-start; padding: 0; font-size: var(--fs-xs); color: var(--c-ink-2); }
-.tp-pm-why { padding: 2px 4px; font-size: var(--fs-md); line-height: 1.4; }
+.tp-pm-why { padding: 2px 0; font-size: var(--fs-md); line-height: 1.4; } /* flush with the title, as the card lines are */
 .tp-pm-summary { margin-top: var(--space-3); }
 .tp-pm-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-5); }
 .tp-pm-add[aria-pressed="true"] { background: var(--c-surface); color: var(--c-ink); box-shadow: inset 0 0 0 1.5px var(--c-line-ink); }
@@ -4526,8 +4526,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-idea--open:has(.tp-pc-main:hover) { border-color: var(--c-line-ink); } }
 @media (prefers-reduced-motion: reduce) { .tp-idea--open .tp-pc-main:active { transform: none; } }
 /* Details: Add on its own line, View full page and its Not linked yet tag together under it */
-.tp-tl-ideas .tp-pm-acts:not(.tp-tl-ideas-full) { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: var(--space-3) var(--space-2); }
-.tp-tl-ideas .tp-pm-acts:not(.tp-tl-ideas-full) .tp-pm-add { grid-column: 1 / -1; justify-self: start; }
+/* Every sheet with Add to your timeline: View full page and its Not linked yet tag sit together under it */
+.tp-pm .tp-pm-acts:has(> .tp-pm-add) { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: var(--space-3) var(--space-2); }
+.tp-pm .tp-pm-acts:has(> .tp-pm-add) .tp-pm-add { grid-column: 1 / -1; justify-self: start; }
 /* An idea's details, in place of the list in the same sheet */
 .cn-pp-body:has(> .tp-pm-ideas) { overflow-x: hidden; } /* the slide between list and details never shows a sideways scroll */
 .tp-idea-back { margin-bottom: var(--space-3); }

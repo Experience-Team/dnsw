@@ -1277,7 +1277,9 @@
     var x = isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
     pmSaid = '';
-    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt || isIdeas;
+    // Products, curated trips and watch spots open as sheets too (16 Nov), not full-screen pages: the page stays in view
+    // above, and the cross, the scrim or Escape closes them
+    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot';
     pmOpenerEl = null;
     pmBody.innerHTML = isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     if (isIdeas) { tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
@@ -1300,6 +1302,8 @@
       return;
     }
     pm.classList.remove('tp-stack', 'is-stacked');
+    // A stacked sheet that closed earlier leaves the element inert and offset; on its own over the page it must take taps
+    pm.inert = false; pm.style.transform = ''; pm.style.removeProperty('--stack-top');
     pm.classList.toggle('is-match', isMatch || isDays);
     pm.classList.toggle('is-sheet', asSheet);
     pmScrim.hidden = !asSheet;
