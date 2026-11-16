@@ -783,7 +783,8 @@
         var was = tlIdeasDetail; tlIdeasDetail = null;
         renderTlIdeas(); pmBody.scrollTop = tlIdeasScroll; ideasSlide(-1);
         var card = was && tlIdeas.querySelector('[data-idea-open="' + CSS.escape(was.key) + '"]');
-        if (card) { card.focus({ preventScroll: true }); var cr = card.getBoundingClientRect(), br = pmBody.getBoundingClientRect(); if (cr.top < br.top || cr.bottom > br.bottom) card.scrollIntoView({ block: 'nearest' }); }
+        // Only the sheet scrolls (never the page) and only if the card, now a little taller with Added, would be cut off
+        if (card) { card.focus({ preventScroll: true }); var cr = card.getBoundingClientRect(), br = pmBody.getBoundingClientRect(); if (cr.bottom > br.bottom) pmBody.scrollTop += cr.bottom - br.bottom + 16; else if (cr.top < br.top) pmBody.scrollTop -= br.top - cr.top + 16; }
         else { var hh2 = tlIdeas.querySelector('.tp-tl-ideas-h'); if (hh2) hh2.focus({ preventScroll: true }); }
         return;
       }
