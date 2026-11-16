@@ -3254,7 +3254,7 @@ body.cp-page code { font: inherit; }
 .tp-fly { position: absolute; z-index: 120; width: 12px; height: 12px; border-radius: 3px; background: var(--c-btn); box-shadow: 0 0 0 2px var(--c-surface), 0 4px 10px rgba(0,0,0,.3); pointer-events: none; }
 
 /* Pick your team: Where to watch, Suits your 3rd half, the one question. Sections under All matches. */
-.tp-sec { position: relative; margin: var(--space-6) var(--space-4) 0; padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-sec { position: relative; margin: var(--space-7) var(--space-4) 0; padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
 .tp-sec-title { font-size: var(--fs-xl); font-weight: var(--fw-heavy); letter-spacing: -.01em; }
 .tp-sec-title:focus { outline: none; } /* focused by script after a change (I have tickets), not a control */
 .tp-sec-note { position: relative; margin-top: var(--space-1); font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
@@ -3286,7 +3286,7 @@ body.cp-page code { font: inherit; }
 #tp-watch .tp-sec-title { font-size: 1.0625rem; }
 #tp-third .tp-sec-title { font-size: 1.375rem; }
 /* Your plan so far: the end of the page, the one block on a filled ground */
-.tp-plan { margin: var(--space-7) var(--space-4) var(--space-2); padding: var(--space-5) var(--space-4); border-radius: var(--radius-lg); background: var(--c-surface-2); }
+.tp-plan { margin: var(--space-8) var(--space-4) var(--space-2); padding: var(--space-5) var(--space-4); border-radius: var(--radius-lg); background: var(--c-surface-2); }
 .tp-plan-title { position: relative; font-size: var(--fs-xl); font-weight: var(--fw-heavy); letter-spacing: -.01em; }
 .tp-plan-facts { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); font-size: var(--fs-md); color: var(--c-ink); }
 .tp-plan-facts strong { font-size: var(--fs-lg-2); font-weight: var(--fw-heavy); }
@@ -3664,7 +3664,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    page never moves. The body is its own stacking context, so the bar stays under the timeline bar, sheets and full
    screen map. It steps up and out of the way while the guided map of your days fills the screen. */
 .tp-body { position: relative; z-index: 0; }
-.tp-cap-wrap { position: sticky; top: 8px; z-index: 40; margin: var(--space-3) var(--space-4) var(--space-4); }
+.tp-cap-wrap { position: sticky; top: 8px; z-index: 40; margin: var(--space-3) var(--space-4) var(--space-5); } /* 24px below: the nav is its own thing, not the start of the photos */
 .tp-cap-wrap .tp-cap { transform-origin: 50% 0; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), box-shadow 200ms ease, opacity 200ms ease, visibility 0s; }
 /* Floating: a soft drop shadow, plus a faint light hairline so the dark capsule keeps its edge over dark photos */
 .tp-cap-wrap.is-stuck .tp-cap { box-shadow: 0 6px 18px rgba(17, 17, 17, .22), 0 0 0 1px rgba(250, 247, 240, .35); }
@@ -3703,7 +3703,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-event { margin: 0; font-family: var(--font-label); font-size: .875rem; font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
 .tp-event-l { display: block; width: max-content; white-space: nowrap; } /* one line each; the page script shrinks the line if it would not fit */
 .tp-nowrap { white-space: nowrap; }
-.tp-hero { display: flex; flex-direction: column; gap: var(--space-5); } /* 24px from the photo row to the slogan; no bottom padding: the picker below opens with its own 32px */
+/* Hero rhythm (more air, agreed 16 Nov; the B2 brief had 16 / 24 / 16 throughout): 32px from the photos to the slogan;
+   the slogan and its event line pair tightly (12px); then 24px to the line on what the page does and 24px to the
+   button, which read as one group. The first section starts 64px below (.tp-pick). */
+.tp-hero { display: flex; flex-direction: column; gap: var(--space-6); }
 /* Pictures: full-width grey blocks with an image icon in the wireframe (182:102, as in Figma) */
 /* Photo row (B2 step 4): 182 x 102 tiles, 8px apart, from 24px in and running off the right edge. Swipes sideways
    (scrollbar hidden), never on its own. Each tile is a button that opens its photo details. 4px of padding top and
@@ -3732,7 +3735,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ph-acts { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-1); }
 .tp-ph-go { min-height: 36px; padding: 0 var(--space-5); border: var(--bw-1) solid var(--c-line-ink); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-lg-2); font-weight: var(--fw-semi); cursor: not-allowed; }
 .tp-ph-soon { font-size: var(--fs-sm); color: var(--c-ink-2); }
-.tp-hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); padding: 0 var(--space-5); }
+.tp-hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-5); padding: 0 var(--space-5); }
+.tp-hero-copy > .tp-event { margin-top: calc(var(--space-3) - var(--space-5)); } /* 12px under the slogan: they belong together */
 .tp-hero-title { font-size: 1.9375rem; font-weight: 400; line-height: 1.19; text-transform: uppercase; } /* 31/37, B2; the page script shrinks it if a line would wrap */
 .tp-hero-sub { font-size: var(--fs-lg-2); line-height: 1.4; }
 /* The slogan: each sentence on its own line; ?slogan=b swaps in the alternative */
@@ -3742,6 +3746,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Pick your teams: down to the hand (the tailor handler). 36px, per the page's AA sizing, not Figma's 44px */
 .tp-hero-cta { min-height: 36px; padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font: inherit; font-size: var(--fs-lg); font-weight: var(--fw-bold); cursor: pointer; transition: transform var(--dur-micro) var(--ease-out); }
 .tp-hero-cta:active { transform: scale(.98); }
+.tp-hero-cta { display: inline-flex; align-items: center; } /* the card-fan icon, then the label */
+.tp-hero-cta .tp-ico { margin-right: .45em; vertical-align: 0; }
 .tp-hero-cta:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-hero-cta:hover { background: #333; } }
 
@@ -3749,7 +3755,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Pick your team: the fanned hand of team cards (concepts-teams.js). Each card turns about a pivot 460px below its
    foot, so the hand curves; later cards lie on top so every code shows at the top left. Picked cards lift and turn
    dark. A pick takes effect at once; Your matches shows each picked team's card face up (.tp-flip.is-flipped). */
-.tp-pick { padding: var(--space-7) var(--space-4) var(--space-5); } /* 48px above the heading for room after the hero; 24px below the tap line */
+.tp-pick { padding: var(--space-8) var(--space-4) var(--space-5); } /* 64px above the heading: the clearest break on the page, after the hero; 24px below the tap line */
 .tp-pick-title { font-size: 1.75rem; font-weight: var(--fw-heavy); line-height: 1.1; letter-spacing: -.01em; }
 .tp-pick-intro { margin-top: var(--space-2); font-size: var(--fs-base); line-height: 1.45; color: var(--c-ink-2); }
 /* The fan's box is sized to the cards, not guessed. Measured from the card geometry (116 x 168, pivot 460px below,
@@ -3943,7 +3949,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 
 /* Pick your team: picking is the action (no See their matches). Tabs once a team is picked, match rows that open a
    match page, the feedback caption, and a pick's matches flying into the timeline bar. */
-.tp-tabs { display: grid; grid-template-columns: 1fr 1fr; margin-top: var(--space-5); border-bottom: var(--bw-1) solid var(--c-line); }
+.tp-tabs { display: grid; grid-template-columns: 1fr 1fr; margin-top: var(--space-7); border-bottom: var(--bw-1) solid var(--c-line); }
 .tp-tabs[hidden] { display: none; }
 .tp-tab { position: relative; height: 36px; padding: 0 var(--space-2); border: 0; background: none; color: var(--c-ink-2); font: inherit; font-size: var(--fs-base); font-weight: var(--fw-semi); cursor: pointer; }
 .tp-tab[aria-selected="true"] { color: var(--c-ink); font-weight: var(--fw-heavy); }
@@ -4637,7 +4643,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-all-title, .tp-sec-title, #tp-third .tp-sec-title, .tp-plan-title { font-size: 1.375rem; line-height: 1.2; }
 #tp-watch .tp-sec-title, .tp-ask-title { font-size: var(--fs-lg-2); line-height: 1.25; }
 /* Your days now sits below the matches, leading into Where to watch */
-.cn-phone > .cn-body #tp-ask, #tp-ask { margin-top: var(--space-6); }
+.cn-phone > .cn-body #tp-ask, #tp-ask { margin-top: var(--space-7); } /* page rhythm (16 Nov): 4-16px inside a component, 24px between parts of a family, 48px between families and before each section's rule, 64px after the hero */
 /* The day list: one gap under every day heading, whatever comes first in its body */
 .tp-blk-body { padding-top: var(--space-1); }
 .tp-blk-body > :first-child { margin-top: 0; }
@@ -4649,7 +4655,7 @@ p.tp-ws-going { display: block; } p.tp-ws-going .tp-ws-going-q { font-size: var(
 /* ---------- Around the matches in NSW: the map under the team cards (concepts-map.js, overview) ----------
    Calm context: not sticky, a fixed 380px box, the picture only once it is near the screen. One finger scrolls the
    page (touch-action), two move the map. Labels sit on a set side so they never cross a neighbour's mark. */
-.tp-ov { margin-top: var(--space-5); }
+.tp-ov { margin-top: var(--space-7); } /* 48px: the map is its own family after the hand of cards */
 .tp-ov-h { margin: 0; font-size: 18px; line-height: 1.25; font-weight: var(--fw-bold); }
 .tp-ov-sub { margin: 4px 0 var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-ov-map { position: relative; overflow: hidden; border-radius: 12px; border: var(--bw-1) solid var(--c-line); background: var(--c-surface-2); touch-action: pan-y; user-select: none; -webkit-user-select: none; }

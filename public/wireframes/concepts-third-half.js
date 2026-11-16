@@ -1689,7 +1689,7 @@
     var t = trip() || {}, show = tp.own();
     ask.hidden = !show;
     if (!show) { ask.innerHTML = ''; return; }
-    var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days</h3>';
+    var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW</h3>';
     if (has && !askEditing) {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
@@ -1811,8 +1811,10 @@
     askUndo.push({ from: t.from || '', to: t.to || '' });
     askError = ''; askDraft = null; askEditing = true; askOwn = true;
     askHold(); tp.setTrip({ from: a, to: z, base: t.base, party: t.party });
+    // Work out what changed before the panel redraws, so its line under the slider is about this change, not the last
+    var said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
     askQuiet(sel);
-    tp.say(changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.'));
+    tp.say(said);
   }
   function applyFromFields(sel) { var f = ask.querySelector('#tp-from'), z = ask.querySelector('#tp-to'); if (f && z) applyDays(f.value, z.value, sel); }
   ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') applyFromFields('#' + e.target.id); });
