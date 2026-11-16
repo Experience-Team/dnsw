@@ -1042,7 +1042,7 @@
   var pmScrim = document.createElement('div');
   pmScrim.className = 'tp-pm-scrim'; pmScrim.hidden = true;
   phone.insertBefore(pmScrim, pm);
-  pmScrim.addEventListener('click', function () { closePm(); });
+  pmScrim.addEventListener('click', function () { pmClearHistory(); closePm(); }); // the dark layer closes them all
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
   function pmActions(id, label) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
@@ -1372,6 +1372,7 @@
   if (typeof tp.stackRegister === 'function') tp.stackRegister(pm);
   var pmStacked = false, pmUnstackT = 0;
   pm.addEventListener('tp:stackclose', function () {
+    pmClearHistory();
     if (!pmStacked) return;
     var wasIdeas = pmOpen && pmOpen.id.indexOf('ideas:') === 0;
     pmStacked = false; pmOpen = null;
@@ -1396,16 +1397,68 @@
     var cur = tp.dayOf(it.day); if (out.indexOf(cur) < 0) out.push(cur);
     return out;
   };
-  function openPm(id, opener, stacked) {
+  /* ---------- A sheet over a sheet (17 Nov) ----------
+     A link inside an open sheet to something with its own sheet (a venue in Where to watch, a place in Also on your plan,
+     a match) opens it as a second sheet over the first: the first steps back behind it (scaled, dimmed, inert, hidden from
+     screen readers), as the timeline does under its stacked sheets, and the new one slides up. The cross, Escape or the
+     grabber close only the top one: it slides down, the first comes back as it is now (an Add made meanwhile shows) at the
+     scroll it had, and focus goes back to the link. The dark layer closes them all. One sheet element does both: the first
+     is kept as a snapshot behind and drawn again from its id on the way back. Reduced motion: no slide. */
+  var pmHistory = [];
+  function pmClearHistory() {
+    // Closing them all: focus goes back to what opened the first sheet, not to a link inside it
+    if (pmHistory.length && pmOpen) { pmOpen.opener = pmHistory[0].opener; pmOpenerEl = pmHistory[0].openerEl; }
+    pmHistory.forEach(function (h) { if (h.ghost) h.ghost.remove(); }); pmHistory = [];
+  }
+  function pmTitle() { var t = pm.querySelector('#tp-pm-title'); return (t ? t.textContent : pmKind.textContent).trim(); }
+  function pmPush(id, link) {
+    if (!pmOpen) return;
+    var prev = { id: pmOpen.id, opener: pmOpen.opener, openerEl: pmOpenerEl, scroll: pmBody.scrollTop, link: link.dataset.open, title: pmTitle() };
+    var ghost = pm.cloneNode(true); // before the ideas list (lent to the sheet) goes home, so the snapshot shows it
+    ghost.style.transform = '';
+    ghost.removeAttribute('id'); Array.prototype.forEach.call(ghost.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+    ghost.classList.add('tp-pm-ghost'); ghost.setAttribute('aria-hidden', 'true'); ghost.inert = true;
+    ghost.querySelector('.cn-pp-body') && (ghost.querySelector('.cn-pp-body').scrollTop = prev.scroll);
+    if (openPm(id, link, false, true) === false) { if (prev.id.indexOf('ideas:') === 0) openPm(prev.id, null, false, true); return; }
+    pm.parentNode.insertBefore(ghost, pm);
+    var gb = ghost.querySelector('.cn-pp-body'); if (gb) gb.scrollTop = prev.scroll;
+    prev.ghost = ghost; pmHistory.push(prev);
+    pmOpenerEl = link;
+    if (!reduce.matches && pm.animate) {
+      pm.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+      ghost.animate([{ transform: 'none', filter: 'none' }, { transform: 'translateY(-10px) scale(.94)', filter: 'brightness(.88)' }], { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+    }
+    pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
+    tp.say(pmTitle() + ', details opened.');
+    notesRefresh();
+  }
+  function pmPop() {
+    var prev = pmHistory.pop(); if (!prev) return;
+    function back() {
+      openPm(prev.id, null, false, true);
+      pmOpen.opener = prev.opener; pmOpenerEl = prev.openerEl;
+      pmBody.scrollTop = prev.scroll;
+      prev.ghost.remove();
+      var l = pmBody.querySelector('[data-open="' + CSS.escape(prev.link) + '"]');
+      (l || pm.querySelector('[data-pm-close]')).focus({ preventScroll: true });
+      tp.say('Back to ' + prev.title + '.');
+      notesRefresh();
+    }
+    if (reduce.matches || !pm.animate) { back(); return; }
+    prev.ghost.animate([{ transform: 'translateY(-10px) scale(.94)', filter: 'brightness(.88)' }, { transform: 'none', filter: 'none' }], { duration: 260, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' });
+    pm.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 260, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = back;
+  }
+  function openPm(id, opener, stacked, swap) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
     var isKo = id.indexOf('ko:') === 0, isWt = id.indexOf('wt:') === 0, isIdeas = id.indexOf('ideas:') === 0;
     var isPoi = id.indexOf('poi:') === 0, isIdea = id.indexOf('idea:') === 0;
     var poiP = isPoi && POI ? POI.pois.filter(function (q) { return q.id === id.slice(4); })[0] : null;
     var ideaK = isIdea ? id.slice(5) : '', ideaAt = ideaK.lastIndexOf('@'), ideaI = isIdea ? IDEAS.filter(function (q) { return q.id === ideaK.slice(2, ideaAt); })[0] : null;
-    if ((isPoi && !poiP) || (isIdea && !ideaI)) return;
+    if ((isPoi && !poiP) || (isIdea && !ideaI)) return false;
+    if (!swap) pmClearHistory();
     tlIdeasReturn(); // the ideas list is lent to the sheet; take it back before the body is replaced
     var x = isPoi ? { type: 'poi' } : isIdea ? { type: 'idea' } : isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
-    if (!x || (isMatch && !x.m) || (isItem && !x.it)) return;
+    if (!x || (isMatch && !x.m) || (isItem && !x.it)) return false;
     pmSaid = '';
     // Products, curated trips and watch spots open as sheets too (16 Nov), not full-screen pages: the page stays in view
     // above, and the cross, the scrim or Escape closes them
@@ -1416,6 +1469,7 @@
     pmBody.scrollTop = 0;
     pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
+    if (swap) return true; // a sheet over a sheet (pmPush, pmPop): the sheet is already open, only its content changes
     if (stacked) {
       // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
       clearTimeout(pmUnstackT);
@@ -1438,7 +1492,7 @@
     pm.classList.toggle('is-sheet', asSheet);
     pmScrim.hidden = !asSheet;
     // Everything behind waits; remember what was already inert so closing puts it back as it was
-    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
@@ -1447,6 +1501,7 @@
   }
   function closePm() {
     if (!pmOpen) return;
+    if (pmHistory.length) { pmPop(); return; } // a sheet opened from inside a sheet closes back to the one under it
     if (pmStacked) { tp.stackClose(); return; } // the stack closes it, and puts focus back on the marker
     var back = pmOpen.opener; pmOpen = null;
     pmBehind.forEach(function (pair) { pair[0].inert = pair[1]; });
@@ -1460,8 +1515,8 @@
       pm.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
     }
     else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
-    var el = back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
-    if (!el && pmOpenerEl && document.contains(pmOpenerEl)) el = pmOpenerEl;
+    // The control that was tapped, if it is still there (the same id can appear twice: a map card and its row on the page)
+    var el = pmOpenerEl && document.contains(pmOpenerEl) && !pmOpenerEl.closest('[inert]') ? pmOpenerEl : back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
     // The control that opened it was redrawn while the sheet was open (a card showing a new chip): its replacement
     if (!el && pmOpenerEl) {
       var d = pmOpenerEl.dataset || {}, k = ['openWatch', 'watchTeam', 'ko', 'open', 'goingMark'].filter(function (n) { return d[n] !== undefined; })[0];
@@ -1700,11 +1755,14 @@
 
   phone.addEventListener('click', function (e) {
     var o = e.target.closest('[data-open]');
-    if (o && !pm.contains(o) && o.isConnected) { var tlEl = document.getElementById('tp-tl'); openPm(o.dataset.open, o, !!(tlEl && tlEl.classList.contains('is-open') && tlEl.contains(o))); return; }
+    if (o && !pm.contains(o) && o.isConnected) { var tlEl = document.getElementById('tp-tl'); if (openPm(o.dataset.open, o, !!(tlEl && tlEl.classList.contains('is-open') && tlEl.contains(o))) !== false) pmOpenerEl = o; return; }
     var gs = e.target.closest('[data-go-stay]');
     if (gs && !pm.contains(e.target)) { openStaying(gs); return; }
   });
   pm.addEventListener('click', function (e) {
+    // A link inside the sheet to something with a sheet of its own (a venue, a place, a match): a second sheet over this one
+    var ol = e.target.closest('[data-open]');
+    if (ol && pmBody.contains(ol)) { e.preventDefault(); pmPush(ol.dataset.open, ol); return; }
     if (e.target.closest('[data-pm-close]')) { closePm(); return; }
     // From the travel sheet: close it, then open Where are you staying? on the page
     if (e.target.closest('[data-go-stay]')) { closePm(); openStaying(); return; }

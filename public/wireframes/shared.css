@@ -5185,3 +5185,10 @@ span.tp-map-arrow { display: block; }
 .tp-ov-card .tp-add { margin-top: var(--space-2); }
 .tp-ov-map.is-full .tp-ov-card { flex-basis: calc(100% - 64px); }
 @media (prefers-reduced-motion: reduce) { .tp-ov-pin, .tp-ov-map { transition: none; } }
+
+/* A sheet over a sheet (17 Nov, concepts-third-half.js pmPush): the first sheet waits behind, stepped back and dimmed */
+.cn-pp.tp-pm.tp-pm-ghost { transform: translateY(-10px) scale(.94); transform-origin: 50% 0; filter: brightness(.88); animation: none; pointer-events: none; }
+.cn-pp.tp-pm.tp-pm-ghost .tp-pm-grab { display: none; }
+/* Over the full-screen map (z-index 150), a sheet opened from one of its cards sits on top, with its dark layer */
+.cn-phone:has(.tp-ov-map.is-full) .cn-pp.tp-pm { z-index: 160; }
+.cn-phone:has(.tp-ov-map.is-full) .tp-pm-scrim { z-index: 159; }
