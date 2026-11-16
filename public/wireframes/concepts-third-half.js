@@ -1197,6 +1197,67 @@
     return bb && aa ? null : bb ? 'before' : aa ? 'after' : hm(o.opens) < k ? 'before' : 'after';
   };
   tp.itemMoves = function (it) { return itemMoves(it); };
+  /* The map's card row (17 Nov, concepts-map.js): the person's route as stops in day order, each with the things the
+     page already offers there, as the same items (the same ids and Add) as everywhere else:
+     - a match in NSW: the products near its stadium open that day (with their indicative hours) and the made-up places
+       near it (open that day), nearest first, so none is ranked; an Add puts it on that match day;
+     - a match interstate: the NSW screenings of it (its kick-off is their time);
+     - with days set, each free day with ideas: those ideas (they have no hours).
+     Positions are the prototype's made-up coordinates (concepts-geo.js); anything without one is left out. */
+  tp.mapStops = function () {
+    if (!tp.own()) return [];
+    var GEOX = window.cnGeo || {}, POIS = (window.cnMapPoi && window.cnMapPoi.pois) || [], out = [], seen = {};
+    function dist(a, b) { if (!a || !b) return 99; var dx = (a[1] - b[1]) * 92, dy = (a[0] - b[0]) * 111; return Math.sqrt(dx * dx + dy * dy); }
+    tp.userMatches().forEach(function (m) {
+      var f = m.f, wd = weekdayOf(m.day);
+      if (!f.a) {
+        var sk = 'm' + m.day + '|' + f.v; if (seen[sk]) { seen[sk].ms.push(m); return; }
+        var at = GEOX.venues && GEOX.venues[f.v], its = [];
+        PRODUCTS.forEach(function (p) {
+          if (!p.distance_to_venue || p.distance_to_venue.venue_ref !== f.v) return;
+          var o = hoursOn(p, wd), ll = GEOX.products && GEOX.products[p.id]; if (!o || !ll) return;
+          var key = 'p:' + p.id + ':' + f.d;
+          if (!ITEMS[key]) ITEMS[key] = { id: key, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
+          if (!MODAL[key]) MODAL[key] = { type: 'product', p: p, f: f, o: o, why: reason(p, o, { m: m }) };
+          its.push({ key: key, open: key, title: p.title, type: PTYPE[p.type] || 'Product', time: 'Open ' + clock(o.opens) + ' to ' + clock(o.closes), ll: ll, d: dist(ll, at) });
+        });
+        POIS.forEach(function (q) {
+          if (q.near !== f.v || q.open.indexOf(wd) < 0) return;
+          var key = 'poi:' + q.id;
+          // An Add from the card puts it on this match day (agreed 17 Nov), not in Saved, not placed yet
+          ITEMS['mp:' + q.id + ':' + f.d] = { id: key, kind: 'poi', poi: q.id, title: q.title, kindLabel: q.cat, place: q.area, day: f.d, matchName: matchName(f) };
+          its.push({ key: 'mp:' + q.id + ':' + f.d, open: 'poi:' + q.id, title: q.title, type: q.cat, time: 'Open ' + f.d, ll: q.ll, d: dist(q.ll, at), made: true });
+        });
+        its.sort(function (x, y) { return x.d - y.d || x.title.localeCompare(y.title); });
+        var st = { key: sk, day: m.day, kind: 'match', ms: [m], label: f.d + ' · ' + f.v, ll: at, items: its };
+        seen[sk] = st; out.push(st);
+      } else {
+        var ws = [];
+        SPOTS.forEach(function (v, j) {
+          var ll = GEOX.watch && GEOX.watch[j]; if (!ll || !f.t || v.shows.indexOf(m.key) < 0) return;
+          var key = 'w:' + j + ':' + m.key;
+          if (!ITEMS[key]) ITEMS[key] = { id: key, kind: 'screening', title: v.name, kindLabel: SPOT_TYPE[v.type] || 'Screening', place: v.place, note: '', day: f.d, matchName: matchName(f) };
+          ws.push({ key: key, open: 'match:' + m.key, title: v.name, type: (SPOT_TYPE[v.type] || 'Screening') + ' · ' + v.place, time: f.k ? 'Shows the ' + f.k + ' kick-off' : '', ll: ll, d: SPOT_ORDER[v.type] * 10 + j, made: true });
+        });
+        ws.sort(function (x, y) { return x.d - y.d; });
+        ws = ws.slice(0, 3); // three to start (fan zones first); Where to watch on the page lists them all
+        out.push({ key: 'a' + m.day + '|' + f.t, day: m.day, kind: 'away', ms: [m], label: f.d + ' · Watch ' + (f.t || f.s) + ' in NSW', ll: null, items: ws });
+      }
+    });
+    // With days set: the free days and their ideas, in day order among the matches
+    FREEINFO.forEach(function (fd) {
+      if (fd.filled || !fd.show || !fd.show.length) return;
+      var its = fd.show.map(function (i) {
+        var key = 'i:' + i.id + '@' + fd.d, ll = GEOX.ideas && GEOX.ideas[i.id]; if (!ll || !ITEMS[key]) return null;
+        return { key: key, open: 'idea:' + key, title: i.title, type: (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city], time: '', ll: ll, made: !!i.placeholder };
+      }).filter(Boolean);
+      if (its.length) out.push({ key: 'f' + fd.d, day: fd.d, kind: 'free', label: fd.label + ' · Free day', ll: null, items: its });
+    });
+    out.sort(function (a, b) { return a.day - b.day; });
+    return out.filter(function (st) { return st.items.length; });
+  };
+  tp.addBtnHtml = function (key, label) { return addBtn(key, label); };
+  tp.imgAttr = function (title) { return imgKey(title); };
   tp.moveItem = function (id, d) { return moveItem(id, d); };
   tp.freeDays = function () { return FREEINFO.map(function (x) { return { d: x.d, filled: x.filled, count: x.count }; }); };
   tp.imgKey = function (title) { return imgKey(title); };
