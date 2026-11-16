@@ -1331,14 +1331,22 @@
         '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
       return h + '</div>';
     }
-    var qm = quickRange('matches'), qw = quickRange('week');
+    var qm = quickRange('pm1'), qw = quickRange('week'), PM = [1, 2, 3, 7, 14];
     var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-dquick="' + kind + '" aria-pressed="' + !!(dsel && dsel.z !== null && isoOf(dsel.a) === r.from && isoOf(dsel.z) === r.to) + '">' + label + '</button>' : ''; };
     var n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW</h2><p class="tp-days-note">Optional. The ideas then fit around your matches' + (Object.keys(ms).length ? ', which are marked' : '') + '.</p>' +
-      (qm ? '<div class="tp-quick" role="group" aria-label="Quick picks">' + Q('matches', qm, 'Around my matches') + Q('week', qw, 'About a week') + '</div>' : '') +
+      // Either side of their matches, as flexible dates (16 Nov): ± 1 to ± 14 days, then About a week
+      (qm ? '<div class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + PM.map(function (n) { return Q('pm' + n, quickRange('pm' + n), '\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span>'); }).join('') + Q('week', qw, 'About a week') + '</div>' : '') +
+      // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
+      '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
+        '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
+        Object.keys(ms).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d - RMIN) / RSPAN * 100) + '%"></span>'; }).join('') +
+        '<span class="tp-range-h" role="slider" tabindex="0" data-dh="from" aria-label="First day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '"></span>' +
+        '<span class="tp-range-h" role="slider" tabindex="0" data-dh="to" aria-label="Last day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '"></span></div>' +
+        '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span>Tournament 1 Oct to 13 Nov</span><span>15 Nov</span></div></div>' +
       '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       '<p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
       '<div class="tp-days-acts"><button type="button" class="tp-pill tp-pill--dark" data-duse' + (n ? '' : ' disabled') + '>' + window.tpIcons.cal + 'Use these dates</button>' +
@@ -1350,6 +1358,7 @@
     var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
     openPm(stay ? 'days:stay' : 'days', opener, overTl);
     pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
+    daysPaint();
   }
   // Setting the days rebuilds the sections above the link that opened the sheet; the page is held so that link (now
   // Change) stays exactly where it was on screen, and focus goes back to it
@@ -1366,9 +1375,54 @@
   }
   function daysRefresh(focusSel) {
     pmBody.innerHTML = pmDays();
+    daysPaint();
     var el = focusSel && pm.querySelector(focusSel);
     if (el && !el.disabled) el.focus({ preventScroll: true });
   }
+  // Selection drawn in place (slider handles, calendar days, summary, Use these dates): a drag never rebuilds the sheet
+  function daysPaint() {
+    var r = pm.querySelector('.tp-days-range'); if (!r) return;
+    var a = dsel ? dsel.a : RMIN, z = dsel ? (dsel.z !== null ? dsel.z : dsel.a) : RMAX, pct = function (d) { return ((d - RMIN) / RSPAN * 100) + '%'; };
+    r.querySelectorAll('[data-dh]').forEach(function (h) { var v = h.dataset.dh === 'from' ? a : z; h.style.left = pct(v); h.setAttribute('aria-valuenow', v); h.setAttribute('aria-valuetext', dayLabel(v)); });
+    var fill = r.querySelector('.tp-range-fill'); fill.style.left = pct(a); fill.style.width = ((z - a) / RSPAN * 100) + '%';
+    r.classList.toggle('is-unset', !dsel);
+    pm.querySelectorAll('[data-dday]').forEach(function (b) {
+      var d = +b.dataset.dday, st = !!dsel, s0 = st && d === dsel.a, s1 = st && dsel.z !== null && d === dsel.z, mid = st && dsel.z !== null && d > dsel.a && d < dsel.z;
+      b.classList.toggle('is-start', s0); b.classList.toggle('is-end', s1); b.classList.toggle('is-in', mid);
+      b.setAttribute('aria-pressed', s0 || s1 || mid ? 'true' : 'false');
+    });
+    var ms = dMatches(), n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
+    if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
+    var sum = pm.querySelector('.tp-days-sum');
+    if (sum) sum.textContent = !dsel ? 'Tap your first day, then your last, or drag the ends of the bar.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
+      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' \u00b7 ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+    var use = pm.querySelector('[data-duse]'); if (use) use.disabled = !n;
+    pm.querySelectorAll('[data-dquick]').forEach(function (c) { var q = quickRange(c.dataset.dquick); c.setAttribute('aria-pressed', !!(q && n && isoOf(dsel.a) === q.from && isoOf(dsel.z) === q.to) + ''); });
+  }
+  function daysSlide(which, d) {
+    d = Math.max(RMIN, Math.min(RMAX, d));
+    var a = dsel ? dsel.a : RMIN, z = dsel ? (dsel.z !== null ? dsel.z : dsel.a) : RMAX;
+    if (which === 'from') a = Math.min(z, d); else z = Math.max(a, d); // the handles never cross
+    dsel = { a: a, z: z }; daysPaint();
+  }
+  var dDrag = null;
+  pm.addEventListener('pointerdown', function (e) {
+    var tr = e.target.closest('.tp-days-range .tp-range-track'); if (!tr) return;
+    var rect = tr.getBoundingClientRect(), at = RMIN + Math.round((e.clientX - rect.left) / rect.width * RSPAN), h = e.target.closest('[data-dh]');
+    if (!h) { var a = dsel ? dsel.a : RMIN, z = dsel && dsel.z !== null ? dsel.z : RMAX; h = tr.querySelector('[data-dh="' + (Math.abs(at - a) <= Math.abs(at - z) && at <= z ? 'from' : 'to') + '"]'); daysSlide(h.dataset.dh, at); }
+    e.preventDefault(); h.focus({ preventScroll: true });
+    dDrag = { h: h, rect: rect }; h.classList.add('is-dragging');
+    try { tr.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  pm.addEventListener('pointermove', function (e) { if (dDrag) daysSlide(dDrag.h.dataset.dh, RMIN + Math.round((e.clientX - dDrag.rect.left) / dDrag.rect.width * RSPAN)); });
+  function dDragEnd() { if (!dDrag) return; dDrag.h.classList.remove('is-dragging'); dDrag = null; if (dsel) tp.say(tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.'); }
+  pm.addEventListener('pointerup', dDragEnd); pm.addEventListener('pointercancel', dDragEnd);
+  pm.addEventListener('keydown', function (e) {
+    var h = e.target.closest('[data-dh]'); if (!h) return;
+    var v = +h.getAttribute('aria-valuenow'), step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 7, PageDown: -7 }[e.key];
+    if (e.key === 'Home') v = RMIN; else if (e.key === 'End') v = RMAX; else if (step) v += step; else return;
+    e.preventDefault(); daysSlide(h.dataset.dh, v);
+  });
   pm.addEventListener('click', function (e) {
     if (!pmOpen || pmOpen.id.indexOf('days') !== 0) return;
     var b = e.target.closest('[data-dday], [data-dquick], [data-duse], [data-dclear], [data-sbase], [data-sparty], [data-dclose]'); if (!b) return;
@@ -1376,11 +1430,11 @@
     if (b.dataset.dday !== undefined) {
       var d = +b.dataset.dday;
       if (!dsel || dsel.z !== null || d < dsel.a) dsel = { a: d, z: null }; else dsel.z = d;
-      daysRefresh('[data-dday="' + d + '"]');
+      daysPaint();
       tp.say(dsel.z === null ? 'First day ' + dayLabel(d) + '. Now pick your last day.' : 'Last day ' + dayLabel(d) + '. ' + tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.');
       return;
     }
-    if (b.dataset.dquick) { var r = quickRange(b.dataset.dquick); if (r) dsel = { a: tp.isoDay(r.from), z: tp.isoDay(r.to) }; daysRefresh('[data-dquick="' + b.dataset.dquick + '"]'); return; }
+    if (b.dataset.dquick) { var r = quickRange(b.dataset.dquick); if (r) dsel = { a: tp.isoDay(r.from), z: tp.isoDay(r.to) }; daysPaint(); if (dsel) tp.say(tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.'); return; }
     if (b.hasAttribute('data-duse')) {
       if (!dsel || dsel.z === null) return;
       var from = isoOf(dsel.a), to = isoOf(dsel.z);
@@ -1617,7 +1671,11 @@
   function quickRange(kind) {
     var M = model(), ds = (M.nsw.length ? M.nsw : M.ms).map(function (m) { return m.day; }).sort(function (x, y) { return x - y; });
     if (!ds.length) return null;
-    var a = ds[0] - 1, z = kind === 'week' ? a + 6 : ds[ds.length - 1] + 1;
+    // ±N days: N days either side of their first and last match (as Airbnb's flexible dates); week: a week from the
+    // day before the first; matches: one day either side
+    var pm = /^pm(\d+)$/.exec(kind), w = pm ? +pm[1] : 1;
+    var a = ds[0] - w, z = kind === 'week' ? ds[0] - 1 + 6 : ds[ds.length - 1] + w;
+    if (kind === 'week') a = ds[0] - 1;
     return { from: isoOf(Math.max(RMIN, a)), to: isoOf(Math.min(RMAX, z)) };
   }
   var BASE_Q = [['local', 'I’m a local'], ['Sydney CBD', 'Sydney CBD'], ['Newcastle', 'Newcastle'], ['Bondi', 'Bondi'], ['outside', 'Outside NSW']];
@@ -1633,7 +1691,7 @@
     if (has && !askEditing) {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
-      var qm = quickRange('matches'), qw = quickRange('week');
+      var qm = quickRange('pm1'), qw = quickRange('week'), PM = [1, 2, 3, 7, 14];
       var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-quick="' + kind + '" aria-pressed="' + (has && r.from === t.from && r.to === t.to) + '">' + label + '</button>' : ''; };
       h += '<p class="tp-sec-note">Optional. Add them and the ideas below fit around your matches.</p>' +
         '<div class="tp-quick" role="group" aria-label="Quick picks">' + Q('matches', qm, 'Around my matches') + Q('week', qw, 'About a week') + '</div>' +

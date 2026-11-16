@@ -4685,10 +4685,13 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-cal-d.is-other { color: var(--c-ink-2); }
 .tp-cal-d::before { content: ''; position: absolute; inset: 2px 4px; border-radius: 8px; z-index: -1; }
 .tp-cal-d:hover::before { background: var(--c-fill-soft); }
-.tp-cal-d.is-match::after { content: ''; position: absolute; bottom: 5px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--c-accent); }
+.tp-cal-d.is-match { font-weight: var(--fw-bold); }
+/* the ring is painted on the day itself, so the range's shading never covers it */
+.tp-cal-d.is-match:not(.is-start):not(.is-end) { background-image: radial-gradient(circle closest-side at 50% 50%, color-mix(in srgb, var(--c-accent) 18%, var(--c-surface)) 0 calc(100% - 2px), var(--c-accent) calc(100% - 1.5px) 100%, transparent 100%); background-size: 32px 32px; background-position: center; background-repeat: no-repeat; }
+.tp-cal-d.is-match::after { content: ''; position: absolute; bottom: 1px; left: 50%; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: var(--c-accent); box-shadow: 0 0 0 1.5px var(--c-surface); }
 .tp-cal-d.is-in { background: var(--c-fill-soft); }
 .tp-cal-d.is-start, .tp-cal-d.is-end { color: var(--c-on-dark); font-weight: var(--fw-bold); }
-.tp-cal-d.is-start::before, .tp-cal-d.is-end::before { background: var(--c-btn); inset: 2px; border-radius: 50%; }
+.tp-cal-d.is-start::before, .tp-cal-d.is-end::before { left: 50%; top: 50%; right: auto; bottom: auto; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: var(--c-btn); } /* a true circle, whatever the cell's width */
 .tp-cal-d.is-start.is-match::after, .tp-cal-d.is-end.is-match::after { background: var(--c-on-dark); }
 .tp-cal-g { isolation: isolate; }
 .tp-cal-d:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; border-radius: 8px; }
@@ -4778,3 +4781,10 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-ko-s { font-size: var(--fs-md); font-weight: var(--fw-bold); }
 .tp-ko-v { color: var(--c-ink-2); }
 .tp-wt-m { padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+
+/* Days sheet: flexible-date chips in one swipeable row, and the slider over the calendar (16 Nov) */
+.tp-days .tp-days-flex { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(var(--space-4) * -1) var(--space-3); padding: 2px var(--space-4) 4px; scrollbar-width: none; }
+.tp-days .tp-days-flex::-webkit-scrollbar { display: none; }
+.tp-days .tp-days-flex .tp-chip { flex: none; white-space: nowrap; }
+.tp-days-range { margin: var(--space-2) 0 var(--space-4); }
+.tp-range-match { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--c-accent); pointer-events: none; z-index: 1; }
