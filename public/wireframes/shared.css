@@ -4516,6 +4516,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-ideas-sub { margin: var(--space-1) 0 var(--space-4); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-tl-ideas .tp-pcs { margin-top: var(--space-3); }
 /* An idea's details, in place of the list in the same sheet */
+.cn-pp-body:has(> .tp-pm-ideas) { overflow-x: hidden; } /* the slide between list and details never shows a sideways scroll */
 .tp-idea-back { margin-bottom: var(--space-3); }
 .tp-tl-ideas .tp-idea-img { width: 100%; margin-bottom: var(--space-3); }
 .tp-tl-ideas .tp-pm-why { margin-top: var(--space-2); padding: 0; }

@@ -745,6 +745,12 @@
     h += '<div class="tp-pm-acts tp-tl-ideas-full"><span class="tp-pm-full" role="link" aria-disabled="true">See all ideas for this day</span><span class="tp-pm-soon">Not linked yet</span></div>';
     tlIdeas.innerHTML = h;
   }
+  /* The details slide in from the right, over the list's place; Back slides the list in from the left. An even glide
+     (no front-loaded curve), so the eye follows it across. Reduced motion: it simply swaps. */
+  function ideasSlide(dir) {
+    if (reduce.matches || !tlIdeas.animate) return;
+    tlIdeas.animate([{ transform: 'translateX(' + (dir * 100) + '%)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.3, .2, .25, 1)' });
+  }
   // The list is one element, lent to the sheet while it is open and put back after
   function tlIdeasReturn() {
     if (!tlIdeas || !tlIdeasHome || tlIdeas.parentNode === tlIdeasHome) return;
@@ -764,14 +770,14 @@
         var k = op.dataset.ideaOpen, at = k.lastIndexOf('@');
         tlIdeasScroll = pmBody.scrollTop;
         tlIdeasDetail = { id: k.slice(2, at), d: +k.slice(at + 1), key: k };
-        renderTlIdeas(); pmBody.scrollTop = 0;
+        renderTlIdeas(); pmBody.scrollTop = 0; ideasSlide(1);
         var ti = tlIdeas.querySelector('#tp-pm-title'); if (ti) ti.focus({ preventScroll: true });
         tp.say((ITEMS[k] ? ITEMS[k].title : 'Idea') + ', details.');
         return;
       }
       if (e.target.closest('[data-idea-back]')) {
         var was = tlIdeasDetail; tlIdeasDetail = null;
-        renderTlIdeas(); pmBody.scrollTop = tlIdeasScroll;
+        renderTlIdeas(); pmBody.scrollTop = tlIdeasScroll; ideasSlide(-1);
         var card = was && tlIdeas.querySelector('[data-idea-open="' + CSS.escape(was.key) + '"]');
         if (card) { card.focus({ preventScroll: true }); var cr = card.getBoundingClientRect(), br = pmBody.getBoundingClientRect(); if (cr.top < br.top || cr.bottom > br.bottom) card.scrollIntoView({ block: 'nearest' }); }
         else { var hh2 = tlIdeas.querySelector('.tp-tl-ideas-h'); if (hh2) hh2.focus({ preventScroll: true }); }
