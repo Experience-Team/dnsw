@@ -3664,7 +3664,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    page never moves. The body is its own stacking context, so the bar stays under the timeline bar, sheets and full
    screen map. It steps up and out of the way while the guided map of your days fills the screen. */
 .tp-body { position: relative; z-index: 0; }
-.tp-cap-wrap { position: sticky; top: 8px; z-index: 40; margin: var(--space-3) var(--space-4) var(--space-5); } /* 24px below: the nav is its own thing, not the start of the photos */
+.tp-cap-wrap { position: sticky; top: 8px; z-index: 40; margin: var(--space-3) var(--space-4) 44px; } /* 44px below (Figma 337:40429): the nav is its own thing, not the start of the photos */
 .tp-cap-wrap .tp-cap { transform-origin: 50% 0; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), box-shadow 200ms ease, opacity 200ms ease, visibility 0s; }
 /* Floating: a soft drop shadow, plus a faint light hairline so the dark capsule keeps its edge over dark photos */
 .tp-cap-wrap.is-stuck .tp-cap { box-shadow: 0 6px 18px rgba(17, 17, 17, .22), 0 0 0 1px rgba(250, 247, 240, .35); }
@@ -3755,14 +3755,14 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Pick your team: the fanned hand of team cards (concepts-teams.js). Each card turns about a pivot 460px below its
    foot, so the hand curves; later cards lie on top so every code shows at the top left. Picked cards lift and turn
    dark. A pick takes effect at once; Your matches shows each picked team's card face up (.tp-flip.is-flipped). */
-.tp-pick { padding: var(--space-8) var(--space-4) var(--space-5); } /* 64px above the heading: the clearest break on the page, after the hero; 24px below the tap line */
+.tp-pick { padding: 44px var(--space-4) var(--space-5); } /* 44px above the heading (Figma 337:40429), where the peek of the cards sits at the top of the page; 24px below the tap line */
 .tp-pick-title { font-size: 1.75rem; font-weight: var(--fw-heavy); line-height: 1.1; letter-spacing: -.01em; }
 .tp-pick-intro { margin-top: var(--space-2); font-size: var(--fs-base); line-height: 1.45; color: var(--c-ink-2); }
 /* The fan's box is sized to the cards, not guessed. Measured from the card geometry (116 x 168, pivot 460px below,
    STEP 6.5, GAP 5): across every drag position the lowest corner visible in the 390px window dips 44px below the
    card baseline, and a picked middle card tops out 203px above it. So the baseline sits 60px up and the box is
    278px tall, leaving about 16px clear above and below. Only the sides clip; the pull on a pick may rise above. */
-.tp-fan-wrap { position: relative; height: 278px; margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow: hidden; overflow-x: clip; overflow-y: visible; }
+.tp-fan-wrap { position: relative; height: 278px; margin: var(--space-6) calc(var(--space-4) * -1) 0; overflow: hidden; overflow-x: clip; overflow-y: visible; }
 .tp-fan { position: absolute; inset: 0; touch-action: pan-y; cursor: grab; }
 .tp-fan.is-dragging { cursor: grabbing; }
 .tp-card { position: absolute; left: 50%; bottom: 60px; width: 116px; height: 168px; margin-left: -58px; display: flex; flex-direction: column; align-items: flex-start; padding: 10px 10px 12px; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-card); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: inherit; transform-origin: 50% calc(100% + 460px); box-shadow: -2px 0 6px rgba(0,0,0,.08); transition: transform 420ms cubic-bezier(.3, .7, .2, 1), opacity var(--dur-small) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); -webkit-tap-highlight-color: transparent; }
@@ -3781,7 +3781,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-card:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 3px; }
 /* TEST: the stacked hand (Figma 282:26254). Four overlapping arcs of six small cards; concepts-teams.js places each
    card (left, top, size, pivot, angle). The box is sized to the hand's real extremes, lifted cards included. */
-.tp-fan2-wrap { position: relative; height: 339px; transition: height 520ms cubic-bezier(.45, .05, .25, 1); margin: var(--space-2) calc(var(--space-4) * -1) 0; overflow-x: clip; }
+.tp-fan2-wrap { position: relative; height: 339px; transition: height 520ms cubic-bezier(.45, .05, .25, 1); margin: var(--space-6) calc(var(--space-4) * -1) 0; overflow-x: clip; }
 .tp-fan2-wrap[hidden] { display: none; }
 .tp-fan2 { position: absolute; inset: 0; }
 .tp-card2 { position: absolute; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 6px 0; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; box-shadow: -1px 0 4px rgba(0,0,0,.06); transition: transform var(--dur-large) var(--ease-out), opacity var(--dur-small) ease-out, background-color var(--dur-micro) ease-out, color var(--dur-micro) ease-out; }
@@ -4655,7 +4655,7 @@ p.tp-ws-going { display: block; } p.tp-ws-going .tp-ws-going-q { font-size: var(
 /* ---------- Around the matches in NSW: the map under the team cards (concepts-map.js, overview) ----------
    Calm context: not sticky, a fixed 380px box, the picture only once it is near the screen. One finger scrolls the
    page (touch-action), two move the map. Labels sit on a set side so they never cross a neighbour's mark. */
-.tp-ov { margin-top: var(--space-7); } /* 48px: the map is its own family after the hand of cards */
+.tp-ov { margin-top: var(--space-6); } /* 32px after the hand of cards (Figma 337:40429) */
 .tp-ov-h { margin: 0; font-size: 18px; line-height: 1.25; font-weight: var(--fw-bold); }
 .tp-ov-sub { margin: 4px 0 var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-ov-map { position: relative; overflow: hidden; border-radius: 12px; border: var(--bw-1) solid var(--c-line); background: var(--c-surface-2); touch-action: pan-y; user-select: none; -webkit-user-select: none; }
@@ -4870,3 +4870,12 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-ico-link { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
 .tp-ico-link svg.tp-ico path { fill: none; }
 .tp-ask .tp-ico-link .tp-ico, .tp-ico-link svg.tp-ico { margin-right: 0; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Peek and reveal (Figma 337:40429). At the top of the page the hand of cards peeks in 44px under the hero button,
+   where the heading will be; scrolling the first stretch (the intro's height plus 32px) holds the cards still on screen
+   while the heading, its line and the Find / Grid / Plays in NSW row rise from behind them, in step with the scroll and
+   back again. The page script sets the transforms; .is-peek puts the cards above the intro only while they overlap, so
+   Find's list is never under the cards once the intro is out. Reduced motion: the finished layout, no peek. */
+.tp-pick.is-peek #tp-picker { position: relative; z-index: 1; }
+.tp-pick.is-peek :is(.tp-pick-head, #tp-pick-sub, #tp-util) { position: relative; z-index: 0; }
+.tp-pick.is-hidden-intro :is(.tp-pick-head, #tp-pick-sub, #tp-util) { pointer-events: none; }
