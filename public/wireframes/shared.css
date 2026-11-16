@@ -3671,7 +3671,12 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-cap-wrap.is-away .tp-cap { transform: translateY(calc(-100% - 12px)); opacity: 0; visibility: hidden; pointer-events: none; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), opacity 200ms ease, visibility 0s 280ms; }
 .tp-cap { position: relative; display: flex; align-items: center; gap: 2px; height: 44px; padding: 4px; border-radius: 22px; background: var(--c-btn); }
 .tp-cap-pill { position: absolute; top: 4px; left: 0; height: 36px; border-radius: 18px; background: var(--c-surface); transition: transform 360ms cubic-bezier(.4, 0, .2, 1), width 360ms cubic-bezier(.4, 0, .2, 1); pointer-events: none; }
-.tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--space-2); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1rem; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
+.tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--space-2); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1em; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
+/* One line, always: outranks the phone-wide rule that lets button text wrap. The page script shrinks the capsule's
+   type (1em of the capsule's 16px) just enough when the labels would not fit, as with the wireframe's system font at
+   360px; this breaks the type scale on purpose. */
+.cn-phone .tp-cap-i { white-space: nowrap; text-wrap: nowrap; overflow: hidden; }
+.tp-cap { font-size: 1rem; }
 .tp-cap-i.is-on { flex: 0 0 auto; padding: 0 var(--space-4); color: var(--c-ink); font-weight: 600; cursor: default; }
 .tp-cap-i:focus-visible { outline: 2px solid var(--c-on-dark); outline-offset: 1px; }
 @media (hover: hover) { .tp-cap-i:not(.is-on):hover { text-decoration: underline; text-underline-offset: 3px; } }
@@ -3690,13 +3695,38 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-soon-back:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-soon-back:hover { background: var(--c-line-soft); } }
 /* Event strip: what and when, in caps */
-.tp-event { padding: var(--space-3) var(--space-5) var(--space-5); font-family: var(--font-label); font-size: var(--fs-sm); font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
+/* Event line (B2): under the slogan, two lines (the event; its dates and the countdown), mono caps 14/16.8, .84px */
+.tp-event { margin: 0; font-family: var(--font-label); font-size: .875rem; font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
+.tp-event-l { display: block; width: max-content; white-space: nowrap; } /* one line each; the page script shrinks the line if it would not fit */
 .tp-nowrap { white-space: nowrap; }
-.tp-hero { display: flex; flex-direction: column; gap: var(--space-5); } /* no bottom padding: the picker below opens with its own 32px */
+.tp-hero { display: flex; flex-direction: column; gap: var(--space-5); } /* 24px from the photo row to the slogan; no bottom padding: the picker below opens with its own 32px */
 /* Pictures: full-width grey blocks with an image icon in the wireframe (182:102, as in Figma) */
-.tp-hero-img { display: grid; place-items: center; width: 100%; aspect-ratio: 182 / 102; }
-.tp-hero-img::after { content: none; }
+/* Photo row (B2 step 4): 182 x 102 tiles, 8px apart, from 24px in and running off the right edge. Swipes sideways
+   (scrollbar hidden), never on its own. Each tile is a button that opens its photo details. 4px of padding top and
+   bottom keeps the focus ring inside the row. */
+.tp-photos { display: flex; gap: var(--space-2); margin: -4px 0; padding: 4px var(--space-5); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; }
+.tp-photos::-webkit-scrollbar { display: none; }
+.tp-photo { flex: none; padding: 0; border: 0; background: none; cursor: pointer; }
+.tp-photo:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-photo-img { display: grid; place-items: center; width: 182px; height: 102px; }
+.tp-photo-img::after, .tp-ph-img::after { content: none; }
 .tp-hero-icon { color: var(--c-ink-3); }
+@media (hover: hover) { .tp-photo:hover .tp-photo-img { filter: brightness(.94); } }
+/* Photo details (B2 step 5): a panel up from the bottom over #111 at 50%; 12px top corners; 20 / 24 / 28 padding. The
+   close button and the outlined button are 36px (WCAG 2.2 AA sizing), not the brief's 44px. */
+.tp-ph-scrim { position: absolute; inset: 0; z-index: 130; background: rgba(17, 17, 17, .5); }
+.tp-ph { position: absolute; left: 0; right: 0; bottom: 0; z-index: 131; display: flex; flex-direction: column; gap: var(--space-3); padding: 20px var(--space-5) 28px; border-top: var(--bw-1) solid var(--c-line); border-radius: 12px 12px 0 0; background: var(--c-surface); }
+.tp-ph[hidden], .tp-ph-scrim[hidden] { display: none; }
+.tp-ph-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.tp-ph-where { margin: 0; font-family: var(--font-label); font-size: .75rem; line-height: 1.33; letter-spacing: .06em; text-transform: uppercase; }
+.tp-ph-close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; padding: 0; border: var(--bw-1) solid var(--c-line-ink); border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
+.tp-ph-close:focus-visible, .tp-ph-go:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-ph-img { display: grid; place-items: center; width: 100%; aspect-ratio: 342 / 192; }
+.tp-ph-title { margin: var(--space-1) 0 0; font-size: 1.5rem; font-weight: var(--fw-semi); line-height: 1.17; letter-spacing: -.01em; }
+.tp-ph-p { margin: 0; font-size: var(--fs-lg-2); line-height: 1.4; }
+.tp-ph-acts { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-1); }
+.tp-ph-go { min-height: 36px; padding: 0 var(--space-5); border: var(--bw-1) solid var(--c-line-ink); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-lg-2); font-weight: var(--fw-semi); cursor: not-allowed; }
+.tp-ph-soon { font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); padding: 0 var(--space-5); }
 .tp-hero-title { font-size: 1.9375rem; font-weight: 400; line-height: 1.19; text-transform: uppercase; } /* 31/37, B2; the page script shrinks it if a line would wrap */
 .tp-hero-sub { font-size: var(--fs-lg-2); line-height: 1.4; }

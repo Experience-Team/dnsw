@@ -99,18 +99,26 @@
             <button type="button" class="tp-cap-i is-on" data-view="plan" aria-current="page">Plan your 3rd half</button>
           </nav>
         </div>
-        <!-- Event details, one line that wraps at the bullets: the event, its dates (day then month), the countdown and the
-             page's one note that every kick-off is Sydney time. The countdown script below fills .tp-count. -->
-        <p class="tp-event"><span class="tp-nowrap">Men&rsquo;s Rugby World Cup</span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">. </span><span class="tp-nowrap">Kick-offs in Sydney time</span></p>
+        <!-- Hero (Option B2): the photo row, then the slogan, the event line, one line on what the page does, and the
+             button. The row swipes sideways and never moves on its own (low fidelity: no auto-scroll, marquee or timer);
+             each tile opens its photo details panel. The stadium and ocean photos first, then two more so there is
+             something to swipe (hifi: the closest pictures in assets; wireframe: grey with an image icon). -->
         <section class="tp-hero" aria-labelledby="tp-hero-title">
-          <span class="ph-img tp-hero-img tp-hero-img--a" data-img="hero-stadium" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span>
+          <div class="tp-photos" role="group" aria-label="Photos">
+            <button type="button" class="tp-photo" data-photo="stadium" aria-label="Stadium photo, see details"><span class="ph-img tp-photo-img" data-img="hero-stadium" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="coast" aria-label="Ocean photo, see details"><span class="ph-img tp-photo-img" data-img="hero-coast" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="photo3" aria-label="Photo 3, see details"><span class="ph-img tp-photo-img" data-img="coast-aerial" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="photo4" aria-label="Photo 4, see details"><span class="ph-img tp-photo-img" data-img="village" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+          </div>
           <div class="tp-hero-copy">
             <!-- The slogan, A by default; ?slogan=b shows B (set on <html> by the script in <head>) to test both -->
             <h3 class="tp-hero-title" id="tp-hero-title"><span class="tp-slogan tp-slogan--a"><span class="tp-slogan-1">Come for the match.</span> <span class="tp-slogan-2">Stay for the <span aria-hidden="true">1/3</span><span class="visually-hidden">third</span> half.</span></span><span class="tp-slogan tp-slogan--b"><span class="tp-slogan-1">Your team&rsquo;s matches.</span> <span class="tp-slogan-2">Your days in NSW.</span></span></h3>
+            <!-- Event line, under the slogan (B2): the event, then its dates (day then month) and the countdown, two
+                 lines. The countdown script below fills .tp-count. -->
+            <p class="tp-event"><span class="tp-event-l">Men&rsquo;s Rugby World Cup</span><span class="visually-hidden">, </span><span class="tp-event-l"><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T21:00:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span></span></p>
             <p class="tp-hero-sub">Pick your teams, see their matches, and plan your NSW days around game time.</p>
             <button type="button" class="tp-hero-cta" id="tp-hero-cta" data-act="hero-pick">Pick your teams</button>
           </div>
-          <span class="ph-img tp-hero-img tp-hero-img--b" data-img="hero-coast" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span>
         </section>
 
         <!-- Team picker: a fanned hand of 24 team cards plus "Here for the rugby", built by concepts-teams.js from
@@ -305,6 +313,21 @@
         <div class="tp-kbd-row"><span class="tp-kbd-k tp-kbd-k--fn tp-kbd-k--wide">123</span><span class="tp-kbd-k tp-kbd-k--space">space</span><span class="tp-kbd-k tp-kbd-k--fn tp-kbd-k--wide">search</span></div>
         <span class="tp-kbd-note">Indicative keyboard</span>
       </div>
+      <!-- Photo details (B2 step 5): opened by a tile in the hero's photo row. Slides up from the bottom over a dark layer
+           (#111 at 50%). Place label and close, the photo (342 x 192), a title, a line or two and one outlined button. All
+           copy is placeholder in square brackets until it is decided. Closes by the close button, the dark layer or
+           Escape, and focus goes back to the tile. Filled by the script at the end of this file. -->
+      <div class="tp-ph-scrim" id="tp-ph-scrim" hidden></div>
+      <div class="tp-ph" id="tp-ph" role="dialog" aria-modal="true" aria-labelledby="tp-ph-title" hidden>
+        <div class="tp-ph-top">
+          <p class="tp-ph-where" id="tp-ph-where"></p>
+          <button type="button" class="tp-ph-close" data-ph-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        <span class="ph-img tp-ph-img" id="tp-ph-img" role="img"></span>
+        <h2 class="tp-ph-title" id="tp-ph-title"></h2>
+        <p class="tp-ph-p" id="tp-ph-p"></p>
+        <div class="tp-ph-acts"><button type="button" class="tp-ph-go" id="tp-ph-go" aria-disabled="true" aria-describedby="tp-ph-soon"></button><span class="tp-ph-soon" id="tp-ph-soon">Not linked yet</span></div>
+      </div>
       <div class="tp-stack-scrim" id="tp-stack-scrim"></div>
       <div class="cn-sheet tp-stack tp-ss" id="tp-ss" role="dialog" aria-modal="true" aria-labelledby="tp-ss-title" tabindex="-1" inert>
         <span class="cn-grabber" aria-hidden="true"></span>
@@ -481,8 +504,10 @@
       { sel: '#tp-kbd', title: 'Indicative keyboard (not functional)', text: 'While Find your team is open, a static grey keyboard rises from the bottom of the phone, only to show that the phone keyboard would come up. On a real phone it is the native keyboard. Tapping it does nothing and keeps the field focused. Opening the search brings the heading row near the top of the phone, so the suggestions under it are never covered (they end by about 220px; the keyboard starts at 614px). Reduced motion: it appears and goes at once. In phone view (the QR code in the panel, ?phone, or any touch screen under 500px wide) it is never shown: the phone\u2019s own keyboard comes up, with a Search key, and the screen shrinks to the space above it so the suggestions stay in view.' },
     { sel: '.tp-tl-pick .tp-ico', title: 'Prompt icons', text: 'Prompts to pick a team carry the card-fan icon (the Rugby World Cup Figma artwork, node 252:13225): Pick your teams and Change your teams in the timeline, and Pick your teams in the empty Your plan so far. Prompts and buttons to set or change your days carry the calendar (Figma node 254:13291): Set your days in NSW, Staying longer? Set your days, Visiting? Set or Confirm your days, the dates step in the trip question, Change dates, Use these dates, and Change beside your days in NSW (in the timeline and under Suits your 3rd half; not when the answer is I live in NSW or Not sure yet, as that Change is not about dates). Greyscale, sized to the text, decorative (aria-hidden).' },
     { sel: '#tp-find-open', title: 'Find (utility row)', text: 'In the utility row above the hand, labelled Find (with a search icon), on phone and desktop alike. Tapped, the field slides across the utility row from the button, over Grid and Plays in NSW, so nothing below moves; suggestions float over the hand. Name or code, start of a word (zea finds New Zealand, rsa South Africa); Enter picks the first; Escape or the cross folds it back and focus returns to Find.' },
-      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Event details, Kick goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, so every label fits whichever is picked, at 360px too. Event details and Kick goal are not built: each opens a being-built page in place of the planner (the timeline bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Kick goal stays (the capsule also works with two items). Step 2, floating (changed from the brief at the user\u2019s request): it sticks 8px from the top once the header scrolls away, lifts with a shadow, shrinks to 80% while you scroll down and returns to full size when you scroll up or tab into it (items stay over the 24px AA minimum). It sits under the timeline bar and every sheet, steps out of the way while the guided map of your days is on screen, and the page\u2019s own jumps (Pick your teams, See where to watch, Find your team) land below it.' },
-      { sel: '#tp-hero-cta', title: 'Hero (Figma 309:644)', text: 'Option A, lockup in header: The Third Half logo, and a dashed box that holds the space (with its clear space) for the host city lockup (Host city + Feel New + World Rugby), not drawn yet. Then one event line that wraps at its bullets: Men\u2019s Rugby World Cup \u2022 1 Oct\u201313 Nov \u201927 \u2022 320 days to go \u2022 Kick-offs in Sydney time (dates day then month throughout; screen readers hear 1 October to 13 November 2027). Then a picture, the slogan with its explaining line directly under it, this button and a second picture. Slogan A: Come for the match. Stay for the 1/3 half (screen readers hear third half). Slogan B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. Each sentence takes its own line and never wraps: 31px in the wireframe (B2 brief), 40px in high fidelity with the second line in the colourway, and the page shrinks the size just enough when a line would not fit (360px, or a wider fallback font). This breaks the type scale on purpose. Wireframe: the pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset left then right, as in Figma. The button is 36px tall, per the page\u2019s WCAG 2.2 AA sizing, not Figma\u2019s 44px. It says Pick your teams, then Change your teams once a team is picked, matching the picker\u2019s heading, and goes down to the hand of cards and focuses the middle card (a jump with reduced motion). The hand is below the fold on a 390 x 844 phone; this button is the way down.' },
+      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Event details, Kick goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, and every label stays on one line: where the labels would not fit (the wireframe\u2019s system font, or 360px and narrower) the capsule\u2019s type shrinks just enough, one size for every pick so it never changes as the pill moves. Event details and Kick goal are not built: each opens a being-built page in place of the planner (the timeline bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Kick goal stays (the capsule also works with two items). Step 2, floating (changed from the brief at the user\u2019s request): it sticks 8px from the top once the header scrolls away, lifts with a shadow, shrinks to 80% while you scroll down and returns to full size when you scroll up or tab into it (items stay over the 24px AA minimum). It sits under the timeline bar and every sheet, steps out of the way while the guided map of your days is on screen, and the page\u2019s own jumps (Pick your teams, See where to watch, Find your team) land below it.' },
+      { sel: '#tp-hero-cta', title: 'Hero (Option B2)', text: 'Top to bottom: the header (The Third Half logo and the reserved host city lockup, scrolls away), the capsule nav, the photo row, the slogan, the event line, one line on what the page does, and this button. Slogan A: Come for the match. Stay for the 1/3 half (screen readers hear third half); B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. 31px with 37px lines in both themes, one line per sentence (shrunk just enough if a line would wrap, at 360px or with a wider fallback font); the second line in the orange until the colour is decided (coral #EC5A5B or orange). Event line under the slogan, two lines: Men\u2019s Rugby World Cup, then 1 Oct\u201313 Nov \u201927 \u2022 days to go (screen readers hear 1 October to 13 November 2027). The reference drops the old Kick-offs in Sydney time. Spacing: 24px from the photo row to the slogan, then 16px between slogan, event line, body and button; 24px at the sides. The button is 36px tall (WCAG 2.2 AA), says Pick your teams, then Change your teams once a team is picked, and goes down to the hand of cards, landing below the floating nav.' },
+      { sel: '.tp-photos', title: 'Photo row (B2 step 4)', text: 'One row of 182 x 102 tiles, 8px apart, starting 24px in and running off the right edge. Swipe or trackpad sideways; no scrollbar. It never moves on its own in this version (no auto-scroll, marquee or timer). Each tile is a button named for its photo, for example Stadium photo, see details. Stadium and ocean first, then two more so the row is long enough to swipe (high fidelity uses the closest pictures in assets; still to decide how many photos, which ones and what each panel says).' },
+      { sel: '.tp-photo', title: 'Photo details (B2 step 5)', text: 'Tap a tile: a panel slides up from the bottom over a dark layer (#111 at 50%). Place label (mono 12px caps) with a round close button, the photo at 342 x 192, a title (24px semibold), a line or two (18px) and one outlined button. All copy is placeholder in square brackets; the button is marked Not linked yet. Close button, the dark layer or Escape closes it and focus goes back to the tile; Tab stays inside while it is open. Close and outlined buttons are 36px (AA sizing), not the brief\u2019s 44px.' },
       { sel: '.tp-count', title: 'Countdown', text: 'Part of the event line: days to go to the opening match, Australia v Hong Kong China at Perth Stadium, Fri 1 Oct 2027, 9:00pm Sydney time (hours, then minutes, on the day). After kick-off it says Under way, final Sat 13 Nov, then The tournament is over. Inspect another moment with ?tp-now=2027-10-05T12:00:00%2B11:00 on the address. Open question: the opener is in Perth, so should it run to the first NSW match (Sun 3 Oct) instead?' },
       { sel: '#tp-pick-sub', title: 'Why pick', text: 'The heading, Pick your teams, matches the hero button. One 18px line under it says what a pick is for, with no subheading: Pick your teams to see their matches, then fill the days in between. 48px above the heading gives it room after the hero; the gap under the tap line is 24px shorter so All matches peeks in. The fan is described by it (aria-describedby, with the keyboard help), so screen readers hear it with the fan.' },
       { sel: '.tp-fan-wrap', title: 'The fan: picking is the action', text: 'The 24 teams in alphabetical order, then Every NSW match. Drag or swipe sideways, scroll sideways, or use the arrow keys, Home and End; vertical swipes still scroll the phone. Tap or press Space to pick, as many as you like; tap again to take one off. There is no button to press after picking: a pick takes effect at once, and Your matches, the timeline, Where to watch and Suits your 3rd half all follow it. A pick is pulled up out of the hand above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick (reduced motion: no movement, the colour and tick still change). The picker stays on screen throughout.' },
@@ -563,23 +588,31 @@
 })();
 </script>
 <script>
-/* Slogan fit: each slogan line stays on one line. The size starts at the theme's own (31px in the wireframe, as the
-   B2 brief; 40px in high fidelity) and steps down until the widest line fits the copy column, so it holds at 360px
-   and with whatever system font the wireframe falls back to. Runs again on resize and once the fonts have loaded. */
+/* One line each: the slogan's two sentences and the event line's two lines never wrap. Each starts at its own size
+   (slogan 31px, event line 14px, the B2 brief) and steps down just enough when its widest line would not fit the copy
+   column, so it holds at 360px, at 320px, and with whatever system font the wireframe falls back to. This breaks the
+   type scale on purpose. Runs again when the width changes, once the fonts have loaded, and when the countdown's
+   text changes (Under way, final Sat 13 Nov is longer than 319 days to go). */
 (function () {
-  var t = document.getElementById('tp-hero-title'); if (!t) return;
+  var col = document.querySelector('#tp-phone .tp-hero-copy'); if (!col) return;
+  var SETS = [['#tp-hero-title', '.tp-slogan-1, .tp-slogan-2'], ['.tp-event', '.tp-event-l']];
   function fit() {
-    t.style.fontSize = '';
-    var room = t.parentNode.clientWidth - parseFloat(getComputedStyle(t.parentNode).paddingLeft) - parseFloat(getComputedStyle(t.parentNode).paddingRight);
-    var lines = [].slice.call(t.querySelectorAll('.tp-slogan-1, .tp-slogan-2')).filter(function (l) { return l.offsetParent; });
-    var widest = Math.max.apply(null, lines.map(function (l) { return l.getBoundingClientRect().width; }));
-    if (widest > room) t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * room / widest * 0.99).toFixed(2) + 'px';
+    var cs = getComputedStyle(col), room = col.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    SETS.forEach(function (set) {
+      var t = col.querySelector(set[0]); if (!t) return;
+      t.style.fontSize = '';
+      var lines = [].slice.call(t.querySelectorAll(set[1])).filter(function (l) { return l.offsetParent; });
+      var widest = Math.max.apply(null, lines.map(function (l) { return l.getBoundingClientRect().width; }));
+      if (widest > room) t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * room / widest * 0.99).toFixed(2) + 'px';
+    });
   }
   fit();
   // Only a change of width can make a line wrap; refitting on height changes (its own) would loop and nudge the page
-  var lastW = t.parentNode.clientWidth;
-  if (window.ResizeObserver) new ResizeObserver(function () { var w = t.parentNode.clientWidth; if (w !== lastW) { lastW = w; fit(); } }).observe(t.parentNode);
+  var lastW = col.clientWidth;
+  if (window.ResizeObserver) new ResizeObserver(function () { var w = col.clientWidth; if (w !== lastW) { lastW = w; fit(); } }).observe(col);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  var count = col.querySelector('.tp-count');
+  if (count && window.MutationObserver) new MutationObserver(fit).observe(count, { childList: true, characterData: true, subtree: true });
 })();
 /* Capsule nav (Option B2, step 1). Picking an item moves the light pill to it with an even glide, and the other
    items slide to their new places (FLIP), so nothing jumps. Event details and Kick goal show the "being built"
@@ -593,6 +626,21 @@
   var NAMES = { event: 'Event details', kick: 'Kick goal' };
   var view = 'plan', planY = 0;
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  // Shrink the labels just enough to sit on one line each (measured with the font in use, picked item included)
+  // One size for every pick (the worst case: each label in turn as the bold, wider picked item), so the type never
+  // changes size as the pill moves. Padding does not scale, so only the text share is scaled.
+  function fitCap() {
+    cap.style.fontSize = '';
+    var room = cap.clientWidth - 8 - 2 * (items.length - 1), scale = 1;
+    var was = items.filter(function (b) { return b.classList.contains('is-on'); })[0];
+    items.forEach(function (on) {
+      var text = 0, pad = 0;
+      items.forEach(function (b) { b.classList.toggle('is-on', b === on); b.style.flex = 'none'; var cs = getComputedStyle(b), p = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight); pad += p; text += b.scrollWidth - p; });
+      if (text + pad > room) scale = Math.min(scale, (room - pad) / text);
+    });
+    items.forEach(function (b) { b.style.flex = ''; b.classList.toggle('is-on', b === was); });
+    if (scale < 1) cap.style.fontSize = (16 * scale * 0.98).toFixed(2) + 'px';
+  }
   function place(anim) {
     var on = cap.querySelector('.tp-cap-i.is-on');
     pill.style.transition = anim && !still() ? '' : 'none';
@@ -627,8 +675,9 @@
     var b = e.target.closest('[data-view]'); if (!b || !phone.contains(b)) return;
     pick(b.dataset.view, b);
   });
-  place(false);
-  if (window.ResizeObserver) new ResizeObserver(function () { place(false); }).observe(cap);
+  fitCap(); place(false);
+  var capW = cap.clientWidth;
+  if (window.ResizeObserver) new ResizeObserver(function () { if (cap.clientWidth !== capW) { capW = cap.clientWidth; fitCap(); } place(false); }).observe(cap);
 
   /* Floating bar (step 2). Stuck once its top reaches 8px. Scrolling down shrinks it to 80%, scrolling up brings it back
      to full size; small jitters (under 6px) are ignored so it never flickers. It goes back to full size when focus
@@ -652,7 +701,69 @@
   wrap.addEventListener('focusin', function () { small = false; onScroll(); });
   window.tpCapRoom = function () { return wrap.classList.contains('is-away') ? 0 : wrap.offsetHeight + 16; };
   onScroll();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { place(false); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitCap(); place(false); });
+})();
+</script>
+<script>
+/* Photo details (B2 step 5). Each tile in the hero's photo row opens the panel with its own picture and placeholder copy.
+   The panel slides up (and back down) with an even curve; everything behind waits (inert) while it is open; Tab stays
+   inside; the dark layer, the close button and Escape close it, and focus goes back to the tile that opened it. */
+(function () {
+  var phone = document.getElementById('tp-phone'), ph = document.getElementById('tp-ph'), scrim = document.getElementById('tp-ph-scrim');
+  if (!phone || !ph) return;
+  var PHOTOS = {
+    stadium: { where: '[Suburb, Sydney]', img: 'hero-stadium', alt: 'Stadium photo', title: '[Stadium name]' },
+    coast: { where: '[Town, NSW region]', img: 'hero-coast', alt: 'Ocean photo', title: '[Place name]' },
+    photo3: { where: '[Town, NSW region]', img: 'coast-aerial', alt: 'Photo 3', title: '[Place name]' },
+    photo4: { where: '[Town, NSW region]', img: 'village', alt: 'Photo 4', title: '[Place name]' }
+  };
+  var TEXT = '[One or two lines about this place and how it fits around a match day.]', GO = '[See this place]';
+  var opener = null, behind = [], img = document.getElementById('tp-ph-img');
+  var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  function open(key, from) {
+    var d = PHOTOS[key]; if (!d) return;
+    opener = from;
+    document.getElementById('tp-ph-where').textContent = d.where;
+    document.getElementById('tp-ph-title').textContent = d.title;
+    document.getElementById('tp-ph-p').textContent = TEXT;
+    document.getElementById('tp-ph-go').textContent = GO;
+    // A fresh element each time, so the high fidelity theme paints the new picture (it paints elements as they arrive)
+    var fresh = img.cloneNode(false);
+    fresh.setAttribute('aria-label', d.alt); fresh.setAttribute('data-img', d.img); fresh.style.backgroundImage = '';
+    fresh.innerHTML = from.querySelector('svg') ? from.querySelector('svg').outerHTML : '';
+    img.replaceWith(fresh); img = fresh;
+    behind = [phone.querySelector('.cn-body'), document.getElementById('tp-tl'), document.getElementById('tp-skip')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    scrim.hidden = false; ph.hidden = false;
+    if (!still() && ph.animate) {
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 280, easing: 'ease-out' });
+      ph.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.4, 0, .2, 1)' });
+    }
+    ph.querySelector('[data-ph-close]').focus({ preventScroll: true });
+  }
+  function close() {
+    if (ph.hidden) return;
+    behind.forEach(function (p) { p[0].inert = p[1]; }); behind = [];
+    function done() { ph.hidden = true; scrim.hidden = true; }
+    if (!still() && ph.animate) {
+      scrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in' });
+      ph.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
+    } else done();
+    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    opener = null;
+  }
+  phone.addEventListener('click', function (e) {
+    var t = e.target.closest('.tp-photo[data-photo]');
+    if (t) { open(t.dataset.photo, t); return; }
+    if (e.target.closest('[data-ph-close]')) close();
+  });
+  scrim.addEventListener('click', close);
+  ph.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key !== 'Tab') return;
+    var f = [].slice.call(ph.querySelectorAll('button')), i = f.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+  });
 })();
 </script>
 <script src="vendor/qrcode.js"></script>
