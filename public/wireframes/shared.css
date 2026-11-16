@@ -5125,3 +5125,11 @@ span.tp-map-arrow { display: block; }
 .tp-dc-track::-webkit-scrollbar { display: none; }
 .tp-dc-track .tp-dc-card { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; }
 @media (prefers-reduced-motion: reduce) { .tp-dc-it.is-flash { transition: none; } }
+
+/* Polish (16 Nov): the top of the open timeline in fewer lines. The title row no longer sticks (only the plan bar and the
+   day strip stay put); Change teams sits on it, on the right; the instruction line is gone (the cards' names are links) */
+.tp-tl-head { position: relative; top: auto; }
+.tp-tl-head .tp-tl-teams { flex: none; margin: 0; }
+.tp-tl-head .tp-tl-teams .tp-link { min-height: 24px; }
+.tp-dc { margin-top: 0; }
+.tp-dc-strip { padding-top: var(--space-3); } /* 12px under the dates line, as the title row is above it */
