@@ -4924,3 +4924,22 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-pick.is-peek #tp-picker { position: relative; z-index: 1; }
 .tp-pick.is-peek :is(.tp-pick-head, #tp-pick-sub, #tp-util) { position: relative; z-index: 0; }
 .tp-pick.is-hidden-intro :is(.tp-pick-head, #tp-pick-sub, #tp-util) { pointer-events: none; }
+
+/* ---------- Section rhythm (layout pass, 16 Nov) ----------
+   Every section of the Pick your team page is one level: the same 24px title, at least 64px of space before it, and
+   the same steps inside (8px title to intro, 16px intro to content). Space does the grouping: 4-16px inside a
+   component, 24px between parts of one section, 64px between sections. Replaces the 22px / 18px split and the
+   32px / 48px section gaps. The hero to Pick your teams keeps the Figma peek spacing (337:40429). */
+:root { --sec-gap: var(--space-8); --sec-title: 1.5rem; }
+.tp-pick-title, .tp-ov-h, .tp-ask-title, .tp-sec-title, #tp-third .tp-sec-title, #tp-watch .tp-sec-title, .tp-plan-title {
+  font-size: var(--sec-title); line-height: 1.2; font-weight: var(--fw-heavy); letter-spacing: -.01em;
+}
+/* 64px between sections */
+.tp-ov, .tp-tabs, .cn-phone > .cn-body #tp-ask, #tp-ask, .tp-sec, .tp-plan { margin-top: var(--sec-gap); }
+/* The map under the cards is its own section: the same hairline rule and 24px above its title as the others */
+.tp-ov { padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
+/* Title to intro 8px, intro to content 16px */
+.tp-sec-note, #tp-ask .tp-sec-note, .tp-ov-sub { margin-top: var(--space-2); }
+.tp-ov-sub { margin-bottom: var(--space-4); }
+.tp-wcs { margin-top: var(--space-4); }
+.tp-third-trip { margin-top: var(--space-3); }
