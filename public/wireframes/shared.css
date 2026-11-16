@@ -3668,17 +3668,18 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-cap-wrap .tp-cap { transform-origin: 50% 0; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), box-shadow 200ms ease, opacity 200ms ease, visibility 0s; }
 /* Floating: a soft drop shadow, plus a faint light hairline so the dark capsule keeps its edge over dark photos */
 .tp-cap-wrap.is-stuck .tp-cap { box-shadow: 0 6px 18px rgba(17, 17, 17, .22), 0 0 0 1px rgba(250, 247, 240, .35); }
-.tp-cap-wrap.is-small .tp-cap { transform: scale(.8); }
+.tp-cap-wrap.is-small .tp-cap { transform: scale(var(--cap-small, .8)); } /* fitCap raises it on narrow phones so labels stay 12px or more */
 .tp-cap-wrap.is-away .tp-cap { transform: translateY(calc(-100% - 12px)); opacity: 0; visibility: hidden; pointer-events: none; transition: transform 280ms cubic-bezier(.4, 0, .2, 1), opacity 200ms ease, visibility 0s 280ms; }
 .tp-cap { position: relative; display: flex; align-items: center; gap: 2px; height: 44px; padding: 4px; border-radius: 22px; background: var(--c-btn); }
 .tp-cap-pill { position: absolute; top: 4px; left: 0; height: 36px; border-radius: 18px; background: var(--c-surface); transition: transform 360ms cubic-bezier(.4, 0, .2, 1), width 360ms cubic-bezier(.4, 0, .2, 1); pointer-events: none; }
-.tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--space-3); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1em; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
+.tp-cap-i { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 var(--cap-pad, var(--space-3)); border: 0; border-radius: 18px; background: none; color: var(--c-on-dark); font: inherit; font-family: var(--font-body); font-size: 1em; font-weight: 400; line-height: 1.5; letter-spacing: -.0125em; white-space: nowrap; cursor: pointer; transition: transform 360ms cubic-bezier(.4, 0, .2, 1), color 200ms ease; }
 /* One line, always: outranks the phone-wide rule that lets button text wrap. The page script shrinks the capsule's
    type (1em of the capsule's 16px) just enough when the labels would not fit, as with the wireframe's system font at
    360px; this breaks the type scale on purpose. */
 .cn-phone .tp-cap-i { white-space: nowrap; text-wrap: nowrap; overflow: hidden; }
 .tp-cap { font-size: 1rem; }
-.tp-cap-i.is-on { flex: 1 1 auto; padding: 0 var(--space-3); /* the same side padding as the other tabs, so the gaps between labels are even (16 Nov) */ color: var(--c-ink); font-weight: 600; cursor: default; }
+.tp-cap.is-tight { overflow-x: auto; scrollbar-width: none; } .tp-cap.is-tight::-webkit-scrollbar { display: none; } .tp-cap.is-tight .tp-cap-i { flex: none; min-width: auto; }
+.tp-cap-i.is-on { flex: 1 1 auto; padding: 0 var(--cap-pad, var(--space-3)); /* the same side padding as the other tabs, so the gaps between labels are even (16 Nov) */ color: var(--c-ink); font-weight: 600; cursor: default; }
 /* Focus: a ring inside the item in its own text colour (light on the dark capsule, ink on the light pill), so it never
    rides the capsule's edge */
 .tp-cap-i:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
