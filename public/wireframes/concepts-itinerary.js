@@ -441,7 +441,7 @@
     var d = document.createElement('div');
     d.className = 'cn-pp'; d.id = 'cn-pp'; d.hidden = true;
     d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'cn-pp-title');
-    d.innerHTML = '<div class="cn-bar"><button type="button" class="cn-close" data-pp-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><p class="cn-bar-title" id="cn-pp-kind"></p></div><div class="cn-pp-body" id="cn-pp-body" tabindex="0" role="region" aria-label="Details"></div>';
+    d.innerHTML = '<div class="cn-bar"><p class="cn-bar-title" id="cn-pp-kind"></p><button type="button" class="cn-close" data-pp-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div><div class="cn-pp-body" id="cn-pp-body" tabindex="0" role="region" aria-label="Details"></div>';
     phone.appendChild(d);
     pp = d; ppBody = d.querySelector('#cn-pp-body'); ppKind = d.querySelector('#cn-pp-kind');
     d.querySelector('[data-pp-close]').addEventListener('click', function () { closeModal(true); });

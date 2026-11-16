@@ -57,7 +57,7 @@
   var fs = document.createElement('div');
   fs.className = 'tp-mapfs'; fs.hidden = true;
   fs.setAttribute('role', 'dialog'); fs.setAttribute('aria-modal', 'true'); fs.setAttribute('aria-labelledby', 'tp-mapfs-h');
-  fs.innerHTML = '<div class="cn-bar tp-mapfs-bar"><button type="button" class="cn-close" data-mclose aria-label="Close day by day"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><p class="cn-bar-title" id="tp-mapfs-h">Your days, day by day</p></div>' +
+  fs.innerHTML = '<div class="cn-bar tp-mapfs-bar"><p class="cn-bar-title" id="tp-mapfs-h">Your days, day by day</p><button type="button" class="cn-close" data-mclose aria-label="Close day by day"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div>' +
     '<div class="tp-mapfs-scroll"></div>';
   var sc = fs.querySelector('.tp-mapfs-scroll');
   sc.appendChild(mapEl);

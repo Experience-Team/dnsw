@@ -1036,7 +1036,7 @@
   var pm = document.createElement('div'), pmBody, pmKind, pmOpen = null, pmBehind = [];
   pm.className = 'cn-pp tp-pm'; pm.id = 'tp-pm'; pm.hidden = true;
   pm.setAttribute('role', 'dialog'); pm.setAttribute('aria-modal', 'true'); pm.setAttribute('aria-labelledby', 'tp-pm-title');
-  pm.innerHTML = '<div class="cn-bar"><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><p class="cn-bar-title" id="tp-pm-kind"></p></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
+  pm.innerHTML = '<div class="cn-bar"><p class="cn-bar-title" id="tp-pm-kind"></p><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
   phone.appendChild(pm);
   // A match opens as a sheet from the bottom, over a scrim; products and places stay full-screen pages
   var pmScrim = document.createElement('div');

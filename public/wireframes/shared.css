@@ -2939,7 +2939,7 @@ body.cp-page code { font: inherit; }
 .cn-phone :is(h1, h2, h3, h4) { font-family: var(--font-display); } /* headings take the display face (the body face in the wireframe) */
 .cn-bar { flex: none; display: flex; align-items: center; gap: var(--space-4); height: 52px; padding: 0 var(--space-4); border-bottom: var(--bw-1) solid var(--c-line); }
 .cn-close { flex: none; width: 36px; height: 36px; display: inline-grid; place-items: center; border: var(--bw-2) solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
-.cn-bar-title { font-size: var(--fs-md); font-weight: var(--fw-semi); }
+.cn-bar-title { flex: 1; min-width: 0; font-size: var(--fs-md); font-weight: var(--fw-semi); }
 .cn-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3) var(--space-4) var(--space-5); }
 .cn-seg { position: relative; display: flex; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); overflow: hidden; background: var(--c-surface); }
 /* The dark thumb slides to the chosen view, so the switch reads as one control moving, not two buttons repainting */
@@ -3727,7 +3727,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ph[hidden], .tp-ph-scrim[hidden] { display: none; }
 .tp-ph-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .tp-ph-where { margin: 0; font-family: var(--font-label); font-size: .75rem; line-height: 1.33; letter-spacing: .06em; text-transform: uppercase; }
-.tp-ph-close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; padding: 0; border: var(--bw-1) solid var(--c-line-ink); border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
+.tp-ph-close { display: grid; place-items: center; flex: none; margin-right: calc(var(--space-4) - var(--space-5)); /* the same 16px from the edge as every other close cross */ width: 36px; height: 36px; padding: 0; border: var(--bw-1) solid var(--c-line-ink); border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
 .tp-ph-close:focus-visible, .tp-ph-go:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-ph-img { display: grid; place-items: center; width: 100%; aspect-ratio: 342 / 192; }
 .tp-ph-title { margin: var(--space-1) 0 0; font-size: 1.5rem; font-weight: var(--fw-semi); line-height: 1.17; letter-spacing: -.01em; }
