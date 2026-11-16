@@ -1532,38 +1532,9 @@
         }
         if (hit.length) tlClash[it.id] = hit;
       }
-      var el = tlItemEls[it.id];
-      if (!el && tlCarry && span === tlCarry.classList.contains('tp-tl-span')) {
-        el = tlItemEls[it.id] = tlCarry; el.dataset.item = it.id; tlCarry = null;
-        if (span) { el.style.left = (PADX + day * DAYW - DAYW / 2 + 3) + 'px'; el.querySelector('.tp-tl-span-t').textContent = it.title + ' \u00b7 ' + it.nights + (it.nights === 1 ? ' night' : ' nights'); }
-        else el.style.left = (PADX + day * DAYW) + 'px';
-      }
-      if (!el) {
-        el = tlItemEls[it.id] = document.createElement('button');
-        el.type = 'button'; el.dataset.item = it.id;
-        if (span) {
-          // A longer trip: a solid span across its nights, with its title
-          el.className = 'tp-tl-mk tp-tl-span is-new';
-          el.innerHTML = '<span class="tp-tl-span-t">' + esc(it.title) + ' \u00b7 ' + it.nights + (it.nights === 1 ? ' night' : ' nights') + '</span>';
-          el.style.left = (PADX + day * DAYW - DAYW / 2 + 3) + 'px';
-          el.style.width = ((it.nights + 1) * DAYW - 6) + 'px';
-        } else {
-          el.className = 'tp-tl-mk tp-tl-mk--item is-new';
-          el.innerHTML = '<span class="cn-tl-sym cn-tl-sym--place">' + (it.kind === 'screening' ? TL_ICON.screen : it.kind === 'trip' ? TL_ICON.route : TL_ICON.pin) + '</span>';
-          el.style.left = (PADX + day * DAYW) + 'px';
-        }
-        tlCanvas.appendChild(el);
-        setTimeout(function () { el.classList.remove('is-new'); }, 20);
-      }
-      el.classList.toggle('is-clash', !!tlClash[it.id]);
-      el.classList.toggle('is-movable', dragMovable(it));
-      if (span) { el.setAttribute('aria-label', (it.when || it.day + ' to ' + it.endDay) + ', added: ' + it.title + ', ' + it.nights + (it.nights === 1 ? ' night' : ' nights') + (tlClash[it.id] ? ', clashes with a match' : '')); return; }
-      var row = perDay[day] || 0; perDay[day] = row + 1;
-      el.style.setProperty('--row', row);
-      el.setAttribute('aria-label', it.day + ', added: ' + it.title + (it.matchName ? ', for ' + it.matchName : '') + (tlClash[it.id] ? ', clashes with a match' : ''));
+      // Added items are no longer drawn on the strip (16 Nov): the day cards name them (concepts-plan.js)
     });
-    tlClashEl.innerHTML = hatch;
-    Object.keys(tlItemEls).forEach(function (id) { if (!keep[id]) { if (tlItemEls[id] !== tlCarry) tlItemEls[id].remove(); delete tlItemEls[id]; if (tlSelItem === id) tlSelItem = null; } });
+    tlClashEl.innerHTML = ''; void hatch; // clashes are said on the day cards now, not hatched
     // Visiting with dates: the days in NSW are shaded on the axis
     // Your days as set; nothing is guessed any more (the band shows only once days are chosen)
     var trip = state.trip, confirmed = !!(trip && trip.from && trip.to);
@@ -1635,9 +1606,6 @@
     }
     var howEl = document.getElementById('tp-tl-how');
     if (howEl) howEl.hidden = !(own() && shown.length);
-    // Hold and drag gets its own line, shown once there is something to move
-    var dragEl = document.getElementById('tp-tl-drag');
-    if (dragEl) dragEl.hidden = !state.added.some(dragMovable);
     // A clash marks its day on the strip
     var clashDays = {};
     Object.keys(tlClash).forEach(function (id) {
@@ -1664,7 +1632,7 @@
     // Interstate matches shown by the switch: the same dashed marker, named as watching, not your plan
     var extraOn = TLM.some(function (m) { return m.vis && !m.on; });
     if (extraOn) kinds.away = true;
-    tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--flags tp-key-flags" aria-hidden="true"><i></i><i></i></span>In NSW</li>' : '') +
+    if (tlKey) tlKey.innerHTML = (kinds.nsw ? '<li><span class="cn-tl-sym cn-tl-sym--flags tp-key-flags" aria-hidden="true"><i></i><i></i></span>In NSW</li>' : '') +
       (kinds.away ? '<li><span class="cn-tl-sym cn-tl-sym--flags tp-key-flags is-away" aria-hidden="true"><i></i><i></i></span>' + (extraOn ? 'Interstate, to watch in NSW' : 'Interstate') + '</li>' : '') +
       (kinds.ticket ? '<li><span class="cn-tl-sym cn-tl-sym--ticket" aria-hidden="true">' + TL_ICON.ticket + '</span>Your ticket</li>' : '') +
       (kinds.tbd ? '<li><span class="cn-tl-sym cn-tl-sym--match is-tbd" aria-hidden="true"><span class="tp-tl-q">?</span></span>Teams to be decided</li>' : '') +
@@ -1704,112 +1672,31 @@
     var x = el.offsetLeft;
     if (x < tlScroll.scrollLeft + 40 || x > tlScroll.scrollLeft + tlScroll.clientWidth - 40) tlScroll.scrollTo({ left: Math.max(0, x - tlScroll.clientWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
   }
-  var PLUS = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3.5v9M3.5 8h9"/></svg>';
-  function tlFreeDraw() {
-    var keep = {}, top = 0;
-    tlFreeInfo.forEach(function (fd) {
-      if (!(fd.d >= 0 && fd.d < DAYS)) return;
-      keep[fd.d] = true;
-      var el = tlFreeEls[fd.d];
-      if (!el) {
-        el = tlFreeEls[fd.d] = document.createElement('button');
-        el.type = 'button'; el.className = 'tp-tl-mk tp-tl-free'; el.dataset.free = fd.d; el.tabIndex = -1;
-        el.setAttribute('aria-haspopup', 'dialog');
-        el.innerHTML = '<span class="tp-tl-free-l" aria-hidden="true"></span><span class="cn-tl-sym tp-tl-free-sym">' + PLUS + '</span>';
-        el.style.left = (PADX + fd.d * DAYW) + 'px';
-        tlCanvas.appendChild(el);
-      }
-      var row = tlPerDay[fd.d] || 0; top = Math.max(top, row);
-      el.style.setProperty('--row', row);
-      var line = fd.filled ? 'Full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
-      el.querySelector('.tp-tl-free-l').innerHTML = 'Free<br>' + esc(line);
-      // A full day shows a tick, not +: there is nothing more to add there (its ideas have moved on)
-      if (el.classList.contains('is-full') !== !!fd.filled || !el.dataset.sym) { el.querySelector('.tp-tl-free-sym').innerHTML = fd.filled ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.8 8.3l2.7 2.7 5.7-5.9"/></svg>' : PLUS; el.dataset.sym = '1'; }
-      el.classList.toggle('is-full', !!fd.filled);
-      el.classList.toggle('is-open', tlFreeOpen === fd.d);
-      el.setAttribute('aria-label', fd.label + ', free day, ' + (fd.filled ? 'your day is full' : line) + '. Show ideas');
-    });
-    Object.keys(tlFreeEls).forEach(function (d) { if (!keep[d]) { if (tlFreeEls[d] === tlSelFree) tlSelFree = null; tlFreeEls[d].remove(); delete tlFreeEls[d]; } });
-    if (tlFreeOpen !== null && !keep[tlFreeOpen]) tlFreeShow(null);
-    // Room above the tallest + for its two-line label
-    if (Object.keys(keep).length) {
-      // and room above that for a longer trip's span, so the two never overlap
-      var spanRoom = state.added.some(function (it) { return it.kind === 'trip' && it.nights > 0; }) ? 34 : 0;
-      var need = 60 + (top + 1) * 32 + 28 + spanRoom, cur = parseFloat(tlCanvas.style.height) || 0;
-      if (need > cur) tlCanvas.style.height = need + 'px';
-    }
-  }
+  /* Free days (16 Nov): the + on the axis is gone. Each free day's card has Add ideas (concepts-plan.js), which opens the
+     same ideas sheet stacked over the timeline; the list is still drawn by concepts-third-half.js, which reports the
+     free days here (tpFreeApi.set). Closing the sheet puts focus back on that day's Add ideas. */
+  function tlFreeDraw() { if (window.tpPlan) window.tpPlan.render(); }
   function tlFreeShow(d) {
     tlFreeOpen = d;
-    Object.keys(tlFreeEls).forEach(function (k) { tlFreeEls[k].classList.toggle('is-open', +k === d); });
     phoneEl.dispatchEvent(new CustomEvent('tp:freeideas', { detail: { day: d } }));
   }
-  // The + opens that day's ideas in the sheet stacked over the timeline (concepts-third-half.js draws them); closing
-  // it puts focus back on the +
   function tlFreeToggle(d, opener) {
-    if (opener) tlKeepInView(opener);
     tlFreeShow(d);
-    tlRoving();
     if (typeof window.tpPicker.openSheet === 'function') window.tpPicker.openSheet('ideas:' + d, opener);
   }
+  function planAdd(d) { return window.tpPlan ? window.tpPlan.addButton(d) : null; }
   window.tpFreeApi = {
-    set: function (list) { tlFreeInfo = list || []; tlFreeDraw(); tlRoving(); },
-    close: function (focusPlus) { var d = tlFreeOpen; tlFreeShow(null); tlRoving(); if (focusPlus && d !== null && tlFreeEls[d]) tlFreeEls[d].focus({ preventScroll: true }); },
-    // Next free day, from inside the sheet: the sheet swaps to that day, and closing it goes back to that day's +
-    go: function (d) { var el = tlFreeEls[d]; if (el) { tlPick(el, false); tlKeepInView(el); tlFreeShow(d); if (stackEl) stackOpener = el; } },
-    open: function () { return tlFreeOpen; }
+    set: function (list) { tlFreeInfo = list || []; tlFreeDraw(); },
+    close: function (focusAdd) { var d = tlFreeOpen; tlFreeShow(null); var b = focusAdd && d !== null && planAdd(d); if (b) b.focus({ preventScroll: true }); },
+    // Next free day, from inside the sheet: the sheet swaps to that day, and closing it goes back to that day's Add ideas
+    go: function (d) { tlFreeShow(d); var b = planAdd(d); if (b && stackEl) stackOpener = b; if (window.tpPlan) window.tpPlan.goTo(d, false); },
+    open: function () { return tlFreeOpen; },
+    toggle: function (d, opener) { tlFreeToggle(d, opener); }
   };
-  /* What was added in the ideas sheet, once it closes: each new marker on the axis is singled out in turn (lifted,
-     larger, above its neighbours, a ring) and settles, so the person sees where it went. Reduced motion: the ring only. */
-  function tlSettle(ids) {
-    ids.forEach(function (id, i) {
-      setTimeout(function () {
-        var el = tlItemEls[id]; if (!el) return;
-        el.classList.remove('is-new');
-        if (i === 0) tlKeepInView(el);
-        el.classList.add('is-landed');
-        var sym = el.querySelector('.cn-tl-sym');
-        if (sym && sym.animate && !reduce.matches) sym.animate([{ transform: 'translateY(0) scale(1)' }, { transform: 'translateY(-8px) scale(1.4)', offset: .35 }, { transform: 'translateY(0) scale(.94)', offset: .75 }, { transform: 'translateY(0) scale(1)' }], { duration: 640, easing: 'cubic-bezier(.4, 0, .3, 1)' });
-        setTimeout(function () { el.classList.remove('is-landed'); }, 1400);
-      }, i * 260);
-    });
-  }
-  /* An idea added from the sheet: its marker flies from the Add button up to its day on the axis (an even ease, so the
-     eye can follow it), arrives lifted and larger, above its neighbours, then settles with a ring. Reduced motion: the
-     marker simply appears with the ring held for a moment. */
-  function tlLand(id, from) {
-    var el = tlItemEls[id]; if (!el || !from) return;
-    el.classList.remove('is-new');
-    tlKeepInView(el);
-    var sym = el.querySelector('.cn-tl-sym');
-    if (reduce.matches || !el.animate) { el.classList.add('is-landed'); setTimeout(function () { el.classList.remove('is-landed'); }, 1400); return; }
-    // Wait a frame so the axis has scrolled the day into view before measuring where the marker is
-    el.style.visibility = 'hidden';
-    setTimeout(function () {
-      var to = sym.getBoundingClientRect(), pr = phoneEl.getBoundingClientRect();
-      var g = document.createElement('span');
-      g.className = 'tp-tl-ghost'; g.setAttribute('aria-hidden', 'true');
-      g.innerHTML = sym.outerHTML;
-      phoneEl.appendChild(g);
-      var x0 = from.left + from.width / 2 - pr.left - 11, y0 = from.top + from.height / 2 - pr.top - 11;
-      var x1 = to.left + to.width / 2 - pr.left - 11, y1 = to.top + to.height / 2 - pr.top - 11;
-      g.style.left = '0px'; g.style.top = '0px';
-      // One gentle arc: up from the button, bowing a little outward, and down onto the day
-      var pts = [], N = 10;
-      for (var i = 0; i <= N; i++) {
-        var t = i / N, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t - Math.sin(Math.PI * t) * 36;
-        pts.push({ transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + (1 + .4 * Math.sin(Math.PI / 2 * Math.min(1, t / .6)) - .05 * Math.max(0, (t - .6) / .4)).toFixed(3) + ')', opacity: t === 0 ? .4 : 1 });
-      }
-      var fly = g.animate(pts, { duration: 720, easing: 'cubic-bezier(.4, 0, .3, 1)' });
-      fly.onfinish = function () {
-        g.remove();
-        el.style.visibility = '';
-        el.classList.add('is-landed');
-        sym.animate([{ transform: 'scale(1.35)' }, { transform: 'scale(.94)', offset: .6 }, { transform: 'scale(1)' }], { duration: 380, easing: 'ease-out' });
-        setTimeout(function () { el.classList.remove('is-landed'); }, 1100);
-      };
-    }, 60);
-  }
+  // What was added in the ideas sheet, once it closes, or an idea added from inside it: its line on the day card is
+  // singled out (concepts-plan.js), so the person sees where it went
+  function tlSettle(ids) { if (window.tpPlan) window.tpPlan.flash(ids); }
+  function tlLand(id) { if (window.tpPlan) window.tpPlan.flash([id]); }
   function tlRenderDetail() {
     tlRoving();
     // A marker's details open in a sheet stacked over the timeline (match sheet, or the added item with Move and
@@ -1822,6 +1709,7 @@
   function tlSelect(k, focus, itemId) {
     tlSel = itemId ? -1 : k; tlSelItem = itemId || null; tlSelFree = null;
     tlRenderDetail();
+    if (itemId) return; // added items live on the day cards now, not on the strip
     var el = itemId ? tlItemEls[itemId] : TLM[k].el, x = el.offsetLeft;
     // Keep the chosen marker in view, with some of the days either side
     if (x < tlScroll.scrollLeft + 40 || x > tlScroll.scrollLeft + tlScroll.clientWidth - 40) tlScroll.scrollTo({ left: Math.max(0, x - tlScroll.clientWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
@@ -1850,99 +1738,7 @@
     e.preventDefault();
     tlPick(to, true);
   });
-  /* Hold anything that is not fixed for 350ms to lift it, then drag it to another day; let go and it settles onto that
-     day. That is places, products, places saved from the map, day trips and longer trips (the span lifts as a whole).
-     Matches and screenings (which belong to their match) stay put. It snaps only to days it can go on: a place or
-     product on days it is open within your days, a trip on the start days it runs. Moving before the hold ends scrolls
-     the axis as normal, and a quick tap still opens its sheet. The keyboard way is Move in the sheet. Clashes are
-     allowed and shown, as with Move. On a phone: a light haptic tick on lift and per day crossed. */
-  var HOLD = 350, tdrag = null, dragSwallow = false, tlCarry = null;
-  var tlDrop = document.createElement('span'); tlDrop.className = 'tp-tl-drop'; tlDrop.hidden = true; tlDrop.setAttribute('aria-hidden', 'true');
-  tlDrop.innerHTML = '<span class="tp-tl-drop-t"></span>';
-  function dragItem(el) { var id = el && el.dataset.item; return id ? state.added.filter(function (x) { return x.id === id; })[0] : null; }
-  function dragMovable(it) { return !!it && !it.unplaced && (it.kind === 'place' || it.kind === 'product' || it.kind === 'poi' || it.kind === 'trip'); }
-  // The nearest day it may go on to where the finger is
-  function dragDay(dx) {
-    var want = tdrag.day + dx / DAYW, best = tdrag.day;
-    tdrag.ok.forEach(function (d) { if (Math.abs(d - want) < Math.abs(best - want)) best = d; });
-    return best;
-  }
-  function dragShow(d) {
-    if (!tlDrop.isConnected) tlCanvas.appendChild(tlDrop);
-    var n = tdrag.it.nights || 0;
-    tlDrop.style.left = (PADX + d * DAYW) + 'px';
-    tlDrop.style.width = ((n + 1) * DAYW) + 'px'; // a longer trip's drop covers all its days
-    tlDrop.classList.toggle('is-span', !!n);
-    tlDrop.firstChild.textContent = n ? 'From ' + dayLabel(d) + ', ' + n + (n === 1 ? ' night' : ' nights') : dayLabel(d);
-    tlDrop.hidden = false;
-  }
-  function dragEdge() { // near either edge of the axis, it scrolls along with the tdrag
-    if (!tdrag || !tdrag.lifted) return;
-    var r = tlScroll.getBoundingClientRect(), v = tdrag.x < r.left + 32 ? -6 : tdrag.x > r.right - 32 ? 6 : 0;
-    if (v) { var s0 = tlScroll.scrollLeft; tlScroll.scrollLeft += v; tdrag.scroll += tlScroll.scrollLeft - s0; dragMove(); }
-    tdrag.raf = requestAnimationFrame(dragEdge);
-  }
-  function dragMove() {
-    var dx = tdrag.x - tdrag.x0 + tdrag.scroll, d = dragDay(dx);
-    tdrag.el.classList.add('is-following');
-    tdrag.el.style.setProperty('--dx', dx + 'px');
-    if (d !== tdrag.to) { tdrag.to = d; dragShow(d); }
-  }
-  function dragLift() {
-    tdrag.lifted = true; tdrag.to = tdrag.day; tdrag.scroll = 0;
-    tdrag.el.classList.add('is-lifted');
-    tdrag.el.style.setProperty('--dx', '0px');
-    try { tdrag.el.setPointerCapture(tdrag.pid); } catch (err) {}
-    dragShow(tdrag.day);
-    say('Picked up ' + tdrag.it.title + '. Drag it to another day and let go.');
-    tdrag.raf = requestAnimationFrame(dragEdge);
-  }
-  function dragEnd(cancel) {
-    if (!tdrag) return;
-    var g = tdrag; tdrag = null;
-    clearTimeout(g.t); cancelAnimationFrame(g.raf);
-    if (!g.lifted) return;
-    dragSwallow = true; setTimeout(function () { dragSwallow = false; }, 0);
-    tlDrop.hidden = true;
-    var el = g.el, dx = parseFloat(el.style.getPropertyValue('--dx')) || 0, to = cancel ? g.day : g.to;
-    if (to !== g.day && typeof window.tpPicker.moveItem === 'function') {
-      tlCarry = el; // the same marker carries on to the new day, so it settles rather than popping in again
-      var nid = window.tpPicker.moveItem(g.it.id, to);
-      tlCarry = null;
-      dx -= (to - g.day) * DAYW; // left has jumped to the new day: keep it where the finger let go, then settle
-      tlSelItem = nid;
-    }
-    el.classList.add('is-following');
-    el.style.setProperty('--dx', dx + 'px'); // still lifted, with no transition, so the jump in left is not seen
-    void el.offsetWidth;
-    el.classList.remove('is-lifted', 'is-following');
-    el.classList.add('is-settling');
-    void el.offsetWidth;
-    el.style.setProperty('--dx', '0px');
-    setTimeout(function () { el.classList.remove('is-settling'); el.style.removeProperty('--dx'); }, reduce.matches ? 0 : 220);
-    if (to === g.day) say(g.it.title + ' stays on ' + dayLabel(g.day) + '.');
-  }
-  tlCanvas.addEventListener('pointerdown', function (e) {
-    var el = e.target.closest('.tp-tl-mk--item, .tp-tl-span'), it = dragItem(el);
-    if (!dragMovable(it) || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    dragEnd(true);
-    var day = it.kind === 'trip' ? it.start : dayOf(it.day);
-    var ok = typeof window.tpPicker.itemStarts === 'function' ? window.tpPicker.itemStarts(it.id) : [day];
-    tdrag = { el: el, it: it, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, day: day, ok: ok, lifted: false, scroll: 0 };
-    tdrag.t = setTimeout(dragLift, HOLD);
-  });
-  tlCanvas.addEventListener('pointermove', function (e) {
-    if (!tdrag || e.pointerId !== tdrag.pid) return;
-    tdrag.x = e.clientX;
-    if (!tdrag.lifted) { if (Math.abs(e.clientX - tdrag.x0) > 8 || Math.abs(e.clientY - tdrag.y0) > 8) dragEnd(true); return; } // a scroll, not a hold
-    dragMove();
-  });
-  tlCanvas.addEventListener('pointerup', function (e) { if (tdrag && e.pointerId === tdrag.pid) dragEnd(false); });
-  tlCanvas.addEventListener('pointercancel', function (e) { if (tdrag && e.pointerId === tdrag.pid) dragEnd(true); });
-  tlCanvas.addEventListener('touchmove', function (e) { if (tdrag && tdrag.lifted) e.preventDefault(); }, { passive: false }); // the axis does not scroll under a lifted place
-  tlCanvas.addEventListener('contextmenu', function (e) { if (e.target.closest('.tp-tl-mk--item, .tp-tl-span')) e.preventDefault(); });
-  tlCanvas.addEventListener('click', function (e) { if (dragSwallow) { e.stopImmediatePropagation(); e.preventDefault(); } }, true); // a tdrag is not a tap
-  document.addEventListener('keydown', function (e) { if (tdrag && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); dragEnd(true); } }, true);
+  // Hold and drag to move was removed on 16 Nov: Move on each day card (concepts-plan.js) replaces it
   /* Clear timeline: takes off everything they added (screenings, places, products, trips, single matches added from All
      matches, and ticket marks on those matches, which would be left with no match). Teams and their tickets, the trip
      answer, the filter and the tab stay: teams are cleared at the fan (Clear all), and matches are the plan's fixed
@@ -2181,6 +1977,9 @@
      timeline moves back (scaled to 94% from its top centre, its top raised 10px, dimmed by the stack scrim), in one
      motion with one timing; closing reverses both. The sheet stops 16px below the timeline's moved-back top, so a
      strip of the timeline shows above it. A third sheet replaces the second rather than stacking again. */
+  // The day cards are redrawn while a sheet is open over them (an idea added, a move): the control that opened the sheet
+  // is then a new element, found again by what it does, so closing still puts focus back on it
+  function liveOpener(el) { return el && !el.isConnected && window.tpPlan ? window.tpPlan.same(el) || el : el; }
   var stackScrim = document.getElementById('tp-stack-scrim'), stackEl = null, stackOpener = null, fwdT;
   var BACK_LIFT = 10, STACK_GAP = 16;
   function stackHide(sh) { sh.classList.remove('is-open', 'is-dragging'); sh.style.transform = ''; sh.inert = true; }
@@ -2233,6 +2032,7 @@
       stackSolo = false; stackHide(sh);
       soloHold(); soloAnchor = null;
       body.inert = false; stackScrim.classList.remove('is-on'); tl.inert = !tlOn; syncBar();
+      stackOpener = liveOpener(stackOpener);
       if (focusBack !== false && stackOpener && stackOpener.isConnected) stackOpener.focus({ preventScroll: true });
       stackOpener = null;
       sh.dispatchEvent(new CustomEvent('tp:stackclose', { bubbles: true, detail: { solo: true } }));
@@ -2245,6 +2045,7 @@
     clearTimeout(fwdT); fwdT = setTimeout(function () { tl.classList.remove('is-fwd'); }, 360);
     tl.inert = false;
     stackScrim.classList.remove('is-on');
+    stackOpener = liveOpener(stackOpener);
     if (focusBack !== false && stackOpener && stackOpener.isConnected) stackOpener.focus({ preventScroll: true });
     stackOpener = null;
     sh.dispatchEvent(new CustomEvent('tp:stackclose', { bubbles: true }));

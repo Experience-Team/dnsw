@@ -38,6 +38,9 @@
     'brickpit-ring-walk': 'river-national-park',
     'blue-mountains-day-out': 'river-national-park',
     'barrington-tops-overnight': '1004868_Basalt_Luxury_Accomodation_Canobolas',
+    // Trips as the day cards name them (by region, 16 Nov)
+    'hunter-valley': '172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0', 'south-coast': 'Tanja_Lagoon_Camp_interior_view_tent', 'barrington-tops': '1004868_Basalt_Luxury_Accomodation_Canobolas',
+    'royal-national-park': 'coast-headland', 'port-stephens': 'coast-aerial', 'lake-macquarie': 'hero-coast', 'blue-mountains': 'river-national-park',
     'lake-macquarie-by-bike': 'river-national-park',
     'royal-national-park-coast-walk': 'coast-headland',
     'port-stephens-bay-day': 'coast-aerial',

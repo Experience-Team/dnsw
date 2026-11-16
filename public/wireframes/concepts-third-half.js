@@ -1181,6 +1181,25 @@
     if (it.kind === 'place') { var sp = spotOf(it); return !sp || !sp.open_from ? true : d >= tp.isoDay(sp.open_from) && d <= tp.isoDay(sp.open_to); }
     return true;
   }
+  /* For the day cards (concepts-plan.js, 16 Nov): what an added item can show without inventing anything. A product's
+     opening hours on its day (indicative fixture data), and whether it sits before or after that day's match by the same
+     rule as Before the match / After the final whistle (its hours against the kick-off). Nothing else has a time. */
+  tp.itemHours = function (it) {
+    if (it.kind !== 'product' || !it.day) return '';
+    var p = productOf(it), o = p && hoursOn(p, weekdayOf(tp.dayOf(it.day)));
+    return o ? 'Open ' + clock(o.opens) + ' to ' + clock(o.closes) : '';
+  };
+  tp.itemSlot = function (it, kick) {
+    if (it.kind !== 'product' || !it.day) return null;
+    var p = productOf(it), o = p && hoursOn(p, weekdayOf(tp.dayOf(it.day))), k = kickMins(kick);
+    if (!o || k === null) return null;
+    var bb = openAt(o, k - 90), aa = openAt(o, Math.min(1439, k + 150));
+    return bb && aa ? null : bb ? 'before' : aa ? 'after' : hm(o.opens) < k ? 'before' : 'after';
+  };
+  tp.itemMoves = function (it) { return itemMoves(it); };
+  tp.moveItem = function (id, d) { return moveItem(id, d); };
+  tp.freeDays = function () { return FREEINFO.map(function (x) { return { d: x.d, filled: x.filled, count: x.count }; }); };
+  tp.imgKey = function (title) { return imgKey(title); };
   tp.itemClosed = function (it, d) { return (it.kind === 'product' || it.kind === 'place' || it.kind === 'poi') && !it.unplaced && !openOn(it, d); };
 
   /* ---------- Saved, not placed yet ----------
