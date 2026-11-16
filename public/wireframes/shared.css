@@ -4788,3 +4788,9 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-days .tp-days-flex .tp-chip { flex: none; white-space: nowrap; }
 .tp-days-range { margin: var(--space-2) 0 var(--space-4); }
 .tp-range-match { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--c-accent); pointer-events: none; z-index: 1; }
+
+/* Your days on the page: no Use these dates, so Undo and Reset sit as quiet text links with icons (16 Nov) */
+.tp-ask-acts--links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); }
+.tp-ico-link { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
+.tp-ico-link svg.tp-ico path { fill: none; }
+.tp-ask .tp-ico-link .tp-ico, .tp-ico-link svg.tp-ico { margin-right: 0; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
