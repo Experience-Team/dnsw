@@ -38,7 +38,9 @@ list as set out in "Adding standing flags" above, and add it once the user has a
 3. **Every multi-select can be cleared.** If people can pick several things, give them one action to clear them all
    and start again, shown only when something is picked.
 4. **Walk every combination before handing over.** Pick, unpick, mix, clear, change your mind, reload, keyboard only
-   and reduced motion. Fix the gaps you find rather than leaving them for the user to spot.
+   and reduced motion. Use every control from every place it appears and in every starting state: inside sheets and
+   stacked sheets as well as on the page, and before a team is picked as well as after. Press it twice to check it can
+   be undone. Fix the gaps you find rather than leaving them for the user to spot.
 5. **The movement that matters is obvious, not just present.** A change the user should notice must be clear at real
    size and speed. When a whole group moves together (a fan turning, a list shifting), the item the user acted on
    gets lost, so single it out: lift it, scale it, bring it above its neighbours, then settle it. Judge it from a
@@ -52,6 +54,12 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    a confirm step, a focus rule), find every control of that kind and apply it to all of them, not just the one in the
    brief. List them before handing over. For example, the calendar icon belongs on every button that sets or changes
    dates, not only the prompts.
+8. **The page only moves when people expect it to.** A control never scrolls or jumps the page to another section
+   unless its label says it will take you there (for example "See where to watch in NSW", "Skip the map"). Anything
+   that asks for input or shows more detail opens where the person is, in a sheet or an expanding panel, and closing it
+   returns focus to what opened it. When an action changes content above the person, hold the page so what they were
+   looking at stays put. For example, "Staying longer? Set your days" used to scroll down to the date fields; it now
+   opens the calendar in a sheet.
 
 # Experience principles
 

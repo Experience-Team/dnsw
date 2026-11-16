@@ -1331,15 +1331,15 @@
         '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
       return h + '</div>';
     }
-    var qm = quickRange('pm1'), qw = quickRange('week'), PM = [1, 2, 3, 7, 14];
+    var qm = quickRange('pm1'), PM = [1, 2, 3, 7, 14];
     var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-dquick="' + kind + '" aria-pressed="' + !!(dsel && dsel.z !== null && isoOf(dsel.a) === r.from && isoOf(dsel.z) === r.to) + '">' + label + '</button>' : ''; };
     var n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW</h2><p class="tp-days-note">Optional. The ideas then fit around your matches' + (Object.keys(ms).length ? ', which are marked' : '') + '.</p>' +
-      // Either side of their matches, as flexible dates (16 Nov): ± 1 to ± 14 days, then About a week
-      (qm ? '<div class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + PM.map(function (n) { return Q('pm' + n, quickRange('pm' + n), '\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span>'); }).join('') + Q('week', qw, 'About a week') + '</div>' : '') +
+      // Either side of their matches, as flexible dates (16 Nov): ± 1 to ± 14 days (About a week removed 16 Nov: it overlapped ± 7 days)
+      (qm ? '<div class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + PM.map(function (n) { return Q('pm' + n, quickRange('pm' + n), '\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span>'); }).join('') + '</div>' : '') +
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
       '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
