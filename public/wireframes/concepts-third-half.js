@@ -1381,7 +1381,7 @@
     var wt = e.target.closest('[data-watch-team]');
     if (wt) { openPm('wt:' + wt.dataset.watchTeam, wt); pmOpenerEl = wt; return; }
     var pd = e.target.closest('[data-plan-days]');
-    if (pd) { openDays(false, pd); return; }
+    if (pd) { openDays(false, pd, pd.dataset.planTeam); return; }
   });
 
   /* ---------- Your days, and where you're staying, in a sheet (16 Nov) ----------
@@ -1394,6 +1394,16 @@
   // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
   function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
   function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
+  function daysTickets() {
+    var ms = dTicketKeys.map(function (k) { return tp.match(k); }).filter(Boolean);
+    if (!ms.length) return '';
+    return '<section class="tp-days-tk" aria-label="Your ticket">' + ms.map(function (m, i) {
+      var on = state.tickets.indexOf(m.tkey) > -1, id = 'tp-days-tk-why-' + i;
+      return '<p class="tp-days-tk-m">' + esc(matchName(m.f)) + ', ' + esc(m.f.d) + (m.f.k ? ', ' + esc(m.f.k) : '') + ' · ' + esc(m.f.v) + '</p>' +
+        '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-dticket="' + esc(m.key) + '"' + (on ? ' checked' : '') + ' aria-describedby="' + id + '" /><span class="tp-pm-ticket-l">' + window.tpIcons.ticket + 'I have a ticket</span></label>' +
+        '<p class="tp-ticket-why" id="' + id + '">Mark it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
+    }).join('') + '</section>';
+  }
   function dMatches() { var o = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
   function calMonth(y, mo, ms) {
     // Monday-first weeks; days outside 29 Sep to 15 Nov are shown but cannot be picked
@@ -1433,6 +1443,7 @@
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW</h2><p class="tp-days-note">Optional. The ideas then fit around your matches' + (Object.keys(ms).length ? ', which are marked' : '') + '.</p>' +
+      daysTickets() +
       // Either side of their matches, as flexible dates (16 Nov): ± 1 to ± 14 days (About a week removed 16 Nov: it overlapped ± 7 days)
       (qm ? '<div class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + PM.map(function (n) { return Q('pm' + n, quickRange('pm' + n), '\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span>'); }).join('') + '</div>' : '') +
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
@@ -1450,8 +1461,16 @@
       (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div></div>';
     return h + '</div>';
   }
-  function openDays(stay, opener) {
+  /* Opened from a team card's Plan around your match day: that team's NSW matches with no ticket marked yet get the
+     same I have a ticket toggle as the match sheet, above the dates (16 Nov), so going or not is settled while the
+     days are planned around it. The list is fixed when the sheet opens, so a ticket just marked stays there to undo. */
+  var dTicketKeys = [];
+  function openDays(stay, opener, team) {
     dStay = !!stay; dsel = dRange();
+    dTicketKeys = [];
+    if (team && !stay) (tp.own() ? tp.userMatches() : []).forEach(function (m) {
+      if (!m.f.a && m.f.t && m.f.t.split(' v ').indexOf(team) > -1 && state.tickets.indexOf(m.tkey) < 0) dTicketKeys.push(m.key);
+    });
     var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
     openPm(stay ? 'days:stay' : 'days', opener, overTl);
     pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
@@ -1640,6 +1659,14 @@
     tp.say(it.title + (on ? ' added to your timeline on ' + it.day + '. ' : ' removed from your timeline. ') + state.added.length + ' added.');
   });
   pm.addEventListener('change', function (e) {
+    // I have a ticket in the days sheet (from Plan around your match day): the same rule as the match sheet
+    var dt = e.target.closest('[data-dticket]');
+    if (dt) {
+      var dm = tp.match(dt.dataset.dticket); if (!dm) return;
+      tp.setTicket(dm.tkey, dt.checked);
+      tp.say(dt.checked ? 'Ticket marked for ' + matchName(dm.f) + '.' : 'Ticket removed for ' + matchName(dm.f) + '.');
+      return;
+    }
     var cb = e.target.closest('[data-pm-ticket]'); if (!cb || !pmOpen) return;
     var key = pmOpen.id.slice(6), m = tp.match(key), f = m.f, mine = f.t.split(' v ').some(function (n) { return tp.isPicked(n); }) || (tp.rugby() && !f.a);
     // A ticket means they are going: the match goes on the timeline too, if no team of theirs puts it there already

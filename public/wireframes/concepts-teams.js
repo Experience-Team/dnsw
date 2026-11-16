@@ -1082,7 +1082,7 @@
     h += '<button type="button" class="tc-ko" data-ko="' + esc(ko.key) + '" aria-haspopup="dialog">' + I_CUP + '<span>' + esc(ko.text) + '<b>' + esc(ko.strong) + '</b></span>' + I_NEXT + '</button>';
     // One next step: a team that plays in NSW plans around its match day; one that does not finds where to watch
     var next = c.rugby ? '<button type="button" class="tc-next" data-plan-days aria-haspopup="dialog">' + I_CAL + 'Plan around your match days</button>'
-      : c.nsw ? '<button type="button" class="tc-next" data-plan-days aria-haspopup="dialog">' + I_CAL + 'Plan around your match day' + (c.nsw > 1 ? 's' : '') + '</button>'
+      : c.nsw ? '<button type="button" class="tc-next" data-plan-days data-plan-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_CAL + 'Plan around your match day' + (c.nsw > 1 ? 's' : '') + '</button>'
       : '<button type="button" class="tc-next" data-watch-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_TV + 'See where to watch all ' + c.matches.length + ' in NSW</button>';
     return h + '<div class="tc-foot">' + next + '</div>';
   }
