@@ -53,13 +53,21 @@ list as set out in "Adding standing flags" above, and add it once the user has a
 7. **Patterns go everywhere they apply.** When a visual or behavioural cue is attached to a kind of control (an icon,
    a confirm step, a focus rule), find every control of that kind and apply it to all of them, not just the one in the
    brief. List them before handing over. For example, the calendar icon belongs on every button that sets or changes
-   dates, not only the prompts.
+   dates, not only the prompts; and every close cross sits in the same corner (top right, 16px from the edge) on every
+   sheet, stacked sheet and full-screen layer.
 8. **The page only moves when people expect it to.** A control never scrolls or jumps the page to another section
    unless its label says it will take you there (for example "See where to watch in NSW", "Skip the map"). Anything
    that asks for input or shows more detail opens where the person is, in a sheet or an expanding panel, and closing it
    returns focus to what opened it. When an action changes content above the person, hold the page so what they were
    looking at stays put. For example, "Staying longer? Set your days" used to scroll down to the date fields; it now
    opens the calendar in a sheet.
+9. **Look, don't only measure.** Check every change by eye from screenshots in both themes (low and high fidelity) at
+   390 and 320 wide, in each state the change touches. Use `?phone&tools&theme=wireframe` or `&theme=hifi`: without
+   `?phone` the phone frame stays 358 wide at any window size, and without `?tools` the theme switch is ignored.
+   Measurements back up the look but don't replace it. Optical alignment (centring, padding, indents, even gaps) is
+   judged from the rendered pixels, because fonts and their metrics differ between themes and devices. For example,
+   the Add buttons measured as centred but read low in one font, and the card text measured fine but sat 4px in from
+   its title.
 
 # Experience principles
 
