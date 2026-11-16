@@ -1460,7 +1460,12 @@
   function tlUpdate() {
     // The hero's button follows the picker's wording: Pick your teams with nothing picked, Change your teams after
     var heroCta = document.getElementById('tp-hero-cta');
-    if (heroCta) { var cta = state.picked.length ? 'Change your teams' : 'Pick your teams'; if (heroCta.textContent !== cta) heroCta.textContent = cta; }
+    // It carries the card-fan icon, like every other prompt to pick teams; only the label changes
+    if (heroCta) {
+      var cta = state.picked.length ? 'Change your teams' : 'Pick your teams', lab = heroCta.querySelector('.tp-hero-cta-t');
+      if (!lab) { heroCta.innerHTML = window.tpIcons.fan + '<span class="tp-hero-cta-t"></span>'; lab = heroCta.querySelector('.tp-hero-cta-t'); }
+      if (lab.textContent !== cta) lab.textContent = cta;
+    }
     var perDay = {}, dayType = {}, shown = [];
     TLM.forEach(function (m) {
       var on = tlShown(m.f), ex = !on && tlExtra(m.f), tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1;

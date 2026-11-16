@@ -3746,6 +3746,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Pick your teams: down to the hand (the tailor handler). 36px, per the page's AA sizing, not Figma's 44px */
 .tp-hero-cta { min-height: 36px; padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font: inherit; font-size: var(--fs-lg); font-weight: var(--fw-bold); cursor: pointer; transition: transform var(--dur-micro) var(--ease-out); }
 .tp-hero-cta:active { transform: scale(.98); }
+.tp-hero-cta { display: inline-flex; align-items: center; } /* the card-fan icon, then the label */
+.tp-hero-cta .tp-ico { margin-right: .45em; vertical-align: 0; }
 .tp-hero-cta:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-hero-cta:hover { background: #333; } }
 
