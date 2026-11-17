@@ -1779,15 +1779,19 @@
       if (!dsel || dsel.z === null) return;
       var from = isoOf(dsel.a), to = isoOf(dsel.z);
       askEditing = false; askDraft = null; askError = ''; askOwn = true;
+      var dBefore = snap();
       holdPlace(function () { tp.setTrip({ from: from, to: to, base: t.base, party: t.party }); });
       closePm(); tp.say('Your days: ' + tp.isoRange(from, to) + '.');
+      changedSince(dBefore, ''); daysToast(!!t.from, from, to);
       return;
     }
     if (b.hasAttribute('data-dclear')) {
       askEditing = false; askDraft = null; askError = ''; askOwn = true; dsel = null;
-      holdPlace(function () { tp.setTrip({ base: t.base, party: t.party }); }); closePm(); tp.say('Your days are removed.'); return;
+      var cBefore = snap();
+      holdPlace(function () { tp.setTrip({ base: t.base, party: t.party }); }); closePm(); tp.say('Your days are removed.');
+      changedSince(cBefore, ''); changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']); return;
     }
-    if (b.dataset.sbase !== undefined) { var v = t.base === b.dataset.sbase ? undefined : b.dataset.sbase; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: v, party: t.party }); }); daysRefresh('[data-sbase="' + CSS.escape(b.dataset.sbase) + '"]'); tp.say(v ? baseLabel(v) + '.' : 'Where you’re staying is removed.'); return; }
+    if (b.dataset.sbase !== undefined) { var v = t.base === b.dataset.sbase ? undefined : b.dataset.sbase, sBefore = snap(); askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: v, party: t.party }); }); changedSince(sBefore, ''); baseToast(v); daysRefresh('[data-sbase="' + CSS.escape(b.dataset.sbase) + '"]'); tp.say(v ? baseLabel(v) + '.' : 'Where you’re staying is removed.'); return; }
     if (b.dataset.sparty !== undefined) { var pv = t.party === b.dataset.sparty ? undefined : b.dataset.sparty; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, party: pv }); }); daysRefresh('[data-sparty="' + CSS.escape(b.dataset.sparty) + '"]'); return; }
     if (b.hasAttribute('data-dclose')) closePm();
   });
@@ -1835,6 +1839,7 @@
       else tp.removeItem(id);
       pmSaid = on ? matchName(f) + ' is on your timeline, ' + f.d + '.' : matchName(f) + ' is off your timeline.';
       pmRefresh('[data-pm-match]');
+      planToast(id, matchName(f), on);
       tp.say(pmSaid);
       return;
     }
@@ -1856,6 +1861,7 @@
       pmSaid = si.title + (son ? ' added to your timeline on ' + si.day + '.' : ' removed from your timeline.');
       e.stopPropagation(); // handled here: the page's own Add handler must not toggle it back
       pmRefresh('[data-pm-spot="' + CSS.escape(si.id) + '"]');
+      planToast(si.id, si.title, son);
       tp.say(pmSaid + ' ' + state.added.length + ' added.');
       return;
     }
@@ -1873,6 +1879,7 @@
       e.stopPropagation();
       if (isWt) { var st = pmBody.scrollTop; redraw(); pmBody.scrollTop = st; var fb = pm.querySelector('.tp-add[data-item="' + CSS.escape(vid) + '"]'); if (fb) fb.focus({ preventScroll: true }); }
       else pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
+      planToast(vi.id, vi.title, von);
       tp.say(pmSaid + ' ' + state.added.length + ' added.');
       return;
     }
@@ -1880,10 +1887,11 @@
     if (pb && POI) {
       var pp = POI.pois.filter(function (q) { return q.id === pb.dataset.pmPoi; })[0]; if (!pp) return;
       var pit = addedItem('poi:' + pp.id);
-      if (pit) { tp.removeItem(pit.id); tp.say(pp.title + ' removed from your plan.'); }
+      if (pit) { tp.removeItem(pit.id); tp.say(pp.title + ' removed from your plan.'); planToast(pit.id, pp.title, false); }
       else {
         tp.addItem(tp.poiItem(pp));
         var nu = addedItem('poi:' + pp.id);
+        if (nu) planToast(nu.id, pp.title, true);
         tp.say(!nu ? '' : nu.unplaced ? pp.title + ' saved, not placed yet. ' + (stay() ? 'No free day fits it yet.' : 'It goes into a free day once you set your days.') : pp.title + ' added to your plan on ' + nu.day + '.');
       }
       pmBody.innerHTML = pmPoi(pp);
@@ -1900,6 +1908,7 @@
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.querySelector('.tp-pm-add-l').innerHTML = addLabel(on, on ? 'Added to your timeline' : 'Add to your timeline');
     tp.say(it.title + (on ? ' added to your timeline on ' + it.day + '. ' : ' removed from your timeline. ') + state.added.length + ' added.');
+    planToast(it.id, it.title, on);
   });
   pm.addEventListener('change', function (e) {
     // I have a ticket in the days sheet (from Plan around your match day): the same rule as the match sheet
@@ -1945,7 +1954,7 @@
     var gq = e.target.closest('[data-going]');
     if (gq && !pm.contains(gq)) {
       var gm = tp.match(gq.dataset.going); if (!gm) return;
-      var gf = gm.f, gid = matchId(gm.key), v = gq.dataset.v;
+      var gf = gm.f, gid = matchId(gm.key), v = gq.dataset.v, gBefore = snap();
       if (v === 'no') {
         state.notGoing = (state.notGoing || []).concat([gm.key]); tp.save();
         var ck = (gq.closest('.tp-wm') || {}).dataset; ck = ck && ck.key || gm.key;
@@ -1961,6 +1970,7 @@
         tp.setTicket(gm.tkey, true);
         render(true, '#go-' + CSS.escape(gm.key.replace(/\W+/g, '-')));
         tp.say('Going to ' + matchName(gf) + ', ' + gf.d + '. Ticket marked and the match is on your timeline. Its screenings give way to getting there and back.');
+        changedSince(gBefore, ''); changeToast('You’re going to ' + matchName(gf), ['now shows getting there and back', 'now show getting there and back'], 'It’s on your plan, ' + gf.d + '.');
         return;
       }
       // Not going after all: the ticket comes off (and the match added for it); the screenings come back
@@ -1968,6 +1978,7 @@
       if (added(gid)) tp.removeItem(gid);
       render(true, '.tp-wm [data-going="' + CSS.escape(gm.key) + '"][data-v="yes"]');
       tp.say('Ticket removed for ' + matchName(gf) + '. Its screenings are back.');
+      changedSince(gBefore, ''); changeToast('Ticket removed: ' + matchName(gf), ['shows its screenings again', 'show its screenings again']);
       return;
     }
     // Not a button inside a sheet, and not one a sheet has just redrawn away (it is no longer in the page)
@@ -1977,6 +1988,7 @@
     if (added(it.id)) {
       tp.removeItem(it.id);
       tp.say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
+      if (!inIdeas) planToast(it.id, it.title, false);
     } else if (inIdeas) {
       // Added from the ideas sheet: the axis is behind the sheet, so its marker settles with a ring once the sheet closes
       tp.addItem(Object.assign({}, it));
@@ -1987,6 +1999,7 @@
       tp.flyToBar(b);
       tp.addItem(Object.assign({}, it));
       tp.say(it.title + ' added to your timeline on ' + it.day + '. ' + state.added.length + ' added.');
+      planToast(it.id, it.title, true);
     }
   });
 
@@ -2004,12 +2017,41 @@
     pending = [];
     if (before.watch !== after.watch) { names.push('Where to watch'); pending.push(SECS.watch); }
     if (before.third !== after.third) { names.push('Around your matches'); pending.push(SECS.third); }
+    lastChanged = names.map(function (n, i) { return [n, pending[i]]; });
     askNews = names.length ? lead + ' Updated on the page: ' + names.join(' and ') + '.' : (same || lead + ' Nothing on the page needed to change.');
     // The answer is given in the open timeline, over the page: the sections wait until it closes, then each is tinted
     // as it comes into view
     pending.forEach(function (sec) { sec.classList.remove('is-changed'); });
     if (!document.getElementById('tp-tl').classList.contains('is-open')) watchPending();
     return askNews;
+  }
+  /* Toasts for changes that reach other parts of the page (tp.toast, concepts-teams.js). The title says what the person
+     did; the line says what it changed, naming the sections that changed (from changedSince), and the link goes to the
+     first of them. verb(one, many) agrees with how many sections changed; with none, the line is `none` (or left out). */
+  var lastChanged = [];
+  function changeToast(title, verb, none) {
+    var ch = lastChanged.filter(function (c) { return c[1]; });
+    if (!ch.length) { tp.toast(title, none || ''); return; }
+    var names = ch.map(function (c) { return c[0]; });
+    tp.toast(title, names.join(' and ') + ' ' + (names.length > 1 ? verb[1] : verb[0]) + '.', { label: 'See ' + names[0], fn: function () { tp.goTo(ch[0][1]); } });
+  }
+  function baseToast(v) {
+    if (v === 'local') changeToast('Ideas for a local', ['now shows the nearest first', 'now show the nearest first']);
+    else if (v === 'outside') changeToast('Staying outside NSW', ['is updated to suit', 'are updated to suit']);
+    else if (v) changeToast('Staying in ' + v, ['now starts from there', 'now start from there']);
+    else changeToast('Where you’re staying is cleared', ['is updated to suit', 'are updated to suit']);
+  }
+  function daysToast(had, from, to) {
+    changeToast(had ? 'Your days are now ' + tp.isoRange(from, to) : 'Your days are set: ' + tp.isoRange(from, to),
+      ['now fits these days', 'now fit these days'], 'Everything on the page already fits these days.');
+  }
+  // Something put on, or taken off, the plan: says which day it landed on; the link opens the plan (not over a sheet)
+  function planToast(id, title, on) {
+    var it = addedItem(id), act = pmOpen ? null : { label: 'Open your plan', fn: tp.openPlan };
+    if (!on) { tp.toast('Removed from your plan', title + '.'); return; }
+    if (!it) return;
+    if (it.unplaced) tp.toast('Saved to your plan', title + ' goes into a free day once ' + (stay() ? 'one fits it.' : 'you set your days.'), act);
+    else tp.toast('Added to your plan', title + ', ' + it.day + '.', act);
   }
   function flash(sec) { sec.classList.remove('is-changed'); void sec.offsetWidth; sec.classList.add('is-changed'); }
   var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
@@ -2125,19 +2167,21 @@
       askEditing = false; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ from: r.from, to: r.to, base: t.base, party: t.party });
       said = changedSince(before, 'Your days: ' + tp.isoRange(r.from, r.to) + '.');
-      settle('[data-act="change"]', h0); tp.say(said); return;
+      settle('[data-act="change"]', h0); tp.say(said); daysToast(!!t.from, r.from, r.to); return;
     }
     if (b.dataset.base !== undefined && ask.contains(b)) {
       // One answer: tapping the chosen one again clears it; choosing a place from the list replaces a quick answer
       var v = t.base === b.dataset.base ? undefined : b.dataset.base;
       placeQ = '';
       said = setPart('base', v, before, v ? baseLabel(v) + '.' + (v === 'local' ? ' Ideas now for a local: nearest first, no dates needed.' : '') : 'Where you’re staying is cleared.');
-      settle(v && !BASE_Q.some(function (x) { return x[0] === v; }) ? '#tp-place' : '[data-base="' + CSS.escape(b.dataset.base) + '"]', h0); tp.say(said); return;
+      settle(v && !BASE_Q.some(function (x) { return x[0] === v; }) ? '#tp-place' : '[data-base="' + CSS.escape(b.dataset.base) + '"]', h0); tp.say(said);
+      baseToast(v); return;
     }
     if (b.dataset.party) {
       var pv = t.party === b.dataset.party ? undefined : b.dataset.party;
       said = setPart('party', pv, before, pv ? 'Ideas ordered for ' + { solo: 'one', couple: 'a couple', friends: 'friends', family: 'a family' }[pv] + '.' : 'Who’s coming is cleared.');
-      settle('[data-party="' + CSS.escape(b.dataset.party) + '"]', h0); tp.say(said); return;
+      settle('[data-party="' + CSS.escape(b.dataset.party) + '"]', h0); tp.say(said);
+      changeToast(pv ? 'Ideas now suit ' + { solo: 'one', couple: 'a couple', friends: 'a group of friends', family: 'a family' }[pv] : 'Who’s coming is cleared', pv ? ['is reordered to suit', 'are reordered to suit'] : ['goes back to its usual order', 'go back to their usual order']); return;
     }
     var act = b.dataset.act;
     if (act === 'refine') { refineOpen = !refineOpen; settle('[data-act="refine"]', h0); return; }
@@ -2154,12 +2198,15 @@
       askEditing = true; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ base: t.base, party: t.party });
       said = changedSince(before, 'Your days are reset.');
+      changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']);
     } else {
       var prev = askUndo.pop(); if (!prev) return;
       askEditing = true; askDraft = null; askError = ''; askOwn = true;
       (prev.placed || []).forEach(function (id) { var it = addedItem(id); if (it) { it.day = ''; it.unplaced = true; } });
       tp.setTrip(prev.from ? { from: prev.from, to: prev.to, base: t.base, party: t.party } : { base: t.base, party: t.party });
-      said = changedSince(before, prev.from ? 'Back to ' + tp.isoRange(prev.from, prev.to) + '.' : 'Your days are removed again.') + ((prev.placed || []).length ? ' ' + prev.placed.length + (prev.placed.length === 1 ? ' saved place is' : ' saved places are') + ' back in Saved, not placed yet.' : '');
+      said = changedSince(before, prev.from ? 'Back to ' + tp.isoRange(prev.from, prev.to) + '.' : 'Your days are removed again.');
+      changeToast(prev.from ? 'Back to your days: ' + tp.isoRange(prev.from, prev.to) : 'Your days are cleared again', ['is back as it was', 'are back as they were']);
+      said = said + ((prev.placed || []).length ? ' ' + prev.placed.length + (prev.placed.length === 1 ? ' saved place is' : ' saved places are') + ' back in Saved, not placed yet.' : '');
     }
     askQuiet(askUndo.length ? '[data-act="undo"]' : fallback); tp.say(said);
   }
@@ -2196,6 +2243,7 @@
     var said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
     askQuiet(sel);
     tp.say(said);
+    daysToast(!!(step.from && step.to), a, z);
   }
   function applyFromFields(sel) { var p = rangeParts(); if (p.from && p.to) applyDays(p.from.value, p.to.value, sel); }
   ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') { rRoot = ask; applyFromFields('#' + e.target.id); } });

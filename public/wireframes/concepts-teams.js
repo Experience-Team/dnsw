@@ -1919,6 +1919,7 @@
     tlPanel.inert = !open;
     body.inert = open && !wide(); // the screen behind waits under the scrim while the timeline is open (not beside the desktop rail)
     tlScrim.classList.toggle('is-on', open && !wide());
+    if (typeof toastEl !== 'undefined' && toastEl && !toastEl.hidden) toastPlace(); // a message on screen moves above or below the bar with it
     if (wide()) { // the rail glides to its new top, so the eye can follow it (check 1)
       tl.classList.add('is-gliding'); clearTimeout(tl._glide);
       tl._glide = setTimeout(function () { tl.classList.remove('is-gliding'); }, 420);
@@ -2211,6 +2212,65 @@
     clashes: function () { return tlClash; },
     // The team list as a sheet, from anywhere on the page (Your plan so far)
     openTeams: function (opener) { tsOpen(opener); } };
+
+  /* ---------- Toasts: what a change did, said where the person is ----------
+     One at a time, near the foot of the screen: above the Your plan bar on a phone, at the foot of the content column
+     on a desktop. A short title saying what happened, a line saying what it changed elsewhere on the page, and at most
+     one link to it (its label names where it goes, so the page only moves when asked). Stays 6 seconds, longer while
+     the pointer or keyboard focus is on it; the cross closes it. Screen readers already hear each change from say(),
+     so the toast is not a live region and says nothing twice. Rises 12px and fades in; reduced motion fades only. */
+  var toastEl = document.createElement('div');
+  toastEl.className = 'tp-toast';
+  toastEl.hidden = true;
+  toastEl.innerHTML = '<div class="tp-toast-txt"><p class="tp-toast-t"></p><p class="tp-toast-d"></p></div>' +
+    '<button type="button" class="tp-toast-act"></button>' +
+    '<button type="button" class="tp-toast-x" aria-label="Close message"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button>';
+  phoneEl.appendChild(toastEl);
+  var toastT = 0, toastHeld = false, toastFn = null;
+  function toastPlace() {
+    // On a phone it sits 12px above the bar while the bar is down; over the open timeline or with no bar, near the foot
+    var up = !wide() && tlOn && !tlOpen;
+    toastEl.style.setProperty('--toast-b', (up ? BAR + 12 : 16) + 'px');
+  }
+  function toastHide(now) {
+    clearTimeout(toastT);
+    if (toastEl.hidden) return;
+    if (now || reduce.matches || !toastEl.animate) { toastEl.hidden = true; return; }
+    toastEl.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(8px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = function () { toastEl.hidden = true; };
+  }
+  function toastArm() { clearTimeout(toastT); if (!toastHeld) toastT = setTimeout(function () { toastHide(); }, 6000); }
+  function toast(title, detail, action) {
+    toastEl.querySelector('.tp-toast-t').textContent = title;
+    var d = toastEl.querySelector('.tp-toast-d'); d.textContent = detail || ''; d.hidden = !detail;
+    var act = toastEl.querySelector('.tp-toast-act');
+    toastFn = action && action.fn || null;
+    act.textContent = action ? action.label : ''; act.hidden = !action;
+    toastPlace();
+    var was = !toastEl.hidden;
+    toastEl.hidden = false;
+    if (toastEl.animate && !was) toastEl.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: reduce.matches ? 150 : 260, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+    else if (toastEl.animate) toastEl.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 160 }); // a new message replacing one on screen
+    toastArm();
+  }
+  toastEl.querySelector('.tp-toast-x').addEventListener('click', function () { toastHide(); });
+  toastEl.querySelector('.tp-toast-act').addEventListener('click', function () { var fn = toastFn; toastHide(true); if (fn) fn(); });
+  toastEl.addEventListener('pointerenter', function () { toastHeld = true; clearTimeout(toastT); });
+  toastEl.addEventListener('pointerleave', function () { toastHeld = false; toastArm(); });
+  toastEl.addEventListener('focusin', function () { toastHeld = true; clearTimeout(toastT); });
+  toastEl.addEventListener('focusout', function () { toastHeld = false; toastArm(); });
+  phoneEl.addEventListener('tp:tlclose', toastPlace);
+  // Go to a section named in a toast's link: it scrolls into view under the section nav, gently unless motion is reduced
+  function goTo(sec) {
+    if (!sec) return;
+    if (tlOpen && !wide()) tlSetOpen(false, false);
+    var nav = phoneEl.querySelector('.tp-cap-wrap'), top = nav ? nav.offsetHeight + 24 : 16;
+    body.scrollTo({ top: body.scrollTop + sec.getBoundingClientRect().top - body.getBoundingClientRect().top - top, behavior: reduce.matches ? 'auto' : 'smooth' });
+    var h = sec.querySelector('h2, h3'); if (h) { if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+  }
+  window.tpPicker.toast = toast;
+  window.tpPicker.toastHide = toastHide;
+  window.tpPicker.goTo = goTo;
+  window.tpPicker.openPlan = function () { if (!tlOpen) tlSetOpen(true); };
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
 })();
