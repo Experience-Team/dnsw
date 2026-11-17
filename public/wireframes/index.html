@@ -53,6 +53,24 @@
     /* Versioned pages: one current entry per page, outlined, with "Current" in ink; earlier ones say what they are and when */
     .launch-col ul li a.launch-current { border-color: #111; }
     .launch-status-current { color: #111; font-weight: 600; }
+    /* Earlier versions fold under the current entry, newest first; the cards inside keep the same style */
+    .launch-earlier summary {
+      display: inline-flex; align-items: center; gap: .5rem; min-height: 1.5rem;
+      font-size: .8125rem; font-weight: 600; color: #444; cursor: pointer; list-style: none;
+    }
+    .launch-earlier summary::-webkit-details-marker { display: none; }
+    .launch-earlier summary::before {
+      content: ""; width: .375rem; height: .375rem; margin-left: .4375rem; /* text lines up with the card text above (20px padding + 1px border) */
+      border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+      transform: rotate(-45deg); transition: transform .15s;
+    }
+    .launch-earlier details[open] > summary::before { transform: rotate(45deg); }
+    .launch-earlier summary:hover { color: #111; text-decoration: underline; text-underline-offset: 2px; }
+    /* Held close to its current entry (8px) and further from the next one (16px); opened versions indent under it */
+    .launch-col ul li.launch-earlier { margin-top: -.25rem; }
+    .launch-col ul li.launch-earlier + li { margin-top: .25rem; }
+    .launch-earlier details > ul { margin-top: .5rem; padding-left: 1.3125rem; }
+    @media (prefers-reduced-motion: reduce) { .launch-earlier summary::before { transition: none; } }
     /* Two equal parts: the Rugby World Cup section first, then the other wireframes */
     .launch-section + .launch-section { margin-top: 4rem; }
     .launch-section-head { margin-bottom: 1.5rem; padding-bottom: .75rem; border-bottom: 1px solid #ddd; }
@@ -82,7 +100,8 @@
     </div>
 
     <!-- Rugby World Cup 2027. To add a link: put it at the top of its group (newest first). A page with versions marks one as current (class launch-current and a
-         "Current · updated [date]" line; change the date when the page changes) and says what each earlier one is. Start a new group, as one
+         "Current · updated [date]" line; change the date when the page changes). Its earlier versions fold under it in a
+         .launch-earlier "Earlier versions (n)" list, newest first, each with its date (and "Snapshot" if it is a frozen copy). Start a new group, as one
          more .launch-col, once three or more links share a purpose (for example Research or Archive); the grid wraps
          to fit, so the layout needs no change. -->
     <section class="launch-section" aria-labelledby="rwc-h">
@@ -106,8 +125,15 @@
           <p class="launch-col-title">Pages</p>
           <ul>
             <li><a href="pages/rugby-world-cup.html" class="launch-current" target="_blank" rel="noopener"><span class="launch-txt">Rugby World Cup<small><span class="launch-status-current">Current</span> · updated 10 Nov</small></span> <span>↗</span></a></li>
-            <li><a href="pages/rugby-world-cup-v1.html" target="_blank" rel="noopener"><span class="launch-txt">Rugby World Cup V1<small>Snapshot from 2 Nov</small></span> <span>↗</span></a></li>
-            <li><a href="pages/rugby-world-cup-v2.html" target="_blank" rel="noopener"><span class="launch-txt">Rugby World Cup V2<small>Snapshot from 3 Nov</small></span> <span>↗</span></a></li>
+            <li class="launch-earlier">
+              <details>
+                <summary>Earlier versions (2)</summary>
+                <ul>
+                  <li><a href="pages/rugby-world-cup-v2.html" target="_blank" rel="noopener"><span class="launch-txt">Rugby World Cup V2<small>Snapshot from 3 Nov</small></span> <span>↗</span></a></li>
+                  <li><a href="pages/rugby-world-cup-v1.html" target="_blank" rel="noopener"><span class="launch-txt">Rugby World Cup V1<small>Snapshot from 2 Nov</small></span> <span>↗</span></a></li>
+                </ul>
+              </details>
+            </li>
             <li><a href="rugby-world-cup-team.html" target="_blank" rel="noopener">Choose your team (before, South Africa, Japan, Japan watching) <span>↗</span></a></li>
           </ul>
         </div>
@@ -161,9 +187,16 @@
         <p class="launch-col-title">Destination</p>
         <ul>
           <li><a href="pages/western-sydney-airport.html" target="_blank" rel="noopener">Western Sydney International Airport <span>↗</span></a></li>
-          <li><a href="pages/western-sydney.html" target="_blank" rel="noopener"><span class="launch-txt">Western Sydney (Destination)<small>Earlier version · updated 10 Aug</small></span> <span>↗</span></a></li>
-          <li><a href="pages/western-sydney-v2.html" target="_blank" rel="noopener"><span class="launch-txt">Western Sydney (Destination) V2<small>Earlier version · updated 10 Aug</small></span> <span>↗</span></a></li>
           <li><a href="pages/western-sydney-v3.html" class="launch-current" target="_blank" rel="noopener"><span class="launch-txt">Western Sydney (Destination) V3<small><span class="launch-status-current">Current</span> · updated 10 Aug</small></span> <span>↗</span></a></li>
+          <li class="launch-earlier">
+            <details>
+              <summary>Earlier versions (2)</summary>
+              <ul>
+                <li><a href="pages/western-sydney-v2.html" target="_blank" rel="noopener"><span class="launch-txt">Western Sydney (Destination) V2<small>Updated 10 Aug</small></span> <span>↗</span></a></li>
+                <li><a href="pages/western-sydney.html" target="_blank" rel="noopener"><span class="launch-txt">Western Sydney (Destination)<small>Updated 10 Aug</small></span> <span>↗</span></a></li>
+              </ul>
+            </details>
+          </li>
         </ul>
       </div>
 
