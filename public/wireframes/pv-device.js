@@ -180,7 +180,10 @@
     code.innerHTML = '<svg viewBox="0 0 ' + (n + q * 2) + ' ' + (n + q * 2) + '" shape-rendering="crispEdges" aria-hidden="true">' +
       '<rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#1a1a1a"/></svg>';
     code.dataset.url = url;
-    text.textContent = 'Scan to open just the phone screen, in the high fidelity version. Your phone’s keyboard and controls work there.';
+    // Name the fidelity only when the address carries it: without the switch (the low fidelity address) the code opens
+    // the low fidelity phone, so the line makes no fidelity claim
+    text.textContent = 'Scan to open just the phone screen' + (themeBtn ? ', in the high fidelity version' : '') +
+      '. Your phone’s keyboard and controls work there.';
   }
   if (box) {
     code = document.getElementById('pv-qr-code'); text = document.getElementById('pv-qr-p');
@@ -217,5 +220,20 @@
       else fallback();
     });
   }
+  /* ---------- Prototype tabs keep the tools version ----------
+     A tab marked data-tools points at a prototype with a tools version (?tools). Once you are on a tools version, those
+     tabs keep ?tools for the rest of this browser tab's visit, so moving to another prototype and back never drops you
+     on the plain address (the theme travels already: it is remembered in this browser). Opening a prototype's plain
+     address again ends it. */
+  try {
+    var tools = root.classList.contains('pv-tools'), own = document.querySelector('.pv-tabs [aria-current="page"][data-tools]');
+    if (tools) sessionStorage.setItem('pv-tools', '1');
+    else if (own) sessionStorage.removeItem('pv-tools');
+    if (tools || sessionStorage.getItem('pv-tools') === '1') {
+      document.querySelectorAll('.pv-tabs a[data-tools]').forEach(function (a) {
+        if (!/[?&]tools\b/.test(a.getAttribute('href'))) a.setAttribute('href', a.getAttribute('href').split('?')[0] + '?tools');
+      });
+    }
+  } catch (e) {}
   setTheme(hifi(), false);
 })();

@@ -256,6 +256,9 @@
     if (cards.length) h += '<ul class="tp-wcs' + (car ? ' tp-wcs--car' : '') + '" aria-label="Where to watch, by match day' + (car ? ', ' + cards.length + ' cards, scroll sideways' : '') + '">' + cards.join('') + '</ul>' +
       (car ? '<p class="tp-deck-hint tp-wcs-hint">' + cards.length + ' match days. Swipe for the others.</p>' : '');
     watchList.innerHTML = h;
+    // The swipe hint only while there is more to the side (on a desktop two match days fit side by side)
+    var wCar = watchList.querySelector('.tp-wcs--car'), wHint = watchList.querySelector('.tp-wcs-hint');
+    if (wCar && wHint) requestAnimationFrame(function () { wHint.hidden = wCar.scrollWidth <= wCar.clientWidth + 2; });
     if (sx) watchList.querySelector('.tp-wcs').scrollLeft = sx; // a change on one card keeps the carousel where it was
     watchMore.hidden = true;
     if (!watchMore.hidden) { watchMore.textContent = watchAll ? 'Show fewer' : 'Show ' + (cards.length - 4) + ' more match days'; watchMore.setAttribute('aria-expanded', watchAll ? 'true' : 'false'); }
@@ -1520,7 +1523,7 @@
     pm.inert = false; pm.style.transform = ''; pm.style.height = ''; pm.style.removeProperty('--stack-top');
     pm.classList.toggle('is-match', isMatch || isDays);
     pm.classList.toggle('is-sheet', asSheet);
-    pmScrim.hidden = !asSheet;
+    pmScrim.hidden = !asSheet && !wideModal(); // a full page is a modal over the dimmed page on desktop too
     // Everything behind waits; remember what was already inert so closing puts it back as it was
     pmLayerBack(true);
     pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
@@ -1530,6 +1533,8 @@
     tp.say(isPoi || isIdea || isItem ? (isPoi ? poiP.title : isIdea ? ideaI.title : x.it.title) + ', details opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
+  // Desktop website (the page on its own, 1024px and wider): sheets are modals centred in the window
+  function wideModal() { return matchMedia('(min-width: 1024px)').matches && document.documentElement.classList.contains('pv-device'); }
   function closePm() {
     if (!pmOpen) return;
     if (pmHistory.length) { pmPop(); return; } // a sheet opened from inside a sheet closes back to the one under it
@@ -1540,14 +1545,14 @@
     var sheet = pm.classList.contains('is-sheet');
     function done() { pm.hidden = true; pmScrim.hidden = true; pm.style.height = ''; pm.classList.remove('is-open', 'is-closing'); notesRefresh(); }
     if (reduce.matches || !pm.animate) done();
-    else if (sheet) {
+    else if (sheet && !wideModal()) {
       // The sheet slides back down the way it came; the scrim fades with it
       pm.classList.add('is-closing');
       pmScrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in' });
       var from = pm.style.transform || 'none'; pm.style.transform = ''; // a drag let go part way down: on from there
       pm.animate([{ transform: from }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
     }
-    else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
+    else { pm.classList.add('is-closing'); if (wideModal() && !pmScrim.hidden) pmScrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-in' }); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
     // The control that was tapped, if it is still there (the same id can appear twice: a map card and its row on the page)
     var el = pmOpenerEl && document.contains(pmOpenerEl) && !pmOpenerEl.closest('[inert]') ? pmOpenerEl : back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
     // The control that opened it was redrawn while the sheet was open (a card showing a new chip): its replacement
