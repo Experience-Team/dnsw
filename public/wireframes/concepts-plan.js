@@ -373,7 +373,10 @@
     goTo: goTo,
     same: function (el) {
       var ds = el.dataset || {}, k = ['dcIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcDay', 'dcExpand'].filter(function (x) { return ds[x] !== undefined; })[0];
-      return k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;
+      var hit = k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;
+      // A day filled from its ideas sheet loses Add ideas: its card's heading stands in
+      if (!hit && k === 'dcIdeas') { var c = cardFor(+ds.dcIdeas); hit = c && c.querySelector('.tp-dc-h'); }
+      return hit;
     },
     addButton: function (d) { return root.querySelector('[data-dc-ideas="' + d + '"]'); },
     // Something just added (from the ideas sheet): its line on the card is singled out for a moment

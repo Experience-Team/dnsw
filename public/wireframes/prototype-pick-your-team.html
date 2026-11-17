@@ -200,12 +200,9 @@
           </div>
           <p class="visually-hidden" id="tp-live" role="status" aria-live="polite"></p>
         </section>
-        <!-- All matches: below the picker whether or not anyone has picked a team. Minimal, as this page is not the main
+        <!-- All matches: right under the picker and its tabs whether or not anyone has picked a team, so the All matches tab and its list are never split by Your days or the map (17 Nov). Minimal, as this page is not the main
              source for matches. Built by concepts-teams.js from cnFixtures; the All matches tab once a team is picked.
              Each row opens that match's own page. -->
-        <!-- Your days in NSW (17 Nov): moved up, right under the team cards and above the map, appearing once a team is picked;
-             the map (Around the matches in NSW, concepts-map.js) is placed right after it -->
-        <section class="tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1" hidden></section>
         <section class="tp-all" id="tp-all" aria-labelledby="tp-all-title">
           <h3 class="tp-all-title" id="tp-all-title">All matches</h3>
           <!-- Filter: In NSW (the default) or All (interstate matches can be watched at NSW fan zones); with In NSW, one NSW host
@@ -224,6 +221,9 @@
           <p class="tp-all-empty" id="tp-all-empty" hidden><span id="tp-all-empty-text"></span> <button type="button" class="tp-link" id="tp-all-empty-clear">Show all matches</button></p>
           <p class="tp-all-hint" id="tp-all-hint">Swipe sideways for the next five matches.</p>
         </section>
+        <!-- Your days in NSW (17 Nov): moved up, right under the team cards and above the map, appearing once a team is picked;
+             the map (Around the matches in NSW, concepts-map.js) is placed right after it -->
+        <section class="tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1" hidden></section>
         <!-- Your days, asked once a team is picked (or every NSW match), and Refine your plan (where you are staying, who is
              coming), both optional. Built by concepts-third-half.js (renderAsk). Nothing is guessed: the days start empty.
              Since 17 Nov it sits above the map, under the team cards (it was below the matches from 15 Nov). -->
