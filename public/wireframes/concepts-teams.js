@@ -1827,9 +1827,31 @@
   // A faint line under the title row, only once the content has scrolled under it
   var tlHead = document.querySelector('.tp-tl-head');
   tlPanel.addEventListener('scroll', function () { tlHead.classList.toggle('is-stuck', tlPanel.scrollTop > 0); }, { passive: true });
-  function tlFit() { tl.style.setProperty('--tl-p', Math.max(260, phoneEl.clientHeight - BAR - TL_STRIP) + 'px'); }
+  /* Desktop website (the page on its own, 1024px and wider): Your plan is a rail on the right, not a sheet. It starts
+     beside the team picker and, as the page scrolls, follows it down to just under the section nav; open, the timeline
+     fills the rail to 24px above the window's foot. The page beside it stays usable. */
+  var wideMq = matchMedia('(min-width: 1024px)');
+  function wide() { return wideMq.matches && document.documentElement.classList.contains('pv-device'); }
+  var railTop = 0;
+  function railFollow() {
+    if (!wide()) { tl.style.removeProperty('--rail-top'); return; }
+    tl.style.setProperty('--sbw', (body.offsetWidth - body.clientWidth) + 'px'); // the page's scrollbar, so the rail lines up with the header
+    var pr = phoneEl.getBoundingClientRect(), capW = phoneEl.querySelector('.tp-cap-wrap'), pick = document.getElementById('tp-pick');
+    var under = capW ? capW.getBoundingClientRect().bottom - pr.top + 24 : 24;
+    var start = pick ? pick.getBoundingClientRect().top - pr.top : under;
+    railTop = Math.max(under, start);
+    // Open, the timeline needs room: the rail rises (never above the nav) until 320px of it fits above the window's foot
+    if (tlOpen) railTop = Math.max(under, Math.min(railTop, phoneEl.clientHeight - 24 - BAR - 320));
+    railTop = Math.round(railTop);
+    tl.style.setProperty('--rail-top', railTop + 'px');
+    tlFit();
+  }
+  function tlFit() {
+    var h = wide() ? phoneEl.clientHeight - railTop - BAR - 24 : phoneEl.clientHeight - BAR - TL_STRIP;
+    tl.style.setProperty('--tl-p', Math.max(wide() ? 160 : 260, h) + 'px');
+  }
   tlFit();
-  window.addEventListener('resize', tlFit);
+  window.addEventListener('resize', function () { railFollow(); tlFit(); });
   // Shown once the match cards have come into view and their top has passed the top of the phone (never for the fan)
   function tlRef() {
     if (!results.hidden) return deck;
@@ -1840,6 +1862,7 @@
   if (skipEl) skipEl.addEventListener('click', function (e) { e.preventDefault(); document.getElementById('tp-tl-toggle').focus(); });
   if (skipEl) skipEl.hidden = !tlOn;
   function syncBar() {
+    railFollow(); // the rail's top follows the page as it changes, not only as it scrolls
     var ref = tlRef(), r = ref && ref.getBoundingClientRect(), box = body.getBoundingClientRect();
     // The cards' top has passed the top of the phone; or, where the page is too short for that, the cards are in view and
     // the page is scrolled to its end (otherwise the bar could never appear under a short list)
@@ -1861,7 +1884,8 @@
   }
   var barIntro = false, barRaf = 0;
   setTimeout(function () { barIntro = true; syncBar(); }, 700);
-  body.addEventListener('scroll', function () { if (!barRaf) barRaf = requestAnimationFrame(function () { barRaf = 0; syncBar(); }); }, { passive: true });
+  body.addEventListener('scroll', function () { if (!barRaf) barRaf = requestAnimationFrame(function () { barRaf = 0; railFollow(); syncBar(); }); }, { passive: true });
+  railFollow();
   window.addEventListener('resize', syncBar);
   /* The mini strip and the big axis are the same timeline at two scales. Opening, a copy of the axis starts shrunk onto
      the strip (its markers the size of the strip's dots) and grows into place while the sheet rises; closing, it shrinks
@@ -1893,8 +1917,13 @@
     tl.classList.toggle('is-open', open);
     tlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     tlPanel.inert = !open;
-    body.inert = open; // the screen behind waits under the scrim while the timeline is open
-    tlScrim.classList.toggle('is-on', open);
+    body.inert = open && !wide(); // the screen behind waits under the scrim while the timeline is open (not beside the desktop rail)
+    tlScrim.classList.toggle('is-on', open && !wide());
+    if (wide()) { // the rail glides to its new top, so the eye can follow it (check 1)
+      tl.classList.add('is-gliding'); clearTimeout(tl._glide);
+      tl._glide = setTimeout(function () { tl.classList.remove('is-gliding'); }, 420);
+      railFollow();
+    }
     if (open) {
       tlFit();
       // Open on what matters: the chosen marker; else the days in NSW (confirmed or suggested); else the first thing
@@ -1928,7 +1957,7 @@
   var tlDrag = null, tlDragged = false;
   function tlTravel() { return parseFloat(getComputedStyle(tl).getPropertyValue('--tl-p')) || 420; }
   tlToggle.addEventListener('pointerdown', function (e) {
-    if (!tlOn || stackEl || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (!tlOn || stackEl || wide() || (e.pointerType === 'mouse' && e.button !== 0)) return; // the desktop rail does not drag
     tlFit();
     tlDrag = { y: e.clientY, t: e.timeStamp, dy: 0, open: tlOpen, id: e.pointerId, moved: false };
     tlDragged = false;
@@ -1960,7 +1989,7 @@
   // While the timeline is open, Tab stays in it (the bar and the sheet), as in the other sheets: the page behind is
   // inert, but the skip link and the prototype's own panel sat outside it
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Tab' || !tlOpen || stackEl) return;
+    if (e.key !== 'Tab' || !tlOpen || stackEl || wide()) return; // the desktop rail sits beside the page: Tab moves on
     var tlEl = document.getElementById('tp-tl');
     var fs = Array.prototype.filter.call(tlEl.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'), function (el) { return !el.disabled && !el.closest('[hidden], [inert]') && el.getClientRects().length; });
     if (!fs.length) return;

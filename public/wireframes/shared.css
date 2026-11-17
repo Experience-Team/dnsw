@@ -5240,3 +5240,79 @@ span.tp-map-arrow { display: block; }
 .cn-phone > .cn-body #tp-ask:not([hidden]), #tp-ask:not([hidden]) { margin-top: var(--space-7); } /* not the 64px --sec-gap */
 .tp-all:not(.is-tabbed) { padding-bottom: 0; }
 .tp-all:not(.is-tabbed) + #tp-ask[hidden] + .tp-ov { margin-top: var(--space-7, 48px); }
+
+/* ==========================================================================================================
+   Pick your team as a desktop website (17 Nov, step 1 of the desktop layout: header, nav, hero, picker,
+   results and Your plan). Only the page on its own (the phone view, ?phone, and the viewer's new-tab button)
+   at 1024px and wider; the viewer's 390px phone and narrow windows keep the phone layout.
+   - One content width: 1280px at most, centred, 32px from the window edge at the least (--wide-pad).
+   - Your plan becomes a rail on the right (--rail-w, 48px from the content). It starts beside the team picker and
+     follows the page down under the section nav; concepts-teams.js sets its top (--rail-top) and height.
+   - The header and the hero run the full content width, over the rail's column; everything below the hero sits
+     in the main column, left of the rail.
+   ========================================================================================================== */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone { --wide-pad: max(32px, calc((100vw - 1280px) / 2)); --rail-w: 360px; --rail-gap: 48px; --rail-span: calc(var(--rail-w) + var(--rail-gap)); }
+  .pv-device #tp-phone > .cn-body { padding: 0 calc(var(--wide-pad) + var(--rail-span)) var(--space-9) var(--wide-pad); scrollbar-gutter: stable; }
+
+  /* Header: logo and lockup at the content edges, the rule under it across the window */
+  .pv-device #tp-phone .tp-top { margin: 0 calc(-1 * (var(--wide-pad) + var(--rail-span))) 0 calc(-1 * var(--wide-pad)); padding: var(--space-5) calc(var(--wide-pad)) ; }
+
+  /* Section nav: the capsule at its natural width on the left, a row of its own under the header, sticky */
+  .pv-device #tp-phone .tp-cap-wrap { margin: var(--space-5) 0 var(--space-8); }
+  /* Stuck under the top of the window it gets a band of the page colour behind it, across the window, so the page
+     scrolls under a bar rather than under a floating pill; it keeps its size (no shrinking on a big screen) */
+  .pv-device #tp-phone .tp-cap-wrap::before { content: ""; position: absolute; z-index: -1; top: -8px; bottom: -12px; left: calc(-1 * var(--wide-pad)); right: calc(-1 * (var(--wide-pad) + var(--rail-span))); background: var(--c-surface); border-bottom: var(--bw-1) solid var(--c-line-soft); opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+  .pv-device #tp-phone .tp-cap-wrap.is-stuck::before { opacity: 1; }
+  .pv-device #tp-phone .tp-cap-wrap.is-stuck .tp-cap { box-shadow: none; }
+  .pv-device #tp-phone .tp-cap-wrap.is-small .tp-cap { transform: none; }
+  .pv-device #tp-phone .tp-cap-wrap .tp-cap { display: inline-flex; width: auto; transform-origin: 0 0; }
+  .pv-device #tp-phone .tp-cap-i { flex: none; }
+
+  /* Hero: the slogan and its lines on the left, the photos as a 2 x 2 grid on the right, across the full width */
+  .pv-device #tp-phone .tp-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: var(--space-7); margin-right: calc(-1 * var(--rail-span)); }
+  .pv-device #tp-phone .tp-hero-copy { order: -1; padding: 0; gap: var(--space-6); }
+  .pv-device #tp-phone .tp-hero-copy > .tp-event { margin-top: calc(var(--space-3) - var(--space-6)); }
+  .pv-device #tp-phone .tp-hero-title { font-size: 3rem; line-height: 1.1; }
+  .pv-device #tp-phone .tp-hero-sub { font-size: 1.25rem; max-width: 30rem; }
+  .pv-device #tp-phone .tp-photos { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin: 0; padding: 0; overflow: visible; }
+  .pv-device #tp-phone .tp-photo-img { width: 100%; height: auto; aspect-ratio: 182 / 102; }
+
+  /* Pick your teams: the lead and the Find / Grid / Plays in NSW row on the left, the hand beside them; the tabs and
+     the match cards below, across the main column */
+  .pv-device #tp-phone .tp-pick { display: grid; grid-template-columns: minmax(0, 1fr) 420px; column-gap: var(--space-7); align-content: start; margin-top: var(--space-8); padding: 0; }
+  .pv-device #tp-phone .tp-pick > * { grid-column: 1 / -1; }
+  .pv-device #tp-phone .tp-pick > #tp-pick-title { grid-column: 1; grid-row: 1; align-self: end; font-size: 1.5rem; line-height: 1.35; max-width: 26rem; }
+  .pv-device #tp-phone .tp-pick > #tp-util { grid-column: 1; grid-row: 2; align-self: start; }
+  .pv-device #tp-phone .tp-pick > #tp-picker { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; }
+  .pv-device #tp-phone .tp-pick :is(.tp-pick-lead, #tp-util) { margin-inline: 0; }
+  .pv-device #tp-phone .tp-pick #tp-tabs { margin-top: var(--space-7); }
+  /* The match cards two to a row; more than two scroll sideways as before */
+  .pv-device #tp-phone .tp-deck { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; gap: var(--space-5); }
+  .pv-device #tp-phone .tp-deck .tp-rcard { width: calc((100% - var(--space-5)) / 2); }
+  .pv-device #tp-phone .tp-deck.is-single .tp-rcard:not(.tp-rcard--rugby) { width: calc((100% - var(--space-5)) / 2); }
+  /* The sections below line up with the main column (their phone side margins go) */
+  .pv-device #tp-phone :is(.tp-sec, .tp-ask, .tp-ov, .tp-plan, .tp-all) { margin-inline: 0; }
+
+  /* Your plan: a rail, not a sheet. The bar is its heading; open, the timeline shows under it in the rail, and the
+     page stays usable beside it (no scrim) */
+  .pv-device #tp-phone .tp-tl { left: auto; right: calc(var(--wide-pad) + var(--sbw, 0px)); bottom: auto; top: var(--rail-top, 160px); width: var(--rail-w); border: var(--bw-1) solid var(--c-line); border-radius: 12px; background: var(--c-surface); box-shadow: var(--shadow-1); overflow: hidden; transform: none; transition: opacity .24s ease-out, visibility 0s linear .24s; opacity: 0; }
+  .pv-device #tp-phone .tp-tl.is-on { transform: none; opacity: 1; transition: opacity .24s ease-out, visibility 0s; }
+  .pv-device #tp-phone .tp-tl.is-on.is-open { transform: none; }
+  .pv-device #tp-phone .tp-tl-bar { border-top: 0; border-radius: 0; }
+  .pv-device #tp-phone .tp-tl-grab { display: none; }
+  .pv-device #tp-phone .tp-tl:not(.is-open) .tp-tl-panel { display: none; }
+  .pv-device #tp-phone .tp-tl.is-open .tp-tl-panel { border-top: var(--bw-1) solid var(--c-line-soft); }
+  .pv-device #tp-phone .tp-tl-scrim { display: none; }
+  .pv-device #tp-phone .tp-tl.is-on.is-gliding { transition: top .36s cubic-bezier(.4, 0, .2, 1), opacity .24s ease-out, visibility 0s; }
+}
+
+/* Narrower desktops (1024 to 1279px): a slimmer rail, and the team picker's intro sits above the hand, not beside it */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .pv-device #tp-phone { --rail-w: 300px; --rail-gap: var(--space-6); }
+  .pv-device #tp-phone .tp-pick { grid-template-columns: minmax(0, 1fr); }
+  .pv-device #tp-phone .tp-pick > :is(#tp-pick-title, #tp-util, #tp-picker) { grid-column: 1; grid-row: auto; }
+  .pv-device #tp-phone .tp-pick > #tp-pick-title { max-width: 32rem; }
+  .pv-device #tp-phone .tp-pick > #tp-picker { justify-self: center; width: min(420px, 100%); margin-top: var(--space-5); }
+  .pv-device #tp-phone .tp-deck .tp-rcard, .pv-device #tp-phone .tp-deck.is-single .tp-rcard:not(.tp-rcard--rugby) { width: calc(100% - 28px); }
+}
