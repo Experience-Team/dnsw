@@ -68,11 +68,11 @@
       <button type="button" class="cn-switch pv-switch" id="tp-plan-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plan: one day at a time (test)</button>
       <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('tp-plan-toggle').remove();</script>
     </div>
-    <aside class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
+    <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
       <ol class="cn-notes-list" id="cn-notes-list"></ol>
       <p class="cn-notes-todo" id="cn-notes-todo"></p>
-    </aside>
+    </section>
   </div>
   <!-- For whoever is reviewing the prototype, not part of the design: a QR code that opens this page in phone view
        (?phone), drawn by pv-device.js. Pinned at the foot of the panel, under the annotations. -->
@@ -584,6 +584,10 @@
      rail and arrows), when the badge goes on its first child instead */
   function badgeHost(el) {
     while (el && el.namespaceURI === 'http://www.w3.org/2000/svg') el = el.parentElement;
+    // A part that can scroll sideways (the capsule on narrow phones, the photo strip) would clip its own badge, so the
+    // badge hangs on the box around it, when that box lets it show
+    var p = el && el.parentElement;
+    if (p && /auto|scroll/.test(getComputedStyle(el).overflowX) && getComputedStyle(p).overflowX === 'visible' && getComputedStyle(p).overflowY === 'visible') return badgeHost(p);
     if (!el || getComputedStyle(el).position !== 'static') return el;
     var moves = [].some.call(el.querySelectorAll('*'), function (d) {
       if (d.classList.contains('visually-hidden') || d.classList.contains('cn-badge')) return false;
@@ -607,7 +611,12 @@
         if (r.left + dx < ar.left + pad) dx = ar.left + pad - r.left;
         else if (r.right + dx > ar.right - pad) dx = ar.right - pad - r.right;
       }
-      if (!all && /hidden|clip/.test(cs.overflowY)) {
+      // The phone's own top and bottom count only while the part itself is inside them (a part at the very top, such
+      // as the capsule, keeps its badge in view; one scrolled away takes its badge with it)
+      var hr = all && b.parentElement.getBoundingClientRect(), inside = all && hr.top >= ar.top - 1 && hr.bottom <= ar.bottom + 1;
+      // A box that scrolls only sideways (the capsule, the photo strip) still clips top and bottom
+      var clipsY = /hidden|clip/.test(cs.overflowY) || (/auto|scroll/.test(cs.overflowY) && a.scrollHeight <= a.clientHeight + 1);
+      if ((!all && clipsY) || inside) {
         if (r.top + dy < ar.top + pad) dy = ar.top + pad - r.top;
         else if (r.bottom + dy > ar.bottom - pad) dy = ar.bottom - pad - r.bottom;
       }
@@ -632,7 +641,7 @@
       el = badgeHost(el);
       n++;
       var b = document.createElement('span');
-      // A part that scrolls sideways (the photo strip) holds its badge at its start, the end being off screen
+      // A sideways scroller whose badge could not move out to the box around it holds it at its start
       var at = it.at || (/auto|scroll/.test(getComputedStyle(el).overflowX) ? 'tl' : '');
       b.className = 'cn-badge' + (at ? ' cn-badge--' + at : '');
       b.setAttribute('aria-hidden', 'true');
@@ -718,10 +727,16 @@
     var cs = getComputedStyle(col), room = col.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     SETS.forEach(function (set) {
       var t = col.querySelector(set[0]); if (!t) return;
+      // Measured at its full size straight away: with reduced motion every property in the phone transitions over 1ms,
+      // font size included, so without this the lines were measured at the old, smaller size and never refitted
+      var still = [t].concat([].slice.call(t.querySelectorAll('*')));
+      still.forEach(function (el) { el.style.transitionProperty = 'none'; });
       t.style.fontSize = '';
       var lines = [].slice.call(t.querySelectorAll(set[1])).filter(function (l) { return l.offsetParent; });
       var widest = Math.max.apply(null, lines.map(function (l) { return l.getBoundingClientRect().width; }));
       if (widest > room) t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * room / widest * 0.99).toFixed(2) + 'px';
+      void t.offsetWidth;
+      still.forEach(function (el) { el.style.transitionProperty = ''; });
     });
   }
   fit();
