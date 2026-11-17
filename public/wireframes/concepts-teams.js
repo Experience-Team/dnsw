@@ -437,7 +437,10 @@
   var F2 = { s: .82, angles: [-47.9, -33.5, -15.6, 1.6, 18.8, 36.0], px: 257.7, py: 311.2, row: 67.2, r: 214, w: 70, h: 107, x0: 18, y0: 40, pad: 13, top: 8, lift: 10 };
   function fanVariant() {
     var m = /[?&]fan=(classic|stacked)\b/.exec(location.search), v = m && m[1];
-    try { if (v) localStorage.setItem('tp-fan-variant', v); else v = localStorage.getItem('tp-fan-variant'); } catch (e) {}
+    // The remembered choice belongs to the switch, which only the tools version shows: the plain address (the one DNSW
+    // reviewers get) always opens on the stacked hand unless ?fan= asks otherwise
+    var tools = document.documentElement.classList.contains('pv-tools');
+    try { if (v) localStorage.setItem('tp-fan-variant', v); else if (tools) v = localStorage.getItem('tp-fan-variant'); } catch (e) {}
     return v === 'classic' ? 'classic' : 'stacked';
   }
   var variant = fan2 ? fanVariant() : 'classic';
