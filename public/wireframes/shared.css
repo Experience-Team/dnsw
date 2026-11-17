@@ -5316,3 +5316,27 @@ span.tp-map-arrow { display: block; }
   .pv-device #tp-phone .tp-pick > #tp-picker { justify-self: center; width: min(420px, 100%); margin-top: var(--space-5); }
   .pv-device #tp-phone .tp-deck .tp-rcard, .pv-device #tp-phone .tp-deck.is-single .tp-rcard:not(.tp-rcard--rugby) { width: calc(100% - 28px); }
 }
+
+/* Desktop layout, step 2 (17 Nov): the lower sections and every sheet.
+   - Where to watch: two match days to a row, like the match cards; more scroll sideways as before.
+   - Section notes read at body size on a big screen.
+   - Sheets become modals: centred in the window with at least 32px all round side to side and 48px top and
+     bottom, 640px wide (a full page, such as a product, 760px and as tall as the window allows), rounded on every
+     corner, over the dimmed page. They rise a little and fade in, and go the same way. No grabber: close with the
+     cross, Escape or the dimmed page. The timeline rail stays where it is behind them (it does not step back). */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .tp-wcs--car { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; gap: var(--space-5); }
+  .pv-device #tp-phone .tp-wcs--car > .tp-wm { width: calc((100% - var(--space-5)) / 2); }
+  .pv-device #tp-phone .tp-sec-note { font-size: var(--fs-base); line-height: 1.5; max-width: 44rem; }
+
+  .pv-device #tp-phone :is(.cn-pp.tp-pm, .tp-stack, .tp-ph) { inset: 0; margin: auto; width: min(640px, calc(100% - 64px)); height: fit-content; max-height: calc(100% - 96px); border: var(--bw-1) solid var(--c-line); border-radius: 16px; box-shadow: 0 24px 64px rgba(17, 17, 17, .24); }
+  .pv-device #tp-phone .cn-pp.tp-pm:not(.is-sheet):not(.is-stacked) { width: min(760px, calc(100% - 64px)); height: calc(100% - 96px); }
+  .pv-device #tp-phone :is(.cn-grabber, .tp-pm-grab) { display: none !important; }
+  .pv-device #tp-phone :is(.cn-pp.tp-pm.is-sheet, .cn-pp.tp-pm.is-stacked) .cn-bar { border-radius: 16px 16px 0 0; }
+  .pv-device #tp-phone .cn-pp.tp-pm.is-open, .pv-device #tp-phone .tp-ph:not([hidden]) { animation: tp-modal-in .28s cubic-bezier(.2, .8, .2, 1); }
+  .pv-device #tp-phone .tp-stack { transform: translateY(16px) scale(.98); opacity: 0; transition: transform .2s cubic-bezier(.4, 0, 1, 1), opacity .2s ease-in, visibility 0s linear .2s; }
+  .pv-device #tp-phone .tp-stack.is-open { transform: none; opacity: 1; transition: transform .3s cubic-bezier(.2, .8, .2, 1), opacity .24s ease-out, visibility 0s; }
+  .pv-device #tp-phone .tp-tl.is-on.is-open.is-back, .pv-device #tp-phone .tp-tl.is-on.is-open.is-fwd { transform: none; }
+}
+@keyframes tp-modal-in { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .pv-device #tp-phone .cn-pp.tp-pm.is-open, .pv-device #tp-phone .tp-ph:not([hidden]) { animation: tp-fade-in .15s linear; } }
