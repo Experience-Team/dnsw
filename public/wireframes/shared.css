@@ -3863,14 +3863,17 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.02em; }
 .pv-desc { margin-top: var(--space-1); max-width: 21rem; font-size: 1rem; line-height: 1.5; color: #333; }
 /* One row of tabs, as in the design; it scrolls sideways when there are more prototypes than fit */
-.pv-tabs { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-6) var(--space-4); border-bottom: 1px solid #d1d1d1; overflow-x: auto; scrollbar-width: none; }
+.pv-tabs { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-6) var(--space-4); overflow-x: auto; scrollbar-width: none; }
 .pv-tabs::-webkit-scrollbar { display: none; }
+/* A tab running past the panel edge fades out over the row's end padding instead of being cut, so it reads as more to
+   scroll to. When everything fits, the faded strip is only padding */
+.pv-tabs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-6)), transparent); mask-image: linear-gradient(to right, #000 calc(100% - var(--space-6)), transparent); }
 .pv-tab { flex: none; display: inline-flex; align-items: center; min-height: 33px; padding: 0 var(--space-5); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font-size: .8125rem; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .pv-tab.is-active { background: #2666d9; color: #fff; }
 .pv-tab--next { border-style: dashed; cursor: default; }
 @media (hover: hover) { a.pv-tab:not(.is-active):hover { background: #f2f6fd; } }
 .pv-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
-.pv-concept { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); }
+.pv-concept { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); border-top: 1px solid #d1d1d1; } /* the rule under the tabs, here so their fade leaves it whole */
 .pv-concept-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
 .pv-h2 { font-size: 1.25rem; font-weight: 400; line-height: 1.5; }
 .pv-reset { flex: none; padding: 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -3884,14 +3887,16 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-switches { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin-top: var(--space-3); }
 .pv-switch { align-self: flex-start; }
 .pv-notes.cn-notes { flex: 1; min-height: 0; max-width: none; margin-top: var(--space-3); overflow-y: auto; overscroll-behavior: contain; }
-.pv-stage { min-height: 0; display: flex; justify-content: center; gap: 40px; padding: var(--space-6); }
-.pv-phone { min-height: 0; }
+.pv-stage { min-height: 0; display: flex; justify-content: center; align-items: center; gap: 40px; padding: var(--space-6); }
+/* The phone sits in the middle of the stage: on a window taller than the 844px phone the spare room is shared above and
+   below instead of all falling under it */
+.pv-phone { min-height: 0; height: min(844px, 100%); }
 .pv-page .pv-phone > .cn-phone { height: min(844px, 100%); }
 .pv-page .cn-body { overscroll-behavior: contain; } /* reaching the end of the prototype never hands the scroll on */
 .pv-spare { flex: none; width: 390px; height: min(844px, 100%); border: 1px dashed #b3b3b3; } /* placeholder for another prototype */
 /* No room for the spare frame: it goes */
 @media (max-width: 1340px) { .pv-spare { display: none; } }
-@media (max-width: 960px) { .pv-page { grid-template-columns: 360px minmax(0, 1fr); } .pv-header, .pv-tabs, .pv-concept { padding-inline: var(--space-4); } }
+@media (max-width: 960px) { .pv-page { grid-template-columns: 360px minmax(0, 1fr); } .pv-header, .pv-tabs, .pv-concept { padding-inline: var(--space-4); } .pv-tabs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent); mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent); } }
 /* Too short or too narrow for a fixed screen: an ordinary page, panel above, phone at full size */
 @media (max-height: 600px), (max-width: 800px) {
   .pv-page { display: block; height: auto; overflow: visible; }
@@ -3906,6 +3911,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-qr-pop { display: contents; }
 .pv-qr-code { grid-area: code; align-self: center; width: 112px; height: 112px; }
 .pv-qr-code[hidden] { display: none; }
+/* No code drawn (a local address): the heading and buttons take the full width instead of leaving the code's column empty */
+@media (min-height: 861px), (max-width: 800px) { .pv-qr:has(.pv-qr-code[hidden]) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "p" "acts" "url"; } }
 .pv-qr-code svg { display: block; width: 100%; height: 100%; }
 .pv-qr-title { grid-area: title; font-size: 1rem; font-weight: 600; line-height: 1.4; }
 .pv-qr-p { grid-area: p; margin-top: 2px; font-size: .875rem; line-height: 1.45; color: #333; }
