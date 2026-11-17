@@ -88,8 +88,16 @@ list as set out in "Adding standing flags" above, and add it once the user has a
       sheet and leaves the layer open. A back arrow sits top left, only below the first drill level. Escape and the
       grabber go back one step. The dark area behind closes everything. Focus returns to whatever opened the level just
       closed.
+    - **Grabbers work.** Every grabber on a sheet, stacked sheet or layer responds to a tap and to a drag. A tap, or a
+      drag past a third of the height (or a flick), goes back one step, closing the sheet at its first level; a
+      shorter drag springs back. Nothing draws a grabber that does nothing. For example, the stacked sheets' grabbers
+      ignored a tap, and page sheets drew a grabber that could not be dragged.
     - **Motion.** A drill-down pushes in from the right and goes back to the right. A stack slides up and the layer
       behind steps back. Reduced motion swaps in place. Announce "[name], details opened." and "Back to [title]."
+      A sheet holds its height while drilling down. Each level fills the height the sheet opened at, so only the
+      content moves, never the sheet's edge. A taller level scrolls inside it. Going back keeps the same height. The
+      height changes only when the sheet first opens or closes. For example, a venue drilled from Where to watch
+      shrank the sheet to its short content, which read as a jump.
     - For example, Escape on an idea's details closed the whole ideas sheet instead of going back to the list.
 
 # Build notes
