@@ -1422,6 +1422,9 @@
   function pmPush(id, link) {
     if (!pmOpen) return;
     var prev = { id: pmOpen.id, opener: pmOpen.opener, openerEl: pmOpenerEl, scroll: pmBody.scrollTop, sel: pmSel(link), title: pmTitle() };
+    // The sheet holds the height it opened at for every level: only the content moves, never its edge (a taller level
+    // scrolls inside it). Over the timeline its top is pinned already. Released when it closes.
+    if (!pmStacked && !pm.style.height) pm.style.height = pm.offsetHeight + 'px';
     var snap = pmSnap(); // before the ideas list (lent to the sheet) goes home, so the picture shows it
     if (openPm(id, link, false, true) === false) { if (snap) snap.remove(); if (prev.id.indexOf('ideas:') === 0) openPm(prev.id, null, false, true); return; }
     pmHistory.push(prev); pmBackSync();
@@ -1514,7 +1517,7 @@
     }
     pm.classList.remove('tp-stack', 'is-stacked');
     // A stacked sheet that closed earlier leaves the element inert and offset; on its own over the page it must take taps
-    pm.inert = false; pm.style.transform = ''; pm.style.removeProperty('--stack-top');
+    pm.inert = false; pm.style.transform = ''; pm.style.height = ''; pm.style.removeProperty('--stack-top');
     pm.classList.toggle('is-match', isMatch || isDays);
     pm.classList.toggle('is-sheet', asSheet);
     pmScrim.hidden = !asSheet;
@@ -1535,7 +1538,7 @@
     pmBehind.forEach(function (pair) { pair[0].inert = pair[1]; });
     pmLayerBack(false);
     var sheet = pm.classList.contains('is-sheet');
-    function done() { pm.hidden = true; pmScrim.hidden = true; pm.classList.remove('is-open', 'is-closing'); notesRefresh(); }
+    function done() { pm.hidden = true; pmScrim.hidden = true; pm.style.height = ''; pm.classList.remove('is-open', 'is-closing'); notesRefresh(); }
     if (reduce.matches || !pm.animate) done();
     else if (sheet) {
       // The sheet slides back down the way it came; the scrim fades with it
