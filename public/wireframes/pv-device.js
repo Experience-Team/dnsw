@@ -161,6 +161,9 @@
   function drawQr() {
     if (!box) return;
     url = phoneUrl();
+    // The up-right arrow beside Copy link opens the same address in a new tab, local or not
+    var open = document.getElementById('pv-qr-open');
+    if (open) open.href = url;
     if (local || typeof qrcode !== 'function') {
       code.hidden = true;
       document.getElementById('pv-qr-show').textContent = 'Why no QR code';
