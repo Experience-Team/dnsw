@@ -3912,10 +3912,13 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-qr-acts { grid-area: acts; display: flex; gap: var(--space-2); margin-top: var(--space-2); }
 .pv-qr-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 var(--space-4); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font: inherit; font-size: .8125rem; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .pv-qr-show { display: none; }
+/* Open in a new tab: the up-right arrow, a square button beside Copy link */
+.pv-qr-open { justify-content: center; width: 36px; padding: 0; text-decoration: none; }
+.pv-qr-open svg { display: block; }
 .pv-qr-copy svg { display: none; }
 .pv-qr-copy.is-copied, .pv-qr-show[aria-expanded="true"] { background: #2666d9; color: #fff; }
 .pv-qr-copy.is-copied svg { display: block; }
-@media (hover: hover) { .pv-qr-copy:not(.is-copied):hover, .pv-qr-show[aria-expanded="false"]:hover { background: #f2f6fd; } }
+@media (hover: hover) { .pv-qr-open:hover, .pv-qr-copy:not(.is-copied):hover, .pv-qr-show[aria-expanded="false"]:hover { background: #f2f6fd; } }
 .pv-qr-btn:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 .pv-qr-url { grid-area: url; margin-top: var(--space-2); font-size: .75rem; line-height: 1.4; color: #1a1a1a; overflow-wrap: anywhere; user-select: all; }
 @media (max-width: 960px) { .pv-qr { padding-inline: var(--space-4); } }
@@ -3929,6 +3932,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
   .pv-qr-pop .pv-qr-p { margin: 0; }
 }
 @media (max-height: 860px) and (min-width: 801px) and (max-width: 960px) { .pv-qr-pop { left: var(--space-4); } }
+/* Short windows: three buttons beside the heading. Slightly tighter gaps keep "View on your phone" on one line in the wide
+   panel; the narrow panel has no room for both, so the buttons go under the heading (about the height a wrapped heading took) */
+@media (max-height: 860px) and (min-width: 961px) { .pv-qr { column-gap: var(--space-3); } .pv-qr-acts { gap: 6px; } }
+@media (max-height: 860px) and (min-width: 801px) and (max-width: 960px) { .pv-qr { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "acts" "url"; row-gap: var(--space-2); } }
 @media (prefers-reduced-motion: reduce) { .pv-qr-pop { transform: none !important; transition-duration: 1ms !important; } }
 
 /* Phone view (html.pv-device: ?phone, or a touch screen under 500px): only the phone screen, edge to edge, as tall
