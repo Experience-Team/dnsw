@@ -644,15 +644,14 @@
       (i.car ? '<span class="tp-pc-tour provenance-gap">No car? Ridgeline Tours runs a guided day' + (open ? '' : ' from ' + esc(i.how.from)) + '.</span>' : '') + '</span></button>' +
       addBtn(key, i.title + ' on ' + dl) + '</article>';
   }
-  /* An idea's details, in place of the list in the ideas sheet: Back to [day] ideas, a placeholder image, title and
+  /* An idea's details (its own sheet from the page, or a level of the ideas sheet, back by the arrow): a placeholder image, title and
      type, why it fits that day, how to get there and how long it takes, then opening hours, price and a short
      description. Ideas are fixture-only (cnFreeIdeas has no hours, price or description), so those three are
      bracketed placeholders, pink with Annotations on. Add to your timeline and View full page (not linked yet). */
   function ideaDetail(i, d, noBack) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), km = ideaKm(i);
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
-    var back = '<svg class="tp-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg>';
-    var h = noBack ? '' : '<button type="button" class="tp-link tp-ico-link tp-idea-back" data-idea-back>' + back + 'Back to ' + esc(dl) + ' ideas</button>';
+    var h = ''; // its way back is the sheet's back arrow
     h += '<div class="plan-modal-img ph-img tp-idea-img"' + imgKey(i.title) + ' role="img" aria-label="Placeholder image of ' + esc(i.title) + '"></div>';
     h += '<p class="tp-pm-type">' + esc((i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city]) + '</p>';
     h += '<h2 class="cn-pp-title' + (i.placeholder ? ' provenance-gap' : '') + '" id="tp-pm-title" tabindex="-1">' + esc(i.title) + '</h2>';
@@ -727,7 +726,7 @@
      whose ideas the page has moved on to. Under the list, See all ideas for this day stands for the full page (not
      linked yet). What was added lands on the axis once the sheet closes. */
   var tlIdeas = document.getElementById('tp-tl-ideas'), tlIdeasDay = null, tlIdeasHold = null, tlIdeasHome = tlIdeas && tlIdeas.parentNode, tlIdeasNext = tlIdeas && tlIdeas.nextSibling, tlIdeasAdded = [];
-  var tlIdeasDetail = null, tlIdeasScroll = 0, tlIdeasOrder = {}; // the idea whose details are shown ({ id, d, key }), and the list's scroll to go back to
+  var tlIdeasOrder = {}; // the order each day's cards were shown in
   function freeInfo(d) { return FREEINFO.filter(function (x) { return x.d === d; })[0]; }
   function renderTlIdeas() {
     if (window.tpFreeApi) window.tpFreeApi.set(FREEINFO.map(function (x) { return { d: x.d, label: x.label, filled: x.filled, count: x.count }; }));
@@ -739,10 +738,6 @@
     if (tlIdeasHold === fd.d && tlIdeas.offsetHeight) tlIdeas.style.minHeight = Math.max(parseFloat(tlIdeas.style.minHeight) || 0, tlIdeas.offsetHeight) + 'px';
     else tlIdeas.style.minHeight = '';
     tlIdeasHold = fd.d;
-    // An idea's details, in place of the list (Back returns to it)
-    var det = tlIdeasDetail && tlIdeasDetail.d === fd.d ? IDEAS.filter(function (x) { return x.id === tlIdeasDetail.id; })[0] : null;
-    if (det) { tlIdeas.style.minHeight = ''; tlIdeasHold = null; tlIdeas.innerHTML = ideaDetail(det, fd.d); return; }
-    tlIdeasDetail = null;
     // Ideas added to this day stay in the list, first, marked Added (tap again to take one off); anything else on the
     // day (a place saved from the map, say) is named in one line
     var kept = IDEAS.filter(function (i) { return fd.its.some(function (x) { return x.id === 'i:' + i.id; }); });
@@ -769,47 +764,25 @@
     h += '<div class="tp-pm-acts tp-tl-ideas-full"><span class="tp-pm-full" role="link" aria-disabled="true">See all ideas for this day</span><span class="tp-pm-soon">Not linked yet</span></div>';
     tlIdeas.innerHTML = h;
   }
-  /* The details slide in from the right, over the list's place; Back slides the list in from the left. An even glide
-     (no front-loaded curve), so the eye follows it across. Reduced motion: it simply swaps. */
-  function ideasSlide(dir) {
-    if (reduce.matches || !tlIdeas.animate) return;
-    tlIdeas.animate([{ transform: 'translateX(' + (dir * 100) + '%)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.3, .2, .25, 1)' });
-  }
   // The list is one element, lent to the sheet while it is open and put back after
   function tlIdeasReturn() {
     if (!tlIdeas || !tlIdeasHome || tlIdeas.parentNode === tlIdeasHome) return;
     tlIdeasHome.insertBefore(tlIdeas, tlIdeasNext && tlIdeasNext.parentNode === tlIdeasHome ? tlIdeasNext : null);
-    tlIdeas.hidden = true; tlIdeas.style.minHeight = ''; tlIdeasHold = null; tlIdeasDetail = null;
+    tlIdeas.hidden = true; tlIdeas.style.minHeight = ''; tlIdeasHold = null;
   }
   phone.addEventListener('tp:freeideas', function (e) {
-    tlIdeasDay = e.detail.day; tlIdeasDetail = null;
+    tlIdeasDay = e.detail.day;
     // Next free day: the open sheet swaps to that day, from its top
     if (tlIdeasDay !== null && pmOpen && pmOpen.id.indexOf('ideas:') === 0) { pmOpen.id = 'ideas:' + tlIdeasDay; tlIdeas.style.minHeight = ''; tlIdeasHold = null; pmBody.scrollTop = 0; }
     renderTlIdeas();
   });
   if (tlIdeas) {
     tlIdeas.addEventListener('click', function (e) {
+      // An idea's details, and the next free day, are levels of the sheet (drill down, with the back arrow)
       var op = e.target.closest('[data-idea-open]');
-      if (op) {
-        var k = op.dataset.ideaOpen, at = k.lastIndexOf('@');
-        tlIdeasScroll = pmBody.scrollTop;
-        tlIdeasDetail = { id: k.slice(2, at), d: +k.slice(at + 1), key: k };
-        renderTlIdeas(); pmBody.scrollTop = 0; ideasSlide(1);
-        var ti = tlIdeas.querySelector('#tp-pm-title'); if (ti) ti.focus({ preventScroll: true });
-        tp.say((ITEMS[k] ? ITEMS[k].title : 'Idea') + ', details.');
-        return;
-      }
-      if (e.target.closest('[data-idea-back]')) {
-        var was = tlIdeasDetail; tlIdeasDetail = null;
-        renderTlIdeas(); pmBody.scrollTop = tlIdeasScroll; ideasSlide(-1);
-        var card = was && tlIdeas.querySelector('[data-idea-open="' + CSS.escape(was.key) + '"]');
-        // Only the sheet scrolls (never the page) and only if the card, now a little taller with Added, would be cut off
-        if (card) { card.focus({ preventScroll: true }); var cr = card.getBoundingClientRect(), br = pmBody.getBoundingClientRect(); if (cr.bottom > br.bottom) pmBody.scrollTop += cr.bottom - br.bottom + 16; else if (cr.top < br.top) pmBody.scrollTop -= br.top - cr.top + 16; }
-        else { var hh2 = tlIdeas.querySelector('.tp-tl-ideas-h'); if (hh2) hh2.focus({ preventScroll: true }); }
-        return;
-      }
+      if (op) { pmPush('idea:' + op.dataset.ideaOpen, op); return; }
       var g = e.target.closest('[data-tlideas-go]');
-      if (g) { window.tpFreeApi.go(+g.dataset.tlideasGo); var hh = tlIdeas.querySelector('.tp-tl-ideas-h'); if (hh) hh.focus({ preventScroll: true }); return; }
+      if (g) { pmPush('ideas:' + g.dataset.tlideasGo, g); return; }
       var m = e.target.closest('[data-tlideas-more]');
       if (m) { var k = m.dataset.tlideasMore; moreBlk[k] = !moreBlk[k]; render(true, '#tp-tl-ideas [data-tlideas-more="' + CSS.escape(k) + '"]'); }
     });
@@ -1036,13 +1009,13 @@
   var pm = document.createElement('div'), pmBody, pmKind, pmOpen = null, pmBehind = [];
   pm.className = 'cn-pp tp-pm'; pm.id = 'tp-pm'; pm.hidden = true;
   pm.setAttribute('role', 'dialog'); pm.setAttribute('aria-modal', 'true'); pm.setAttribute('aria-labelledby', 'tp-pm-title');
-  pm.innerHTML = '<div class="cn-bar"><p class="cn-bar-title" id="tp-pm-kind"></p><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
+  pm.innerHTML = '<div class="cn-bar"><button type="button" class="cn-close tp-pm-back" data-pm-back aria-label="Back" hidden><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2L4 7l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="cn-bar-title" id="tp-pm-kind"></p><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
   phone.appendChild(pm);
   // A match opens as a sheet from the bottom, over a scrim; products and places stay full-screen pages
   var pmScrim = document.createElement('div');
   pmScrim.className = 'tp-pm-scrim'; pmScrim.hidden = true;
   phone.insertBefore(pmScrim, pm);
-  pmScrim.addEventListener('click', function () { pmClearHistory(); closePm(); }); // the dark layer closes them all
+  pmScrim.addEventListener('click', function () { pmClearHistory(); closePm(); }); // the dark area closes the whole sheet, every level
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
   function pmActions(id, label) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
@@ -1101,7 +1074,7 @@
       h += '<section class="tp-pm-watch" aria-labelledby="tp-pm-watch-h"><h3 class="cn-pp-h" id="tp-pm-watch-h">Where to watch it in NSW</h3>' +
         (sps.length ? '<ul class="tp-pm-watch-list">' + sps.map(function (sp) {
           var id = spotItem(sp, m), open = ITEMS[id].note;
-          return '<li class="tp-pm-watch-i"><span class="tp-pm-watch-t provenance-gap"><span class="tp-pm-watch-name">' + esc(sp.name) + '</span>' +
+          return '<li class="tp-pm-watch-i"><span class="tp-pm-watch-t provenance-gap"><button type="button" class="tp-link tp-pm-watch-name" data-open="' + esc(id) + '" aria-haspopup="dialog">' + esc(sp.name) + '</button>' +
             '<span class="tp-pm-watch-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' \u00b7 ' + esc(sp.place) + (open ? ' \u00b7 ' + esc(open) : '') + '</span></span>' +
             addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d).replace('class="tp-add"', 'class="tp-add" data-pm-spot="' + esc(id) + '"') + '</li>';
         }).join('') + '</ul>' : '<p class="tp-pm-note">No NSW screenings listed for this match yet.</p>') + '</section>';
@@ -1235,9 +1208,8 @@
         var ws = [];
         SPOTS.forEach(function (v, j) {
           var ll = GEOX.watch && GEOX.watch[j]; if (!ll || !f.t || v.shows.indexOf(m.key) < 0) return;
-          var key = 'w:' + j + ':' + m.key;
-          if (!ITEMS[key]) ITEMS[key] = { id: key, kind: 'screening', title: v.name, kindLabel: SPOT_TYPE[v.type] || 'Screening', place: v.place, note: '', day: f.d, matchName: matchName(f) };
-          ws.push({ key: key, open: 'match:' + m.key, title: v.name, type: (SPOT_TYPE[v.type] || 'Screening') + ' · ' + v.place, time: f.k ? 'Shows the ' + f.k + ' kick-off' : '', ll: ll, d: SPOT_ORDER[v.type] * 10 + j, made: true });
+          var key = spotItem(v, m); // the venue's own details, as from Where to watch
+          ws.push({ key: key, open: key, title: v.name, type: (SPOT_TYPE[v.type] || 'Screening') + ' · ' + v.place, time: f.k ? 'Shows the ' + f.k + ' kick-off' : '', ll: ll, d: SPOT_ORDER[v.type] * 10 + j, made: true });
         });
         ws.sort(function (x, y) { return x.d - y.d; });
         ws = ws.slice(0, 3); // three to start (fan zones first); Where to watch on the page lists them all
@@ -1372,9 +1344,9 @@
   if (typeof tp.stackRegister === 'function') tp.stackRegister(pm);
   var pmStacked = false, pmUnstackT = 0;
   pm.addEventListener('tp:stackclose', function () {
+    var wasIdeas = !!pmOpen && (pmOpen.id.indexOf('ideas:') === 0 || pmHistory.some(function (h) { return h.id.indexOf('ideas:') === 0; }));
     pmClearHistory();
     if (!pmStacked) return;
-    var wasIdeas = pmOpen && pmOpen.id.indexOf('ideas:') === 0;
     pmStacked = false; pmOpen = null;
     if (wasIdeas) {
       var landed = tlIdeasAdded.filter(function (id) { return added(id); }); tlIdeasAdded = [];
@@ -1397,59 +1369,105 @@
     var cur = tp.dayOf(it.day); if (out.indexOf(cur) < 0) out.push(cur);
     return out;
   };
-  /* ---------- A sheet over a sheet (17 Nov) ----------
-     A link inside an open sheet to something with its own sheet (a venue in Where to watch, a place in Also on your plan,
-     a match) opens it as a second sheet over the first: the first steps back behind it (scaled, dimmed, inert, hidden from
-     screen readers), as the timeline does under its stacked sheets, and the new one slides up. The cross, Escape or the
-     grabber close only the top one: it slides down, the first comes back as it is now (an Add made meanwhile shows) at the
-     scroll it had, and focus goes back to the link. The dark layer closes them all. One sheet element does both: the first
-     is kept as a snapshot behind and drawn again from its id on the way back. Reduced motion: no slide. */
-  var pmHistory = [];
+  /* ---------- More detail inside a sheet: drill down (17 Nov, CLAUDE.md check 10) ----------
+     One rule everywhere: a link inside a sheet to more detail (a venue in Where to watch, a place in Also on your plan,
+     an idea in a day's ideas, the next free day, Add where you're staying) never opens a second sheet; the sheet drills
+     down. The new level pushes in from the right over the old one, which eases a little to the left; a back arrow
+     appears top left (only below the first level). The back arrow, Escape and dragging the grabber go back one level:
+     the level slides out to the right and the one before comes back as it is now (an Add made meanwhile shows), at the
+     scroll it had, with focus on the link that opened the level just closed. The cross and the dark area close the
+     whole sheet, and focus goes back to what opened it. Stacking is only for a sheet over a full-screen layer (the
+     timeline, a full-screen map). One sheet element does it all; a level is drawn again from its id on the way back.
+     Reduced motion: the levels swap in place. */
+  var pmHistory = [], pmBack = pm.querySelector('[data-pm-back]');
+  function pmBackSync() {
+    var prev = pmHistory[pmHistory.length - 1];
+    pmBack.hidden = !prev;
+    pmBack.setAttribute('aria-label', prev ? 'Back to ' + prev.title : 'Back');
+  }
   function pmClearHistory() {
-    // Closing them all: focus goes back to what opened the first sheet, not to a link inside it
+    // Closing the whole sheet: focus goes back to what opened it, not to a link inside one of its levels
     if (pmHistory.length && pmOpen) { pmOpen.opener = pmHistory[0].opener; pmOpenerEl = pmHistory[0].openerEl; }
-    pmHistory.forEach(function (h) { if (h.ghost) h.ghost.remove(); }); pmHistory = [];
+    pmHistory = []; pmBackSync();
   }
   function pmTitle() { var t = pm.querySelector('#tp-pm-title'); return (t ? t.textContent : pmKind.textContent).trim(); }
+  // The link's own attribute, to find it again once its level is drawn afresh
+  function pmSel(el) {
+    for (var i = 0; el && i < el.attributes.length; i++) { var a = el.attributes[i]; if (/^data-/.test(a.name)) return '[' + a.name + '="' + CSS.escape(a.value) + '"]'; }
+    return null;
+  }
+  // The level being left, as a still picture over the body while the new one slides in
+  function pmSnap() {
+    if (reduce.matches || !pm.animate) return null;
+    var snap = pmBody.cloneNode(true);
+    snap.removeAttribute('id'); Array.prototype.forEach.call(snap.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+    snap.classList.add('tp-pm-snap'); snap.setAttribute('aria-hidden', 'true'); snap.inert = true;
+    snap.style.top = pmBody.offsetTop + 'px'; snap.style.height = pmBody.offsetHeight + 'px';
+    pm.appendChild(snap); snap.scrollTop = pmBody.scrollTop;
+    return snap;
+  }
+  // An even glide the eye can follow across (no front-loaded curve)
+  function pmMove(snap, dir) {
+    if (!snap) return;
+    var o = { duration: 320, easing: 'cubic-bezier(.3, .2, .25, 1)' };
+    snap.style.zIndex = dir > 0 ? 0 : 2; // forward: the new level comes over the old; back: the old one leaves over it
+    snap.animate([{ transform: 'none' }, { transform: 'translateX(' + (dir > 0 ? -30 : 100) + '%)' }], o).onfinish = function () { snap.remove(); };
+    pmBody.animate([{ transform: 'translateX(' + (dir > 0 ? 100 : -30) + '%)' }, { transform: 'none' }], o);
+  }
   function pmPush(id, link) {
     if (!pmOpen) return;
-    var prev = { id: pmOpen.id, opener: pmOpen.opener, openerEl: pmOpenerEl, scroll: pmBody.scrollTop, link: link.dataset.open, title: pmTitle() };
-    var ghost = pm.cloneNode(true); // before the ideas list (lent to the sheet) goes home, so the snapshot shows it
-    ghost.style.transform = '';
-    ghost.removeAttribute('id'); Array.prototype.forEach.call(ghost.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
-    ghost.classList.add('tp-pm-ghost'); ghost.setAttribute('aria-hidden', 'true'); ghost.inert = true;
-    ghost.querySelector('.cn-pp-body') && (ghost.querySelector('.cn-pp-body').scrollTop = prev.scroll);
-    if (openPm(id, link, false, true) === false) { if (prev.id.indexOf('ideas:') === 0) openPm(prev.id, null, false, true); return; }
-    pm.parentNode.insertBefore(ghost, pm);
-    var gb = ghost.querySelector('.cn-pp-body'); if (gb) gb.scrollTop = prev.scroll;
-    prev.ghost = ghost; pmHistory.push(prev);
+    var prev = { id: pmOpen.id, opener: pmOpen.opener, openerEl: pmOpenerEl, scroll: pmBody.scrollTop, sel: pmSel(link), title: pmTitle() };
+    var snap = pmSnap(); // before the ideas list (lent to the sheet) goes home, so the picture shows it
+    if (openPm(id, link, false, true) === false) { if (snap) snap.remove(); if (prev.id.indexOf('ideas:') === 0) openPm(prev.id, null, false, true); return; }
+    pmHistory.push(prev); pmBackSync();
     pmOpenerEl = link;
-    if (!reduce.matches && pm.animate) {
-      pm.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' });
-      ghost.animate([{ transform: 'none', filter: 'none' }, { transform: 'translateY(-10px) scale(.94)', filter: 'brightness(.88)' }], { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' });
-    }
-    pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
+    pmBody.scrollTop = 0;
+    pmMove(snap, 1);
+    pmBack.focus({ preventScroll: true });
     tp.say(pmTitle() + ', details opened.');
     notesRefresh();
   }
   function pmPop() {
     var prev = pmHistory.pop(); if (!prev) return;
-    var from = pm.style.transform || 'none'; pm.style.transform = ''; // a drag lets go part way down: slide on from there
-    function back() {
-      openPm(prev.id, null, false, true);
-      pmOpen.opener = prev.opener; pmOpenerEl = prev.openerEl;
-      pmBody.scrollTop = prev.scroll;
-      prev.ghost.remove();
-      var l = pmBody.querySelector('[data-open="' + CSS.escape(prev.link) + '"]');
-      (l || pm.querySelector('[data-pm-close]')).focus({ preventScroll: true });
-      tp.say('Back to ' + prev.title + '.');
-      notesRefresh();
-    }
-    if (reduce.matches || !pm.animate) { back(); return; }
-    prev.ghost.animate([{ transform: 'translateY(-10px) scale(.94)', filter: 'brightness(.88)' }, { transform: 'none', filter: 'none' }], { duration: 260, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' });
-    pm.animate([{ transform: from }, { transform: 'translateY(100%)' }], { duration: 260, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = back;
+    // A drag let go part way down: the sheet springs back up while the level slides away
+    var from = pm.style.transform; pm.style.transform = '';
+    if (from && !reduce.matches && pm.animate) pm.animate([{ transform: from }, { transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+    var snap = pmSnap();
+    openPm(prev.id, null, false, true);
+    pmOpen.opener = prev.opener; pmOpenerEl = prev.openerEl;
+    pmBackSync();
+    pmBody.scrollTop = prev.scroll;
+    pmMove(snap, -1);
+    var l = prev.sel && pmBody.querySelector(prev.sel);
+    (l || (pmHistory.length ? pmBack : pm.querySelector('[data-pm-close]'))).focus({ preventScroll: true });
+    tp.say('Back to ' + prev.title + '.');
+    notesRefresh();
   }
-  // Dragging the grabber down over the timeline closes one level when there is one
+  pmBack.addEventListener('click', function () { pmPop(); });
+  /* Dragging the grabber of a sheet over the page: past a third of its height, or a flick, goes back one level, or
+     closes it at the first; earlier it springs back. (Over the timeline the stack's own drag does the same.) */
+  (function () {
+    var y0 = null, dy = 0, t0 = 0;
+    pmGrab.addEventListener('pointerdown', function (e) { if (pmStacked || !pmOpen) return; y0 = e.clientY; dy = 0; t0 = e.timeStamp; pmGrab.setPointerCapture(e.pointerId); pm.classList.add('is-dragging'); });
+    pmGrab.addEventListener('pointermove', function (e) { if (y0 == null) return; dy = Math.max(0, e.clientY - y0); pm.style.transform = 'translateY(' + dy + 'px)'; });
+    function letGo(e) {
+      if (y0 == null) return;
+      var v = dy / Math.max(1, e.timeStamp - t0); y0 = null;
+      pm.classList.remove('is-dragging');
+      if (dy > pm.offsetHeight / 3 || (v > .6 && dy > 24)) { if (pmHistory.length) pmPop(); else closePm(); return; }
+      var from = pm.style.transform; pm.style.transform = '';
+      if (from && !reduce.matches && pm.animate) pm.animate([{ transform: from }, { transform: 'none' }], { duration: 200, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+    }
+    pmGrab.addEventListener('pointerup', letGo); pmGrab.addEventListener('pointercancel', letGo);
+  })();
+  /* Over a full-screen map (the overview in full screen, Follow day by day), a sheet stacks: the map steps back behind
+     it, as the timeline does under its stacked sheets, and comes forward again when the sheet closes */
+  var pmLayer = null;
+  function pmLayerBack(on) {
+    if (on) { pmLayer = phone.querySelector('.tp-ov-map.is-full') || phone.querySelector('.tp-mapfs:not([hidden])'); if (pmLayer) pmLayer.classList.add('tp-layer-back'); }
+    else if (pmLayer) { pmLayer.classList.remove('tp-layer-back'); pmLayer = null; }
+  }
+  // Dragging the grabber down over the timeline goes back one level when there is one
   pm.addEventListener('tp:stackdismiss', function (e) { if (pmHistory.length) { e.preventDefault(); pmPop(); } });
   function openPm(id, opener, stacked, swap) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
@@ -1468,7 +1486,7 @@
     var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot' || isPoi || isIdea || isItem;
     pmOpenerEl = null;
     pmBody.innerHTML = isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
-    if (isIdeas) { tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
+    if (isIdeas) { if (!swap) tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
     pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
@@ -1495,6 +1513,7 @@
     pm.classList.toggle('is-sheet', asSheet);
     pmScrim.hidden = !asSheet;
     // Everything behind waits; remember what was already inert so closing puts it back as it was
+    pmLayerBack(true);
     pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
@@ -1508,6 +1527,7 @@
     if (pmStacked) { tp.stackClose(); return; } // the stack closes it, and puts focus back on the marker
     var back = pmOpen.opener; pmOpen = null;
     pmBehind.forEach(function (pair) { pair[0].inert = pair[1]; });
+    pmLayerBack(false);
     var sheet = pm.classList.contains('is-sheet');
     function done() { pm.hidden = true; pmScrim.hidden = true; pm.classList.remove('is-open', 'is-closing'); notesRefresh(); }
     if (reduce.matches || !pm.animate) done();
@@ -1515,7 +1535,8 @@
       // The sheet slides back down the way it came; the scrim fades with it
       pm.classList.add('is-closing');
       pmScrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in' });
-      pm.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
+      var from = pm.style.transform || 'none'; pm.style.transform = ''; // a drag let go part way down: on from there
+      pm.animate([{ transform: from }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
     }
     else { pm.classList.add('is-closing'); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
     // The control that was tapped, if it is still there (the same id can appear twice: a map card and its row on the page)
@@ -1760,15 +1781,16 @@
     var o = e.target.closest('[data-open]');
     if (o && !pm.contains(o) && o.isConnected) { var tlEl = document.getElementById('tp-tl'); if (openPm(o.dataset.open, o, !!(tlEl && tlEl.classList.contains('is-open') && tlEl.contains(o))) !== false) pmOpenerEl = o; return; }
     var gs = e.target.closest('[data-go-stay]');
-    if (gs && !pm.contains(e.target)) { openStaying(gs); return; }
+    if (gs && !pm.contains(gs) && gs.isConnected) { openStaying(gs); return; } // not one a sheet has just redrawn away
   });
   pm.addEventListener('click', function (e) {
-    // A link inside the sheet to something with a sheet of its own (a venue, a place, a match): a second sheet over this one
+    // A link inside the sheet to something with details of its own (a venue, a place, a match): the sheet drills down
     var ol = e.target.closest('[data-open]');
     if (ol && pmBody.contains(ol)) { e.preventDefault(); pmPush(ol.dataset.open, ol); return; }
-    if (e.target.closest('[data-pm-close]')) { closePm(); return; }
-    // From the travel sheet: close it, then open Where are you staying? on the page
-    if (e.target.closest('[data-go-stay]')) { closePm(); openStaying(); return; }
+    if (e.target.closest('[data-pm-close]')) { pmClearHistory(); closePm(); return; } // the cross closes the whole sheet
+    // From the travel sheet: Where are you staying? as the next level; Done comes back to the route, now their own
+    var gst = e.target.closest('[data-go-stay]');
+    if (gst) { dStay = true; dsel = dRange(); dTicketKeys = []; pmPush('days:stay', gst); return; }
     // An added item's sheet: Move to another day, or Remove
     var mvb = e.target.closest('[data-pm-move]');
     if (mvb && pmOpen && pmOpen.id.indexOf('item:') === 0) {
@@ -1857,7 +1879,7 @@
     var b = e.target.closest('[data-pm-add]'); if (!b) return;
     var it = ITEMS[b.dataset.pmAdd]; if (!it) return;
     var on = !added(it.id);
-    if (on && tlIdeas && tlIdeas.contains(b)) tlIdeasAdded.push(it.id); // from an idea's details: lands on the axis when the sheet closes
+    if (on && pmHistory.some(function (h) { return h.id.indexOf('ideas:') === 0; })) tlIdeasAdded.push(it.id); // from an idea's details: lands on the axis when the sheet closes
     if (on) tp.addItem(Object.assign({}, it)); else tp.removeItem(it.id);
     // The page stays open; its button follows (the card behind updates with the page)
     b.setAttribute('aria-pressed', on ? 'true' : 'false');

@@ -77,6 +77,20 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    done, what is deliberately not done yet and why (a stop-and-show step, an open question, a conflict with these
    rules), and what is next. When a brief is built in steps, say at each stop which steps remain. For example,
    stopping after steps 1 and 2 of a five-step brief without saying so left the user to find "a lot is missing".
+10. **One rule for more detail inside a sheet.** A tap inside a sheet does something people can predict.
+    - **Inside a sheet, always drill down.** Any link to more detail (a venue, a match, a place, an idea, the next step
+      of a choice) slides across inside the same sheet, with a back arrow.
+    - **Stack only over a full-screen layer.** A sheet opened from the timeline or a full-screen map slides up over it,
+      and the layer steps back. The layer counts as the first level, so there are never more than two.
+    - **The same thing opens the same content everywhere**, whether it is tapped on the page, in the timeline, on a map
+      or in another sheet.
+    - **Controls.** The close cross (check 7) closes the whole sheet, drill levels and all; over a layer it closes the
+      sheet and leaves the layer open. A back arrow sits top left, only below the first drill level. Escape and the
+      grabber go back one step. The dark area behind closes everything. Focus returns to whatever opened the level just
+      closed.
+    - **Motion.** A drill-down pushes in from the right and goes back to the right. A stack slides up and the layer
+      behind steps back. Reduced motion swaps in place. Announce "[name], details opened." and "Back to [title]."
+    - For example, Escape on an idea's details closed the whole ideas sheet instead of going back to the list.
 
 # Build notes
 
