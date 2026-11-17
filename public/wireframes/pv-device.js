@@ -220,5 +220,20 @@
       else fallback();
     });
   }
+  /* ---------- Prototype tabs keep the tools version ----------
+     A tab marked data-tools points at a prototype with a tools version (?tools). Once you are on a tools version, those
+     tabs keep ?tools for the rest of this browser tab's visit, so moving to another prototype and back never drops you
+     on the plain address (the theme travels already: it is remembered in this browser). Opening a prototype's plain
+     address again ends it. */
+  try {
+    var tools = root.classList.contains('pv-tools'), own = document.querySelector('.pv-tabs [aria-current="page"][data-tools]');
+    if (tools) sessionStorage.setItem('pv-tools', '1');
+    else if (own) sessionStorage.removeItem('pv-tools');
+    if (tools || sessionStorage.getItem('pv-tools') === '1') {
+      document.querySelectorAll('.pv-tabs a[data-tools]').forEach(function (a) {
+        if (!/[?&]tools\b/.test(a.getAttribute('href'))) a.setAttribute('href', a.getAttribute('href').split('?')[0] + '?tools');
+      });
+    }
+  } catch (e) {}
   setTheme(hifi(), false);
 })();

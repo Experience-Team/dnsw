@@ -3878,7 +3878,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* A tab running past the panel edge fades out over the row's end padding instead of being cut, so it reads as more to
    scroll to. When everything fits, the faded strip is only padding */
 .pv-tabs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-6)), transparent); mask-image: linear-gradient(to right, #000 calc(100% - var(--space-6)), transparent); }
-.pv-tab { flex: none; display: inline-flex; align-items: center; min-height: 33px; padding: 0 var(--space-5); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font-size: .8125rem; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.pv-tab { flex: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--space-5); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font-size: .8125rem; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .pv-tab.is-active { background: #2666d9; color: #fff; }
 .pv-tab--next { border-style: dashed; cursor: default; }
 @media (hover: hover) { a.pv-tab:not(.is-active):hover { background: #f2f6fd; } }
@@ -3900,7 +3900,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-switches--test:not(:has(.pv-switch)) { display: none; }
 .pv-switch { align-self: flex-start; }
 .pv-notes.cn-notes { flex: 1; min-height: 0; max-width: none; margin-top: var(--space-3); overflow-y: auto; overscroll-behavior: contain; }
-.pv-stage { min-height: 0; display: flex; justify-content: center; align-items: center; gap: 40px; padding: var(--space-6); }
+.pv-stage { min-height: 0; display: flex; justify-content: center; align-items: center; gap: var(--space-7); padding: var(--space-6); }
 /* The phone sits in the middle of the stage: on a window taller than the 844px phone the spare room is shared above and
    below instead of all falling under it */
 .pv-phone { min-height: 0; height: min(844px, 100%); }
@@ -3908,7 +3908,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-page .cn-body { overscroll-behavior: contain; } /* reaching the end of the prototype never hands the scroll on */
 .pv-spare { flex: none; width: 390px; height: min(844px, 100%); border: 1px dashed #b3b3b3; } /* placeholder for another prototype */
 /* No room for the spare frame: it goes */
-@media (max-width: 1340px) { .pv-spare { display: none; } }
+@media (max-width: 1352px) { .pv-spare { display: none; } } /* 460 panel + 2 × 390 + 48 gap + 64 padding */
 @media (max-width: 960px) { .pv-page { grid-template-columns: 360px minmax(0, 1fr); } .pv-header, .pv-tabs, .pv-concept { padding-inline: var(--space-4); } .pv-tabs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent); mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent); } }
 /* Too short or too narrow for a fixed screen: an ordinary page, panel above, phone at full size */
 @media (max-height: 600px), (max-width: 800px) {
