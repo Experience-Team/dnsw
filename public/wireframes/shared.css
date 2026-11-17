@@ -5205,3 +5205,11 @@ span.tp-map-arrow { display: block; }
 /* Over the full-screen map (z-index 150), a sheet opened from one of its cards sits on top, with its dark layer */
 .cn-phone:has(.tp-ov-map.is-full) .cn-pp.tp-pm { z-index: 160; }
 .cn-phone:has(.tp-ov-map.is-full) .tp-pm-scrim { z-index: 159; }
+
+/* 48px between families (17 Nov): from the end of either match tab (Your matches, All matches) to the Your days box, and
+   from All matches on its own (no team) to the rule above the map; the panels carry no space of their own at the foot */
+.tp-pick:has(#tp-tabs:not([hidden])) { padding-bottom: 0; }
+#tp-results, .tp-all.is-tabbed { padding-bottom: 0; margin-bottom: 0; }
+.cn-phone > .cn-body #tp-ask:not([hidden]), #tp-ask:not([hidden]) { margin-top: var(--space-7); } /* not the 64px --sec-gap */
+.tp-all:not(.is-tabbed) { padding-bottom: 0; }
+.tp-all:not(.is-tabbed) + #tp-ask[hidden] + .tp-ov { margin-top: var(--space-7, 48px); }
