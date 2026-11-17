@@ -4141,11 +4141,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-pm-watch { margin-top: var(--space-4); }
 .tp-pm-watch .cn-pp-h { margin-top: 0; }
 .tp-pm-watch-list { list-style: none; margin: var(--space-2) 0 0; padding: 0; }
-.tp-pm-watch-i { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
-.tp-pm-watch-i:last-child { border-bottom: var(--bw-1) solid var(--c-line-soft); }
-.tp-pm-watch-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.tp-pm-watch-name { align-self: flex-start; text-align: left; font-weight: var(--fw-semi); }
-.tp-pm-watch-meta { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-pm-watch-list .tp-wv-i:last-child { border-bottom: var(--bw-1) solid var(--c-line-soft); }
 .tp-inter-help { margin-top: var(--space-1); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 .tp-tl-rugby { margin-top: var(--space-2); }
 
@@ -4441,7 +4437,14 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-wc-sub { margin-top: var(--space-3); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
 .tp-wv { list-style: none; margin: var(--space-1) 0 0; padding: 0; }
 .tp-wv-i { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
-.tp-wv-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tp-wv-t { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-3); padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tp-wv-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tp-wv-img { width: 48px; height: 48px; }
+.tp-wc .tp-wv-t { gap: var(--space-2); }
+.tp-wc .tp-wv-img { width: 40px; height: 40px; } /* the page's narrow match cards: a smaller thumbnail so names hold two lines at most */
+.tp-ko-row { display: grid; gap: 1px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tp-ko-row .tp-ko-s { text-decoration: underline; text-underline-offset: 3px; }
+.tp-ko-row:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-wv-t:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-wv-name { font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-decoration-color: var(--c-line-strong); text-underline-offset: 3px; }
 .tp-wv-meta { font-size: var(--fs-xs); line-height: 1.35; color: var(--c-ink-2); }
@@ -4898,7 +4901,8 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-ko-d { font-weight: var(--fw-semi); }
 .tp-ko-s { font-size: var(--fs-md); font-weight: var(--fw-bold); }
 .tp-ko-v { color: var(--c-ink-2); }
-.tp-wt-m { padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-wt-m { align-self: stretch; padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-pm-watch { align-self: stretch; } /* venue lists run the sheet's full width, so every Add lines up */
 
 /* Days sheet: flexible-date chips in one swipeable row, and the slider over the calendar (16 Nov) */
 .tp-days .tp-days-flex { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(var(--space-4) * -1) var(--space-3); padding: 2px var(--space-4) 4px; scrollbar-width: none; }

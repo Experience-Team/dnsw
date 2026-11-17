@@ -2073,7 +2073,8 @@
       if (y0 == null) return;
       var v = dy / Math.max(1, e.timeStamp - t0); y0 = null;
       sh.classList.remove('is-dragging');
-      if (dy > sh.offsetHeight / 3 || (v > .6 && dy > 24)) {
+      // A tap on the grabber (no drag) does the same as a full drag
+      if (dy < 6 || dy > sh.offsetHeight / 3 || (v > .6 && dy > 24)) {
         // A sheet with its own levels (a sheet over a sheet) can take the dismiss and close one level instead
         if (sh.dispatchEvent(new CustomEvent('tp:stackdismiss', { cancelable: true }))) stackClose();
       } else sh.style.transform = '';

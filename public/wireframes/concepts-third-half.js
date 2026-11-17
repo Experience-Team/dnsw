@@ -198,6 +198,13 @@
   // kick-off is 5pm or later (a 12:15pm match is not tonight)
   function lateAll(ms) { return ms.every(function (m) { var k = kickMins(m.f.k); return k !== null && k >= 17 * 60; }); }
   function manyLine(ms) { return ms.length + (tp.own() ? ' of your matches ' : ' matches ') + (lateAll(ms) ? 'tonight' : 'that day'); }
+  /* One venue row, wherever venues are listed (Where to watch on the page and in its sheet, a match sheet): a thumbnail,
+     the name and what it is, all one link to the venue's details (a sheet from the page, a drill-down level inside a
+     sheet), then Add */
+  function venueRow(id, name, meta, addHtml) {
+    return '<li class="tp-wv-i"><button type="button" class="tp-wv-t" data-open="' + esc(id) + '" aria-haspopup="dialog"><span class="ph-img tp-pc-img tp-wv-img"' + imgKey(name) + ' aria-hidden="true"></span>' +
+      '<span class="tp-wv-txt"><span class="tp-wv-name provenance-gap">' + esc(name) + '</span><span class="tp-wv-meta">' + meta + '</span></span></button>' + addHtml + '</li>';
+  }
   // The venues for one evening: name, kind and area, what it shows (with two matches), Add
   function venueRows(ms, keyBase) {
     var vs = venuesFor(ms), two = ms.length > 1;
@@ -208,9 +215,8 @@
       ITEMS[id] = { id: id, kind: 'screening', title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', place: c.sp.place, note: '', day: m0.f.d, matchName: showing.map(function (m) { return matchName(m.f); }).join(' and ') };
       MODAL[id] = { type: 'spot', sp: c.sp, m: m0 };
       var what = two ? (c.all ? (ms.length > 2 ? 'Shows all ' + ms.length : 'Shows both') : 'Shows ' + matchName(m0.f) + ' only') : '';
-      return '<li class="tp-wv-i"><button type="button" class="tp-wv-t" data-open="' + esc(id) + '" aria-haspopup="dialog"><span class="tp-wv-name provenance-gap">' + esc(c.sp.name) + '</span>' +
-        '<span class="tp-wv-meta">' + esc(SPOT_TYPE[c.sp.type] || 'Screening') + ' · ' + esc(c.sp.place) + (what ? ' · <strong>' + esc(what) + '</strong>' : '') + '</span></button>' +
-        addBtn(id, c.sp.name + ', ' + ITEMS[id].matchName + ' on ' + m0.f.d) + '</li>';
+      return venueRow(id, c.sp.name, esc(SPOT_TYPE[c.sp.type] || 'Screening') + ' · ' + esc(c.sp.place) + (what ? ' · <strong>' + esc(what) + '</strong>' : ''),
+        addBtn(id, c.sp.name + ', ' + ITEMS[id].matchName + ' on ' + m0.f.d));
     }).join('') + '</ul>';
   }
   function matchLine(m) {
@@ -744,7 +750,7 @@
     var other = fd.its.filter(function (x) { return !kept.some(function (i) { return x.id === 'i:' + i.id; }); });
     var line = fd.filled ? 'Your day is full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
     var h = '<h2 class="cn-pp-title tp-tl-ideas-h" id="tp-pm-title" tabindex="-1">' + esc(fd.label) + '</h2><p class="tp-tl-ideas-sub" id="tp-tl-ideas-h">Free day · ' + esc(line) + '</p>';
-    if (other.length) h += '<p class="tp-fday-so">Also on your plan that day: ' + esc(other.map(function (x) { return x.title; }).join(', ')) + '.</p>';
+    if (other.length) h += '<p class="tp-fday-so">Also on your plan that day: ' + placeLinks(other) + '.</p>';
     // Cards keep the order they were shown in, so adding one leaves it where it was (Back lands on the same place);
     // new ones go after
     var pool = kept.concat(fd.filled ? [] : fd.show), seenOrd = tlIdeasOrder[fd.d] || [];
@@ -1072,11 +1078,10 @@
     if (f.a) {
       var sps = spotsFor(m);
       h += '<section class="tp-pm-watch" aria-labelledby="tp-pm-watch-h"><h3 class="cn-pp-h" id="tp-pm-watch-h">Where to watch it in NSW</h3>' +
-        (sps.length ? '<ul class="tp-pm-watch-list">' + sps.map(function (sp) {
+        (sps.length ? '<ul class="tp-wv tp-pm-watch-list">' + sps.map(function (sp) {
           var id = spotItem(sp, m), open = ITEMS[id].note;
-          return '<li class="tp-pm-watch-i"><span class="tp-pm-watch-t provenance-gap"><button type="button" class="tp-link tp-pm-watch-name" data-open="' + esc(id) + '" aria-haspopup="dialog">' + esc(sp.name) + '</button>' +
-            '<span class="tp-pm-watch-meta">' + esc(SPOT_TYPE[sp.type] || 'Screening') + ' \u00b7 ' + esc(sp.place) + (open ? ' \u00b7 ' + esc(open) : '') + '</span></span>' +
-            addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d).replace('class="tp-add"', 'class="tp-add" data-pm-spot="' + esc(id) + '"') + '</li>';
+          return venueRow(id, sp.name, esc(SPOT_TYPE[sp.type] || 'Screening') + ' \u00b7 ' + esc(sp.place) + (open ? ' \u00b7 ' + esc(open) : ''),
+            addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d).replace('class="tp-add"', 'class="tp-add" data-pm-spot="' + esc(id) + '"'));
         }).join('') + '</ul>' : '<p class="tp-pm-note">No NSW screenings listed for this match yet.</p>') + '</section>';
     }
     h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
@@ -1454,7 +1459,8 @@
       if (y0 == null) return;
       var v = dy / Math.max(1, e.timeStamp - t0); y0 = null;
       pm.classList.remove('is-dragging');
-      if (dy > pm.offsetHeight / 3 || (v > .6 && dy > 24)) { if (pmHistory.length) pmPop(); else closePm(); return; }
+      // A tap on the grabber (no drag) does the same as a full drag
+      if (dy < 6 || dy > pm.offsetHeight / 3 || (v > .6 && dy > 24)) { if (pmHistory.length) pmPop(); else closePm(); return; }
       var from = pm.style.transform; pm.style.transform = '';
       if (from && !reduce.matches && pm.animate) pm.animate([{ transform: from }, { transform: 'none' }], { duration: 200, easing: 'cubic-bezier(.2, .8, .2, 1)' });
     }
@@ -1563,7 +1569,8 @@
     } else if (c) h += '<p class="tp-ko-lead">' + esc(c.name) + '\u2019s Round of 16 would be interstate. If it goes through, the semi-finals and the final are in Sydney.</p>';
     h += '<p class="tp-ko-note">Knockouts in NSW, all in Sydney. Teams are known when the pools finish.</p><ol class="tp-ko-list">' + ko.map(function (f) {
       var hit = mine && f === mine;
-      return '<li' + (hit ? ' class="is-hit"' : '') + '><span class="tp-ko-d">' + esc(f.d) + (f.k ? ', ' + esc(f.k) : '') + '</span><span class="tp-ko-s">' + esc(f.s.replace(/ \(\d+\)$/, '')) + (f.t ? ': ' + esc(f.t) : '') + '</span><span class="tp-ko-v">' + esc(f.v) + '</span></li>';
+      var mk = f.d + '|' + (f.t || f.s), row = '<span class="tp-ko-d">' + esc(f.d) + (f.k ? ', ' + esc(f.k) : '') + '</span><span class="tp-ko-s">' + esc(f.s.replace(/ \(\d+\)$/, '')) + (f.t ? ': ' + esc(f.t) : '') + '</span><span class="tp-ko-v">' + esc(f.v) + '</span>';
+      return '<li' + (hit ? ' class="is-hit"' : '') + '>' + (tp.match(mk) ? '<button type="button" class="tp-ko-row" data-open="match:' + esc(mk) + '" aria-haspopup="dialog">' + row + '</button>' : row) + '</li>';
     }).join('') + '</ol></div>';
     return h;
   }
