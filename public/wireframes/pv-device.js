@@ -164,6 +164,10 @@
     // The up-right arrow beside Copy link opens the same address in a new tab, local or not
     var open = document.getElementById('pv-qr-open');
     if (open) open.href = url;
+    // Open in desktop (beside the phone): the page on its own in the theme on show, so a wide window gets the desktop
+    // layout as the reviewer sees it now; ?tools carries over
+    var desk = document.getElementById('pv-desktop');
+    if (desk) desk.href = location.origin + location.pathname + '?' + (/[?&]tools\b/.test(location.search) ? 'tools&' : '') + 'phone' + (themeBtn ? '&theme=' + (hifi() ? 'hifi' : 'wireframe') : '');
     if (local || typeof qrcode !== 'function') {
       code.hidden = true;
       document.getElementById('pv-qr-show').textContent = 'Why no QR code';
