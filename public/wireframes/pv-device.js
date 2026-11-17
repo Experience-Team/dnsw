@@ -180,7 +180,10 @@
     code.innerHTML = '<svg viewBox="0 0 ' + (n + q * 2) + ' ' + (n + q * 2) + '" shape-rendering="crispEdges" aria-hidden="true">' +
       '<rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#1a1a1a"/></svg>';
     code.dataset.url = url;
-    text.textContent = 'Scan to open just the phone screen, in the high fidelity version. Your phone’s keyboard and controls work there.';
+    // Name the fidelity only when the address carries it: without the switch (the low fidelity address) the code opens
+    // the low fidelity phone, so the line makes no fidelity claim
+    text.textContent = 'Scan to open just the phone screen' + (themeBtn ? ', in the high fidelity version' : '') +
+      '. Your phone’s keyboard and controls work there.';
   }
   if (box) {
     code = document.getElementById('pv-qr-code'); text = document.getElementById('pv-qr-p');
