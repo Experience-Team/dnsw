@@ -1,4 +1,5 @@
 {
+  "redirects": [{ "source": "/wireframes", "destination": "/wireframes/", "permanent": false }],
   "rewrites": [{ "source": "/((?!wireframes/).*)", "destination": "/index.html" }],
   "headers": [
     {
