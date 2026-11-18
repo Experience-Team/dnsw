@@ -5245,14 +5245,18 @@ span.tp-map-arrow { display: block; }
 .cn-phone > .cn-body #tp-ask:not([hidden]), #tp-ask:not([hidden]) { margin: var(--space-5) 0 0; padding: 0; border-radius: 0; background: none; }
 #tp-ask .tp-ask-title { font-size: var(--fs-base); line-height: 1.3; font-weight: var(--fw-bold); letter-spacing: 0; }
 #tp-ask .tp-sec-note { margin-top: var(--space-2); font-size: var(--fs-sm); }
-#tp-ask .tp-dates { margin-top: var(--space-2); }
-/* Every date field (the page, the days sheet, the timeline) is 36px tall, and the ± days chips scroll in one row */
+#tp-ask .tp-dates { margin-top: var(--space-1); }
+/* Every date field (the page, the days sheet, the timeline) is 36px tall. Every date picker leads with the slider
+   (18 Nov); the fields wait under Type your dates, so hidden must win over display: flex */
 .tp-date input { box-sizing: border-box; height: 36px; min-height: 36px; }
-.tp-days-flex { flex-wrap: nowrap; overflow-x: auto; margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: 2px var(--space-4) 4px; scrollbar-width: none; }
-.tp-days-flex::-webkit-scrollbar { display: none; }
-.tp-days-flex .tp-chip { flex: none; white-space: nowrap; }
-.tp-tl-daysline .tp-days-flex { display: flex; }
-.tp-days .tp-dates { margin: 0 0 var(--space-3); }
+.tp-dates[hidden] { display: none; }
+.tp-type-btn .tp-refine-chev { margin-left: -2px; }
+.tp-type-btn[aria-expanded="true"] .tp-refine-chev { transform: rotate(180deg); }
+.tp-tl-daysline .tp-dates:not([hidden]) { display: flex; }
+.tp-days .tp-days-range { margin-bottom: 0; }
+.tp-days .tp-ask-acts--links { margin-top: var(--space-1); }
+.tp-days .tp-dates { margin: var(--space-1) 0 0; }
+.tp-days .tp-cal { margin-top: var(--space-4); }
 
 /* ==========================================================================================================
    Pick your team as a desktop website (17 Nov, step 1 of the desktop layout: header, nav, hero, picker,
