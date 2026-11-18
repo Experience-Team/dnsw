@@ -134,7 +134,7 @@
     if (!tabsOn || !deck.children.length) return;
     var ds = deckSig(); if (ds === lastDeckSig) return;
     lastDeckSig = ds;
-    var a = document.activeElement, keepSel = a && deck.contains(a) ? (a.dataset.openWatch ? '[data-open-watch="' + CSS.escape(a.dataset.openWatch) + '"]' : a.dataset.open ? '[data-open="' + CSS.escape(a.dataset.open) + '"]' : null) : null;
+    var a = document.activeElement, keepSel = a && deck.contains(a) ? (a.dataset.openWatch ? '[data-open-watch="' + CSS.escape(a.dataset.openWatch) + '"]' : a.dataset.ticket ? '[data-ticket="' + CSS.escape(a.dataset.ticket) + '"]' : a.dataset.open ? '[data-open="' + CSS.escape(a.dataset.open) + '"]' : null) : null;
     buildDeck();
     var f = keepSel && deck.querySelector(keepSel); if (f) f.focus({ preventScroll: true });
   }
@@ -1058,6 +1058,8 @@
     'Uruguay': ['#0038A8', '#fff', '#FCD116'], 'Wales': ['#fff', '#00AB39', '#D30731'], 'Zimbabwe': ['#006400', '#FFD200', '#D40000']
   };
   var I_TV = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 4.5h11v7.5h-11zM6 14h4M5.5 2l2.5 2.5L10.5 2"/></svg>';
+  // Ticket outline; pressed, a tick inside it
+  var I_TIX = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1.6a1.6 1.6 0 0 0 0 2.8V11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9.4a1.6 1.6 0 0 0 0-2.8z"/><path class="tc-tix-tick" d="M5.6 8.1l1.6 1.6 3.2-3.3"/></svg>';
   var I_GO = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 14V2.5M4 3h7.5l-1.8 2.5L11.5 8H4"/></svg>';
   var I_CUP = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 2.5h6v3a3 3 0 0 1-6 0zM5 3.5H3v1a2 2 0 0 0 2 2M11 3.5h2v1a2 2 0 0 1-2 2M8 8.5v3M5.5 13.5h5"/></svg>';
   var I_NEXT = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5"/></svg>';
@@ -1080,14 +1082,18 @@
       : (function () { var o = sides.filter(function (n) { return n !== self; })[0] || f.s; return '<span class="tc-vs">v</span><span class="tc-team">' + (FLAG[o] || '') + esc(o) + '</span>'; })();
     var name = full ? (f.t || f.s) : 'v ' + (sides.filter(function (n) { return n !== self; })[0] || f.s);
     var also = full ? [] : others(f, self);
-    var chip = has ? '<span class="tc-chip is-ticket">Ticket</span>' : w ? '<span class="tc-chip is-watch">Watching at ' + esc(w) + '</span>' : '';
+    // An NSW match with known teams has I have tickets on its row (18 Nov), in place of the In NSW flag, so its own
+    // pressed state says it; the Ticket chip stays for interstate rows, which keep Watch in NSW
+    var tix = !f.a && !!f.t;
+    var chip = has && !tix ? '<span class="tc-chip is-ticket">Ticket</span>' : w ? '<span class="tc-chip is-watch">Watching at ' + esc(w) + '</span>' : '';
     var lbl = (WDAY[p[0]] || p[0]) + ' ' + p[1] + ' ' + p[2] + ', ' + kick(f) + ', ' + name + ', ' + f.v + ', ' + (f.a ? f.a + ' (interstate)' : cityShort(f) + ' (in NSW)') + (has ? ', you have a ticket' : w ? ', watching at ' + w : '') + (also.length ? ', also your ' + list(also) : '') + '. Details';
     return '<li class="tc-row' + (f.a ? ' is-away' : ' is-nsw') + (has ? ' has-ticket' : '') + '" data-key="' + esc(id) + '">' +
       '<button type="button" class="tc-open" data-open="match:' + esc(id) + '" aria-haspopup="dialog" aria-label="' + esc(lbl) + '">' +
         '<span class="tc-date" aria-hidden="true"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b><em>' + esc(p[2]) + '</em></span>' +
         '<span class="tc-who" aria-hidden="true"><span class="tc-opp">' + who + '</span><span class="tc-where">' + esc(cityShort(f)) + ' · ' + esc(kick(f)) + (also.length ? ' · also your ' + esc(list(also)) : '') + '</span>' + chip + '</span>' +
-        (f.a ? '' : '<span class="tc-go" aria-hidden="true"><span class="tc-go-dot">' + I_GO + '</span>' + (full ? '' : '<span>In NSW</span>') + '</span>') +
+        (f.a || tix ? '' : '<span class="tc-go" aria-hidden="true"><span class="tc-go-dot">' + I_GO + '</span>' + (full ? '' : '<span>In NSW</span>') + '</span>') +
       '</button>' +
+      (tix ? '<button type="button" class="tc-act tc-tix" data-ticket="' + esc(id) + '" data-name="' + esc(name) + '" aria-pressed="' + has + '">' + I_TIX + '<span>I have tickets</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
       (f.a ? '<button type="button" class="tc-act" data-open-watch="' + esc(id) + '" aria-haspopup="dialog">' + I_TV + '<span>Watch in NSW</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
       '</li>';
   }
@@ -1393,6 +1399,14 @@
     rugbyAll = !rugbyAll; buildDeck();
     var b = deck.querySelector('[data-rugby-more]'); if (b) b.focus({ preventScroll: true });
     say(rugbyAll ? 'All ' + nswPool.length + ' pool matches shown.' : 'First four pool matches shown.');
+  });
+  // I have tickets on a match row (18 Nov): the same ticket as the match sheet's I have a ticket; the row redraws
+  // (deckFollow) with focus kept on the button
+  deck.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ticket]'); if (!b) return;
+    var id = b.dataset.ticket, on = state.tickets.indexOf(id) < 0;
+    setTicket(id, on);
+    say((on ? 'Ticket marked for ' : 'Ticket removed for ') + b.dataset.name + '. ' + summary());
   });
   // A ticket on a match is one ticket, whichever card it is marked on
   deck.addEventListener('change', function (e) {
