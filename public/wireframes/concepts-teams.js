@@ -316,12 +316,25 @@
     return c.name + ' added: ' + countPhrase(c.matches) + ', ' + nswCount(c);
   }
   var CAPTION_REST = 'Tap a card to add its matches to your plan';
+  /* Clear all ends the caption's sentence (18 Nov) instead of taking a row under it: after each rewrite it is moved
+     back in, after a full stop where the sentence has none. It stays outside the caption's aria-hidden text, so it is
+     still a button for everyone; renderChosen shows or hides it with its full stop. */
+  function capClear() {
+    var sep = caption.querySelector('.tp-clear-sep'); if (sep) sep.remove();
+    if (clearBtn.parentNode) clearBtn.parentNode.removeChild(clearBtn);
+    var t = caption.textContent.replace(/\s+$/, '');
+    sep = document.createElement('span'); sep.className = 'tp-clear-sep'; sep.setAttribute('aria-hidden', 'true');
+    sep.textContent = /[.!?:]$/.test(t) ? ' ' : '. ';
+    sep.hidden = clearBtn.hidden;
+    caption.appendChild(sep); caption.appendChild(clearBtn);
+  }
   // undo: a function, to offer Undo in the caption for a few seconds (after Clear all)
   var undoTimer = 0;
   function showCaption(lead, rest, note, undo) {
     clearTimeout(undoTimer);
     caption.innerHTML = '<span aria-hidden="true"><span class="tp-cap-new">' + esc(lead) + '</span>' + esc(rest || '') + (note ? '<span class="tp-cap-note">. ' + esc(note.trim()) + '</span>' : '') + '</span>' +
       (undo ? ' <button type="button" class="tp-link tp-undo" id="tp-undo">Undo</button>' : '');
+    capClear();
     if (undo) {
       var u = caption.querySelector('#tp-undo');
       u.addEventListener('click', function () { clearTimeout(undoTimer); undo(u); });
@@ -946,6 +959,7 @@
     chosenEl.textContent = chosenText();
     tsSync();
     clearBtn.hidden = !state.picked.length; // anything picked, Every NSW match included, can be cleared from the picker (check 3)
+    var cSep = caption.querySelector('.tp-clear-sep'); if (cSep) cSep.hidden = clearBtn.hidden;
     // The quiet links: with no team, add every NSW match; on, take them off; hidden while teams are picked
     var r = isPicked(RUGBY), hide = teamsPicked().length > 0;
     rugbyLinks.forEach(function (a) {
@@ -2221,7 +2235,7 @@
   tlUpdate();
 
   renderChosen();
-  caption.textContent = CAPTION_REST;
+  caption.textContent = CAPTION_REST; capClear();
   restoring = true; renderMatches(); restoring = false;
   syncBar();
   /* ---------- Reset prototype (a reviewer tool in the section header, not part of the design) ----------
@@ -2242,7 +2256,7 @@
     clearTimeout(undoTimer);
     renderChosen();
     renderMatches();
-    caption.textContent = CAPTION_REST;
+    caption.textContent = CAPTION_REST; capClear();
     place(false);
     body.scrollTop = 0;
     tlSetOpen(false, false); tlSel = -1; tlSelItem = null; state.added = []; state.trip = null; save(); changed();

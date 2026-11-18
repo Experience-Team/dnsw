@@ -3807,11 +3807,11 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-card:not(.is-picked):hover { background: var(--c-surface-2); } .tp-card--rugby:not(.is-picked):hover { background: var(--c-surface-3); } }
 .tp-fan-caption { min-height: 1.4em; margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); text-align: center; }
 .tp-fan-caption strong { color: var(--c-ink); }
-.tp-clear-row { display: flex; justify-content: center; min-height: 36px; }
 .tp-chosen-row { display: flex; align-items: center; justify-content: center; margin-top: var(--space-1); min-height: 36px; }
 .tp-chosen { font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.4; }
-.tp-clear { flex: none; }
-.tp-clear[hidden] { display: none; }
+.tp-clear[hidden], .tp-clear-sep[hidden] { display: none; }
+/* Clear all ends the caption's sentence (18 Nov): a link in running text, sized by its line (AA 2.5.8's inline exception) */
+.tp-fan-caption .tp-clear:not([hidden]) { display: inline; min-height: 0; font-size: inherit; line-height: inherit; color: var(--c-ink); white-space: nowrap; vertical-align: baseline; }
 .tp-link:focus-visible, .tp-ticket input:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-link { min-height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 /* Results: one card per pick, side by side, swiped */
