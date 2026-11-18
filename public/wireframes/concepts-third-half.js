@@ -1671,10 +1671,13 @@
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
-    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW</h2><p class="tp-days-note">Optional. The ideas then fit around your matches' + (Object.keys(ms).length ? ', which are marked' : '') + '.</p>' +
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">Set dates and the ideas below fit around your matches.</p>' +
       daysTickets() +
       // Either side of their matches, as flexible dates (16 Nov): ± 1 to ± 14 days (About a week removed 16 Nov: it overlapped ± 7 days)
       (qm ? '<div class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + PM.map(function (n) { return Q('pm' + n, quickRange('pm' + n), '\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span>'); }).join('') + '</div>' : '') +
+      // The same First day and Last day fields as the page (18 Nov): typed, they move the slider and the calendar
+      '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-pm-from" data-df="from" min="2027-09-29" max="2027-11-15"></label>' +
+      '<label class="tp-date"><span>Last day</span><input type="date" id="tp-pm-to" data-df="to" min="2027-09-29" max="2027-11-15"></label></div>' +
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
       '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
@@ -1742,6 +1745,9 @@
     if (sum) sum.textContent = !dsel ? 'Tap your first day, then your last, or drag the ends of the bar.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' \u00b7 ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     var use = pm.querySelector('[data-duse]'); if (use) use.disabled = !n;
+    var fF = pm.querySelector('[data-df="from"]'), fT = pm.querySelector('[data-df="to"]');
+    if (fF && document.activeElement !== fF) fF.value = dsel ? isoOf(dsel.a) : '';
+    if (fT && document.activeElement !== fT) fT.value = dsel && dsel.z !== null ? isoOf(dsel.z) : '';
     pm.querySelectorAll('[data-dquick]').forEach(function (c) { var q = quickRange(c.dataset.dquick); c.setAttribute('aria-pressed', !!(q && n && isoOf(dsel.a) === q.from && isoOf(dsel.z) === q.to) + ''); });
   }
   function daysSlide(which, d) {
@@ -1916,6 +1922,19 @@
     planToast(it.id, it.title, on);
   });
   pm.addEventListener('change', function (e) {
+    // First day and Last day typed in the days sheet: they set the selection, as tapping the calendar does
+    var df = e.target.closest('[data-df]');
+    if (df) {
+      var fF = pm.querySelector('[data-df="from"]'), fT = pm.querySelector('[data-df="to"]');
+      var ok = function (v) { return v && v >= '2027-09-29' && v <= '2027-11-15'; };
+      var a = ok(fF.value) ? tp.isoDay(fF.value) : null, z = ok(fT.value) ? tp.isoDay(fT.value) : null;
+      if (a === null && z === null) dsel = null;
+      else if (a === null) dsel = { a: z, z: z };
+      else dsel = { a: a, z: z !== null && z >= a ? z : null };
+      daysPaint();
+      if (dsel) tp.say(dsel.z === null ? 'First day ' + dayLabel(dsel.a) + '. Now pick your last day.' : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.');
+      return;
+    }
     // I have a ticket in the days sheet (from Plan around your match day): the same rule as the match sheet
     var dt = e.target.closest('[data-dticket]');
     if (dt) {
@@ -2100,6 +2119,20 @@
   function baseLabel(b) { return b === 'local' ? 'I’m a local' : b === 'outside' ? 'Staying outside NSW' : 'Staying in ' + b; }
   function partyLabel(p) { return { solo: 'Solo', couple: 'A couple', friends: 'Friends', family: 'Family' }[p] || ''; }
   function chip(attr, val, label, on) { return '<button type="button" class="tp-chip" data-' + attr + '="' + esc(val) + '" aria-pressed="' + !!on + '">' + label + '</button>'; }
+  // ± days either side of their matches (18 Nov): the same quick picks as the days sheet, on every date picker, only
+  // once they have matches (quickRange gives nothing without). Tapped, they apply at once, as the fields and slider do
+  var FLEX = [1, 2, 3, 7, 14];
+  function flexChips(tag, cur) {
+    if (!quickRange('pm1')) return '';
+    return '<' + tag + ' class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + FLEX.map(function (n) {
+      var r = quickRange('pm' + n), on = !!(r && cur && cur.from === r.from && cur.to === r.to);
+      return r ? '<button type="button" class="tp-chip" data-flex="pm' + n + '" aria-pressed="' + on + '">\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span></button>' : '';
+    }).join('') + '</' + tag + '>';
+  }
+  function flexApply(root, b) {
+    var r = quickRange(b.dataset.flex); if (!r) return;
+    rRoot = root; applyDays(r.from, r.to, '[data-flex="' + b.dataset.flex + '"]');
+  }
   function renderAsk() {
     var t = trip() || {}, show = tp.own();
     ask.hidden = !show;
@@ -2111,6 +2144,7 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
       h += '<p class="tp-sec-note">Set dates and the ideas below fit around your matches.</p>' +
+        flexChips('div', askDraft || t) +
         '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" data-f="from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
         '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" data-f="to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
@@ -2251,6 +2285,7 @@
     daysToast(!!(step.from && step.to), a, z);
   }
   function applyFromFields(sel) { var p = rangeParts(); if (p.from && p.to) applyDays(p.from.value, p.to.value, sel); }
+  ask.addEventListener('click', function (e) { var b = e.target.closest('[data-flex]'); if (b) flexApply(ask, b); });
   ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') { rRoot = ask; applyFromFields('#' + e.target.id); } });
   /* Saved, not placed yet, going onto days as the days are set in the open timeline: each glides from its row in the
      list to its day on the axis (the same flight as an idea landing), one after another */
@@ -2407,9 +2442,9 @@
     var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
     var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Type new dates or drag either end to change them.'
       : wait ? 'Set your days and ' + (wait === 1 ? 'the place you saved goes' : 'the ' + wait + ' places you saved go') + ' onto free days.'
-      : 'Optional. Ideas then fit around your matches' + (Object.keys(mdays).length ? ', dotted on the bar' : '') + '.';
-    daysLine.innerHTML = '<span class="tp-tl-setdays-h" id="tp-tl-setdays-h">Your days in NSW</span>' +
-      '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' +
+      : 'Set dates and the ideas below fit around your matches.';
+    daysLine.innerHTML = '<span class="tp-tl-setdays-h" id="tp-tl-setdays-h">Your days in NSW' + (has ? '' : ' (optional)') + '</span>' +
+      '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' + flexChips('span', askDraft || t) +
       // The same First day and Last day fields as the page (16 Nov): typing a date is the precise and accessible way in,
       // and the slider and fields follow each other
       '<span class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-tl-from" data-f="from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
@@ -2432,6 +2467,7 @@
     daysLine.addEventListener('input', function (e) { if (e.target.dataset.f) { rRoot = daysLine; rangeFromFields(); } });
   }
   if (daysLine) daysLine.addEventListener('click', function (e) {
+    var fb = e.target.closest('[data-flex]'); if (fb) { flexApply(daysLine, fb); return; }
     var b = e.target.closest('[data-act="undo"], [data-act="clear"]'); if (!b) return;
     rRoot = daysLine; daysStep(b.dataset.act, '.tp-range-h[data-h="from"]');
   });
