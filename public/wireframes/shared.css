@@ -5372,3 +5372,23 @@ span.tp-map-arrow { display: block; }
   .pv-device #tp-phone .tp-toast-act { grid-column: 2; grid-row: 1; margin-left: 0; }
   .pv-device #tp-phone .tp-toast-x { grid-column: 3; }
 }
+
+/* Day by day map: the swipe hint (concepts-map.js hintShow). A dark pill centred over the map, 12px above the day's
+   card: a chevron either side of "Swipe left or right for each day". It never takes a tap (the map under it swipes).
+   Fades and rises in; the chevrons nudge outwards twice; reduced motion fades only. */
+.tp-map-hint { position: absolute; left: var(--space-4); right: var(--space-4); z-index: 4; display: flex; width: max-content; margin: 0 auto; align-items: center; gap: var(--space-2); max-width: calc(100% - 32px); padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill); background: var(--c-btn); color: var(--c-on-dark); font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.3; white-space: nowrap; pointer-events: none; box-shadow: 0 6px 18px rgba(17, 17, 17, .24); }
+.tp-map-hint[hidden] { display: none; }
+.tp-map-hint svg { flex: none; width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tp-map-hint.is-in { animation: tp-hint-in .3s cubic-bezier(.2, .8, .2, 1) both; }
+.tp-map-hint.is-in svg:first-child { animation: tp-hint-l .9s ease-in-out .4s 2; }
+.tp-map-hint.is-in svg:last-child { animation: tp-hint-r .9s ease-in-out .4s 2; }
+.tp-map-hint.is-out { animation: tp-hint-out .2s ease-in both; }
+@keyframes tp-hint-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes tp-hint-out { to { opacity: 0; transform: translateY(4px); } }
+@keyframes tp-hint-l { 50% { transform: translateX(-4px); } }
+@keyframes tp-hint-r { 50% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .tp-map-hint.is-in { animation: tp-fade-in .15s linear both; }
+  .tp-map-hint.is-in svg { animation: none !important; }
+  .tp-map-hint.is-out { animation: none; opacity: 0; }
+}

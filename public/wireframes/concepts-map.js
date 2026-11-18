@@ -44,6 +44,7 @@
       '<div class="tp-map-zoom" hidden><button type="button" data-zoom="in" aria-label="Zoom in">' + I_PLUS + '</button><button type="button" data-zoom="out" aria-label="Zoom out">' + I_MINUS + '</button><button type="button" data-zoom="reset" aria-label="Back to this day">' + I_CENTRE + '</button></div>' +
       '<div class="tp-map-pop" hidden></div>' +
       '<div class="tp-map-card"></div>' +
+      '<p class="tp-map-hint" aria-hidden="true" hidden><svg viewBox="0 0 12 12"><path d="M7.5 2.5L4 6l3.5 3.5"/></svg><span>Swipe left or right for each day</span><svg viewBox="0 0 12 12"><path d="M4.5 2.5L8 6 4.5 9.5"/></svg></p>' +
       '<div class="tp-map-jump" role="dialog" aria-modal="true" aria-labelledby="tp-map-jump-h" hidden></div>' +
       '<p class="visually-hidden" aria-live="polite" id="tp-map-say"></p>' +
     '</div>';
@@ -391,9 +392,34 @@
      far); the new card is held until the map is 60% of the way there, then comes in from the side asked for. Stepping
      again mid-way picks up from wherever things are. Reduced motion: the map and the card change together, at once. */
   var cardT = 0, cardOut = null, pending = null;
+  /* Swipe hint (18 Nov): a pill over the map, just above the day's card, the first time day by day opens in a visit
+     (this browser tab), telling people the map steps through the days sideways. It is a prompt, not a control
+     (aria-hidden: screen readers hear the day and the arrow keys from say()), so it never takes a tap: the map under it
+     still swipes. It goes as soon as they move to another day by any means, after 5 seconds, in Explore freely, or when
+     the layer closes. Its chevrons nudge outwards twice; reduced motion: it fades in and out only. Not on a desktop,
+     where there is no swiping (the arrows and keys step). */
+  var hint = mapEl.querySelector('.tp-map-hint'), hintT = 0;
+  function hintSeen() { try { return sessionStorage.getItem('tp-map-swiped') === '1'; } catch (e) { return false; } }
+  function hintDone() { try { sessionStorage.setItem('tp-map-swiped', '1'); } catch (e) {} }
+  function desktop() { return matchMedia('(min-width: 1024px)').matches && document.documentElement.classList.contains('pv-device'); }
+  function hintShow() {
+    if (hintSeen() || desktop() || steps.length < 2 || free) return;
+    hint.style.bottom = Math.max(64, stage.clientHeight - card.offsetTop + 12) + 'px';
+    hint.hidden = false;
+    hint.classList.remove('is-out'); void hint.offsetWidth; hint.classList.add('is-in');
+    clearTimeout(hintT); hintT = setTimeout(function () { hintHide(); }, 5000);
+  }
+  function hintHide(done) {
+    clearTimeout(hintT);
+    if (done) hintDone();
+    if (hint.hidden) return;
+    hint.classList.remove('is-in'); hint.classList.add('is-out');
+    setTimeout(function () { if (hint.classList.contains('is-out')) hint.hidden = true; }, reduce.matches ? 0 : 220);
+  }
   function goTo(i, opts) {
     opts = opts || {};
     i = Math.max(0, Math.min(steps.length - 1, i));
+    if (!opts.first && !opts.cut && cur > -1 && i !== cur) hintHide(true); // they have found their way between days
     var prev = cur, changed = i !== cur;
     cur = i; curDay = cards[i] ? cards[i].day : null;
     clearTimeout(cardT); if (cardOut) { cardOut.cancel(); cardOut = null; }
@@ -478,7 +504,8 @@
       sc.scrollTo({ top: trackTop(), behavior: 'auto' });
       var h = card.querySelector('.tp-map-card-h'); if (h) h.focus({ preventScroll: true });
       say('Following your days, one at a time as you scroll. Day 1 of ' + steps.length + '.');
-    }
+      setTimeout(hintShow, reduce.matches ? 0 : 420); // once the layer has risen and the first day's card is in place
+    } else hintHide();
     return day;
   }
   function fsShow(v) {
@@ -615,6 +642,7 @@
 
   /* ---------- Explore freely ---------- */
   function setFree(v, goStep) {
+    if (v) hintHide(); // panning freely: the hint about swiping between days no longer applies
     free = v; pending = null;
     mapEl.classList.toggle('is-free', v);
     freeBtn.setAttribute('aria-pressed', v ? 'true' : 'false');
