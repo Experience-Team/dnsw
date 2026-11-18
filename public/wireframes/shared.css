@@ -3696,7 +3696,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-cap-i:not(.is-on):active { opacity: .72; }
 @media (hover: hover) { .tp-cap-i:not(.is-on):hover { text-decoration: underline; text-underline-offset: 3px; } }
 @media (prefers-reduced-motion: reduce) { .tp-cap-pill, .tp-cap-i, .tp-cap-wrap .tp-cap, .tp-cap-wrap.is-away .tp-cap, .tp-photo { transition: none; } .tp-photo:active { transform: none; } }
-/* Being built: in place of the planner while Event details or Drop goal is picked. Tall enough that the capsule
+/* Being built: in place of the planner while Home or Drop goal is picked. Tall enough that the capsule
    stays where it was when the page swaps. The planner's sections, the timeline bar and its skip link step aside. */
 #tp-phone.is-soon .tp-body > :not(.tp-top):not(.tp-cap-wrap):not(.tp-soon) { display: none !important; }
 #tp-phone.is-soon :is(.tp-tl, .tp-tl-scrim, .tp-skip) { visibility: hidden; }
