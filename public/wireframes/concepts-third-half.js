@@ -1675,7 +1675,7 @@
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
       '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
-        Object.keys(ms).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d - RMIN) / RSPAN * 100) + '%"></span>'; }).join('') +
+        rangeDots() +
         '<span class="tp-range-h" role="slider" tabindex="0" data-dh="from" aria-label="First day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '">' + TIP + '</span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-dh="to" aria-label="Last day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '">' + TIP + '</span></div>' +
         rangeEnds('div', 'pm', 'tp-pm-dates') + '</div>' +
@@ -2142,6 +2142,16 @@
      tooltip above it gives the day as 12/10. The tooltip stays inside the slider at either end: the bubble shifts in
      and its pointer stays on the handle. */
   var TIP = '<span class="tp-range-tip" aria-hidden="true"></span>';
+  /* Every match of the teams picked is dotted on the slider (18 Nov): NSW matches solid, interstate ones hollow, so a
+     team with only interstate pool matches still shows them; a day with both is solid. Drawn with the slider, which
+     is redrawn whenever a team is picked or removed. */
+  function rangeDots() {
+    var d = {};
+    (tp.own() ? tp.userMatches() : []).forEach(function (m) { d[m.day] = d[m.day] || !m.f.a; });
+    return Object.keys(d).map(function (k) {
+      return '<span class="tp-range-match' + (d[k] ? '' : ' is-away') + '" aria-hidden="true" style="left:' + ((+k - RMIN) / RSPAN * 100) + '%"></span>';
+    }).join('');
+  }
   function shortDay(d) { var dt = new Date(Date.UTC(2027, 9, 1 + d)); return dt.getUTCDate() + '/' + (dt.getUTCMonth() + 1); }
   function tipSet(h, d) {
     var tip = h.querySelector('.tp-range-tip'); if (!tip) return;
@@ -2174,11 +2184,10 @@
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
-      var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
       h += '<p class="tp-sec-note">Set dates and the ideas below fit around your matches.</p>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
-        Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
+        rangeDots() +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span></div>' +
         rangeEnds('div', 'ask', 'tp-ask-dates') + '</div>' +
@@ -2472,7 +2481,6 @@
       return;
     }
     if (askError && rRoot === daysLine) typeOpen.tl = true;
-    var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
     var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Type new dates or drag either end to change them.'
       : wait ? 'Set your days and ' + (wait === 1 ? 'the place you saved goes' : 'the ' + wait + ' places you saved go') + ' onto free days.'
       : 'Set dates and the ideas below fit around your matches.';
@@ -2480,7 +2488,7 @@
       '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' +
       '<span class="tp-range tp-tl-range" role="group" aria-labelledby="tp-tl-setdays-h"><span class="tp-range-track"><span class="tp-range-fill"></span>' +
       '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
-      Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
+      rangeDots() +
       '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span>' +
       '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span></span>' +
       rangeEnds('span', 'tl', 'tp-tl-dates') + '</span>' +
