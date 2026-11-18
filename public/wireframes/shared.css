@@ -5342,15 +5342,18 @@ span.tp-map-arrow { display: block; }
 @media (prefers-reduced-motion: reduce) { .pv-device #tp-phone .cn-pp.tp-pm.is-open, .pv-device #tp-phone .tp-ph:not([hidden]) { animation: tp-fade-in .15s linear; } }
 
 /* Viewer tools beside the phone (Pick your team): Reset prototype and Open in desktop, two 36px icon buttons stacked
-   just outside the phone's top right corner, in the gap before the spare frame. Not in the phone view. */
+   just outside the phone's top left corner, 8px from it (18 Nov; were on the right, in the gap before the spare frame).
+   On the stacked page (narrow or short windows) the phone sits 16px from the left edge, so there they stay on the
+   right. Not in the phone view. */
 .pv-phone { position: relative; }
-.pv-frame-tools { position: absolute; top: 0; left: calc(100% + 6px); display: flex; flex-direction: column; gap: var(--space-2); }
+.pv-frame-tools { position: absolute; top: 0; right: calc(100% + var(--space-2)); display: flex; flex-direction: column; gap: var(--space-2); }
 .pv-frame-btn { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid #d1d1d1; border-radius: 50%; background: #fff; color: #5a5a5a; cursor: pointer; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out); }
 .pv-frame-btn svg { display: block; }
 @media (hover: hover) { .pv-frame-btn:hover { background: #f2f2f2; color: #1a1a1a; border-color: #b3b3b3; } }
 .pv-frame-btn:active { transform: scale(.96); }
 .pv-frame-btn:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 .pv-device .pv-frame-tools { display: none; }
+@media (max-height: 600px), (max-width: 800px) { .pv-frame-tools { right: auto; left: calc(100% + var(--space-2)); } }
 
 /* Pick your team: toasts (concepts-teams.js toast()). A dark card near the foot of the screen, 16px in from the
    sides: the title and a line on what changed, the cross beside them, the link underneath (beside them on a desktop). Above the Your plan bar on a phone (--toast-b), at
