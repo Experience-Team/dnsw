@@ -3367,7 +3367,6 @@ body.cp-page code { font: inherit; }
 .tp-date input:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 1px; }
 .tp-ask-err { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-danger); }
 .tp-ask-sum { font-size: var(--fs-base); font-weight: var(--fw-bold); }
-.tp-ask-news { margin-top: var(--space-1); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 /* A section an answer changed: a brief blue wash as it comes into view, then nothing (colour only, no movement) */
 .tp-sec.is-changed { animation: tp-sec-changed 1.8s ease-out; }
 @keyframes tp-sec-changed { 0%, 30% { background-color: #e8f0fc; box-shadow: 0 0 0 var(--space-3) #e8f0fc; } 100% { background-color: rgba(232,240,252,0); box-shadow: 0 0 0 var(--space-3) rgba(232,240,252,0); } }
