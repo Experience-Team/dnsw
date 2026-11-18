@@ -5412,3 +5412,16 @@ span.tp-map-arrow { display: block; }
   .tp-map-hint.is-in svg { animation: none !important; }
   .tp-map-hint.is-out { animation: none; opacity: 0; }
 }
+
+/* Saving without a team (18 Nov): Add team on the plan bar, to the left of the open control, level with the value; the
+   value gives it room. Hidden on the open plan, where the saves' box and the team prompt ask instead */
+.tp-tl-addteam { position: absolute; top: 34px; right: 64px; z-index: 1; min-height: 24px; font-size: var(--fs-md); }
+.tp-tl-addteam[hidden], .tp-tl.is-open .tp-tl-addteam { display: none; }
+.tp-tl.has-addteam:not(.is-open) .tp-tl-sum { right: 150px; }
+.tp-tl-wait-a { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 0; font-size: var(--fs-sm); }
+.tp-tl-wait-a .tp-link { min-height: 24px; }
+
+/* Add team sheet (18 Nov): the page's picker, lent. It scrolls inside the sheet; Done stays at the foot */
+.tp-at-note { margin: 0 0 var(--space-3); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
+.tp-at-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 calc(var(--space-4) * -1); padding: 0 var(--space-4) var(--space-4); }
+.tp-at-body .tp-picker { margin-top: var(--space-3); }

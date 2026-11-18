@@ -7,11 +7,11 @@
      guessed, with two quick picks. Refine your plan (folded): where they are staying and who is coming, which choose and
      order the ideas (a local: nearest first, no dates needed). Each answer refines the results in
      place, says what changed under the answer, and tints each section that changed as it comes into view. It is saved
-     with the picks (tp-pick-v1), shown and editable in the open timeline.
+     with the picks (tp-pick-v1), shown and editable in the open plan.
    Data: real places, with indicative hours, prices and screenings (not confirmed). Where to watch uses placeholder venues from window.cnWatchVenues (no real business named); products from
    window.cnThirdHalf, shaped like the product data contract (availability, pricing and distance_to_venue are gap, so
    pink). No venue or product is favoured: spots go by type then name, products by distance then name. Links go out
-   only; nothing is booked here. State and the timeline live in concepts-teams.js (window.tpPicker). */
+   only; nothing is booked here. State and the plan live in concepts-teams.js (window.tpPicker). */
 (function () {
   'use strict';
   var tp = window.tpPicker, FIX = window.cnFixtures;
@@ -101,9 +101,9 @@
   function addBtn(id, label) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
     return '<button type="button" class="tp-add" data-item="' + esc(id) + '" aria-pressed="' + on + '">' +
-      '<span aria-hidden="true">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden">' + (on ? 'Added: ' : 'Add ') + esc(label) + (on ? '. Press to remove' : ' to your timeline') + '</span></button>';
+      '<span aria-hidden="true">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden">' + (on ? 'Added: ' : 'Add ') + esc(label) + (on ? '. Press to remove' : ' to your plan') + '</span></button>';
   }
-  // Items the add buttons put on the timeline, by id, rebuilt on each render; and what each one's page shows
+  // Items the add buttons put on the plan, by id, rebuilt on each render; and what each one's page shows
   var ITEMS = {}, MODAL = {};
 
   /* ---------- First look: no team picked yet ----------
@@ -565,7 +565,7 @@
   }
   // "Clashes with Italy v Romania, Mon 11 Oct" (a match), or "with Blue Mountains, Sun 17 Oct" (another trip)
   function clashText(cl) { return 'Clashes with ' + tp.list(cl.map(function (c) { return c.name + ', ' + c.day; })) + '.'; }
-  /* Where a trip can go now: every valid start in every free stretch it suits, for Move in the timeline's detail (a
+  /* Where a trip can go now: every valid start in every free stretch it suits, for Move in the plan's detail (a
      trip whose stretch has split has no card on the page any more) */
   function tripMoves(id, all) {
     var it = state.added.filter(function (x) { return x.id === id; })[0]; if (!it) return [];
@@ -641,7 +641,7 @@
     if (i.car) return 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from + ' (no public transport)';
     return i.how.mode + ' from ' + i.how.from + ' · ' + (i.how.mins ? mins(i.how.mins) + ' by public transport' : 'time to be confirmed');
   }
-  // In the timeline's ideas sheet (open) the card's main part is a button that shows the idea's details in the sheet
+  // In the plan's ideas sheet (open) the card's main part is a button that shows the idea's details in the sheet
   function ideaCard(i, d, open) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), type = (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city];
     var km = ideaKm(i), why = 'Fits ' + dl + (km !== null ? ' · ' + kmLine(km) : '') + ' · ' + howLine(i);
@@ -659,7 +659,7 @@
   /* An idea's details (its own sheet from the page, or a level of the ideas sheet, back by the arrow): a placeholder image, title and
      type, why it fits that day, how to get there and how long it takes, then opening hours, price and a short
      description. Ideas are fixture-only (cnFreeIdeas has no hours, price or description), so those three are
-     bracketed placeholders, pink with Annotations on. Add to your timeline and View full page (not linked yet). */
+     bracketed placeholders, pink with Annotations on. Add to your plan and View full page (not linked yet). */
   function ideaDetail(i, d, noBack) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), km = ideaKm(i);
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
@@ -732,7 +732,7 @@
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + halfWhere(b) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
   }
-  /* A free day's ideas, opened from its + on the axis in the sheet stacked over the timeline (16 Nov: they used to open
+  /* A free day's ideas, opened from its + on the axis in the sheet stacked over the plan (16 Nov: they used to open
      inline under the axis). The same list the page shows for that day (the same ideas, Fits [day], More ideas and Add
      buttons), so adding here or on the page is one plan. When the day fills, it says so and offers the next free day,
      whose ideas the page has moved on to. Under the list, See all ideas for this day stands for the full page (not
@@ -1007,7 +1007,7 @@
 
   /* ---------- Full-screen pages: a product, or a place to watch (summarised) ----------
      The same pattern as the itinerary prototype's product page (.cn-pp): over the whole phone, a close cross and what
-     it is at the top, a placeholder image, then the facts. Each has Add to timeline (in step with the card's Add) and
+     it is at the top, a placeholder image, then the facts. Each has Add to plan (in step with the card's Add) and
      View full page, which is not linked yet. Focus moves in and stays in; Escape or the cross closes it and focus goes
      back to what opened it. Gap fields keep the pink marker. */
   var WD_NAME = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' }, WD_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -1033,7 +1033,7 @@
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
   function pmActions(id, label) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
-    return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to your timeline' : 'Add to your timeline') + '</span><span class="visually-hidden">, ' + esc(label) + '</span></button>' +
+    return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to your plan' : 'Add to your plan') + '</span><span class="visually-hidden">, ' + esc(label) + '</span></button>' +
       '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>';
   }
   function pmProduct(id, x) {
@@ -1067,9 +1067,9 @@
     return h;
   }
   /* A match from All matches: the facts (date, Sydney kick-off, venue, city, in NSW or interstate), then what can be
-     done with it. Add to my timeline puts that one match on the timeline even when neither team is picked (T12, a
+     done with it. Add to my plan puts that one match on the plan even when neither team is picked (T12, a
      ticket for a match their team is not in). Add [team] to my teams does exactly what picking the card in the fan
-     does. I have a ticket shows for any match with known teams; ticking it also puts the match on the timeline, as a
+     does. I have a ticket shows for any match with known teams; ticking it also puts the match on the plan, as a
      ticket means they are going. Nothing here adds a team without its own button. */
   var pmSaid = '';
   function matchId(key) { return 'm:' + key; }
@@ -1097,14 +1097,14 @@
       '<div><dt>Kick-off</dt><dd>' + (f.k ? esc(f.k) + ' Sydney time' : 'Time to be confirmed') + '</dd></div>' +
       '<div><dt>Venue</dt><dd>' + esc(f.v) + '</dd></div>' +
       '<div><dt>City</dt><dd>' + esc(f.p) + (f.a ? ' (interstate)' : ', NSW') + '</dd></div></dl>';
-    // On the timeline already, through a team or Here for the rugby: say so instead of offering to add it
+    // On the plan already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
-    if (by.length || rugby) h += '<p class="tp-pm-on">' + window.tpIcons.added + '<span>On your timeline: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Every NSW match is on') + '</span></p>';
-    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my timeline' : 'Add to my timeline') + '</span><span class="visually-hidden"> for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
+    if (by.length || rugby) h += '<p class="tp-pm-on">' + window.tpIcons.added + '<span>On your plan: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Every NSW match is on') + '</span></p>';
+    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my plan' : 'Add to my plan') + '</span><span class="visually-hidden"> for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
     if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' aria-describedby="tp-pm-ticket-why" /><span class="tp-pm-ticket-l">' + window.tpIcons.ticket + 'I have a ticket</span></label><p class="tp-ticket-why" id="tp-pm-ticket-why">Mark it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
     h += '</div>';
     if (teams.length) {
-      // The same toggle as Add to my timeline: pressed reads Added, with a tick; pressing it again takes the team off
+      // The same toggle as Add to my plan: pressed reads Added, with a tick; pressing it again takes the team off
       h += '<h3 class="cn-pp-h">Your teams</h3><div class="tp-pm-teams">' + teams.map(function (n) {
         var on = tp.isPicked(n);
         return '<button type="button" class="tp-pm-team" data-pm-team="' + esc(n) + '" aria-pressed="' + on + '">' + addLabel(on, on ? esc(n) + ' added to my teams' : 'Add ' + esc(n) + ' to my teams') + '</button>';
@@ -1154,7 +1154,7 @@
     h += pmActions(id, t.region) + '</div>';
     return h;
   }
-  /* ---------- An added item from the timeline: its details, Move and Remove (stacked over the timeline) ----------
+  /* ---------- An added item from the plan: its details, Move and Remove (stacked over the plan) ----------
      Where it can go: places and products on the days they are open (fixture opening hours, gap data), a fan zone or
      village between its open dates, all inside the days in NSW if set, else the tournament; trips use tripMoves.
      A screening belongs to one match's broadcast, so it is not moved, only removed. */
@@ -1250,7 +1250,7 @@
 
   /* ---------- Saved, not placed yet ----------
      A place added from the map before their days are set has no day yet (day '', unplaced). It waits in a "Saved, not
-     placed yet" group in the plan and the timeline, and is slotted once days are set, without asking: near a stadium,
+     placed yet" group in the plan and the plan, and is slotted once days are set, without asking: near a stadium,
      that stadium's match day if it is in their days; otherwise the first free day with room (none or one idea so far);
      always a day it is open. If nothing fits it stays in the group, saying so. Agreed 15 November 2026. */
   var POI = window.cnMapPoi || null;
@@ -1295,10 +1295,11 @@
     var s = stay(), out = [];
     state.added.forEach(function (it) {
       if (!it.unplaced) return;
-      var d = s ? slotDay(it, s) : null;
+      // Saved with no team or days but tied to a date (18 Nov): it goes on that date once it falls in their days
+      var d = !s ? null : it.fixed ? (function (fd) { return fd >= s.a && fd <= s.z ? fd : null; })(tp.dayOf(it.fixed)) : slotDay(it, s);
       it.nofit = !!s && d === null;
       if (d === null) return;
-      it.day = dayLabel(d); delete it.unplaced; delete it.nofit; out.push(it);
+      it.day = it.fixed || dayLabel(d); delete it.unplaced; delete it.nofit; delete it.fixed; out.push(it);
     });
     if (out.length) {
       tp.save();
@@ -1331,7 +1332,7 @@
     return nid;
   }
   function pmItem(id) {
-    var it = addedItem(id); if (!it) return '<div class="plan-modal-body"><p class="cn-pp-text">This is no longer on your timeline.</p></div>';
+    var it = addedItem(id); if (!it) return '<div class="plan-modal-body"><p class="cn-pp-text">This is no longer on your plan.</p></div>';
     var cl = tp.tlClash(id), mv = itemMoves(it), h = '<div class="plan-modal-body tp-pm-item">';
     h += '<p class="tp-pm-type">' + esc(it.kindLabel || 'Added') + '</p>';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(it.title) + '</h2>';
@@ -1346,11 +1347,11 @@
     else if (mv.length) h += '<h3 class="cn-pp-h">Move it to</h3><div class="tp-move" role="group" aria-label="Move ' + esc(it.title) + ' to">' + mv.map(function (m) { return '<button type="button" class="tp-chip" data-pm-move="' + m.day + '">' + esc(m.label) + '</button>'; }).join('') + '</div>' +
       (it.kind === 'trip' ? '' : '<p class="tp-pm-note">Days it is open<span class="provenance-gap"> (indicative opening hours)</span>' + (stay() ? ', within your days in NSW.' : '.') + '</p>');
     else h += '<p class="tp-pm-note">No other days fit it now. Remove it, or change your days.</p>';
-    h += '<div class="tp-pm-acts"><button type="button" class="tp-link" data-pm-remove="' + esc(id) + '">' + window.tpIcons.remove + '<span class="tp-u">Remove from timeline</span></button></div>';
+    h += '<div class="tp-pm-acts"><button type="button" class="tp-link" data-pm-remove="' + esc(id) + '">' + window.tpIcons.remove + '<span class="tp-u">Remove from plan</span></button></div>';
     h += '<p class="tp-pm-said" aria-hidden="true">' + esc(pmSaid) + '</p></div>';
     return h;
   }
-  // The match sheet doubles as the timeline's stacked sheet: grabber, stack closing, focus back to the marker
+  // The match sheet doubles as the plan's stacked sheet: grabber, stack closing, focus back to the marker
   var pmGrab = document.createElement('span'); pmGrab.className = 'cn-grabber tp-pm-grab'; pmGrab.setAttribute('aria-hidden', 'true');
   pm.insertBefore(pmGrab, pm.firstChild);
   pm.tabIndex = -1;
@@ -1371,7 +1372,7 @@
     pmUnstackT = setTimeout(function () { if (!pmStacked) { pm.hidden = true; pm.classList.remove('tp-stack', 'is-stacked'); } notesRefresh(); }, reduce.matches ? 0 : 340);
   });
   tp.openSheet = function (id, opener) { openPm(id, opener, true); };
-  tp.moveItem = moveItem; // the timeline's hold-and-drag
+  tp.moveItem = moveItem; // the plan's hold-and-drag
   // The days a dragged item may land on: a trip only on the start days it runs; anything else on any day it is open in
   // their days (every day of the axis without days)
   tp.itemStarts = function (id) {
@@ -1390,7 +1391,7 @@
      the level slides out to the right and the one before comes back as it is now (an Add made meanwhile shows), at the
      scroll it had, with focus on the link that opened the level just closed. The cross and the dark area close the
      whole sheet, and focus goes back to what opened it. Stacking is only for a sheet over a full-screen layer (the
-     timeline, a full-screen map). One sheet element does it all; a level is drawn again from its id on the way back.
+     plan, a full-screen map). One sheet element does it all; a level is drawn again from its id on the way back.
      Reduced motion: the levels swap in place. */
   var pmHistory = [], pmBack = pm.querySelector('[data-pm-back]');
   function pmBackSync() {
@@ -1431,7 +1432,7 @@
     if (!pmOpen) return;
     var prev = { id: pmOpen.id, opener: pmOpen.opener, openerEl: pmOpenerEl, scroll: pmBody.scrollTop, sel: pmSel(link), title: pmTitle() };
     // The sheet holds the height it opened at for every level: only the content moves, never its edge (a taller level
-    // scrolls inside it). Over the timeline its top is pinned already. Released when it closes.
+    // scrolls inside it). Over the plan its top is pinned already. Released when it closes.
     if (!pmStacked && !pm.style.height) pm.style.height = pm.offsetHeight + 'px';
     var snap = pmSnap(); // before the ideas list (lent to the sheet) goes home, so the picture shows it
     if (openPm(id, link, false, true) === false) { if (snap) snap.remove(); if (prev.id.indexOf('ideas:') === 0) openPm(prev.id, null, false, true); return; }
@@ -1461,7 +1462,7 @@
   }
   pmBack.addEventListener('click', function () { pmPop(); });
   /* Dragging the grabber of a sheet over the page: past a third of its height, or a flick, goes back one level, or
-     closes it at the first; earlier it springs back. (Over the timeline the stack's own drag does the same.) */
+     closes it at the first; earlier it springs back. (Over the plan the stack's own drag does the same.) */
   (function () {
     var y0 = null, dy = 0, t0 = 0;
     pmGrab.addEventListener('pointerdown', function (e) { if (pmStacked || !pmOpen) return; y0 = e.clientY; dy = 0; t0 = e.timeStamp; pmGrab.setPointerCapture(e.pointerId); pm.classList.add('is-dragging'); });
@@ -1478,13 +1479,13 @@
     pmGrab.addEventListener('pointerup', letGo); pmGrab.addEventListener('pointercancel', letGo);
   })();
   /* Over a full-screen map (the overview in full screen, Follow day by day), a sheet stacks: the map steps back behind
-     it, as the timeline does under its stacked sheets, and comes forward again when the sheet closes */
+     it, as the plan does under its stacked sheets, and comes forward again when the sheet closes */
   var pmLayer = null;
   function pmLayerBack(on) {
     if (on) { pmLayer = phone.querySelector('.tp-ov-map.is-full') || phone.querySelector('.tp-mapfs:not([hidden])'); if (pmLayer) pmLayer.classList.add('tp-layer-back'); }
     else if (pmLayer) { pmLayer.classList.remove('tp-layer-back'); pmLayer = null; }
   }
-  // Dragging the grabber down over the timeline goes back one level when there is one
+  // Dragging the grabber down over the plan goes back one level when there is one
   pm.addEventListener('tp:stackdismiss', function (e) { if (pmHistory.length) { e.preventDefault(); pmPop(); } });
   function openPm(id, opener, stacked, swap) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
@@ -1505,11 +1506,11 @@
     pmBody.innerHTML = isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     if (isIdeas) { if (!swap) tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
-    pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your plan' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (swap) return true; // a sheet over a sheet (pmPush, pmPop): the sheet is already open, only its content changes
     if (stacked) {
-      // Over the open timeline: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
+      // Over the open plan: the stacked-sheet pattern does the motion, scrim, Tab, Escape, drag and focus return
       clearTimeout(pmUnstackT);
       pmStacked = true;
       pm.classList.remove('is-sheet', 'is-open', 'is-closing');
@@ -1615,7 +1616,7 @@
 
   /* ---------- Your days, and where you're staying, in a sheet (16 Nov) ----------
      Every way to the days from elsewhere on the page (Staying longer? Set your days, Set your days to see what fits,
-     Change, the timeline's Add your days) opens this sheet where the person is, instead of jumping the page down to
+     Change, the plan's Add your days) opens this sheet where the person is, instead of jumping the page down to
      Your days: the calendar is inline (October and November 2027, the tournament and two days either side), their NSW
      matches are marked, the first tap sets the first day and the second the last. Add where you're staying opens the
      same sheet on the staying question. Nothing moves behind it, and closing returns focus to what opened it. */
@@ -1687,7 +1688,7 @@
         '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span>Tournament 1 Oct to 13 Nov</span><span>15 Nov</span></div></div>' +
       '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
-      // dates stay in view and it is clear the timeline waits for that tap
+      // dates stay in view and it is clear the plan waits for that tap
       '<div class="tp-days-bar"><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
       '<div class="tp-days-acts"><button type="button" class="tp-pill tp-pill--dark" data-duse' + (n ? '' : ' disabled') + '>' + window.tpIcons.cal + 'Use these dates</button>' +
       (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div></div>';
@@ -1697,6 +1698,7 @@
      same I have a ticket toggle as the match sheet, above the dates (16 Nov), so going or not is settled while the
      days are planned around it. The list is fixed when the sheet opens, so a ticket just marked stays there to undo. */
   var dTicketKeys = [];
+  tp.openDays = function (opener) { openDays(false, opener); };
   function openDays(stay, opener, team) {
     dStay = !!stay; dsel = dRange();
     dTicketKeys = [];
@@ -1837,7 +1839,7 @@
     if (rmb) {
       var gone = addedItem(rmb.dataset.pmRemove);
       tp.removeItem(rmb.dataset.pmRemove);
-      if (gone) tp.say(gone.title + ' removed from your timeline. ' + state.added.length + ' added.');
+      if (gone) tp.say(gone.title + ' removed from your plan. ' + state.added.length + ' added.');
       tp.stackClose(false);
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
       return;
@@ -1848,7 +1850,7 @@
       var key = mb.dataset.pmMatch, f = tp.match(key).f, id = matchId(key), on = !added(id);
       if (on) tp.addItem({ id: id, kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
       else tp.removeItem(id);
-      pmSaid = on ? matchName(f) + ' is on your timeline, ' + f.d + '.' : matchName(f) + ' is off your timeline.';
+      pmSaid = on ? matchName(f) + ' is on your plan, ' + f.d + '.' : matchName(f) + ' is off your plan.';
       pmRefresh('[data-pm-match]');
       planToast(id, matchName(f), on);
       tp.say(pmSaid);
@@ -1869,7 +1871,7 @@
       if (!si) return;
       var son = !added(si.id);
       if (son) tp.addItem(Object.assign({}, si)); else tp.removeItem(si.id);
-      pmSaid = si.title + (son ? ' added to your timeline on ' + si.day + '.' : ' removed from your timeline.');
+      pmSaid = si.title + (son ? ' added to your plan on ' + si.day + '.' : ' removed from your plan.');
       e.stopPropagation(); // handled here: the page's own Add handler must not toggle it back
       pmRefresh('[data-pm-spot="' + CSS.escape(si.id) + '"]');
       planToast(si.id, si.title, son);
@@ -1886,7 +1888,7 @@
       if (!vi) return;
       var von = !added(vi.id);
       if (von) tp.addItem(Object.assign({}, vi)); else tp.removeItem(vi.id);
-      pmSaid = vi.title + (von ? ' added to your timeline on ' + vi.day + '.' : ' removed from your timeline.');
+      pmSaid = vi.title + (von ? ' added to your plan on ' + vi.day + '.' : ' removed from your plan.');
       e.stopPropagation();
       if (isWt) { var st = pmBody.scrollTop; redraw(); pmBody.scrollTop = st; var fb = pm.querySelector('.tp-add[data-item="' + CSS.escape(vid) + '"]'); if (fb) fb.focus({ preventScroll: true }); }
       else pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
@@ -1917,8 +1919,8 @@
     if (on) tp.addItem(Object.assign({}, it)); else tp.removeItem(it.id);
     // The page stays open; its button follows (the card behind updates with the page)
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
-    b.querySelector('.tp-pm-add-l').innerHTML = addLabel(on, on ? 'Added to your timeline' : 'Add to your timeline');
-    tp.say(it.title + (on ? ' added to your timeline on ' + it.day + '. ' : ' removed from your timeline. ') + state.added.length + ' added.');
+    b.querySelector('.tp-pm-add-l').innerHTML = addLabel(on, on ? 'Added to your plan' : 'Add to your plan');
+    tp.say(it.title + (on ? ' added to your plan on ' + it.day + '. ' : ' removed from your plan. ') + state.added.length + ' added.');
     planToast(it.id, it.title, on);
   });
   pm.addEventListener('change', function (e) {
@@ -1945,10 +1947,10 @@
     }
     var cb = e.target.closest('[data-pm-ticket]'); if (!cb || !pmOpen) return;
     var key = pmOpen.id.slice(6), m = tp.match(key), f = m.f, mine = f.t.split(' v ').some(function (n) { return tp.isPicked(n); }) || (tp.rugby() && !f.a);
-    // A ticket means they are going: the match goes on the timeline too, if no team of theirs puts it there already
+    // A ticket means they are going: the match goes on the plan too, if no team of theirs puts it there already
     if (cb.checked && !mine && !added(matchId(key))) tp.addItem({ id: matchId(key), kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
     tp.setTicket(m.tkey, cb.checked);
-    pmSaid = cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your timeline.') : 'Ticket removed.';
+    pmSaid = cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your plan.') : 'Ticket removed.';
     pmRefresh('[data-pm-ticket]');
     tp.say(pmSaid);
   });
@@ -1993,7 +1995,7 @@
         state.notGoing = (state.notGoing || []).filter(function (k) { return k !== gm.key; });
         tp.setTicket(gm.tkey, true);
         render(true, '#go-' + CSS.escape(gm.key.replace(/\W+/g, '-')));
-        tp.say('Going to ' + matchName(gf) + ', ' + gf.d + '. Ticket marked and the match is on your timeline. Its screenings give way to getting there and back.');
+        tp.say('Going to ' + matchName(gf) + ', ' + gf.d + '. Ticket marked and the match is on your plan. Its screenings give way to getting there and back.');
         changedSince(gBefore, ''); changeToast('You’re going to ' + matchName(gf), ['now shows getting there and back', 'now show getting there and back'], 'It’s on your plan, ' + gf.d + '.');
         return;
       }
@@ -2011,18 +2013,19 @@
     var it = ITEMS[b.dataset.item]; if (!it) return;
     if (added(it.id)) {
       tp.removeItem(it.id);
-      tp.say(it.title + ' removed from your timeline. ' + state.added.length + ' added.');
+      tp.say(it.title + ' removed from your plan. ' + state.added.length + ' added.');
       if (!inIdeas) planToast(it.id, it.title, false);
     } else if (inIdeas) {
       // Added from the ideas sheet: the axis is behind the sheet, so its marker settles with a ring once the sheet closes
       tp.addItem(Object.assign({}, it));
       tlIdeasAdded.push(it.id);
-      tp.say(it.title + ' added to your timeline on ' + it.day + '. ' + state.added.length + ' added.');
+      tp.say(it.title + ' added to your plan on ' + it.day + '. ' + state.added.length + ' added.');
       return;
     } else {
       tp.flyToBar(b);
       tp.addItem(Object.assign({}, it));
-      tp.say(it.title + ' added to your timeline on ' + it.day + '. ' + state.added.length + ' added.');
+      var nuIt = addedItem(it.id);
+      tp.say(it.title + (nuIt && nuIt.unplaced ? ' saved to your plan. It goes on ' + it.day + ' once you set your days. ' : ' added to your plan on ' + it.day + '. ') + state.added.length + ' saved.');
       planToast(it.id, it.title, true);
     }
   });
@@ -2043,7 +2046,7 @@
     if (before.third !== after.third) { names.push(thirdName()); pending.push(SECS.third); }
     lastChanged = names.map(function (n, i) { return [n, pending[i]]; });
     askNews = names.length ? lead + ' Updated on the page: ' + names.join(' and ') + '.' : (same || lead + ' Nothing on the page needed to change.');
-    // The answer is given in the open timeline, over the page: the sections wait until it closes, then each is tinted
+    // The answer is given in the open plan, over the page: the sections wait until it closes, then each is tinted
     // as it comes into view
     pending.forEach(function (sec) { sec.classList.remove('is-changed'); });
     if (!document.getElementById('tp-tl').classList.contains('is-open')) watchPending();
@@ -2074,7 +2077,7 @@
     var it = addedItem(id), act = pmOpen ? null : { label: 'Open your plan', fn: tp.openPlan };
     if (!on) { tp.toast('Removed from your plan', title + '.'); return; }
     if (!it) return;
-    if (it.unplaced) tp.toast('Saved to your plan', title + ' goes into a free day once ' + (stay() ? 'one fits it.' : 'you set your days.'), act);
+    if (it.unplaced) tp.toast('Saved to your plan', it.fixed ? title + ' goes on ' + it.fixed + ' once you set your days.' : title + ' goes into a free day once ' + (stay() ? 'one fits it.' : 'you set your days.'), act);
     else tp.toast('Added to your plan', title + ', ' + it.day + '.', act);
   }
   function flash(sec) { sec.classList.remove('is-changed'); void sec.offsetWidth; sec.classList.add('is-changed'); }
@@ -2260,7 +2263,7 @@
     if (askY !== null) { body.scrollTop += ask.getBoundingClientRect().top - askY; askY = null; }
     var el = sel && (rRoot || ask).querySelector(sel); if (el) el.focus({ preventScroll: true });
   }
-  // The slider is in two places: Your days on the page (#tp-ask) and, while no days are set, the open timeline
+  // The slider is in two places: Your days on the page (#tp-ask) and, while no days are set, the open plan
   // (#tp-tl-daysline). rRoot is the one in use, set as each event comes in; both share one Undo history
   var rRoot = null;
   function applyDays(a, z, sel) {
@@ -2287,7 +2290,7 @@
   function applyFromFields(sel) { var p = rangeParts(); if (p.from && p.to) applyDays(p.from.value, p.to.value, sel); }
   ask.addEventListener('click', function (e) { var b = e.target.closest('[data-flex]'); if (b) flexApply(ask, b); });
   ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') { rRoot = ask; applyFromFields('#' + e.target.id); } });
-  /* Saved, not placed yet, going onto days as the days are set in the open timeline: each glides from its row in the
+  /* Saved, not placed yet, going onto days as the days are set in the open plan: each glides from its row in the
      list to its day on the axis (the same flight as an idea landing), one after another */
   function tlWaitRects() {
     var out = {}, tl = document.getElementById('tp-tl');
@@ -2402,7 +2405,7 @@
     var el = focusSel && ask.querySelector(focusSel);
     if (el) el.focus({ preventScroll: true });
   }
-  /* Every way to the days from elsewhere (Set your days, Change, the timeline's line) opens them in a sheet where the
+  /* Every way to the days from elsewhere (Set your days, Change, the plan's line) opens them in a sheet where the
      person is; the page no longer jumps down to Your days (agreed 16 Nov) */
   function openAsk(dates, opener) {
     if (!tp.own()) return;
@@ -2420,10 +2423,10 @@
     }
     tripEl.innerHTML = '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (M.how === 'one' ? 'Staying longer? Set your days' : 'Set your days to see what fits your free days') + '</button>';
   }
-  /* In the open timeline. Days set: one line that says what is set, with Change (the days sheet, stacked).
+  /* In the open plan. Days set: one line that says what is set, with Change (the days sheet, stacked).
      No days yet (16 Nov): the date slider itself, in place of the small Add your days link, because setting days is
      what places anything saved from the map; a line says so when something is waiting. It applies as it is set, with
-     Undo and Reset (one history with the page's), and stays a slider until the timeline closes, so the days can be
+     Undo and Reset (one history with the page's), and stays a slider until the plan closes, so the days can be
      adjusted; Pick on a calendar opens the days sheet. */
   var daysLine = document.getElementById('tp-tl-daysline'), tlDaysEdit = false;
   function renderDaysLine() {
@@ -2471,7 +2474,7 @@
     var b = e.target.closest('[data-act="undo"], [data-act="clear"]'); if (!b) return;
     rRoot = daysLine; daysStep(b.dataset.act, '.tp-range-h[data-h="from"]');
   });
-  // Closed and opened again, the timeline shows the days as one line with Change
+  // Closed and opened again, the plan shows the days as one line with Change
   phone.addEventListener('tp:tlclose', function () { if (tlDaysEdit) { tlDaysEdit = false; renderDaysLine(); } });
   phone.addEventListener('click', function (e) {
     var tb = e.target.closest('#tp-third-trip [data-act="trip"], #tp-tl-daysline [data-act="days"]');
@@ -2520,7 +2523,7 @@
   function renderPlan() {
     if (!planBody) return;
     var t = trip(), ms = tp.own() ? tp.userMatches() : [], n = state.added.filter(function (it) { return it.kind !== 'match'; }).length;
-    // Save & share in the timeline only shows once there is a plan to keep
+    // Save & share in the plan only shows once there is a plan to keep
     if (ssBtn) ssBtn.hidden = !ms.length && !n;
     if (!ms.length && !n) {
       // Nothing yet: the way in is right here, the team list in a sheet (no jump back up to the cards)
@@ -2533,21 +2536,21 @@
     var facts = [];
     if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (nsw === ms.length ? 'all in NSW' : nsw ? nsw + ' in NSW' : 'all interstate') + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
-    // With days confirmed, how many of their matches fall in them: the same figure the timeline bar shows
+    // With days confirmed, how many of their matches fall in them: the same figure the plan bar shows
     if (when && t.from && ms.length) {
       // Only NSW matches count as in your days: an interstate one in the same dates is watched here, not gone to
       var a = tp.isoDay(t.from), z = tp.isoDay(t.to), msN = ms.filter(function (m) { return !m.f.a; }), inD = msN.filter(function (m) { return m.day >= a && m.day <= z; }).length;
       if (msN.length && inD !== msN.length) when += ', ' + inD + ' of your NSW ' + (msN.length === 1 ? 'match' : 'matches') + ' in your days';
     }
     if (when) facts.push('<li>' + esc(when) + '</li>');
-    // A trip that clashes is said here too, with the way to fix it, not only in the open timeline
+    // A trip that clashes is said here too, with the way to fix it, not only in the open plan
     var cls = tp.clashes(), clash = state.added.filter(function (it) { return cls[it.id]; }).map(function (it) {
       return '<p class="tp-plan-clash">' + esc(it.title) + ' (' + esc(it.when || it.day) + '): ' + 'clashes with ' + esc(tp.list(cls[it.id].map(function (c) { return c.name + ', ' + c.day; }))) + '</p>';
     }).join('');
     // Saved from the map before their days were set: a group of its own until a free day takes them
-    var wait = tp.unplaced(), waitH = wait.length ? '<div class="tp-plan-wait"><h4 class="tp-plan-wait-h">Saved, not placed yet</h4><ul>' + wait.map(function (it) { return '<li>' + esc(it.title) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</li>'; }).join('') + '</ul><p class="tp-plan-wait-n">' + (stay() ? 'No free day fits ' + (wait.length === 1 ? 'this' : 'these') + ' yet: your free days are full, or ' + (wait.length === 1 ? 'it is' : 'they are') + ' closed on them. Change your days, or remove ' + (wait.length === 1 ? 'it' : 'them') + ' in your timeline.' : 'Each goes into a free day once you set your days.') + '</p></div>' : '';
-    planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' + waitH + (clash ? clash + '<p class="tp-plan-clash-how">Open your timeline to move or remove it.</p>' : '') +
-      '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="open">Open your timeline</button>' +
+    var wait = tp.unplaced(), waitH = wait.length ? '<div class="tp-plan-wait"><h4 class="tp-plan-wait-h">Saved, not placed yet</h4><ul>' + wait.map(function (it) { return '<li>' + esc(it.title) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</li>'; }).join('') + '</ul><p class="tp-plan-wait-n">' + (stay() ? 'No free day fits ' + (wait.length === 1 ? 'this' : 'these') + ' yet: your free days are full, or ' + (wait.length === 1 ? 'it is' : 'they are') + ' closed on them. Change your days, or remove ' + (wait.length === 1 ? 'it' : 'them') + ' in your plan.' : 'Each goes into a free day once you set your days.') + '</p></div>' : '';
+    planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' + waitH + (clash ? clash + '<p class="tp-plan-clash-how">Open your plan to move or remove it.</p>' : '') +
+      '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="open">Open your plan</button>' +
       '<button type="button" class="tp-plan-btn" data-plan="copy">' + (copied ? 'Copied' : 'Copy plan') + '</button></div>' +
       '<p class="tp-plan-note">Copies as plain text for your notes or a message. Nothing leaves this device unless you paste it.</p>';
   }
@@ -2570,7 +2573,7 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
   });
 
-  /* ---------- Save & share: a second sheet stacked over the open timeline ----------
+  /* ---------- Save & share: a second sheet stacked over the open plan ----------
      The options come from the Share/edit itinerary prototype's sheet; what they keep or send is this plan. */
   var ssBtn = document.getElementById('tp-tl-share'), ss = document.getElementById('tp-ss');
   var KIND = { screening: 'Screening', place: 'Place', product: 'Thing to do', poi: 'Place' };
@@ -2675,7 +2678,7 @@
   }
   email.addEventListener('input', function () { if (email.getAttribute('aria-invalid')) { email.removeAttribute('aria-invalid'); emailErr.hidden = true; } });
   email.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(); } });
-  // Opens as a sheet stacked over the timeline (tp.stackOpen in concepts-teams.js: motion, closing, focus, Tab)
+  // Opens as a sheet stacked over the plan (tp.stackOpen in concepts-teams.js: motion, closing, focus, Tab)
   ssBtn.addEventListener('click', function () { fb.hidden = true; toast.hidden = true; tp.stackOpen(ss, ssBtn); });
 
   /* ---------- Render: only when something it depends on changed ---------- */
@@ -2689,7 +2692,7 @@
     sig = s;
     // The control that had focus is rebuilt, so focus goes back to its replacement
     var active = document.activeElement, keep = null;
-    // Focus in the timeline's ideas stays there (the page has the same buttons): where it was, by position
+    // Focus in the plan's ideas stays there (the page has the same buttons): where it was, by position
     var scopeEl = active && active.closest ? active.closest('#tp-tl-ideas, #tp-map') : null, inIdeas = !!scopeEl;
     var ideasAt = inIdeas ? Array.prototype.indexOf.call(scopeEl.querySelectorAll('.tp-add'), active) : -1;
     if (active && phone.contains(active) && active.dataset) {
@@ -2719,7 +2722,7 @@
       if (why) { if (whys[k] && whys[k] !== why.dataset.why) why.classList.add('is-updated'); whys[k] = why.dataset.why; }
     });
     seen = now;
-    // In the timeline's ideas the same buttons exist on the page too: look in the ideas first, so focus never jumps
+    // In the plan's ideas the same buttons exist on the page too: look in the ideas first, so focus never jumps
     var f = (focusSel && phone.querySelector(focusSel)) || (keep && (inIdeas ? scopeEl.querySelector(keep) : phone.querySelector(keep)));
     // The idea just added leaves the list: focus goes to the idea now in its place, else the list's heading
     if (!f && inIdeas && !scopeEl.hidden) { var adds = scopeEl.querySelectorAll('.tp-add'); f = (ideasAt > -1 && (adds[ideasAt] || adds[adds.length - 1])) || scopeEl.querySelector('.tp-tl-ideas-next, .tp-map-card-h') || scopeEl.querySelector('.tp-tl-ideas-h'); }

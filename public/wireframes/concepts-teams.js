@@ -2,14 +2,14 @@
    A fanned hand of cards: the 24 teams, alphabetical. Here for the rugby (every NSW match, no team) is a button under
    the fan, not a card; with teams picked it asks before swapping them, and offers Undo after. Drag or swipe the fan sideways,
    or use the arrow keys; tap or press Space to pick a card (as many as you like). Picking is the action: there is no
-   button to press after it. A pick takes effect at once (Your matches, the timeline, Where to watch and Suits your 3rd
-   half all follow it) and says what it did: the caption under the fan, the team's matches flying into the timeline
+   button to press after it. A pick takes effect at once (Your matches, the plan, Where to watch and Suits your 3rd
+   half all follow it) and says what it did: the caption under the fan, the team's matches flying into the plan
    bar, and the Your matches tab count. Unpicking reverses it. The picker stays on screen throughout.
    Data: window.cnFixtures (concepts-fixtures.js), the 36 pool matches and the knockouts in NSW, kick-offs in Sydney
    time. Nothing else is added: no flags, no community or home-country times, no ticket links.
    Jobs covered (docs/jtbd-itinerary.md): T1 one team, T5 and T7 more than one, T8 and T9 no team, T2 and T12
    tickets, T3 NSW or interstate, T4 knockouts, T6 a shared match noted on both cards, T15 saved on this device,
-   T16 no team (set your days in NSW in the open timeline), T12 a single match from All matches, and Clear all. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
+   T16 no team (set your days in NSW in the open plan), T12 a single match from All matches, and Clear all. The choice is kept in this browser under tp-pick-v1; ?reset clears it. */
 (function () {
   'use strict';
   var root = document.getElementById('tp-pick');
@@ -35,7 +35,7 @@
     // Add, remove, and added (an add toggle that is on: pressing it again removes): outline circles, in the text colour
     add: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg>',
     remove: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M4.75 8h6.5"/></svg>',
-    // A ticket (as on the timeline's ticket marker), outline, in the text colour
+    // A ticket (as on the plan's ticket marker), outline, in the text colour
     ticket: '<svg class="tp-ico tp-ico-circ tp-ico-ticket" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M1.5 4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1.4a1.6 1.6 0 0 0 0 3.2V10a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V8.6a1.6 1.6 0 0 0 0-3.2z"/></svg>',
     added: '<svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M5 8.2l2 2 4-4.2"/></svg>'
   };
@@ -86,7 +86,7 @@
 
   /* ---------- State, kept in this browser ---------- */
   var KEY = 'tp-pick-v1';
-  // added: things put on the timeline (screenings, the village, products); trip: the one optional question's answer
+  // added: things put on the plan (screenings, the village, products); trip: the one optional question's answer
   // tab: which of Your matches and All matches is chosen once a team is picked (kept, like everything else, on reload)
   var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: true, city: null, v: 2 }, interstate: false, view: 'fan', nswMark: false, notGoing: [] };
   try {
@@ -100,7 +100,7 @@
     // All matches filter: In NSW (default) or All, then one host city with In NSW (kept on reload)
     // In NSW is the default (v2); a choice saved before that, when All was the default, is not carried over
     if (rec && rec.allFilter && rec.allFilter.v === 2) state.allFilter = { nsw: rec.allFilter.nsw !== false, city: rec.allFilter.nsw !== false && typeof rec.allFilter.city === 'string' ? rec.allFilter.city : null, v: 2 };
-    // Show interstate matches too (the open timeline's switch, with Every NSW match on)
+    // Show interstate matches too (the open plan's switch, with Every NSW match on)
     if (rec && rec.interstate === true) state.interstate = true;
     // The picker: the fan or the grid, and whether cards of teams playing in NSW are marked (kept on reload)
     if (rec && rec.view === 'grid') state.view = 'grid';
@@ -125,7 +125,7 @@
   // Tells the annotation layer (prototype-pick-your-team.html) that what is on screen has changed
   // Tells the annotation layer that what is on screen has changed
   function notesOnly() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
-  // Picks, tickets or the screen changed: the timeline follows, then the annotations
+  // Picks, tickets or the screen changed: the plan follows, then the annotations
   var tlReady = false;
   // A ticket or a screening set from a sheet shows on its card's row as a chip: the deck redraws when either changes
   var lastDeckSig = '';
@@ -336,7 +336,7 @@
   // The person's own matches on the strip. With nothing of their own the strip previews every match, and none of
   // those is theirs, so the first pick flies all of its matches in.
   function ownKeys() { var o = {}; if (own()) TLM.forEach(function (m) { if (m.on) o[m.key] = m; }); return o; }
-  /* The team's matches arrive in the timeline bar: on the first pick the bar rises, then a dot per new match glides from
+  /* The team's matches arrive in the plan bar: on the first pick the bar rises, then a dot per new match glides from
      the picked card to its date on the bar's strip, 60ms apart so they read as one team's matches arriving, and lands
      there; the count changes once they are in. A match already on the strip (shared with a team already picked) does
      not fly again. Here for the rugby is one sweep, not 17 flights. Picks in quick succession fly shorter and closer,
@@ -430,7 +430,7 @@
      turned about a pivot below its row, later rows lying over earlier ones so each card's code and flag show at its top.
      It is a test: the original fan is kept, hidden, and comes back with the panel switch "Stacked hand (test)" or
      ?fan=classic (?fan=stacked forces this one); the choice is remembered in this browser (tp-fan-variant). Both hands
-     go through the same toggle(), so picks, Undo, the timeline, saving and the Your teams sheet behave the same.
+     go through the same toggle(), so picks, Undo, the plan, saving and the Your teams sheet behave the same.
      Geometry from the Figma frame (462 wide), scaled to the phone: per-column angles, a 214px radius, rows 67px apart. */
   var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2'), fanWrap = root.querySelector('.tp-fan-wrap');
   var cards2 = null, f2Dealt = false, f2Focus = 0, viewLabel = function () {}, syncNswMark = function () {};
@@ -759,12 +759,12 @@
     findIn.addEventListener('focus', function () { if (findIn.value.trim()) renderFind(); });
   }
 
-  /* ---------- Your teams: the list editor in the sheet over the timeline ----------
+  /* ---------- Your teams: the list editor in the sheet over the plan ----------
      No fan here (the fan is on the page). Pinned at the top: your picks as removable chips, the count of their matches,
      the last change with Undo where offered, and a search field; only the list scrolls; Done is pinned. Every NSW match
      comes first; then your picks, teams with NSW matches and interstate teams, each A to Z. The order is set on open
      and when the search clears, never on a tap, so a row never jumps from under the finger. Team rows go through the
-     fan's own toggle (the same state, swap rule, saving and timeline); tsSync() runs on every change. */
+     fan's own toggle (the same state, swap rule, saving and plan); tsSync() runs on every change. */
   var tsSheet = document.getElementById('tp-ts'), tsList = document.getElementById('tp-ts-list'), tsFind = document.getElementById('tp-ts-find');
   var tsChips = document.getElementById('tp-ts-chips'), tsCount = document.getElementById('tp-ts-count-text'), tsEmpty = document.getElementById('tp-ts-empty');
   var tsClear = document.getElementById('tp-ts-clear'), tsNoteEl = document.getElementById('tp-ts-note'), tsNone = document.getElementById('tp-ts-none'), tsNoteT = 0;
@@ -892,7 +892,7 @@
     tsFind.value = ''; tsBuild(); tsSync(); tsFilter();
     clearTimeout(tsNoteT); tsNoteEl.textContent = '';
     document.getElementById('tp-ts-body').scrollTop = 0;
-    // From the timeline it stacks over it; from the page (Your plan so far) it opens on its own, over the page
+    // From the plan it stacks over it; from the page (Your plan so far) it opens on its own, over the page
     if (tlOpen) stackOpen(tsSheet, opener); else stackOpenSolo(tsSheet, opener);
     // After a frame: with reduced motion the sheet's contents become visible over 1ms, and a hidden field cannot take focus
     setTimeout(function () { if (stackEl === tsSheet) tsFind.focus({ preventScroll: true }); }, 30);
@@ -904,6 +904,37 @@
     if (!a || a === document.body || !tl.contains(a) || !a.offsetParent) (tsLink.hidden ? document.getElementById('tp-tl-pick') : tsLinkBtn).focus({ preventScroll: true });
   });
 
+  /* Add team (18 Nov): the page's picker (Find row and hand) is lent to the sheet and given back on close. A placeholder
+     holds its height on the page meanwhile, so nothing behind the sheet moves */
+  var atSheet = document.getElementById('tp-at'), atBody = document.getElementById('tp-at-body'), atHold = null;
+  function atOpen(opener) {
+    if (!atSheet || atHold) return;
+    var util = document.getElementById('tp-util'), picker = document.getElementById('tp-picker');
+    atHold = document.createElement('div'); atHold.className = 'tp-at-hold';
+    atHold.style.height = (picker.getBoundingClientRect().bottom - util.getBoundingClientRect().top) + 'px';
+    util.parentNode.insertBefore(atHold, util);
+    atBody.appendChild(util); atBody.appendChild(picker);
+    atBody.scrollTop = 0;
+    var saves = state.added.some(function (it) { return it.kind !== 'match'; });
+    atSheet.querySelector('.tp-at-note').textContent = 'Pick the teams you follow. ' + (saves ? 'What you saved is planned around their matches.' : 'Their matches go on your plan.');
+    atOpener = opener || null;
+    if (tlOpen) stackOpen(atSheet, opener); else stackOpenSolo(atSheet, opener);
+    window.dispatchEvent(new Event('resize')); // the hand lays itself out for its new width
+  }
+  var atOpener = null;
+  if (atSheet) atSheet.addEventListener('tp:stackclose', function () {
+    if (!atHold) return;
+    var util = document.getElementById('tp-util'), picker = document.getElementById('tp-picker');
+    atHold.parentNode.insertBefore(util, atHold); atHold.parentNode.insertBefore(picker, atHold);
+    atHold.remove(); atHold = null;
+    window.dispatchEvent(new Event('resize'));
+    // Back to Add team; once a team is picked it has gone, so to the plan's title (open) or the bar (closed)
+    var back = atOpener;
+    requestAnimationFrame(function () {
+      if (back && document.contains(back) && back.getClientRects().length && !back.closest('[hidden]')) back.focus({ preventScroll: true });
+      else (tlOpen ? document.getElementById('tp-tl-title') : document.getElementById('tp-tl-toggle')).focus({ preventScroll: true });
+    });
+  });
   function chosenText() {
     var n = state.picked.length;
     if (!n) return 'No teams picked yet.';
@@ -918,7 +949,7 @@
     // The quiet links: with no team, add every NSW match; on, take them off; hidden while teams are picked
     var r = isPicked(RUGBY), hide = teamsPicked().length > 0;
     rugbyLinks.forEach(function (a) {
-      // In the timeline it is part of the empty state only, so it goes with any pick (on, it shows in All matches)
+      // In the plan it is part of the empty state only, so it goes with any pick (on, it shows in All matches)
       a.parentNode.hidden = a.parentNode.id === 'tp-tl-rugby' ? state.picked.length > 0 : hide;
       // Not a toggle button: the label itself says what it will do (Add or Remove), so no aria-pressed
       a.innerHTML = r ? window.tpIcons.remove + '<span class="tp-u">Remove every NSW match</span>' : window.tpIcons.add + '<span class="tp-u">Add every NSW match</span>';
@@ -961,7 +992,7 @@
     say((onlyRugby ? 'Every NSW match' : 'All teams') + (dropped ? ' and ' + dropped + (dropped === 1 ? ' ticket mark' : ' ticket marks') : '') + ' cleared. Undo is available for a few seconds.');
   });
   /* ---------- Here for the rugby: a quiet link, every NSW match and no team ----------
-     In All matches and the timeline's empty state, only while no team is picked (so it never has to replace teams).
+     In All matches and the plan's empty state, only while no team is picked (so it never has to replace teams).
      Pressed again it comes off. Same feedback as a pick: one sweep of dots into the bar from the link, the tab count,
      the live region. Picking a team while it is on takes it off. */
   function setRugby(on, from, keepTab) {
@@ -977,7 +1008,7 @@
   rugbyLinks.forEach(function (a) {
     a.addEventListener('click', function () {
       var on = !isPicked(RUGBY), inTl = tlPanel.contains(a);
-      // From the open timeline there is nothing to fly from: the markers appear in place. From All matches, All
+      // From the open plan there is nothing to fly from: the markers appear in place. From All matches, All
       // matches stays the chosen tab, so the link (now Remove every NSW match) stays where it was, with focus on it
       setRugby(on, inTl ? null : a, !inTl);
       var lead = on ? 'Every NSW match added' : 'Every NSW match removed';
@@ -1199,7 +1230,7 @@
   /* ---------- All matches ----------
      Below the picker, whether or not anyone has picked: every match in the fixture list, in date order. Kept minimal,
      as this page is not the main source for matches. Once a team is picked it is the All matches tab. Each row opens the
-     match's own full-screen page (concepts-third-half.js): add that one match to the timeline, or add either team. */
+     match's own full-screen page (concepts-third-half.js): add that one match to the plan, or add either team. */
   var allSec = document.getElementById('tp-all');
   function minutes(k) { var m = /^(\d+):(\d+)(am|pm)$/.exec(k || ''); return m ? ((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] : 24 * 60; }
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
@@ -1368,13 +1399,13 @@
     return Math.max(0, Math.round(t.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16));
   }
 
-  /* ---------- Timeline bar (Figma: Rugby World Cup, node 213:13100, adapted to the 390px phone) ----------
+  /* ---------- Plan bar (Figma: Rugby World Cup, node 213:13100, adapted to the 390px phone) ----------
      A sheet docked over the bottom of the phone, out of the content's flow. Three states: hidden (until the match cards
      have scrolled past the top of the phone), collapsed (the 88px bar) and open (the sheet risen by its panel height).
      Only transform moves it. Matches only: every match with no team or after Skip, every NSW match for Here for the
      rugby, and only the picked teams' matches, live as picks change. The All matches list stays unfiltered.
      Where to watch venues are placeholders from cnWatchVenues (gap data, clearly marked). The number badge counts items added to
-     the timeline; none exist yet, so only the reviewer-only stand-in control can show it. */
+     the plan; none exist yet, so only the reviewer-only stand-in control can show it. */
   var tl = document.getElementById('tp-tl');
   var tlInter = document.getElementById('tp-tl-inter'), tlInterBtn = document.getElementById('tp-inter');
   var tlToggle = document.getElementById('tp-tl-toggle'), tlPanel = document.getElementById('tp-tl-panel'), tlScrim = document.getElementById('tp-tl-scrim');
@@ -1444,7 +1475,7 @@
     if (!t.length) return !state.added.some(function (it) { return it.kind === 'match'; });
     return !!f.t && f.t.split(' v ').some(function (n) { return t.indexOf(n) > -1; });
   }
-  /* Show interstate matches too: with Every NSW match on, the open timeline's switch puts every interstate match on the
+  /* Show interstate matches too: with Every NSW match on, the open plan's switch puts every interstate match on the
      axis too, as the dashed marker, for watching in NSW. They are not part of the plan: not counted, not on the bar's
      strip, no clashes, not in Save & share (all of those read tlShown). Adding one on its own, or marking a ticket,
      makes it part of the plan as before. With teams the switch is hidden: their interstate matches already count. */
@@ -1566,14 +1597,14 @@
     // A longer trip's span runs along the top, so the canvas makes room for it above the markers
     var spans = state.added.some(function (it) { return it.kind === 'trip' && it.nights > 0; });
     tlCanvas.style.height = (60 + rows * 32 + (spans ? 34 : 0)) + 'px';
-    if (!own()) dayType = {}; // empty plan: no match dots on the bar's strip (the open timeline still previews them)
+    if (!own()) dayType = {}; // empty plan: no match dots on the bar's strip (the open plan still previews them)
     tlDotEls.forEach(function (el, i) {
       var t = dayType[i];
       el.className = 'tp-tl-dot' + (t === undefined && !itemDays[i] ? ' is-off' : t === undefined ? ' is-item' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '') + (itemDays[i] && t !== undefined ? ' has-item' : '');
     });
     // The bar's words. One reading that never changes meaning: the label names your teams; the value is the plan's total
     // by the page's one counting rule (as the tab, the summary and the Your teams sheet); your days are a small note under
-    // the strip; what you added is on the badge only; clashes show on the strip (and are named in the open timeline)
+    // the strip; what you added is on the badge only; clashes show on the strip (and are named in the open plan)
     var teams = tlTeams(), none = !state.picked.length;
     var label = none ? 'Your plan' : isPicked(RUGBY) ? 'Every NSW match' : 'Your teams: ' + list(teams);
     var added = state.added.length;
@@ -1586,8 +1617,12 @@
     } else tlLabel.textContent = label;
     tlLabel.classList.toggle('is-hook', false);
     var fsAll = shown.map(function (m) { return m.f; }), inNsw = fsAll.filter(function (f) { return !f.a; }).length;
-    // Nothing of their own yet: the empty state, even though the open timeline previews every match
-    setValue(own() && fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + (inNsw ? inNsw + ' in NSW' : 'all interstate') : 'No matches yet');
+    // Nothing of their own yet: the empty state, even though the open plan previews every match
+    var savedN = state.added.filter(function (it) { return it.kind !== 'match'; }).length;
+    setValue(own() && fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + (inNsw ? inNsw + ' in NSW' : 'all interstate') : !own() && savedN ? savedN + ' saved' : 'No matches yet');
+    // No team (18 Nov): Add team sits on the bar, beside the value, and opens the team sheet
+    var addTeam = document.getElementById('tp-tl-addteam');
+    if (addTeam) { addTeam.hidden = own(); tl.classList.toggle('has-addteam', !own()); }
     if (tlDays) {
       if (confirmed) {
         // NSW matches only: one interstate in the same dates is watched here, not gone to (as Your plan so far says)
@@ -1602,9 +1637,14 @@
     if (tlWait) {
       var wl = state.added.filter(function (it) { return it.unplaced; });
       tlWait.hidden = !wl.length;
+      // The prompt under the saves (18 Nov): no team, add one so they can be planned around their matches; no days,
+      // set them so each goes onto a free day; days set and still waiting, no free day fits
+      var wn = !own() ? 'Add a team so these can be planned around their matches.' + (confirmed ? '' : ' Set your days and each goes onto a free day.')
+        : confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Set your days and each goes onto a free day.';
+      var wa = (!own() ? '<button type="button" class="tp-link" data-wait-team>Add team</button>' : '') + (confirmed ? '' : '<button type="button" class="tp-link" data-wait-days>Set your days</button>');
       var wh = wl.length ? '<h4 class="tp-tl-wait-h" id="tp-tl-wait-h">Saved, not placed yet</h4><ul>' + wl.map(function (it) {
-        return '<li><span class="tp-tl-wait-t">' + (it.poi ? '<button type="button" class="tp-link tp-place-link" data-open="poi:' + esc(it.poi) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' : esc(it.title)) + (it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
-      }).join('') + '</ul><p class="tp-tl-wait-n">' + (confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Each goes into a free day once you set your days above.') + '</p>' : '';
+        return '<li><span class="tp-tl-wait-t">' + (it.poi ? '<button type="button" class="tp-link tp-place-link" data-open="poi:' + esc(it.poi) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' : esc(it.title)) + (it.fixed ? '<span>, ' + esc(it.fixed) + '</span>' : it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
+      }).join('') + '</ul><p class="tp-tl-wait-n">' + wn + '</p>' + (wa ? '<p class="tp-tl-wait-a">' + wa + '</p>' : '') : '';
       if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
     }
     var howEl = document.getElementById('tp-tl-how');
@@ -1624,8 +1664,8 @@
       if (added) { tlBadge.style.animation = 'none'; tlBadge.offsetWidth; tlBadge.style.animation = ''; }
     }
     // One prompt at a time: which team first; the trip line only once there is a team
-    tlPrompt.hidden = !none;
-    if (tsLink) tsLink.hidden = none; // with a team (or every NSW match): add or change them over the timeline
+    tlPrompt.hidden = !none || (!own() && state.added.some(function (it) { return it.unplaced; })); // the saves' box asks instead
+    if (tsLink) tsLink.hidden = none; // with a team (or every NSW match): add or change them over the plan
     // The key lists only the marker shapes on the axis now
     // Each entry draws its marker exactly as the axis does (the ball in the ring, the screen or pin in the square)
     var kinds = { nsw: false, away: false, ticket: false, tbd: false,
@@ -1667,7 +1707,7 @@
   }
   /* ---------- Free days on the axis ----------
      Each free day in Your days, in order gets a + on the axis, with a short line above it (Free, and how many ideas;
-     Full once the day is filled). The + opens that day's ideas below the timeline, inside the sheet: nothing closes and
+     Full once the day is filled). The + opens that day's ideas below the plan, inside the sheet: nothing closes and
      the page behind never moves. While ideas are open the axis sticks under the sheet's header, so an idea added from
      the list can be seen landing on its day. The list itself is drawn by concepts-third-half.js (the same ideas, the
      same Fits [day] rules and the same Add buttons as the page, so the two stay in step). */
@@ -1676,7 +1716,7 @@
     if (x < tlScroll.scrollLeft + 40 || x > tlScroll.scrollLeft + tlScroll.clientWidth - 40) tlScroll.scrollTo({ left: Math.max(0, x - tlScroll.clientWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
   }
   /* Free days (16 Nov): the + on the axis is gone. Each free day's card has Add ideas (concepts-plan.js), which opens the
-     same ideas sheet stacked over the timeline; the list is still drawn by concepts-third-half.js, which reports the
+     same ideas sheet stacked over the plan; the list is still drawn by concepts-third-half.js, which reports the
      free days here (tpFreeApi.set). Closing the sheet puts focus back on that day's Add ideas. */
   function tlFreeDraw() { if (window.tpPlan) window.tpPlan.render(); }
   function tlFreeShow(d) {
@@ -1702,7 +1742,7 @@
   function tlLand(id) { if (window.tpPlan) window.tpPlan.flash([id]); }
   function tlRenderDetail() {
     tlRoving();
-    // A marker's details open in a sheet stacked over the timeline (match sheet, or the added item with Move and
+    // A marker's details open in a sheet stacked over the plan (match sheet, or the added item with Move and
     // Remove); this line only says so. The chosen marker keeps its pressed state for the arrow keys.
     if (tlSelItem && !state.added.some(function (x) { return x.id === tlSelItem; })) tlSelItem = null;
     tlDetail.classList.add('is-empty');
@@ -1722,7 +1762,7 @@
   function tlPick(el, focus) {
     if (el.dataset.free) { tlSel = -1; tlSelItem = null; tlSelFree = el; tlRoving(); tlKeepInView(el); if (focus) el.focus({ preventScroll: true }); return; }
     if (el.dataset.item) tlSelect(-1, focus, el.dataset.item); else tlSelect(+el.dataset.k, focus); }
-  // Tap (or Enter) opens the marker's details stacked over the timeline; the arrow keys only move between markers
+  // Tap (or Enter) opens the marker's details stacked over the plan; the arrow keys only move between markers
   tlCanvas.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-tl-mk'); if (!b) return;
     if (b.dataset.free) { tlPick(b, false); tlFreeToggle(+b.dataset.free, b); return; }
@@ -1742,7 +1782,7 @@
     tlPick(to, true);
   });
   // Hold and drag to move was removed on 16 Nov: Move on each day card (concepts-plan.js) replaces it
-  /* Clear timeline: takes off everything they added (screenings, places, products, trips, single matches added from All
+  /* Clear plan: takes off everything they added (screenings, places, products, trips, single matches added from All
      matches, and ticket marks on those matches, which would be left with no match). Teams and their tickets, the trip
      answer, the filter and the tab stay: teams are cleared at the fan (Clear all), and matches are the plan's fixed
      spine. Undo for six seconds, with focus on it, as Clear all. */
@@ -1762,11 +1802,13 @@
     state.added = keep;
     return gone;
   }
-  /* Asked first, in a short sheet stacked over the timeline: what comes off (counted by kind) and what stays. Cancel,
-     the cross, Escape, the strip above or dragging it down keeps everything; focus goes back to Clear timeline. */
+  /* Asked first, in a short sheet stacked over the plan: what comes off (counted by kind) and what stays. Cancel,
+     the cross, Escape, the strip above or dragging it down keeps everything; focus goes back to Clear plan. */
   var tlCC = document.getElementById('tp-cc');
   function tlCount(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
   document.getElementById('tp-tl-wait').addEventListener('click', function (e) {
+    var wt = e.target.closest('[data-wait-team]'); if (wt) { atOpen(wt); return; }
+    var wd = e.target.closest('[data-wait-days]'); if (wd) { if (window.tpPicker.openDays) window.tpPicker.openDays(wd); return; }
     var b = e.target.closest('[data-wait-rm]'); if (!b) return;
     var it = state.added.filter(function (x) { return x.id === b.dataset.waitRm; })[0];
     removeItem(b.dataset.waitRm);
@@ -1807,17 +1849,17 @@
     tlSel = -1; tlSelItem = null;
     save(); changed(); renderMatches();
     var n = prevAdded.length;
-    document.getElementById('tp-tl-cleared-text').textContent = 'Timeline cleared: ' + n + (n === 1 ? ' thing' : ' things') + ' taken off.';
+    document.getElementById('tp-tl-cleared-text').textContent = 'Plan cleared: ' + n + (n === 1 ? ' thing' : ' things') + ' taken off.';
     tlCleared.hidden = false; tlClearSync();
     tlUndo.onclick = function () {
       state.added = prevAdded; state.tickets = prevTickets;
       save(); changed(); renderMatches();
       tlClearEnd(false);
       tlClearBtn.focus({ preventScroll: true });
-      say('Undone. ' + n + (n === 1 ? ' thing is' : ' things are') + ' back on your timeline.');
+      say('Undone. ' + n + (n === 1 ? ' thing is' : ' things are') + ' back on your plan.');
     };
     tlUndo.focus({ preventScroll: true });
-    say('Timeline cleared: ' + n + (n === 1 ? ' thing' : ' things') + ' taken off' + (gone.length ? ', with ' + gone.length + (gone.length === 1 ? ' ticket mark' : ' ticket marks') : '') + '. Your teams and your days stay. Undo is available for a few seconds.');
+    say('Plan cleared: ' + n + (n === 1 ? ' thing' : ' things') + ' taken off' + (gone.length ? ', with ' + gone.length + (gone.length === 1 ? ' ticket mark' : ' ticket marks') : '') + '. Your teams and your days stay. Undo is available for a few seconds.');
     clearTimeout(tlClearT);
     tlClearT = setTimeout(function () { tlClearEnd(true); }, 6000);
   }
@@ -1828,7 +1870,7 @@
   var tlHead = document.querySelector('.tp-tl-head');
   tlPanel.addEventListener('scroll', function () { tlHead.classList.toggle('is-stuck', tlPanel.scrollTop > 0); }, { passive: true });
   /* Desktop website (the page on its own, 1024px and wider): Your plan is a rail on the right, not a sheet. It starts
-     beside the team picker and, as the page scrolls, follows it down to just under the section nav; open, the timeline
+     beside the team picker and, as the page scrolls, follows it down to just under the section nav; open, the plan
      fills the rail to 24px above the window's foot. The page beside it stays usable. */
   var wideMq = matchMedia('(min-width: 1024px)');
   function wide() { return wideMq.matches && document.documentElement.classList.contains('pv-device'); }
@@ -1840,7 +1882,7 @@
     var under = capW ? capW.getBoundingClientRect().bottom - pr.top + 24 : 24;
     var start = pick ? pick.getBoundingClientRect().top - pr.top : under;
     railTop = Math.max(under, start);
-    // Open, the timeline needs room: the rail rises (never above the nav) until 320px of it fits above the window's foot
+    // Open, the plan needs room: the rail rises (never above the nav) until 320px of it fits above the window's foot
     if (tlOpen) railTop = Math.max(under, Math.min(railTop, phoneEl.clientHeight - 24 - BAR - 320));
     railTop = Math.round(railTop);
     tl.style.setProperty('--rail-top', railTop + 'px');
@@ -1857,7 +1899,7 @@
     if (!results.hidden) return deck;
     return allSec && !allSec.hidden ? document.getElementById('tp-all-scroll') : null;
   }
-  // Go to your timeline: the first Tab stop in the phone, so the bar (last in the markup) is two presses away
+  // Go to your plan: the first Tab stop in the phone, so the bar (last in the markup) is two presses away
   var skipEl = document.getElementById('tp-skip');
   if (skipEl) skipEl.addEventListener('click', function (e) { e.preventDefault(); document.getElementById('tp-tl-toggle').focus(); });
   if (skipEl) skipEl.hidden = !tlOn;
@@ -1868,7 +1910,7 @@
     // the page is scrolled to its end (otherwise the bar could never appear under a short list)
     var atEnd = body.scrollTop + body.clientHeight >= body.scrollHeight - 2;
     var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
-    // Once something is on the timeline, the bar stays up anywhere below the fan, so an Add never goes nowhere
+    // Once something is on the plan, the bar stays up anywhere below the fan, so an Add never goes nowhere
     var fanBox = handWrap().getBoundingClientRect();
     var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
     // A pick is shown working: the bar is up whenever a team is picked
@@ -1887,7 +1929,7 @@
   body.addEventListener('scroll', function () { if (!barRaf) barRaf = requestAnimationFrame(function () { barRaf = 0; railFollow(); syncBar(); }); }, { passive: true });
   railFollow();
   window.addEventListener('resize', syncBar);
-  /* The mini strip and the big axis are the same timeline at two scales. Opening, a copy of the axis starts shrunk onto
+  /* The mini strip and the big axis are the same plan at two scales. Opening, a copy of the axis starts shrunk onto
      the strip (its markers the size of the strip's dots) and grows into place while the sheet rises; closing, it shrinks
      back onto the strip. Both live in the sheet, so their offset holds while the sheet slides. Reduced motion: fades. */
   function tlZoom(open) {
@@ -1910,14 +1952,14 @@
   var tlNudged = false;
   function tlSetOpen(open, focusBack) {
     if (open === tlOpen) return;
-    if (!open && stackEl) stackClose(false); // a sheet stacked over the timeline goes with it
+    if (!open && stackEl) stackClose(false); // a sheet stacked over the plan goes with it
     if (!open) tlZoom(false);
     if (!open && tlFreeOpen !== null) tlFreeShow(null);
     tlOpen = open;
     tl.classList.toggle('is-open', open);
     tlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     tlPanel.inert = !open;
-    body.inert = open && !wide(); // the screen behind waits under the scrim while the timeline is open (not beside the desktop rail)
+    body.inert = open && !wide(); // the screen behind waits under the scrim while the plan is open (not beside the desktop rail)
     tlScrim.classList.toggle('is-on', open && !wide());
     if (typeof toastEl !== 'undefined' && toastEl && !toastEl.hidden) toastPlace(); // a message on screen moves above or below the bar with it
     if (wide()) { // the rail glides to its new top, so the eye can follow it (check 1)
@@ -1987,7 +2029,7 @@
   }
   tlToggle.addEventListener('pointerup', tlLetGo); tlToggle.addEventListener('pointercancel', tlLetGo);
   tlScrim.addEventListener('click', function () { tlSetOpen(false); });
-  // While the timeline is open, Tab stays in it (the bar and the sheet), as in the other sheets: the page behind is
+  // While the plan is open, Tab stays in it (the bar and the sheet), as in the other sheets: the page behind is
   // inert, but the skip link and the prototype's own panel sat outside it
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Tab' || !tlOpen || stackEl || wide()) return; // the desktop rail sits beside the page: Tab moves on
@@ -2005,11 +2047,11 @@
     else if (tlOpen) { e.preventDefault(); tlSetOpen(false); }
   });
 
-  /* ---------- Stacked sheets over the open timeline: one pattern, one level deep ----------
-     A sheet opened from the timeline (.tp-stack: Save & share now; a trip, a match or Move later) slides up while the
-     timeline moves back (scaled to 94% from its top centre, its top raised 10px, dimmed by the stack scrim), in one
-     motion with one timing; closing reverses both. The sheet stops 16px below the timeline's moved-back top, so a
-     strip of the timeline shows above it. A third sheet replaces the second rather than stacking again. */
+  /* ---------- Stacked sheets over the open plan: one pattern, one level deep ----------
+     A sheet opened from the plan (.tp-stack: Save & share now; a trip, a match or Move later) slides up while the
+     plan moves back (scaled to 94% from its top centre, its top raised 10px, dimmed by the stack scrim), in one
+     motion with one timing; closing reverses both. The sheet stops 16px below the plan's moved-back top, so a
+     strip of the plan shows above it. A third sheet replaces the second rather than stacking again. */
   // The day cards are redrawn while a sheet is open over them (an idea added, a move): the control that opened the sheet
   // is then a new element, found again by what it does, so closing still puts focus back on it
   function liveOpener(el) { return el && !el.isConnected && window.tpPlan ? window.tpPlan.same(el) || el : el; }
@@ -2032,7 +2074,7 @@
     sheet.focus({ preventScroll: true });
     notesOnly();
   }
-  // The same sheet over the page rather than over the timeline (the team list from Your plan so far): page and bar wait
+  // The same sheet over the page rather than over the plan (the team list from Your plan so far): page and bar wait
   // under the scrim, Tab stays in the sheet, Escape and the scrim close it
   var stackSolo = false, soloAnchor = null, soloY = 0;
   // Picks made in the sheet rebuild the page above (tabs, cards, the map): the section it was opened from is held
@@ -2084,7 +2126,7 @@
     sh.dispatchEvent(new CustomEvent('tp:stackclose', { bubbles: true }));
     notesOnly();
   }
-  stackScrim.addEventListener('click', function () { stackClose(); }); // the strip of timeline and page above the sheet
+  stackScrim.addEventListener('click', function () { stackClose(); }); // the strip of plan and page above the sheet
   phoneEl.addEventListener('click', function (e) { if (stackEl && e.target.closest('[data-stack-close]')) stackClose(); });
   // Tab stays in the top sheet
   document.addEventListener('keydown', function (e) {
@@ -2115,26 +2157,34 @@
     grab.addEventListener('pointerup', letGo); grab.addEventListener('pointercancel', letGo);
   }
   phoneEl.querySelectorAll('.tp-stack').forEach(stackRegister);
-  // Pick your team (none picked) and Change your teams (some picked) open the Your teams sheet over the timeline
+  // Pick your team (none picked) and Change your teams (some picked) open the Your teams sheet over the plan
   document.getElementById('tp-tl-pick').addEventListener('click', function (e) { tsOpen(e.currentTarget); });
+  document.getElementById('tp-tl-addteam').addEventListener('click', function (e) { atOpen(e.currentTarget); });
   tsLinkBtn.addEventListener('click', function (e) { tsOpen(e.currentTarget); });
   /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections
      (concepts-third-half.js) through window.tpPicker. Saved on this device with the picks. ---------- */
   function addItem(it) {
     if (state.added.some(function (x) { return x.id === it.id; })) return false;
-    state.added.push(it); save(); changed(); syncBar(); return true;
+    // Saved with no team and no days (18 Nov): a thing tied to a date (a screening, a match day idea) waits with the
+    // other saves until days are set; setting days puts it on its own date (concepts-third-half.js, slotSaved)
+    if (!own() && !(state.trip && state.trip.from && state.trip.to) && it.kind !== 'match' && it.day && !it.unplaced) { it.fixed = it.day; it.day = ''; it.unplaced = true; }
+    var firstSave = it.kind !== 'match' && !state.added.some(function (x) { return x.kind !== 'match'; }), barWas = tlOn;
+    state.added.push(it); save(); changed(); syncBar();
+    // The first save made while the plan bar is out of sight is confirmed where they are (check 11)
+    if (firstSave && !barWas && !tlOpen) toast('Saved to your plan', it.title + (it.unplaced ? ' waits in your plan until you set your days.' : ', ' + it.day + '.'), { label: 'Open your plan', fn: function () { tlSetOpen(true); } });
+    return true;
   }
   function removeItem(id) {
     var n = state.added.length;
     state.added = state.added.filter(function (x) { return x.id !== id; });
     if (state.added.length === n) return;
-    // The open timeline stays on the days it was showing (it jumped back to the start of the plan)
+    // The open plan stays on the days it was showing (it jumped back to the start of the plan)
     var keepX = tlOpen ? tlScroll.scrollLeft : null;
     save(); changed();
     if (keepX !== null) { tlScroll.scrollLeft = keepX; requestAnimationFrame(function () { tlScroll.scrollLeft = keepX; setTimeout(function () { tlScroll.scrollLeft = keepX; }, 60); }); }
   }
   function setTrip(t) { state.trip = normTrip(t); save(); changed(); }
-  // The added item travels from the button that added it to the timeline bar, then the badge pops
+  // The added item travels from the button that added it to the plan bar, then the badge pops
   function flyToBar(fromEl) {
     if (!tlOn || reduce.matches || !fromEl || !document.body.animate) return;
     var a = fromEl.getBoundingClientRect(), b = tl.querySelector('.tp-tl-exp').getBoundingClientRect(), ph = phoneEl.getBoundingClientRect();
@@ -2146,7 +2196,7 @@
     g.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: 'translate(' + dx * .5 + 'px,' + (dy * .5 - 40) + 'px) scale(1.15)', opacity: 1, offset: .5 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.6)', opacity: .2 }],
       { duration: 560, easing: 'cubic-bezier(.45, .05, .25, 1)' }).onfinish = function () { g.remove(); };
   }
-  // The person's matches, as the timeline shows them: picked teams', every NSW match for Here for the rugby, or all
+  // The person's matches, as the plan shows them: picked teams', every NSW match for Here for the rugby, or all
   function userMatches() { return TLM.filter(function (m) { return tlShown(m.f); }); }
   // Anything of their own: a team picked, or a match added on its own
   function own() { return state.picked.length > 0 || state.added.some(function (it) { return it.kind === 'match'; }); }
@@ -2208,7 +2258,7 @@
     match: function (key) { return TLM_BY[key] || null; }, isPicked: function (n) { return state.picked.indexOf(n) > -1; },
     pickTeam: function (n) { var c = TEAMS[n]; if (!c) return ''; var i = CARDS.indexOf(c); if (pos(i) < 0) setNsw(false); return toggle(i, null, true); },
     setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; }, teamBand: function (n) { return TEAM_BAND[n] || null; },
-    // Trips that clash, by item id: [{ name, day }] (filled by the timeline; read by the plan and the trip cards)
+    // Trips that clash, by item id: [{ name, day }] (filled by the plan; read by the plan and the trip cards)
     clashes: function () { return tlClash; },
     // The team list as a sheet, from anywhere on the page (Your plan so far)
     openTeams: function (opener) { tsOpen(opener); } };
@@ -2228,7 +2278,7 @@
   phoneEl.appendChild(toastEl);
   var toastT = 0, toastHeld = false, toastFn = null;
   /* Where it sits: from the bottom of the screen (16px on a phone, 24px on a desktop), and 12px above whatever is
-     pinned to the bottom of the screen and showing on top there: the Your plan bar, the open timeline's Save & share
+     pinned to the bottom of the screen and showing on top there: the Your plan bar, the open plan's Save & share
      row, a sheet's own bottom row (Done, Use these dates, the photo's buttons), the day by day map's card, the
      keyboard. Only one that is actually on top counts (a bar under an open sheet does not), and only while its foot
      is at the screen's foot. Checked while the toast is up, so it moves with the bar appearing or a sheet opening. */
