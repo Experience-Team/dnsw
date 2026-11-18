@@ -306,6 +306,9 @@
     return parts.join(' · ');
   }
   var openCard = null;
+  // Around your matches, or Around the NSW matches before a team is picked (or a match added); the same name in its
+  // heading, a product sheet's label and the toasts that name it
+  function thirdName() { return tp.own() ? 'Around your matches' : 'Around the NSW matches'; }
   /* ---------- Around your matches: the fan's days in NSW, in order ----------
      Not date pills: blocks with plain headings, in time order. Two kinds, plus the edges:
      - a match day (Before the match, After the final whistle, Near the stadium, as before);
@@ -953,6 +956,8 @@
     // Free days' ideas in date order, open or not, so nothing is suggested twice on the page
     FREE_LEFT = 0; bs.forEach(function (b) { if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) if (!dayFilled(d)) FREE_LEFT++; });
     bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b); });
+    // The section's name follows whose matches it is about: no team picked (nor a match added), the NSW matches
+    var tt = document.getElementById('tp-third-title'); if (tt) tt.textContent = thirdName();
     if (thirdNote) thirdNote.textContent = first ? 'A first look: around the next NSW match day. Each links out; nothing is booked here.'
       : M.range ? 'Your days in NSW, in order: match days and the free days between them. Each links out; nothing is booked here.'
       : M.own && !M.nsw.length && !M.local ? tp.list(state.picked.filter(function (n) { return tp.teams[n]; })) + ' plays interstate, so these are the NSW match days you could go to. Each links out; nothing is booked here.'
@@ -1500,7 +1505,7 @@
     pmBody.innerHTML = isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     if (isIdeas) { if (!swap) tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
-    pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? 'Around your matches' : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your timeline' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (swap) return true; // a sheet over a sheet (pmPush, pmPop): the sheet is already open, only its content changes
     if (stacked) {
@@ -2016,7 +2021,7 @@
     var after = snap(), names = [];
     pending = [];
     if (before.watch !== after.watch) { names.push('Where to watch'); pending.push(SECS.watch); }
-    if (before.third !== after.third) { names.push('Around your matches'); pending.push(SECS.third); }
+    if (before.third !== after.third) { names.push(thirdName()); pending.push(SECS.third); }
     lastChanged = names.map(function (n, i) { return [n, pending[i]]; });
     askNews = names.length ? lead + ' Updated on the page: ' + names.join(' and ') + '.' : (same || lead + ' Nothing on the page needed to change.');
     // The answer is given in the open timeline, over the page: the sections wait until it closes, then each is tinted
