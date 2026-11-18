@@ -49,7 +49,7 @@ This replaces the 17 November handover. Its open questions are carried over belo
   - a match sheet, then a venue;
   - the open plan, then Add ideas, then an idea;
   - saving with no team: Around the NSW matches and a map pin, then the plan bar (N saved), the open plan's dashed box, Add team, a pick in the sheet, Escape;
-  - each date picker: the page (`#tp-ask`), the days sheet and the open plan's days line, slider first with the fields behind Type your dates (the ± chips went on 18 Nov);
+  - each date picker: the page (`#tp-ask`), the days sheet and the open plan's days line, slider first (activated handle with a 12/10 tooltip while dragged), your dates under it as the button that opens the fields (the ± chips went on 18 Nov);
   - the full-screen map card, and the day-by-day card;
   - Getting there and back, then Add where you're staying, then Done.
 - **Figma:** file `LwBKfIftpu8erI6WGOi4W1` (Rugby World Cup). Call `create_session` first.
@@ -79,7 +79,7 @@ This replaces the 17 November handover. Its open questions are carried over belo
   - `venueRow(id, name, meta, addHtml)`: the one venue row (thumbnail, name link, Add), used in Where to watch and the match sheet.
   - `tp.mapStops`: the overview map's cards. An interstate stop uses `spotItem`, so it opens the venue.
   - `tp.slotSaved`: places saved items when days are set (team or not); a held dated item goes on its own date.
-  - `renderAsk` (the page date picker), `renderDaysLine` (the open plan's), `pmDays` (the days sheet). All three lead with the slider (matches dotted) and share `typeBtn` and `typeFields`: a Type your dates disclosure that shows 36px First and Last day fields, open or closed per picker in `typeOpen` (the sheet starts closed). `flexChips` and the ± days chips were removed on 18 Nov.
+  - `renderAsk` (the page date picker), `renderDaysLine` (the open plan's), `pmDays` (the days sheet). All three lead with the slider (matches dotted) and share `rangeEnds` (your dates between 29 Sep and 15 Nov, a button, kept live by `outSet`), `tipSet` (the handle tooltip) and `typeFields`: the dates button shows 36px First and Last day fields, open or closed per picker in `typeOpen` (the sheet starts closed). `flexChips` and the ± days chips were removed on 18 Nov.
   - `thirdName()`: Around your matches, or Around the NSW matches with no team.
   - The ideas list (`tlIdeas`) is lent to the sheet while it's open (`tlIdeasReturn` takes it back). An idea and Next free day are drill levels.
 - **`concepts-map.js`:** the overview map, "Around the matches in NSW".

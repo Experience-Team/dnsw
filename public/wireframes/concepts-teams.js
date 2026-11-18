@@ -2318,13 +2318,19 @@
     if (on) toastWatch = setInterval(function () { if (toastEl.hidden) clearInterval(toastWatch); else toastPlace(); }, 150);
   }
   function toastArm() { clearTimeout(toastT); if (!toastHeld) toastT = setTimeout(function () { toastHide(); }, 6000); }
-  function toast(title, detail, action) {
+  /* key: a toast that repeats as someone adjusts something (setting days) passes one; while a toast with the same key
+     is showing, the new one updates it in place, without the flash, and its six seconds start again */
+  var toastKey = '';
+  function toast(title, detail, action, key) {
+    var quiet = !toastEl.hidden && !!key && key === toastKey;
+    toastKey = key || '';
     toastEl.querySelector('.tp-toast-t').textContent = title;
     var d = toastEl.querySelector('.tp-toast-d'); d.textContent = detail || ''; d.hidden = !detail;
     var act = toastEl.querySelector('.tp-toast-act');
     toastFn = action && action.fn || null;
     act.textContent = action ? action.label : ''; act.hidden = !action;
     var was = !toastEl.hidden;
+    if (quiet) { toastPlace(); toastArm(); return; }
     toastEl.hidden = false;
     toastEl.classList.add('is-placing'); toastPlace(); void toastEl.offsetWidth; toastEl.classList.remove('is-placing'); // first place without a glide
     toastFollow(true);

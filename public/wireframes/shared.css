@@ -4287,13 +4287,24 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-range.is-unset .tp-range-fill { background: var(--c-fill-mid); }
 .tp-range.is-unset .tp-range-h { opacity: .45; } /* no days set: the handles wait at the ends, faded, so nothing reads as chosen */
 .tp-range.is-unset .tp-range-h:focus-visible { opacity: 1; }
-.tp-range-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: var(--fs-2xs); color: var(--c-ink-2); }
-.tp-range-out { display: inline-flex; align-items: center; gap: 4px; }
-.tp-range-out::before { content: ""; width: 1.5px; height: 8px; background: var(--c-fill-strong); }
-.tp-range-out.is-out { color: var(--c-ink); font-weight: var(--fw-semi); }
-.tp-range-out.is-out::before { content: none; }
+.tp-range-ends { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-top: 2px; font-size: var(--fs-2xs); color: var(--c-ink-2); white-space: nowrap; }
+/* Your dates between the ends (18 Nov): a button that opens the date fields, 24px to tap (AA) */
+.tp-range-out { display: inline-flex; align-items: center; gap: 4px; min-width: 0; min-height: 24px; padding: 0 2px; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; }
+.tp-range-out-t { overflow: hidden; text-overflow: ellipsis; text-decoration: underline; text-underline-offset: 3px; }
+.tp-range-out:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: 2px; }
+.tp-range-out.is-out { color: var(--c-ink); }
+.tp-range-out[aria-expanded="true"] .tp-refine-chev { transform: rotate(180deg); }
+/* Activated handle, after Material (18 Nov): a halo behind the knob and the day above it while dragged or keyed */
+.tp-range-h::after { content: ""; position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: color-mix(in srgb, var(--c-btn) 16%, transparent); transform: scale(.4); opacity: 0; transition: transform .12s ease-out, opacity .12s ease-out; z-index: -1; pointer-events: none; }
+.tp-range-h.is-dragging::after, .tp-range-h:focus-visible::after { transform: none; opacity: 1; }
+.tp-range-h { z-index: 1; }
+.tp-range-h.is-dragging, .tp-range-h:focus-visible { z-index: 2; }
+.tp-range-tip { position: absolute; left: 50%; bottom: calc(100% + 6px); padding: 3px 7px; border-radius: 4px; background: var(--c-btn); color: var(--c-on-dark); font-size: var(--fs-xs); font-weight: var(--fw-semi); line-height: 1.3; white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(calc(-50% + var(--tip-x, 0px)), 4px) scale(.9); transform-origin: 50% 100%; transition: opacity .12s ease-out, transform .12s ease-out; }
+.tp-range-tip::after { content: ""; position: absolute; top: 100%; left: calc(50% - var(--tip-x, 0px)); margin-left: -4px; border: 4px solid transparent; border-top-color: var(--c-btn); }
+.tp-range-tip:empty { display: none; }
+.tp-range-h.is-dragging .tp-range-tip, .tp-range-h:focus-visible .tp-range-tip { opacity: 1; transform: translate(calc(-50% + var(--tip-x, 0px)), 0); }
 .tp-range-mark { position: absolute; top: 7px; width: 1.5px; height: 14px; margin-left: -.75px; background: var(--c-fill-strong); border-radius: 1px; pointer-events: none; }
-@media (prefers-reduced-motion: reduce) { .tp-range-fill, .tp-range-h, .tp-range-h.is-dragging, .tp-range-h::before { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tp-range-fill, .tp-range-h, .tp-range-h.is-dragging, .tp-range-h::before, .tp-range-h::after, .tp-range-tip { transition: none; } }
 /* Pick your team: Clear timeline asks first. A short sheet stacked over the timeline, as tall as its content. */
 #tp-phone .tp-stack.tp-stack--fit { top: auto; bottom: 0; }
 .tp-cc { padding-bottom: var(--space-5); }
@@ -5250,8 +5261,6 @@ span.tp-map-arrow { display: block; }
    (18 Nov); the fields wait under Type your dates, so hidden must win over display: flex */
 .tp-date input { box-sizing: border-box; height: 36px; min-height: 36px; }
 .tp-dates[hidden] { display: none; }
-.tp-type-btn .tp-refine-chev { margin-left: -2px; }
-.tp-type-btn[aria-expanded="true"] .tp-refine-chev { transform: rotate(180deg); }
 .tp-tl-daysline .tp-dates:not([hidden]) { display: flex; }
 .tp-days .tp-days-range { margin-bottom: 0; }
 .tp-days .tp-ask-acts--links { margin-top: var(--space-1); }
@@ -5376,7 +5385,7 @@ span.tp-map-arrow { display: block; }
 /* Pick your team: toasts (concepts-teams.js toast()). A dark card near the foot of the screen, 16px in from the
    sides: the title and a line on what changed, the cross beside them, the link underneath (beside them on a desktop). Above the Your plan bar on a phone (--toast-b), at
    the foot of the content column on a desktop. Over everything but the photo layer and the stacked sheets' scrim. */
-.tp-toast { position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--toast-b, 16px); z-index: 150; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 var(--space-2); padding: var(--space-3) var(--space-2) var(--space-2) var(--space-4); border-radius: var(--radius-md); background: var(--c-btn); color: var(--c-on-dark); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); }
+.tp-toast { position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--toast-b, 16px); z-index: 150; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 var(--space-2); padding: var(--space-3) var(--space-2) var(--space-2) var(--space-4); border-radius: var(--radius-md); background: color-mix(in srgb, var(--c-btn) 90%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--c-on-dark); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); }
 .tp-toast[hidden] { display: none; }
 .tp-toast { transition: bottom .24s cubic-bezier(.2, .8, .2, 1); } /* moves up or down with what is pinned to the bottom */
 .tp-toast.is-placing { transition: none; }
