@@ -4950,7 +4950,7 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-range-match.is-away { box-sizing: border-box; background: var(--c-surface); border: 1.5px solid var(--c-accent); } /* interstate: hollow */
 
 /* Your days on the page: no Use these dates, so Undo and Reset sit as quiet text links with icons (16 Nov) */
-.tp-ask-acts--links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); }
+.tp-ask-acts--links { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); } /* centred under the centred dates (18 Nov) */
 .tp-ico-link { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
 .tp-ico-link svg.tp-ico path { fill: none; }
 .tp-ask .tp-ico-link .tp-ico, .tp-ico-link svg.tp-ico { margin-right: 0; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
