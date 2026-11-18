@@ -585,7 +585,7 @@
     // Explore freely: a small card for the pin, with Add for its day and a way to that day
     var c = x.c || cards[x.i];
     pop.innerHTML = '<p class="tp-map-pop-t">' + esc(x.p.title) + '</p><p class="tp-map-pop-m">' + esc(x.p.kindLabel) + ' · ' + esc(c.label) + '</p>' +
-      '<div class="tp-map-pop-a">' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add to ' + esc(c.label) + '</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your timeline on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') +
+      '<div class="tp-map-pop-a">' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add to ' + esc(c.label) + '</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') +
       '<button type="button" class="tp-link" data-mgo="' + x.i + '" data-mday="' + c.day + '">Go to ' + esc(c.label) + '</button><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
     pop.hidden = false;
     var f = pop.querySelector('.tp-add, [data-mgo]'); if (f) f.focus({ preventScroll: true });
@@ -597,7 +597,7 @@
     if (cam.s < 1.15) { cancelAnimationFrame(anim); var to = { x: cam.x + (g.cx - vw / 2) / cam.s, y: cam.y + (g.cy - cam.fy) / cam.s, s: Math.min(1.2, cam.s * 2.2), fy: cam.fy }; glide(clampCam(to)); return; } // closest zoom: list them
     pop.innerHTML = '<p class="tp-map-pop-t">' + g.length + ' stops here</p><ul class="tp-map-pop-l">' + g.map(function (q) {
       var x = q.o.x, c = x.c || cards[x.i];
-      return '<li><span><b>' + esc(x.p.title) + '</b> \u00b7 ' + esc(c.label) + '</span>' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your timeline on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') + '</li>';
+      return '<li><span><b>' + esc(x.p.title) + '</b> \u00b7 ' + esc(c.label) + '</span>' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') + '</li>';
     }).join('') + '</ul><div class="tp-map-pop-a"><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
     pop.hidden = false;
     var f = pop.querySelector('.tp-add, [data-mpop-close]'); if (f) f.focus({ preventScroll: true });
@@ -1142,7 +1142,7 @@
       var f = focusSel ? opop.querySelector(focusSel) : null;
       if (f) f.focus({ preventScroll: true }); else if (!keep) opop.querySelector('.tp-map-pop-t').focus({ preventScroll: true });
       // The place it is about is picked out on the map and glides to the middle, the card opening just under the map,
-      // and the card is brought into view above the timeline bar if it opened below the screen
+      // and the card is brought into view above the plan bar if it opened below the screen
       selMark(k);
       if (!keep) bringIn(l.ll);
     }
@@ -1191,7 +1191,7 @@
       ocam = oclamp({ x: wx - (cx - W / 2) / ns, y: wy - (cy - ocam.fy) / ns, s: ns, fy: ocam.fy }); oapply();
     }
     sec.querySelector('.tp-ov-zoom').addEventListener('click', function (e) { var z = e.target.closest('[data-ozoom]'); if (z) ozoom(z.dataset.ozoom === 'in' ? 1.35 : 1 / 1.35); });
-    /* Full screen (16 Nov): the map fills the phone screen, over the page and the timeline bar; one finger moves it
+    /* Full screen (16 Nov): the map fills the phone screen, over the page and the plan bar; one finger moves it
        there (nothing to scroll), the place cards open over its foot, and Escape or the same button brings it back to
        where it was on the page. The map keeps its place and zoom either way */
     var full = false, fsHome = document.createComment('map'), fsBtn = sec.querySelector('[data-ofull]'), fsInert = [];

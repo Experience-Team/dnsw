@@ -61,12 +61,14 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    Text meant to sit on one line (a tab label, a slogan line, a button) holds on one line in every theme and font,
    from 320 to 390px wide, not only in the theme being worked in; the wireframe's system font is wider than the high
    fidelity one, and a page-wide rule can let text wrap.
-7. **Patterns go everywhere they apply.** When a visual or behavioural cue is attached to a kind of control (an icon,
-   a confirm step, a focus rule), find every control of that kind and apply it to all of them, not just the one in the
-   brief. List them before handing over. For example, the calendar icon belongs on every button that sets or changes
-   dates, not only the prompts, and the card-fan icon on every Pick your teams prompt, the hero button included.
-   dates, not only the prompts; and every close cross sits in the same corner (top right, 16px from the edge) on every
-   sheet, stacked sheet and full-screen layer.
+7. **Patterns go everywhere they apply, and the scope is agreed first.** When a brief changes one instance of something
+   that appears in several places (a component such as a date picker or a match card, or a cue such as an icon, a
+   confirm step or a focus rule), first list every place it appears and ask which to update. Then change them all in
+   one pass, and say which were left and why. For example, the calendar icon belongs on every button that sets or
+   changes dates, not only the prompts; the card-fan icon on every Pick your teams prompt, the hero button included;
+   every close cross sits in the same corner (top right, 16px from the edge) on every sheet, stacked sheet and
+   full-screen layer; and the date picker updated to Figma 372:3060 on the page should have been checked against the
+   days sheet and the plan before building.
 8. **The page only moves when people expect it to.** A control never scrolls or jumps the page to another section
    unless its label says it will take you there (for example "See where to watch in NSW", "Skip the map"). Anything
    that asks for input or shows more detail opens where the person is, in a sheet or an expanding panel, and closing it
@@ -80,9 +82,9 @@ list as set out in "Adding standing flags" above, and add it once the user has a
 10. **One rule for more detail inside a sheet.** A tap inside a sheet does something people can predict.
     - **Inside a sheet, always drill down.** Any link to more detail (a venue, a match, a place, an idea, the next step
       of a choice) slides across inside the same sheet, with a back arrow.
-    - **Stack only over a full-screen layer.** A sheet opened from the timeline or a full-screen map slides up over it,
+    - **Stack only over a full-screen layer.** A sheet opened from the open plan or a full-screen map slides up over it,
       and the layer steps back. The layer counts as the first level, so there are never more than two.
-    - **The same thing opens the same content everywhere**, whether it is tapped on the page, in the timeline, on a map
+    - **The same thing opens the same content everywhere**, whether it is tapped on the page, in the open plan, on a map
       or in another sheet.
     - **Controls.** The close cross (check 7) closes the whole sheet, drill levels and all; over a layer it closes the
       sheet and leaves the layer open. A back arrow sits top left, only below the first drill level. Escape and the
@@ -102,7 +104,7 @@ list as set out in "Adding standing flags" above, and add it once the user has a
 11. **A change that lands out of view is confirmed where the person is.** When something a person does changes a part
     of the page they can't see from where they are (another section, their plan, what's behind a sheet), confirm it
     with one toast. Don't use a toast when the change already shows itself where they acted, for example a pick that
-    offers Undo or a marker settling on the timeline.
+    offers Undo or a marker settling on the plan.
     - **Content.** A short title saying what they did. One line naming what it changed, listing only the parts that
       actually changed; if nothing needed to change, say so. At most one link, and its label names where it goes ("See
       Where to watch", "Open your plan"), so the page only moves when asked (check 8). No link inside a sheet that
@@ -116,7 +118,13 @@ list as set out in "Adding standing flags" above, and add it once the user has a
       these as they appear or go.
     - For example, setting your days shows "Your days are set: 8 to 14 Oct" with "Where to watch and Around your
       matches now fit these days" and a link to Where to watch. The toast sits above the Your plan bar, or above Save &
-      share when the timeline is open.
+      share when the plan is open.
+12. **Say what else a change will touch, before building.** When a brief changes shared behaviour (a state, a rule, a
+    label, or a component used in several places), trace where else it shows up. With the scope check, list anything
+    elsewhere on the site, the docs included (CLAUDE.md, annotations, the build log), that it will change, break or
+    contradict. Do this before building, and add at hand-over anything more that turned up. For example, saving
+    without a team changes the plan bar's copy and the Added labels and toasts on first-look saves, and its toast rule
+    would silence toasts the page shows today.
 
 # Build notes
 

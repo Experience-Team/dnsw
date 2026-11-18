@@ -1,6 +1,6 @@
-/* Your plan, day by day (16 Nov). In testing, nobody could read their own plan off the old timeline: added things were
+/* Your plan, day by day (16 Nov). In testing, nobody could read their own plan off the old plan: added things were
    small unlabelled squares on a strip of the whole tournament ("So where's my stuff?", "It's a chart, not a plan", "I
-   plan by times"). This draws, inside the Your timeline sheet:
+   plan by times"). This draws, inside the Your plan sheet:
    - a strip of your days as an index: one 36px button a day (your days, or your teams' match days with no dates), its
      day number, a match marker and a filled or empty dot. Tapping one goes to that day's card;
    - one card per day: the date and the kind of day (Arrival day, Match day, Last day, Free day, the page's words), the
@@ -329,7 +329,7 @@
       var li = b.closest('.tp-dc-it'), next = li && (li.nextElementSibling || li.previousElementSibling), nextId = next && next.dataset.id, cardEl = b.closest('.tp-dc-card'), cid = cardEl && cardEl.id;
       if (moving === gone.id) moving = null;
       tp.removeItem(gone.id);
-      tp.say(gone.title + ' removed from your timeline. ' + state.added.length + ' added.');
+      tp.say(gone.title + ' removed from your plan. ' + state.added.length + ' added.');
       render();
       var f = nextId && root.querySelector('[data-dc-open="' + CSS.escape(nextId) + '"]');
       if (!f && cid) f = root.querySelector('#' + CSS.escape(cid) + '-h');

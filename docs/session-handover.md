@@ -1,32 +1,30 @@
 # Session handover: Pick your team prototype
 
-17 November 2026 (Sydney). Repo `Experience-Team/dnsw`, main at `ac7327e`. No PR from this work stream is open; the last ones, #506 to #516, are all merged. Another session (branch `claude/zen-bell-nn183f`) has been working on the wireframes index (`public/wireframes/index.html`): #515, #517 and #518. Pull main before starting.
+18 November 2026 (Sydney). Repo `Experience-Team/dnsw`, main at `2a26145`. **One PR is open: [#527](https://github.com/Experience-Team/dnsw/pull/527)** (save to Your plan without a team, Add team sheet, timeline renamed plan), a draft waiting for the user to review; this handover rides in it. #519 to #526 are merged. Pull main (or the PR branch, if #527 has not merged) before starting.
 
-This replaces the 14 November handover. Its open questions are carried over below, but none was raised again here, so check with the user before reopening any of them.
+This replaces the 17 November handover. Its open questions are carried over below; none was raised again, so check with the user before reopening them.
 
 ## Ways of working
 
-- **Branch:** use the branch your session is given. The previous one was `claude/magical-turing-x6u021`.
-  - Once a PR has merged, restart the branch from main with `git fetch origin main && git checkout -B <branch> origin/main`, then push with `--force-with-lease`. That's safe, because the branch only holds history that's already merged.
-  - If you push after the user has already merged, your commit misses the merge: put it on a fresh branch from main and open a new PR (this happened with #512 and #513).
-  - Make one commit per task, open a draft PR and subscribe to it.
-  - Set a 50-minute `send_later` safety net, and delete it once the PR merges.
+- **Branch:** use the branch your session is given. The last one was `claude/keen-meitner-a1dvtl`.
+  - Once a PR has merged, restart the branch from main with `git fetch origin main && git checkout -B <branch> origin/main`, then push with `--force-with-lease`.
+  - If you push after the user has merged, your commit misses the merge: put it on a fresh branch from main and open a new PR.
+  - One commit per task, a draft PR, subscribe to it, and a 50-minute `send_later` safety net (delete it once the PR merges). Several small asks in a row can share one open PR; update its description each time.
   - The user marks the PR ready and merges it, often within minutes.
 - **Previews:** only share links from the Vercel project `mopo123-gmailcoms-projects`, in chat and in PR descriptions, pointing at the page that changed.
-  - The URL is `https://dnsw-git-<branch-slug>-mopo123-gmailcoms-projects.vercel.app/wireframes/prototype-pick-your-team.html?tools&theme=hifi`. For the last branch the slug was `claude-magical-turin-aeb152`.
-  - High fidelity needs `?tools&theme=hifi`; without `?tools` the theme switch is ignored.
-  - A second project, `moniquepompe-2020s-projects`, also deploys every push, and its bot comments arrive as PR notifications. Its previews ask for sign-in, so never share them.
-- **CLAUDE.md:** read it first. It now has **ten** prototype interaction checks. The newest is check 10, one rule for more detail inside a sheet:
-  - inside a sheet, always drill down;
-  - stack only over a full-screen layer;
-  - the controls and motion that go with both;
-  - grabbers that work by tap and drag;
-  - a sheet that holds its height while drilling down.
-- **Standing flags:** when the user says "you missed X" or gives a rule, work out the general principle and fit it into an existing check. **Show the proposed wording, and where it goes, before editing CLAUDE.md.** The fix itself doesn't have to wait.
-- **Stop and show:** when a brief ends with stop and show, don't commit until the user has answered every question raised.
-- **Before handing over** (check 9): go through the brief line by line and say what's done, what isn't and why, and what's next.
-- **Build log:** add one row per change to the table at the end of `.claude/skills/wireframe/SKILL.md`.
-- **Annotations:** the annotations array in `prototype-pick-your-team.html` should be updated with every behaviour change. It wasn't updated for the sheet work in #512 to #516, so it's stale there (see Open questions).
+  - The URL is `https://dnsw-git-<branch-slug>-mopo123-gmailcoms-projects.vercel.app/wireframes/prototype-pick-your-team.html?tools` (add `&theme=hifi` for high fidelity). For the last branch the slug was `claude-keen-meitner-a1dvtl`.
+  - The second project, `moniquepompe-2020s-projects`, also deploys every push; its bot comments arrive as PR notifications. Its previews ask for sign-in, so never share them.
+- **CLAUDE.md:** read it first. It now has **twelve** prototype interaction checks. New or changed this session:
+  - **Check 7, amended:** before changing one instance of something that appears in several places, list every place and ask which to update; then do them all in one pass.
+  - **Check 11, new:** a change that lands out of view is confirmed with one toast (content, behaviour, position rules).
+  - **Check 12, new:** before building, say what else on the site (docs included) the change will touch, break or contradict, and add more at hand-over.
+- **What the user asked for, in practice (checks 7 and 12):** start a brief with a scope check and a knock-on list, ask, then build. The user said a bare "yes" to approve rules and suggested answers together; say back what you took it to cover.
+- **Standing flags:** when the user says "you missed X" or gives a rule, work out the principle, fit it into an existing check where one covers it, and **show the wording and where it goes before editing CLAUDE.md**. The fix itself doesn't have to wait.
+- **Stop and show:** when a brief ends with stop and show, don't commit until every question is answered.
+- **Before handing over** (check 9): go through the brief line by line: done, not done and why, what's next.
+- **Build log:** one row per change in the table at the end of `.claude/skills/wireframe/SKILL.md`.
+- **Annotations:** update the annotations array in `prototype-pick-your-team.html` with every behaviour change. This session kept them up to date for its own changes.
+- **Language:** the person's plan is "Your plan" or "the plan" everywhere a person can see it ("the open plan" for the full-screen layer). Don't write "timeline" in anything user-facing; code names (`tp-tl*`, `tlOpen`, `openTimeline`) are unchanged.
 - **Writing style:** UK English, AUD, Sydney time, few em dashes. Rate how confidential and how safe to upload any work document that's shared.
 
 ## Running and testing
@@ -41,15 +39,17 @@ This replaces the 14 November handover. Its open questions are carried over belo
 - **State:** saved in `localStorage['tp-pick-v1']` as `{picked, tickets, tab, added, trip, allFilter}`. Seed it, then reload.
   - Example: `{ picked: ['Zimbabwe', 'Australia'], trip: { from: '2027-10-08', to: '2027-10-14', mode: 'visiting' }, added: [] }`. Zimbabwe gives interstate matches, so Where to watch has venues.
   - Day indices count from 1 Oct 2027 = 0, so `data-dc-ideas="9"` is Sun 10 Oct.
-  - Reset prototype in the panel, or `?reset`, clears it.
+  - Reset prototype (the refresh button left of the phone in the viewer), or `?reset`, clears it.
 - **Useful handles:**
-  - `window.tpPicker` (`tp`): `openTimeline()`, `openSheet(id, opener)` (a stacked sheet over the timeline), `match(key)`, `state`.
+  - `window.tpPicker` (`tp`): `openPlan()`, `openTimeline()`, `openSheet(id, opener)` (a stacked sheet over the open plan), `toast(title, detail, {label, fn})`, `openDays(opener)`, `pickTeam(name)`, `match(key)`, `state`.
   - The status line is `#tp-live`.
   - The sheet is `#tp-pm`: its back arrow is `[data-pm-back]` and its cross is `[data-pm-close]`.
-- **Test scripts:** the last session's scripts lived in its scratchpad and are gone. These are the patterns worth rebuilding:
+- **Test scripts:** each session's scripts live in its scratchpad and are gone afterwards. These are the patterns worth rebuilding:
   - a walk of every sheet: Where to watch, then a venue, then Escape, the back arrow, a short and a long drag, the cross and the dark area;
   - a match sheet, then a venue;
-  - the timeline, then Add ideas, then an idea;
+  - the open plan, then Add ideas, then an idea;
+  - saving with no team: Around the NSW matches and a map pin, then the plan bar (N saved), the open plan's dashed box, Add team, a pick in the sheet, Escape;
+  - each date picker: the page (`#tp-ask`), the days sheet and the open plan's days line, with the ± chips;
   - the full-screen map card, and the day-by-day card;
   - Getting there and back, then Add where you're staying, then Done.
 - **Figma:** file `LwBKfIftpu8erI6WGOi4W1` (Rugby World Cup). Call `create_session` first.
@@ -57,12 +57,16 @@ This replaces the 14 November handover. Its open questions are carried over belo
 ## Where things are
 
 - **`public/wireframes/prototype-pick-your-team.html`:** the page.
-  - It holds the phone markup and the stacked sheets over the timeline: `#tp-ss` Save & share, `#tp-ts` Your teams, `#tp-cc` Clear your timeline?
+  - It holds the phone markup and the stacked sheets over the open plan: `#tp-ss` Save & share, `#tp-ts` Your teams (a list), `#tp-at` Add team (lends the page picker), `#tp-cc` Clear your plan?
   - It also holds the annotations array.
-  - Page order under the picker: the tabs (Your matches, All matches), then the chosen tab's content, then Your days in NSW (`#tp-ask`), then the map (`#tp-ov`).
+  - Page order in the picker section: Find row, the hand, its caption and Clear all, then Your days in NSW (`#tp-ask`, since 18 Nov), then the tabs (Your matches, All matches) and the chosen tab's content; the map (`#tp-ov`) follows All matches.
 - **`concepts-teams.js`:**
   - the fan and picks;
-  - the timeline bar and sheet (the bar drags, and a tap toggles it);
+  - the plan bar and open plan (code names `tp-tl*`; the bar drags, and a tap toggles it). With no team the bar reads No matches yet or N saved, with Add team (`#tp-tl-addteam`);
+  - `addItem`: with no team and no days a dated save is held (`fixed` keeps its date, `unplaced: true`); the first save while the bar is out of sight gets a toast;
+  - `atOpen`: the Add team sheet, which moves `#tp-util` and `#tp-picker` into `#tp-at` and back on close;
+  - toasts: `toast`, `toastPlace` (16px from the bottom, 24px on desktop, 12px above anything pinned);
+  - the desktop layout (`wide()`, `railFollow()`);
   - the stacked-sheet pattern (`stackOpen`, `stackClose`, `stackRegister`, with drag and tap on the grabber). It fires the cancellable `tp:stackdismiss`, so a sheet with drill levels can go back one level instead of closing;
   - `tpFreeApi`, the free days;
   - `window.tpPicker`.
@@ -74,37 +78,39 @@ This replaces the 14 November handover. Its open questions are carried over belo
   - `pmLayerBack`: steps a full-screen map back behind a sheet.
   - `venueRow(id, name, meta, addHtml)`: the one venue row (thumbnail, name link, Add), used in Where to watch and the match sheet.
   - `tp.mapStops`: the overview map's cards. An interstate stop uses `spotItem`, so it opens the venue.
+  - `tp.slotSaved`: places saved items when days are set (team or not); a held dated item goes on its own date.
+  - `renderAsk` (the page date picker), `renderDaysLine` (the open plan's), `pmDays` (the days sheet). All three share `flexChips` (± 1, 2, 3, 7, 14 days, only once there are matches) and 36px First and Last day fields.
+  - `thirdName()`: Around your matches, or Around the NSW matches with no team.
   - The ideas list (`tlIdeas`) is lent to the sheet while it's open (`tlIdeasReturn` takes it back). An idea and Next free day are drill levels.
 - **`concepts-map.js`:** the overview map, "Around the matches in NSW".
   - It holds the route cards, the pins and full screen (`.tp-ov-map.is-full`).
   - It also holds Follow day by day, full screen (`.tp-mapfs`), with its own card panel and grabber.
-- **`concepts-plan.js`:** the day cards in the timeline (`?plan=cards`, the default, or `?plan=swipe`). `tpPlan.same(el)` finds an opener again after a redraw.
+- **`concepts-plan.js`:** the day cards in the open plan (`?plan=cards`, the default, or `?plan=swipe`). `tpPlan.same(el)` finds an opener again after a redraw.
 - **`pv-device.js`:** paints library images in high fidelity, from `data-img` keys (`imgKey(title)` in third-half).
-- **`shared.css`:** everything for this page is under `.tp-*`. Page section spacing comes from `--sec-gap` (64px). Your days overrides it to 48px.
+- **`shared.css`:** everything for this page is under `.tp-*`. Page section spacing comes from `--sec-gap` (64px). Your days now sits inside the picker, 24px under Clear all, with no box. The desktop layout is under `@media (min-width:1024px)`, scoped to `.pv-device #tp-phone`.
 
-## Done this session (#506 to #516)
+## Done this session (#519 to #527)
 
-- **#506:** an RWC section on the wireframes index.
-- **#507:** day cards replace the timeline strip.
-- **#508:** a shorter timeline top, and "Kick goal" renamed "Drop goal".
-- **#509:** the hero's closing line became the team picker heading.
-- **#510:** route cards over the map, Skip the map, and Your days placed above the map.
-- **#511:** the full-screen map and its cards stay in sync.
-- **#512 and #513:** links inside sheets work. These first used a second stacked sheet, which #514 replaced.
-- **#514:** one rule for more detail, now CLAUDE.md check 10.
-  - **Drill-down everywhere inside sheets:**
-    - venues in Where to watch and in match sheets;
-    - knockout matches;
-    - ideas and Next free day;
-    - Also on your plan;
-    - Add where you're staying.
-  - **Stacking only over the timeline and the full-screen maps**, where the map steps back.
-  - **Venue rows** have thumbnails: 48px in sheets, 40px on the page's narrow cards.
-  - **Map cards for interstate stops** open the venue.
-  - **Every grabber** works by tap and drag.
-  - **The sheet holds its height** while drilling down.
-  - **The All matches list** sits right under its tab.
-- **#516:** 48px from either match tab to Your days, and 48px from All matches (with no team picked) to the map's rule. Check 10 gained the grabber and sheet-height rules.
+- **#519:** the 17 November handover.
+- **#520:** the viewer: Open the phone view in a new tab beside Copy link; a tidier desktop layout of the viewer.
+- **#521:** Pick your team as a desktop website (1024px and wider: header to results, a Your plan rail, sheets as centred modals, two-up Where to watch); critique fixes; build-only items on `?tools` only; annotation badges and notes that find each other; 36px tabs and a 48px stage gap.
+- **#522:** Reset prototype and Open in desktop as buttons beside the phone (the panel buttons went).
+- **#523:** toasts that say what a change did elsewhere on the page (days set or cleared, base, plan adds and removes, ticket changes), each with at most one link.
+- **#524:** a temporary swipe pill on the day by day map.
+- **#525:** toast positioning (from the bottom of the screen, above whatever is pinned), CLAUDE.md check 11, and the opening match kick-off at 8:45pm Sydney time (Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027).
+- **#526:**
+  - Reset and Open in desktop moved to the left of the phone (on the stacked page they stay on its right);
+  - "Around the NSW matches" with no team, "Around your matches" once there are matches;
+  - the Event details tab renamed Home;
+  - Your days in NSW moved under the team picker (Figma 372:3060): heading "Your days in NSW (optional)", one note line, 36px date fields, no box;
+  - every date picker (the page, the days sheet, the open plan's days line) matches it, the days sheet gained First and Last day fields, and all three have the ± 1, 2, 3, 7 and 14 days chips once there are matches.
+- **#527 (open, draft):** saving to Your plan without a team.
+  - With no team and no days, every save waits in the open plan's dashed Saved, not placed yet box (dated ones show their date), which asks for a team (Add team) and days (Set your days). Setting days places them, team or not; picking a team alone moves nothing.
+  - The plan bar with no team: Your plan, No matches yet or N saved, with Add team.
+  - Add team opens `#tp-at`, which lends the page's own picker (Find, Grid / Fan, Plays in NSW, the hand) and gives it back.
+  - The first save while the bar is out of sight gets "Saved to your plan" with Open your plan; existing add toasts are kept.
+  - Every user-facing "timeline" is now "plan", CLAUDE.md included. Check 7 amended and check 12 added.
+  - Decisions the user's "yes" covered: no route cards with no team (no route to follow); dated saves wait in the box too; the same box with a team but no days asks only for days; existing toasts kept; the one-day first look kept in Where to watch and Around.
 
 ## Known quirks
 
@@ -114,24 +120,30 @@ This replaces the 14 November handover. Its open questions are carried over belo
   - `tpPlan.same()` for day cards;
   - the `pmOpenerEl` fallbacks in `closePm`.
   - A day filled from its ideas sheet loses Add ideas, so focus goes to the day's heading.
+- **The lent picker:** while `#tp-at` is open, `#tp-util` and `#tp-picker` live in the sheet and a `.tp-at-hold` placeholder keeps their height on the page. Anything that looks the picker up by its place in the page (for example `.tp-pick > #tp-picker` in the desktop CSS) won't match while it's lent.
+- **Date fields in headless Chromium** show mm/dd/yyyy (en-US); real phones in Australia show dd/mm/yyyy.
+- **Test server:** a background `python3 -m http.server` is stopped by the session's background time limit; start it again when a test can't connect.
 - **Two Vercel projects** deploy every push. The user hasn't decided whether to disconnect one.
 
 ## Open questions for the user
 
-1. **Section gaps:** every main section except Your days still uses 64px (`--sec-gap`), for example Your days to the map. The experience principles say 48px between families. Should they all move to 48px?
-2. **Trip stops** in a trip sheet aren't links. They have no details beyond name, type and suburb, so a drill level would be thin. Does the user want a short stop level anyway?
-3. **CLAUDE.md tidy-ups**, offered but not answered:
-   - check 7 repeats the line "dates, not only the prompts";
-   - "9. Look, don't only measure" sits under Build notes instead of the numbered checks.
-4. **The annotations array** is stale for the sheet work (#512 to #516). Update it, or ask whether it's still wanted.
-5. **Carried over from 14 November, not raised since:**
-   - venue match counts for Adelaide and Townsville (the fixtures and `cnVenues` disagree);
-   - the dashed Every NSW match icon;
-   - wording consistency ("Pick your team", "Your teams", "Add or change teams");
-   - the bar counts, where Save & share sits, and the bar's Tab order.
+1. **From #527, flagged at hand-over (check 12):**
+   - the open plan's heading now reads "Your plan", the same as the bar right above it; a different heading would avoid the repeat;
+   - the end-of-page summary (Your plan so far) still says "1 thing added" while the bar says "saved";
+   - a dated save made with no team stays in the box after a team is picked, until days are set, while one made after picking a team goes straight onto its date.
+2. **Seen at 320 wide, not fixed (they predate this session's changes):**
+   - the date fields' placeholder runs under the calendar icon;
+   - "Your matches (6)" wraps onto two lines in low fidelity, against check 6.
+3. **The itinerary prototype** (`prototype-itinerary.html`) has its own First and Last day fields, not matched to the new date picker. It's a separate page; ask before changing it.
+4. **Section gaps:** every main section still uses 64px (`--sec-gap`); the experience principles say 48px between families. Move them all to 48px?
+5. **Trip stops** in a trip sheet aren't links (no details beyond name, type and suburb). A short stop level anyway?
+6. **CLAUDE.md tidy-up:** "9. Look, don't only measure" sits under Build notes instead of the numbered checks. (The repeated line in check 7 was fixed in #527.)
+7. **The annotations array** is still stale for the sheet work in #512 to #516.
+8. **Carried over from 14 November, not raised since:** venue match counts for Adelaide and Townsville (the fixtures and `cnVenues` disagree); the dashed Every NSW match icon; wording consistency ("Pick your team", "Your teams", "Add or change teams", now also "Add team"); the bar counts, where Save & share sits, and the bar's Tab order.
 
 ## Recommended next steps
 
-1. Pull main, read CLAUDE.md (check 10 especially) and this file.
-2. Ask the user about open questions 1 and 4. Both are small, and they decide the rhythm and the docs.
-3. Rebuild a sheet walk-through script before touching `concepts-third-half.js`. The drill-down, focus return and height lock are easy to break.
+1. Check whether #527 has merged. If not, wait for the user's review; if it has, restart the branch from main.
+2. Read CLAUDE.md, checks 7, 11 and 12 especially, and this file.
+3. Ask about open question 1 first: it's the follow-up the user is most likely to want.
+4. For any new brief, open with the scope check and knock-on list (checks 7 and 12) before building.
