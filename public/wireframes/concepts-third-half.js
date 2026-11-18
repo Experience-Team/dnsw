@@ -2104,13 +2104,13 @@
     var t = trip() || {}, show = tp.own();
     ask.hidden = !show;
     if (!show) { ask.innerHTML = ''; return; }
-    var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW</h3>';
+    var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW' + (has && !askEditing ? '' : ' (optional)') + '</h3>';
     if (has && !askEditing) {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
-      h += '<p class="tp-sec-note">Optional. Set them and the ideas below fit around your matches' + (Object.keys(mdays).length ? ', dotted on the bar' : '') + '.</p>' +
+      h += '<p class="tp-sec-note">Set dates and the ideas below fit around your matches.</p>' +
         '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" data-f="from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
         '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" data-f="to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
