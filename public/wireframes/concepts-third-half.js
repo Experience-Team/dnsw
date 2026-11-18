@@ -2278,14 +2278,14 @@
       askEditing = true; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ base: t.base, party: t.party });
       said = changedSince(before, 'Your days are reset.');
-      changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']);
+      if (!onPagePicker()) changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']);
     } else {
       var prev = askUndo.pop(); if (!prev) return;
       askEditing = true; askDraft = null; askError = ''; askOwn = true;
       (prev.placed || []).forEach(function (id) { var it = addedItem(id); if (it) { it.day = ''; it.unplaced = true; } });
       tp.setTrip(prev.from ? { from: prev.from, to: prev.to, base: t.base, party: t.party } : { base: t.base, party: t.party });
       said = changedSince(before, prev.from ? 'Back to ' + tp.isoRange(prev.from, prev.to) + '.' : 'Your days are removed again.');
-      changeToast(prev.from ? 'Back to your days: ' + tp.isoRange(prev.from, prev.to) : 'Your days are cleared again', ['is back as it was', 'are back as they were']);
+      if (!onPagePicker()) changeToast(prev.from ? 'Back to your days: ' + tp.isoRange(prev.from, prev.to) : 'Your days are cleared again', ['is back as it was', 'are back as they were']);
       said = said + ((prev.placed || []).length ? ' ' + prev.placed.length + (prev.placed.length === 1 ? ' saved place is' : ' saved places are') + ' back in Saved, not placed yet.' : '');
     }
     askQuiet(askUndo.length ? '[data-act="undo"]' : fallback); tp.say(said);
@@ -2323,8 +2323,11 @@
     var said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
     askQuiet(sel);
     tp.say(said);
-    daysToast(!!(step.from && step.to), a, z);
+    // No toast from the page's own date picker (18 Nov): it sat over the slider while the days were still being set,
+    // and the dates already show under the slider. The plan's picker keeps it (check 11)
+    if (!onPagePicker()) daysToast(!!(step.from && step.to), a, z);
   }
+  function onPagePicker() { return (rRoot || ask) === ask; }
   function applyFromFields(sel) { var p = rangeParts(); if (p.from && p.to) applyDays(p.from.value, p.to.value, sel); }
   ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') { rRoot = ask; applyFromFields('#' + e.target.id); } });
   /* Saved, not placed yet, going onto days as the days are set in the open plan: each glides from its row in the
