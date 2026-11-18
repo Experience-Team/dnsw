@@ -99,6 +99,24 @@ list as set out in "Adding standing flags" above, and add it once the user has a
       height changes only when the sheet first opens or closes. For example, a venue drilled from Where to watch
       shrank the sheet to its short content, which read as a jump.
     - For example, Escape on an idea's details closed the whole ideas sheet instead of going back to the list.
+11. **A change that lands out of view is confirmed where the person is.** When something a person does changes a part
+    of the page they can't see from where they are (another section, their plan, what's behind a sheet), confirm it
+    with one toast. Don't use a toast when the change already shows itself where they acted, for example a pick that
+    offers Undo or a marker settling on the timeline.
+    - **Content.** A short title saying what they did. One line naming what it changed, listing only the parts that
+      actually changed; if nothing needed to change, say so. At most one link, and its label names where it goes ("See
+      Where to watch", "Open your plan"), so the page only moves when asked (check 8). No link inside a sheet that
+      would open something over that sheet.
+    - **Behaviour.** One at a time, and a new one replaces the old. It stays 6 seconds, longer while hovered or focused,
+      and a cross closes it. It rises and fades in; reduced motion fades only. Don't make it a live region when screen
+      readers already hear the change, so nothing is said twice.
+    - **Position.** Measured from the bottom of the screen: 16px on a phone, 24px on a desktop. It sits 12px above
+      whatever is pinned to the bottom and showing on top there (a bar, a sheet's bottom row, a card, a prompt, the
+      keyboard), and stacks above them when there are several. Anything covered by a sheet doesn't count. It follows
+      these as they appear or go.
+    - For example, setting your days shows "Your days are set: 8 to 14 Oct" with "Where to watch and Around your
+      matches now fit these days" and a link to Where to watch. The toast sits above the Your plan bar, or above Save &
+      share when the timeline is open.
 
 # Build notes
 
