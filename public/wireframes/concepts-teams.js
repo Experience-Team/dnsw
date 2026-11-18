@@ -2227,16 +2227,45 @@
     '<button type="button" class="tp-toast-x" aria-label="Close message"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button>';
   phoneEl.appendChild(toastEl);
   var toastT = 0, toastHeld = false, toastFn = null;
+  /* Where it sits: from the bottom of the screen (16px on a phone, 24px on a desktop), and 12px above whatever is
+     pinned to the bottom of the screen and showing on top there: the Your plan bar, the open timeline's Save & share
+     row, a sheet's own bottom row (Done, Use these dates, the photo's buttons), the day by day map's card, the
+     keyboard. Only one that is actually on top counts (a bar under an open sheet does not), and only while its foot
+     is at the screen's foot. Checked while the toast is up, so it moves with the bar appearing or a sheet opening. */
+  var PINNED = '.tp-tl-bar, .tp-tl-foot, .tp-days-bar, .tp-ts-acts, .tp-cc-acts, .tp-ph-acts, .tp-mapfs:not([hidden]) .tp-map-card, .tp-kbd';
+  var toastWatch = 0;
+  function onTop(el, r) {
+    var x = r.left + r.width / 2, y = r.top + Math.min(6, r.height / 2);
+    var hits = document.elementsFromPoint ? document.elementsFromPoint(x, y) : [];
+    for (var i = 0; i < hits.length; i++) { if (toastEl.contains(hits[i])) continue; return el.contains(hits[i]) || hits[i] === el; }
+    return false;
+  }
   function toastPlace() {
-    // On a phone it sits 12px above the bar while the bar is down; over the open timeline or with no bar, near the foot
-    var up = !wide() && tlOn && !tlOpen;
-    toastEl.style.setProperty('--toast-b', (up ? BAR + 12 : 16) + 'px');
+    var pr = phoneEl.getBoundingClientRect(), base = wide() ? 24 : 16, b = base;
+    var els = [].filter.call(phoneEl.querySelectorAll(PINNED + ', .tp-map-hint:not([hidden])'), function (el) {
+      if (!el.getClientRects().length) return false;
+      var r = el.getBoundingClientRect();
+      return r.height >= 1 && r.top < pr.bottom && r.right > pr.left && r.left < pr.right && (el.classList.contains('tp-map-hint') || onTop(el, r)); // showing, and not under a sheet or layer (the swipe prompt takes no taps, so the hit test cannot see it; it only shows on top)
+    }).map(function (el) { return el.getBoundingClientRect(); }).sort(function (x, y) { return y.bottom - x.bottom; });
+    // Stack up from the foot: a thing counts if it reaches down to the level reached so far (the screen's foot first,
+    // then the top of what sits there, so the map's swipe prompt above its card counts too)
+    var level = pr.bottom, grew = true;
+    while (grew) {
+      grew = false;
+      els.forEach(function (r) { if (r.bottom >= level - 40 && r.top < level) { level = r.top; grew = true; } });
+    }
+    if (level < pr.bottom) b = Math.max(base, Math.round(pr.bottom - level) + 12);
+    toastEl.style.setProperty('--toast-b', b + 'px');
   }
   function toastHide(now) {
     clearTimeout(toastT);
     if (toastEl.hidden) return;
-    if (now || reduce.matches || !toastEl.animate) { toastEl.hidden = true; return; }
-    toastEl.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(8px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = function () { toastEl.hidden = true; };
+    if (now || reduce.matches || !toastEl.animate) { toastEl.hidden = true; toastFollow(false); return; }
+    toastEl.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(8px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = function () { toastEl.hidden = true; toastFollow(false); };
+  }
+  function toastFollow(on) {
+    clearInterval(toastWatch);
+    if (on) toastWatch = setInterval(function () { if (toastEl.hidden) clearInterval(toastWatch); else toastPlace(); }, 150);
   }
   function toastArm() { clearTimeout(toastT); if (!toastHeld) toastT = setTimeout(function () { toastHide(); }, 6000); }
   function toast(title, detail, action) {
@@ -2245,9 +2274,10 @@
     var act = toastEl.querySelector('.tp-toast-act');
     toastFn = action && action.fn || null;
     act.textContent = action ? action.label : ''; act.hidden = !action;
-    toastPlace();
     var was = !toastEl.hidden;
     toastEl.hidden = false;
+    toastEl.classList.add('is-placing'); toastPlace(); void toastEl.offsetWidth; toastEl.classList.remove('is-placing'); // first place without a glide
+    toastFollow(true);
     if (toastEl.animate && !was) toastEl.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: reduce.matches ? 150 : 260, easing: 'cubic-bezier(.2, .8, .2, 1)' });
     else if (toastEl.animate) toastEl.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 160 }); // a new message replacing one on screen
     toastArm();

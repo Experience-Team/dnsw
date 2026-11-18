@@ -20,7 +20,7 @@ window.cnFixtures = [
   {"d": "Sat 6 Nov", "t": null, "s": "Semi-final 2", "v": "Stadium Australia", "p": "Sydney Olympic Park"},
   {"d": "Fri 12 Nov", "t": null, "s": "Bronze Final", "v": "Stadium Australia", "p": "Sydney Olympic Park", "k": "8:45am"},
   {"d": "Sat 13 Nov", "t": null, "s": "Final", "v": "Stadium Australia", "p": "Sydney Olympic Park", "k": "8:00pm"},
-  {"d": "Fri 1 Oct", "t": "Australia v Hong Kong China", "s": "Pool A", "v": "Perth Stadium", "p": "Perth", "k": "9:00pm", "a": "Perth"},
+  {"d": "Fri 1 Oct", "t": "Australia v Hong Kong China", "s": "Pool A", "v": "Perth Stadium", "p": "Perth", "k": "8:45pm", "a": "Perth"},
   {"d": "Sat 2 Oct", "t": "Scotland v Uruguay", "s": "Pool D", "v": "North Queensland Stadium", "p": "Townsville", "k": "3:00pm", "a": "Townsville"},
   {"d": "Sat 2 Oct", "t": "Argentina v Canada", "s": "Pool C", "v": "Adelaide Oval", "p": "Adelaide", "k": "4:30pm", "a": "Adelaide"},
   {"d": "Sat 2 Oct", "t": "New Zealand v Chile", "s": "Pool A", "v": "Brisbane Stadium", "p": "Brisbane", "k": "6:30pm", "a": "Brisbane"},

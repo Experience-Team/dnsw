@@ -5357,6 +5357,9 @@ span.tp-map-arrow { display: block; }
    the foot of the content column on a desktop. Over everything but the photo layer and the stacked sheets' scrim. */
 .tp-toast { position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--toast-b, 16px); z-index: 150; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 var(--space-2); padding: var(--space-3) var(--space-2) var(--space-2) var(--space-4); border-radius: var(--radius-md); background: var(--c-btn); color: var(--c-on-dark); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); }
 .tp-toast[hidden] { display: none; }
+.tp-toast { transition: bottom .24s cubic-bezier(.2, .8, .2, 1); } /* moves up or down with what is pinned to the bottom */
+.tp-toast.is-placing { transition: none; }
+@media (prefers-reduced-motion: reduce) { .tp-toast { transition: none; } }
 .tp-toast-t { font-size: var(--fs-base); font-weight: var(--fw-bold); line-height: 1.3; }
 .tp-toast-d { margin-top: 2px; font-size: var(--fs-sm); line-height: 1.4; opacity: .86; }
 .tp-toast-d[hidden], .tp-toast-act[hidden] { display: none; }
@@ -5367,7 +5370,7 @@ span.tp-map-arrow { display: block; }
 .tp-toast :is(.tp-toast-act, .tp-toast-x):focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 @media (min-width: 1024px) {
   /* Desktop: one row, the link beside the text */
-  .pv-device #tp-phone .tp-toast { left: var(--wide-pad); right: auto; bottom: var(--space-6); width: min(520px, calc(100vw - 2 * var(--wide-pad))); grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; padding-bottom: var(--space-3); }
+  .pv-device #tp-phone .tp-toast { left: var(--wide-pad); right: auto; width: min(520px, calc(100vw - 2 * var(--wide-pad))); grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; padding-bottom: var(--space-3); }
   .pv-device #tp-phone .tp-toast-txt { padding-bottom: 0; }
   .pv-device #tp-phone .tp-toast-act { grid-column: 2; grid-row: 1; margin-left: 0; }
   .pv-device #tp-phone .tp-toast-x { grid-column: 3; }
