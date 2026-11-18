@@ -756,9 +756,9 @@
       '<div class="tp-ov-pop" id="tp-ov-pop" role="region" aria-labelledby="tp-ov-pop-h" hidden></div>' +
       '<div class="tp-ov-follow" hidden><p>Your trip is ready to follow day by day.</p><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-ofollow>Follow day by day</button></div>' +
       '<p class="visually-hidden" aria-live="polite" id="tp-ov-say"></p><span class="tp-ov-end" id="tp-ov-end" tabindex="-1"></span>';
-    // Under Your days in NSW (17 Nov): the date question sits right above the map, appearing once a team is picked
-    var askSec = document.getElementById('tp-ask');
-    if (askSec) askSec.parentNode.insertBefore(sec, askSec.nextSibling); else pick.parentNode.insertBefore(sec, pick.nextSibling);
+    // After All matches (18 Nov): Your days in NSW moved up into the team picker, so the map follows the match list
+    var allSec = document.getElementById('tp-all');
+    if (allSec) allSec.parentNode.insertBefore(sec, allSec.nextSibling); else pick.parentNode.insertBefore(sec, pick.nextSibling);
     var box = sec.querySelector('.tp-ov-map'), oview = sec.querySelector('.tp-ov-view'), olayer = sec.querySelector('.tp-ov-layer'), oimg = olayer.querySelector('img');
     var otvs = sec.querySelector('.tp-ov-tvs'), omarks = sec.querySelector('.tp-ov-marks'), oedges = sec.querySelector('.tp-ov-edges'), opop = sec.querySelector('.tp-ov-pop'), hint = sec.querySelector('.tp-ov-hint');
     var osub = sec.querySelector('.tp-ov-sub'), ofollow = sec.querySelector('.tp-ov-follow'), osay = sec.querySelector('#tp-ov-say');
