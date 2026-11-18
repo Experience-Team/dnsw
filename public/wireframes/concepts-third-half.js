@@ -1666,26 +1666,21 @@
         '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
       return h + '</div>';
     }
-    var qm = quickRange('pm1'), PM = [1, 2, 3, 7, 14];
-    var Q = function (kind, r, label) { return r ? '<button type="button" class="tp-chip" data-dquick="' + kind + '" aria-pressed="' + !!(dsel && dsel.z !== null && isoOf(dsel.a) === r.from && isoOf(dsel.z) === r.to) + '">' + label + '</button>' : ''; };
     var n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">Set dates and the ideas below fit around your matches.</p>' +
       daysTickets() +
-      // Either side of their matches, as flexible dates (16 Nov): ± 1 to ± 14 days (About a week removed 16 Nov: it overlapped ± 7 days)
-      (qm ? '<div class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + PM.map(function (n) { return Q('pm' + n, quickRange('pm' + n), '\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span>'); }).join('') + '</div>' : '') +
-      // The same First day and Last day fields as the page (18 Nov): typed, they move the slider and the calendar
-      '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-pm-from" data-df="from" min="2027-09-29" max="2027-11-15"></label>' +
-      '<label class="tp-date"><span>Last day</span><input type="date" id="tp-pm-to" data-df="to" min="2027-09-29" max="2027-11-15"></label></div>' +
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
       '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
-        Object.keys(ms).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d - RMIN) / RSPAN * 100) + '%"></span>'; }).join('') +
-        '<span class="tp-range-h" role="slider" tabindex="0" data-dh="from" aria-label="First day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '"></span>' +
-        '<span class="tp-range-h" role="slider" tabindex="0" data-dh="to" aria-label="Last day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '"></span></div>' +
-        '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span>Tournament 1 Oct to 13 Nov</span><span>15 Nov</span></div></div>' +
+        rangeDots() +
+        '<span class="tp-range-h" role="slider" tabindex="0" data-dh="from" aria-label="First day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '">' + TIP + '</span>' +
+        '<span class="tp-range-h" role="slider" tabindex="0" data-dh="to" aria-label="Last day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '">' + TIP + '</span></div>' +
+        rangeEnds('div', 'pm', 'tp-pm-dates') + '</div>' +
+      // The slider leads on every date picker (18 Nov); the First day and Last day fields open from the dates under it
+      typeFields('pm', 'tp-pm-dates', 'div', 'df', 'tp-pm-', '', '') +
       '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
       // dates stay in view and it is clear the plan waits for that tap
@@ -1700,7 +1695,7 @@
   var dTicketKeys = [];
   tp.openDays = function (opener) { openDays(false, opener); };
   function openDays(stay, opener, team) {
-    dStay = !!stay; dsel = dRange();
+    dStay = !!stay; dsel = dRange(); typeOpen.pm = false;
     dTicketKeys = [];
     if (team && !stay) (tp.own() ? tp.userMatches() : []).forEach(function (m) {
       if (!m.f.a && m.f.t && m.f.t.split(' v ').indexOf(team) > -1 && state.tickets.indexOf(m.tkey) < 0) dTicketKeys.push(m.key);
@@ -1733,7 +1728,8 @@
   function daysPaint() {
     var r = pm.querySelector('.tp-days-range'); if (!r) return;
     var a = dsel ? dsel.a : RMIN, z = dsel ? (dsel.z !== null ? dsel.z : dsel.a) : RMAX, pct = function (d) { return ((d - RMIN) / RSPAN * 100) + '%'; };
-    r.querySelectorAll('[data-dh]').forEach(function (h) { var v = h.dataset.dh === 'from' ? a : z; h.style.left = pct(v); h.setAttribute('aria-valuenow', v); h.setAttribute('aria-valuetext', dayLabel(v)); });
+    r.querySelectorAll('[data-dh]').forEach(function (h) { var v = h.dataset.dh === 'from' ? a : z; h.style.left = pct(v); h.setAttribute('aria-valuenow', v); h.setAttribute('aria-valuetext', dayLabel(v)); tipSet(h, v); });
+    outSet(r, !dsel ? '' : dsel.z === null ? 'From ' + tp.isoRange(isoOf(dsel.a), isoOf(dsel.a)) : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)), false);
     var fill = r.querySelector('.tp-range-fill'); fill.style.left = pct(a); fill.style.width = ((z - a) / RSPAN * 100) + '%';
     r.classList.toggle('is-unset', !dsel);
     pm.querySelectorAll('[data-dday]').forEach(function (b) {
@@ -1750,7 +1746,6 @@
     var fF = pm.querySelector('[data-df="from"]'), fT = pm.querySelector('[data-df="to"]');
     if (fF && document.activeElement !== fF) fF.value = dsel ? isoOf(dsel.a) : '';
     if (fT && document.activeElement !== fT) fT.value = dsel && dsel.z !== null ? isoOf(dsel.z) : '';
-    pm.querySelectorAll('[data-dquick]').forEach(function (c) { var q = quickRange(c.dataset.dquick); c.setAttribute('aria-pressed', !!(q && n && isoOf(dsel.a) === q.from && isoOf(dsel.z) === q.to) + ''); });
   }
   function daysSlide(which, d) {
     d = Math.max(RMIN, Math.min(RMAX, d));
@@ -1778,7 +1773,7 @@
   });
   pm.addEventListener('click', function (e) {
     if (!pmOpen || pmOpen.id.indexOf('days') !== 0) return;
-    var b = e.target.closest('[data-dday], [data-dquick], [data-duse], [data-dclear], [data-sbase], [data-sparty], [data-dclose]'); if (!b) return;
+    var b = e.target.closest('[data-dday], [data-duse], [data-dclear], [data-sbase], [data-sparty], [data-dclose]'); if (!b) return;
     var t = trip() || {};
     if (b.dataset.dday !== undefined) {
       var d = +b.dataset.dday;
@@ -1787,7 +1782,6 @@
       tp.say(dsel.z === null ? 'First day ' + dayLabel(d) + '. Now pick your last day.' : 'Last day ' + dayLabel(d) + '. ' + tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.');
       return;
     }
-    if (b.dataset.dquick) { var r = quickRange(b.dataset.dquick); if (r) dsel = { a: tp.isoDay(r.from), z: tp.isoDay(r.to) }; daysPaint(); if (dsel) tp.say(tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.'); return; }
     if (b.hasAttribute('data-duse')) {
       if (!dsel || dsel.z === null) return;
       var from = isoOf(dsel.a), to = isoOf(dsel.z);
@@ -2068,9 +2062,11 @@
     else if (v) changeToast('Staying in ' + v, ['now starts from there', 'now start from there']);
     else changeToast('Where you’re staying is cleared', ['is updated to suit', 'are updated to suit']);
   }
+  // Compact (18 Nov): it repeats as the days are adjusted, so it is the title only, with a link to the first section
+  // that changed, and a new one updates the one showing in place rather than popping up again
   function daysToast(had, from, to) {
-    changeToast(had ? 'Your days are now ' + tp.isoRange(from, to) : 'Your days are set: ' + tp.isoRange(from, to),
-      ['now fits these days', 'now fit these days'], 'Everything on the page already fits these days.');
+    var ch = lastChanged.filter(function (c) { return c[1]; });
+    tp.toast('Your days are now ' + tp.isoRange(from, to), '', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null, 'days');
   }
   // Something put on, or taken off, the plan: says which day it landed on; the link opens the plan (not over a sheet)
   function planToast(id, title, on) {
@@ -2122,46 +2118,88 @@
   function baseLabel(b) { return b === 'local' ? 'I’m a local' : b === 'outside' ? 'Staying outside NSW' : 'Staying in ' + b; }
   function partyLabel(p) { return { solo: 'Solo', couple: 'A couple', friends: 'Friends', family: 'Family' }[p] || ''; }
   function chip(attr, val, label, on) { return '<button type="button" class="tp-chip" data-' + attr + '="' + esc(val) + '" aria-pressed="' + !!on + '">' + label + '</button>'; }
-  // ± days either side of their matches (18 Nov): the same quick picks as the days sheet, on every date picker, only
-  // once they have matches (quickRange gives nothing without). Tapped, they apply at once, as the fields and slider do
-  var FLEX = [1, 2, 3, 7, 14];
-  function flexChips(tag, cur) {
-    if (!quickRange('pm1')) return '';
-    return '<' + tag + ' class="tp-quick tp-days-flex" role="group" aria-label="Days either side of your matches">' + FLEX.map(function (n) {
-      var r = quickRange('pm' + n), on = !!(r && cur && cur.from === r.from && cur.to === r.to);
-      return r ? '<button type="button" class="tp-chip" data-flex="pm' + n + '" aria-pressed="' + on + '">\u00b1 ' + n + (n === 1 ? ' day' : ' days') + '<span class="visually-hidden"> either side of your matches</span></button>' : '';
-    }).join('') + '</' + tag + '>';
+  /* Every date picker (the page, the days sheet, the open plan) leads with the slider (18 Nov): it shows the
+     tournament with your matches dotted, and they appear as teams are added. The First day and Last day fields wait
+     behind Type your dates, a disclosure under the slider; the ± days chips are gone. Open or closed is kept per
+     picker while the page is open (the sheet starts closed), and a typing error keeps the fields open. */
+  var typeOpen = { ask: false, tl: false, pm: false };
+  var I_CHEV = '<svg class="tp-refine-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  /* Under the slider: 29 Sep and 15 Nov at the ends, and between them your dates as a button (Type your dates until
+     there are some) that opens the First day and Last day fields. outSet keeps its text in step with the handles. */
+  function rangeEnds(tag, key, ctl) {
+    return '<' + tag + ' class="tp-range-ends"><span aria-hidden="true">29 Sep</span>' +
+      '<button type="button" class="tp-range-out tp-type-btn" data-type="' + key + '" aria-expanded="' + typeOpen[key] + '" aria-controls="' + ctl + '"><span class="tp-range-out-t">Type your dates</span>' + I_CHEV + '</button>' +
+      '<span aria-hidden="true">15 Nov</span></' + tag + '>';
   }
-  function flexApply(root, b) {
-    var r = quickRange(b.dataset.flex); if (!r) return;
-    rRoot = root; applyDays(r.from, r.to, '[data-flex="' + b.dataset.flex + '"]');
+  function outSet(r, text, out) {
+    var o = r.querySelector('.tp-range-out'); if (!o) return;
+    var t = text || 'Type your dates', s = o.querySelector('.tp-range-out-t');
+    if (s.textContent !== t) s.textContent = t;
+    o.setAttribute('aria-label', text ? t + ', type your dates' : t);
+    o.classList.toggle('is-out', !!out);
   }
+  /* Material's activated handle (18 Nov): while dragged or focused from the keyboard a halo sits behind the knob and a
+     tooltip above it gives the day as 12/10. The tooltip stays inside the slider at either end: the bubble shifts in
+     and its pointer stays on the handle. */
+  var TIP = '<span class="tp-range-tip" aria-hidden="true"></span>';
+  /* Every match of the teams picked is dotted on the slider (18 Nov): NSW matches solid, interstate ones hollow, so a
+     team with only interstate pool matches still shows them; a day with both is solid. Drawn with the slider, which
+     is redrawn whenever a team is picked or removed. */
+  function rangeDots() {
+    var d = {};
+    (tp.own() ? tp.userMatches() : []).forEach(function (m) { d[m.day] = d[m.day] || !m.f.a; });
+    return Object.keys(d).map(function (k) {
+      return '<span class="tp-range-match' + (d[k] ? '' : ' is-away') + '" aria-hidden="true" style="left:' + ((+k - RMIN) / RSPAN * 100) + '%"></span>';
+    }).join('');
+  }
+  function shortDay(d) { var dt = new Date(Date.UTC(2027, 9, 1 + d)); return dt.getUTCDate() + '/' + (dt.getUTCMonth() + 1); }
+  function tipSet(h, d) {
+    var tip = h.querySelector('.tp-range-tip'); if (!tip) return;
+    var t = shortDay(d); if (tip.textContent !== t) tip.textContent = t;
+    var tr = h.parentNode, box = tr && tr.parentNode, half = tip.offsetWidth / 2;
+    var br = box ? box.getBoundingClientRect() : null, trr = tr.getBoundingClientRect(), w = br ? br.width : 0;
+    if (!w || !half) { tip.style.removeProperty('--tip-x'); return; } // hidden: nothing to measure
+    var x = trr.left - br.left + (d - RMIN) / RSPAN * trr.width, shift = Math.max(half, Math.min(w - half, x)) - x;
+    tip.style.setProperty('--tip-x', Math.round(shift) + 'px');
+  }
+  function typeFields(key, id, tag, attr, pre, from, to) {
+    return '<' + tag + ' class="tp-dates" id="' + id + '"' + (typeOpen[key] ? '' : ' hidden') + '>' +
+      '<label class="tp-date"><span>First day</span><input type="date" id="' + pre + 'from" data-' + attr + '="from" min="2027-09-29" max="2027-11-15" value="' + esc(from || '') + '"></label>' +
+      '<label class="tp-date"><span>Last day</span><input type="date" id="' + pre + 'to" data-' + attr + '="to" min="2027-09-29" max="2027-11-15" value="' + esc(to || '') + '"></label></' + tag + '>';
+  }
+  // Toggled in place, not redrawn, so focus stays on the button and the slider is not disturbed
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-type]'); if (!b) return;
+    var key = b.dataset.type, box = document.getElementById(b.getAttribute('aria-controls')); if (!box) return;
+    typeOpen[key] = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', typeOpen[key] + ''); box.hidden = !typeOpen[key];
+  });
   function renderAsk() {
     var t = trip() || {}, show = tp.own();
     ask.hidden = !show;
     if (!show) { ask.innerHTML = ''; return; }
+    if (askError && rRoot === ask) typeOpen.ask = true;
     var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW' + (has && !askEditing ? '' : ' (optional)') + '</h3>';
     if (has && !askEditing) {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
-      var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
       h += '<p class="tp-sec-note">Set dates and the ideas below fit around your matches.</p>' +
-        flexChips('div', askDraft || t) +
-        '<div class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-from" data-f="from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
-        '<label class="tp-date"><span>Last day</span><input type="date" id="tp-to" data-f="to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></div>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
-        Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
-        '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
-        '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45"></span></div>' +
-        '<div class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out"></span><span>15 Nov</span></div></div>' +
+        rangeDots() +
+        '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span>' +
+        '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span></div>' +
+        rangeEnds('div', 'ask', 'tp-ask-dates') + '</div>' +
+        // The fields open right under the dates that open them; Undo and Reset follow
+        typeFields('ask', 'tp-ask-dates', 'div', 'f', 'tp-', (askDraft || t).from, (askDraft || t).to) +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
           (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
           (has || (askDraft && (askDraft.from || askDraft.to)) ? '<button type="button" class="tp-link tp-ico-link" data-act="clear">' + I_RESET + 'Reset</button>' : '') + '</div>' : '');
     }
-    if (askNews) h += '<p class="tp-ask-news">' + esc(askNews) + '</p>';
+    // No line under Undo and Reset saying what changed (18 Nov): the toast and the section tint already say it, and
+    // screen readers still hear it (askNews goes to tp.say)
     // Refine your plan: folded; a line under it says what is set
     var bits = [t.base ? baseLabel(t.base) : '', t.party ? partyLabel(t.party) : ''].filter(Boolean);
     h += '<div class="tp-refine"><button type="button" class="tp-refine-btn" data-act="refine" aria-expanded="' + refineOpen + '" aria-controls="tp-refine-panel">Refine your plan by adding more details<svg class="tp-refine-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
@@ -2240,14 +2278,14 @@
       askEditing = true; askDraft = null; askError = '';
       askOwn = true; tp.setTrip({ base: t.base, party: t.party });
       said = changedSince(before, 'Your days are reset.');
-      changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']);
+      if (!onPagePicker()) changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']);
     } else {
       var prev = askUndo.pop(); if (!prev) return;
       askEditing = true; askDraft = null; askError = ''; askOwn = true;
       (prev.placed || []).forEach(function (id) { var it = addedItem(id); if (it) { it.day = ''; it.unplaced = true; } });
       tp.setTrip(prev.from ? { from: prev.from, to: prev.to, base: t.base, party: t.party } : { base: t.base, party: t.party });
       said = changedSince(before, prev.from ? 'Back to ' + tp.isoRange(prev.from, prev.to) + '.' : 'Your days are removed again.');
-      changeToast(prev.from ? 'Back to your days: ' + tp.isoRange(prev.from, prev.to) : 'Your days are cleared again', ['is back as it was', 'are back as they were']);
+      if (!onPagePicker()) changeToast(prev.from ? 'Back to your days: ' + tp.isoRange(prev.from, prev.to) : 'Your days are cleared again', ['is back as it was', 'are back as they were']);
       said = said + ((prev.placed || []).length ? ' ' + prev.placed.length + (prev.placed.length === 1 ? ' saved place is' : ' saved places are') + ' back in Saved, not placed yet.' : '');
     }
     askQuiet(askUndo.length ? '[data-act="undo"]' : fallback); tp.say(said);
@@ -2285,10 +2323,12 @@
     var said = changedSince(before, 'Your days: ' + tp.isoRange(a, z) + '.');
     askQuiet(sel);
     tp.say(said);
-    daysToast(!!(step.from && step.to), a, z);
+    // No toast from the page's own date picker (18 Nov): it sat over the slider while the days were still being set,
+    // and the dates already show under the slider. The plan's picker keeps it (check 11)
+    if (!onPagePicker()) daysToast(!!(step.from && step.to), a, z);
   }
+  function onPagePicker() { return (rRoot || ask) === ask; }
   function applyFromFields(sel) { var p = rangeParts(); if (p.from && p.to) applyDays(p.from.value, p.to.value, sel); }
-  ask.addEventListener('click', function (e) { var b = e.target.closest('[data-flex]'); if (b) flexApply(ask, b); });
   ask.addEventListener('change', function (e) { if (e.target.id === 'tp-from' || e.target.id === 'tp-to') { rRoot = ask; applyFromFields('#' + e.target.id); } });
   /* Saved, not placed yet, going onto days as the days are set in the open plan: each glides from its row in the
      list to its day on the axis (the same flight as an idea landing), one after another */
@@ -2323,12 +2363,13 @@
       x[0].style.left = pct(x[1]);
       x[0].setAttribute('aria-valuenow', x[1]);
       x[0].setAttribute('aria-valuetext', x[2] || dayLabel(x[1]));
+      tipSet(x[0], x[1]);
     });
     var fill = p.r.querySelector('.tp-range-fill');
     fill.style.left = pct(a); fill.style.width = ((z - a) / RSPAN * 100) + '%';
-    var o = p.r.querySelector('.tp-range-out');
-    o.textContent = outA || outZ || 'Tournament 1 Oct to 13 Nov'; // the marks' key, unless a typed date is past an end
-    o.classList.toggle('is-out', !!(outA || outZ));
+    // Your dates, live as the handles move (18 Nov; they replace the Tournament key), unless a typed date is past an end
+    var unset = p.from && p.to && !p.from.value && !p.to.value;
+    outSet(p.r, outA || outZ || (unset ? '' : tp.isoRange(isoOf(a), isoOf(z))), !!(outA || outZ));
   }
   function rangeFromFields() {
     var p = rangeParts(); if (!p.r) return;
@@ -2442,22 +2483,20 @@
       daysLine.innerHTML = (bits.length ? '<span>' + esc(bits.join(' · ')) + '</span> · ' : '') + '<button type="button" class="tp-link" data-act="days">' + window.tpIcons.cal + (t.from ? 'Change' : 'Add your days') + '</button>';
       return;
     }
-    var mdays = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) mdays[m.day] = 1; });
+    if (askError && rRoot === daysLine) typeOpen.tl = true;
     var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Type new dates or drag either end to change them.'
       : wait ? 'Set your days and ' + (wait === 1 ? 'the place you saved goes' : 'the ' + wait + ' places you saved go') + ' onto free days.'
       : 'Set dates and the ideas below fit around your matches.';
     daysLine.innerHTML = '<span class="tp-tl-setdays-h" id="tp-tl-setdays-h">Your days in NSW' + (has ? '' : ' (optional)') + '</span>' +
-      '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' + flexChips('span', askDraft || t) +
-      // The same First day and Last day fields as the page (16 Nov): typing a date is the precise and accessible way in,
-      // and the slider and fields follow each other
-      '<span class="tp-dates"><label class="tp-date"><span>First day</span><input type="date" id="tp-tl-from" data-f="from" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).from || '') + '"></label>' +
-      '<label class="tp-date"><span>Last day</span><input type="date" id="tp-tl-to" data-f="to" min="2027-09-29" max="2027-11-15" value="' + esc((askDraft || t).to || '') + '"></label></span>' +
+      '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' +
       '<span class="tp-range tp-tl-range" role="group" aria-labelledby="tp-tl-setdays-h"><span class="tp-range-track"><span class="tp-range-fill"></span>' +
       '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
-      Object.keys(mdays).map(function (d) { return '<span class="tp-range-match" aria-hidden="true" style="left:' + ((+d + 2) / 47 * 100) + '%"></span>'; }).join('') +
-      '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45"></span>' +
-      '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45"></span></span>' +
-      '<span class="tp-range-ends" aria-hidden="true"><span>29 Sep</span><span class="tp-range-out"></span><span>15 Nov</span></span></span>' +
+      rangeDots() +
+      '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span>' +
+      '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span></span>' +
+      rangeEnds('span', 'tl', 'tp-tl-dates') + '</span>' +
+      // The same First day and Last day fields as the page, opened from the dates under the slider (18 Nov)
+      typeFields('tl', 'tp-tl-dates', 'span', 'f', 'tp-tl-', (askDraft || t).from, (askDraft || t).to) +
       (askError && rRoot === daysLine ? '<span class="tp-ask-err" role="alert">' + esc(askError) + '</span>' : '') +
       '<span class="tp-ask-acts tp-ask-acts--links">' +
         (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
@@ -2470,7 +2509,6 @@
     daysLine.addEventListener('input', function (e) { if (e.target.dataset.f) { rRoot = daysLine; rangeFromFields(); } });
   }
   if (daysLine) daysLine.addEventListener('click', function (e) {
-    var fb = e.target.closest('[data-flex]'); if (fb) { flexApply(daysLine, fb); return; }
     var b = e.target.closest('[data-act="undo"], [data-act="clear"]'); if (!b) return;
     rRoot = daysLine; daysStep(b.dataset.act, '.tp-range-h[data-h="from"]');
   });

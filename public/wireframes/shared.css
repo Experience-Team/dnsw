@@ -3367,7 +3367,6 @@ body.cp-page code { font: inherit; }
 .tp-date input:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 1px; }
 .tp-ask-err { margin-top: var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-danger); }
 .tp-ask-sum { font-size: var(--fs-base); font-weight: var(--fw-bold); }
-.tp-ask-news { margin-top: var(--space-1); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 /* A section an answer changed: a brief blue wash as it comes into view, then nothing (colour only, no movement) */
 .tp-sec.is-changed { animation: tp-sec-changed 1.8s ease-out; }
 @keyframes tp-sec-changed { 0%, 30% { background-color: #e8f0fc; box-shadow: 0 0 0 var(--space-3) #e8f0fc; } 100% { background-color: rgba(232,240,252,0); box-shadow: 0 0 0 var(--space-3) rgba(232,240,252,0); } }
@@ -3808,11 +3807,11 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (hover: hover) { .tp-card:not(.is-picked):hover { background: var(--c-surface-2); } .tp-card--rugby:not(.is-picked):hover { background: var(--c-surface-3); } }
 .tp-fan-caption { min-height: 1.4em; margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); text-align: center; }
 .tp-fan-caption strong { color: var(--c-ink); }
-.tp-clear-row { display: flex; justify-content: center; min-height: 36px; }
 .tp-chosen-row { display: flex; align-items: center; justify-content: center; margin-top: var(--space-1); min-height: 36px; }
 .tp-chosen { font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.4; }
-.tp-clear { flex: none; }
-.tp-clear[hidden] { display: none; }
+.tp-clear[hidden], .tp-clear-sep[hidden] { display: none; }
+/* Clear all ends the caption's sentence (18 Nov): a link in running text, sized by its line (AA 2.5.8's inline exception) */
+.tp-fan-caption .tp-clear:not([hidden]) { display: inline; min-height: 0; font-size: inherit; line-height: inherit; color: var(--c-ink); white-space: nowrap; vertical-align: baseline; }
 .tp-link:focus-visible, .tp-ticket input:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-link { min-height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 /* Results: one card per pick, side by side, swiped */
@@ -4287,13 +4286,24 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-range.is-unset .tp-range-fill { background: var(--c-fill-mid); }
 .tp-range.is-unset .tp-range-h { opacity: .45; } /* no days set: the handles wait at the ends, faded, so nothing reads as chosen */
 .tp-range.is-unset .tp-range-h:focus-visible { opacity: 1; }
-.tp-range-ends { display: flex; justify-content: space-between; margin-top: 2px; font-size: var(--fs-2xs); color: var(--c-ink-2); }
-.tp-range-out { display: inline-flex; align-items: center; gap: 4px; }
-.tp-range-out::before { content: ""; width: 1.5px; height: 8px; background: var(--c-fill-strong); }
-.tp-range-out.is-out { color: var(--c-ink); font-weight: var(--fw-semi); }
-.tp-range-out.is-out::before { content: none; }
+.tp-range-ends { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-top: 2px; font-size: var(--fs-2xs); color: var(--c-ink-2); white-space: nowrap; }
+/* Your dates between the ends (18 Nov): a button that opens the date fields, 24px to tap (AA) */
+.tp-range-out { display: inline-flex; align-items: center; gap: 4px; min-width: 0; min-height: 24px; padding: 0 2px; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; }
+.tp-range-out-t { overflow: hidden; text-overflow: ellipsis; text-decoration: underline; text-underline-offset: 3px; }
+.tp-range-out:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: 2px; }
+.tp-range-out.is-out { color: var(--c-ink); }
+.tp-range-out[aria-expanded="true"] .tp-refine-chev { transform: rotate(180deg); }
+/* Activated handle, after Material (18 Nov): a halo behind the knob and the day above it while dragged or keyed */
+.tp-range-h::after { content: ""; position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: color-mix(in srgb, var(--c-btn) 16%, transparent); transform: scale(.4); opacity: 0; transition: transform .12s ease-out, opacity .12s ease-out; z-index: -1; pointer-events: none; }
+.tp-range-h.is-dragging::after, .tp-range-h:focus-visible::after { transform: none; opacity: 1; }
+.tp-range-h { z-index: 1; }
+.tp-range-h.is-dragging, .tp-range-h:focus-visible { z-index: 2; }
+.tp-range-tip { position: absolute; left: 50%; bottom: calc(100% + 6px); padding: 3px 7px; border-radius: 4px; background: var(--c-btn); color: var(--c-on-dark); font-size: var(--fs-xs); font-weight: var(--fw-semi); line-height: 1.3; white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(calc(-50% + var(--tip-x, 0px)), 4px) scale(.9); transform-origin: 50% 100%; transition: opacity .12s ease-out, transform .12s ease-out; }
+.tp-range-tip::after { content: ""; position: absolute; top: 100%; left: calc(50% - var(--tip-x, 0px)); margin-left: -4px; border: 4px solid transparent; border-top-color: var(--c-btn); }
+.tp-range-tip:empty { display: none; }
+.tp-range-h.is-dragging .tp-range-tip, .tp-range-h:focus-visible .tp-range-tip { opacity: 1; transform: translate(calc(-50% + var(--tip-x, 0px)), 0); }
 .tp-range-mark { position: absolute; top: 7px; width: 1.5px; height: 14px; margin-left: -.75px; background: var(--c-fill-strong); border-radius: 1px; pointer-events: none; }
-@media (prefers-reduced-motion: reduce) { .tp-range-fill, .tp-range-h, .tp-range-h.is-dragging, .tp-range-h::before { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tp-range-fill, .tp-range-h, .tp-range-h.is-dragging, .tp-range-h::before, .tp-range-h::after, .tp-range-tip { transition: none; } }
 /* Pick your team: Clear timeline asks first. A short sheet stacked over the timeline, as tall as its content. */
 #tp-phone .tp-stack.tp-stack--fit { top: auto; bottom: 0; }
 .tp-cc { padding-bottom: var(--space-5); }
@@ -4937,6 +4947,7 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-days .tp-days-flex .tp-chip { flex: none; white-space: nowrap; }
 .tp-days-range { margin: var(--space-2) 0 var(--space-4); }
 .tp-range-match { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--c-accent); pointer-events: none; z-index: 1; }
+.tp-range-match.is-away { box-sizing: border-box; background: var(--c-surface); border: 1.5px solid var(--c-accent); } /* interstate: hollow */
 
 /* Your days on the page: no Use these dates, so Undo and Reset sit as quiet text links with icons (16 Nov) */
 .tp-ask-acts--links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); }
@@ -5245,14 +5256,16 @@ span.tp-map-arrow { display: block; }
 .cn-phone > .cn-body #tp-ask:not([hidden]), #tp-ask:not([hidden]) { margin: var(--space-5) 0 0; padding: 0; border-radius: 0; background: none; }
 #tp-ask .tp-ask-title { font-size: var(--fs-base); line-height: 1.3; font-weight: var(--fw-bold); letter-spacing: 0; }
 #tp-ask .tp-sec-note { margin-top: var(--space-2); font-size: var(--fs-sm); }
-#tp-ask .tp-dates { margin-top: var(--space-2); }
-/* Every date field (the page, the days sheet, the timeline) is 36px tall, and the ± days chips scroll in one row */
+#tp-ask .tp-dates { margin-top: var(--space-1); }
+/* Every date field (the page, the days sheet, the timeline) is 36px tall. Every date picker leads with the slider
+   (18 Nov); the fields wait under Type your dates, so hidden must win over display: flex */
 .tp-date input { box-sizing: border-box; height: 36px; min-height: 36px; }
-.tp-days-flex { flex-wrap: nowrap; overflow-x: auto; margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: 2px var(--space-4) 4px; scrollbar-width: none; }
-.tp-days-flex::-webkit-scrollbar { display: none; }
-.tp-days-flex .tp-chip { flex: none; white-space: nowrap; }
-.tp-tl-daysline .tp-days-flex { display: flex; }
-.tp-days .tp-dates { margin: 0 0 var(--space-3); }
+.tp-dates[hidden] { display: none; }
+.tp-tl-daysline .tp-dates:not([hidden]) { display: flex; }
+.tp-days .tp-days-range { margin-bottom: 0; }
+.tp-days .tp-ask-acts--links { margin-top: var(--space-1); }
+.tp-days .tp-dates { margin: var(--space-1) 0 0; }
+.tp-days .tp-cal { margin-top: var(--space-4); }
 
 /* ==========================================================================================================
    Pick your team as a desktop website (17 Nov, step 1 of the desktop layout: header, nav, hero, picker,
@@ -5372,7 +5385,7 @@ span.tp-map-arrow { display: block; }
 /* Pick your team: toasts (concepts-teams.js toast()). A dark card near the foot of the screen, 16px in from the
    sides: the title and a line on what changed, the cross beside them, the link underneath (beside them on a desktop). Above the Your plan bar on a phone (--toast-b), at
    the foot of the content column on a desktop. Over everything but the photo layer and the stacked sheets' scrim. */
-.tp-toast { position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--toast-b, 16px); z-index: 150; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 var(--space-2); padding: var(--space-3) var(--space-2) var(--space-2) var(--space-4); border-radius: var(--radius-md); background: var(--c-btn); color: var(--c-on-dark); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); }
+.tp-toast { position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--toast-b, 16px); z-index: 150; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 var(--space-2); padding: var(--space-3) var(--space-2) var(--space-2) var(--space-4); border-radius: var(--radius-md); background: color-mix(in srgb, var(--c-btn) 90%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--c-on-dark); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); }
 .tp-toast[hidden] { display: none; }
 .tp-toast { transition: bottom .24s cubic-bezier(.2, .8, .2, 1); } /* moves up or down with what is pinned to the bottom */
 .tp-toast.is-placing { transition: none; }
