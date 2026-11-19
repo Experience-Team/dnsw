@@ -4923,6 +4923,9 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tc-act:hover { background: var(--c-fill-soft); }
 /* I have tickets on an NSW match row (18 Nov), in place of the In NSW flag: the same box as Watch in NSW; pressed, it
    fills dark and a tick shows inside the ticket */
+/* Set apart from Watch in NSW (19 Nov): an orange ring 1px outside its border, the gap in the card's own colour. Drawn
+   with box-shadow so the focus outline still works; orange on the card is 3.2:1, enough for a non-text cue (AA 1.4.11) */
+.tc-tix { box-shadow: 0 0 0 1px var(--c-surface), 0 0 0 2.5px var(--tth-color-orange, #ff4802); }
 .tc-tix .tc-tix-tick { opacity: 0; transition: opacity .12s ease-out; }
 .tc-tix[aria-pressed="true"] { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-on-dark); }
 .tc-tix[aria-pressed="true"] .tc-tix-tick { opacity: 1; }
@@ -5445,3 +5448,15 @@ span.tp-map-arrow { display: block; }
 .tp-at-note { margin: 0 0 var(--space-3); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 .tp-at-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 calc(var(--space-4) * -1); padding: 0 var(--space-4) var(--space-4); }
 .tp-at-body .tp-picker { margin-top: var(--space-3); }
+
+/* Where to watch: a match they have a ticket to is one line above the carousel (19 Nov), not a card: the ticket icon,
+   where they will be, and two links (See your match day, Not going after all?) */
+.tp-ws-at { display: grid; gap: var(--space-2); margin: var(--space-3) 0 var(--space-4); padding: 0; list-style: none; }
+.tp-ws-at-i { display: flex; align-items: flex-start; gap: var(--space-2); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink); }
+.tp-ws-at-i:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 4px; border-radius: 2px; }
+.tp-ws-at-i > svg { flex: none; width: 16px; height: 16px; margin: 2px 0 0; vertical-align: 0; }
+.tp-ws-at-what { font-weight: var(--fw-semi); }
+.tp-ws-at-acts { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
+.tp-ws-at-acts .tp-link { min-height: 32px; }
+.tp-pm-instead { margin-top: var(--space-2); }
+.tp-pm-instead[aria-expanded="true"] .tp-refine-chev { transform: rotate(180deg); }
