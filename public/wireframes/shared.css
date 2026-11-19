@@ -3763,6 +3763,15 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-home-pin:focus-visible .tp-home-pin-i { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-home-pin:hover .tp-home-pin-i { transform: scale(1.12); } }
 .tp-home-cities { display: grid; gap: var(--space-3); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
+/* On a phone the stadium cards are a carousel (19 Nov), the same as Where to watch: one card at a time, the next
+   peeking in, running to the screen edge; each as tall as the tallest. The card in view marks its pin on the map. */
+.tp-home-cities.is-car { display: flex; gap: var(--space-3); margin: var(--space-4) calc(var(--space-5) * -1) 0; padding: 4px var(--space-5) var(--space-2); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-5); scrollbar-width: none; overscroll-behavior-x: contain; }
+.tp-home-cities.is-car::-webkit-scrollbar { display: none; }
+.tp-home-cities.is-car > li { flex: none; display: flex; width: calc(100% - 28px); scroll-snap-align: start; }
+.tp-home-cities.is-car .tp-city { height: 100%; align-content: start; }
+.tp-home-cities-hint[hidden] { display: none; }
+.tp-home-pin.is-on .tp-home-pin-i { background: var(--c-accent); transform: scale(1.12); }
+.tp-home-pin.is-on .tp-home-pin-l { font-weight: var(--fw-bold); box-shadow: 0 0 0 1.5px var(--c-ink), var(--shadow-1); }
 .tp-city { display: grid; gap: 4px; width: 100%; padding: var(--space-4); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--dur-micro) var(--ease-out); }
 .tp-city:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-city:hover { border-color: var(--c-line-ink); } }
@@ -5580,6 +5589,9 @@ span.tp-map-arrow { display: block; }
 /* Home on the desktop website: the map and the Drop goal picture keep a readable size rather than filling the column */
 @media (min-width: 1024px) {
   .pv-device #tp-phone :is(.tp-home-map, .tp-home-kick-img) { max-width: 560px; margin-inline: 0; }
+  /* The stadium cards stay a list on the desktop website, as before: nothing to swipe */
+  .pv-device #tp-phone .tp-home-cities.is-car { display: grid; margin-inline: 0; padding: 0; overflow: visible; }
+  .pv-device #tp-phone .tp-home-cities.is-car > li { width: auto; }
 }
 
 /* I have tickets on the plan's match cards (19 Nov): the team cards' 64px box, beside the match text, top-aligned; the
