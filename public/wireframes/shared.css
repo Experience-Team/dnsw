@@ -5670,3 +5670,14 @@ span.tp-map-arrow { display: block; }
   .pv-device #tp-phone .tp-news { max-width: 30rem; }
   .pv-device #tp-phone .tp-home-video { border-radius: var(--radius-md); }
 }
+
+/* Low fidelity prototype tab (19 Nov): the desktop website only, in the low fidelity theme only (high fidelity would make
+   the label untrue). Hangs from the top of the window at the content's left edge, see-through, IBM Plex Mono in
+   capitals with open letter spacing. It never takes a tap, so nothing under it is blocked */
+.pv-fidelity-tab { display: none; }
+@media (min-width: 1024px) {
+  html.pv-device:not([data-theme="hifi"]) .pv-fidelity-tab { display: block; position: fixed; top: 0; left: max(32px, calc((100vw - 1280px) / 2)); z-index: 20;
+    padding: 4px 10px 5px; border-radius: 0 0 6px 6px; background: rgba(26, 26, 26, .55); color: #fff;
+    font: 700 10px/1.2 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; white-space: nowrap; pointer-events: none;
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+}
