@@ -1912,6 +1912,8 @@
   var railTop = 0;
   function railFollow() {
     if (!wide()) { tl.style.removeProperty('--rail-top'); return; }
+    // Home on the desktop: no rail; the bar floats at the foot, and opened, the plan may rise to 120px from the top
+    if (phoneEl.classList.contains('is-home')) { railTop = 120; tl.style.setProperty('--rail-top', railTop + 'px'); tlFit(); return; }
     tl.style.setProperty('--sbw', (body.offsetWidth - body.clientWidth) + 'px'); // the page's scrollbar, so the rail lines up with the header
     var pr = phoneEl.getBoundingClientRect(), capW = phoneEl.querySelector('.tp-cap-wrap'), pick = document.getElementById('tp-pick');
     var under = capW ? capW.getBoundingClientRect().bottom - pr.top + 24 : 24;
@@ -1952,6 +1954,8 @@
     // From a moment after the page loads the bar is always up, empty to start (Your plan, No matches yet), so the plan is
     // seen before anything is in it
     var on = barIntro || tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
+    // Home (19 Nov): the bar stays away until a team is picked (or every NSW match), then floats at the foot, closed
+    if (phoneEl.classList.contains('is-home') && !tlOpen && !state.picked.length) on = false;
     if (skipEl) skipEl.hidden = !on; // the skip link only points somewhere while the bar is up
     if (on === tlOn) return;
     tlOn = on;
