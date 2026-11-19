@@ -66,6 +66,61 @@
       }).join('');
   }
 
+  /* ---------- The stadium cards as a carousel, linked to the pins (19 Nov) ----------
+     On a phone the cards are one at a time with the next peeking in, as Where to watch and the team cards are; the
+     card in view marks its pin (is-on). A tap on a card or a pin opens that host city sheet, as before; a pin also
+     brings its card into view behind the sheet. Only the carousel moves sideways, never the page (check 8). On the
+     desktop website the cards are a grid and nothing scrolls. */
+  var cityList = document.getElementById('tp-home-cities');
+  if (cityList) {
+    cityList.classList.add('is-car');
+    cityList.setAttribute('aria-label', 'Host stadiums, ' + nsw.length + ' cards, scroll sideways');
+    var cHint = document.createElement('p');
+    cHint.className = 'tp-deck-hint tp-wcs-hint tp-home-cities-hint';
+    cHint.textContent = nsw.length + ' host stadiums. Swipe for the others.';
+    cityList.parentNode.insertBefore(cHint, cityList.nextSibling);
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var cards = function () { return [].slice.call(cityList.querySelectorAll('.tp-city')); };
+    var pins = function () { return [].slice.call(document.querySelectorAll('#tp-home-map .tp-home-pin')); };
+    var curV = null;
+    var mark = function (v) {
+      if (v === curV) return; curV = v;
+      pins().forEach(function (p) { var on = p.dataset.open === 'city:' + v; p.classList.toggle('is-on', on); if (on) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current'); });
+    };
+    var scrolls = function () { return cityList.scrollWidth > cityList.clientWidth + 2; };
+    // The card whose left edge is nearest the carousel's own is the one in view
+    var inView = function () {
+      var cs = cards(), x = cityList.getBoundingClientRect().left + parseFloat(getComputedStyle(cityList).paddingLeft || 0), best = cs[0], d = Infinity;
+      cs.forEach(function (c) { var dd = Math.abs(c.getBoundingClientRect().left - x); if (dd < d) { d = dd; best = c; } });
+      return best;
+    };
+    var sync = function () {
+      var sc = scrolls(); cHint.hidden = !sc || cityList.scrollLeft + cityList.clientWidth >= cityList.scrollWidth - 4;
+      if (!sc) { mark(null); return; }
+      var c = inView(); if (c) mark(c.dataset.open.slice(5));
+    };
+    var tick = 0;
+    cityList.addEventListener('scroll', function () { cancelAnimationFrame(tick); tick = requestAnimationFrame(sync); }, { passive: true });
+    window.addEventListener('resize', function () { cancelAnimationFrame(tick); tick = requestAnimationFrame(sync); });
+    var show = function (card, smooth) {
+      if (!card || !scrolls()) return;
+      var li = card.parentNode, left = li.offsetLeft - cityList.firstElementChild.offsetLeft;
+      cityList.scrollTo({ left: left, behavior: smooth && !reduce.matches ? 'smooth' : 'auto' });
+    };
+    // Keyboard: the card that takes focus comes into view and marks its pin
+    cityList.addEventListener('focusin', function (e) { var c = e.target.closest('.tp-city'); if (c) { show(c, true); mark(c.dataset.open.slice(5)); } });
+    // A pin opens its sheet (concepts-third-half.js) and brings its card into view behind it
+    var mapBox = document.getElementById('tp-home-map');
+    if (mapBox) mapBox.addEventListener('click', function (e) {
+      var p = e.target.closest('.tp-home-pin'); if (!p) return;
+      var c = cityList.querySelector('.tp-city[data-open="' + CSS.escape(p.dataset.open) + '"]');
+      show(c, false); mark(p.dataset.open.slice(5));
+    });
+    // Measured only once Home is showing (hidden, every width reads as zero)
+    phone.addEventListener('tp:view', function () { requestAnimationFrame(sync); });
+    requestAnimationFrame(sync);
+  }
+
   /* ---------- Articles: a masonry grid (two columns of cards in their own heights) of dummy content ----------
      Titles, categories, read times and pictures are placeholders. Cards link to the article page's future address; it
      is not built, so a tap keeps the person here and the card's meta line says Article page to come for a few
