@@ -1508,7 +1508,7 @@
   // Dragging the grabber down over the plan goes back one level when there is one
   pm.addEventListener('tp:stackdismiss', function (e) { if (pmHistory.length) { e.preventDefault(); pmPop(); } });
   /* ---------- Host city sheet (Home, 19 Nov, Figma 385:649) ----------
-     From a city card or a map pin on Home: one NSW stadium, its matches (each drills down to the match), places near it
+     From a city card or a map pin on Home: one NSW stadium, highlights of its area (19 Nov), its matches (each drills down to the match), places near it
      to eat or see (each drills down to the place), places to stay (no data yet: its empty state says so) and the
      curated day trips from that city (listed; they are fitted around your matches in Plan your 3rd half). */
   var HOSTS = {
@@ -1524,6 +1524,11 @@
     var h = '<div class="plan-modal-img ph-img" data-img="' + esc(c.img) + '" role="img" aria-label="Placeholder image of ' + esc(c.title) + '"></div><div class="plan-modal-body tp-pm-city">';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">' + esc(c.title) + '</h2>';
     h += '<p class="cn-pp-venue">' + esc(v) + ' \u00b7 ' + ms.length + (ms.length === 1 ? ' match' : ' matches') + '</p>';
+    // Highlights of the area (19 Nov, gap field highlights, §16): none, no heading
+    var hl = (window.cnHostHighlights || {})[v] || [];
+    if (hl.length) h += '<h3 class="cn-pp-h">Highlights</h3><ul class="tp-city-hl">' + hl.map(function (x) {
+      return '<li><span class="tp-city-hl-t provenance-gap">' + esc(x.title) + '</span><span class="tp-city-hl-p provenance-gap">' + esc(x.text) + '</span></li>';
+    }).join('') + '</ul>';
     h += '<h3 class="cn-pp-h">Match day</h3><ol class="tp-ko-list">' + ms.map(function (m) {
       var f = m.f;
       return '<li><button type="button" class="tp-ko-row" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog"><span class="tp-ko-d">' + esc(f.d) + (f.k ? ', ' + esc(f.k) : '') + '</span><span class="tp-ko-s">' + esc(f.t || f.s.replace(/ \(\d+\)$/, '')) + '</span><span class="tp-ko-v">' + esc(f.t ? f.s : 'Teams known when the pools finish') + '</span></button></li>';

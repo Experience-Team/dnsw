@@ -558,3 +558,13 @@ This is not `availability` (§4) restated. `availability` is the static shape of
 **`image`** — `live`, `source: atdw_existing`. One image per deal, distinct from the product's own `gallery` (§1).
 
 **`link`** — `live`, `source: atdw_existing`. "Book the deal" CTA — on the real record this routes through an ATDW redirect to the operator's own deals or booking page, not necessarily the same URL as `links.booking` (§1).
+
+---
+
+## 16. Host areas
+
+**`highlights`** — `gap`, `source: authored`, proposed 19 November 2026 for the Rugby World Cup prototype (Home's host city sheets), not yet confirmed. Lives on a venue's record (a stadium), like `event_day` (§11), not on a product. Three or four things worth knowing about the area around the stadium, each a short name and one or two sentences, authored by Destination NSW. Renders from placeholder fixtures only (`cnHostHighlights` in `public/wireframes/concepts-fixtures.js`, copy supplied by the user on 19 Nov and summarised). Empty state: no Highlights heading and no list; the sheet starts at Match day. Shape:
+
+```json
+"highlights": [{ "title": "string", "text": "string" }]
+```
