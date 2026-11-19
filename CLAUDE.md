@@ -103,7 +103,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
     - For example, Escape on an idea's details closed the whole ideas sheet instead of going back to the list.
 11. **A change that lands out of view is confirmed where the person is.** When something a person does changes a part
     of the page they can't see from where they are (another section, their plan, what's behind a sheet), confirm it
-    with one toast. Don't use a toast when the change already shows itself where they acted, for example a pick that
+    with one toast. Run this check on every new or moved control, not only on toasts already there: ask what it
+    changes beyond itself, and whether the person can see that from where they are. For example, I have tickets on a
+    match row changes the plan, Where to watch and Around your matches, all out of view, so it needs a toast like the
+    match sheet's. Don't use a toast when the change already shows itself where they acted, for example a pick that
     offers Undo, a marker settling on the plan, or dates showing under the slider they are dragging. A toast must never
     sit over the control someone is still using: if it would, leave it out. For example, setting your days on the
     page's date picker showed a toast that covered the slider before the page was scrolled down.
