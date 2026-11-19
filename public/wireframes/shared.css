@@ -3804,10 +3804,14 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-home-foot { margin-top: var(--sec-gap); padding: var(--space-7) var(--space-5); background: var(--c-btn); color: var(--c-on-dark); text-align: center; }
 .tp-home-foot p { margin: 0; font-size: var(--fs-base); }
 /* Host city sheet (concepts-third-half.js pmCity) */
-.tp-pm-city .tp-ko-list { margin-top: var(--space-2); }
+.tp-pm-city .tp-ko-list, .tp-pm-city .tp-city-hl { align-self: stretch; margin-top: var(--space-2); }
 .tp-city-ph, .tp-city-empty { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-city-ph { color: var(--c-ink-3); }
 .tp-city-trip { font-weight: var(--fw-semi); }
+.tp-city-hl { display: grid; gap: var(--space-3); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.tp-city-hl li { display: grid; gap: 2px; }
+.tp-city-hl-t { font-size: var(--fs-base); font-weight: var(--fw-semi); line-height: 1.35; }
+.tp-city-hl-p { font-size: var(--fs-sm); line-height: 1.45; color: var(--c-ink-2); }
 /* Event strip: what and when, in caps */
 /* Event line (B2): under the slogan, two lines (the event; its dates and the countdown), mono caps 14/16.8, .84px */
 .tp-event { margin: 0; font-family: var(--font-label); font-size: .875rem; font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }

@@ -270,3 +270,24 @@ window.cnMatchTravel = (function () {
   }
   return { venues: V, event_day: EVENT_DAY, route: route, placeholder: true };
 })();
+
+/* Highlights of the area around each NSW stadium, for Home's host city sheets (19 Nov 2026). Copy supplied by the user
+   and summarised; proposed contract field highlights (gap, docs/product-data-contract.md §16). Prototype data only. */
+window.cnHostHighlights = {
+  'Stadium Australia': [
+    { title: 'Accor Stadium', text: 'Built for the 2000 Olympics, with room for 82,500. Major sport and concerts, and where Cathy Freeman won gold.' },
+    { title: 'Sydney Olympic Park Aquatic Centre', text: 'Swim in the pool where Ian Thorpe won gold. Four heated indoor pools, a rapid river ride, a giant slide and the Dive into History exhibition.' },
+    { title: 'URBNSURF Sydney', text: 'Sydney\u2019s first urban surf park: up to 200 waves an hour, from gentle whitewater to steep barrels. From $5.' },
+    { title: 'Bicentennial Park', text: '35 km of cycling paths, wetlands and free barbecues.' }
+  ],
+  'Sydney Football Stadium': [
+    { title: 'Sydney Cricket Ground', text: 'Cricket in summer, football in winter and music all year. The 90-minute tour takes in the dressing rooms and the museum, home to Don Bradman\u2019s baggy green.' },
+    { title: 'The Entertainment Quarter', text: 'Restaurants and bars around Fox Studios, with rooftop go-karting, bowling and a ski simulator. Markets on Wednesdays and Saturdays.' },
+    { title: 'Centennial Parklands', text: 'Right next door: ponds, gardens, wildlife and picnic spots. Hire a bike from $10, go horse riding, or take the kids to the Wild Play Garden.' }
+  ],
+  'Newcastle Stadium': [
+    { title: 'The Bathers Way and the ocean baths', text: 'A 6 km coastal walk from Nobbys Beach to Merewether Ocean Baths, past the Art Deco Newcastle Ocean Baths. Whale cruises run May to November.' },
+    { title: 'Convict and military history', text: 'Swim in the Bogey Hole, a rock pool convicts carved in 1819, then tour the tunnels of Fort Scratchley, which fired on Japanese submarines in 1942.' },
+    { title: 'Food, drink and markets', text: 'Waterside dining along Honeysuckle, pubs full of character in Carrington, and the Olive Tree Market on the first Saturday of the month.' }
+  ]
+};
