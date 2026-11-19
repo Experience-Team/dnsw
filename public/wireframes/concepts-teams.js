@@ -1400,14 +1400,8 @@
     var b = deck.querySelector('[data-rugby-more]'); if (b) b.focus({ preventScroll: true });
     say(rugbyAll ? 'All ' + nswPool.length + ' pool matches shown.' : 'First four pool matches shown.');
   });
-  // I have tickets on a match row (18 Nov): the same ticket as the match sheet's I have a ticket; the row redraws
-  // (deckFollow) with focus kept on the button
-  deck.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-ticket]'); if (!b) return;
-    var id = b.dataset.ticket, on = state.tickets.indexOf(id) < 0;
-    setTicket(id, on);
-    say((on ? 'Ticket marked for ' : 'Ticket removed for ') + b.dataset.name + '. ' + summary());
-  });
+  // I have tickets on a match row (18 Nov) is handled in concepts-third-half.js (ticketToggle), which confirms what it
+  // changed out of view with a toast; the row redraws (deckFollow) with focus kept on the button
   // A ticket on a match is one ticket, whichever card it is marked on
   deck.addEventListener('change', function (e) {
     var cb = e.target.closest('input[data-match]'); if (!cb) return;
@@ -2285,7 +2279,7 @@
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark
     match: function (key) { return TLM_BY[key] || null; }, isPicked: function (n) { return state.picked.indexOf(n) > -1; },
     pickTeam: function (n) { var c = TEAMS[n]; if (!c) return ''; var i = CARDS.indexOf(c); if (pos(i) < 0) setNsw(false); return toggle(i, null, true); },
-    setTicket: setTicket, flag: function (n) { return FLAG[n] || ''; }, teamBand: function (n) { return TEAM_BAND[n] || null; },
+    setTicket: setTicket, summary: function () { return summary(); }, flag: function (n) { return FLAG[n] || ''; }, teamBand: function (n) { return TEAM_BAND[n] || null; },
     // Trips that clash, by item id: [{ name, day }] (filled by the plan; read by the plan and the trip cards)
     clashes: function () { return tlClash; },
     // The team list as a sheet, from anywhere on the page (Your plan so far)

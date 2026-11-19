@@ -1935,15 +1935,17 @@
     var dt = e.target.closest('[data-dticket]');
     if (dt) {
       var dm = tp.match(dt.dataset.dticket); if (!dm) return;
-      tp.setTicket(dm.tkey, dt.checked);
+      ticketToggle(dm, dt.checked, function () { tp.setTicket(dm.tkey, dt.checked); });
       tp.say(dt.checked ? 'Ticket marked for ' + matchName(dm.f) + '.' : 'Ticket removed for ' + matchName(dm.f) + '.');
       return;
     }
     var cb = e.target.closest('[data-pm-ticket]'); if (!cb || !pmOpen) return;
     var key = pmOpen.id.slice(6), m = tp.match(key), f = m.f, mine = f.t.split(' v ').some(function (n) { return tp.isPicked(n); }) || (tp.rugby() && !f.a);
     // A ticket means they are going: the match goes on the plan too, if no team of theirs puts it there already
-    if (cb.checked && !mine && !added(matchId(key))) tp.addItem({ id: matchId(key), kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
-    tp.setTicket(m.tkey, cb.checked);
+    ticketToggle(m, cb.checked, function () {
+      if (cb.checked && !mine && !added(matchId(key))) tp.addItem({ id: matchId(key), kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
+      tp.setTicket(m.tkey, cb.checked);
+    });
     pmSaid = cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your plan.') : 'Ticket removed.';
     pmRefresh('[data-pm-ticket]');
     tp.say(pmSaid);
@@ -2068,6 +2070,28 @@
     var ch = lastChanged.filter(function (c) { return c[1]; });
     tp.toast('Your days are now ' + tp.isoRange(from, to), '', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null, 'days');
   }
+  /* A ticket marked or removed (18 Nov, check 11): it changes the match on your plan and can change Where to watch and
+     Around your matches, none of them in view from a match card or a sheet, so one toast says so. The title names the
+     match; the line names what changed (your plan always, then the sections that did); one link to the first section
+     that changed, or Open your plan, and none while a sheet is open over the page. Screen readers already hear the
+     change from the control, so the toast adds nothing for them. */
+  function ticketToggle(m, on, apply) {
+    var before = snap();
+    apply();
+    changedSince(before, '');
+    var ch = lastChanged.filter(function (c) { return c[1]; }), names = ['Your plan'].concat(ch.map(function (c) { return c[0]; }));
+    var line = (names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] + ' are' : names[0] + ' is') + ' updated.';
+    var act = pmOpen ? null : ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : { label: 'Open your plan', fn: tp.openPlan };
+    tp.toast((on ? 'Ticket marked: ' : 'Ticket removed: ') + matchName(m.f), line, act);
+  }
+  // I have tickets on a match row: the same ticket as the match sheet's
+  phone.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ticket]'); if (!b || pm.contains(b)) return;
+    var m = tp.match(b.dataset.ticket); if (!m) return;
+    var on = state.tickets.indexOf(m.tkey) < 0;
+    ticketToggle(m, on, function () { tp.setTicket(m.tkey, on); });
+    tp.say((on ? 'Ticket marked for ' : 'Ticket removed for ') + matchName(m.f) + '. ' + tp.summary());
+  });
   // Something put on, or taken off, the plan: says which day it landed on; the link opens the plan (not over a sheet)
   function planToast(id, title, on) {
     var it = addedItem(id), act = pmOpen ? null : { label: 'Open your plan', fn: tp.openPlan };
