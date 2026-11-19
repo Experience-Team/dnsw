@@ -66,6 +66,33 @@
       }).join('');
   }
 
+  /* ---------- Articles: a masonry grid (two columns of cards in their own heights) of dummy content ----------
+     Titles, categories, read times and pictures are placeholders. Cards link to the article page's future address; it
+     is not built, so a tap keeps the person here and the card's meta line says Article page to come for a few
+     seconds (in place, no toast). */
+  var READS = [
+    { slug: 'match-day-sydney', cat: 'Match day', title: 'A first-timer\u2019s guide to match day in Sydney', mins: 5, img: 'hero-stadium', r: '4 / 5' },
+    { slug: 'eat-moore-park', cat: 'Food and drink', title: 'Where to eat near Moore Park before kick-off', mins: 4, img: 'city-dining', r: '1 / 1' },
+    { slug: 'newcastle-day-trips', cat: 'Day trips', title: 'Five day trips from Newcastle between matches', mins: 6, img: 'Newcastle baths', r: '3 / 4' },
+    { slug: 'ocean-pools', cat: 'Coast', title: 'Ocean pools for a post-match swim', mins: 3, img: 'Merwether baths', r: '4 / 3' },
+    { slug: 'pacific-fans', cat: 'Culture', title: 'How Pacific fans celebrate their rugby', mins: 5, img: 'village', r: '4 / 5' },
+    { slug: 'blue-mountains-day', cat: 'Nature', title: 'The Blue Mountains in a day: a fan\u2019s itinerary', mins: 7, img: 'Bush', r: '1 / 1' }
+  ];
+  var reads = document.getElementById('tp-reads');
+  reads.innerHTML = READS.map(function (a) {
+    return '<li class="tp-read"><a class="tp-read-a" href="pages/rwc-article.html?a=' + esc(a.slug) + '" data-read>' +
+      '<span class="ph-img tp-read-img" data-img="' + esc(a.img) + '" style="aspect-ratio:' + a.r + '" aria-hidden="true"></span>' +
+      '<span class="tp-read-cat">' + esc(a.cat) + '</span><span class="tp-read-t">' + esc(a.title) + '</span>' +
+      '<span class="tp-read-m" aria-live="polite">' + a.mins + ' min read</span></a></li>';
+  }).join('');
+  reads.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-read]'); if (!a) return;
+    e.preventDefault();
+    var m = a.querySelector('.tp-read-m'), was = m.dataset.was || m.textContent;
+    m.dataset.was = was; m.textContent = 'Article page to come'; a.classList.add('is-soon');
+    clearTimeout(a._t); a._t = setTimeout(function () { m.textContent = was; a.classList.remove('is-soon'); }, 4000);
+  });
+
   /* ---------- FAQs: one open at a time is not forced; each opens and closes on its own ---------- */
   var FAQ = ['How can I buy Rugby World Cup 2027 tickets?', 'Will there be fan festivals?', 'What can I do before or after a match?',
     'How do I get to Rugby World Cup 2027 matches in NSW?', 'Can I visit both Sydney and Newcastle during the tournament?',
