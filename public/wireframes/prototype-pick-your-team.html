@@ -111,15 +111,107 @@
         <!-- Capsule nav (Option B2, step 1): the page's three sections in a dark capsule under the header. Items are
              36px tall in a 44px capsule, per the page's WCAG 2.2 AA sizing (the brief's 44px items, 52px capsule, were
              changed with the user's go-ahead). The selected item is a light pill that glides to whichever is picked.
-             Home (was Event details, 18 Nov) and Drop goal are not built yet: each opens a "being built" page in place of the planner, and
-             going back to Plan your 3rd half returns to the same scroll position. Script at the end of this file. -->
+             Home (19 Nov, Figma 385:649) is built and opens first; Drop goal is not built yet and opens a "being built" page in place
+             of the planner. Order as in Figma: Home, Plan your 3rd half, Drop goal. Each tab keeps its own scroll position. Script at the end of this file. -->
         <div class="tp-cap-wrap">
           <nav class="tp-cap" id="tp-cap" aria-label="Sections">
             <span class="tp-cap-pill" id="tp-cap-pill" aria-hidden="true"></span>
-            <button type="button" class="tp-cap-i" data-view="event">Home</button>
+            <button type="button" class="tp-cap-i is-on" data-view="event" aria-current="page">Home</button>
+            <button type="button" class="tp-cap-i" data-view="plan">Plan your 3rd half</button>
             <button type="button" class="tp-cap-i" data-view="kick">Drop goal</button>
-            <button type="button" class="tp-cap-i is-on" data-view="plan" aria-current="page">Plan your 3rd half</button>
           </nav>
+        </div>
+        <!-- Home (19 Nov, Figma 385:649, built in this page's own styles, not the Figma file's): the first tab. The hero
+             (a video placeholder, the event line and Plan your 3rd half, which scrolls to the hand below), the same hand of
+             cards as the planner (lent here while Home shows, so a pick is one pick everywhere), At a glance, Where the
+             matches are (a cut-down map and the three NSW stadiums, each opening its host city sheet), Drop goal, FAQs,
+             updates, share and the footer. Script: "Home" at the end of this file. -->
+        <div class="tp-home" id="tp-home" hidden>
+          <section class="tp-home-hero" aria-labelledby="tp-home-h1">
+            <h2 class="visually-hidden" id="tp-home-h1">Rugby World Cup 2027 in NSW</h2>
+            <!-- Video placeholder: grey with a video icon in low fidelity, a still in high fidelity. No controls yet, so
+                 nothing that looks playable does nothing -->
+            <div class="ph-img tp-home-video" data-img="hero-stadium" role="img" aria-label="Video placeholder: the hero video is to come"><span class="tp-home-video-tag" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 7l4-2.5v7l-4-2.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Video</span></div>
+            <div class="tp-home-hero-copy">
+              <p class="tp-event"><span class="tp-event-l">Men&rsquo;s Rugby World Cup</span><span class="visually-hidden">, </span><span class="tp-event-l"><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T20:45:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span></span></p>
+              <a class="tp-home-cta" href="#tp-home-plan-title" data-home-jump="tp-home-plan">Plan your 3rd half<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+            </div>
+          </section>
+
+          <!-- Plan your 3rd half: the planner's hand of cards and its caption are lent here (#tp-home-hand) while Home shows -->
+          <section class="tp-home-sec tp-home-plan" id="tp-home-plan" aria-labelledby="tp-home-plan-title">
+            <h3 class="tp-sec-title" id="tp-home-plan-title" tabindex="-1">Plan your 3rd half</h3>
+            <p class="tp-home-intro">Pick your teams, see their matches, and plan your NSW days around game time.</p>
+            <div class="tp-home-hand" id="tp-home-hand"></div>
+            <!-- Shown once anything is picked: the planner, with these picks -->
+            <a class="tp-home-cta" href="#tp-ask" id="tp-home-go" hidden>Plan around your matches<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+            <!-- No team: every NSW match, added in place (the same quiet link as in All matches; hidden once a team is picked) -->
+            <p class="tp-rugby-line tp-home-rugby" id="tp-home-rugby"><span class="tp-home-rugby-q">No team, or no tickets yet?</span><button type="button" class="tp-link tp-rugby-link" data-rugby data-rugby-home aria-describedby="tp-rugby-why-h"><span class="tp-u">I&rsquo;m just here for the rugby</span></button><span class="tp-rugby-why" id="tp-rugby-why-h">This adds every match played in NSW.</span></p>
+          </section>
+
+          <!-- At a glance: high-level facts only; See all FAQs jumps to the FAQs on this page -->
+          <section class="tp-home-sec" id="tp-home-glance" aria-labelledby="tp-home-glance-title">
+            <h3 class="tp-sec-title" id="tp-home-glance-title">Rugby World Cup 2027 at a glance</h3>
+            <dl class="tp-glance">
+              <div><dt>When</dt><dd>1 October to 13 November 2027</dd></div>
+              <div><dt>Where in NSW</dt><dd>Sydney and Newcastle</dd></div>
+              <div><dt>Matches in NSW</dt><dd id="tp-glance-n">9 pool matches, plus the knockouts</dd></div>
+              <div><dt>Tickets</dt><dd>Sold through the official Rugby World Cup website <span class="tp-home-ph">[link]</span></dd></div>
+              <div><dt>Getting to matches</dt><dd class="tp-home-ph">[One line on public transport to the stadiums]</dd></div>
+            </dl>
+            <a class="tp-link tp-home-more" href="#tp-home-faq-title" data-home-jump="tp-home-faq">See all FAQs<svg class="tp-home-arr tp-home-arr--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a>
+          </section>
+
+          <!-- Where the matches are: a cut-down planner map (stadium pins; a few regions within reach, shown lightly) and
+               one card per NSW stadium. A pin or a card opens that host city sheet over the page. No team picking here -->
+          <section class="tp-home-sec" id="tp-home-where" aria-labelledby="tp-home-where-title">
+            <h3 class="tp-sec-title" id="tp-home-where-title">Where the matches are</h3>
+            <p class="tp-home-intro">Two host cities, and plenty of NSW within reach between matches.</p>
+            <div class="tp-home-map" id="tp-home-map" role="group" aria-label="Map of the NSW host stadiums"></div>
+            <ul class="tp-home-cities" id="tp-home-cities"></ul>
+            <!-- Two of the day-trip photos supplied on 19 Nov (high fidelity; grey in low fidelity) -->
+            <div class="tp-home-pics" aria-hidden="true"><span class="ph-img" data-img="Bush"></span><span class="ph-img" data-img="Merwether baths"></span></div>
+            <p class="tp-home-nudge">Got a day or more between matches? Add your matches and we&rsquo;ll show you where in NSW you can get to.</p>
+            <a class="tp-home-cta" href="#tp-home-plan-title" data-home-jump="tp-home-plan">Plan your 3rd half<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          </section>
+
+          <!-- Drop goal: the game is its own tab (still being built); Play now goes there -->
+          <section class="tp-home-sec" id="tp-home-kick" aria-labelledby="tp-home-kick-title">
+            <h3 class="tp-sec-title" id="tp-home-kick-title">Drop goal</h3>
+            <p class="tp-home-intro">Line up your kick and go for goal. Wherever the ball lands is your next idea for somewhere to go in Sydney or NSW. Keep kicking to find more.</p>
+            <div class="ph-img tp-home-kick-img" data-img="hero-stadium" role="img" aria-label="Placeholder: a still from the Drop goal game"></div>
+            <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+          </section>
+
+          <!-- FAQs: the six questions from Figma; answers are placeholders until copy is supplied -->
+          <section class="tp-home-sec" id="tp-home-faq" aria-labelledby="tp-home-faq-title">
+            <h3 class="tp-sec-title" id="tp-home-faq-title" tabindex="-1">Rugby World Cup 2027 FAQs</h3>
+            <div class="tp-faq" id="tp-faq"></div>
+          </section>
+
+          <!-- Updates: email only (principle 2); consent wording to come -->
+          <section class="tp-home-sec" id="tp-home-news" aria-labelledby="tp-home-news-title">
+            <h3 class="tp-sec-title" id="tp-home-news-title">Get Rugby World Cup updates</h3>
+            <p class="tp-home-intro">Match-day tips, things to do around the matches and offers in Sydney and NSW, sent to your inbox.</p>
+            <form class="tp-news" id="tp-news" novalidate>
+              <label class="visually-hidden" for="tp-news-email">Email address</label>
+              <input class="tp-news-in" id="tp-news-email" type="email" name="email" placeholder="Email address" autocomplete="email" aria-describedby="tp-news-err" required>
+              <p class="tp-news-err" id="tp-news-err" hidden></p>
+              <label class="tp-ticket tp-news-ok"><input type="checkbox" id="tp-news-consent"><span class="tp-home-ph">[Consent and privacy wording]</span></label>
+              <button type="submit" class="tp-home-cta">Sign up</button>
+              <p class="tp-news-done" id="tp-news-done" tabindex="-1" hidden></p>
+            </form>
+          </section>
+
+          <!-- Share: the device's share sheet where there is one, otherwise the link is copied (with a toast) -->
+          <section class="tp-home-sec" id="tp-home-share" aria-labelledby="tp-home-share-title">
+            <h3 class="tp-sec-title" id="tp-home-share-title">Going with friends?</h3>
+            <p class="tp-home-intro">Send them this page so everyone can plan their 3rd half.</p>
+            <button type="button" class="tp-home-cta tp-home-cta--line" id="tp-home-share-btn">Share this page</button>
+            <p class="tp-home-share-said" id="tp-home-share-said" role="status"></p>
+          </section>
+
+          <footer class="tp-home-foot"><p>Standard site footer</p></footer>
         </div>
         <!-- Hero (Option B2): the photo row, then the slogan, the event line, one line on what the page does, and the
              button. The row swipes sideways and never moves on its own (low fidelity: no auto-scroll, marquee or timer);
@@ -466,7 +558,7 @@
    then that the tournament is under way, then that it has finished. Updates on the minute, lined up to the clock, and
    stops while the tab is hidden. */
 (function () {
-  var box = document.querySelector('#tp-phone .tp-count');
+  var boxes = [].slice.call(document.querySelectorAll('#tp-phone .tp-count')), box = boxes[0]; // Home's and the planner's
   if (!box) return;
   var start = Date.parse(box.dataset.start), end = Date.parse(box.dataset.end);
   // For review: ?tp-now=<ISO date> shows the screen at that moment, and the clock runs on from there
@@ -484,7 +576,7 @@
       txt = now < end ? 'Under way, final Sat 13 Nov' : 'The tournament is over';
       if (now < end) timer = setTimeout(tick, Math.min(end - now + 1000, 3600000));
     }
-    if (box.textContent !== txt) box.textContent = txt;
+    boxes.forEach(function (b) { if (b.textContent !== txt) b.textContent = txt; });
   }
   document.addEventListener('visibilitychange', function () { clearTimeout(timer); if (!document.hidden) tick(); });
   tick();
@@ -496,6 +588,7 @@
 <script src="concepts-third-half.js"></script>
 <script src="concepts-map.js"></script>
 <script src="concepts-plan.js"></script>
+<script src="concepts-home.js"></script>
 <script>
 /* Pick your team: annotation layer. Same switch, numbered badges and list as the itinerary prototype. Switch it on to
    see a badge on each part with complex behaviour and the matching numbered list on the left; standard controls are
@@ -551,7 +644,10 @@
       { sel: '#tp-kbd', title: 'Indicative keyboard (not functional)', text: 'While Find your team is open, a static grey keyboard rises from the bottom of the phone, only to show that the phone keyboard would come up. On a real phone it is the native keyboard. Tapping it does nothing and keeps the field focused. Opening the search brings the heading row near the top of the phone, so the suggestions under it are never covered (they end by about 220px; the keyboard starts at 614px). Reduced motion: it appears and goes at once. In phone view (the QR code in the panel, ?phone, or any touch screen under 500px wide) it is never shown: the phone\u2019s own keyboard comes up, with a Search key, and the screen shrinks to the space above it so the suggestions stay in view.' },
     { sel: '.tp-tl-pick .tp-ico', title: 'Prompt icons', text: 'Prompts to pick a team carry the card-fan icon (the Rugby World Cup Figma artwork, node 252:13225): Pick your teams and Change your teams in the plan, and Pick your teams in the empty Your plan so far. Prompts and buttons to set or change your days carry the calendar (Figma node 254:13291): Set your days in NSW, Staying longer? Set your days, Visiting? Set or Confirm your days, the dates step in the trip question, Change dates, Use these dates, and Change beside your days in NSW (in the plan and under Suits your 3rd half; not when the answer is I live in NSW or Not sure yet, as that Change is not about dates). Greyscale, sized to the text, decorative (aria-hidden).' },
     { sel: '#tp-find-open', title: 'Find (utility row)', text: 'In the utility row above the hand, labelled Find (with a search icon), on phone and desktop alike. Tapped, the field slides across the utility row from the button, over Grid and Plays in NSW, so nothing below moves; suggestions float over the hand. Name or code, start of a word (zea finds New Zealand, rsa South Africa); Enter picks the first; Escape or the cross folds it back and focus returns to Find.' },
-      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'Every tab, the current one included, has the same padding either side of its label, so the gaps are even. On narrow phones space gives way before type: the padding shrinks from 12px to 6px first, then the labels, never below 13px (16px on a 390 phone, 13 to 15px on a 320 one, where they used to drop to 11px); scrolled small, they still read at 12px or more, and a screen too narrow even for that scrolls the capsule sideways (16 Nov). The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Home, Drop goal, Plan your 3rd half (marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, and every label stays on one line: where the labels would not fit (the wireframe\u2019s system font, or 360px and narrower) the capsule\u2019s type shrinks just enough, one size for every pick so it never changes as the pill moves. Home and Drop goal are not built: each opens a being-built page in place of the planner (the plan bar steps aside), and Plan your 3rd half, or Back to Plan your 3rd half, returns to the same scroll position. Each section keeps its own scroll: the planner always comes back where it was left. Home and Drop goal open at their top (under the floating capsule, which stays put) and keep a position of their own only once they have been scrolled. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Drop goal stays (the capsule also works with two items). Step 2, floating (changed from the brief at the user\u2019s request): it sticks 8px from the top once the header scrolls away, lifts with a shadow, shrinks to 80% while you scroll down and returns to full size when you scroll up, tap it or tab into it, and shrinks again on the next scroll down (items stay over the 24px AA minimum). While floating it keeps a faint light edge so it stays distinct over dark photos. Keyboard focus is a ring inside the item, and a tap dims an unpicked item. It sits under the plan bar and every sheet, steps out of the way while the guided map of your days is on screen, and the page\u2019s own jumps (Pick your teams, See where to watch, Find your team) land below it.' },
+      { sel: '#tp-home-hand', title: 'Home: one hand of cards (19 Nov)', text: 'Home (Figma 385:649, built in this prototype\u2019s own styles, not the Figma file\u2019s) has the same hand of cards as Plan your 3rd half: the planner\u2019s hand, caption and Clear all are lent here while Home shows and go back when another tab is picked, so a pick on Home is already made in the planner and the plan bar counts it. Plan around your matches shows once anything is picked and opens the planner at Your days (its label says it goes there). No team, or no tickets yet? I\u2019m just here for the rugby adds every NSW match in place (the caption says so; nothing moves), and reads Remove every NSW match while on. Add team from the plan bar borrows the hand as before and gives it back to whichever tab is showing.' },
+      { sel: '#tp-home-map', title: 'Home: Where the matches are', text: 'A cut-down version of the planner\u2019s map (the same illustration, cropped from Sydney to Port Stephens, no pan or zoom): pins for the three NSW stadiums, which open their host city sheet over the page, and four regions within reach shown lightly as labels only. Each card below opens the same sheet. The host city sheet: the stadium\u2019s matches (each drills down to the match), places near the stadium (each drills down to the place), Where to stay (empty state: no accommodation is tied to a stadium in the data yet) and the curated day trips from that city, listed only; they are fitted around your matches in the planner. Getting there is a bracketed placeholder. Match counts come from the fixtures: Moore Park 5, Olympic Park 8, Newcastle 4; At a glance counts 9 pool matches in NSW.' },
+      { sel: '#tp-faq', title: 'Home: FAQs, updates and share', text: 'The six FAQ questions from Figma, each opening on its own (the answer\u2019s height glides; reduced motion swaps it). Answers are [Answer to come] until copy is supplied. See all FAQs and both Plan your 3rd half buttons scroll within Home and say so; Play now opens the Drop goal tab. Updates asks for an email only (principle 2): an empty or malformed address gets an error under the field, a good one a confirmation in place (nothing is sent). Share this page opens the phone\u2019s share sheet; on a desktop it copies the link and the button itself says Link copied for a few seconds (no toast: one would sit over the button, check 11). The Drop goal picture is a placeholder: the Figma reference is a screenshot of a real video game with real sponsor logos.' },
+      { sel: '#tp-cap', title: 'Capsule nav (Option B2, step 1)', text: 'Every tab, the current one included, has the same padding either side of its label, so the gaps are even. On narrow phones space gives way before type: the padding shrinks from 12px to 6px first, then the labels, never below 13px (16px on a 390 phone, 13 to 15px on a 320 one, where they used to drop to 11px); scrolled small, they still read at 12px or more, and a screen too narrow even for that scrolls the capsule sideways (16 Nov). The page\u2019s three sections in a dark capsule under the header, replacing the underlined nav row: Home, Plan your 3rd half, Drop goal (the order in Figma 385:649, 19 Nov; the current tab is marked aria-current="page"). 44px capsule with 36px items, per the page\u2019s WCAG 2.2 AA sizing (the brief\u2019s 52px capsule with 44px items was changed with the go-ahead). The light pill glides to the item picked and the labels slide to their new widths, so nothing jumps; still with reduced motion. Unpicked items share the spare width on top of their label width, and every label stays on one line: where the labels would not fit (the wireframe\u2019s system font, or 360px and narrower) the capsule\u2019s type shrinks just enough, one size for every pick so it never changes as the pill moves. Home is built (19 Nov) and is the tab the page opens on; ?view=plan opens the planner and ?view=kick Drop goal. Drop goal is not built: it opens a being-built page in place of the planner (the plan bar steps aside there; on Home it stays). Each section keeps its own scroll: the planner always comes back where it was left. Home and Drop goal open at their top (under the floating capsule, which stays put) and keep a position of their own only once they have been scrolled. Still to decide: whether these switch views or scroll to sections, the corner shape, and whether Drop goal stays (the capsule also works with two items). Step 2, floating (changed from the brief at the user\u2019s request): it sticks 8px from the top once the header scrolls away, lifts with a shadow, shrinks to 80% while you scroll down and returns to full size when you scroll up, tap it or tab into it, and shrinks again on the next scroll down (items stay over the 24px AA minimum). While floating it keeps a faint light edge so it stays distinct over dark photos. Keyboard focus is a ring inside the item, and a tap dims an unpicked item. It sits under the plan bar and every sheet, steps out of the way while the guided map of your days is on screen, and the page\u2019s own jumps (Pick your teams, See where to watch, Find your team) land below it.' },
       { sel: '#tp-hero-title', at: 'r', title: 'Hero (Option B2, Figma 344:42858)', text: 'Top to bottom: the header (The Third Half logo and the reserved host city lockup, scrolls away), the capsule nav, the photo row, the slogan, the event line and one line on what the page does. There is no button (Figma 344:42858): the hand of cards peeks in right under that line and is the way in. Slogan A: Come for the match. Stay for the third half; B, for testing with ?slogan=b: Your team\u2019s matches. Your days in NSW. 31px with 37px lines in both themes, one line per sentence (shrunk just enough if a line would wrap, at 360px or with a wider fallback font); the second line in the orange until the colour is decided (coral #EC5A5B or orange). Event line under the slogan, two lines: Men\u2019s Rugby World Cup, then 1 Oct\u201313 Nov \u201927 \u2022 days to go (screen readers hear 1 October to 13 November 2027). The reference drops the old Kick-offs in Sydney time. Spacing (more air than the brief\u2019s 16 / 24 / 16, agreed 16 Nov; Figma 337:40429 for the capsule and the heading): 44px under the capsule, 32px from the photo row to the slogan, 12px from the slogan to its event line (they pair), then 24px to the body; 24px at the sides. At the top of the page the cards sit 8px under the body line (the card tops about 18px, as in Figma); once the heading rises from behind them it has its 44px break above it. The page keeps one rhythm: 4 to 16px inside a component, 24px between parts of a section, and at least 64px between sections (the hand of cards, the map, your matches, Your days, Where to watch, Around your matches, Your plan so far; 48px until 16 Nov). Every section title is one size, 24px (it was 28, 22 or 18 by section), 8px above its intro and 16px from the intro to the content; the map under the cards now has its own rule like the sections below.' },
       { sel: '.tp-photos', title: 'Photo row (B2 step 4)', text: 'One row of 182 x 102 tiles, 8px apart, starting 24px in and running off the right edge. Swipe or trackpad sideways; no scrollbar. It never moves on its own in this version (no auto-scroll, marquee or timer). Each tile is a button named for its photo, for example Stadium photo, see details. Stadium and ocean first, then two more so the row is long enough to swipe (high fidelity uses the closest pictures in assets; still to decide how many photos, which ones and what each panel says).' },
       { sel: '.tp-photo', title: 'Photo details (B2 step 5)', text: 'Tap a tile: a panel slides up from the bottom over a dark layer (#111 at 50%). Place label (mono 12px caps) with a round close button, the photo at 342 x 192, a title (24px semibold), a line or two (18px) and one outlined button. All copy is placeholder in square brackets; the button is marked Not linked yet. Close button, the dark layer or Escape closes it and focus goes back to the tile; Tab stays inside while it is open. Close and outlined buttons are 36px (AA sizing), not the brief\u2019s 44px.' },
@@ -737,8 +833,8 @@
    column, so it holds at 360px, at 320px, and with whatever system font the wireframe falls back to. This breaks the
    type scale on purpose. Runs again when the width changes, once the fonts have loaded, and when the countdown's
    text changes (Under way, final Sat 13 Nov is longer than 319 days to go). */
-(function () {
-  var col = document.querySelector('#tp-phone .tp-hero-copy'); if (!col) return;
+// The planner's hero and Home's event line (19 Nov) each fit their own column
+[].forEach.call(document.querySelectorAll('#tp-phone .tp-hero-copy, #tp-phone .tp-home-hero-copy'), function (col) {
   var SETS = [['#tp-hero-title', '.tp-slogan-1, .tp-slogan-2'], ['.tp-event', '.tp-event-l']];
   function fit() {
     if (!col.clientWidth) return; // the planner is hidden (another section is showing)
@@ -764,7 +860,7 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   var count = col.querySelector('.tp-count');
   if (count && window.MutationObserver) new MutationObserver(fit).observe(count, { childList: true, characterData: true, subtree: true });
-})();
+});
 /* Capsule nav (Option B2, step 1). Picking an item moves the light pill to it with an even glide, and the other
    items slide to their new places (FLIP), so nothing jumps. Home and Drop goal show the "being built"
    page in place of the planner; Plan your 3rd half brings the planner back at the scroll position it was left at. */
@@ -774,12 +870,37 @@
   var body = phone.querySelector('.cn-body'), pill = document.getElementById('tp-cap-pill');
   var items = [].slice.call(cap.querySelectorAll('.tp-cap-i')), wrap = cap.parentNode;
   var soon = document.getElementById('tp-soon'), soonT = document.getElementById('tp-soon-title');
-  var NAMES = { event: 'Home', kick: 'Drop goal' };
+  var home = document.getElementById('tp-home');
+  var NAMES = { kick: 'Drop goal' };
+  /* Home (19 Nov) is built and opens first; Drop goal is still being built. ?view=plan or ?view=kick opens another tab.
+     The planner's hand of cards (#tp-picker, with its caption and Clear all) is lent to Home while Home shows, so a pick
+     is the same pick on both; a marker keeps its place in the planner. While Add team has it in its sheet, it is left
+     there and comes back to whichever tab is showing when the sheet closes. */
+  var picker = document.getElementById('tp-picker'), homeHand = document.getElementById('tp-home-hand');
+  var pickMark = document.createComment(' the hand of cards lives here when the planner shows ');
+  picker.parentNode.insertBefore(pickMark, picker);
+  function lend() {
+    if (picker.closest('#tp-at')) return; // in the Add team sheet: it comes back on close
+    if (view === 'event') { if (picker.parentNode !== homeHand) homeHand.appendChild(picker); }
+    else if (picker.parentNode === homeHand) pickMark.parentNode.insertBefore(picker, pickMark.nextSibling);
+  }
   /* Scroll per section: the planner always comes back where it was left. Home and Drop goal open at their
      top the first time, and keep a position of their own only once the person has scrolled them; until then they open
      at their top again. "Top" is where the page starts under the capsule: if the capsule is floating, it stays put and
      the page starts below it; nearer the top of the screen the scroll stays as it is, so nothing jumps under a finger. */
-  var view = 'plan', Y = { plan: 0 }, touched = { plan: true };
+  var qv = /[?&]view=(plan|kick|home)\b/.exec(location.search);
+  var view = qv ? (qv[1] === 'home' ? 'event' : qv[1]) : 'event', Y = {}, touched = {};
+  Y[view] = 0; touched[view] = true;
+  function showView() {
+    phone.classList.toggle('is-soon', view === 'kick');
+    phone.classList.toggle('is-home', view === 'event');
+    soon.hidden = view !== 'kick'; home.hidden = view !== 'event';
+    if (view === 'kick') soonT.textContent = NAMES.kick;
+    lend();
+  }
+  items.forEach(function (b) { var on = b.dataset.view === view; b.classList.toggle('is-on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  showView();
+  if (view !== 'plan') window.dispatchEvent(new Event('resize')); // the hand lays itself out again in its new place
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
   // Fit the three labels on one line, each in its bold picked state in turn (the worst case), so the type never changes
   // size as the pill moves. Space gives way before type does (16 Nov): the padding either side of each label shrinks from
@@ -832,12 +953,10 @@
     var was = body.scrollTop;
     Y[leaving] = was;
     var dock = phone.querySelector('.tp-top').offsetHeight + parseFloat(getComputedStyle(wrap).marginTop) - 8;
-    phone.classList.toggle('is-soon', v !== 'plan');
-    soon.hidden = v === 'plan';
-    if (v !== 'plan') soonT.textContent = NAMES[v];
+    showView();
     var to = touched[v] ? Y[v] : Math.min(was, dock);
     body.scrollTop = to;
-    if (v === 'plan') {
+    if (v !== 'kick') {
       window.dispatchEvent(new Event('resize')); // anything sized while hidden (the map, the hand) measures again
     }
     if (from && from.classList.contains('tp-soon-back')) { var p = cap.querySelector('[data-view="plan"]'); p.focus({ preventScroll: true }); }
@@ -848,6 +967,13 @@
     var b = e.target.closest('[data-view]'); if (!b || !phone.contains(b)) return;
     pick(b.dataset.view, b);
   });
+  // For the page's own jumps and toast links: the tab a section is in is shown first
+  window.tpView = {
+    get: function () { return view; },
+    go: function (v) { pick(v); },
+    reveal: function (el) { var v = el && el.closest('#tp-home') ? 'event' : el && el.closest('#tp-soon') ? 'kick' : 'plan'; if (v !== view) pick(v); },
+    lend: lend
+  };
   fitCap(); place(false);
   var capW = cap.clientWidth;
   if (window.ResizeObserver) new ResizeObserver(function () { if (cap.clientWidth !== capW) { capW = cap.clientWidth; fitCap(); } place(false); }).observe(cap);

@@ -924,7 +924,13 @@
     if (!atSheet || atHold) return;
     var util = document.getElementById('tp-util'), picker = document.getElementById('tp-picker');
     atHold = document.createElement('div'); atHold.className = 'tp-at-hold';
-    atHold.style.height = (picker.getBoundingClientRect().bottom - util.getBoundingClientRect().top) + 'px';
+    // On Home (19 Nov) the hand is lent there without the Find row: each keeps its own placeholder, so neither page moves
+    atHold2 = null;
+    if (picker.parentNode !== util.parentNode) {
+      atHold2 = document.createElement('div'); atHold2.className = 'tp-at-hold';
+      atHold2.style.height = picker.offsetHeight + 'px'; picker.parentNode.insertBefore(atHold2, picker);
+      atHold.style.height = util.offsetHeight + 'px';
+    } else atHold.style.height = (picker.getBoundingClientRect().bottom - util.getBoundingClientRect().top) + 'px';
     util.parentNode.insertBefore(atHold, util);
     atBody.appendChild(util); atBody.appendChild(picker);
     atBody.scrollTop = 0;
@@ -934,12 +940,15 @@
     if (tlOpen) stackOpen(atSheet, opener); else stackOpenSolo(atSheet, opener);
     window.dispatchEvent(new Event('resize')); // the hand lays itself out for its new width
   }
-  var atOpener = null;
+  var atOpener = null, atHold2 = null;
   if (atSheet) atSheet.addEventListener('tp:stackclose', function () {
     if (!atHold) return;
     var util = document.getElementById('tp-util'), picker = document.getElementById('tp-picker');
-    atHold.parentNode.insertBefore(util, atHold); atHold.parentNode.insertBefore(picker, atHold);
+    atHold.parentNode.insertBefore(util, atHold);
+    if (atHold2) { atHold2.parentNode.insertBefore(picker, atHold2); atHold2.remove(); atHold2 = null; }
+    else atHold.parentNode.insertBefore(picker, atHold);
     atHold.remove(); atHold = null;
+    if (window.tpView) window.tpView.lend(); // the tab may have changed while the sheet was open
     window.dispatchEvent(new Event('resize'));
     // Back to Add team; once a team is picked it has gone, so to the plan's title (open) or the bar (closed)
     var back = atOpener;
@@ -966,10 +975,11 @@
       // In the plan it is part of the empty state only, so it goes with any pick (on, it shows in All matches)
       a.parentNode.hidden = a.parentNode.id === 'tp-tl-rugby' ? state.picked.length > 0 : hide;
       // Not a toggle button: the label itself says what it will do (Add or Remove), so no aria-pressed
-      a.innerHTML = r ? window.tpIcons.remove + '<span class="tp-u">Remove every NSW match</span>' : window.tpIcons.add + '<span class="tp-u">Add every NSW match</span>';
+      // Home's link keeps its own words (Figma 385:649): I'm just here for the rugby
+      a.innerHTML = r ? window.tpIcons.remove + '<span class="tp-u">Remove every NSW match</span>' : window.tpIcons.add + '<span class="tp-u">' + (a.hasAttribute('data-rugby-home') ? 'I\u2019m just here for the rugby' : 'Add every NSW match') + '</span>';
       // The quiet line says who it is for and that it adds rather than filters; off state only
       var why = a.parentNode.querySelector('.tp-rugby-why');
-      if (why) { why.hidden = r; why.textContent = 'No team? This adds all ' + nswPool.concat(nswKo).length + ' matches played in NSW.'; }
+      if (why) { why.hidden = r; why.textContent = (a.hasAttribute('data-rugby-home') ? 'This adds all ' : 'No team? This adds all ') + nswPool.concat(nswKo).length + ' matches played in NSW.'; }
     });
     changed(); // after the label is rewritten, which would otherwise wipe the annotation badge
   }
@@ -2370,6 +2380,7 @@
   // Go to a section named in a toast's link: it scrolls into view under the section nav, gently unless motion is reduced
   function goTo(sec) {
     if (!sec) return;
+    if (window.tpView) window.tpView.reveal(sec); // a section in another tab (Home, the planner): that tab first
     if (tlOpen && !wide()) tlSetOpen(false, false);
     var nav = phoneEl.querySelector('.tp-cap-wrap'), top = nav ? nav.offsetHeight + 24 : 16;
     body.scrollTo({ top: body.scrollTop + sec.getBoundingClientRect().top - body.getBoundingClientRect().top - top, behavior: reduce.matches ? 'auto' : 'smooth' });
