@@ -3809,9 +3809,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-read-a.is-soon .tp-read-m { color: var(--c-ink); font-weight: var(--fw-semi); }
 @media (hover: hover) { .tp-read-a:hover .tp-read-img { filter: brightness(.94); } .tp-read-a:hover .tp-read-t { text-decoration: underline; text-underline-offset: 3px; } }
 @media (min-width: 1024px) { .pv-device #tp-phone .tp-reads { columns: 3; } }
-.tp-home-pics { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-5); }
-.tp-home-pics .ph-img { aspect-ratio: 4 / 3; background-size: cover; background-position: center; }
-.tp-home-nudge { margin-top: var(--space-4); font-size: var(--fs-base); line-height: 1.45; }
 /* Drop goal */
 .tp-home-kick-img { width: auto; aspect-ratio: 4 / 5; margin: var(--space-4) calc(var(--space-5) * -1) 0; background-size: cover; background-position: center; }
 /* FAQs: each opens on its own; the answer's height glides open */
@@ -5662,8 +5659,6 @@ span.tp-map-arrow { display: block; }
   .pv-device #tp-phone #tp-home-where > * { grid-column: 1 / -1; }
   .pv-device #tp-phone #tp-home-where > .tp-home-map { grid-column: 1; max-width: none; margin-inline: 0; border-radius: var(--radius-md); }
   .pv-device #tp-phone #tp-home-where > .tp-home-cities { grid-column: 2; align-self: start; }
-  .pv-device #tp-phone #tp-home-where > .tp-home-pics { margin-top: var(--space-7); }
-  .pv-device #tp-phone #tp-home-where > .tp-home-nudge { max-width: 40rem; font-size: var(--fs-lg); }
 
   /* Drop goal: the words and Play now at the left, a landscape picture of the game at the right */
   .pv-device #tp-phone #tp-home-kick { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: var(--space-7); align-content: start; grid-template-rows: repeat(3, auto) 1fr; }
