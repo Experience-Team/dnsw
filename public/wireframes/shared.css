@@ -5568,3 +5568,8 @@ span.tp-map-arrow { display: block; }
 @media (min-width: 1024px) {
   .pv-device #tp-phone :is(.tp-home-map, .tp-home-kick-img) { max-width: 560px; margin-inline: 0; }
 }
+
+/* I have tickets on the plan's match cards (19 Nov): the team cards' 64px box, beside the match text, top-aligned; the
+   orange ring needs the card's own colour for its 1px gap */
+.tp-dc-m.has-tix { align-items: flex-start; }
+.tp-dc-tix { align-self: center; box-shadow: 0 0 0 1px var(--c-surface-2, #f2f2f2), 0 0 0 2.5px var(--tth-color-orange, #ff4802); }
