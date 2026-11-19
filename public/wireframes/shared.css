@@ -5486,6 +5486,17 @@ span.tp-map-arrow { display: block; }
   .pv-device #tp-phone .tp-tl.is-on.is-gliding { transition: top .36s cubic-bezier(.4, 0, .2, 1), opacity .24s ease-out, visibility 0s; }
 }
 
+/* Home on the desktop website (19 Nov): the content takes the full width (no rail beside it), and the plan bar, shown
+   once a team is picked, floats centred at the foot of the window, closed until opened; opened, the plan rises above it */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone.is-home { --rail-span: 0px; }
+  .pv-device #tp-phone.is-home > .cn-body { padding-bottom: 160px; }
+  .pv-device #tp-phone.is-home .tp-home-video { aspect-ratio: 16 / 7; } /* full width: a wide frame, so the hero fits the window */
+  .pv-device #tp-phone.is-home .tp-tl { top: auto; bottom: 24px; left: 0; right: var(--sbw, 0px); margin-inline: auto; width: min(560px, calc(100% - 64px)); box-shadow: var(--shadow-2); }
+  .pv-device #tp-phone.is-home .tp-tl.is-on.is-gliding { transition: opacity .24s ease-out, visibility 0s; }
+  .pv-device #tp-phone.is-home .tp-tl.is-open .tp-tl-panel { max-height: var(--tl-p); overflow: auto; }
+}
+
 /* Narrower desktops (1024 to 1279px): a slimmer rail, and the team picker's intro sits above the hand, not beside it */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .pv-device #tp-phone { --rail-w: 300px; --rail-gap: var(--space-6); }
