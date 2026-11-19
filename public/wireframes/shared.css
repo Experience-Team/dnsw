@@ -3809,9 +3809,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-read-a.is-soon .tp-read-m { color: var(--c-ink); font-weight: var(--fw-semi); }
 @media (hover: hover) { .tp-read-a:hover .tp-read-img { filter: brightness(.94); } .tp-read-a:hover .tp-read-t { text-decoration: underline; text-underline-offset: 3px; } }
 @media (min-width: 1024px) { .pv-device #tp-phone .tp-reads { columns: 3; } }
-.tp-home-pics { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-5); }
-.tp-home-pics .ph-img { aspect-ratio: 4 / 3; background-size: cover; background-position: center; }
-.tp-home-nudge { margin-top: var(--space-4); font-size: var(--fs-base); line-height: 1.45; }
 /* Drop goal */
 .tp-home-kick-img { width: auto; aspect-ratio: 4 / 5; margin: var(--space-4) calc(var(--space-5) * -1) 0; background-size: cover; background-position: center; }
 /* FAQs: each opens on its own; the answer's height glides open */
@@ -5638,3 +5635,38 @@ span.tp-map-arrow { display: block; }
    orange ring needs the card's own colour for its 1px gap */
 .tp-dc-m.has-tix { align-items: flex-start; }
 .tp-dc-tix { align-self: center; box-shadow: 0 0 0 1px var(--c-surface-2, #f2f2f2), 0 0 0 2.5px var(--tth-color-orange, #ff4802); }
+
+/* Home on the desktop website, polished (19 Nov). One content edge: the hero picture, the sections, the map and the
+   Drop goal picture all align to the page column; the footer runs edge to edge like the header. Where the phone stacks
+   one thing over another, the desktop puts them side by side as the planner does: what to do on the left, the thing
+   itself on the right. Buttons size to their label instead of stretching 1,200px; forms and FAQs keep a readable width. */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .tp-home-sec { margin-inline: 0; }
+  .pv-device #tp-phone .tp-home-hero-copy { padding-inline: 0; }
+  .pv-device #tp-phone .tp-home-intro { max-width: 40rem; font-size: var(--fs-lg); line-height: 1.5; }
+  .pv-device #tp-phone .tp-home-cta { width: auto; min-width: 220px; padding-inline: var(--space-5); justify-self: start; align-self: flex-start; }
+  .pv-device #tp-phone .tp-home-foot { margin-inline: calc(-1 * var(--wide-pad)); }
+
+  /* Plan your 3rd half: heading, intro and the ways on at the left; the hand of cards at the right */
+  .pv-device #tp-phone .tp-home-plan { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: var(--space-7); align-content: start; grid-template-rows: repeat(4, auto) 1fr; } /* the left column stacks at the top; spare height goes under it */
+  .pv-device #tp-phone .tp-home-plan > * { grid-column: 1; }
+  .pv-device #tp-phone .tp-home-plan > .tp-home-hand { grid-column: 2; grid-row: 1 / -1; align-self: center; margin: 0; }
+  .pv-device #tp-phone .tp-home-plan > .tp-home-cta { margin-top: var(--space-5); }
+  .pv-device #tp-phone .tp-home-rugby { text-align: left; }
+
+  /* Where the matches are: the map and the stadium cards side by side, the day-trip nudge underneath */
+  .pv-device #tp-phone #tp-home-where { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--space-6); }
+  .pv-device #tp-phone #tp-home-where > * { grid-column: 1 / -1; }
+  .pv-device #tp-phone #tp-home-where > .tp-home-map { grid-column: 1; max-width: none; margin-inline: 0; border-radius: var(--radius-md); }
+  .pv-device #tp-phone #tp-home-where > .tp-home-cities { grid-column: 2; align-self: start; }
+
+  /* Drop goal: the words and Play now at the left, a landscape picture of the game at the right */
+  .pv-device #tp-phone #tp-home-kick { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: var(--space-7); align-content: start; grid-template-rows: repeat(3, auto) 1fr; }
+  .pv-device #tp-phone #tp-home-kick > * { grid-column: 1; }
+  .pv-device #tp-phone #tp-home-kick > .tp-home-kick-img { grid-column: 2; grid-row: 1 / -1; max-width: none; margin: 0; aspect-ratio: 4 / 3; border-radius: var(--radius-md); }
+
+  /* Readable widths for reading and typing */
+  .pv-device #tp-phone .tp-faq { max-width: 48rem; }
+  .pv-device #tp-phone .tp-news { max-width: 30rem; }
+  .pv-device #tp-phone .tp-home-video { border-radius: var(--radius-md); }
+}
