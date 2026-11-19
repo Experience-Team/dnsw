@@ -4921,6 +4921,13 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tc-go-dot svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .tc-act { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 64px; min-height: 44px; padding: 4px 2px; border: var(--bw-1) solid var(--c-line-ink); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 11px; font-weight: var(--fw-semi); line-height: 1.1; text-align: center; cursor: pointer; }
 .tc-act:hover { background: var(--c-fill-soft); }
+/* I have tickets on an NSW match row (18 Nov), in place of the In NSW flag: the same box as Watch in NSW; pressed, it
+   fills dark and a tick shows inside the ticket */
+.tc-tix .tc-tix-tick { opacity: 0; transition: opacity .12s ease-out; }
+.tc-tix[aria-pressed="true"] { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-on-dark); }
+.tc-tix[aria-pressed="true"] .tc-tix-tick { opacity: 1; }
+@media (hover: hover) { .tc-tix[aria-pressed="true"]:hover { background: var(--c-btn); opacity: .9; } }
+@media (prefers-reduced-motion: reduce) { .tc-tix .tc-tix-tick { transition: none; } }
 .tc-act svg, .tc-ko svg, .tc-next svg { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .tc-more { display: block; width: 100%; min-height: 44px; padding: 0 var(--space-4) 0 74px; border: 0; border-bottom: var(--bw-1) solid var(--c-line-soft); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-align: left; cursor: pointer; }
 .tc-moved { margin: 0; padding: 8px var(--space-4); font-size: var(--fs-sm); color: var(--c-ink-2); border-bottom: var(--bw-1) solid var(--c-line-soft); }
@@ -4950,7 +4957,7 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-range-match.is-away { box-sizing: border-box; background: var(--c-surface); border: 1.5px solid var(--c-accent); } /* interstate: hollow */
 
 /* Your days on the page: no Use these dates, so Undo and Reset sit as quiet text links with icons (16 Nov) */
-.tp-ask-acts--links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); }
+.tp-ask-acts--links { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-1) var(--space-4); margin-top: var(--space-2); } /* centred under the centred dates (18 Nov) */
 .tp-ico-link { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
 .tp-ico-link svg.tp-ico path { fill: none; }
 .tp-ask .tp-ico-link .tp-ico, .tp-ico-link svg.tp-ico { margin-right: 0; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
