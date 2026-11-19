@@ -2023,7 +2023,7 @@
   /* ---------- Add and remove (both sections) ---------- */
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
-    if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say('Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
+    if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say(out.dataset.say || 'Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
     // Going? Mark your ticket on the match: the match's own sheet opens over the page, at its I have a ticket (it used
     // to scroll the page up to the match card in Your matches, a jump nobody asked for)
     var ad = e.target.closest('[data-at-day]');

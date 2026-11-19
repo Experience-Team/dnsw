@@ -27,6 +27,9 @@
     'lord-nelson-brewery-hotel': 'lord-nelson',
     'marrickville-tavern': 'marickville-tavern',
     'rugby-village-foreshore-park': 'village',
+    // At a glance cards on Home (19 Nov): the closest pictures until the briefed ones (a full stadium or a Newcastle
+    // ocean pool; fans in the stands; fans on a train or walking to the ground) are supplied
+    'glance-cities': 'Newcastle baths', 'glance-tickets': 'hero-stadium', 'glance-transport': 'village',
     'darling-harbour-fan-zone': 'village',
     'armory-wharf-cafe': 'city-dining',
     'bourke-street-bakery': 'marickville-tavern',

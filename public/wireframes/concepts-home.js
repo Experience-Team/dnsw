@@ -37,7 +37,7 @@
   function count(v) { return tp.hostMatches ? tp.hostMatches(v).length : 0; }
   // The glance line, from the fixtures
   var pool = (window.cnFixtures || []).filter(function (f) { return !f.a && /^Pool /.test(f.s); }).length;
-  var gn = document.getElementById('tp-glance-n'); if (gn && pool) gn.textContent = pool + ' pool matches, plus the knockouts';
+  var gn = document.getElementById('tp-glance-n'); if (gn && pool) gn.textContent = pool + ' pool matches';
   document.getElementById('tp-home-cities').innerHTML = nsw.map(function (v) {
     var h = HOSTS[v] || { title: v }, n = count(v);
     return '<li><button type="button" class="tp-city" data-open="city:' + esc(v) + '" aria-haspopup="dialog">' +
