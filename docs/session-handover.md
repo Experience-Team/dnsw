@@ -127,15 +127,13 @@ The user is moving on to **the homepage** in a new session. See "Starting on the
 7. **CLAUDE.md tidy-up:** "9. Look, don't only measure" sits under Build notes instead of the numbered checks.
 8. **Carried over, not raised since:** trip stops aren't links; the annotations are stale for the sheet work in #512 to #516; venue match counts for Adelaide and Townsville; the dashed Every NSW match icon; "Pick your team" / "Your teams" / "Add team" wording; the bar's counts and Tab order.
 
-## Starting on the homepage
+## The homepage (built 19 November, second session)
 
-- **Ask first which homepage.** Three candidates:
-  - the **Home** tab in the Pick your team prototype's capsule nav (`data-view="event"`), today a "This page is being built" placeholder (`#tp-soon` in `prototype-pick-your-team.html`, swapped in by `pick()` around line 820), sharing the hero, the capsule and the plan bar;
-  - the static sydney.com homepage wireframe, `public/wireframes/pages/home.html`;
-  - the visitnsw.com one, `public/wireframes/pages/home-nsw.html`.
-- **New assets** uploaded by the user to main today (`3bad645`): `public/wireframes/assets/images/Bush.jpg`, `Merwether baths.jpg` (sic) and `Newcastle baths.jpg`, probably for the homepage. High fidelity paints images from `data-img` keys via `pv-device.js`; wireframe stays grey placeholders.
-- **Context:** `PRODUCT.md`, `DESIGN.md` and `.claude/skills/wireframe/SKILL.md` (the static page system, its components library and the build log). Static pages follow the One Accent Rule and stay flat; prototypes may move. The Figma file is `LwBKfIftpu8erI6WGOi4W1`.
-- **Brief discipline:** open with checks 7 and 12 (scope and knock-ons), keep the annotations and build log up to date, and check every new control against check 11.
+- **Which:** the **Home** tab of the Pick your team prototype, from Figma 385:649, in the prototype's own styles. It is now the tab the page opens on; `?view=plan` opens the planner. Links shared before this that expected the planner now open on Home.
+- **Where:** markup in `#tp-home` (`prototype-pick-your-team.html`), script `concepts-home.js`, styles under "Home" in `shared.css`, the host city sheet as `city:` ids in `openPm` (`pmCity`, `tp.hosts`, `tp.hostMatches` in concepts-third-half.js).
+- **One hand:** the capsule script lends `#tp-picker` to `#tp-home-hand` while Home shows (a comment node marks its planner place). `window.tpView` (`get`, `go`, `reveal`, `lend`); `goTo` reveals a section's tab first.
+- **Placeholders:** the hero video, the Drop goal picture (the Figma reference is a real video game screenshot), FAQ answers, tickets link, transport line, consent wording, the footer, Where to stay in the host city sheet.
+- **Not done yet:** Drop goal itself; day trips in the host city sheet are listed, not linked (a trip sheet needs a free stretch to fit into).
 
 ## Recommended next steps
 

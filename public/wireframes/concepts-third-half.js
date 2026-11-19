@@ -1507,26 +1507,59 @@
   }
   // Dragging the grabber down over the plan goes back one level when there is one
   pm.addEventListener('tp:stackdismiss', function (e) { if (pmHistory.length) { e.preventDefault(); pmPop(); } });
+  /* ---------- Host city sheet (Home, 19 Nov, Figma 385:649) ----------
+     From a city card or a map pin on Home: one NSW stadium, its matches (each drills down to the match), places near it
+     to eat or see (each drills down to the place), places to stay (no data yet: its empty state says so) and the
+     curated day trips from that city (listed; they are fitted around your matches in Plan your 3rd half). */
+  var HOSTS = {
+    'Sydney Football Stadium': { title: 'Sydney \u2013 Moore Park', base: 'sydney', img: 'sydney-football-stadium' },
+    'Stadium Australia': { title: 'Sydney \u2013 Olympic Park', base: 'sydney', img: 'stadium-australia' },
+    'Newcastle Stadium': { title: 'Newcastle', base: 'newcastle', img: 'Newcastle baths' }
+  };
+  tp.hosts = HOSTS;
+  tp.hostMatches = function (v) { return (window.cnFixtures || []).filter(function (f) { return f.v === v; }).map(function (f) { return tp.match(f.d + '|' + (f.t || f.s)); }).filter(Boolean); };
+  function pmCity(v) {
+    var c = HOSTS[v], ms = tp.hostMatches(v), pois = POI ? POI.pois.filter(function (q) { return q.near === v; }) : [];
+    var trips = TRIPS.filter(function (t) { return t.kind === 'day' && t.bases.indexOf(c.base) > -1; }).sort(byTravel(c.base));
+    var h = '<div class="plan-modal-img ph-img" data-img="' + esc(c.img) + '" role="img" aria-label="Placeholder image of ' + esc(c.title) + '"></div><div class="plan-modal-body tp-pm-city">';
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">' + esc(c.title) + '</h2>';
+    h += '<p class="cn-pp-venue">' + esc(v) + ' \u00b7 ' + ms.length + (ms.length === 1 ? ' match' : ' matches') + '</p>';
+    h += '<h3 class="cn-pp-h">Match day</h3><ol class="tp-ko-list">' + ms.map(function (m) {
+      var f = m.f;
+      return '<li><button type="button" class="tp-ko-row" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog"><span class="tp-ko-d">' + esc(f.d) + (f.k ? ', ' + esc(f.k) : '') + '</span><span class="tp-ko-s">' + esc(f.t || f.s.replace(/ \(\d+\)$/, '')) + '</span><span class="tp-ko-v">' + esc(f.t ? f.s : 'Teams known when the pools finish') + '</span></button></li>';
+    }).join('') + '</ol>';
+    h += '<p class="tp-city-ph">[One line on getting to ' + esc(v) + ' by public transport]</p>';
+    h += '<h3 class="cn-pp-h">Near the stadium</h3>' + (pois.length ? '<ul class="tp-ko-list">' + pois.map(function (q) {
+      return '<li><button type="button" class="tp-ko-row" data-open="poi:' + esc(q.id) + '" aria-haspopup="dialog"><span class="tp-ko-s">' + esc(q.title) + '</span><span class="tp-ko-v">' + esc(q.cat) + ' \u00b7 ' + esc(q.area) + '</span></button></li>';
+    }).join('') + '</ul>' : '<p class="tp-city-empty">Nothing listed near this stadium yet.</p>');
+    // Places to stay: no accommodation is tied to a stadium in the data yet (distance_to_venue is a gap field)
+    h += '<h3 class="cn-pp-h">Where to stay</h3><p class="tp-city-empty">Places to stay near the stadium are to come.</p>';
+    h += '<h3 class="cn-pp-h">Day trips from ' + esc(CITY[c.base]) + '</h3>' + (trips.length ? '<ul class="tp-ko-list">' + trips.map(function (t) {
+      return '<li><span class="tp-ko-s tp-city-trip">' + esc(t.title) + '</span><span class="tp-ko-v">' + esc(getThere(t, c.base)) + '</span></li>';
+    }).join('') + '</ul><p class="tp-ko-note">Pick your teams and set your days in Plan your 3rd half, and these are fitted around your matches.</p>' : '<p class="tp-city-empty">No day trips from here yet.</p>');
+    return h + '</div>';
+  }
   function openPm(id, opener, stacked, swap) {
     var isMatch = id.indexOf('match:') === 0, isItem = id.indexOf('item:') === 0, isDays = id === 'days' || id === 'days:stay';
     var isKo = id.indexOf('ko:') === 0, isWt = id.indexOf('wt:') === 0, isIdeas = id.indexOf('ideas:') === 0;
-    var isPoi = id.indexOf('poi:') === 0, isIdea = id.indexOf('idea:') === 0;
+    var isPoi = id.indexOf('poi:') === 0, isIdea = id.indexOf('idea:') === 0, isCity = id.indexOf('city:') === 0;
+    if (isCity && !HOSTS[id.slice(5)]) return false;
     var poiP = isPoi && POI ? POI.pois.filter(function (q) { return q.id === id.slice(4); })[0] : null;
     var ideaK = isIdea ? id.slice(5) : '', ideaAt = ideaK.lastIndexOf('@'), ideaI = isIdea ? IDEAS.filter(function (q) { return q.id === ideaK.slice(2, ideaAt); })[0] : null;
     if ((isPoi && !poiP) || (isIdea && !ideaI)) return false;
     if (!swap) pmClearHistory();
     tlIdeasReturn(); // the ideas list is lent to the sheet; take it back before the body is replaced
-    var x = isPoi ? { type: 'poi' } : isIdea ? { type: 'idea' } : isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
+    var x = isCity ? { type: 'city' } : isPoi ? { type: 'poi' } : isIdea ? { type: 'idea' } : isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return false;
     pmSaid = '';
     // Products, curated trips and watch spots open as sheets too (16 Nov), not full-screen pages: the page stays in view
     // above, and the cross, the scrim or Escape closes them
-    var isRoute = x.type === 'route', asSheet = isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot' || isPoi || isIdea || isItem;
+    var isRoute = x.type === 'route', asSheet = isCity || isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot' || isPoi || isIdea || isItem;
     pmOpenerEl = null;
-    pmBody.innerHTML = isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    pmBody.innerHTML = isCity ? pmCity(id.slice(5)) : isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     if (isIdeas) { if (!swap) tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
-    pmKind.textContent = isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your plan' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isCity ? 'Host city' : isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your plan' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (swap) return true; // a sheet over a sheet (pmPush, pmPop): the sheet is already open, only its content changes
     if (stacked) {
@@ -1556,7 +1589,7 @@
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say(isPoi || isIdea || isItem ? (isPoi ? poiP.title : isIdea ? ideaI.title : x.it.title) + ', details opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
+    tp.say(isCity ? HOSTS[id.slice(5)].title + ', details opened.' : isPoi || isIdea || isItem ? (isPoi ? poiP.title : isIdea ? ideaI.title : x.it.title) + ', details opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
   // Desktop website (the page on its own, 1024px and wider): sheets are modals centred in the window
