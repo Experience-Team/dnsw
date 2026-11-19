@@ -2124,7 +2124,7 @@
      match; the line names what changed (your plan always, then the sections that did); one link to the first section
      that changed, or Open your plan, and none while a sheet is open over the page. Screen readers already hear the
      change from the control, so the toast adds nothing for them. */
-  function ticketToggle(m, on, apply, fromSec) {
+  function ticketToggle(m, on, apply, fromSec, opener) {
     var before = snap();
     apply();
     changedSince(before, '');
@@ -2134,13 +2134,24 @@
     var to = ch.filter(function (c) { return c[1] !== fromSec; })[0];
     var act = pmOpen ? null : to ? { label: 'See ' + to[0], fn: function () { tp.goTo(to[1]); if (to[1] === SECS.watch) watchShow(m.key); else if (to[1] === SECS.third) tp.listShowDay(m.day); } } : { label: 'Open your plan', fn: tp.openPlan };
     tp.toast((on ? 'Ticket marked: ' : 'Ticket removed: ') + matchName(m.f), line, act);
+    // Never over the control they just pressed (check 11): if the toast would cover it, it is left out; the button's
+    // own pressed state shows the change, and screen readers hear it. Checked before the toast is painted.
+    // The pressed button may have been redrawn, and the same ticket has a button in more than one place, so every
+    // button for this ticket is checked
+    var te = document.querySelector('.tp-toast'), obs = [];
+    if (opener && opener.isConnected) obs.push(opener);
+    else if (opener && opener.dataset && opener.dataset.ticket) obs = [].slice.call(document.querySelectorAll('[data-ticket="' + CSS.escape(opener.dataset.ticket) + '"]'));
+    if (te && !te.hidden && obs.some(function (ob) {
+      var a = te.getBoundingClientRect(), c = ob.getBoundingClientRect();
+      return c.height && c.bottom > a.top - 12 && c.top < a.bottom + 12 && c.right > a.left && c.left < a.right;
+    })) tp.toastHide(true);
   }
   // I have tickets on a match row: the same ticket as the match sheet's
   phone.addEventListener('click', function (e) {
     var b = e.target.closest('[data-ticket]'); if (!b || pm.contains(b)) return;
     var m = tp.match(b.dataset.ticket); if (!m) return;
     var on = state.tickets.indexOf(m.tkey) < 0;
-    ticketToggle(m, on, function () { tp.setTicket(m.tkey, on); });
+    ticketToggle(m, on, function () { tp.setTicket(m.tkey, on); }, null, b);
     tp.say((on ? 'Ticket marked for ' : 'Ticket removed for ') + matchName(m.f) + '. ' + tp.summary());
   });
   // Something put on, or taken off, the plan: says which day it landed on; the link opens the plan (not over a sheet)

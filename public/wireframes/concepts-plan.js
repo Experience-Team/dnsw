@@ -82,13 +82,18 @@
 
   /* ---------- Drawing ---------- */
   var MOVE = '<svg class="tp-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h11M10 4.5L13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  /* I have tickets on the plan's match cards (19 Nov), the same button as the team cards' rows: one ticket wherever
+     it is marked, the same toast (ticketToggle in concepts-third-half.js). A match to watch only, or with teams to be
+     decided, keeps its line of text */
+  var I_TIX = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1.6a1.6 1.6 0 0 0 0 2.8V11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9.4a1.6 1.6 0 0 0 0-2.8z"/><path class="tc-tix-tick" d="M5.6 8.1l1.6 1.6 3.2-3.3"/></svg>';
   function matchHtml(m, watchOnly) {
-    var f = m.f, where = f.a ? f.v + ', ' + f.a + ' (interstate)' : f.v + ', ' + f.p;
-    return '<li class="tp-dc-m' + (f.a ? ' is-away' : '') + '">' + flags(f) +
+    var f = m.f, where = f.a ? f.v + ', ' + f.a + ' (interstate)' : f.v + ', ' + f.p, tix = !watchOnly && !!m.tkey;
+    return '<li class="tp-dc-m' + (f.a ? ' is-away' : '') + (tix ? ' has-tix' : '') + '">' + flags(f) +
       '<div class="tp-dc-m-b"><button type="button" class="tp-dc-name" data-dc-match="' + esc(m.key) + '" aria-haspopup="dialog">' + esc(mName(f)) + '</button>' +
       '<span class="tp-dc-time">' + (f.k ? esc(f.k) + ' Sydney time' : 'Time to be confirmed') + '</span>' +
       '<span class="tp-dc-where">' + esc(where) + '</span>' +
-      '<span class="tp-dc-tk' + (hasTicket(m) ? ' is-on' : '') + '">' + (watchOnly ? 'To watch in NSW, not in your plan' : hasTicket(m) ? 'You have a ticket' : 'No ticket marked') + '</span></div></li>';
+      (tix ? '' : '<span class="tp-dc-tk">' + (watchOnly ? 'To watch in NSW, not in your plan' : 'Teams to be decided') + '</span>') + '</div>' +
+      (tix ? '<button type="button" class="tc-act tc-tix tp-dc-tix" data-ticket="' + esc(m.tkey) + '" aria-pressed="' + hasTicket(m) + '">' + I_TIX + '<span>I have tickets</span><span class="visually-hidden">: ' + esc(mName(f)) + ', ' + esc(f.d) + '</span></button>' : '') + '</li>';
   }
   function itemHtml(it, day) {
     var time = '', sub = it.kindLabel || 'Added';
@@ -162,7 +167,7 @@
   function snapshot() {
     var a = document.activeElement, sel = null;
     if (a && root.contains(a)) {
-      var attrs = ['dcDay', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcIdeas', 'dcExpand', 'dcTo', 'dcPrev', 'dcNext'];
+      var attrs = ['dcDay', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcIdeas', 'dcExpand', 'dcTo', 'dcPrev', 'dcNext', 'ticket'];
       for (var i = 0; i < attrs.length; i++) if (a.dataset[attrs[i]] !== undefined) { sel = '[data-' + attrs[i].replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(a.dataset[attrs[i]]) + '"]'; break; }
       if (!sel && a.id) sel = '#' + CSS.escape(a.id);
     }
@@ -372,7 +377,7 @@
     render: render,
     goTo: goTo,
     same: function (el) {
-      var ds = el.dataset || {}, k = ['dcIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcDay', 'dcExpand'].filter(function (x) { return ds[x] !== undefined; })[0];
+      var ds = el.dataset || {}, k = ['dcIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcDay', 'dcExpand', 'ticket'].filter(function (x) { return ds[x] !== undefined; })[0];
       var hit = k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;
       // A day filled from its ideas sheet loses Add ideas: its card's heading stands in
       if (!hit && k === 'dcIdeas') { var c = cardFor(+ds.dcIdeas); hit = c && c.querySelector('.tp-dc-h'); }
