@@ -5437,10 +5437,15 @@ span.tp-map-arrow { display: block; }
   .pv-device #tp-phone .tp-top { margin: 0 calc(-1 * (var(--wide-pad) + var(--rail-span))) 0 calc(-1 * var(--wide-pad)); padding: var(--space-5) calc(var(--wide-pad)) ; }
 
   /* Section nav: the capsule at its natural width on the left, a row of its own under the header, sticky */
-  .pv-device #tp-phone .tp-cap-wrap { margin: var(--space-5) 0 var(--space-8); }
+  /* The tabs sit in the header bar, centred between the two logos (19 Nov): the wrap spans the header's width and is
+     pulled up into it (--top-h, the header's height, is set by the capsule script); 40px under the header to the page.
+     Scrolled, it sticks as before, centred on its own bar */
+  .pv-device #tp-phone .tp-cap-wrap { display: flex; justify-content: center; pointer-events: none;
+    margin: calc(-1 * (var(--top-h, 110px) / 2 + 22px)) calc(-1 * (var(--wide-pad) + var(--rail-span))) calc(var(--top-h, 110px) / 2 + 18px) calc(-1 * var(--wide-pad)); }
+  .pv-device #tp-phone .tp-cap-wrap .tp-cap { pointer-events: auto; }
   /* Stuck under the top of the window it gets a band of the page colour behind it, across the window, so the page
      scrolls under a bar rather than under a floating pill; it keeps its size (no shrinking on a big screen) */
-  .pv-device #tp-phone .tp-cap-wrap::before { content: ""; position: absolute; z-index: -1; top: -8px; bottom: -12px; left: calc(-1 * var(--wide-pad)); right: calc(-1 * (var(--wide-pad) + var(--rail-span))); background: var(--c-surface); border-bottom: var(--bw-1) solid var(--c-line-soft); opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+  .pv-device #tp-phone .tp-cap-wrap::before { content: ""; position: absolute; z-index: -1; top: -8px; bottom: -12px; left: 0; right: 0; background: var(--c-surface); border-bottom: var(--bw-1) solid var(--c-line-soft); opacity: 0; transition: opacity .2s ease; pointer-events: none; }
   .pv-device #tp-phone .tp-cap-wrap.is-stuck::before { opacity: 1; }
   .pv-device #tp-phone .tp-cap-wrap.is-stuck .tp-cap { box-shadow: none; }
   .pv-device #tp-phone .tp-cap-wrap.is-small .tp-cap { transform: none; }
