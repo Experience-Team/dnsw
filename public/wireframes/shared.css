@@ -3744,9 +3744,25 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-home-rugby .tp-rugby-link { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-base); }
 .tp-home-rugby .tp-rugby-why { margin-top: 0; }
 /* At a glance: short caps labels over each fact */
-.tp-glance { display: grid; gap: var(--space-4); margin: var(--space-4) 0 0; }
-.tp-glance dt { font-family: var(--font-label); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: .06em; text-transform: uppercase; }
-.tp-glance dd { margin: 2px 0 0; font-size: var(--fs-base); line-height: 1.4; }
+/* At a glance as three cards (19 Nov, Figma 388:6855): stacked on a phone, each led by a big picture, 16px apart;
+   the body in the prototype's colours: chalk (the card surface), the colourway, ink. Text on the colourway is ink, as
+   white on orange is 3.3:1 (AA needs 4.5:1 at this size). The wireframe keeps to greys. */
+.tp-gl { display: grid; gap: var(--space-4); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
+.tp-gl-card { display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius-md); }
+.tp-gl-img { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 0; }
+.tp-gl-body { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); padding: var(--space-5) var(--space-5) var(--space-5); background: var(--c-surface-2); color: var(--c-ink); }
+.tp-gl-lock { align-self: flex-end; margin-bottom: calc(var(--space-1) * -1); font-family: var(--font-label); font-size: 10px; font-weight: var(--fw-bold); line-height: 1.05; text-align: right; text-transform: uppercase; }
+.tp-gl-h { margin: 0; font-family: var(--font-display, inherit); font-size: 1.875rem; font-weight: var(--fw-bold); line-height: 1.05; letter-spacing: -.01em; text-wrap: balance; }
+.tp-gl-p { margin: 0; font-size: var(--fs-md); line-height: 1.45; }
+.tp-gl-card .tp-home-ph { color: inherit; opacity: .75; }
+.tp-gl-link { display: inline; padding: 6px 0; margin-top: var(--space-1); color: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.6; letter-spacing: .02em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; } /* inline, so a wrapped label keeps its arrow after the last word */
+.tp-gl-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.tp-gl-arr { display: inline-block; width: 14px; height: 14px; margin-left: 6px; vertical-align: -2px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tp-gl-card--2 .tp-gl-body { background: var(--c-fill-mid, #d6d6d6); }
+.tp-gl-card--3 .tp-gl-body { background: var(--c-btn); color: var(--c-on-dark); }
+:root[data-theme="hifi"] .tp-gl-card--1 .tp-gl-body { background: var(--tth-color-chalk); box-shadow: inset 0 0 0 1px var(--c-line-soft); }
+:root[data-theme="hifi"] .tp-gl-card--2 .tp-gl-body { background: var(--tth-surface-brand); color: var(--tth-color-ink); }
+:root[data-theme="hifi"] .tp-gl-card--3 .tp-gl-body { background: var(--tth-color-ink); color: #fff; }
 .tp-home-more { display: inline-flex; align-items: center; gap: 6px; margin-top: var(--space-4); font-size: var(--fs-base); }
 .tp-home-more .tp-home-arr { width: 14px; height: 14px; }
 /* Where the matches are: a cut-down map, then a card per stadium */
@@ -5589,6 +5605,14 @@ span.tp-map-arrow { display: block; }
 /* Home on the desktop website: the map and the Drop goal picture keep a readable size rather than filling the column */
 @media (min-width: 1024px) {
   .pv-device #tp-phone :is(.tp-home-map, .tp-home-kick-img) { max-width: 560px; margin-inline: 0; }
+  /* At a glance: large landscape cards, the picture left and the text right, one under the other */
+  .pv-device #tp-phone .tp-gl { gap: var(--space-5); }
+  .pv-device #tp-phone .tp-gl-card { flex-direction: row; min-height: 360px; }
+  .pv-device #tp-phone .tp-gl-img { flex: 3 1 0; width: auto; aspect-ratio: auto; min-height: 100%; }
+  .pv-device #tp-phone .tp-gl-body { flex: 2 1 0; justify-content: center; padding: var(--space-6); }
+  .pv-device #tp-phone .tp-gl-lock { position: absolute; top: var(--space-5); right: var(--space-5); margin: 0; }
+  .pv-device #tp-phone .tp-gl-h { font-size: 2.25rem; }
+  .pv-device #tp-phone .tp-gl-p { font-size: var(--fs-base); max-width: 36ch; }
   /* The stadium cards stay a list on the desktop website, as before: nothing to swipe */
   .pv-device #tp-phone .tp-home-cities.is-car { display: grid; margin-inline: 0; padding: 0; overflow: visible; }
   .pv-device #tp-phone .tp-home-cities.is-car > li { width: auto; }
