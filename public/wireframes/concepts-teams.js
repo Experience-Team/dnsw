@@ -618,11 +618,14 @@
     viewLabel();
     /* Plays in NSW: marks the cards of the teams with a match in NSW with a small NSW tag. Nothing is hidden or dimmed,
        so a team that plays interstate can still be picked (its fans can watch in NSW) */
+    // The picker by its id, not by its place: Home and the Add team sheet lend it out of the planner (19 Nov: Reset on
+    // Home stopped here, as the picker was not under root)
+    function pickerEl() { return document.getElementById('tp-picker') || root.querySelector('.tp-picker'); }
     var nswSw = document.getElementById('tp-nswmark');
     syncNswMark = function () {
       if (!nswSw) return;
       nswSw.setAttribute('aria-checked', state.nswMark ? 'true' : 'false');
-      root.querySelector('.tp-picker').classList.toggle('show-nsw', state.nswMark);
+      pickerEl().classList.toggle('show-nsw', state.nswMark);
       cards2.forEach(function (b) { b.setAttribute('aria-label', cardLabel(CARDS[+b.dataset.i])); });
       cards.forEach(function (b) { b.setAttribute('aria-label', cardLabel(CARDS[+b.dataset.i])); });
     };
@@ -695,7 +698,7 @@
     if (!findBox || !findBox.hidden) { if (findIn) findIn.focus(); return; }
     if (findAnim) findAnim.cancel();
     findBox.hidden = false; findOpen.setAttribute('aria-expanded', 'true');
-    var head = root.querySelector('.tp-util'), top = head.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    var head = document.getElementById('tp-util') || root.querySelector('.tp-util'), top = head.getBoundingClientRect().top - body.getBoundingClientRect().top;
     var room = (window.tpCapRoom ? window.tpCapRoom() : 0);
     if (top < 8 + room || top > 120 + room) body.scrollTo({ top: Math.max(0, body.scrollTop + top - 16 - room), behavior: reduce.matches ? 'auto' : 'smooth' });
     showKbd(true);
