@@ -2357,7 +2357,7 @@
      row, a sheet's own bottom row (Done, Use these dates, the photo's buttons), the day by day map's card, the
      keyboard. Only one that is actually on top counts (a bar under an open sheet does not), and only while its foot
      is at the screen's foot. Checked while the toast is up, so it moves with the bar appearing or a sheet opening. */
-  var PINNED = '.tp-tl-bar, .tp-tl-foot, .tp-days-bar, .tp-ts-acts, .tp-cc-acts, .tp-ph-acts, .tp-mapfs:not([hidden]) .tp-map-card, .tp-kbd';
+  var PINNED = '.tp-tl-bar, .tp-tl-foot, .tp-days-bar, .tp-pm-save, .tp-ts-acts, .tp-cc-acts, .tp-ph-acts, .tp-mapfs:not([hidden]) .tp-map-card, .tp-kbd';
   var toastWatch = 0;
   function onTop(el, r) {
     var x = r.left + r.width / 2, y = r.top + Math.min(6, r.height / 2);

@@ -1046,6 +1046,25 @@
   pm.className = 'cn-pp tp-pm'; pm.id = 'tp-pm'; pm.hidden = true;
   pm.setAttribute('role', 'dialog'); pm.setAttribute('aria-modal', 'true'); pm.setAttribute('aria-labelledby', 'tp-pm-title');
   pm.innerHTML = '<div class="cn-bar"><button type="button" class="cn-close tp-pm-back" data-pm-back aria-label="Back" hidden><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2L4 7l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="cn-bar-title" id="tp-pm-kind"></p><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
+  /* Save in the match sheet (20 Nov): every change there is applied at once, but on a phone the line saying so sits
+     below the fold, and the cross reads as cancel. Once something changes, a bar pins to the sheet's foot with what
+     changed and Save, which does exactly what the cross does: closes the sheet. It stays while drilled into a venue
+     from that match, and goes when the sheet closes */
+  var pmSave = document.createElement('div');
+  pmSave.className = 'tp-pm-save'; pmSave.hidden = true;
+  pmSave.innerHTML = '<p class="tp-pm-save-said" aria-hidden="true"></p><button type="button" class="tp-pill tp-pill--dark" data-pm-save>Save</button>';
+  pm.appendChild(pmSave);
+  var pmRoot = '';
+  function said(t) {
+    pmSaid = t;
+    if (pmRoot.indexOf('match:') !== 0) return;
+    pmSave.querySelector('p').textContent = t;
+    if (pmSave.hidden) {
+      pmSave.hidden = false; pm.classList.add('has-save');
+      if (!reduce.matches && pmSave.animate) pmSave.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: 'cubic-bezier(.2, 0, 0, 1)' });
+    }
+  }
+  function saveOff() { pmSave.hidden = true; pm.classList.remove('has-save'); }
   phone.appendChild(pm);
   // A match opens as a sheet from the bottom, over a scrim; products and places stay full-screen pages
   var pmScrim = document.createElement('div');
@@ -1588,6 +1607,7 @@
     var x = isCity ? { type: 'city' } : isPoi ? { type: 'poi' } : isIdea ? { type: 'idea' } : isIdeas ? { type: 'ideas' } : isKo ? { type: 'ko' } : isWt ? { type: 'wt' } : isDays ? { type: 'days' } : isMatch ? { type: 'match', m: tp.match(id.slice(6)) } : isItem ? { type: 'item', it: addedItem(id.slice(5)) } : MODAL[id];
     if (!x || (isMatch && !x.m) || (isItem && !x.it)) return false;
     pmSaid = '';
+    if (!swap) { pmRoot = id; saveOff(); }
     // Products, curated trips and watch spots open as sheets too (16 Nov), not full-screen pages: the page stays in view
     // above, and the cross, the scrim or Escape closes them
     var isRoute = x.type === 'route', asSheet = isCity || isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot' || isPoi || isIdea || isItem;
@@ -1883,7 +1903,7 @@
     // A link inside the sheet to something with details of its own (a venue, a place, a match): the sheet drills down
     var ol = e.target.closest('[data-open]');
     if (ol && pmBody.contains(ol)) { e.preventDefault(); pmPush(ol.dataset.open, ol); return; }
-    if (e.target.closest('[data-pm-close]')) { pmClearHistory(); closePm(); return; } // the cross closes the whole sheet
+    if (e.target.closest('[data-pm-close]') || e.target.closest('[data-pm-save]')) { pmClearHistory(); closePm(); return; } // the cross, or Save, closes the whole sheet
     // From the travel sheet: Where are you staying? as the next level; Done comes back to the route, now their own
     var gst = e.target.closest('[data-go-stay]');
     if (gst) { dStay = true; dsel = dRange(); pmPush('days:stay', gst); return; }
@@ -1914,7 +1934,7 @@
       var key = mb.dataset.pmMatch, f = tp.match(key).f, id = matchId(key), on = !added(id);
       if (on) tp.addItem({ id: id, kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
       else tp.removeItem(id);
-      pmSaid = on ? matchName(f) + ' is on your plan, ' + f.d + '.' : matchName(f) + ' is off your plan.';
+      said(on ? matchName(f) + ' is on your plan, ' + f.d + '.' : matchName(f) + ' is off your plan.');
       pmRefresh('[data-pm-match]');
       planToast(id, matchName(f), on);
       tp.say(pmSaid);
@@ -1922,7 +1942,7 @@
     }
     var tb = e.target.closest('[data-pm-team]');
     if (tb) {
-      pmSaid = tp.pickTeam(tb.dataset.pmTeam) + '.';
+      said(tp.pickTeam(tb.dataset.pmTeam) + '.');
       pmRefresh('[data-pm-team="' + CSS.escape(tb.dataset.pmTeam) + '"]');
       return; // the pick says its own line to screen readers
     }
@@ -1935,7 +1955,7 @@
       if (!si) return;
       var son = !added(si.id);
       if (son) tp.addItem(Object.assign({}, si)); else tp.removeItem(si.id);
-      pmSaid = si.title + (son ? ' added to your plan on ' + si.day + '.' : ' removed from your plan.');
+      said(si.title + (son ? ' added to your plan on ' + si.day + '.' : ' removed from your plan.'));
       e.stopPropagation(); // handled here: the page's own Add handler must not toggle it back
       pmRefresh('[data-pm-spot="' + CSS.escape(si.id) + '"]');
       planToast(si.id, si.title, son);
@@ -1952,7 +1972,7 @@
       if (!vi) return;
       var von = !added(vi.id);
       if (von) tp.addItem(Object.assign({}, vi)); else tp.removeItem(vi.id);
-      pmSaid = vi.title + (von ? ' added to your plan on ' + vi.day + '.' : ' removed from your plan.');
+      said(vi.title + (von ? ' added to your plan on ' + vi.day + '.' : ' removed from your plan.'));
       e.stopPropagation();
       if (isWt) { var st = pmBody.scrollTop; redraw(); pmBody.scrollTop = st; var fb = pm.querySelector('.tp-add[data-item="' + CSS.escape(vid) + '"]'); if (fb) fb.focus({ preventScroll: true }); }
       else pmRefresh('.tp-add[data-item="' + CSS.escape(vid) + '"]');
@@ -2011,7 +2031,7 @@
       if (cb.checked && !mine && !added(matchId(key))) tp.addItem({ id: matchId(key), kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
       tp.setTicket(m.tkey, cb.checked);
     });
-    pmSaid = cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your plan.') : 'Ticket removed.';
+    said(cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your plan.') : 'Ticket removed.');
     pmRefresh('[data-pm-ticket]');
     tp.say(pmSaid);
   });
@@ -2162,6 +2182,8 @@
   });
   // Something put on, or taken off, the plan: says which day it landed on; the link opens the plan (not over a sheet)
   function planToast(id, title, on) {
+    // In the match sheet the Save bar already says it, where they acted (check 11): no toast as well
+    if (pmOpen && pmRoot.indexOf('match:') === 0) return;
     var it = addedItem(id), act = pmOpen ? null : { label: 'Open your plan', fn: tp.openPlan };
     if (!on) { tp.toast('Removed from your plan', title + '.'); return; }
     if (!it) return;
