@@ -1,8 +1,8 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-19 November 2026, evening (Sydney). Repo `Experience-Team/dnsw`, main at `61c048f` (Thu 19 Nov, 6:37pm, the merge of #542). **No PR is open** apart from this handover's own. #527 to #542 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
+20 November 2026, afternoon (Sydney). Repo `Experience-Team/dnsw`, main at `726c621` (Fri 20 Nov, 1:27pm, the merge of #545). **No PR is open** apart from this handover's own. #527 to #545 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
-This replaces the earlier 19 November handover. The Home tab is now built and is the tab the page opens on. Open questions are carried over, trimmed to what still stands, with new ones from the 16 to 19 Nov audit added.
+This replaces the 19 November evening handover (#543). Since then: a Low fidelity prototype tab on the desktop (#544), and the open plan no longer scrolls sideways (#545). The Home tab is built and is the tab the page opens on. Open questions are carried over, trimmed to what still stands, with new ones from the 16 to 19 Nov audit added.
 
 ## Ways of working
 
@@ -97,7 +97,11 @@ This replaces the earlier 19 November handover. The Home tab is now built and is
 - **`pv-device.js`:** paints library images in high fidelity, from `data-img` keys (`imgKey(title)` in third-half).
 - **`shared.css`:** everything for this page is under `.tp-*`. Page section spacing comes from `--sec-gap` (64px). Your days now sits inside the picker, 24px under Clear all, with no box. The desktop layout is under `@media (min-width:1024px)`, scoped to `.pv-device #tp-phone`.
 
-## Done on 19 November (#528 to #542)
+## Done on 19 and 20 November (#528 to #545)
+
+- **#545:** the open plan (swipe by day) no longer scrolls sideways. The visually-hidden labels on the I have tickets buttons (#535) were absolutely positioned against the panel, stretching it to 3,306px. The day track and both carousels are now `position: relative`, and the plan panel is `overflow-x: hidden`; only the cards and the day line scroll. Also a new CLAUDE.md build note (approved by the user): find an element that can be lent elsewhere by its id, never by the section it usually sits in.
+- **#544:** desktop only: a Low fidelity prototype tab in the window's top left corner.
+- **#543:** the previous version of this handover.
 
 - **#542:** Home: the day-trip photos and nudge line under the stadium cards removed; desktop polish (one content edge, two columns where the phone stacks).
 - **#541:** desktop website: the capsule tabs sit in the header bar between the two logos; scrolled, they stick on their own bar.
@@ -125,6 +129,8 @@ This replaces the earlier 19 November handover. The Home tab is now built and is
   - the `pmOpenerEl` fallbacks in `closePm`.
   - A day filled from its ideas sheet loses Add ideas, so focus goes to the day's heading.
 - **The lent picker:** while `#tp-at` is open, `#tp-util` and `#tp-picker` live in the sheet and a `.tp-at-hold` placeholder keeps their height on the page. Anything that looks the picker up by its place in the page (for example `.tp-pick > #tp-picker` in the desktop CSS) won't match while it's lent.
+- **Hidden labels inside scrollers:** a visually-hidden span is absolutely positioned, so it is placed against the nearest positioned ancestor. Inside a horizontal scroller that isn't positioned, it can stretch a far-off panel and make the whole sheet scroll sideways (#545). Give any new scroller `position: relative`.
+- **Tests start on Home:** Home is the default tab, so click the Plan tab (or open `?view=plan`) before testing the planner.
 - **Date fields in headless Chromium** show mm/dd/yyyy (en-US); real phones in Australia show dd/mm/yyyy.
 - **Test server:** a background `python3 -m http.server` is stopped by the session's background time limit; start it again when a test can't connect.
 - **Two Vercel projects** deploy every push. The user hasn't decided whether to disconnect one.
@@ -146,9 +152,9 @@ This replaces the earlier 19 November handover. The Home tab is now built and is
 5. **At 320 wide:** on the Every NSW match card the wider I have tickets button wraps long names (New Zealand) to two lines.
 6. **From #527, still unanswered:** the open plan's heading repeats "Your plan" from the bar; the end-of-page summary says "added" while the bar says "saved"; a dated save made with no team stays in the box after a team is picked, until days are set.
 7. **Seen at 320 wide, predating these changes:** "Your matches (6)" wraps in low fidelity (check 6).
-8. **The itinerary prototype** (`prototype-itinerary.html`) has its own date fields, not matched to the new picker. Ask before changing it.
+8. **The itinerary prototype** (`prototype-itinerary.html`) has its own date fields, not matched to the new picker, and no I have tickets button. The full-screen Follow day by day map card has no ticket button either. Ask before changing them.
 9. **Section gaps:** 64px (`--sec-gap`) against the principles' 48px between families.
-10. **CLAUDE.md tidy-up:** "9. Look, don't only measure" sits under Build notes instead of the numbered checks.
+10. **CLAUDE.md tidy-up:** "9. Look, don't only measure" sits under Build notes instead of the numbered checks (still true after the #545 build note).
 11. **Carried over, not raised since:** trip stops aren't links; the annotations are stale for the sheet work in #512 to #516; venue match counts for Adelaide and Townsville; the dashed Every NSW match icon; "Pick your team" / "Your teams" / "Add team" wording; the bar's counts and Tab order.
 
 ## The homepage (built 19 November, second session)
@@ -156,7 +162,7 @@ This replaces the earlier 19 November handover. The Home tab is now built and is
 - **Which:** the **Home** tab of the Pick your team prototype, from Figma 385:649, in the prototype's own styles. It is now the tab the page opens on; `?view=plan` opens the planner. Links shared before this that expected the planner now open on Home.
 - **Where:** markup in `#tp-home` (`prototype-pick-your-team.html`), script `concepts-home.js`, styles under "Home" in `shared.css`, the host city sheet as `city:` ids in `openPm` (`pmCity`, `tp.hosts`, `tp.hostMatches` in concepts-third-half.js).
 - **One hand:** the capsule script lends `#tp-picker` to `#tp-home-hand` while Home shows (a comment node marks its planner place). `window.tpView` (`get`, `go`, `reveal`, `lend`); `goTo` reveals a section's tab first.
-- **Placeholders:** the hero video, the Drop goal picture (the Figma reference is a real video game screenshot), FAQ answers, tickets link, transport line, consent wording, the footer, Where to stay in the host city sheet.
+- **Placeholders:** the hero video, the Drop goal picture (the Figma reference is a real video game screenshot), FAQ answers, tickets link, transport line, consent wording, the footer, Where to stay in the host city sheet, and the At a glance cards' stand-in photos and bracketed copy.
 - **Since the first build:** Read before you go (`#tp-home-reads`, dummy articles), At a glance as three cards, the stadium cards as a carousel on phones linked to the pins (`concepts-home.js`), highlights at the top of each host city sheet (`cnHostHighlights` in `concepts-fixtures.js`), and the desktop layout (full width, no rail, tabs in the header bar, the plan bar floating at the foot once a team is picked).
 - **Not done yet:** Drop goal itself; the article page; day trips in the host city sheet are listed, not linked (a trip sheet needs a free stretch to fit into).
 
