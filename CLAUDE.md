@@ -139,6 +139,9 @@ Implementation lessons that testing caught; they are about the code, not the exp
 - Code that measures layout (fitting text to a width, sizing a panel) skips anything hidden, where widths read as
   zero, and re-runs only when the measured width actually changes, never on its own height changes. For example, the
   slogan fit measured the planner while another tab was showing and shifted it 6px on every return.
+- Find an element that can be lent to another part of the page (moved into a sheet or another tab while it shows
+  there) by its id, never by the section it usually sits in. For example, Reset broke on Home because it looked for
+  the team picker inside the planner while Home had borrowed it.
 9. **Look, don't only measure.** Check every change by eye from screenshots in both themes (low and high fidelity) at
    390 and 320 wide, in each state the change touches. Use `?phone&tools&theme=wireframe` or `&theme=hifi`: without
    `?phone` the phone frame stays 358 wide at any window size, and without `?tools` the theme switch is ignored.
