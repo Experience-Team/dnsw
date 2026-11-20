@@ -1695,8 +1695,8 @@
       if (it && it.day) clashDays[dayOf(it.day)] = true;
       (tlClash[id] || []).forEach(function (c) { if (c && c.day && /^\w{3} \d{1,2} (Oct|Nov)$/.test(c.day)) clashDays[dayOf(c.day)] = true; });
     });
-    // and so does a day with matches that clash (20 Nov)
-    shown.forEach(function (m) { if (!clashDays[m.day] && matchClash(m.day)) clashDays[m.day] = true; });
+    // and so does a day with matches at the same time (20 Nov; matches in several cities get a line, no ring)
+    shown.forEach(function (m) { if (!clashDays[m.day]) { var mc = matchClash(m.day); if (mc && mc.ring) clashDays[m.day] = true; } });
     tlDotEls.forEach(function (el, i) { el.classList.toggle('is-clash', !!clashDays[i]); });
     if (String(added || '') !== tlBadge.textContent) {
       tlBadge.hidden = !added;
@@ -2255,34 +2255,26 @@
   // Anything of their own: a team picked, or a match added on its own
   function own() { return state.picked.length > 0 || state.added.some(function (it) { return it.kind === 'match'; }); }
   function allMatches() { return TLM.slice(); }
-  /* Matches that clash (20 Nov). Only matches they mean to go to count: an NSW match of a team they picked, or any match
-     they have marked I have tickets on (with Every NSW match alone, only ticketed ones). Watching a match in NSW is never
-     a clash. Two or more of those on one day clash when they are in different cities, or when two share a kick-off.
-     Nothing is guessed: the fixtures hold no match lengths or travel times, so two in one city at different kick-offs,
-     or a short hop between cities, are not judged. */
+  /* Matches on one day (20 Nov, replacing the earlier going-to rule). Every match of the picked teams counts, interstate
+     ones too, using only each match's kick-off and city: the fixtures hold no match lengths or travel times, so nothing
+     is guessed. Two or more kick off at the same time: "2 matches at the same time", with the red ring on that day.
+     Otherwise, matches in two or more cities: "Matches in 3 cities", a quieter line and no ring. Both: only the first.
+     One match, or several in one city at different times: nothing. */
   function mCity(f) { return f.a || (window.cnVenueCity || {})[f.v] || f.p; }
-  function going(m) {
-    var f = m.f; if (!f.t || !own()) return false;
-    if (m.tkey && state.tickets.indexOf(m.tkey) > -1) return true;
-    return !f.a && f.t.split(' v ').some(function (n) { return state.picked.indexOf(n) > -1; });
-  }
-  function short(k) { return k.replace(':00', ''); } // 8pm, not 8:00pm
+  function sameTime(ms) { var byK = {}; ms.forEach(function (m) { if (m.f.k) (byK[m.f.k] = byK[m.f.k] || []).push(m); }); return Object.keys(byK).reduce(function (n, k) { return n + (byK[k].length > 1 ? byK[k].length : 0); }, 0); }
   function matchClash(day) {
-    var ms = userMatches().filter(function (m) { return m.day === day && going(m); });
+    var ms = userMatches().filter(function (m) { return m.day === day; });
     if (ms.length < 2) return null;
-    var cities = [], byK = {};
-    ms.forEach(function (m) { var c = mCity(m.f); if (cities.indexOf(c) < 0) cities.push(c); if (m.f.k) (byK[m.f.k] = byK[m.f.k] || []).push(m); });
-    var same = Object.keys(byK).filter(function (k) { return byK[k].length > 1; })[0];
-    if (cities.length < 2 && !same) return null;
-    if (cities.length > 1) return { ms: ms, line: 'Clash: you\u2019re going to matches in ' + list(cities) + ' this day.', say: 'clash, matches in ' + list(cities) };
-    var n = byK[same].length;
-    return { ms: ms, line: 'Clash: ' + n + ' of your matches kick off at ' + short(same) + '.', say: 'clash, ' + n + ' matches kick off at ' + short(same) };
+    var n = sameTime(ms), cities = [];
+    if (n) return { kind: 'time', ring: true, ms: ms, line: n + ' matches at the same time', say: n + ' matches at the same time' };
+    ms.forEach(function (m) { var c = mCity(m.f); if (cities.indexOf(c) < 0) cities.push(c); });
+    if (cities.length > 1) return { kind: 'cities', ring: false, ms: ms, line: 'Matches in ' + cities.length + ' cities', say: 'matches in ' + cities.length + ' cities' };
+    return null;
   }
-  // The matches one match clashes with, each with its city: [{ name, city }]
+  // The matches of the picked teams that kick off at the same time as this one, that day (for its match sheet)
   function clashWith(m) {
-    if (!going(m) || !matchClash(m.day)) return [];
-    return userMatches().filter(function (o) { return o !== m && o.day === m.day && going(o) && (mCity(o.f) !== mCity(m.f) || (o.f.k && o.f.k === m.f.k)); })
-      .map(function (o) { return { name: o.f.t, city: mCity(o.f) }; });
+    if (!m.f.k || userMatches().indexOf(m) < 0) return [];
+    return userMatches().filter(function (o) { return o !== m && o.day === m.day && o.f.k === m.f.k; }).map(function (o) { return { name: o.f.t || o.f.s, city: mCity(o.f) }; });
   }
   // The days in NSW guessed from what they have picked: first to last NSW match. Nothing to go on without a pick.
   function inferTrip() {

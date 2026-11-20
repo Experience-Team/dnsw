@@ -1124,7 +1124,7 @@
       '<div><dt>Kick-off</dt><dd>' + (f.k ? esc(f.k) + ' Sydney time' : 'Time to be confirmed') + '</dd></div>' +
       '<div><dt>Venue</dt><dd>' + esc(f.v) + '</dd></div>' +
       '<div><dt>City</dt><dd>' + esc(f.p) + (f.a ? ' (interstate)' : ', NSW') + '</dd></div></dl>';
-    // A match they are going to that clashes with another that day (20 Nov, tp.clashWith in concepts-teams.js)
+    // Another match of the picked teams kicks off at the same time (20 Nov, tp.clashWith in concepts-teams.js)
     var cw = tp.clashWith ? tp.clashWith(m) : [];
     if (cw.length) h += '<p class="tp-pm-clash">' + esc(clashLine(cw)) + '</p>';
     // On the plan already, through a team or Here for the rugby: say so instead of offering to add it
@@ -2129,19 +2129,17 @@
      match; the line names what changed (your plan always, then the sections that did); one link to the first section
      that changed, or Open your plan, and none while a sheet is open over the page. Screen readers already hear the
      change from the control, so the toast adds nothing for them. */
-  function clashLine(cw) { return 'Clashes with ' + tp.list(cw.map(function (c) { return c.name + ' in ' + c.city; })) + '.'; }
+  function clashLine(cw) { return 'At the same time as ' + tp.list(cw.map(function (c) { return c.name + ' in ' + c.city; })) + '.'; }
   function ticketToggle(m, on, apply, fromSec, opener) {
-    var before = snap(), cw0 = tp.clashWith ? tp.clashWith(m) : [];
+    var before = snap();
     apply();
-    // A ticket can make a clash, or end one, on a day out of view: the toast says so (check 11)
-    var cw1 = tp.clashWith ? tp.clashWith(m) : [], clashTxt = cw1.length ? ' Now c' + clashLine(cw1).slice(1) : cw0.length ? ' No longer c' + clashLine(cw0).slice(1) : '';
     changedSince(before, '');
     var ch = lastChanged.filter(function (c) { return c[1]; }), names = ['Your plan'].concat(ch.map(function (c) { return c[0]; }));
     var line = (names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] + ' are' : names[0] + ' is') + ' updated.';
     // The link goes to the first changed section other than the one they acted in, and lands on the change itself
     var to = ch.filter(function (c) { return c[1] !== fromSec; })[0];
     var act = pmOpen ? null : to ? { label: 'See ' + to[0], fn: function () { tp.goTo(to[1]); if (to[1] === SECS.watch) watchShow(m.key); else if (to[1] === SECS.third) tp.listShowDay(m.day); } } : { label: 'Open your plan', fn: tp.openPlan };
-    tp.toast((on ? 'Ticket marked: ' : 'Ticket removed: ') + matchName(m.f), line + clashTxt, act);
+    tp.toast((on ? 'Ticket marked: ' : 'Ticket removed: ') + matchName(m.f), line, act);
     // Never over the control they just pressed (check 11): if the toast would cover it, it is left out; the button's
     // own pressed state shows the change, and screen readers hear it. Checked before the toast is painted.
     // The pressed button may have been redrawn, and the same ticket has a button in more than one place, so every

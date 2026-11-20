@@ -5267,6 +5267,8 @@ span.tp-map-arrow { display: block; }
 .tp-dc-day.is-clash { box-shadow: 0 0 0 1.5px var(--c-surface), 0 0 0 3px var(--c-danger); }
 .tp-dc-mclash, .tp-pm-clash { margin: calc(var(--space-2) * -1) 0 var(--space-3); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-danger); }
 .tp-pm-clash { margin: var(--space-3) 0 0; }
+/* Matches in several cities, none at the same time: said, quieter, with no ring (20 Nov) */
+.tp-dc-mclash.is-quiet { color: var(--c-ink-2); }
 .tp-dc-day:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-dc-cards { display: flex; flex-direction: column; gap: var(--space-6); margin-top: var(--space-3); }
 .tp-dc-card { padding: var(--space-4); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-sm); background: var(--c-surface); }
