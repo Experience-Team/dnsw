@@ -80,6 +80,14 @@
     if (basePlace()) list.sort(byKm(prodKm));
     return list;
   }
+  // The places a half day (arrival or last day) offers, the same wherever they show (Follow day by day, the map's
+  // cards): nearest to where they are staying once that is known, otherwise a rotating order so no business is
+  // favoured; three of them, or what is in it once the half day is full
+  function halfPicks(b) {
+    var d = b.day, wd = weekdayOf(d), dl = dayLabel(d), l = halfList(b, wd);
+    if (dayFilled(d)) return l.filter(function (p) { return added('p:' + p.id + ':' + dl); });
+    return basePlace() ? l.slice(0, 3) : l.sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
+  }
   function halfNear(b) { var l = halfList(b, weekdayOf(b.day)), k = l.length ? prodKm(l[0]) : null; return k !== null && k <= NEAR_KM; }
   function halfWhere(b) { return basePlace() && !halfNear(b) ? 'in ' + CITY[b.base] : whereText(b.base); }
   function halfNote(b) { return basePlace() && !halfNear(b) ? 'Nothing listed close to ' + basePlace() + ' yet, so these are in ' + CITY[b.base] + '.' : 'Something ' + whereText(b.base) + ', nothing far.'; }
@@ -903,9 +911,8 @@
       r.anchor = home || nearStadium(d, c2); r.place = home ? home.name : CITY[c2];
       r.kicker = dl + ' \u00b7 ' + (b.first ? 'Arrival day' : 'Last day'); r.title = 'Half a day, ' + halfWhere(b);
       if (basePlace() && !halfNear(b)) r.note = halfNote(b);
-      // Nearest to where they are staying once that is known; otherwise a rotating order, so no business is favoured
-      var ps = basePlace() ? halfList(b, wd).slice(0, 3) : halfList(b, wd).sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
-      if (dayFilled(d)) { ps = halfList(b, wd).filter(function (p) { return added('p:' + p.id + ':' + dl); }); r.note = 'Your half day is full.'; }
+      var ps = halfPicks(b);
+      if (dayFilled(d)) r.note = 'Your half day is full.';
       r.pins = ps.map(function (p) {
         var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
         ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
@@ -1261,6 +1268,20 @@
         return { key: key, open: 'idea:' + key, title: i.title, type: (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city], time: '', ll: ll, made: !!i.placeholder };
       }).filter(Boolean);
       if (its.length) out.push({ key: 'f' + fd.d, day: fd.d, kind: 'free', label: fd.label + ' · Free day', ll: null, items: its });
+    });
+    // With days set: arrival and last days (half days), the same three places Follow day by day offers (20 Nov), so
+    // the cards never miss a day that following them shows
+    LASTBS.forEach(function (b) {
+      if (b.kind !== 'half') return;
+      var d = b.day, wd = weekdayOf(d), dl = dayLabel(d);
+      var its = halfPicks(b).map(function (p) {
+        var o = hoursOn(p, wd), ll = GEOX.products && GEOX.products[p.id], id = 'p:' + p.id + ':' + dl; if (!o || !ll) return null;
+        var why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
+        ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
+        MODAL[id] = { type: 'product', p: p, f: { d: dl, v: CITY[b.base] }, o: o, why: why };
+        return { key: id, open: id, title: p.title, type: PTYPE[p.type] || 'Product', time: 'Open ' + clock(o.opens) + ' to ' + clock(o.closes), ll: ll };
+      }).filter(Boolean);
+      if (its.length) out.push({ key: 'h' + d, day: d, kind: 'half', label: dl + ' · ' + (b.first ? 'Arrival day' : 'Last day'), sub: 'Half a day, ' + halfWhere(b) + '.', ll: null, items: its });
     });
     out.sort(function (a, b) { return a.day - b.day; });
     out = out.filter(function (st) { return st.items.length; });
