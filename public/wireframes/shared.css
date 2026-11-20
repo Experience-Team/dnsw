@@ -5360,6 +5360,13 @@ span.tp-map-arrow { display: block; }
 .tp-ov-rail[hidden] { display: none; }
 .tp-ov-rnav { position: absolute; right: var(--space-4); top: var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
 .tp-ov-rstop { min-height: 36px; display: flex; align-items: center; margin: 0; padding: var(--space-4) calc(var(--space-4) + 132px) var(--space-2) var(--space-4); font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.3; }
+/* An interstate stop says where it is played, once, under the stop line and clear of Previous and Next (20 Nov) */
+.tp-ov-rsub { margin: calc(var(--space-1) * -1) 0 var(--space-2); padding: 0 var(--space-4); font-size: var(--fs-xs); line-height: 1.35; color: var(--c-ink-2); }
+.tp-ov-rsub[hidden], .tp-ov-rempty[hidden] { display: none; }
+/* Days set and nothing of theirs inside them (20 Nov) */
+.tp-ov-rempty { padding: var(--space-6) var(--space-4) var(--space-3); }
+.tp-ov-rempty p { margin: 0 0 var(--space-2); font-size: var(--fs-sm); line-height: 1.4; }
+.tp-ov-rail.is-empty .tp-ov-rnav, .tp-ov-rail.is-empty .tp-ov-track, .tp-ov-rail.is-empty .tp-ov-rstop { display: none; }
 .tp-ov-rpos { margin: 0; font-size: var(--fs-xs); color: var(--c-ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .tp-ov-rbtn { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: var(--bw-1) solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); cursor: pointer; }
 .tp-ov-rbtn svg { width: 16px; height: 16px; }
