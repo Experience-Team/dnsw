@@ -1149,7 +1149,11 @@
     h += '<button type="button" class="tc-ko" data-ko="' + esc(ko.key) + '" aria-haspopup="dialog">' + I_CUP + '<span>' + esc(ko.text) + '<b>' + esc(ko.strong) + '</b></span>' + I_NEXT + '</button>';
     // One next step: a team that plays in NSW plans around its match day; one that does not finds where to watch
     var next = c.rugby ? '<button type="button" class="tc-next" data-plan-days aria-haspopup="dialog">' + I_CAL + 'Plan around your match days</button>'
-      : c.nsw ? '<button type="button" class="tc-next" data-plan-days data-plan-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_CAL + 'Plan around your match day' + (c.nsw > 1 ? 's' : '') + '</button>'
+      : c.nsw ? (function () {
+        // See your match day (20 Nov, F-028): the plan, open on this team's NSW match day; the dates stay where they are
+        var sd = seeDay(c.name);
+        return '<button type="button" class="tc-next" data-see-day="' + esc(c.name) + '">' + 'See your match day' + (sd ? '<span class="visually-hidden">: ' + esc(sd.f.t) + ', ' + esc(sd.f.d) + '</span>' : '') + I_NEXT + '</button>';
+      })()
       : '<button type="button" class="tc-next" data-watch-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_TV + 'See where to watch all ' + c.matches.length + ' in NSW</button>';
     return h + '<div class="tc-foot">' + next + '</div>';
   }
@@ -1990,7 +1994,7 @@
     var an = z.animate(open ? frames : frames.slice().reverse(), { duration: open ? 440 : 340, easing: open ? 'cubic-bezier(.4, 0, .2, 1)' : 'cubic-bezier(.4, 0, .2, 1)' });
     an.onfinish = an.oncancel = function () { z.remove(); tlScroll.style.visibility = ''; };
   }
-  var tlNudged = false;
+  var tlNudged = false, tlOpener = null, tlOpenAt = null;
   function tlSetOpen(open, focusBack) {
     if (open === tlOpen) return;
     if (!open && stackEl) stackClose(false); // a sheet stacked over the plan goes with it
@@ -2020,9 +2024,12 @@
         : tlStay.offsetWidth < vw - 96 ? tlStay.offsetLeft + tlStay.offsetWidth / 2 - vw / 2 : tlStay.offsetLeft - 16;
       tlScroll.scrollLeft = Math.max(0, x);
       tlPanel.scrollTop = 0;
-      if (window.tpPlan) window.tpPlan.openOn();
+      if (window.tpPlan) window.tpPlan.openOn(tlOpenAt);
       tlZoom(true);
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
+      // Opened on a day from the page (See your match day): that day's heading takes focus
+      if (tlOpenAt && window.tpPlan) window.tpPlan.focusCurrent();
+      tlOpenAt = null;
       // The first time it opens with matches on it, the first one is singled out once (a ring, twice), so it is clear
       // the matches themselves are what to tap; reduced motion: the ring shows and fades without pulsing
       var how = document.getElementById('tp-tl-how');
@@ -2031,7 +2038,12 @@
         var nel = (TLM.filter(function (m) { return m.on; })[0] || nswFirst).el;
         setTimeout(function () { nel.classList.add('is-nudge'); setTimeout(function () { nel.classList.remove('is-nudge'); }, 1900); }, 480);
       }
-    } else if (focusBack !== false) tlToggle.focus({ preventScroll: true });
+    } else if (focusBack !== false) {
+      // Back to what opened it from the page, or its replacement if that redrew; else the bar
+      var ob = tlOpener && (tlOpener.el.isConnected ? tlOpener.el : tlOpener.sel && phoneEl.querySelector(tlOpener.sel));
+      (ob && !ob.closest('[inert]') ? ob : tlToggle).focus({ preventScroll: true });
+    }
+    if (!open) tlOpener = null;
     if (!open) phoneEl.dispatchEvent(new CustomEvent('tp:tlclose'));
     syncBar();
     notesOnly();
@@ -2429,6 +2441,30 @@
   window.tpPicker.toastHide = toastHide;
   window.tpPicker.goTo = goTo;
   window.tpPicker.openPlan = function () { if (!tlOpen) tlSetOpen(true); };
+  /* The plan, opened on one day by something on the page (20 Nov): a team card's See your match day, and Where to
+     watch's See your match day. The day's card comes to the top and its heading takes focus; closing the plan puts
+     focus back on what opened it (or its replacement, if the card redrew while the plan was open) */
+  window.tpPicker.openPlanDay = function (day, opener, note) {
+    tlOpener = opener ? { el: opener, sel: opener.dataset.seeDay ? '[data-see-day="' + CSS.escape(opener.dataset.seeDay) + '"]' : opener.dataset.atDay ? '[data-at-day="' + CSS.escape(opener.dataset.atDay) + '"]' : null } : null;
+    tlOpenAt = { day: day, note: note || '' };
+    if (tlOpen) { if (window.tpPlan) { window.tpPlan.openOn(tlOpenAt); window.tpPlan.focusCurrent(); } tlOpenAt = null; return; }
+    tlSetOpen(true);
+  };
+  // A team's NSW match day to see: its first one inside your days, else its first (that day may be outside them)
+  function seeDay(team) {
+    var t = TEAMS[team]; if (!t) return null;
+    var fs = t.matches.filter(function (f) { return !f.a; }).sort(function (a, b) { return dayOf(a.d) - dayOf(b.d); });
+    if (!fs.length) return null;
+    var tr = state.trip, a = tr && tr.from && tr.to ? isoDay(tr.from) : null, z = a !== null ? isoDay(tr.to) : null;
+    var inn = a === null ? fs[0] : fs.filter(function (f) { var d = dayOf(f.d); return d >= a && d <= z; })[0];
+    return { f: inn || fs[0], out: !inn };
+  }
+  phoneEl.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-see-day]'); if (!b) return;
+    var sd = seeDay(b.dataset.seeDay); if (!sd) return;
+    var tr = state.trip;
+    window.tpPicker.openPlanDay(dayOf(sd.f.d), b, sd.out ? sd.f.d + ' is outside your days (' + isoRange(tr.from, tr.to) + ').' : '');
+  });
   // The sections below the match cards read the picks once this is ready
   phoneEl.dispatchEvent(new CustomEvent('tp:ready'));
 })();

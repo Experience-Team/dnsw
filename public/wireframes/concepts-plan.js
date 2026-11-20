@@ -189,7 +189,7 @@
     var cards = G.map(function (g, i) { return cardHtml(g, i, G.length, M); }).join('');
     // With days set, the line above the strip already says Your days (and their dates), so its label is for screen
     // readers only; with match days only, it says so on screen, as the days are not in a row
-    var h = '<div class="tp-dc-strip"><p class="tp-dc-strip-h' + (M.range ? ' visually-hidden' : '') + '" id="tp-dc-strip-h">' + esc(M.range ? 'Your days' : 'Your match days') + '</p>' +
+    var h = (outNote ? '<p class="tp-dc-out">' + esc(outNote) + '</p>' : '') + '<div class="tp-dc-strip"><p class="tp-dc-strip-h' + (M.range ? ' visually-hidden' : '') + '" id="tp-dc-strip-h">' + esc(M.range ? 'Your days' : 'Your match days') + '</p>' +
       '<div class="tp-dc-days" role="group" aria-labelledby="tp-dc-strip-h">' + stripHtml(M) + '</div></div>';
     if (swipe()) {
       h += '<div class="tp-dc-nav"><button type="button" class="tp-dc-step" data-dc-prev>' + '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Previous day</span></button>' +
@@ -309,9 +309,14 @@
     var nsw = M.days.filter(function (x) { return x.ms.some(function (m) { return !m.f.a; }); })[0];
     return nsw ? nsw.d : M.first;
   }
-  function openOn() {
+  // at: { day, note } when the page asks for a day (See your match day, 20 Nov); a day with no card (outside your days)
+  // falls back to the rule, and the note says why
+  var outNote = '';
+  function openOn(at) {
+    var want = at && at.note || '';
+    if (want !== outNote) { outNote = want; render(); }
     if (!M0 || !M0.n) return;
-    var d = openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
+    var d = at && at.day != null && cardFor(at.day) ? at.day : openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
     if (!card) return;
     if (card === first && !swipe()) {
       current = +card.dataset.dcA; lockT = Date.now() + 900;
@@ -409,6 +414,7 @@
     render: render,
     goTo: goTo,
     openOn: openOn,
+    focusCurrent: function () { var c = current !== null ? cardFor(current) : null, h = c && c.querySelector('.tp-dc-h'); if (h) h.focus({ preventScroll: true }); },
     same: function (el) {
       var ds = el.dataset || {}, k = ['dcIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcDay', 'dcExpand', 'ticket'].filter(function (x) { return ds[x] !== undefined; })[0];
       var hit = k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;
