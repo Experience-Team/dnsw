@@ -4500,6 +4500,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ts-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 calc(var(--space-4) * -1); padding: 0 var(--space-4); }
 .tp-ts-none { margin: var(--space-4) 0; font-size: var(--fs-md); color: var(--c-ink-2); }
 .tp-ts-acts { flex: none; display: flex; justify-content: flex-end; padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line-soft); }
+/* Once a team changes, Done turns into Save with the change beside it (20 Nov) */
+.tp-ts-acts { align-items: center; gap: var(--space-3); }
+.tp-ts-said { flex: 1; min-width: 0; margin: 0; font-size: var(--fs-sm); line-height: 1.4; }
+.tp-ts-said:empty { display: none; }
 .tp-team-list { list-style: none; margin: 0; padding: 0; }
 .tp-team-list li { border-bottom: var(--bw-1) solid #ededed; }
 .tp-team-list li[hidden] { display: none; }
@@ -4993,6 +4997,12 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 /* The days sheet: what is picked and Use these dates stay fixed to the bottom of the sheet while the calendar scrolls */
 .tp-days-bar { position: sticky; bottom: 0; z-index: 2; align-self: stretch; margin: var(--space-2) calc(-1 * var(--space-4)) calc(-1 * var(--space-4)); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); }
 .tp-days-bar .tp-days-sum { margin: 0; }
+/* Save in the match sheet (20 Nov): pinned to the sheet's foot once something changes; it closes the sheet, as the cross does */
+.tp-pm-save { flex: none; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); position: relative; z-index: 2; }
+.tp-pm-save[hidden] { display: none; }
+.tp-pm-save-said { flex: 1; min-width: 0; margin: 0; font-size: var(--fs-sm); line-height: 1.4; }
+.tp-pm-save .tp-pill { flex: none; }
+.tp-pm.has-save .tp-pm-said { display: none; } /* the line moves into the bar */
 .cn-pp.tp-pm .cn-pp-body:has(.tp-days-bar) { padding-bottom: 0; scroll-padding-bottom: 120px; } /* the bar sits flush with the bottom, scrolled or not */
 .tp-days-bar .tp-days-acts { margin-top: var(--space-2); }
 .tp-days-acts .tp-pill .tp-ico { margin-right: 6px; }
@@ -5267,6 +5277,8 @@ span.tp-map-arrow { display: block; }
 .tp-dc-day.is-clash { box-shadow: 0 0 0 1.5px var(--c-surface), 0 0 0 3px var(--c-danger); }
 .tp-dc-mclash, .tp-pm-clash { margin: calc(var(--space-2) * -1) 0 var(--space-3); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-danger); }
 .tp-pm-clash { margin: var(--space-3) 0 0; }
+/* Matches in several cities, none at the same time: said, quieter, with no ring (20 Nov) */
+.tp-dc-mclash.is-quiet { color: var(--c-ink-2); }
 .tp-dc-day:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .tp-dc-cards { display: flex; flex-direction: column; gap: var(--space-6); margin-top: var(--space-3); }
 .tp-dc-card { padding: var(--space-4); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-sm); background: var(--c-surface); }
