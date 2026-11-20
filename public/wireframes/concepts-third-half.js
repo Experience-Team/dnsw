@@ -80,6 +80,14 @@
     if (basePlace()) list.sort(byKm(prodKm));
     return list;
   }
+  // The places a half day (arrival or last day) offers, the same wherever they show (Follow day by day, the map's
+  // cards): nearest to where they are staying once that is known, otherwise a rotating order so no business is
+  // favoured; three of them, or what is in it once the half day is full
+  function halfPicks(b) {
+    var d = b.day, wd = weekdayOf(d), dl = dayLabel(d), l = halfList(b, wd);
+    if (dayFilled(d)) return l.filter(function (p) { return added('p:' + p.id + ':' + dl); });
+    return basePlace() ? l.slice(0, 3) : l.sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
+  }
   function halfNear(b) { var l = halfList(b, weekdayOf(b.day)), k = l.length ? prodKm(l[0]) : null; return k !== null && k <= NEAR_KM; }
   function halfWhere(b) { return basePlace() && !halfNear(b) ? 'in ' + CITY[b.base] : whereText(b.base); }
   function halfNote(b) { return basePlace() && !halfNear(b) ? 'Nothing listed close to ' + basePlace() + ' yet, so these are in ' + CITY[b.base] + '.' : 'Something ' + whereText(b.base) + ', nothing far.'; }
@@ -903,9 +911,8 @@
       r.anchor = home || nearStadium(d, c2); r.place = home ? home.name : CITY[c2];
       r.kicker = dl + ' \u00b7 ' + (b.first ? 'Arrival day' : 'Last day'); r.title = 'Half a day, ' + halfWhere(b);
       if (basePlace() && !halfNear(b)) r.note = halfNote(b);
-      // Nearest to where they are staying once that is known; otherwise a rotating order, so no business is favoured
-      var ps = basePlace() ? halfList(b, wd).slice(0, 3) : halfList(b, wd).sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
-      if (dayFilled(d)) { ps = halfList(b, wd).filter(function (p) { return added('p:' + p.id + ':' + dl); }); r.note = 'Your half day is full.'; }
+      var ps = halfPicks(b);
+      if (dayFilled(d)) r.note = 'Your half day is full.';
       r.pins = ps.map(function (p) {
         var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
         ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
@@ -1261,6 +1268,20 @@
         return { key: key, open: 'idea:' + key, title: i.title, type: (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city], time: '', ll: ll, made: !!i.placeholder };
       }).filter(Boolean);
       if (its.length) out.push({ key: 'f' + fd.d, day: fd.d, kind: 'free', label: fd.label + ' · Free day', ll: null, items: its });
+    });
+    // With days set: arrival and last days (half days), the same three places Follow day by day offers (20 Nov), so
+    // the cards never miss a day that following them shows
+    LASTBS.forEach(function (b) {
+      if (b.kind !== 'half') return;
+      var d = b.day, wd = weekdayOf(d), dl = dayLabel(d);
+      var its = halfPicks(b).map(function (p) {
+        var o = hoursOn(p, wd), ll = GEOX.products && GEOX.products[p.id], id = 'p:' + p.id + ':' + dl; if (!o || !ll) return null;
+        var why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
+        ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
+        MODAL[id] = { type: 'product', p: p, f: { d: dl, v: CITY[b.base] }, o: o, why: why };
+        return { key: id, open: id, title: p.title, type: PTYPE[p.type] || 'Product', time: 'Open ' + clock(o.opens) + ' to ' + clock(o.closes), ll: ll };
+      }).filter(Boolean);
+      if (its.length) out.push({ key: 'h' + d, day: d, kind: 'half', label: dl + ' · ' + (b.first ? 'Arrival day' : 'Last day'), sub: 'Half a day, ' + halfWhere(b) + '.', ll: null, items: its });
     });
     out.sort(function (a, b) { return a.day - b.day; });
     out = out.filter(function (st) { return st.items.length; });
@@ -1679,7 +1700,7 @@
     var wt = e.target.closest('[data-watch-team]');
     if (wt) { openPm('wt:' + wt.dataset.watchTeam, wt); pmOpenerEl = wt; return; }
     var pd = e.target.closest('[data-plan-days]');
-    if (pd) { openDays(false, pd, pd.dataset.planTeam); return; }
+    if (pd) { openDays(false, pd); return; } // Every NSW match's Plan around your match days
   });
 
   /* ---------- Your days, and where you're staying, in a sheet (16 Nov) ----------
@@ -1692,16 +1713,6 @@
   // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
   function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
   function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
-  function daysTickets() {
-    var ms = dTicketKeys.map(function (k) { return tp.match(k); }).filter(Boolean);
-    if (!ms.length) return '';
-    return '<section class="tp-days-tk" aria-label="Your ticket">' + ms.map(function (m, i) {
-      var on = state.tickets.indexOf(m.tkey) > -1, id = 'tp-days-tk-why-' + i;
-      return '<p class="tp-days-tk-m">' + esc(matchName(m.f)) + ', ' + esc(m.f.d) + (m.f.k ? ', ' + esc(m.f.k) : '') + ' · ' + esc(m.f.v) + '</p>' +
-        '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-dticket="' + esc(m.key) + '"' + (on ? ' checked' : '') + ' aria-describedby="' + id + '" /><span class="tp-pm-ticket-l">' + window.tpIcons.ticket + 'I have a ticket</span></label>' +
-        '<p class="tp-ticket-why" id="' + id + '">Mark it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
-    }).join('') + '</section>';
-  }
   function dMatches() { var o = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
   function calMonth(y, mo, ms) {
     // Monday-first weeks; days outside 29 Sep to 15 Nov are shown but cannot be picked
@@ -1739,7 +1750,6 @@
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">Set dates and the ideas below fit around your matches.</p>' +
-      daysTickets() +
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
       '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
@@ -1757,17 +1767,9 @@
       (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div></div>';
     return h + '</div>';
   }
-  /* Opened from a team card's Plan around your match day: that team's NSW matches with no ticket marked yet get the
-     same I have a ticket toggle as the match sheet, above the dates (16 Nov), so going or not is settled while the
-     days are planned around it. The list is fixed when the sheet opens, so a ticket just marked stays there to undo. */
-  var dTicketKeys = [];
   tp.openDays = function (opener) { openDays(false, opener); };
-  function openDays(stay, opener, team) {
+  function openDays(stay, opener) {
     dStay = !!stay; dsel = dRange(); typeOpen.pm = false;
-    dTicketKeys = [];
-    if (team && !stay) (tp.own() ? tp.userMatches() : []).forEach(function (m) {
-      if (!m.f.a && m.f.t && m.f.t.split(' v ').indexOf(team) > -1 && state.tickets.indexOf(m.tkey) < 0) dTicketKeys.push(m.key);
-    });
     var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
     openPm(stay ? 'days:stay' : 'days', opener, overTl);
     pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
@@ -1884,7 +1886,7 @@
     if (e.target.closest('[data-pm-close]')) { pmClearHistory(); closePm(); return; } // the cross closes the whole sheet
     // From the travel sheet: Where are you staying? as the next level; Done comes back to the route, now their own
     var gst = e.target.closest('[data-go-stay]');
-    if (gst) { dStay = true; dsel = dRange(); dTicketKeys = []; pmPush('days:stay', gst); return; }
+    if (gst) { dStay = true; dsel = dRange(); pmPush('days:stay', gst); return; }
     // An added item's sheet: Move to another day, or Remove
     var mvb = e.target.closest('[data-pm-move]');
     if (mvb && pmOpen && pmOpen.id.indexOf('item:') === 0) {
@@ -2002,14 +2004,6 @@
       if (dsel) tp.say(dsel.z === null ? 'First day ' + dayLabel(dsel.a) + '. Now pick your last day.' : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + '.');
       return;
     }
-    // I have a ticket in the days sheet (from Plan around your match day): the same rule as the match sheet
-    var dt = e.target.closest('[data-dticket]');
-    if (dt) {
-      var dm = tp.match(dt.dataset.dticket); if (!dm) return;
-      ticketToggle(dm, dt.checked, function () { tp.setTicket(dm.tkey, dt.checked); });
-      tp.say(dt.checked ? 'Ticket marked for ' + matchName(dm.f) + '.' : 'Ticket removed for ' + matchName(dm.f) + '.');
-      return;
-    }
     var cb = e.target.closest('[data-pm-ticket]'); if (!cb || !pmOpen) return;
     var key = pmOpen.id.slice(6), m = tp.match(key), f = m.f, mine = f.t.split(' v ').some(function (n) { return tp.isPicked(n); }) || (tp.rugby() && !f.a);
     // A ticket means they are going: the match goes on the plan too, if no team of theirs puts it there already
@@ -2037,7 +2031,8 @@
     // Going? Mark your ticket on the match: the match's own sheet opens over the page, at its I have a ticket (it used
     // to scroll the page up to the match card in Your matches, a jump nobody asked for)
     var ad = e.target.closest('[data-at-day]');
-    if (ad) { tp.listShowDay(+ad.dataset.atDay); return; }
+    // See your match day: the plan, open on that day, as on the team cards (20 Nov; it moved the page to the day in Around your matches)
+    if (ad) { tp.openPlanDay(+ad.dataset.atDay, ad); return; }
     if (e.target.closest('[data-at-plan]')) { tp.openPlan(); return; }
     var gk = e.target.closest('[data-going-mark]');
     if (gk) {

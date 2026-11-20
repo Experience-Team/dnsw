@@ -5157,9 +5157,6 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-pm-teams { align-self: stretch; align-items: stretch; } /* the sheet body shrink-wraps its children */
 .tp-pm-team { display: flex; align-items: center; gap: var(--space-2); width: 100%; text-align: left; }
 /* The days sheet from a team card: that team's NSW match with no ticket yet, and the same ticket toggle, above the dates */
-.tp-days-tk { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-2); align-self: stretch; margin-top: var(--space-4); padding-bottom: var(--space-5); border-bottom: var(--bw-1) solid var(--c-line-soft); }
-.tp-days-tk-m { font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.4; }
-.tp-days-tk .tp-ticket-why { margin-top: 0; }
 
 /* ---------- Follow day by day: explicit day stepping (16 Nov) ----------
    One fixed screen. The card's top row is the day and See as a list; its bottom row is ← Day n, a dot per day (24px
@@ -5265,6 +5262,8 @@ span.tp-map-arrow { display: block; }
 .tp-dc-day.is-filled .tp-dc-dot { background: currentColor; }
 .tp-dc-day.is-current { border-color: var(--c-btn); background: var(--c-btn); color: var(--c-on-dark); }
 /* A day whose matches clash (20 Nov): the red ring the plan bar's strip uses */
+/* The day asked for is outside your days (See your match day, 20 Nov): said above the strip */
+.tp-dc-out { margin: 0 0 var(--space-3); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); }
 .tp-dc-day.is-clash { box-shadow: 0 0 0 1.5px var(--c-surface), 0 0 0 3px var(--c-danger); }
 .tp-dc-mclash, .tp-pm-clash { margin: calc(var(--space-2) * -1) 0 var(--space-3); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-danger); }
 .tp-pm-clash { margin: var(--space-3) 0 0; }
@@ -5359,7 +5358,7 @@ span.tp-map-arrow { display: block; }
 .tp-ov-rail { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; padding: var(--space-3) 0 var(--space-3); background: linear-gradient(to bottom, transparent, var(--c-surface) 28px); }
 .tp-ov-rail[hidden] { display: none; }
 .tp-ov-rnav { position: absolute; right: var(--space-4); top: var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
-.tp-ov-rstop { min-height: 36px; display: flex; align-items: center; margin: 0; padding: var(--space-4) calc(var(--space-4) + 132px) var(--space-2) var(--space-4); font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.3; }
+.tp-ov-rstop { min-height: 36px; display: flex; align-items: center; margin: 0; padding: var(--space-4) calc(var(--space-4) + 148px) var(--space-2) var(--space-4); /* clear of the count (up to 41 of 41) and the two buttons */ font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.3; }
 /* An interstate stop says where it is played, once, under the stop line and clear of Previous and Next (20 Nov) */
 .tp-ov-rsub { margin: calc(var(--space-1) * -1) 0 var(--space-2); padding: 0 var(--space-4); font-size: var(--fs-xs); line-height: 1.35; color: var(--c-ink-2); }
 .tp-ov-rsub[hidden], .tp-ov-rempty[hidden] { display: none; }
