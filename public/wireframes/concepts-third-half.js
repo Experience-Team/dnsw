@@ -1249,7 +1249,8 @@
         });
         ws.sort(function (x, y) { return x.d - y.d; });
         ws = ws.slice(0, 3); // three to start (fan zones first); Where to watch on the page lists them all
-        out.push({ key: 'a' + m.day + '|' + f.t, day: m.day, kind: 'away', ms: [m], label: f.d + ' · Watch ' + (f.t || f.s) + ' in NSW', ll: null, items: ws });
+        // Said once per stop, under the stop line (20 Nov): where it is played, so a screening is not taken for a match here
+        out.push({ key: 'a' + m.day + '|' + f.t, day: m.day, kind: 'away', ms: [m], label: f.d + ' · ' + (f.t || f.s), sub: 'Played in ' + f.a + '. Watch it in NSW.', ll: null, items: ws });
       }
     });
     // With days set: the free days and their ideas, in day order among the matches
@@ -1262,7 +1263,13 @@
       if (its.length) out.push({ key: 'f' + fd.d, day: fd.d, kind: 'free', label: fd.label + ' · Free day', ll: null, items: its });
     });
     out.sort(function (a, b) { return a.day - b.day; });
-    return out.filter(function (st) { return st.items.length; });
+    out = out.filter(function (st) { return st.items.length; });
+    // With days in NSW set (20 Nov, a new rule): only the stops inside them. How many were left out is kept, so the
+    // card row can say nothing falls in your days rather than vanish
+    var s0 = stay(), all = out.length;
+    if (s0) out = out.filter(function (st) { return st.day >= s0.a && st.day <= s0.z; });
+    tp.mapStopsOut = all - out.length;
+    return out;
   };
   tp.addBtnHtml = function (key, label) { return addBtn(key, label); };
   tp.imgAttr = function (title) { return imgKey(title); };

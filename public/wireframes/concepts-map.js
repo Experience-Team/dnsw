@@ -746,10 +746,11 @@
         '</div>' +
         '<div class="tp-ov-marks"></div><div class="tp-ov-tvs"></div><div class="tp-ov-pins"></div><div class="tp-ov-edges"></div>' +
         // Once a team is picked: the things along their route as cards over the foot of the map (17 Nov)
-        '<div class="tp-ov-rail" hidden><p class="tp-ov-rstop" id="tp-ov-rstop"></p><div class="tp-ov-rnav"><p class="tp-ov-rpos" aria-hidden="true"></p>' +
+        '<div class="tp-ov-rail" hidden><p class="tp-ov-rstop" id="tp-ov-rstop"></p><p class="tp-ov-rsub" id="tp-ov-rsub" hidden></p>' +
+          '<div class="tp-ov-rempty" hidden><p></p><button type="button" class="tp-link" data-odays aria-haspopup="dialog">Change your days</button></div><div class="tp-ov-rnav"><p class="tp-ov-rpos" aria-hidden="true"></p>' +
           '<button type="button" class="tp-ov-rbtn" data-oprev aria-label="Previous place">' + I_PREV + '</button>' +
           '<button type="button" class="tp-ov-rbtn" data-onext aria-label="Next place">' + I_NEXT + '</button></div>' +
-          '<div class="tp-ov-track" role="group" aria-labelledby="tp-ov-rstop"></div></div>' +
+          '<div class="tp-ov-track" role="group" aria-labelledby="tp-ov-rstop tp-ov-rsub"></div></div>' +
         '<div class="tp-map-zoom tp-ov-zoom"><button type="button" data-ozoom="in" aria-label="Zoom in">' + I_PLUS + '</button><button type="button" data-ozoom="out" aria-label="Zoom out">' + I_MINUS + '</button><button type="button" class="tp-ov-fs" data-ofull aria-pressed="false" aria-label="Full screen map">' + I_FULL + '</button></div>' +
         '<p class="tp-ov-hint" aria-hidden="true"></p>' +
       '</div>' +
@@ -973,24 +974,35 @@
        same item, on that day), so it lands on its day card in Your plan and the status line says where it went. Before
        a team is picked the map stays as it was. Reduced motion: the map jumps and the pin is marked. */
     var opins = sec.querySelector('.tp-ov-pins'), rail = sec.querySelector('.tp-ov-rail'), track = sec.querySelector('.tp-ov-track');
-    var rstop = sec.querySelector('.tp-ov-rstop'), rpos = sec.querySelector('.tp-ov-rpos'), STOPS = [], FLAT = [], rcur = 0, railSig = '';
+    var rstop = sec.querySelector('.tp-ov-rstop'), rpos = sec.querySelector('.tp-ov-rpos'), STOPS = [], FLAT = [], rcur = 0, railSig = '', curKey = null;
+    var rsub = sec.querySelector('.tp-ov-rsub'), rempty = sec.querySelector('.tp-ov-rempty');
+    /* Where the row opens (20 Nov): on the first NSW match's stadium; a team with no NSW match, on its first stop. With
+       days set, the stops outside them are gone (tp.mapStops), so this is the first NSW match inside them, else the
+       first stop inside them. The row stays in day order, so earlier screenings are a Previous away and the count is
+       the card's real place (4 of 13). When the picks change part way through, the card in view stays if it is still
+       there; if not, the row opens by this rule again. */
+    function openAt() { for (var i = 0; i < FLAT.length; i++) if (FLAT[i].st.kind === 'match') return i; return 0; }
     function railOn() { return !rail.hidden; }
     function railH() { return railOn() ? rail.offsetHeight : 0; }
     function railRender() {
       STOPS = tp.mapStops ? tp.mapStops() : []; FLAT = [];
       STOPS.forEach(function (st, si) { st.items.forEach(function (it) { FLAT.push({ it: it, st: st, si: si }); }); });
-      var on = FLAT.length > 0, was = railOn();
-      rail.hidden = !on; box.classList.toggle('has-rail', on);
+      var on = FLAT.length > 0, was = railOn() && !rail.classList.contains('is-empty');
+      // Days set and nothing of theirs inside them: the row stays and says so, with a way to change the days
+      var none = !on && tp.own() && (tp.mapStopsOut || 0) > 0 && !!(state.trip && state.trip.from && state.trip.to);
+      rail.hidden = !on && !none; box.classList.toggle('has-rail', on || none);
+      rail.classList.toggle('is-empty', none); rempty.hidden = !none;
+      if (none) rempty.querySelector('p').textContent = 'Nothing of yours falls in your days (' + tp.isoRange(state.trip.from, state.trip.to) + '). Change your days to see what\u2019s around your matches.';
       // Inline, the map grows to make room for the cards; in full screen it already fills the phone
-      if (full) OVH = box.clientHeight || OVH; else box.style.height = (on ? OVH = 460 : OVH = 380) + 'px';
-      if (!on) { opins.innerHTML = ''; railSig = ''; oapply(); return; }
+      if (full) OVH = box.clientHeight || OVH; else box.style.height = (on || none ? OVH = 460 : OVH = 380) + 'px';
+      if (!on) { opins.innerHTML = ''; track.innerHTML = ''; rstop.textContent = ''; rsub.hidden = true; railSig = ''; curKey = null; oapply(); return; }
       var sig = FLAT.map(function (x) { return x.it.key; }).join(',');
       var keepKey = FLAT[rcur] && was ? null : null, act = document.activeElement, focusSel = null;
       if (act && track.contains(act)) focusSel = act.dataset.item ? '[data-item="' + CSS.escape(act.dataset.item) + '"]' : act.dataset.open ? '[data-open="' + CSS.escape(act.dataset.open) + '"]' : null;
       var sl = track.scrollLeft;
       track.innerHTML = FLAT.map(function (x, i) {
         var it = x.it, day = x.st.label.split(' · ')[0];
-        return '<article class="tp-ov-card" data-i="' + i + '" aria-label="' + esc(it.title + ', ' + it.type + ', ' + x.st.label) + '">' +
+        return '<article class="tp-ov-card" data-i="' + i + '" aria-label="' + esc(it.title + ', ' + it.type + ', ' + x.st.label + (x.st.sub ? '. ' + x.st.sub : '')) + '">' +
           '<span class="ph-img tp-ov-cimg"' + tp.imgAttr(it.title) + ' aria-hidden="true"></span>' +
           '<span class="tp-ov-cbody"><button type="button" class="tp-link tp-ov-cname" data-open="' + esc(it.open) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' +
           '<span class="tp-ov-ctype' + (it.made ? ' provenance-gap' : '') + '">' + esc(it.type) + '</span>' +
@@ -999,7 +1011,12 @@
       }).join('');
       track.scrollLeft = sl;
       if (focusSel) { var f = track.querySelector(focusSel); if (f) f.focus({ preventScroll: true }); }
-      if (sig !== railSig) { railSig = sig; if (rcur >= FLAT.length) rcur = 0; setCur(rcur, { jump: !was, scroll: !was }); }
+      if (sig !== railSig) {
+        railSig = sig;
+        var keep = -1;
+        if (was && curKey) for (var k = 0; k < FLAT.length; k++) if (FLAT[k].it.key === curKey) { keep = k; break; }
+        setCur(keep > -1 ? keep : openAt(), { jump: !was, scroll: true });
+      }
       else setCur(rcur, { keep: true });
     }
     function cardEl(i) { return track.children[i]; }
@@ -1015,7 +1032,9 @@
       if (!FLAT.length) return;
       i = Math.max(0, Math.min(FLAT.length - 1, i)); rcur = i;
       var x = FLAT[i];
+      curKey = x.it.key;
       rstop.textContent = x.st.label;
+      rsub.hidden = !x.st.sub; rsub.textContent = x.st.sub || '';
       rpos.textContent = (i + 1) + ' of ' + FLAT.length;
       // In the card row itself: in full screen the map and its cards leave the section for the whole phone
       rail.querySelector('[data-oprev]').disabled = i === 0;
@@ -1066,6 +1085,7 @@
     }, { passive: true });
     track.addEventListener('focusin', function (e) { var c = e.target.closest('.tp-ov-card'); if (c && +c.dataset.i !== rcur) setCur(+c.dataset.i, { scroll: true }); });
     rail.addEventListener('click', function (e) {
+      var od = e.target.closest('[data-odays]'); if (od) { tp.openDays(od); return; }
       if (e.target.closest('[data-oprev]')) { setCur(rcur - 1, { scroll: true }); return; }
       if (e.target.closest('[data-onext]')) { setCur(rcur + 1, { scroll: true }); return; }
     });
