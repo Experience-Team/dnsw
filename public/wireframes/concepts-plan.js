@@ -219,7 +219,7 @@
 
   /* ---------- Where you are: the current day ---------- */
   function cardFor(d) { var c = null; root.querySelectorAll('.tp-dc-card').forEach(function (el) { if (+el.dataset.dcA <= d && +el.dataset.dcZ >= d) c = el; }); return c; }
-  function syncCurrent(scrollStrip) {
+  function syncCurrent(scrollStrip, instant) {
     var card = current !== null ? cardFor(current) : null, a = card ? +card.dataset.dcA : current, z = card ? +card.dataset.dcZ : current;
     var days = root.querySelectorAll('.tp-dc-day'), on = null;
     days.forEach(function (b) {
@@ -232,7 +232,7 @@
     days.forEach(function (b) { b.tabIndex = b === on ? 0 : -1; });
     if (on && scrollStrip) {
       var st = on.parentNode, l = on.offsetLeft - st.offsetLeft;
-      if (l < st.scrollLeft + 8 || l + on.offsetWidth > st.scrollLeft + st.clientWidth - 8) st.scrollTo({ left: Math.max(0, l - st.clientWidth / 2 + on.offsetWidth / 2), behavior: reduce.matches ? 'auto' : 'smooth' });
+      if (l < st.scrollLeft + 8 || l + on.offsetWidth > st.scrollLeft + st.clientWidth - 8) st.scrollTo({ left: Math.max(0, l - st.clientWidth / 2 + on.offsetWidth / 2), behavior: instant || reduce.matches ? 'auto' : 'smooth' });
     }
     if (swipe()) {
       var cards = root.querySelectorAll('.tp-dc-card'), pos = root.querySelector('#tp-dc-pos'), i = Array.prototype.indexOf.call(cards, card);
@@ -271,21 +271,47 @@
   }
   // Go to a day: its card comes to the top of the sheet (cards) or into view (swipe). Only the sheet or the track
   // scrolls, never the page behind
-  function goTo(d, focus) {
+  function goTo(d, focus, instant) {
     var card = cardFor(d); if (!card) return;
     current = +card.dataset.dcA;
     lockT = Date.now() + 900; // the day asked for stays the current one while the sheet scrolls to it (and when the last days cannot reach the top)
-    var beh = reduce.matches ? 'auto' : 'smooth';
+    var beh = instant || reduce.matches ? 'auto' : 'smooth';
     if (swipe()) {
       var tr = root.querySelector('.tp-dc-track');
       card.inert = false;
       tr.scrollTo({ left: card.offsetLeft - tr.offsetLeft, behavior: beh });
     } else if (panel) {
-      var strip = root.querySelector('.tp-dc-strip'), top = card.getBoundingClientRect().top - strip.getBoundingClientRect().bottom - 12;
-      panel.scrollTo({ top: panel.scrollTop + top, behavior: beh });
+      // Aim for where the strip will be once it has stuck, not where it is now: from the top of the sheet the title
+      // rows above it scroll away too, so measuring against the strip as it sits undershoots by their height
+      var strip = root.querySelector('.tp-dc-strip'), cs = getComputedStyle(panel), pr = panel.getBoundingClientRect();
+      var stuck = parseFloat(cs.paddingTop) + (parseFloat(getComputedStyle(strip).top) || 0);
+      var y = card.getBoundingClientRect().top - pr.top - panel.clientTop + panel.scrollTop;
+      panel.scrollTo({ top: Math.max(0, Math.min(panel.scrollHeight - panel.clientHeight, y - stuck - strip.offsetHeight - 12)), behavior: beh });
     }
-    syncCurrent(true);
+    syncCurrent(true, instant);
     if (focus) card.querySelector('.tp-dc-h').focus({ preventScroll: true });
+  }
+  /* Where the plan opens (20 Nov): your days in NSW (their first day), else the earliest-dated thing you added, else
+     your first NSW match, else the plan's first day. The same rule every time it opens, so closing and reopening lands
+     on the same day; a ticket, or a day tapped on the strip, does not change it. The strip's current day and the card
+     at the top of the sheet (or in view, one day at a time) are set together. The first card stays at the very top of
+     the sheet, with the heading and your days line above it. */
+  function openDay(M) {
+    if (M.range) return M.range.a;
+    var its = M.days.filter(function (x) { return x.its.length || x.nights.length; })[0];
+    if (its) return its.d;
+    var nsw = M.days.filter(function (x) { return x.ms.some(function (m) { return !m.f.a; }); })[0];
+    return nsw ? nsw.d : M.first;
+  }
+  function openOn() {
+    if (!M0 || !M0.n) return;
+    var d = openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
+    if (!card) return;
+    if (card === first && !swipe()) {
+      current = +card.dataset.dcA; lockT = Date.now() + 900;
+      if (panel) panel.scrollTop = 0;
+      syncCurrent(true, true);
+    } else goTo(d, false, true);
   }
 
   /* ---------- What people do on the cards ---------- */
@@ -376,6 +402,7 @@
   window.tpPlan = {
     render: render,
     goTo: goTo,
+    openOn: openOn,
     same: function (el) {
       var ds = el.dataset || {}, k = ['dcIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcDay', 'dcExpand', 'ticket'].filter(function (x) { return ds[x] !== undefined; })[0];
       var hit = k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;

@@ -2008,8 +2008,8 @@
     }
     if (open) {
       tlFit();
-      // Open on what matters: the chosen marker; else the days in NSW (confirmed or suggested); else the first thing
-      // they added; else the first match shown. Never on empty early October with the trip cut off at the edge.
+      // The old axis (hidden since 16 Nov) still lines up here, as the open animation grows a copy of it out of the
+      // bar's strip. Where the plan itself opens is the day cards' rule: tpPlan.openOn() (concepts-plan.js)
       var items = Object.keys(tlItemEls).map(function (id) { return tlItemEls[id]; }).sort(function (a, b) { return a.offsetLeft - b.offsetLeft; });
       var nswFirst = own() ? TLM.filter(function (m) { return m.on && !m.f.a; })[0] : null;
       var start = tlSelEl() || (!tlStay.hidden && tlStay) || items[0] || (nswFirst && nswFirst.el) || tlOrder()[0];
@@ -2018,6 +2018,7 @@
         : tlStay.offsetWidth < vw - 96 ? tlStay.offsetLeft + tlStay.offsetWidth / 2 - vw / 2 : tlStay.offsetLeft - 16;
       tlScroll.scrollLeft = Math.max(0, x);
       tlPanel.scrollTop = 0;
+      if (window.tpPlan) window.tpPlan.openOn();
       tlZoom(true);
       document.getElementById('tp-tl-title').focus({ preventScroll: true });
       // The first time it opens with matches on it, the first one is singled out once (a ring, twice), so it is clear
