@@ -1691,6 +1691,8 @@
       if (it && it.day) clashDays[dayOf(it.day)] = true;
       (tlClash[id] || []).forEach(function (c) { if (c && c.day && /^\w{3} \d{1,2} (Oct|Nov)$/.test(c.day)) clashDays[dayOf(c.day)] = true; });
     });
+    // and so does a day with matches that clash (20 Nov)
+    shown.forEach(function (m) { if (!clashDays[m.day] && matchClash(m.day)) clashDays[m.day] = true; });
     tlDotEls.forEach(function (el, i) { el.classList.toggle('is-clash', !!clashDays[i]); });
     if (String(added || '') !== tlBadge.textContent) {
       tlBadge.hidden = !added;
@@ -2241,6 +2243,35 @@
   // Anything of their own: a team picked, or a match added on its own
   function own() { return state.picked.length > 0 || state.added.some(function (it) { return it.kind === 'match'; }); }
   function allMatches() { return TLM.slice(); }
+  /* Matches that clash (20 Nov). Only matches they mean to go to count: an NSW match of a team they picked, or any match
+     they have marked I have tickets on (with Every NSW match alone, only ticketed ones). Watching a match in NSW is never
+     a clash. Two or more of those on one day clash when they are in different cities, or when two share a kick-off.
+     Nothing is guessed: the fixtures hold no match lengths or travel times, so two in one city at different kick-offs,
+     or a short hop between cities, are not judged. */
+  function mCity(f) { return f.a || (window.cnVenueCity || {})[f.v] || f.p; }
+  function going(m) {
+    var f = m.f; if (!f.t || !own()) return false;
+    if (m.tkey && state.tickets.indexOf(m.tkey) > -1) return true;
+    return !f.a && f.t.split(' v ').some(function (n) { return state.picked.indexOf(n) > -1; });
+  }
+  function short(k) { return k.replace(':00', ''); } // 8pm, not 8:00pm
+  function matchClash(day) {
+    var ms = userMatches().filter(function (m) { return m.day === day && going(m); });
+    if (ms.length < 2) return null;
+    var cities = [], byK = {};
+    ms.forEach(function (m) { var c = mCity(m.f); if (cities.indexOf(c) < 0) cities.push(c); if (m.f.k) (byK[m.f.k] = byK[m.f.k] || []).push(m); });
+    var same = Object.keys(byK).filter(function (k) { return byK[k].length > 1; })[0];
+    if (cities.length < 2 && !same) return null;
+    if (cities.length > 1) return { ms: ms, line: 'Clash: you\u2019re going to matches in ' + list(cities) + ' this day.', say: 'clash, matches in ' + list(cities) };
+    var n = byK[same].length;
+    return { ms: ms, line: 'Clash: ' + n + ' of your matches kick off at ' + short(same) + '.', say: 'clash, ' + n + ' matches kick off at ' + short(same) };
+  }
+  // The matches one match clashes with, each with its city: [{ name, city }]
+  function clashWith(m) {
+    if (!going(m) || !matchClash(m.day)) return [];
+    return userMatches().filter(function (o) { return o !== m && o.day === m.day && going(o) && (mCity(o.f) !== mCity(m.f) || (o.f.k && o.f.k === m.f.k)); })
+      .map(function (o) { return { name: o.f.t, city: mCity(o.f) }; });
+  }
   // The days in NSW guessed from what they have picked: first to last NSW match. Nothing to go on without a pick.
   function inferTrip() {
     if (!own()) return null;
@@ -2290,7 +2321,7 @@
     say('Prototype reset. No teams picked.');
   });
 
-  window.tpPicker = { save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
+  window.tpPicker = { save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, matchClash: matchClash, clashWith: clashWith, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
     flyToBar: flyToBar, tlLand: tlLand, tlSettle: tlSettle, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team

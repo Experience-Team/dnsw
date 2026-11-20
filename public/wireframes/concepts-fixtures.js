@@ -48,6 +48,9 @@ window.cnFixtures = [
   {"d": "Sat 16 Oct", "t": "Argentina v Spain", "s": "Pool C", "v": "Perth Stadium", "p": "Perth", "k": "9:30pm", "a": "Perth"},
   {"d": "Sun 17 Oct", "t": "Scotland v Portugal", "s": "Pool D", "v": "Adelaide Oval", "p": "Adelaide", "k": "3:30pm", "a": "Adelaide"}
 ];
+/* The city each NSW stadium is in (20 Nov), for the match clash rule: interstate matches name their city in `a`; NSW
+   matches take it from their venue here. Proposed `gap` field `city` on a match (docs/product-data-contract.md §17). */
+window.cnVenueCity = { 'Sydney Football Stadium': 'Sydney', 'Stadium Australia': 'Sydney', 'Newcastle Stadium': 'Newcastle' };
 
 /* GAP DATA: real places, indicative details. Pub screenings, fan zones and the Rugby World Cup village are not in
    the live data. Per CLAUDE.md they render from fixtures only, with the pink gap marker (shown with Annotations on).
