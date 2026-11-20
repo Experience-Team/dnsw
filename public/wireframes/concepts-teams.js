@@ -2112,11 +2112,32 @@
   var stackScrim = document.getElementById('tp-stack-scrim'), stackEl = null, stackOpener = null, fwdT;
   var BACK_LIFT = 10, STACK_GAP = 16;
   function stackHide(sh) { sh.classList.remove('is-open', 'is-dragging'); sh.style.transform = ''; sh.inert = true; }
+  /* Your teams and Add team (20 Nov; check 10, Changes say they're kept): their pinned Done turns into Save, with a
+     line naming the latest change, once a team is added or taken off; both close the sheet. Reset each time it opens */
+  var teamSnap = null, teamPrev = null;
+  function teamBarReset(sheet) {
+    var acts = sheet && sheet.querySelector('.tp-ts-acts'); if (!acts) return;
+    teamSnap = state.picked.slice(); teamPrev = state.picked.slice();
+    var p = acts.querySelector('.tp-ts-said'); if (!p) { p = document.createElement('p'); p.className = 'tp-ts-said'; p.setAttribute('aria-hidden', 'true'); acts.insertBefore(p, acts.firstChild); }
+    p.textContent = ''; acts.classList.remove('is-save');
+    acts.querySelector('[data-stack-close]').textContent = 'Done';
+  }
+  phoneEl.addEventListener('tp:state', function () {
+    if (!stackEl || !teamSnap || !stackEl.querySelector('.tp-ts-acts')) return;
+    var now = state.picked, add = now.filter(function (n) { return teamPrev.indexOf(n) < 0; }), rm = teamPrev.filter(function (n) { return now.indexOf(n) < 0; });
+    teamPrev = now.slice();
+    if (!add.length && !rm.length) return;
+    var name = function (n) { return n === RUGBY.name ? 'Every NSW match' : n; };
+    var line = add.length ? list(add.map(name)) + ' added to your teams.' : list(rm.map(name)) + ' taken off your teams.';
+    var acts = stackEl.querySelector('.tp-ts-acts');
+    acts.querySelector('.tp-ts-said').textContent = line; acts.classList.add('is-save');
+    acts.querySelector('[data-stack-close]').textContent = 'Save';
+  });
   function stackOpen(sheet, opener) {
     if (!tlOpen || stackEl === sheet) return;
     if (stackEl) stackHide(stackEl); // replace, never a third level
     else stackOpener = opener || document.activeElement;
-    stackEl = sheet;
+    stackEl = sheet; teamBarReset(sheet);
     sheet.style.setProperty('--stack-top', (tl.offsetTop - BACK_LIFT + STACK_GAP) + 'px');
     sheet.scrollTop = 0;
     sheet.inert = false;
@@ -2136,7 +2157,7 @@
   function soloHold() { if (soloAnchor && soloAnchor.isConnected) body.scrollTop += soloAnchor.getBoundingClientRect().top - soloY; }
   function stackOpenSolo(sheet, opener) {
     if (stackEl) return;
-    stackOpener = opener || document.activeElement; stackEl = sheet; stackSolo = true;
+    stackOpener = opener || document.activeElement; stackEl = sheet; stackSolo = true; teamBarReset(sheet);
     soloAnchor = opener && opener.closest('section'); soloY = soloAnchor ? soloAnchor.getBoundingClientRect().top : 0;
     sheet.style.setProperty('--stack-top', '56px');
     sheet.scrollTop = 0; sheet.inert = false; sheet.classList.add('is-open');

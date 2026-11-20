@@ -4500,6 +4500,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ts-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 calc(var(--space-4) * -1); padding: 0 var(--space-4); }
 .tp-ts-none { margin: var(--space-4) 0; font-size: var(--fs-md); color: var(--c-ink-2); }
 .tp-ts-acts { flex: none; display: flex; justify-content: flex-end; padding-top: var(--space-3); border-top: var(--bw-1) solid var(--c-line-soft); }
+/* Once a team changes, Done turns into Save with the change beside it (20 Nov) */
+.tp-ts-acts { align-items: center; gap: var(--space-3); }
+.tp-ts-said { flex: 1; min-width: 0; margin: 0; font-size: var(--fs-sm); line-height: 1.4; }
+.tp-ts-said:empty { display: none; }
 .tp-team-list { list-style: none; margin: 0; padding: 0; }
 .tp-team-list li { border-bottom: var(--bw-1) solid #ededed; }
 .tp-team-list li[hidden] { display: none; }

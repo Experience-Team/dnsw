@@ -1046,10 +1046,11 @@
   pm.className = 'cn-pp tp-pm'; pm.id = 'tp-pm'; pm.hidden = true;
   pm.setAttribute('role', 'dialog'); pm.setAttribute('aria-modal', 'true'); pm.setAttribute('aria-labelledby', 'tp-pm-title');
   pm.innerHTML = '<div class="cn-bar"><button type="button" class="cn-close tp-pm-back" data-pm-back aria-label="Back" hidden><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2L4 7l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="cn-bar-title" id="tp-pm-kind"></p><button type="button" class="cn-close" data-pm-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div><div class="cn-pp-body" id="tp-pm-body" tabindex="-1"></div>';
-  /* Save in the match sheet (20 Nov): every change there is applied at once, but on a phone the line saying so sits
-     below the fold, and the cross reads as cancel. Once something changes, a bar pins to the sheet's foot with what
-     changed and Save, which does exactly what the cross does: closes the sheet. It stays while drilled into a venue
-     from that match, and goes when the sheet closes */
+  /* Save (20 Nov; CLAUDE.md check 10, Changes say they're kept): every change in a sheet is applied at once, but on a
+     phone the line saying so sits below the fold, and the cross reads as cancel. Once something changes, a bar pins to
+     the sheet's foot with what changed and Save, which does exactly what the cross does: closes the sheet. It stays
+     while drilling down, and goes when the sheet next opens. Not the days sheet: it holds its dates until Use these
+     dates, its own button */
   var pmSave = document.createElement('div');
   pmSave.className = 'tp-pm-save'; pmSave.hidden = true;
   pmSave.innerHTML = '<p class="tp-pm-save-said" aria-hidden="true"></p><button type="button" class="tp-pill tp-pill--dark" data-pm-save>Save</button>';
@@ -1057,7 +1058,7 @@
   var pmRoot = '';
   function said(t) {
     pmSaid = t;
-    if (pmRoot.indexOf('match:') !== 0) return;
+    if (!pmOpen || !t || /^days/.test(pmRoot)) return;
     pmSave.querySelector('p').textContent = t;
     if (pmSave.hidden) {
       pmSave.hidden = false; pm.classList.add('has-save');
@@ -1913,7 +1914,7 @@
       var nid = moveItem(pmOpen.id.slice(5), +mvb.dataset.pmMove);
       pmOpen.id = 'item:' + nid;
       var moved = addedItem(nid);
-      pmSaid = moved ? moved.title + ' moved to ' + (moved.when || moved.day) + '.' : '';
+      said(moved ? moved.title + ' moved to ' + (moved.when || moved.day) + '.' : '');
       pmBody.innerHTML = pmItem(nid);
       if (typeof tp.tlSelect === 'function') tp.tlSelect(-1, false, nid); // its marker stays the chosen one, on its new day
       var again = pm.querySelector('[data-pm-move], [data-pm-remove]'); if (again) again.focus({ preventScroll: true });
@@ -2084,12 +2085,13 @@
     if (added(it.id)) {
       tp.removeItem(it.id);
       tp.say(it.title + ' removed from your plan. ' + state.added.length + ' added.');
-      if (!inIdeas) planToast(it.id, it.title, false);
+      if (!inIdeas) planToast(it.id, it.title, false); else said(it.title + ' removed from your plan.');
     } else if (inIdeas) {
       // Added from the ideas sheet: the axis is behind the sheet, so its marker settles with a ring once the sheet closes
       tp.addItem(Object.assign({}, it));
       tlIdeasAdded.push(it.id);
       tp.say(it.title + ' added to your plan on ' + it.day + '. ' + state.added.length + ' added.');
+      said(it.title + ' added to your plan on ' + it.day + '.');
       return;
     } else {
       tp.flyToBar(b);
@@ -2182,8 +2184,12 @@
   });
   // Something put on, or taken off, the plan: says which day it landed on; the link opens the plan (not over a sheet)
   function planToast(id, title, on) {
-    // In the match sheet the Save bar already says it, where they acted (check 11): no toast as well
-    if (pmOpen && pmRoot.indexOf('match:') === 0) return;
+    // In a sheet the Save bar says it, where they acted (check 11): no toast as well
+    if (pmOpen && !/^days/.test(pmRoot)) {
+      var si0 = addedItem(id);
+      said(!on ? title + ' removed from your plan.' : si0 && si0.unplaced ? title + ' saved to your plan' + (si0.fixed ? '. It goes on ' + si0.fixed + ' once you set your days.' : ', not placed yet.') : title + ' added to your plan' + (si0 && si0.day ? ' on ' + si0.day : '') + '.');
+      return;
+    }
     var it = addedItem(id), act = pmOpen ? null : { label: 'Open your plan', fn: tp.openPlan };
     if (!on) { tp.toast('Removed from your plan', title + '.'); return; }
     if (!it) return;
