@@ -5737,3 +5737,10 @@ span.tp-map-arrow { display: block; }
 #tp-stage:not(.has-notes) .tp-out[href="#"],
 #tp-stage:not(.has-notes) #tp-home-faq,
 #tp-stage:not(.has-notes) [data-home-jump="tp-home-faq"] { display: none !important; }
+
+/* B3 (21 Nov, F-051): under the last match day while no days are set, what setting them unlocks */
+.tp-dc-stay { padding: var(--space-4); border: var(--bw-1) dashed var(--c-line); border-radius: var(--radius-sm); }
+.tp-dc-stay-p { margin: 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-dc-stay-p strong { display: block; margin-bottom: var(--space-1); font-size: var(--fs-base, 1rem); color: var(--c-ink); }
+.tp-dc-stay .tp-dc-ideas { margin-top: var(--space-3); }
+.tp-dc.is-swipe .tp-dc-stay { margin-top: var(--space-4); }

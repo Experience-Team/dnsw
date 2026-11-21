@@ -19,7 +19,12 @@ window.TP_WORDS = {
   groupName: function (s) { return String(s).replace(/\bPool ([A-F])\b/g, 'Group $1').replace(/\bthe pools finish\b/g, 'the groups finish'); },
   // A2 follow-up: what screen readers hear for a stand-in photo
   imageOf: function (s) { return 'Image of ' + s; },
-  kickStill: 'A still from the Play game'
+  kickStill: 'A still from the Play game',
+  // B2 (F-053): what setting days does, above the dates on the page, in the plan and in the days sheet
+  setDaysWhy: 'Set your days to see ideas for the rest of your trip.',
+  // B3 (F-051): the plan's card under the last match day while no days are set
+  stayAfter: 'Staying after your last match?',
+  setDays: 'Set your days'
 };
 
 /* Pool A to F come from the fixtures (team records, match names such as 2nd Pool C v 2nd Pool F), which are also used
