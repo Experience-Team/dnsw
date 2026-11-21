@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Third Half: kick to NSW prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+<header>
+  <h1>The Third Half: kick to NSW</h1>
+  <p>Pick a route, set your angle and power, mind the wind. Where the ball lands is where you go next.</p>
+</header>
+
+<div class="stage-wrap">
+  <svg class="stage" viewBox="0 0 1200 700" role="img" aria-label="Side-on view of a rugby kicker, goal posts and a route across NSW">
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd3ec"/><stop offset="1" stop-color="#e9f4f2"/></linearGradient></defs>
+    <rect width="1200" height="700" fill="url(#sky)"/>
+    <g id="world"><g id="worldStatic"></g><g id="posts"></g><g id="player"></g></g>
+    <g id="overlay" font-family="Space Mono, monospace"></g>
+    <g transform="translate(40 40)" font-family="Space Mono, monospace" font-weight="700" font-size="17" fill="#17211a"><text x="0" y="18">THE</text><text x="0" y="38">THIRD</text><text x="0" y="58">HALF</text></g>
+    <g id="windFlag" transform="translate(1030 60)" font-family="Space Mono, monospace"></g>
+  </svg>
+
+  <aside class="card" id="card" hidden role="dialog" aria-labelledby="cardName">
+    <div class="card-inner">
+      <div class="card-img" id="cardImg"></div>
+      <p class="kicker" id="cardKicker">The ball landed in …</p>
+      <div class="name-row">
+        <h2 id="cardName" tabindex="-1">Place</h2>
+        <button class="save" id="btnSave" aria-pressed="false"><span>+ to plan</span></button>
+      </div>
+      <div class="tags" id="cardTags"></div>
+      <p class="blurb">Placeholder: the summary from this destination's page on sydney.com or visitnsw.com would appear here, with its hero image above.</p>
+      <dl class="facts">
+        <div><dt>Distance</dt><dd id="cardDist"></dd></div>
+        <div><dt>Route</dt><dd id="cardRoute"></dd></div>
+      </dl>
+      <p class="note-inline" id="cardNote"></p>
+      <div class="card-actions">
+        <button id="btnAgain">Kick again</button>
+        <button class="ghost" id="btnClose">Close</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="controls">
+  <div class="group"><span class="lbl">Kicking from</span>
+    <div class="seg" role="group" aria-label="Kicking from">
+      <button class="route startbtn" data-s="sydney" aria-pressed="true">Sydney</button>
+      <button class="route startbtn" data-s="newcastle" aria-pressed="false">Newcastle</button>
+    </div></div>
+  <div class="group"><span class="lbl">Route</span>
+    <div class="seg" role="group" aria-label="Route">
+      <button class="route dirbtn" data-r="local" aria-pressed="false">Local</button>
+      <button class="route dirbtn" data-r="north" aria-pressed="true">North</button>
+      <button class="route dirbtn" data-r="south" aria-pressed="false">South</button>
+      <button class="route dirbtn" data-r="west" aria-pressed="false">West</button>
+    </div></div>
+  <div class="group"><label for="angle">Angle</label><div class="slider"><input id="angle" type="range" min="10" max="80" value="45"><output id="angleVal">45°</output></div></div>
+  <div class="group"><label for="power">Power</label><div class="slider"><input id="power" type="range" min="0" max="100" value="50"><output id="powerVal">50%</output></div><div class="est" id="estVal" aria-live="polite"></div></div>
+  <div class="group"><span class="lbl">Wind</span><div id="windVal" style="font-weight:700;padding:6px 0">Calm</div></div>
+  <div class="group"><button class="kick" id="btnKick">Kick</button></div>
+</div>
+<div class="pickers"><div class="teams" id="teams" role="radiogroup" aria-label="Team"></div></div>
+<!-- TEMPORARY (prototype Stage 1): the colour curation tools, folded away and closed by default. To be removed later. -->
+<details class="curate-wrap">
+  <summary>Colour settings (temporary)</summary>
+<div class="curate">
+  <h3>Colour configuration</h3>
+  <div class="row"><span class="lbl">Kit</span><div id="kitShades" class="swrow" role="radiogroup" aria-label="Kit shade"></div><span class="hint">per team</span></div>
+  <div class="row"><span class="lbl">Skin</span><div id="shades" class="swrow" role="radiogroup" aria-label="Skin shade"></div><span class="hint">per team</span></div>
+  <div class="row"><span class="lbl">Field</span><div id="fields" class="swrow" role="radiogroup" aria-label="Field colour"></div>
+    <label class="custom" title="Custom field colour"><input type="color" id="fieldCustom" aria-label="Custom field colour"><span>Custom</span></label>
+    <label class="hint"><input type="checkbox" id="fieldPerTeam"> per team</label></div>
+  <div class="row"><span class="teamname" id="teamName"></span><span class="spacer"></span><span class="toast hint" id="toast"></span>
+    <button class="pill" id="btnImport">Import settings</button><button class="pill" id="btnCopyCfg">Copy curated settings</button><button class="pill" id="btnResetTeam">Reset this team</button></div>
+  <div id="importBox" hidden>
+    <textarea id="importText" placeholder="Paste the JSON from Copy curated settings (from this page or the kicker rig page)"></textarea>
+    <div class="row" style="margin-top:8px"><button class="pill" id="btnApplyImport">Apply</button><button class="pill" id="btnCancelImport">Cancel</button></div>
+  </div>
+</div>
+</details>
+<p class="note">On the West route the Blue Mountains are solid: a low, flat kick hits the face and rolls back to the foothills, so you need height to reach Bathurst and beyond. The km estimate under Power assumes no wind.</p>
+<p class="note">Prototype. Destinations are placeholders in real distance order from the start point. Local covers roughly the first 30 km; the other routes start beyond it so stops are not repeated. Each stop's landing zone is sized from 4,000 simulated kicks so that every stop catches roughly 1 in 10 kicks, which is why some zones are wider than others. Distances are approximate. Clearing the crossbar is a bonus; every kick lands somewhere.</p>
+
+<script src="js/teams.js"></script>
+<script src="js/rig.js"></script>
+<script src="js/config.js"></script>
+<script src="js/routes.js"></script>
+<script src="js/zones.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
