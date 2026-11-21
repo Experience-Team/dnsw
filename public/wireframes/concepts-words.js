@@ -1,6 +1,6 @@
 /* Visitor-facing wording added or changed on 21 Nov (stage A to D of the round 3 fixes), in one place so it can be
    approved or changed here and nowhere else. Every entry is a placeholder the user has still to approve.
-   Code, notes and the fixtures' own field names keep their old words (pool, knockout, Drop goal).
+   Code and the fixtures' own field names keep their old words (pool, knockout, Drop goal); the annotations and handover say Play.
    Approved 21 Nov: Group A to F, later-round matches in counts, Play in the kick-game lines, Image of for stand-in photos. */
 window.TP_WORDS = {
   // A1: the way back to the plan, on the plan bar (F-046)
@@ -11,7 +11,7 @@ window.TP_WORDS = {
   // A2: visitor-facing names for the stages (F-052); the fixtures keep pool and knockout
   groupMatches: 'group matches', groupMatch: 'group match',
   laterRounds: 'the later rounds',
-  // A3: the kick game's visible name (F-034); the route, ?view=kick and the code keep Drop goal
+  // A3: the kick game's visible name (F-034), everywhere it shows, page title included; the route, ?view=kick and the code keep Drop goal
   play: 'Play',
   // A2 follow-up (21 Nov): the number forms of the later rounds
   laterRoundMatches: function (shown, n) { return shown + (n === 1 ? ' later-round match' : ' later-round matches'); },
