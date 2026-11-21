@@ -138,7 +138,7 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 ## Where the build stands (checked 19 Nov evening)
 
 - **Plan layouts:** both are in. `?plan=cards` (vertical day cards) is the default; `?plan=swipe` shows one card at a time; the tools panel switches between them.
-- **Team cards:** the country name (with its flag) sits under the three-letter code. Unchanged since before 16 Nov.
+- **Team cards:** the country name (with its flag) sits under the three-letter code, in the grid and, since 21 Nov, in the stacked hand too (arcs of five, 14 to 12px, fewer to an arc where the names need it).
 - **Kick-offs in Sydney time:** not on the event line. It was dropped on 16 Nov to match the Figma reference; kick-off times elsewhere still say "Sydney time".
 - **Pick your teams button on the first screen:** removed (planner hero, 16 Nov), and Home's hero has no button either (19 Nov). The hand of cards under "Plan your 3rd half" is the way in.
 - **Kick-off of the opener:** 8:45pm Sydney time (was 9:00pm), also changed on `pages/rugby-world-cup.html` and `experiments.html`.

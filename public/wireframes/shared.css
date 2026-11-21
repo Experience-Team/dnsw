@@ -3925,13 +3925,14 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-card2 { position: absolute; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 6px 0; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; box-shadow: -1px 0 4px rgba(0,0,0,.06); transition: transform var(--dur-large) var(--ease-out), opacity var(--dur-small) ease-out, background-color var(--dur-micro) ease-out, color var(--dur-micro) ease-out; }
 .tp-card2-code { font-family: var(--font-label); font-size: .9375rem; font-weight: var(--fw-heavy); line-height: 1; letter-spacing: -.01em; }
 .tp-card2-flag .tp-fl { height: 12px; }
-/* The full name: grid only (the fan's 57px cards are too narrow for it at 14px) */
-.tp-card2-name { display: none; font-size: .875rem; font-weight: var(--fw-semi); line-height: 1.2; text-wrap: balance; }
-.tp-fan2-wrap.is-grid .tp-card2-name { display: block; }
+/* The full name, under the flag (21 Nov): in the hand at the size the hand's layout found for it (14 down to 12px,
+   --hand-fs, set by concepts-teams.js handGeo), in the grid at 14px. Words never break; long names wrap at spaces */
+.tp-card2-name { display: block; align-self: stretch; font-size: var(--hand-fs, .875rem); font-weight: var(--fw-semi); line-height: 1.2; overflow-wrap: normal; hyphens: manual; text-wrap: balance; }
+.tp-fan2-wrap.is-grid .tp-card2-name { font-size: .875rem; }
 .tp-fan2-wrap.is-grid .tp-card2 { gap: 6px; padding: 8px 8px 0; box-shadow: none; }
 .tp-fan2-wrap.is-grid .tp-card2 .tp-card-tick { top: 9px; right: 8px; }
 @media (prefers-reduced-motion: reduce) { .tp-fan2-wrap { transition: none; } }
-.tp-card2 .tp-card-tick { display: none; top: 25px; right: 6px; width: 11px; height: 9px; } /* beside the flag, clear of the code */
+.tp-card2 .tp-card-tick { display: none; top: 25px; right: 12px; width: 11px; height: 9px; } /* beside the flag, clear of the code, and 6px in from the edge the next card overlaps (21 Nov) */
 .tp-card2.is-picked { background: var(--c-btn); color: var(--c-on-dark); }
 .tp-card2.is-picked .tp-card-tick { display: block; animation: cn-pop var(--dur-small) var(--ease-spring); }
 .tp-card2.is-pulling { z-index: 80 !important; box-shadow: 0 14px 24px rgba(0,0,0,.22); }
@@ -4549,7 +4550,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .show-nsw .tp-nsw-mark { display: inline-block; }
 /* On the hand only the top of each card shows, so the marker sits in the flag row (right) and the picked tick moves up
    beside the code (the widest code ends at about 38px of the 57px card; the tick takes 42 to 53px) */
-.tp-fan2-wrap:not(.is-grid) .tp-nsw-mark { position: absolute; top: 26px; right: 4px; padding: 0 2px; font-size: .4375rem; }
+.tp-fan2-wrap:not(.is-grid) .tp-nsw-mark { position: absolute; top: 26px; right: 10px; padding: 0 2px; font-size: .4375rem; }
 .show-nsw .tp-fan2-wrap:not(.is-grid) .tp-card2 .tp-card-tick { top: 7px; right: 4px; }
 .tp-card .tp-nsw-mark { margin-top: auto; font-size: .6875rem; }
 .tp-fan2-wrap.is-grid .tp-nsw-mark { position: absolute; right: 8px; top: 29px; font-size: .625rem; } /* in the flag row, right; the tick takes the top right */
