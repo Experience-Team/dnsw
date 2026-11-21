@@ -196,7 +196,7 @@
         '<p class="tp-dc-pos" id="tp-dc-pos"></p>' +
         '<button type="button" class="tp-dc-step" data-dc-next><span>Next day</span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>' +
         '<div class="tp-dc-track">' + cards + '</div>';
-    } else h += '<div class="tp-dc-cards">' + cards + '</div>';
+    } else h += '<div class="tp-dc-cards">' + cards + '</div><div class="tp-dc-tail" aria-hidden="true"></div>';
     root.innerHTML = h;
     root.classList.toggle('is-swipe', swipe());
     var st = root.querySelector('.tp-dc-days'); st.scrollLeft = snap.strip;
@@ -207,6 +207,7 @@
       tr.addEventListener('scroll', onTrack, { passive: true });
     }
     measure();
+    tail();
     if (current === null || !M.days.some(function (x) { return x.d === current; })) current = M.first;
     syncCurrent(false);
     if (snap.sel) { var f = root.querySelector(snap.sel); if (f) f.focus({ preventScroll: true }); }
@@ -222,6 +223,23 @@
     panel.style.scrollPaddingTop = ((sh && !swipe() ? sh.offsetHeight : 0) + 8) + 'px';
     panel.style.scrollPaddingBottom = (fh + 8) + 'px';
   }
+
+  /* Room at the end (21 Nov): the last day's card can come to the top under the strip like any other, so opening the
+     plan on a team's last match day (See your match day) or tapping the last day lands it there. The space is only
+     what that card needs, measured as the plan is drawn and as it opens */
+  function stuckGap() {
+    var strip = root.querySelector('.tp-dc-strip'), cs = getComputedStyle(panel);
+    return parseFloat(cs.paddingTop) + (parseFloat(getComputedStyle(strip).top) || 0) + strip.offsetHeight + 12;
+  }
+  function tail() {
+    var t = root.querySelector('.tp-dc-tail'); if (!t || !panel || swipe()) return;
+    var cardsEl = root.querySelectorAll('.tp-dc-card'), last = cardsEl[cardsEl.length - 1]; if (!last) return;
+    t.style.height = '0px';
+    var pr = panel.getBoundingClientRect(), y = last.getBoundingClientRect().top - pr.top - panel.clientTop + panel.scrollTop;
+    var need = y - stuckGap(), max = panel.scrollHeight - panel.clientHeight;
+    t.style.height = Math.max(0, Math.ceil(need - max)) + 'px';
+  }
+  if (window.ResizeObserver && panel) new ResizeObserver(function () { tail(); }).observe(panel);
 
   /* ---------- Where you are: the current day ---------- */
   function cardFor(d) { var c = null; root.querySelectorAll('.tp-dc-card').forEach(function (el) { if (+el.dataset.dcA <= d && +el.dataset.dcZ >= d) c = el; }); return c; }
@@ -315,6 +333,7 @@
   function openOn(at) {
     var want = at && at.note || '';
     if (want !== outNote) { outNote = want; render(); }
+    tail();
     if (!M0 || !M0.n) return;
     var d = at && at.day != null && cardFor(at.day) ? at.day : openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
     if (!card) return;

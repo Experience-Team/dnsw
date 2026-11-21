@@ -450,7 +450,6 @@
      Geometry from the Figma frame (462 wide), scaled to the phone: per-column angles, a 214px radius, rows 67px apart. */
   var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2'), fanWrap = root.querySelector('.tp-fan-wrap');
   var cards2 = null, f2Dealt = false, f2Focus = 0, viewLabel = function () {}, syncNswMark = function () {};
-  var F2 = { s: .82, angles: [-47.9, -33.5, -15.6, 1.6, 18.8, 36.0], px: 257.7, py: 311.2, row: 67.2, r: 214, w: 70, h: 107, x0: 18, y0: 40, pad: 13, top: 8, lift: 10 };
   function fanVariant() {
     var m = /[?&]fan=(classic|stacked)\b/.exec(location.search), v = m && m[1];
     // The remembered choice belongs to the switch, which only the tools version shows: the plain address (the one DNSW
@@ -468,18 +467,60 @@
       return '<button type="button" class="tp-card2" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
         esc(cardLabel(c)) + '"><span class="tp-card2-code">' + esc(c.code) + '</span>' +
         (FLAG[c.name] ? '<span class="tp-card2-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') +
-        // The full name shows in the grid only (the fan's cards are too narrow for it at 14px)
+        // The full name, under the flag, in the hand and the grid (21 Nov); screen readers hear it in the label
         '<span class="tp-card2-name" aria-hidden="true">' + esc(c.name) + '</span>' + (c.nsw > 0 ? NSW_MARK : '') + TICK + '</button>';
     }).join('');
     cards2 = Array.prototype.slice.call(fan2.children);
   }
   // Where card k of the visible hand sits: its row of six (a short last row takes the middle angles), and the box and
   // pivot that turn it into place
+  /* The hand, laid out for its real width (21 Nov): each card shows its code, flag and full country name. Five cards
+     to an arc; the name is the largest size from 14 down to 12px at which every word fits its card. Where even 12px
+     does not fit (narrow phones, the wider system font of the wireframe) the arcs take four cards, then three, so the
+     hand grows taller rather than the type smaller. Each row is as tall as its longest name needs, so the row below
+     never covers a name. Nothing is scaled, so the size set is the size seen. */
+  var HG = null, HG_KEY = '';
+  function wordW(fs) {
+    var pr = handGeo.probe || (handGeo.probe = document.createElement('span'));
+    if (!pr.isConnected) { pr.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:nowrap;visibility:hidden'; fan2.appendChild(pr); }
+    var n0 = fan2.querySelector('.tp-card2-name'), cs = getComputedStyle(n0);
+    pr.style.fontFamily = cs.fontFamily; pr.style.fontWeight = cs.fontWeight; pr.style.fontSize = fs + 'px';
+    var m = 0;
+    CARDS.forEach(function (c) { c.name.split(' ').forEach(function (w) { pr.textContent = w; m = Math.max(m, pr.getBoundingClientRect().width); }); });
+    return Math.ceil(m);
+  }
+  function handGeo(n) {
+    var W = fan2Wrap.clientWidth || 390, key = W + '|' + document.documentElement.className + '|' + n;
+    if (HG && HG_KEY === key) return HG;
+    var avail = W - 24 - 20, PAD = 6, OVER = 6, pick = null;
+    wordW(14); // makes the probe
+    for (var N = 5; N >= 3 && !pick; N--) {
+      var sp = avail / N, inner = sp - PAD * 2;
+      for (var fs = 14; fs >= 12; fs--) if (wordW(fs) <= inner) { pick = { N: N, sp: sp, fs: fs }; break; }
+    }
+    if (!pick) pick = { N: 3, sp: avail / 3, fs: 12 };
+    var w = pick.sp + OVER, R = 900;
+    fan2.style.setProperty('--hand-fs', pick.fs + 'px');
+    // Each name's height at the card's final width, measured off to the side (the cards may be gliding to a new width),
+    // under where the code and flag end; the tallest in each row gives that row its height
+    var n0 = fan2.querySelector('.tp-card2-name'), ncs = getComputedStyle(n0), pr = handGeo.probe;
+    var top0 = n0.offsetTop, rows = [], rowsN = Math.ceil(n / pick.N);
+    pr.style.whiteSpace = 'normal'; pr.style.width = (w - PAD * 2 - 4).toFixed(1) + 'px'; pr.style.fontSize = pick.fs + 'px';
+    pr.style.lineHeight = '1.2'; pr.style.textWrap = 'balance'; pr.style.display = 'block';
+    for (var r = 0; r < rowsN; r++) rows.push(0);
+    seq.forEach(function (i, k) { if (k >= n) return; pr.textContent = CARDS[i].name; rows[Math.floor(k / pick.N)] = Math.max(rows[Math.floor(k / pick.N)], top0 + pr.offsetHeight); });
+    pr.style.whiteSpace = 'nowrap'; pr.style.width = ''; pr.style.display = '';
+    var strips = rows.map(function (end) { return end + 10 + 10; }), /* 10 more: a picked card sits 10px up, and must not cover the name above it */ h = Math.max.apply(null, strips) + 26, tops = [], t = 18;
+    strips.forEach(function (st) { tops.push(t); t += st; });
+    var rc = R + h / 2, step = pick.sp / rc * 180 / Math.PI;
+    var sag = rc * (1 - Math.cos(((pick.N - 1) / 2) * step * Math.PI / 180));
+    HG = { N: pick.N, fs: pick.fs, w: w, h: h, R: R, step: step, tops: tops, cx: W / 2, height: Math.ceil(tops[tops.length - 1] + h + sag + 16) };
+    HG_KEY = key;
+    return HG;
+  }
   function slot2(k, n) {
-    var row = Math.floor(k / 6), col = k % 6, inRow = Math.min(6, n - row * 6), a = F2.angles[col + Math.floor((6 - inRow) / 2)];
-    var s = F2.s, w = F2.w * s, h = F2.h * s, r = F2.r * s;
-    var px = (F2.px - F2.x0) * s + F2.pad, py = (F2.py - F2.y0) * s + F2.top + row * F2.row * s;
-    return { left: px - w / 2, top: py - r - h / 2, w: w, h: h, ox: w / 2, oy: h / 2 + r, a: a, z: row * 10 + col };
+    var g = handGeo(n), N = g.N, row = Math.floor(k / N), col = k % N, inRow = Math.min(N, n - row * N), a = (col - (inRow - 1) / 2) * g.step;
+    return { left: g.cx - g.w / 2, top: g.tops[row], w: g.w, h: g.h, ox: g.w / 2, oy: g.h / 2 + g.R, a: a, z: row * 10 + col };
   }
   /* The grid: the same cards, upright, four to a row in alphabetical order, each wide enough for the full name */
   var G = { cols: 4, gap: 8, h: 106, x0: 16, y0: 8 }; // 106px: room for a three-line name (Hong Kong China in the system font)
@@ -505,10 +546,11 @@
       b.style.left = sl.left.toFixed(1) + 'px'; b.style.top = sl.top.toFixed(1) + 'px';
       b.style.width = sl.w.toFixed(1) + 'px'; b.style.height = sl.h.toFixed(1) + 'px';
       b.style.transformOrigin = sl.ox.toFixed(1) + 'px ' + sl.oy.toFixed(1) + 'px';
-      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on && !grid() ? -F2.lift : 0) + 'px)';
+      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on && !grid() ? -10 : 0) + 'px)';
       b.style.zIndex = sl.z;
       if (!animate) { void b.offsetWidth; b.style.transition = ''; }
     });
+    if (stacked() && !grid() && HG) fan2Wrap.style.height = HG.height + 'px'; // the box follows the hand's real height
   }
   function showVariant(animate) {
     if (!fan2) return;
@@ -524,19 +566,18 @@
     sync2(!!animate);
     if (stacked() || grid()) deal2(); else watchDeal();
   }
-  /* The hand is laid out for a 390px phone: its cards span 28 to 362px (368 with a picked card lifted). On any other width it is
-     centred on those real extremes and scaled down when it would not fit with 12px either side, and its box takes the
-     scaled height, so no card is clipped and the space above and below stays even (interaction check 6). */
-  var HAND = { l: 28, r: 365, h: 339 }; // 362 with no card picked, 368 with a picked card lifted: centred between the two
+  // The hand's box takes the hand's real height (handGeo); nothing is scaled
   function fitHand() {
     if (!fan2) return;
-    if (!stacked() || grid()) { fan2.style.transform = ''; return; }
-    var W = fan2Wrap.clientWidth || 390, k = Math.min(1, (W - 24) / (HAND.r - HAND.l)), c = (HAND.l + HAND.r) / 2;
-    fan2.style.transformOrigin = '0 0';
-    fan2.style.transform = 'translateX(' + (W / 2 - c * k).toFixed(1) + 'px) scale(' + k.toFixed(4) + ')';
-    fan2Wrap.style.height = Math.round(HAND.h * k) + 'px';
+    fan2.style.transform = '';
+    if (!stacked() || grid()) return;
+    HG_KEY = ''; // a new width or font: measure again
+    var n = seq.length; handGeo(n);
+    fan2Wrap.style.height = HG.height + 'px';
   }
-  window.addEventListener('resize', fitHand);
+  window.addEventListener('resize', function () { fitHand(); if (stacked() && !grid()) sync2(false); });
+  // The hand is measured in its own font: once the web font has loaded (high fidelity), measure again
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!fan2) return; HG_KEY = ''; if (stacked() && !grid()) { fitHand(); sync2(false); } });
   // The deal: the first time the stacked hand comes into view its cards come up into place, row by row
   function deal2() {
     if (f2Dealt || !stacked()) return;
@@ -546,7 +587,7 @@
       if (reduce.matches || !fan2.animate) return;
       cards2.forEach(function (b) {
         var k = seq.indexOf(+b.dataset.i); if (k < 0) return;
-        b.animate([{ opacity: 0, translate: '0 24px' }, { opacity: 1, translate: '0 0' }], { duration: 420, delay: Math.floor(k / 6) * 90 + (k % 6) * 25, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' });
+        b.animate([{ opacity: 0, translate: '0 24px' }, { opacity: 1, translate: '0 0' }], { duration: 420, delay: Math.floor(k / (HG ? HG.N : 5)) * 90 + (k % (HG ? HG.N : 5)) * 25, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' });
       });
     };
     if (!('IntersectionObserver' in window)) { go(); return; }
@@ -564,13 +605,16 @@
       if (!reduce.matches && b.animate) {
         if (b._pull) b._pull.cancel();
         b.classList.add('is-pulling');
-        b._pull = b.animate([{ translate: '0 0', scale: '1' }, { translate: '0 ' + (on ? -18 : -10) + 'px', scale: on ? '1.14' : '1.06', offset: .4 }, { translate: '0 0', scale: '1' }], { duration: 640, easing: 'cubic-bezier(.65, 0, .35, 1)' });
+        // The card turns about a point far below it (the arc's centre), so growing it would also lift it that far:
+        // the growth is offset so the card rises by its own small amount (21 Nov)
+        var sc = on ? 1.14 : 1.06, piv = grid() ? 0 : (HG ? HG.R : 0);
+        b._pull = b.animate([{ translate: '0 0', scale: '1' }, { translate: '0 ' + ((on ? -18 : -10) + (sc - 1) * piv).toFixed(1) + 'px', scale: String(sc), offset: .4 }, { translate: '0 0', scale: '1' }], { duration: 640, easing: 'cubic-bezier(.65, 0, .35, 1)' });
         b._pull.onfinish = b._pull.oncancel = function () { b.classList.remove('is-pulling'); b._pull = null; };
       }
       toggle(i, b);
     });
     fan2.addEventListener('keydown', function (e) {
-      var k = e.key, n = seq.length, cur = f2Focus, to = null, rowN = grid() ? G.cols : 6; // a row of the grid, or of the hand
+      var k = e.key, n = seq.length, cur = f2Focus, to = null, rowN = grid() ? G.cols : (HG ? HG.N : 5); // a row of the grid, or of the hand
       if (k === 'ArrowRight') to = cur + 1;
       else if (k === 'ArrowLeft') to = cur - 1;
       else if (k === 'ArrowDown') to = cur + rowN < n ? cur + rowN : cur;
