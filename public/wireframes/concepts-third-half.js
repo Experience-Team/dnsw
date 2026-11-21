@@ -15,6 +15,7 @@
 (function () {
   'use strict';
   var TBC = (window.TP_WORDS || {}).timeTbc || 'Time to be confirmed', TBC_L = TBC.charAt(0).toLowerCase() + TBC.slice(1); // A2 (21 Nov): concepts-words.js
+  var WHY = (window.TP_WORDS || {}).setDaysWhy || 'Set dates and the ideas below fit around your matches.'; // B2 (21 Nov)
   var PLAY = (window.TP_WORDS || {}).play || 'Drop goal', IMG = (window.TP_WORDS || {}).imageOf || function (x) { return 'Placeholder image of ' + x; }; // A2 follow-up (21 Nov)
   var GM = (window.TP_WORDS || {}).groupMatches || 'pool matches', GM1 = (window.TP_WORDS || {}).groupMatch || 'pool match', LR = (window.TP_WORDS || {}).laterRounds || 'the knockouts', LR_C = LR.charAt(0).toUpperCase() + LR.slice(1); // A2 (21 Nov): visitor-facing stage names
   var tp = window.tpPicker, FIX = window.cnFixtures;
@@ -1789,7 +1790,7 @@
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
-    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">Set dates and the ideas below fit around your matches.</p>' +
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
       '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
@@ -2314,7 +2315,7 @@
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
-      h += '<p class="tp-sec-note">Set dates and the ideas below fit around your matches.</p>' +
+      h += '<p class="tp-sec-note">' + esc(WHY) + '</p>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
         rangeDots() +
@@ -2616,7 +2617,7 @@
     if (askError && rRoot === daysLine) typeOpen.tl = true;
     var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Type new dates or drag either end to change them.'
       : wait ? 'Set your days and ' + (wait === 1 ? 'the place you saved goes' : 'the ' + wait + ' places you saved go') + ' onto free days.'
-      : 'Set dates and the ideas below fit around your matches.';
+      : WHY;
     daysLine.innerHTML = '<span class="tp-tl-setdays-h" id="tp-tl-setdays-h">Your days in NSW' + (has ? '' : ' (optional)') + '</span>' +
       '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' +
       '<span class="tp-range tp-tl-range" role="group" aria-labelledby="tp-tl-setdays-h"><span class="tp-range-track"><span class="tp-range-fill"></span>' +

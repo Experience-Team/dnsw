@@ -187,7 +187,15 @@
     root.hidden = !M.n;
     if (!M.n) { root.innerHTML = ''; return; }
     G = groups(M);
-    var cards = G.map(function (g, i) { return cardHtml(g, i, G.length, M); }).join('');
+    var cards = G.map(function (g, i) { return cardHtml(g, i, G.length, M); });
+    /* B3 (21 Nov, F-051): with no days set, one card under the last match day says what days unlock. Nothing is
+       guessed: no arrival or departure day, no ideas for undated days. In swipe it sits under the cards */
+    var W = window.TP_WORDS || {}, stay = '', lastM = -1;
+    G.forEach(function (g, i) { if (!g.run && g.days[0].ms.length) lastM = i; });
+    if (!M.range && M.own && lastM > -1) stay = '<section class="tp-dc-stay" aria-labelledby="tp-dc-stay-h"><p class="tp-dc-stay-p"><strong id="tp-dc-stay-h">' + esc(W.stayAfter || 'Staying after your last match?') + '</strong> ' +
+      esc(W.setDaysWhy || '') + '</p><button type="button" class="tp-dc-ideas" data-dc-setdays aria-haspopup="dialog">' + window.tpIcons.cal + '<span>' + esc(W.setDays || 'Set your days') + '</span></button></section>';
+    if (stay && !swipe()) cards.splice(lastM + 1, 0, stay);
+    cards = cards.join('');
     // With days set, the line above the strip already says Your days (and their dates), so its label is for screen
     // readers only; with match days only, it says so on screen, as the days are not in a row
     var h = (outNote ? '<p class="tp-dc-out">' + esc(outNote) + '</p>' : '') + '<div class="tp-dc-strip"><p class="tp-dc-strip-h' + (M.range ? ' visually-hidden' : '') + '" id="tp-dc-strip-h">' + esc(M.range ? 'Your days' : 'Your match days') + '</p>' +
@@ -196,7 +204,7 @@
       h += '<div class="tp-dc-nav"><button type="button" class="tp-dc-step" data-dc-prev>' + '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Previous day</span></button>' +
         '<p class="tp-dc-pos" id="tp-dc-pos"></p>' +
         '<button type="button" class="tp-dc-step" data-dc-next><span>Next day</span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>' +
-        '<div class="tp-dc-track">' + cards + '</div>';
+        '<div class="tp-dc-track">' + cards + '</div>' + stay;
     } else h += '<div class="tp-dc-cards">' + cards + '</div><div class="tp-dc-tail" aria-hidden="true"></div>';
     root.innerHTML = h;
     root.classList.toggle('is-swipe', swipe());
@@ -351,6 +359,7 @@
     var b = e.target.closest('button'); if (!b || !root.contains(b)) return;
     var ds = b.dataset;
     if (ds.dcDay !== undefined) { goTo(+ds.dcDay, true); return; }
+    if (ds.dcSetdays !== undefined) { tp.openDays(b); return; }
     if (ds.dcPrev !== undefined || ds.dcNext !== undefined) {
       var cards = Array.prototype.slice.call(root.querySelectorAll('.tp-dc-card')), i = cards.indexOf(cardFor(current));
       var to = cards[i + (ds.dcNext !== undefined ? 1 : -1)];
