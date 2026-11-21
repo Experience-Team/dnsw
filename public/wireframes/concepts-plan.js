@@ -34,6 +34,13 @@
   function hasTicket(m) { return !!m.tkey && state.tickets.indexOf(m.tkey) > -1; }
   function mName(f) { return f.t || f.s + ', teams to be decided'; }
   function flags(f) { var t = f.t ? f.t.split(' v ') : []; return t.length === 2 && tp.flag(t[0]) && tp.flag(t[1]) ? '<span class="tp-dc-flags" aria-hidden="true">' + tp.flag(t[0]) + tp.flag(t[1]) + '</span>' : ''; }
+  /* Away from NSW (Stage D, F-048): a day whose matches are all interstate names the cities, from the match rows. A day
+     with an NSW match, or with only matches to watch, is not away. Never an idea, a button or a free day. */
+  function awayCities(day) {
+    if (!day.ms.length || day.ms.some(function (m) { return !m.f.a; })) return null;
+    var c = []; day.ms.forEach(function (m) { if (c.indexOf(m.f.a) < 0) c.push(m.f.a); });
+    return c;
+  }
   function itemDay(it) { try { return it.day ? tp.dayOf(it.day) : null; } catch (e) { return null; } }
 
   /* ---------- The days and what is on them ---------- */
@@ -158,6 +165,8 @@
       // Matches at the same time, or in several cities (tp.matchClash in concepts-teams.js): one plain line under the heading
       var mc = tp.matchClash ? tp.matchClash(a) : null;
       if (mc) h += '<p class="tp-dc-mclash' + (mc.ring ? '' : ' is-quiet') + '">' + esc(mc.line) + '</p>';
+      var aw = awayCities(g.days[0]), W = window.TP_WORDS || {};
+      if (aw) h += '<p class="tp-dc-away">' + esc(W.awayLine ? W.awayLine(aw) : 'Away from NSW: ' + aw.join(', ')) + '</p>';
       h += dayBody(g.days[0]);
     }
     return h + '</article>';
@@ -166,7 +175,8 @@
     return M.days.map(function (day) {
       var x = dateOf(day.d), nAdd = day.its.length + day.nights.length;
       var mc = tp.matchClash ? tp.matchClash(day.d) : null;
-      var match = day.ms[0], label = dayLabel(day.d) + ', ' + day.kinds.join(', ').toLowerCase() + (mc ? ', ' + mc.say : '') + (match ? ', ' + tp.list(day.ms.map(function (m) { return mName(m.f); })) : '') +
+      var aw = awayCities(day), W = window.TP_WORDS || {};
+      var match = day.ms[0], label = dayLabel(day.d) + ', ' + day.kinds.join(', ').toLowerCase() + (aw ? ', ' + (W.awaySay ? W.awaySay(aw) : 'away from NSW, ' + aw.join(' and ')) : '') + (mc ? ', ' + mc.say : '') + (match ? ', ' + tp.list(day.ms.map(function (m) { return mName(m.f); })) : '') +
         ', ' + (nAdd ? nAdd + (nAdd === 1 ? ' thing added' : ' things added') : 'nothing added');
       return '<button type="button" class="tp-dc-day' + (match ? ' is-match' : '') + (match && match.f.a ? ' is-away' : '') + (nAdd ? ' is-filled' : '') + (mc && mc.ring ? ' is-clash' : '') + '" data-dc-day="' + day.d + '" aria-label="' + esc(label) + '" tabindex="-1">' +
         '<span class="tp-dc-day-n" aria-hidden="true">' + x.getUTCDate() + '</span><span class="tp-dc-day-m" aria-hidden="true"><i class="tp-dc-ball"></i><i class="tp-dc-dot"></i></span></button>';

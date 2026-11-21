@@ -2764,13 +2764,13 @@
     var nsw = ms.filter(function (m) { return !m.f.a; }).length, tk = ms.filter(hasTicket).length;
     var when = t && t.from && t.to ? 'In NSW ' + tp.isoRange(t.from, t.to) : t && t.mode === 'local' ? 'Local' : '';
     var facts = [];
-    if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (nsw === ms.length ? 'all in NSW' : nsw ? nsw + ' in NSW' : 'all interstate') + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
+    if (ms.length) facts.push('<li>' + tp.countPhrase(ms.map(function (m) { return m.f; }), { num: function (x) { return '<strong>' + x + '</strong>'; } }) + ', ' + (tp.nswFig(ms.map(function (m) { return m.f; })) || (nsw === ms.length ? 'all in NSW' : nsw ? nsw + ' in NSW' : 'all interstate')) + (tk ? ', ' + tk + (tk === 1 ? ' ticket' : ' tickets') : '') + '</li>');
     facts.push('<li><strong>' + n + '</strong> ' + (n === 1 ? 'thing' : 'things') + ' added</li>');
     // With days confirmed, how many of their matches fall in them: the same figure the plan bar shows
     if (when && t.from && ms.length) {
       // Only NSW matches count as in your days: an interstate one in the same dates is watched here, not gone to
       var a = tp.isoDay(t.from), z = tp.isoDay(t.to), msN = ms.filter(function (m) { return !m.f.a; }), inD = msN.filter(function (m) { return m.day >= a && m.day <= z; }).length;
-      if (msN.length && inD !== msN.length) when += ', ' + inD + ' of your NSW ' + (msN.length === 1 ? 'match' : 'matches') + ' in your days';
+      // (Stage D) the count above already says how many NSW matches are in your days
     }
     if (when) facts.push('<li>' + esc(when) + '</li>');
     // A trip that clashes is said here too, with the way to fix it, not only in the open plan

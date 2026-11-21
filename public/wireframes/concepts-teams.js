@@ -388,7 +388,7 @@
     if (quiet) { landDots.forEach(landed); return; }
     // The dots wait off the strip until their flight lands; the count waits for the last one
     landDots.forEach(function (el) { el.classList.add('is-incoming'); });
-    tlValue.textContent = oldValue;
+    showValue(oldValue);
     flying++;
     var t = performance.now(), rapid = t - lastPick < 900; lastPick = t;
     var DUR = rapid ? 360 : 680, GAP = rapid ? 30 : 60, wait = Math.max(barWasOn ? 0 : 380, (glide || 0) * .6); // the bar's rise is 360ms
@@ -421,7 +421,7 @@
     }, wait);
     function finish() {
       if (--flying) return;
-      tlValue.textContent = valueNow;
+      showValue(valueNow);
       if (tlValue.animate) tlValue.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' });
     }
   }
@@ -870,7 +870,7 @@
     }).join('');
     tsChips.hidden = !picks.length; tsEmpty.hidden = !!picks.length;
     var fs = tsMatches(), nsw = fs.filter(function (f) { return !f.a; }).length;
-    tsCount.textContent = picks.length ? countPhrase(fs, { short: true }) + ' · ' + nsw + ' in NSW' : '';
+    tsCount.textContent = picks.length ? teamsPre() + countPhrase(fs, { short: true }) + ' · ' + (nswFig(fs) || nsw + ' in NSW') : '';
     tsCount.parentNode.hidden = !picks.length;
     tsClear.hidden = teamsPicked().length < 2;
   }
@@ -1234,7 +1234,8 @@
     var who = teams.length ? list(teams) + (isPicked(RUGBY) ? ', plus every NSW match' : '') : 'Every NSW match';
     // A match between two of your teams counts once
     var fs = all.map(function (k) { return ids[k]; });
-    return who + ': ' + countPhrase(fs) + (nsw === all.length ? ', all in NSW. ' : !nsw ? ', all interstate. ' : ', ' + nsw + ' in NSW. ') + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : ''); // no 'No tickets marked yet' (21 Nov: read as nagging)
+    var fig = nswFig(fs);
+    return who + ': ' + countPhrase(fs) + (fig ? ', ' + fig + '. ' : nsw === all.length ? ', all in NSW. ' : !nsw ? ', all interstate. ' : ', ' + nsw + ' in NSW. ') + (tickets ? tickets + (tickets === 1 ? ' ticket.' : ' tickets.') : ''); // no 'No tickets marked yet' (21 Nov: read as nagging)
   }
   function buildDeck(newName) {
     var cs = pickedCards(), seen = {};
@@ -1520,6 +1521,15 @@
   var tlIdeasEl = document.getElementById('tp-tl-ideas');
   function dayOf(d) { var p = d.split(' '); return (p[2] === 'Nov' ? 31 : 0) + (+p[1]) - 1; } // 1 Oct is day 0, 13 Nov day 43
   // Trip dates are ISO (2027-10-03); day numbers count from 1 Oct 2027 (a Friday)
+  /* Stage D (21 Nov, F-048): one count, read the same on the bar, the Your teams sheet, the Your matches line and Your
+     plan so far. With days set, "in NSW" counts only the NSW matches inside them (none: none in your days); without,
+     every NSW match, as before. Two or more teams lead with how many (one team is already named beside it). */
+  function nswFig(fs) {
+    var t = state.trip, W = window.TP_WORDS || {}; if (!t || !t.from || !t.to) return null;
+    var a = isoDay(t.from), z = isoDay(t.to), n = fs.filter(function (f) { var d = dayOf(f.d); return !f.a && d >= a && d <= z; }).length;
+    return n ? n + ' in NSW' : (W.noneInDays || 'none in your days');
+  }
+  function teamsPre() { var n = teamsPicked().length, W = window.TP_WORDS || {}; return n >= 2 ? (W.teamsCount ? W.teamsCount(n) : n + ' teams') + ' \u00b7 ' : ''; }
   function isoDay(iso) { var p = iso.split('-'); return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - Date.UTC(2027, 9, 1)) / 864e5); }
   function isoRange(a, b) {
     var M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], pa = a.split('-'), pb = b.split('-');
@@ -1578,7 +1588,36 @@
   function tlName(m) { return m.f.t ? m.f.t : m.f.s + ', teams to be decided'; }
   // The bar's count: held at its old value while a pick's dots are still flying in, then changed as the last one lands
   var valueNow = '';
-  function setValue(v) { valueNow = v; if (!flying) tlValue.textContent = v; }
+  function setValue(v) { valueNow = v; if (!flying) showValue(v); }
+  // The number of teams in its own span, so the narrowest fit can drop it from view (the flags above still show them)
+  function showValue(v) {
+    var m = /^(\d+ teams \u00b7 )(.*)$/.exec(v || '');
+    if (m) tlValue.innerHTML = '<span class="tp-tl-vteams">' + esc(m[1]) + '</span>' + esc(m[2]); else tlValue.textContent = v;
+    valueFit();
+  }
+  /* Check 6: the count holds on one line from 320px in both themes (Stage D made it longer, 4 teams · 11 group matches ·
+     3 in NSW). Too wide for its row: one size smaller. Skipped while hidden (widths read as zero); runs again only when
+     the bar's width changes */
+  var fitW = 0;
+  function valueFit() {
+    var w = tlValue.parentNode.clientWidth; if (!w) return;
+    tlValue.classList.remove('is-tight', 'is-tighter', 'no-teams');
+    // The text's own width, from a hidden copy in the same font (the clipped box under an ellipsis can't tell); up to
+    // two sizes smaller, then without the number of teams
+    var over = function () {
+      var cs = getComputedStyle(tlValue), m = document.createElement('span'), vt = tlValue.querySelector('.tp-tl-vteams');
+      m.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:0;font:' + cs.font + ';letter-spacing:' + cs.letterSpacing;
+      m.textContent = tlValue.classList.contains('no-teams') && vt ? tlValue.textContent.slice(vt.textContent.length) : tlValue.textContent;
+      document.body.appendChild(m); var wd = m.getBoundingClientRect().width; m.remove();
+      return wd > tlValue.clientWidth - 2; // a little slack: at an exact fit the browser still cuts it off
+    };
+    if (over()) { tlValue.classList.add('is-tight'); if (over()) { tlValue.classList.add('is-tighter'); if (over() && tlValue.querySelector('.tp-tl-vteams')) tlValue.classList.add('no-teams'); } }
+    fitW = w;
+  }
+  // Its row can change width without the window doing so (the phone frame settling, the plan opening): watch the row
+  if (window.ResizeObserver) new ResizeObserver(function () { if (tlValue.parentNode.clientWidth !== fitW) valueFit(); }).observe(tlValue.parentNode);
+  else window.addEventListener('resize', function () { if (tlValue.parentNode.clientWidth !== fitW) valueFit(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(valueFit);
   function tlUpdate() {
     var perDay = {}, dayType = {}, shown = [];
     TLM.forEach(function (m) {
@@ -1713,7 +1752,7 @@
     var fsAll = shown.map(function (m) { return m.f; }), inNsw = fsAll.filter(function (f) { return !f.a; }).length;
     // Nothing of their own yet: the empty state, even though the open plan previews every match
     var savedN = state.added.filter(function (it) { return it.kind !== 'match'; }).length;
-    setValue(own() && fsAll.length ? countPhrase(fsAll, { short: true }) + ' \u00b7 ' + (inNsw ? inNsw + ' in NSW' : 'all interstate') : !own() && savedN ? savedN + ' saved' : 'No matches yet');
+    setValue(own() && fsAll.length ? teamsPre() + countPhrase(fsAll, { short: true }) + ' \u00b7 ' + (nswFig(fsAll) || (inNsw ? inNsw + ' in NSW' : 'all interstate')) : !own() && savedN ? savedN + ' saved' : 'No matches yet');
     // No team (18 Nov): Add team sits on the bar, beside the value, and opens the team sheet
     var addTeam = document.getElementById('tp-tl-addteam');
     if (addTeam) { addTeam.hidden = own(); tl.classList.toggle('has-addteam', !own()); }
@@ -1721,7 +1760,7 @@
       if (confirmed) {
         // NSW matches only: one interstate in the same dates is watched here, not gone to (as Your plan so far says)
         var ca = isoDay(trip.from), cz = isoDay(trip.to), shownN = shown.filter(function (m) { return !m.f.a; }), inDays = shownN.filter(function (m) { return m.day >= ca && m.day <= cz; }).length;
-        tlDays.textContent = (!shownN.length || !own() ? 'Your days' : inDays === shownN.length ? 'All NSW matches in your days' : inDays + ' NSW in your days') + ' \u00b7 ' + isoRange(trip.from, trip.to);
+        tlDays.textContent = 'Your days \u00b7 ' + isoRange(trip.from, trip.to); // the count above says how many are in them (Stage D)
       } else tlDays.textContent = own() && shown.length ? tlRange(shown[0].f.d, shown[shown.length - 1].f.d) : ''; // the value already says No matches yet
       // The count on the badge is hidden from screen readers (it sits in the expand control), so it is said here, last
       if (added) tlDays.textContent += (tlDays.textContent ? ', ' : '') + added + ' added';
@@ -2067,6 +2106,7 @@
     if (!open && tlFreeOpen !== null) tlFreeShow(null);
     tlOpen = open;
     tl.classList.toggle('is-open', open);
+    requestAnimationFrame(valueFit); // the count's row is a different width open and closed (check 6)
     tlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     tlPanel.inert = !open;
     body.inert = open && !wide(); // the screen behind waits under the scrim while the plan is open (not beside the desktop rail)
@@ -2463,7 +2503,7 @@
   });
 
   window.tpPicker = { kickLine: kickLine, KICK_NOTE: KICK_NOTE, save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, matchClash: matchClash, clashWith: clashWith, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
-    flyToBar: flyToBar, tlLand: tlLand, tlSettle: tlSettle, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
+    flyToBar: flyToBar, tlLand: tlLand, tlSettle: tlSettle, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, nswFig: nswFig, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team
     // exactly as the fan does (from: null, as the page covers the fan and the bar), and a ticket mark

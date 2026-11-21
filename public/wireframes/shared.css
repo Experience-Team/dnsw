@@ -5753,3 +5753,9 @@ span.tp-map-arrow { display: block; }
 .tp-dc-stay-p strong { display: block; margin-bottom: var(--space-1); font-size: var(--fs-base, 1rem); color: var(--c-ink); }
 .tp-dc-stay .tp-dc-ideas { margin-top: var(--space-3); }
 .tp-dc.is-swipe .tp-dc-stay { margin-top: var(--space-4); }
+
+/* Stage D (21 Nov, F-048): a day whose matches are all interstate says so under its heading; plain text, nothing to press */
+.tp-dc-away { margin: var(--space-1) 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-tl-value.is-tight { font-size: var(--fs-md); } /* Stage D: a long count steps down a size rather than cut off (check 6) */
+.tp-tl-value.is-tighter { font-size: var(--fs-sm); }
+.tp-tl-value.no-teams .tp-tl-vteams { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* still read out */
