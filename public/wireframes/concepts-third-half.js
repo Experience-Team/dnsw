@@ -905,7 +905,7 @@
       r.anchor = home || nearStadium(d, city); r.place = home ? home.name : CITY[city];
       r.kicker = dl + ' \u00b7 Free day'; r.title = (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Where to watch';
       r.body = venueRows(b.ms, evKey(b.ms));
-      r.pins = venuesFor(b.ms).map(function (c) { return { key: 'w:' + c.j + ':' + evKey(b.ms), title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', ll: GEO && GEO.watch[c.j] }; }).filter(function (x) { return x.ll; });
+      r.pins = venuesFor(b.ms).map(function (c) { return { key: 'w:' + c.j + ':' + evKey(b.ms), open: 'w:' + c.j + ':' + evKey(b.ms), title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', ll: GEO && GEO.watch[c.j] }; }).filter(function (x) { return x.ll; });
     } else if (st.kind === 'half') {
       var wd = weekdayOf(d), c2 = b.base, fx = { d: dl, v: CITY[c2] };
       r.anchor = home || nearStadium(d, c2); r.place = home ? home.name : CITY[c2];
@@ -938,7 +938,7 @@
       // What is already on that day: shown as done pins, with a loop for a day trip
       its.forEach(function (x) {
         var ll = addedLL(x);
-        if (ll) r.pins.push({ key: null, title: x.title, kindLabel: 'Added', ll: ll, done: true, trip: x.idea === 'day' });
+        if (ll) r.pins.push({ key: null, open: 'item:' + x.id, title: x.title, kindLabel: 'Added', ll: ll, done: true, trip: x.idea === 'day' }); // a tap opens it, as on your plan
       });
       r.pins.forEach(function (p) { if (p.trip && r.anchor) r.loops.push({ from: r.anchor.ll, to: p.ll, done: !!p.done }); });
     }

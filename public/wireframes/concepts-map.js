@@ -171,7 +171,10 @@
     var ps = pinsFor(), c = cards[cur];
     pinsEl.innerHTML = ps.map(function (x, k) {
       var p = x.p, lbl = (x.strong && !free ? p.n + ' of ' + c.pins.length + ': ' : '') + p.title + ', ' + p.kindLabel + (free ? ', ' + (x.c || cards[x.i]).label : '') + (p.done ? ', on your plan' : '');
-      return '<button type="button" class="tp-map-pin' + (x.strong ? ' is-strong' : ' is-faint') + (p.done ? ' is-done' : '') + (p.trip ? ' is-trip' : '') + '" data-k="' + k + '" aria-label="' + esc(lbl) + '">' +
+      // A pin with no card in the panel (a screening venue, something already on the plan) opens its details instead
+      // (20 Nov: it did nothing), through the page's own data-open, the same sheet its row or plan entry opens
+      var opens = !free && !p.html && p.open;
+      return '<button type="button" class="tp-map-pin' + (x.strong ? ' is-strong' : ' is-faint') + (p.done ? ' is-done' : '') + (p.trip ? ' is-trip' : '') + '" data-k="' + k + '"' + (opens ? ' data-open="' + esc(p.open) + '" aria-haspopup="dialog"' : '') + ' aria-label="' + esc(lbl) + '">' +
         (p.done ? TICK : x.strong && !free ? '<span>' + p.n + '</span>' : '<span class="tp-map-dn">' + ((x.c || cards[x.i]).label.split(' ')[1] || '') + '</span>') + '</button>';
     }).join('');
     pinEls = Array.prototype.slice.call(pinsEl.children).map(function (el, k) { return { el: el, x: ps[k] }; });
@@ -526,7 +529,8 @@
   function closeFs() {
     follow(false);
     var b = document.querySelector('[data-ofollow]');
-    var f = fsOpener && document.contains(fsOpener) && !fsOpener.closest('.tp-mapfs') ? fsOpener : b;
+    // A tap that did not move focus (iOS Safari) leaves the page itself as the opener: Follow day by day stands in
+    var f = fsOpener && fsOpener !== document.body && document.contains(fsOpener) && !fsOpener.closest('.tp-mapfs') ? fsOpener : b;
     if (f) f.focus({ preventScroll: true });
     say('Day by day closed.');
   }
