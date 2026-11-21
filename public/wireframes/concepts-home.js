@@ -10,6 +10,16 @@
   'use strict';
   var tp = window.tpPicker, GEO = window.cnGeo;
   var home = document.getElementById('tp-home');
+  /* The kick game's visible name (21 Nov, F-034: 0 of 4 testers understood Drop goal): the capsule tab, Home's section
+     heading above Play now, and the game's names for screen readers. The route, ?view=kick, the code and the notes keep
+     Drop goal. Set here, before the capsule measures its tabs */
+  (function () {
+    var name = (window.TP_WORDS || {}).play; if (!name) return;
+    var tab = document.querySelector('.tp-cap-i[data-view="kick"]'); if (tab) tab.textContent = name;
+    var h = document.getElementById('tp-home-kick-title'); if (h) h.textContent = name;
+    var sec = document.getElementById('tp-kick'); if (sec) sec.setAttribute('aria-label', name);
+    var fr = document.getElementById('tp-kick-frame'); if (fr) fr.title = fr.title.replace(/^Drop goal/, name);
+  })();
   if (!tp || !home) return;
   var phone = document.getElementById('tp-phone'), esc = tp.esc, state = tp.state;
   var ARR = '<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
@@ -37,7 +47,7 @@
   function count(v) { return tp.hostMatches ? tp.hostMatches(v).length : 0; }
   // The glance line, from the fixtures
   var pool = (window.cnFixtures || []).filter(function (f) { return !f.a && /^Pool /.test(f.s); }).length;
-  var gn = document.getElementById('tp-glance-n'); if (gn && pool) gn.textContent = pool + ' pool matches';
+  var gn = document.getElementById('tp-glance-n'); if (gn && pool) gn.textContent = pool + ' ' + ((window.TP_WORDS || {}).groupMatches || 'pool matches'); var gk = document.getElementById('tp-glance-ko'); if (gk) gk.textContent = (window.TP_WORDS || {}).laterRounds || 'the knockouts'; // A2 (21 Nov)
   document.getElementById('tp-home-cities').innerHTML = nsw.map(function (v) {
     var h = HOSTS[v] || { title: v }, n = count(v);
     return '<li><button type="button" class="tp-city" data-open="city:' + esc(v) + '" aria-haspopup="dialog">' +

@@ -14,6 +14,9 @@
    only; nothing is booked here. State and the plan live in concepts-teams.js (window.tpPicker). */
 (function () {
   'use strict';
+  var TBC = (window.TP_WORDS || {}).timeTbc || 'Time to be confirmed', TBC_L = TBC.charAt(0).toLowerCase() + TBC.slice(1); // A2 (21 Nov): concepts-words.js
+  var PLAY = (window.TP_WORDS || {}).play || 'Drop goal', IMG = (window.TP_WORDS || {}).imageOf || function (x) { return 'Placeholder image of ' + x; }; // A2 follow-up (21 Nov)
+  var GM = (window.TP_WORDS || {}).groupMatches || 'pool matches', GM1 = (window.TP_WORDS || {}).groupMatch || 'pool match', LR = (window.TP_WORDS || {}).laterRounds || 'the knockouts', LR_C = LR.charAt(0).toUpperCase() + LR.slice(1); // A2 (21 Nov): visitor-facing stage names
   var tp = window.tpPicker, FIX = window.cnFixtures;
   if (!tp || !Array.isArray(FIX)) return;
   // Where to watch: placeholder venues (clearly marked) until real ones are supplied; see cnWatchVenues in concepts-fixtures.js
@@ -136,7 +139,7 @@
   }
   /* Going? Each screening card points to the one place a ticket is marked, the match card's I have a ticket (the
      Yes / No pair here was a second way to answer; replaced 15 Nov). Once marked, that match's screenings give way to
-     one card for getting there and back, with Not going after all? to undo. */
+     one card for getting there and back. Its match's name opens the match sheet, where I have a ticket undoes it (21 Nov). */
   function notGoing(m) { return (state.notGoing || []).indexOf(m.key) > -1; }
   // One line, not a second way to answer: the ticket is marked in one place, the match card's I have a ticket
   // (agreed 15 Nov). The link goes there; once marked, the card turns into getting there and back.
@@ -153,11 +156,14 @@
      match day opens (check 8: the label names where it goes). An interstate one says where they will be that day and
      links to the plan, where it is a day away (Around your matches covers NSW days only). */
   function atLine(m) {
-    var f = m.f, what = f.a ? 'You\u2019re in ' + f.a + ' for ' + matchName(f) + ', ' + f.d : 'You\u2019re at ' + matchName(f) + ', ' + f.d;
+    // The match's name opens its sheet, where I have a ticket undoes it (21 Nov: Not going after all? removed, as it
+    // read as cancelling; the ticket's one control is I have tickets, on the row and in the match sheet)
+    var f = m.f, nm = '<button type="button" class="tp-link tp-ws-at-m" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog">' + esc(matchName(f)) + '</button>';
+    var what = f.a ? 'You\u2019re in ' + esc(f.a) + ' for ' + nm + ', ' + esc(f.d) : 'You\u2019re at ' + nm + ', ' + esc(f.d);
     return '<li class="tp-ws-at-i" data-key="' + esc(m.key) + '" tabindex="-1">' + window.tpIcons.ticket +
-      '<span class="tp-ws-at-t"><span class="tp-ws-at-what">' + esc(what) + '</span> ' +
+      '<span class="tp-ws-at-t"><span class="tp-ws-at-what">' + what + '</span> ' +
       '<span class="tp-ws-at-acts">' + (f.a ? '<button type="button" class="tp-link" data-at-plan>See it on your plan</button>' : '<button type="button" class="tp-link" data-at-day="' + m.day + '">See your match day</button>') +
-      '<button type="button" class="tp-link" data-going="' + esc(m.key) + '" data-v="undo">Not going after all?</button></span></span></li>';
+      '</span></span></li>';
   }
   // Where a toast's See Where to watch lands: the line for a ticket just marked, or the card for one just removed,
   // scrolled into the carousel, with focus on it
@@ -215,7 +221,7 @@
     return out;
   }
   function teamOf(m) { var t = (m.f.t || '').split(' v '); return t.filter(function (n) { return tp.isPicked(n); })[0] || t[0]; }
-  function kickLine(m) { var n = teamOf(m); return n + ' plays at ' + (m.f.k ? m.f.k.replace(':00', '') : 'a time to be confirmed'); } // 8pm, not 8:00pm
+  function kickLine(m) { var n = teamOf(m); return n + (m.f.k ? ' plays at ' + m.f.k.replace(':00', '') : ' plays (' + TBC_L + ')'); } // 8pm, not 8:00pm
   // Several matches on one day: "of your matches" only once they have picked something, and "tonight" only when every
   // kick-off is 5pm or later (a 12:15pm match is not tonight)
   function lateAll(ms) { return ms.every(function (m) { var k = kickMins(m.f.k); return k !== null && k >= 17 * 60; }); }
@@ -244,7 +250,7 @@
   function matchLine(m) {
     var f = m.f, who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s);
     var tag = f.a ? '<span class="tp-tag tp-tag--away">Interstate: ' + esc(f.a) + '</span>' : '<span class="tp-tag">In NSW</span>';
-    return '<div class="tp-wc-m"><p class="tp-wc-when">' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + ' ' + tag + '</p><p class="tp-wc-teams">' + who + '</p></div>';
+    return '<div class="tp-wc-m"><p class="tp-wc-when">' + esc(f.d) + ', ' + esc(f.k || TBC_L) + ' ' + tag + '</p><p class="tp-wc-teams">' + who + '</p></div>';
   }
   function renderWatch() {
     VEN = {}; VUSED = {};
@@ -442,7 +448,7 @@
   function goRoute(f) { return TRAVEL && !f.a ? TRAVEL.route(f.v, basePlace(), baseCity()) : null; }
   function ampm(t) { t = ((t % 1440) + 1440) % 1440; var hh = Math.floor(t / 60), mm = t % 60; return ((hh % 12) || 12) + (mm ? ':' + (mm < 10 ? '0' : '') + mm : '') + (hh < 12 ? 'am' : 'pm'); }
   function lower(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
-  function goLine(r) { return r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed') + ' · ' + lower(r.event_day.extra_services); }
+  function goLine(r) { return r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : TBC_L) + ' · ' + lower(r.event_day.extra_services); }
   // The line above already names the start, so this only offers the change
   function goStay(r) { return r.fromDefault && !baseOf() ? '<p class="tp-go-from"><button type="button" class="tp-link" data-go-stay>Add where you’re staying</button> to see your own route.</p>' : ''; }
   function goBlock(m) {
@@ -459,7 +465,7 @@
     var f = m.f, r = goRoute(f); if (!r) return '';
     var id = 'go:' + m.key;
     MODAL[id] = { type: 'route', r: r, m: m };
-    return '<p class="tp-go-one">' + TRAIN_ICO + '<span><span class="provenance-gap">' + esc(r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed')) + '</span> \u00b7 ' +
+    return '<p class="tp-go-one">' + TRAIN_ICO + '<span><span class="provenance-gap">' + esc(r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : TBC_L)) + '</span> \u00b7 ' +
       '<button type="button" class="tp-link" data-open="' + esc(id) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(matchName(f)) + '</span></button></span></p>';
   }
   // Where a match day starts from when they have not said where they are staying: the city centre the route starts at
@@ -472,7 +478,7 @@
     var h = '<figure class="tp-go-map-f"><ol class="tp-go-map" aria-label="Route from ' + esc(r.from) + ' to ' + esc(r.venue) + '">';
     h += '<li class="tp-go-stop is-end"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n">' + esc(r.from) + '</span>' + (r.fromDefault ? '' : '<span class="tp-go-stop-s">Where you’re staying</span>') + '</li>';
     r.legs.forEach(function (l) {
-      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional coach' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + '' + ', ' + (l.mins ? 'about ' + mins(l.mins) : 'time to be confirmed') + '</span></li>';
+      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional coach' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + '' + ', ' + (l.mins ? 'about ' + mins(l.mins) : TBC_L) + '</span></li>';
       h += '<li class="tp-go-stop' + (l.gates ? ' is-end is-venue' : '') + '"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n' + (l.gates ? '' : ' provenance-gap') + '">' + esc(l.to) + '</span></li>';
     });
     return h + '</ol><figcaption class="tp-go-cap">Schematic, not to scale</figcaption></figure>';
@@ -483,18 +489,18 @@
     h += '<div class="plan-modal-body tp-pm-go">';
     h += '<p class="tp-pm-type">' + esc(f.d) + '</p>';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Getting there and back</h2>';
-    h += '<p class="cn-pp-venue">' + esc(matchName(f)) + ', ' + esc(f.k || 'time to be confirmed') + ', ' + esc(f.v) + '</p>';
+    h += '<p class="cn-pp-venue">' + esc(matchName(f)) + ', ' + esc(f.k || TBC_L) + ', ' + esc(f.v) + '</p>';
     h += '<p class="tp-go-ph" role="note">Placeholder transport details. Real routes, times and services to come.</p>';
     h += goMap(r);
     h += '<h3 class="cn-pp-h">Getting there</h3><dl class="pl-option-facts cn-pp-facts">' +
       '<div><dt>From</dt><dd>' + esc(r.from) + (r.fromDefault && !baseOf() ? ' · <button type="button" class="tp-link" data-go-stay>Add where you’re staying</button>' : '') + '</dd></div>' +
-      '<div><dt>Journey</dt><dd><span class="provenance-gap">' + esc(r.mode) + ', ' + (r.mins ? 'about ' + mins(r.mins) : 'time to be confirmed') + '</span></dd></div>' +
+      '<div><dt>Journey</dt><dd><span class="provenance-gap">' + esc(r.mode) + ', ' + (r.mins ? 'about ' + mins(r.mins) : TBC_L) + '</span></dd></div>' +
       (leave ? '<div><dt>Leave by</dt><dd><span class="provenance-gap">About ' + leave + ', to be at the gates 45 min before kick-off</span></dd></div>' : '') +
       '<div><dt>Your ticket</dt><dd><span class="provenance-gap">Whether match tickets include public transport is to be confirmed</span></dd></div></dl>';
     h += '<h3 class="cn-pp-h">Getting back</h3><dl class="pl-option-facts cn-pp-facts">' +
       (ft !== null ? '<div><dt>Full time</dt><dd><span class="provenance-gap">About ' + ampm(ft) + '</span></dd></div>' : '') +
       '<div><dt>Services</dt><dd><span class="provenance-gap">' + esc(e.extra_services) + '. ' + esc(e.return_note) + '</span></dd></div>' +
-      '<div><dt>Last service</dt><dd><span class="provenance-gap">' + esc(e.last_service || 'Time to be confirmed') + '</span></dd></div>' +
+      '<div><dt>Last service</dt><dd><span class="provenance-gap">' + esc(e.last_service || TBC) + '</span></dd></div>' +
       (ft !== null && r.mins ? '<div><dt>Back by</dt><dd><span class="provenance-gap">About ' + ampm(ft + 30 + r.mins) + ' in ' + esc(r.from) + '</span></dd></div>' : '') + '</dl>';
     // A long way back after an evening match: say so plainly, and that staying closer that night is an option
     if ((r.cross || r.far) && (ft === null || ft + 30 + (r.mins || 0) >= 23 * 60)) h += '<p class="tp-go-p">That\u2019s a late, long trip back. Think about staying in ' + esc(CITY[cityOf(f.v)]) + ' the night of the match.</p>';
@@ -509,7 +515,7 @@
   function matchBody(b, M) {
     var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
     var groups = { before: [], after: [], near: [] }, h = goBlock(m) + alsoLine(m.day);
-    if (b.ms.length > 1) h += '<p class="tp-blk-note">Also in NSW that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return esc(matchName(x.f)) + ', ' + esc(x.f.k || 'time to be confirmed') + ', ' + esc(x.f.v); }).join('; ') + '.</p>';
+    if (b.ms.length > 1) h += '<p class="tp-blk-note">Also in NSW that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return esc(matchName(x.f)) + ', ' + esc(x.f.k || TBC_L) + ', ' + esc(x.f.v); }).join('; ') + '.</p>';
     PRODUCTS.filter(function (p) { return p.distance_to_venue && p.distance_to_venue.venue_ref === f.v; }).forEach(function (p) {
       var o = hoursOn(p, wd);
       if (!o) return; // closed that day: not a fit, so not shown
@@ -661,7 +667,7 @@
   }
   function howLine(i) {
     if (i.car) return 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from + ' (no public transport)';
-    return i.how.mode + ' from ' + i.how.from + ' · ' + (i.how.mins ? mins(i.how.mins) + ' by public transport' : 'time to be confirmed');
+    return i.how.mode + ' from ' + i.how.from + ' · ' + (i.how.mins ? mins(i.how.mins) + ' by public transport' : TBC_L);
   }
   // In the plan's ideas sheet (open) the card's main part is a button that shows the idea's details in the sheet
   function ideaCard(i, d, open) {
@@ -669,7 +675,7 @@
     var km = ideaKm(i), why = 'Fits ' + dl + (km !== null ? ' · ' + kmLine(km) : '') + ' · ' + howLine(i);
     // In the ideas sheet the day is the heading, so the line leads with how to get there and how long, then distance:
     // Ferry from Sydney CBD, 35 min · about 9 km away (the details give the full wording)
-    if (open) why = (i.car ? 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from : i.how.mode + ' from ' + i.how.from + (i.how.mins ? ', ' + mins(i.how.mins) : ', time to be confirmed')) + (km !== null ? ' · ' + (km < 1 ? 'under\u00a01\u00a0km' : 'about\u00a0' + Math.round(km) + '\u00a0km') + '\u00a0away' : '');
+    if (open) why = (i.car ? 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from : i.how.mode + ' from ' + i.how.from + (i.how.mins ? ', ' + mins(i.how.mins) : ', ' + TBC_L)) + (km !== null ? ' · ' + (km < 1 ? 'under\u00a01\u00a0km' : 'about\u00a0' + Math.round(km) + '\u00a0km') + '\u00a0away' : '');
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
     return '<article class="tp-pc tp-idea' + (open ? ' tp-idea--open' : '') + '" data-id="' + esc(key) + '">' + (open ? '<button type="button" class="tp-pc-main" data-idea-open="' + esc(key) + '">' : '<button type="button" class="tp-pc-main" data-open="idea:' + esc(key) + '" aria-haspopup="dialog">') +
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
@@ -686,14 +692,14 @@
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), km = ideaKm(i);
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
     var h = ''; // its way back is the sheet's back arrow
-    h += '<div class="plan-modal-img ph-img tp-idea-img"' + imgKey(i.title) + ' role="img" aria-label="Placeholder image of ' + esc(i.title) + '"></div>';
+    h += '<div class="plan-modal-img ph-img tp-idea-img"' + imgKey(i.title) + ' role="img" aria-label="' + esc(IMG(i.title)) + '"></div>';
     h += '<p class="tp-pm-type">' + esc((i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city]) + '</p>';
     h += '<h2 class="cn-pp-title' + (i.placeholder ? ' provenance-gap' : '') + '" id="tp-pm-title" tabindex="-1">' + esc(i.title) + '</h2>';
     h += '<p class="tp-pm-why provenance-gap">Fits ' + esc(dl) + (i.kind === 'half' ? ': it takes about half the day' : ': it takes the whole day') + (km !== null ? ', ' + esc(kmLine(km)) : '') + '.</p>';
     h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
       '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + esc(howLine(i)) + '</span>' + (i.car ? '<br><span class="provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</dd></div>' +
-      '<div><dt>Opening hours</dt><dd><span class="provenance-gap">[Opening hours to come]</span></dd></div>' +
-      '<div><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div></dl>';
+      '<div class="tp-ph"><dt>Opening hours</dt><dd><span class="provenance-gap">[Opening hours to come]</span></dd></div>' +
+      '<div class="tp-ph"><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div></dl>';
     h += '<p class="cn-pp-text provenance-gap tp-idea-desc">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
     return h + pmActions(key, i.title + ' on ' + dl);
   }
@@ -748,7 +754,7 @@
     return h;
   }
   function heading(b) {
-    if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || 'time to be confirmed') + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
+    if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || TBC_L) + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
     if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + (basePlace() || CITY[b.base]) }; }
     if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + halfWhere(b) };
@@ -1080,7 +1086,7 @@
   }
   function pmProduct(id, x) {
     var p = x.p, f = x.f, h = '';
-    h += '<div class="plan-modal-img ph-img"' + imgKey(p.title) + ' role="img" aria-label="Placeholder image of ' + esc(p.title) + '"></div><div class="plan-modal-body">';
+    h += '<div class="plan-modal-img ph-img"' + imgKey(p.title) + ' role="img" aria-label="' + esc(IMG(p.title)) + '"></div><div class="plan-modal-body">';
     h += '<p class="tp-pm-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</p>';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">' + esc(p.title) + '</h2>';
     h += '<p class="cn-pp-venue">' + esc(p.address.suburb) + ' \u00b7 near ' + esc(f.v) + ', ' + esc(f.d) + '</p>';
@@ -1097,11 +1103,11 @@
     var sp = x.sp, f = x.m.f, h = '';
     // Summarised: what it is, where, what it shows for this match, and how many of your other matches it shows
     var others = tp.userMatches().filter(function (m) { return m.key !== x.m.key && Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }).length;
-    h += '<div class="plan-modal-img ph-img"' + imgKey(sp.name) + ' role="img" aria-label="Placeholder image of ' + esc(sp.name) + '"></div><div class="plan-modal-body">';
+    h += '<div class="plan-modal-img ph-img"' + imgKey(sp.name) + ' role="img" aria-label="' + esc(IMG(sp.name)) + '"></div><div class="plan-modal-body">';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(sp.name) + '</h2>';
     h += '<p class="cn-pp-venue provenance-gap">' + esc(sp.place) + '</p>';
     h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
-      '<div><dt>Showing</dt><dd>' + esc(matchName(f)) + ', ' + esc(f.d) + ', ' + esc(f.k || 'time to be confirmed') + (f.a ? ' (played in ' + esc(f.a) + ')' : '') + '</dd></div>' +
+      '<div><dt>Showing</dt><dd>' + esc(matchName(f)) + ', ' + esc(f.d) + ', ' + esc(f.k || TBC_L) + (f.a ? ' (played in ' + esc(f.a) + ')' : '') + '</dd></div>' +
       (others ? '<div><dt>Also shows</dt><dd><span class="provenance-gap">' + others + ' more of your matches</span></dd></div>' : '') +
       (sp.open_from && sp.open_to ? '<div><dt>Open</dt><dd><span class="provenance-gap">Daily, ' + esc(tp.isoRange(sp.open_from, sp.open_to)) + '</span></dd></div>' : '') +
       '</dl>';
@@ -1141,7 +1147,7 @@
     }
     h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
       '<div><dt>Date</dt><dd>' + esc(f.d) + '</dd></div>' +
-      '<div><dt>Kick-off</dt><dd>' + (f.k ? esc(f.k) + ' Sydney time' : 'Time to be confirmed') + '</dd></div>' +
+      '<div><dt>Kick-off</dt><dd>' + (f.k ? esc(f.k) + ' Sydney time' : TBC) + '</dd></div>' +
       '<div><dt>Venue</dt><dd>' + esc(f.v) + '</dd></div>' +
       '<div><dt>City</dt><dd>' + esc(f.p) + (f.a ? ' (interstate)' : ', NSW') + '</dd></div></dl>';
     // Another match of the picked teams kicks off at the same time (20 Nov, tp.clashWith in concepts-teams.js)
@@ -1186,7 +1192,7 @@
   function pmTrip(id, x) {
     var t = x.t, b = x.b, h = '';
     var bases = Object.keys(t.travel).map(function (k) { return mins(t.travel[k].minutes) + ' ' + (MODE[t.travel[k].mode] || '') + ' from ' + CITY[k]; }).join('; ');
-    h += '<div class="plan-modal-img ph-img"' + imgKey(t.title || t.region) + ' role="img" aria-label="Placeholder image of ' + esc(t.region) + '"></div><div class="plan-modal-body">';
+    h += '<div class="plan-modal-img ph-img"' + imgKey(t.title || t.region) + ' role="img" aria-label="' + esc(IMG(t.region)) + '"></div><div class="plan-modal-body">';
     h += '<p class="tp-pm-type provenance-gap">' + (t.kind === 'day' ? 'Day trip' : 'Longer trip, ' + t.nights + (t.nights === 1 ? ' night' : ' nights')) + ' \u00b7 Curated by Destination NSW</p>';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(t.title) + '</h2>';
     h += '<p class="tp-pm-why provenance-gap">' + esc(x.why) + '</p>';
@@ -1336,7 +1342,7 @@
   }
   function pmPoi(p) {
     var it = addedItem('poi:' + p.id), on = !!it, near = p.near === 'village' ? 'the fan village' : p.near;
-    var h = '<div class="plan-modal-img ph-img"' + imgKey(p.title) + ' role="img" aria-label="Placeholder image of ' + esc(p.title) + '"></div><div class="plan-modal-body">';
+    var h = '<div class="plan-modal-img ph-img"' + imgKey(p.title) + ' role="img" aria-label="' + esc(IMG(p.title)) + '"></div><div class="plan-modal-body">';
     h += '<p class="tp-pm-type provenance-gap">' + esc(p.cat) + '</p>';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(p.title) + '</h2>';
     h += '<p class="cn-pp-venue provenance-gap">' + esc(p.area) + ' \u00b7 near ' + esc(near) + '</p>';
@@ -1579,7 +1585,7 @@
   function pmCity(v) {
     var c = HOSTS[v], ms = tp.hostMatches(v), pois = POI ? POI.pois.filter(function (q) { return q.near === v; }) : [];
     var trips = TRIPS.filter(function (t) { return t.kind === 'day' && t.bases.indexOf(c.base) > -1; }).sort(byTravel(c.base));
-    var h = '<div class="plan-modal-img ph-img" data-img="' + esc(c.img) + '" role="img" aria-label="Placeholder image of ' + esc(c.title) + '"></div><div class="plan-modal-body tp-pm-city">';
+    var h = '<div class="plan-modal-img ph-img" data-img="' + esc(c.img) + '" role="img" aria-label="' + esc(IMG(c.title)) + '"></div><div class="plan-modal-body tp-pm-city">';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">' + esc(c.title) + '</h2>';
     h += '<p class="cn-pp-venue">' + esc(v) + ' \u00b7 ' + ms.length + (ms.length === 1 ? ' match' : ' matches') + '</p>';
     // Highlights of the area (19 Nov, gap field highlights, §16): none, no heading
@@ -1623,7 +1629,7 @@
     pmBody.innerHTML = isCity ? pmCity(id.slice(5)) : isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
     if (isIdeas) { if (!swap) tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
-    pmKind.textContent = isCity ? 'Host city' : isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? 'Knockouts in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your plan' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isCity ? 'Host city' : isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? LR_C + ' in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your plan' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (swap) return true; // a sheet over a sheet (pmPush, pmPop): the sheet is already open, only its content changes
     if (stacked) {
@@ -1678,6 +1684,12 @@
     else { pm.classList.add('is-closing'); if (wideModal() && !pmScrim.hidden) pmScrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-in' }); pm.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(16px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done; }
     // The control that was tapped, if it is still there (the same id can appear twice: a map card and its row on the page)
     var el = pmOpenerEl && document.contains(pmOpenerEl) && !pmOpenerEl.closest('[inert]') ? pmOpenerEl : back && phone.querySelector('[data-open="' + CSS.escape(back) + '"]');
+    // Opened from Where to watch's You're at line, and the ticket was taken off there (21 Nov): the line has gone, so
+    // focus goes to the match's card, back in Where to watch, not to a row elsewhere on the page
+    if (pmOpenerEl && !document.contains(pmOpenerEl) && pmOpenerEl.classList && pmOpenerEl.classList.contains('tp-ws-at-m') && back) {
+      var wk = back.replace(/^match:/, ''), wc = watchList.querySelector('.tp-wm[data-key="' + CSS.escape(wk) + '"]') || watchList.querySelector('.tp-ws-at-i[data-key="' + CSS.escape(wk) + '"] .tp-ws-at-m');
+      if (wc) { if (!wc.hasAttribute('tabindex')) wc.setAttribute('tabindex', '-1'); el = wc; }
+    }
     // The control that opened it was redrawn while the sheet was open (a card showing a new chip): its replacement
     if (!el && pmOpenerEl) {
       var d = pmOpenerEl.dataset || {}, k = ['openWatch', 'watchTeam', 'ko', 'open', 'goingMark'].filter(function (n) { return d[n] !== undefined; })[0];
@@ -1693,12 +1705,12 @@
   function pmKo(key) {
     var c = tp.teams[key], ko = (window.cnFixtures || []).filter(function (f) { return !/^Pool /.test(f.s) && !f.a; });
     var mine = c ? ko.filter(function (f) { return f.t && f.t.indexOf(c.pool) > -1; })[0] : null, h = '<div class="plan-modal-body tp-pm-ko">';
-    h += '<h2 class="cn-pp-title" id="tp-pm-title">' + (c ? esc(c.name) + '\u2019s way through' : 'Knockouts in NSW') + '</h2>';
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">' + (c ? esc(c.name) + '\u2019s way through' : LR_C + ' in NSW') + '</h2>';
     if (mine) {
       var pos = /(\w+) Pool /.exec(mine.t.split(' v ').filter(function (x) { return x.indexOf(c.pool) > -1; })[0])[1];
       h += '<p class="tp-ko-lead">If ' + esc(c.name) + ' finishes ' + (pos === '2nd' ? 'second' : pos === '1st' ? 'first' : esc(pos)) + ' in ' + esc(c.pool) + ', its Round of 16 match is in Sydney: <b>' + esc(mine.d) + (mine.k ? ', ' + esc(mine.k) : '') + ', ' + esc(mine.v) + '</b> (' + esc(mine.t) + ').</p>';
     } else if (c) h += '<p class="tp-ko-lead">' + esc(c.name) + '\u2019s Round of 16 would be interstate. If it goes through, the semi-finals and the final are in Sydney.</p>';
-    h += '<p class="tp-ko-note">Knockouts in NSW, all in Sydney. Teams are known when the pools finish.</p><ol class="tp-ko-list">' + ko.map(function (f) {
+    h += '<p class="tp-ko-note">' + LR_C + ' in NSW, all in Sydney. Teams are known when the pools finish.</p><ol class="tp-ko-list">' + ko.map(function (f) {
       var hit = mine && f === mine;
       var mk = f.d + '|' + (f.t || f.s), row = '<span class="tp-ko-d">' + esc(f.d) + (f.k ? ', ' + esc(f.k) : '') + '</span><span class="tp-ko-s">' + esc(f.s.replace(/ \(\d+\)$/, '')) + (f.t ? ': ' + esc(f.t) : '') + '</span><span class="tp-ko-v">' + esc(f.v) + '</span>';
       return '<li' + (hit ? ' class="is-hit"' : '') + '>' + (tp.match(mk) ? '<button type="button" class="tp-ko-row" data-open="match:' + esc(mk) + '" aria-haspopup="dialog">' + row + '</button>' : row) + '</li>';
@@ -2037,6 +2049,8 @@
     // A ticket means they are going: the match goes on the plan too, if no team of theirs puts it there already
     ticketToggle(m, cb.checked, function () {
       if (cb.checked && !mine && !added(matchId(key))) tp.addItem({ id: matchId(key), kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
+      // Unticked: a match that was only on the plan for its ticket comes off with it, as Not going after all? did
+      if (!cb.checked && !mine && added(matchId(key))) tp.removeItem(matchId(key));
       tp.setTicket(m.tkey, cb.checked);
     });
     said(cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your plan.') : 'Ticket removed.');
@@ -2072,17 +2086,6 @@
         if (r2.bottom > b2.bottom - 16 || r2.top < b2.top) pmBody.scrollTop += r2.bottom - (b2.bottom - 16);
         tb2.focus({ preventScroll: true }); }
       tp.say(matchName(km.f) + ': tick I have a ticket if you are going.');
-      return;
-    }
-    var gq = e.target.closest('[data-going]');
-    if (gq && !pm.contains(gq)) {
-      var gm = tp.match(gq.dataset.going); if (!gm) return;
-      var gf = gm.f, gid = matchId(gm.key);
-      // Not going after all: the ticket comes off (and the match added for it); the screenings come back, and focus
-      // goes to them. The toast names what changed but does not link back here, where the change already shows
-      ticketToggle(gm, false, function () { tp.setTicket(gm.tkey, false); if (added(gid)) tp.removeItem(gid); }, SECS.watch);
-      watchShow(gm.key);
-      tp.say('Ticket removed for ' + matchName(gf) + '. Its screenings are back.');
       return;
     }
     // Not a button inside a sheet, and not one a sheet has just redrawn away (it is no longer in the page)
@@ -2666,7 +2669,7 @@
       lines.push('', 'Matches (kick-off times are Sydney time):');
       tp.userMatches().forEach(function (m) {
         var f = m.f;
-        lines.push('- ' + f.d + ', ' + (f.k || 'time to be confirmed') + ': ' + matchName(f) + ', ' + f.v + ', ' + f.p + (f.a ? ' (interstate)' : '') + (hasTicket(m) ? ' (ticket)' : ''));
+        lines.push('- ' + f.d + ', ' + (f.k || TBC_L) + ': ' + matchName(f) + ', ' + f.v + ', ' + f.p + (f.a ? ' (interstate)' : '') + (hasTicket(m) ? ' (ticket)' : ''));
       });
     }
     var things = state.added.filter(function (it) { return it.kind !== 'match' && !it.unplaced; }), waiting = tp.waiting(), kicks = tp.kicks();
@@ -2683,7 +2686,7 @@
       waiting.forEach(function (it) { lines.push('- ' + it.title + (it.place ? ', ' + it.place : '')); });
     }
     if (kicks.length) {
-      lines.push('', 'Saved, not placed yet, from Drop goal (plan a day there yourself):');
+      lines.push('', 'Saved, not placed yet, from ' + PLAY + ' (plan a day there yourself):');
       kicks.forEach(function (it) { var l = tp.kickLine(it); lines.push('- ' + it.title + (l ? ', ' + l : '')); });
     }
     if (things.length || waiting.length || kicks.length) lines.push('', 'Hours, prices and screenings are indicative in this prototype, not confirmed.');
@@ -2759,7 +2762,7 @@
     });
     state.added.forEach(function (it) {
       if (it.kind === 'match') return;
-      if (it.kind === 'kick') { var kl = tp.kickLine(it); rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: KIND.kick, where: kl, place: it.title, note: 'Saved from Drop goal' }); return; }
+      if (it.kind === 'kick') { var kl = tp.kickLine(it); rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: KIND.kick, where: kl, place: it.title, note: 'Saved from ' + PLAY }); return; }
       if (it.unplaced) { rows.push({ at: 999, date: 'Not placed yet', time: '', what: it.title, kind: KIND[it.kind] || 'Place', where: it.place || '', place: it.place || '', note: 'Saved from the map' }); return; }
       var at = it.start != null ? it.start : (function () { try { return tp.dayOf(it.day); } catch (e) { return 99; } })();
       var trip = it.kind === 'trip', c = trip && tp.clashes()[it.id];
