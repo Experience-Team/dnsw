@@ -2430,11 +2430,25 @@
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (e.origin !== location.origin || !kickFrame() || e.source !== kickFrame() || !d || typeof d.type !== 'string') return;
-    if (d.type === 'thk:ready') { kickTheme(); kickSync(); }
+    if (d.type === 'thk:ready') { kickTheme(); kickSync(); kickCard(false); }
+    else if (d.type === 'thk:card') kickCard(d.open === true);
     else if (d.type === 'thk:save') { var it = kickItem(d); if (it && !addItem(it, true)) kickSync(); }
     else if (d.type === 'thk:unsave' && typeof d.name === 'string') { var n = state.added.length; removeItem('kick:' + d.name); if (state.added.length === n) kickSync(); }
   });
   (function () { var f = document.getElementById('tp-kick-frame'); if (f) f.addEventListener('load', function () { kickTheme(); kickSync(); }); })();
+  /* The game's result card and the page around it (21 Nov, from the critique). The game says when its card opens or
+     closes (thk:card); while it is open the page head dims, and a press anywhere on the page outside the game (the
+     title, the intro, the logo, the capsule) closes it (thk:close), as a backdrop would (check 10). The press is judged
+     where it starts. Leaving the tab closes it too (the capsule script). */
+  var kickPhoneEl = document.getElementById('tp-phone');
+  function kickCard(open) { if (kickPhoneEl) kickPhoneEl.classList.toggle('is-kick-card', open); }
+  function kickClose() { var w = kickFrame(); kickCard(false); if (w) try { w.postMessage({ type: 'thk:close' }, location.origin); } catch (e) {} }
+  window.tpKickClose = kickClose;
+  document.addEventListener('pointerdown', function (e) {
+    if (!kickPhoneEl || !kickPhoneEl.classList.contains('is-kick-card')) return;
+    if (e.target === document.getElementById('tp-kick-frame')) return;
+    kickClose();
+  }, true);
 
   /* ---------- Reset prototype (a reviewer tool in the section header, not part of the design) ----------
      Back to a first visit: nothing picked, no tickets, nothing saved, the picker view, the hand stacked to deal open

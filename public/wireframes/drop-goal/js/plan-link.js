@@ -9,6 +9,9 @@
 //                              (Stage 3), on load and when the theme switch changes; set as --e-* (css/embed.css)
 //   thk:teams    page -> game  { picked: [team names] }, the teams picked in the planner (Stage 3): they come first
 //                              in the team row, and the first is the kicker unless a team was chosen here
+//   thk:card     game -> page  { open: true | false }, when the result card opens or closes, so the page head dims
+//   thk:close    page -> game  a press on the page outside the game, or leaving the tab: the card closes (silently,
+//                              so focus stays where the person pressed)
 // Opened on its own, nothing answers, and saves stay in this page's memory as before.
 (function () {
   if (window.parent === window) return;
@@ -35,9 +38,14 @@
     if (picked.length && !teamChosen) loadTeam(picked[0]);
     refreshLook();
   }
+  // Tell the page when the card opens or closes (openCard and closeCard are game.js globals; wrapped, not changed)
+  const open0 = openCard, close0 = closeCard;
+  openCard = function () { const r = open0.apply(this, arguments); post({ type: "thk:card", open: true }); return r; };
+  closeCard = function () { const was = !$("card").hidden, r = close0.apply(this, arguments); if (was) post({ type: "thk:card", open: false }); return r; };
   window.addEventListener("message", e => {
     const d = e.data;
     if (e.source !== window.parent || e.origin !== ORIGIN || !d) return;
+    if (d.type === "thk:close") { if (!$("card").hidden) closeCard(true); return; }
     if (d.type === "thk:theme") { applyTheme(d); return; }
     if (d.type === "thk:teams" && Array.isArray(d.picked)) { applyTeams(d); return; }
     if (d.type !== "thk:saved" || !Array.isArray(d.names)) return;
