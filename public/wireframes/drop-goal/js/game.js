@@ -279,7 +279,7 @@ function updateSave() {
 function cardImage(i) {
   const R = ROUTES[routeKey], g = R.ground[i];
   let hills = "M0,140"; for (let x = 0; x <= 400; x += 10) hills += ` L${x},${(140 - R.hillFn(B()[i] + x / 7) * 4).toFixed(1)}`; hills += " L400,240 L0,240 Z";
-  return `<svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  return `<svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <rect width="400" height="240" fill="#bfe1f2"/><circle cx="320" cy="60" r="26" fill="#ffe08a"/>
     ${R.sea ? `<rect y="128" width="400" height="20" fill="#5fa8d3"/>` : ""}
     <path d="${hills}" fill="${R.hill}"/><rect y="160" width="400" height="80" fill="${g}"/>
