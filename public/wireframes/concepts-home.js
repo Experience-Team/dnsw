@@ -10,13 +10,14 @@
   'use strict';
   var tp = window.tpPicker, GEO = window.cnGeo;
   var home = document.getElementById('tp-home');
-  /* The kick game's visible name (21 Nov, F-034: 0 of 4 testers understood Drop goal): the capsule tab, Home's section
-     heading above Play now, and the game's names for screen readers. The route, ?view=kick, the code and the notes keep
-     Drop goal. Set here, before the capsule measures its tabs */
+  /* The kick game's visible name (21 Nov, F-034: 0 of 4 testers understood Drop goal): the capsule tab, the tab's own
+     heading, Home's section heading above Play now, and the game's names for screen readers (the page title follows the
+     capsule). The route, ?view=kick and the code keep Drop goal; the markup, annotations and handover say Play. Set here, before the capsule measures its tabs */
   (function () {
     var name = (window.TP_WORDS || {}).play; if (!name) return;
     var tab = document.querySelector('.tp-cap-i[data-view="kick"]'); if (tab) tab.textContent = name;
     var h = document.getElementById('tp-home-kick-title'); if (h) h.textContent = name;
+    var kt = document.getElementById('tp-kick-title'); if (kt) kt.textContent = name; // the tab's own top heading (21 Nov)
     var sec = document.getElementById('tp-kick'); if (sec) sec.setAttribute('aria-label', name);
     var fr = document.getElementById('tp-kick-frame'); if (fr) fr.title = fr.title.replace(/^Drop goal/, name);
   })();

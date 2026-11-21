@@ -598,7 +598,7 @@ Not held, and not invented: a match's length or end time, and travel times betwe
 
 ## 18. Kick destinations
 
-Added 21 November 2026 for the Rugby World Cup prototype's Drop goal tab, confirmed by the user as `gap`. A kick destination is a stop on one of the game's routes: a town or area, not a product, referenced as a `place_ref` (§3) once real records exist. Every field renders from placeholder fixtures only (`ROUTES` in `public/wireframes/drop-goal/js/routes.js`: 8 routes of 10 stops, in approximate road-distance order from Sydney or Newcastle). Each route needs all 10 stops, because the landing zones are sized so every stop catches about 1 in 10 kicks (equal exposure).
+Added 21 November 2026 for the Rugby World Cup prototype's Play tab (called Drop goal until 21 November), confirmed by the user as `gap`. A kick destination is a stop on one of the game's routes: a town or area, not a product, referenced as a `place_ref` (§3) once real records exist. Every field renders from placeholder fixtures only (`ROUTES` in `public/wireframes/drop-goal/js/routes.js`: 8 routes of 10 stops, in approximate road-distance order from Sydney or Newcastle). Each route needs all 10 stops, because the landing zones are sized so every stop catches about 1 in 10 kicks (equal exposure).
 
 **`name`** — `gap`, `source: authored`. The place the ball lands in, the card's heading. Empty state: a route with a stop missing its name is not offered, so exposure stays even across the other routes.
 

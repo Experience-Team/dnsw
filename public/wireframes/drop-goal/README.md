@@ -1,6 +1,6 @@
 # The Third Half: kick to NSW (prototype)
 
-> **In this repository** (`public/wireframes/drop-goal/`, 21 Nov 2026): this game is the Drop goal tab of `public/wireframes/prototype-pick-your-team.html`, shown there in an iframe. Stage 2 wired Add to your plan to the plan, and Stage 3 brought in the page's theme and picked team (see Messages). Stage 3 also gave the result card a close cross, made the pitch stay in view on phones and put the controls beside it on desktops, in both the prototype and on its own. Stage 1 brought it in unchanged except: the colour configuration tools are folded into a closed "Colour settings (temporary)" disclosure, to be removed later; a closed destination card no longer stays in the Tab order; and `tools/kit-lab.html` was not copied. Its destination fields are §18 of `docs/product-data-contract.md` (`gap`, placeholder fixtures only).
+> **In this repository** (`public/wireframes/drop-goal/`, 21 Nov 2026): this game is the Play tab (`?view=kick`; called Drop goal until 21 Nov) of `public/wireframes/prototype-pick-your-team.html`, shown there in an iframe. Stage 2 wired Add to your plan to the plan, and Stage 3 brought in the page's theme and picked team (see Messages). Stage 3 also gave the result card a close cross, made the pitch stay in view on phones and put the controls beside it on desktops, in both the prototype and on its own. Stage 1 brought it in unchanged except: the colour configuration tools are folded into a closed "Colour settings (temporary)" disclosure, to be removed later; a closed destination card no longer stays in the Tab order; and `tools/kit-lab.html` was not copied. Its destination fields are §18 of `docs/product-data-contract.md` (`gap`, placeholder fixtures only).
 
 A Gorillas-style kicking game for the DNSW Rugby World Cup "Plan your 3rd half" campaign. The player picks a start city and a route, sets angle and power, allows for wind, and kicks. Wherever the ball lands is a real place in Sydney or NSW, and a destination card slides in with a "Add to your plan" action.
 
@@ -8,7 +8,7 @@ Status: working prototype. All destinations, distances, summaries and images are
 
 ## Messages (inside the prototype)
 
-In the prototype's Drop goal tab the game runs in an iframe and its scripts never load in the page. Add to your plan
+In the prototype's Play tab the game runs in an iframe and its scripts never load in the page. Add to your plan
 saves the place to the plan's "Saved, not placed yet" group (Stage 2, 21 Nov 2026). The game and the page talk only
 through `postMessage`, same origin only, and each side checks the sender (the parent window here; the game's frame
 there). `js/plan-link.js` is the game's side; the page's is "Drop goal: the kick game's link to the plan" in
@@ -34,7 +34,7 @@ there). `js/plan-link.js` is the game's side; the page's is "Drop goal: the kick
 - Theme (Stage 3): `css/embed.css` applies only when the game runs in a frame (`html.embedded`). It maps the controls
   and the result card onto the page's values (`--e-*`, set from `thk:theme`) and loads high fidelity's IBM Plex
   stand-ins from `../assets/fonts/`. The pitch, posts, player and route bar keep their colours. The page shows its own
-  "Drop goal" title, so the game's heading, the mark on the pitch and the two notes are hidden there.
+  "Play" title, so the game's heading, the mark on the pitch and the two notes are hidden there.
 - Teams (Stage 3): picked teams come first in the team row and the first is the kicker, until someone chooses a team
   in the game; that choice stays in the game and never changes the planner's picks.
 
