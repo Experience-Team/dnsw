@@ -13,6 +13,8 @@ window.TP_WORDS = {
   laterRounds: 'the later rounds',
   // A3: the kick game's visible name (F-034), everywhere it shows, page title included; the route, ?view=kick and the code keep Drop goal
   play: 'Play',
+  // The capsule on the desktop website (21 Nov, user's call): the name with the game it is; phones keep Play
+  playDesktop: 'Play Drop Goal',
   // A2 follow-up (21 Nov): the number forms of the later rounds
   laterRoundMatches: function (shown, n) { return shown + (n === 1 ? ' later-round match' : ' later-round matches'); },
   // A2 follow-up: the fixtures' Pool A to F, shown as Group A to F

@@ -260,7 +260,8 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - The card and the page (P1) done: the game reports its card (`thk:card`), the page dims its head (`is-kick-card` on `#tp-phone`) and closes the card on a press outside the frame or on leaving the tab (`thk:close`, `window.tpKickClose`).
 - See your plan (P1) done: the card's line ends with See your plan after an add (`cardStatus(msg, seePlan)` in game.js; only in the prototype); `thk:open-plan` makes the page close the card, go to the planner, open the plan at Saved, not placed yet and focus its heading.
 - One name (P2) done: Play everywhere it shows, the tab's heading an h2, the browser page title per tab (set in the capsule script's `showView` from the capsule labels, so it follows `TP_WORDS.play`).
-- Still to do from the critique: polish, then a re-run of the critique (it scored 20/40).
+- Polish (#571) done. Since: the capsule label is Play on phones and Play Drop Goal on the desktop website (`.tp-cap-phone` / `.tp-cap-desk`, `TP_WORDS.playDesktop`), and every tab's top heading is an h2 (the planner's slogan was an h3).
+- Still to do: a re-run of the critique (it scored 20/40); CLAUDE.md's two Drop goal examples in check 10 (needs the user's approval).
 
 ## Rules in line (21 Nov)
 
