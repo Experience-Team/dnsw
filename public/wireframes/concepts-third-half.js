@@ -1750,6 +1750,18 @@
      matches are marked, the first tap sets the first day and the second the last. Add where you're staying opens the
      same sheet on the staying question. Nothing moves behind it, and closing returns focus to what opened it. */
   var dsel = null, dStay = false, pmOpenerEl = null, pmAnchor = null;
+  /* Unconfirmed days are kept (21 Nov, check 10's "unconfirmed input"): days picked but not yet confirmed with Use these
+     dates survive closing the sheet any way (cross, Escape, grabber, a tap outside) and come back when it reopens, with
+     "Not saved yet". The draft is dropped by Use these dates, Remove my days, or the confirmed days changing elsewhere
+     (base no longer matches). In memory only: a reload starts from the confirmed days. */
+  var dDraft = null;
+  function dKey(r) { return r ? r.a + '-' + r.z : ''; }
+  function dSame(x, r) { return !x && !r ? true : !x || !r ? false : x.a === r.a && x.z === r.z; }
+  function dStart() {
+    var r = dRange();
+    if (dDraft && dDraft.base === dKey(r)) return dDraft.sel ? { a: dDraft.sel.a, z: dDraft.sel.z } : null;
+    dDraft = null; return r;
+  }
   // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
   function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
   function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
@@ -1802,14 +1814,14 @@
       '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
       // dates stay in view and it is clear the plan waits for that tap
-      '<div class="tp-days-bar"><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
+      '<div class="tp-days-bar"><p class="tp-days-draft" hidden></p><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
       '<div class="tp-days-acts"><button type="button" class="tp-pill tp-pill--dark" data-duse' + (n ? '' : ' disabled') + '>' + window.tpIcons.cal + 'Use these dates</button>' +
       (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div></div>';
     return h + '</div>';
   }
   tp.openDays = function (opener) { openDays(false, opener); };
   function openDays(stay, opener) {
-    dStay = !!stay; dsel = dRange(); typeOpen.pm = false;
+    dStay = !!stay; dsel = stay ? dRange() : dStart(); typeOpen.pm = false;
     var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
     openPm(stay ? 'days:stay' : 'days', opener, overTl);
     pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
@@ -1853,6 +1865,10 @@
     if (sum) sum.textContent = !dsel ? 'Tap your first day, then your last, or drag the ends of the bar.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' \u00b7 ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     var use = pm.querySelector('[data-duse]'); if (use) use.disabled = !n;
+    // The draft follows every change (check 4): kept while it differs from the confirmed days, named in the bar
+    var conf = dRange(), unsaved = !dSame(dsel, conf), dl = pm.querySelector('.tp-days-draft');
+    dDraft = unsaved ? { sel: dsel ? { a: dsel.a, z: dsel.z } : null, base: dKey(conf) } : null;
+    if (dl) { dl.hidden = !unsaved || !dsel; dl.textContent = dsel && dsel.z !== null ? 'Not saved yet. Use these dates to keep them.' : 'Not saved yet. Pick your last day, then Use these dates.'; } // the summary under it names the days
     var fF = pm.querySelector('[data-df="from"]'), fT = pm.querySelector('[data-df="to"]');
     if (fF && document.activeElement !== fF) fF.value = dsel ? isoOf(dsel.a) : '';
     if (fT && document.activeElement !== fT) fT.value = dsel && dsel.z !== null ? isoOf(dsel.z) : '';
@@ -1898,12 +1914,12 @@
       askEditing = false; askDraft = null; askError = ''; askOwn = true;
       var dBefore = snap();
       holdPlace(function () { tp.setTrip({ from: from, to: to, base: t.base, party: t.party }); });
-      closePm(); tp.say('Your days: ' + tp.isoRange(from, to) + '.');
+      dDraft = null; closePm(); tp.say('Your days: ' + tp.isoRange(from, to) + '.');
       changedSince(dBefore, ''); daysToast(!!t.from, from, to);
       return;
     }
     if (b.hasAttribute('data-dclear')) {
-      askEditing = false; askDraft = null; askError = ''; askOwn = true; dsel = null;
+      askEditing = false; askDraft = null; askError = ''; askOwn = true; dsel = null; dDraft = null;
       var cBefore = snap();
       holdPlace(function () { tp.setTrip({ base: t.base, party: t.party }); }); closePm(); tp.say('Your days are removed.');
       changedSince(cBefore, ''); changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']); return;
