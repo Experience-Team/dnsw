@@ -262,14 +262,18 @@ function openCard(i, info) {
 function closeCard(silent) { const c = $("card"); c.classList.remove("open"); c.hidden = true; if (!silent) $("btnKick").focus(); }
 const placeName = () => ROUTES[routeKey].zones[landedZone][0];
 // The line in the card's action bar names the latest change, so the confirmation sits where the person acted
-function cardStatus(msg) { $("cardStatus").textContent = msg; $("card").classList.toggle("has-status", !!msg); }
+// The line may end with "See your plan" (inside the prototype only, where there is a plan to see; js/plan-link.js)
+function cardStatus(msg, seePlan) {
+  const s = $("cardStatus"); s.textContent = msg; $("card").classList.toggle("has-status", !!msg);
+  if (seePlan && window.planLink) { const b = document.createElement("button"); b.type = "button"; b.className = "see-plan"; b.textContent = "See your plan"; b.onclick = () => window.planLink.openPlan(); s.append(" ", b); }
+}
 function toggleSave() {
   if (landedZone < 0) return;
   const name = placeName(), on = !saved.has(name);
   if (on) saved.add(name); else saved.delete(name);
   if (window.planLink) window.planLink.send(on, landedZone);   // inside the prototype: the plan keeps it (js/plan-link.js)
   cardChanged = true;
-  cardStatus(name + (on ? " added to your plan." : " removed from your plan."));
+  cardStatus(on ? name + " added." : name + " removed from your plan.", on);
   updateSave();
 }
 function updateSave() {

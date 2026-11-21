@@ -160,3 +160,6 @@
     .card { position: fixed; top: 8px; bottom: 8px; left: auto; right: 8px; width: min(400px, 56vw); max-height: none; transform: translateX(110%); }
     .card.open { transform: none; }
   }
+  /* See your plan: a link-style button at the end of the card's line, 24px tall to tap (AA) */
+  .card-actions .see-plan, .see-plan { font: inherit; font-weight: 700; min-height: 24px; padding: 0 2px; border: 0; background: none; border-radius: 0; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .see-plan:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }

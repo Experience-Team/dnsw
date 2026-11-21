@@ -2472,6 +2472,16 @@
     if (e.origin !== location.origin || !kickFrame() || e.source !== kickFrame() || !d || typeof d.type !== 'string') return;
     if (d.type === 'thk:ready') { kickTheme(); kickSync(); kickCard(false); }
     else if (d.type === 'thk:card') kickCard(d.open === true);
+    // See your plan (21 Nov): its label names where it goes (checks 8 and 11). The card closes, the planner shows,
+    // and the plan opens with the Drop goal saves (Saved, not placed yet) in view
+    else if (d.type === 'thk:open-plan') {
+      kickClose();
+      if (window.tpView) window.tpView.go('plan');
+      setTimeout(function () {
+        tlSetOpen(true);
+        setTimeout(function () { var w = document.getElementById('tp-tl-wait'); if (w && !w.hidden) w.scrollIntoView({ block: 'nearest' }); var h = document.getElementById('tp-tl-title'); if (h) h.focus({ preventScroll: true, focusVisible: false }); }, reduce.matches ? 80 : 400); // focus leaves the game for the plan, with or without motion (once the plan is showing)
+      }, reduce.matches ? 0 : 320);
+    }
     else if (d.type === 'thk:save') { var it = kickItem(d); if (it && !addItem(it, true)) kickSync(); }
     else if (d.type === 'thk:unsave' && typeof d.name === 'string') { var n = state.added.length; removeItem('kick:' + d.name); if (state.added.length === n) kickSync(); }
   });
