@@ -13,7 +13,6 @@ $("angle").addEventListener("input", syncReadouts);
 $("power").addEventListener("input", syncReadouts);
 $("btnKick").onclick = () => landedZone >= 0 ? resetKick().then(() => {}) : kick();
 $("btnAgain").onclick = () => resetKick();
-$("btnClose").onclick = () => closeCard();
 $("btnX").onclick = () => closeCard();
 $("btnSave").onclick = () => toggleSave();
 $("btnCopyCfg").onclick = copyCfg;
@@ -24,6 +23,13 @@ $("btnImport").onclick = () => { $("importBox").hidden = false; $("importText").
 $("btnCancelImport").onclick = () => { $("importBox").hidden = true; };
 $("btnApplyImport").onclick = () => { importCfg($("importText").value); $("importBox").hidden = true; $("importText").value = ""; };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("card").hidden) closeCard(); });
+// A tap or click anywhere outside the open card closes it, as a sheet's backdrop does. Tapping another control still
+// does what it does (Line up next kick, a route); focus stays with it rather than jumping back to Kick
+document.addEventListener("pointerdown", e => {
+  const c = $("card");
+  if (c.hidden || c.contains(e.target)) return;
+  closeCard(!!e.target.closest("button, input, select, summary, label"));
+});
 
 for (const k in ROUTES) computeBounds(ROUTES[k]);
 loadTeam(1); setPalette(); buildParts(); buildPickers(); applyField(); newWind(); syncReadouts(); render();

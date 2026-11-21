@@ -104,8 +104,8 @@
   .card-status { flex: 1 0 100%; margin: 0 0 2px; font-size: 13px; font-weight: 600; }
   .card-status:empty { display: none; }
 
-  /* Stage 3: the card's close cross, top right, 16px in (prototype check 7). Close in the foot bar shows only as Save,
-     once something has changed on the card (check 10, "Changes say they're kept") */
+  /* Stage 3: the card's close cross, top right, 16px in (prototype check 7). No Save in its foot (user's call, 21 Nov):
+     the line there names the latest change, and the cross, Escape or a tap outside closes it */
   .card-x { position: absolute; z-index: 2; top: 16px; right: 16px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
             border: 0; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--ink); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
   .card-x:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -128,3 +128,11 @@
     .note { grid-column: 1; padding-inline: 0; }
     .note:first-of-type { grid-row: 6; }
   }
+
+  /* Kick (Line up next kick) pinned to the foot of the screen below the desktop layout, so it is always in view
+     whatever has been scrolled; a faint rule above it. The page keeps room for it at the bottom */
+  @media (max-width: 1023px) {
+    .kick-bar { position: fixed; z-index: 2; left: 0; right: 0; bottom: 0; padding: 12px 24px; background: var(--panel); border-top: 1px solid rgba(0,0,0,.08); }
+    body { padding-bottom: 76px; }
+  }
+  .card-actions { border-top-color: rgba(0,0,0,.08); }

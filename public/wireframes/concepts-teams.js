@@ -2397,7 +2397,7 @@
   }
   /* Stage 3: the page's theme as values, read from the phone, so the game's controls and card follow low or high
      fidelity (and the switch) with one source for every value (drop-goal/css/embed.css) */
-  var KICK_TOKENS = ['c-ink', 'c-ink-2', 'c-surface', 'c-surface-2', 'c-btn', 'c-on-dark', 'c-line', 'c-line-ink', 'c-accent', 'c-on-accent', 'c-focus', 'font-body', 'font-display', 'font-label'];
+  var KICK_TOKENS = ['c-ink', 'c-ink-2', 'c-surface', 'c-surface-2', 'c-btn', 'c-on-dark', 'c-line', 'c-line-soft', 'c-line-ink', 'c-accent', 'c-on-accent', 'c-focus', 'font-body', 'font-display', 'font-label'];
   function kickTheme() {
     var w = kickFrame(), ph = document.getElementById('tp-phone'); if (!w || !ph) return;
     var cs = getComputedStyle(ph), tokens = {};
