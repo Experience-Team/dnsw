@@ -1,0 +1,15 @@
+<h2>Ask: can they see what changed?</h2>
+<p>For every new or moved control, ask what it changes beyond itself, and whether the person can see that from where they are.</p>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">The change</th><th scope="col">Confirm with</th></tr></thead><tbody>
+<tr><td>Shows itself where they acted (a marker settling on the plan, dates under the slider)</td><td>Nothing more</td></tr>
+<tr><td>Can be undone where they acted (a pick)</td><td>Undo in place</td></tr>
+<tr><td>Lands out of view (the plan, another section, behind a sheet)</td><td>One <a href="/design-system/components/toast">toast</a></td></tr>
+<tr><td>A toast would cover the control they are still using</td><td>Nothing: leave it out</td></tr>
+</tbody></table></div>
+
+<h2>Example</h2>
+<p>"I have tickets" on a match row changes the plan, Where to watch and Around your matches, all out of view. It shows one toast: "Ticket marked: [match]", then "Your plan, Where to watch and Around your matches are updated." and a link to the first changed section other than the one they acted in, for example "See Where to watch". Inside the open plan there is no link, because it would open something over that sheet.</p>
+<p>Setting your days from the days sheet shows "Your days are now 8 to 14 Oct" with "See Where to watch". Setting them on the page's own date picker shows no toast, because it would cover the slider.</p>
+
+<h2>Content</h2>
+<p>See <a href="/design-system/components/toast">toast</a>: a title saying what they did, one line naming only what changed, at most one link named for where it goes.</p>

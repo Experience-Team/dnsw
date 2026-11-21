@@ -1,0 +1,18 @@
+<div data-ds="example" data-ex="pill" data-title="Pill button examples" data-caption="Class <code>.tp-pill</code>; as an add toggle <code>.tp-pill.tp-pm-add</code>. Press the toggles."></div>
+
+<h2>When to use</h2>
+<ul><li>The main action of a screen area: "Pick your teams", "Add to your plan" in a place's details.</li><li>Inside sheets, as the action that completes the sheet's job.</li></ul>
+<h2>When not to use</h2>
+<ul><li>Several equal actions side by side: use <a href="/design-system/components/chips">chips</a> or text links.</li><li>Adding an item from a card in a list: use the <a href="/design-system/components/buttons/add">add button</a>.</li></ul>
+
+<h2>Anatomy</h2>
+<ol><li>Container: <code>--c-btn</code> fill, <code>--radius-pill</code>, 36px min height.</li><li>Optional icon, 16px, before the label.</li><li>Label: <code>--fs-md</code>, <code>--fw-bold</code>, <code>--c-on-dark</code>.</li></ol>
+
+<h2>As a toggle</h2>
+<p>With <code>.tp-pm-add</code> and <code>aria-pressed</code>, the pill adds and removes. The icon changes from add to added and the label from "Add to your plan" to "Added to your plan". Pressing it again removes.</p>
+
+<h2>Accessibility</h2>
+<ul><li>A <code>&lt;button type="button"&gt;</code>, never a link styled as a button, unless it goes to another page.</li><li>As a toggle, <code>aria-pressed</code> carries the state; hidden text names the item.</li></ul>
+
+<h2>Tokens</h2>
+<div data-ds="tokens" data-tokens="--c-btn --c-btn-hover --c-on-dark --radius-pill --fs-md --fw-bold --c-focus"></div>

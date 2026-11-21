@@ -1,0 +1,37 @@
+<h2>Where things live</h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Path</th><th scope="col">What it holds</th></tr></thead><tbody>
+<tr><td><code>public/wireframes/shared.css</code></td><td>The base tokens on <code>:root</code>, and every component's CSS.</td></tr>
+<tr><td><code>public/wireframes/themes/*.css</code></td><td>One file per brand. Each sets token values and nothing else, apart from the few component rules a token cannot express.</td></tr>
+<tr><td><code>public/design-system/</code></td><td>This site. It reads the files above; it defines no tokens of its own.</td></tr>
+<tr><td><code>public/design-system/examples.js</code></td><td>The markup for live examples, copied from the render code named beside each one.</td></tr>
+<tr><td><code>public/design-system/nav.js</code></td><td>The menu: every page, in order.</td></tr>
+</tbody></table></div>
+
+<h2>Using a token</h2>
+<p>Always use the role, never a raw value or a brand's palette token:</p>
+<pre><code>/* Yes */
+.my-card { background: var(--c-surface); color: var(--c-ink); border: var(--bw-1) solid var(--c-line); }
+
+/* No: breaks in every other brand */
+.my-card { background: #fff; color: #1a1a1a; }
+.my-card { background: var(--tth-color-chalk); }</code></pre>
+
+<h2>Turning on a brand</h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Brand</th><th scope="col">Switch</th></tr></thead><tbody>
+<tr><td>Wireframe</td><td>Nothing: it is the base.</td></tr>
+<tr><td>The Third Half</td><td><code>&lt;html data-theme="hifi"&gt;</code>, applied inside <code>.cn-phone</code>. Colourway: <code>data-colourway="green|violet|clay"</code> on <code>&lt;html&gt;</code>; orange is the default.</td></tr>
+<tr><td>Sydney.com</td><td><code>class="theme-sydney"</code> on <code>&lt;body&gt;</code></td></tr>
+<tr><td>Visit NSW</td><td><code>class="theme-nsw"</code> on <code>&lt;body&gt;</code></td></tr>
+<tr><td>RWC 2027 page style</td><td><code>class="theme-rwc"</code> on <code>&lt;body&gt;</code></td></tr>
+</tbody></table></div>
+<div class="ds-note ds-note--warn"><span class="ds-note-t">Two token sets today</span><p>The page wireframes use <code>--color-*</code>; the prototypes use the fuller <code>--c-*</code> roles. New work uses <code>--c-*</code>. Moving the page wireframes onto <code>--c-*</code> is on the <a href="/design-system/get-started/changelog">roadmap</a>.</p></div>
+
+<h2>Adding a live example</h2>
+<ol>
+<li>Copy the markup from the component's render code into <code>examples.js</code> under a new key, and name the source in a comment.</li>
+<li>Put <code>&lt;div data-ds="example" data-ex="your-key" data-title="..."&gt;&lt;/div&gt;</code> in the page.</li>
+<li>The example renders in <code>frame.html</code> with <code>shared.css</code> and the theme files, in the brand picked above it.</li>
+</ol>
+
+<h2>Running it locally</h2>
+<p>The site uses clean addresses (<code>/design-system/styles/colour</code>), which Vercel serves through a rewrite in <code>vercel.json</code>. Locally, use <code>vercel dev</code>, or any static server that falls back to <code>public/design-system/index.html</code> for addresses under <code>/design-system</code>.</p>

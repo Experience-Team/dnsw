@@ -1,0 +1,13 @@
+<h2>The page only moves when people expect it to</h2>
+<p>A control never scrolls or jumps the page to another section unless its label says it will take you there, for example "See where to watch in NSW" or "Skip the map".</p>
+<ul>
+<li>Anything that asks for input or shows more detail opens where the person is, in a <a href="/design-system/components/sheets">sheet</a> or an expanding panel.</li>
+<li>When an action changes content above the person, hold the page so what they were looking at stays put.</li>
+</ul>
+<div class="ds-dd"><div class="ds-do"><p>"Staying longer? Set your days" opens the calendar in a sheet.</p></div><div class="ds-dont"><p>The same link scrolls down to the date fields further down the page.</p></div></div>
+
+<h2>Focus returns</h2>
+<p>Closing a sheet, a level of a sheet, a menu or a dialog returns focus to whatever opened it. If that control has gone (for example Clear all, which hides once nothing is picked), focus moves to the nearest sensible control in the same group.</p>
+
+<h2>Tap is not focus</h2>
+<p>A tapped button keeps focus. Rules meant for keyboard users must not catch a tap. For example, after tapping the floating tab bar and then scrolling, the bar must still shrink as it does for anyone else.</p>

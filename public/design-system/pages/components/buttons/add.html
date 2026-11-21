@@ -1,0 +1,21 @@
+<div data-ds="example" data-ex="add" data-title="Add button examples" data-caption="Class <code>.tp-add</code>, from <code>concepts-third-half.js</code>. Press to toggle."></div>
+
+<h2>When to use</h2>
+<p>On a product card, a match row or a list item, to add that one item to the plan. The same button shows that it has been added, and removes it when pressed again.</p>
+<h2>When not to use</h2>
+<p>For the main action of a sheet or screen: use the <a href="/design-system/components/buttons/pill">pill button</a>.</p>
+
+<h2>Anatomy</h2>
+<ol><li>Container: an outlined pill, <code>--bw-2</code> in <code>--c-line-ink</code>, 72px min width, 36px high.</li><li>Icon: the add or added circle from the <a href="/design-system/styles/icons">icon set</a>.</li><li>Label: "Add", then "Added".</li></ol>
+
+<h2>States</h2>
+<ul><li><strong>Off:</strong> outline on <code>--c-surface</code>.</li><li><strong>On (Added):</strong> filled <code>--c-btn</code> with <code>--c-on-dark</code> text and a tick.</li></ul>
+
+<h2>Behaviour</h2>
+<ul><li>The whole card or row is not the button: the add button sits above it (<code>z-index: 1</code>) so the row can open details.</li><li>Adding something that lands out of view (the plan, Where to watch) is confirmed with a <a href="/design-system/components/toast">toast</a>, unless the change already shows where the person is.</li></ul>
+
+<h2>Accessibility</h2>
+<ul><li><code>aria-pressed</code> carries the state.</li><li>The visible label is short; hidden text says the whole thing: "Add Bondi to Coogee walk to your plan", then "Added: Bondi to Coogee walk. Press to remove".</li></ul>
+
+<h2>Tokens</h2>
+<div data-ds="tokens" data-tokens="--c-surface --c-line-ink --c-btn --c-on-dark --bw-2 --radius-pill --fs-sm --fw-bold"></div>
