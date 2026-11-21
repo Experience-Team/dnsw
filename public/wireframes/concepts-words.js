@@ -24,7 +24,10 @@ window.TP_WORDS = {
   setDaysWhy: 'Set your days to see ideas for the rest of your trip.',
   // B3 (F-051): the plan's card under the last match day while no days are set
   stayAfter: 'Staying after your last match?',
-  setDays: 'Set your days'
+  setDays: 'Set your days',
+  // Stage C (F-029): the match-day group for whoever is not at the game, and the tag on its places
+  notGoing: 'Not going to the match?',
+  eveningTag: 'Evening'
 };
 
 /* Pool A to F come from the fixtures (team records, match names such as 2nd Pool C v 2nd Pool F), which are also used
