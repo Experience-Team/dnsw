@@ -806,7 +806,7 @@
   var tlIdeasOrder = {}; // the order each day's cards were shown in
   function freeInfo(d) { return FREEINFO.filter(function (x) { return x.d === d; })[0]; }
   function renderTlIdeas() {
-    if (window.tpFreeApi) window.tpFreeApi.set(FREEINFO.map(function (x) { return { d: x.d, label: x.label, filled: x.filled, count: x.count }; }));
+    if (window.tpFreeApi) window.tpFreeApi.set(FREEINFO.filter(function (x) { return !x.half; }).map(function (x) { return { d: x.d, label: x.label, filled: x.filled, count: x.count }; }));
     if (!tlIdeas) return;
     var fd = tlIdeasDay !== null ? freeInfo(tlIdeasDay) : null;
     if (!fd) { tlIdeas.innerHTML = ''; tlIdeas.style.minHeight = ''; tlIdeasHold = null; return; }
@@ -820,7 +820,7 @@
     var kept = IDEAS.filter(function (i) { return fd.its.some(function (x) { return x.id === 'i:' + i.id; }); });
     var other = fd.its.filter(function (x) { return !kept.some(function (i) { return x.id === 'i:' + i.id; }); });
     var line = fd.filled ? 'Your day is full' : fd.count + (fd.count === 1 ? ' idea' : ' ideas');
-    var h = '<h2 class="cn-pp-title tp-tl-ideas-h" id="tp-pm-title" tabindex="-1">' + esc(fd.label) + '</h2><p class="tp-tl-ideas-sub" id="tp-tl-ideas-h">Free day · ' + esc(line) + '</p>';
+    var h = '<h2 class="cn-pp-title tp-tl-ideas-h" id="tp-pm-title" tabindex="-1">' + esc(fd.label) + '</h2><p class="tp-tl-ideas-sub" id="tp-tl-ideas-h">' + esc(fd.half || 'Free day') + ' · ' + esc(line) + '</p>';
     if (other.length) h += '<p class="tp-fday-so">Also on your plan that day: ' + placeLinks(other) + '.</p>';
     // Cards keep the order they were shown in, so adding one leaves it where it was (Back lands on the same place);
     // new ones go after
@@ -1021,6 +1021,17 @@
     // Free days' ideas in date order, open or not, so nothing is suggested twice on the page
     FREE_LEFT = 0; bs.forEach(function (b) { if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) if (!dayFilled(d)) FREE_LEFT++; });
     bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b); });
+    /* E2 (22 Nov): the arrival and last day get Add ideas in the plan too, offering only the half-day ideas (we do not
+       know arrival or departure times, so nothing longer and no time is guessed) */
+    bs.forEach(function (b) {
+      if (b.kind !== 'half') return;
+      var d = b.day, dl = dayLabel(d), its = dayItems(d), dk = b.key + ':' + d, W = window.TP_WORDS || {}, kl = b.first ? (W.arrivalDay || 'Arrival day') : (W.lastDay || 'Last day');
+      if (dayFilled(d)) { FREEINFO.push({ d: d, label: dl, filled: true, count: 0, dk: dk, its: its, show: [], more: false, base: b.base, half: kl }); return; }
+      // The city's half-day ideas not already in the plan; they may also be offered on a free day, as the page shows
+      // places near the base on these days instead (Who's coming? puts the ones that suit first)
+      var show = partyFirst(IDEAS.filter(function (i) { return i.kind === 'half' && i.city === b.base && !ideaAdded(i); })).slice(0, 3);
+      FREEINFO.push({ d: d, label: dl, filled: false, count: show.length, dk: dk, its: its, show: show, more: false, base: b.base, half: kl });
+    });
     // The section's name follows whose matches it is about: no team picked (nor a match added), the NSW matches
     var tt = document.getElementById('tp-third-title'); if (tt) tt.textContent = thirdName();
     if (thirdNote) thirdNote.textContent = first ? 'A first look: around the next NSW match day. Each links out; nothing is booked here.'
@@ -2652,11 +2663,8 @@
     }
     tripEl.innerHTML = '<button type="button" class="tp-link tp-third-trip-ask" data-act="trip">' + window.tpIcons.cal + (M.how === 'one' ? 'Staying longer? Set your days' : 'Set your days to see what fits your free days') + '</button>';
   }
-  /* In the open plan. Days set: one line that says what is set, with Change (the days sheet, stacked).
-     No days yet (16 Nov): the date slider itself, in place of the small Add your days link, because setting days is
-     what places anything saved from the map; a line says so when something is waiting. It applies as it is set, with
-     Undo and Reset (one history with the page's), and stays a slider until the plan closes, so the days can be
-     adjusted; Pick on a calendar opens the days sheet. */
+  /* In the open plan, one line (22 Nov, E3; it held its own slider from 16 Nov): days set, Your days: [range] with
+     Change; none set, Your days in NSW: not set. with Set your days. Both open the Your days sheet, stacked. */
   var daysLine = document.getElementById('tp-tl-daysline'), tlDaysEdit = false;
   function renderDaysLine() {
     if (!daysLine) return;
@@ -2665,32 +2673,13 @@
     if (t.base) bits.push(baseLabel(t.base));
     if (t.party) bits.push(partyLabel(t.party));
     daysLine.hidden = !tp.own() && !wait;
-    if (!has && !daysLine.hidden) tlDaysEdit = true;
-    daysLine.classList.toggle('is-edit', tlDaysEdit && !daysLine.hidden);
-    if (!tlDaysEdit) {
-      daysLine.innerHTML = (bits.length ? '<span>' + esc(bits.join(' · ')) + '</span> · ' : '') + '<button type="button" class="tp-link" data-act="days">' + window.tpIcons.cal + (t.from ? 'Change' : 'Add your days') + '</button>';
-      return;
-    }
-    if (askError && rRoot === daysLine) typeOpen.tl = true;
-    var note = has ? 'Your days: ' + tp.isoRange(t.from, t.to) + '. Type new dates or drag either end to change them.'
-      : wait ? 'Set your days and ' + (wait === 1 ? 'the place you saved goes' : 'the ' + wait + ' places you saved go') + ' onto free days.'
-      : WHY;
-    daysLine.innerHTML = '<span class="tp-tl-setdays-h" id="tp-tl-setdays-h">Your days in NSW' + (has ? '' : ' (optional)') + '</span>' +
-      '<span class="tp-tl-setdays-n">' + esc(note) + '</span>' +
-      '<span class="tp-range tp-tl-range" role="group" aria-labelledby="tp-tl-setdays-h"><span class="tp-range-track"><span class="tp-range-fill"></span>' +
-      '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
-      rangeDots() +
-      '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span>' +
-      '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span></span>' +
-      rangeEnds('span', 'tl', 'tp-tl-dates') + '</span>' +
-      // The same First day and Last day fields as the page, opened from the dates under the slider (18 Nov)
-      typeFields('tl', 'tp-tl-dates', 'span', 'f', 'tp-tl-', (askDraft || t).from, (askDraft || t).to) +
-      (askError && rRoot === daysLine ? '<span class="tp-ask-err" role="alert">' + esc(askError) + '</span>' : '') +
-      '<span class="tp-ask-acts tp-ask-acts--links">' +
-        (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
-        (has ? '<button type="button" class="tp-link tp-ico-link" data-act="clear">' + I_RESET + 'Reset</button>' : '') +
-        '<button type="button" class="tp-link tp-ico-link" data-act="days">' + window.tpIcons.cal + 'Pick on a calendar</button></span>';
-    var keep = rRoot; rRoot = daysLine; rangeFromFields(); rRoot = keep;
+    /* E3 (22 Nov): one slider only, under the team picker on the page (Figma 372:3060). The plan shows one line either
+       way, and both open the Your days sheet, where the fields, calendar, Undo, Reset and Remove my days are */
+    tlDaysEdit = false;
+    daysLine.classList.remove('is-edit');
+    var W = window.TP_WORDS || {};
+    if (!has) bits.unshift(W.planDaysUnset || 'Your days in NSW: not set.');
+    daysLine.innerHTML = (bits.length ? '<span>' + esc(bits.join(' · ')) + '</span> ' + (has ? '· ' : '') : '') + '<button type="button" class="tp-link" data-act="days" aria-haspopup="dialog">' + window.tpIcons.cal + (has ? 'Change' : esc(W.setDays || 'Set your days')) + '</button>';
   }
   if (daysLine) {
     daysLine.addEventListener('change', function (e) { if (e.target.dataset.f) { rRoot = daysLine; applyFromFields('#' + e.target.id); } });

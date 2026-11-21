@@ -32,10 +32,14 @@ window.TP_WORDS = {
   eveningTag: 'Evening',
   // Stage D (F-048): a day whose matches are all interstate, on its card and in the strip's screen reader label
   awayLine: function (cities) { return 'Away from NSW: ' + cities.join(', '); },
-  awaySay: function (cities) { return 'away from NSW, ' + cities.join(' and '); },
+  awaySay: function (cities) { return 'away from NSW, ' + (cities.length < 2 ? cities.join('') : cities.slice(0, -1).join(', ') + ' and ' + cities[cities.length - 1]); },
   // Stage D: the count, with days set and none of the NSW matches inside them; and the number of teams (two or more)
   noneInDays: 'none in your days',
-  teamsCount: function (n) { return n + ' teams'; }
+  teamsCount: function (n) { return n + ' teams'; },
+  // E3 (22 Nov): the plan's one line for days while none are set; its button is setDays (Set your days)
+  planDaysUnset: 'Your days in NSW: not set.',
+  // E2: the ideas sheet's line for an arrival or last day (only half-day ideas are offered)
+  arrivalDay: 'Arrival day', lastDay: 'Last day'
 };
 
 /* Pool A to F come from the fixtures (team records, match names such as 2nd Pool C v 2nd Pool F), which are also used

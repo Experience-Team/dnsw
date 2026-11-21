@@ -163,9 +163,10 @@
         '<button type="button" class="tp-link" data-dc-expand="' + esc(g.key) + '" aria-expanded="false">Show each day</button></div>';
     } else {
       // Matches at the same time, or in several cities (tp.matchClash in concepts-teams.js): one plain line under the heading
-      var mc = tp.matchClash ? tp.matchClash(a) : null;
+      var mc = tp.matchClash ? tp.matchClash(a) : null, aw = awayCities(g.days[0]), W = window.TP_WORDS || {};
+      // E5 (22 Nov): the away line already names the cities, so Matches in N cities is left out beside it
+      if (mc && aw && !mc.ring) mc = null;
       if (mc) h += '<p class="tp-dc-mclash' + (mc.ring ? '' : ' is-quiet') + '">' + esc(mc.line) + '</p>';
-      var aw = awayCities(g.days[0]), W = window.TP_WORDS || {};
       if (aw) h += '<p class="tp-dc-away">' + esc(W.awayLine ? W.awayLine(aw) : 'Away from NSW: ' + aw.join(', ')) + '</p>';
       h += dayBody(g.days[0]);
     }
@@ -176,6 +177,7 @@
       var x = dateOf(day.d), nAdd = day.its.length + day.nights.length;
       var mc = tp.matchClash ? tp.matchClash(day.d) : null;
       var aw = awayCities(day), W = window.TP_WORDS || {};
+      if (mc && aw && !mc.ring) mc = null; // as on the card (E5)
       var match = day.ms[0], label = dayLabel(day.d) + ', ' + day.kinds.join(', ').toLowerCase() + (aw ? ', ' + (W.awaySay ? W.awaySay(aw) : 'away from NSW, ' + aw.join(' and ')) : '') + (mc ? ', ' + mc.say : '') + (match ? ', ' + tp.list(day.ms.map(function (m) { return mName(m.f); })) : '') +
         ', ' + (nAdd ? nAdd + (nAdd === 1 ? ' thing added' : ' things added') : 'nothing added');
       return '<button type="button" class="tp-dc-day' + (match ? ' is-match' : '') + (match && match.f.a ? ' is-away' : '') + (nAdd ? ' is-filled' : '') + (mc && mc.ring ? ' is-clash' : '') + '" data-dc-day="' + day.d + '" aria-label="' + esc(label) + '" tabindex="-1">' +
@@ -195,6 +197,7 @@
     return { sel: sel, strip: st ? st.scrollLeft : 0, track: tr ? tr.scrollLeft : null };
   }
   function render() {
+    noteAdds();
     var snap = snapshot(), M = model();
     M0 = M;
     root.hidden = !M.n;
@@ -337,9 +340,9 @@
     syncCurrent(true, instant);
     if (focus) card.querySelector('.tp-dc-h').focus({ preventScroll: true });
   }
-  /* Where the plan opens (20 Nov): your days in NSW (their first day), else the earliest-dated thing you added, else
-     your first NSW match, else the plan's first day. The same rule every time it opens, so closing and reopening lands
-     on the same day; a ticket, or a day tapped on the strip, does not change it. The strip's current day and the card
+  /* Where the plan first opens in a visit (20 Nov): your days in NSW (their first day), else the earliest-dated thing
+     you added, else your first NSW match, else the plan's first day. Reopening in the same visit returns to the day
+     last open or last added to (22 Nov, E1, below); a ticket does not change it. The strip's current day and the card
      at the top of the sheet (or in view, one day at a time) are set together. The first card stays at the very top of
      the sheet, with the heading and your days line above it. */
   function openDay(M) {
@@ -352,12 +355,22 @@
   // at: { day, note } when the page asks for a day (See your match day, 20 Nov); a day with no card (outside your days)
   // falls back to the rule, and the note says why
   var outNote = '';
+  /* Reopening in the same visit (22 Nov, E1): the plan comes back to the day last open when it closed, or to the day
+     last added to since then. The first open of a visit (and a reload) keeps the rule above. */
+  var lastOpen = null, addedSince = null, seenIds = null;
+  document.getElementById('tp-phone').addEventListener('tp:tlclose', function () { lastOpen = current; addedSince = null; });
+  function noteAdds() {
+    var ids = state.added.map(function (x) { return x.id; });
+    if (seenIds) state.added.forEach(function (x) { if (seenIds.indexOf(x.id) < 0) { var d = itemDay(x); if (d !== null) addedSince = d; } });
+    seenIds = ids;
+  }
   function openOn(at) {
     var want = at && at.note || '';
     if (want !== outNote) { outNote = want; render(); }
     tail();
     if (!M0 || !M0.n) return;
-    var d = at && at.day != null && cardFor(at.day) ? at.day : openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
+    var back = addedSince !== null && cardFor(addedSince) ? addedSince : lastOpen !== null && cardFor(lastOpen) ? lastOpen : null;
+    var d = at && at.day != null && cardFor(at.day) ? at.day : back !== null ? back : openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
     if (!card) return;
     if (card === first && !swipe()) {
       current = +card.dataset.dcA; lockT = Date.now() + 900;
