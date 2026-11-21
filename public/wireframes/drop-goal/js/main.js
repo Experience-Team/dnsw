@@ -14,6 +14,7 @@ $("power").addEventListener("input", syncReadouts);
 $("btnKick").onclick = () => landedZone >= 0 ? resetKick().then(() => {}) : kick();
 $("btnAgain").onclick = () => resetKick();
 $("btnClose").onclick = () => closeCard();
+$("btnX").onclick = () => closeCard();
 $("btnSave").onclick = () => toggleSave();
 $("btnCopyCfg").onclick = copyCfg;
 $("btnResetTeam").onclick = () => { delete cfg.teams[TEAMS[teamIdx].code]; saveCfg(); loadTeam(teamIdx); refreshLook(); toast("Team reset to defaults."); };

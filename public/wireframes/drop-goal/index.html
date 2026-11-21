@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/embed.css">
+<!-- Inside the prototype (its Drop goal iframe) the page's theme and section title take over: see css/embed.css -->
+<script>if (window.parent !== window) document.documentElement.classList.add("embedded");</script>
 
 </head>
 <body>
@@ -21,11 +24,12 @@
     <rect width="1200" height="700" fill="url(#sky)"/>
     <g id="world"><g id="worldStatic"></g><g id="posts"></g><g id="player"></g></g>
     <g id="overlay" font-family="Space Mono, monospace"></g>
-    <g transform="translate(40 40)" font-family="Space Mono, monospace" font-weight="700" font-size="17" fill="#17211a"><text x="0" y="18">THE</text><text x="0" y="38">THIRD</text><text x="0" y="58">HALF</text></g>
+    <g id="mark" transform="translate(40 40)" font-family="Space Mono, monospace" font-weight="700" font-size="17" fill="#17211a"><text x="0" y="18">THE</text><text x="0" y="38">THIRD</text><text x="0" y="58">HALF</text></g>
     <g id="windFlag" transform="translate(1030 60)" font-family="Space Mono, monospace"></g>
   </svg>
 
   <aside class="card" id="card" hidden role="dialog" aria-labelledby="cardName">
+    <button class="card-x" id="btnX" type="button" aria-label="Close"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <div class="card-inner">
       <div class="card-img" id="cardImg"></div>
       <p class="kicker" id="cardKicker">The ball landed in …</p>
@@ -43,7 +47,7 @@
       <div class="card-actions">
         <p class="card-status" id="cardStatus" role="status"></p>
         <button id="btnAgain">Kick again</button>
-        <button class="ghost" id="btnClose">Close</button>
+        <button class="ghost" id="btnClose" hidden>Save</button>
       </div>
     </div>
   </aside>

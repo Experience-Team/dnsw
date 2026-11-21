@@ -103,3 +103,28 @@
   .name-row h2 { min-width: 0; }
   .card-status { flex: 1 0 100%; margin: 0 0 2px; font-size: 13px; font-weight: 600; }
   .card-status:empty { display: none; }
+
+  /* Stage 3: the card's close cross, top right, 16px in (prototype check 7). Close in the foot bar shows only as Save,
+     once something has changed on the card (check 10, "Changes say they're kept") */
+  .card-x { position: absolute; z-index: 2; top: 16px; right: 16px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
+            border: 0; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--ink); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .card-x:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .card-actions [hidden] { display: none; }
+
+  /* Stage 3 layout. Phone: the pitch stays at the top while the controls scroll under it, so a kick is always seen */
+  @media (max-width: 760px) {
+    .stage-wrap { position: sticky; top: 0; z-index: 3; margin: 0; border-radius: 0; }
+  }
+  /* Desktop: the controls in a column beside the pitch, so Kick is above the fold */
+  @media (min-width: 1024px) {
+    body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; column-gap: 24px; align-items: start; padding: 0 24px; }
+    body > header { grid-column: 1 / -1; grid-row: 1; padding-inline: 0; }
+    .stage-wrap { grid-column: 1; grid-row: 2 / span 4; margin: 8px 0 0; }
+    .controls, .pickers, .curate-wrap { grid-column: 2; }
+    .controls { grid-row: 2; } .pickers { grid-row: 3; } .curate-wrap { grid-row: 4; }   /* fixed rows: the header can be hidden (embedded) */
+    .controls { grid-template-columns: 1fr; padding: 8px 0 0; }
+    .pickers { padding: 14px 0 0; }
+    .curate-wrap { margin: 10px 0 0; }
+    .note { grid-column: 1; padding-inline: 0; }
+    .note:first-of-type { grid-row: 6; }
+  }
