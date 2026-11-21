@@ -432,13 +432,48 @@
   // joined by hyphens). Only the high fidelity theme loads them (pv-device.js); the wireframe keeps the grey block.
   function imgKey(title) { return ' data-img="' + esc(String(title || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')) + '"'; }
   // Match day groups, as before: Before the match, After the final whistle, Near the stadium
-  function productCard(p, why, id, f) {
+  function productCard(p, why, id, f, tag) {
     return '<article class="tp-pc" data-id="' + esc(id) + '">' +
       '<button type="button" class="tp-pc-main" data-open="' + esc(id) + '" aria-haspopup="dialog">' +
       '<span class="ph-img tp-pc-img"' + imgKey(p.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title">' + esc(p.title) + '</span>' +
-      '<span class="tp-pc-type provenance-gap">' + esc(PTYPE[p.type] || 'Product') + '</span>' +
+      '<span class="tp-pc-type provenance-gap">' + esc(tag || PTYPE[p.type] || 'Product') + '</span>' +
       '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' +
       addBtn(id, p.title + ' on ' + f.d) + '</article>';
+  }
+  /* Not going to the match? (21 Nov, F-029): for whoever is not at the game, up to three places in the match's city
+     whose opening hours have them open after 5pm that day. Only places with hours in the data (the match-day places,
+     cnThirdHalf; the free-day ideas have none), and none the day's other groups already show. A government site
+     favours no business: the list starts at a different place for each match (the rotation Where to watch uses).
+     One list for the page's match day and the plan's day card, so both show the same places. */
+  var EVE_FROM = 17 * 60, EVE_I = {}, EVE_M = {};
+  function eveningFor(m) {
+    var f = m.f, wd = weekdayOf(m.day), city = cityOf(f.v), W = window.TP_WORDS || {};
+    if (f.a) return [];
+    var cand = PRODUCTS.filter(function (p) {
+      var dv = p.distance_to_venue, o = hoursOn(p, wd);
+      if (!dv || !o || cityOf(dv.venue_ref) !== city) return false;
+      if (dv.venue_ref === f.v) return false; // already in Before the match, After the final whistle or Near the stadium
+      return hm(o.closes) > EVE_FROM;
+    }).sort(function (x, y) { return x.id < y.id ? -1 : x.id > y.id ? 1 : 0; });
+    var n = cand.length, off = n ? fixIndex(m) % n : 0;
+    return cand.map(function (p, j) { return cand[(j + off) % n]; }).slice(0, 3).map(function (p) {
+      var o = hoursOn(p, wd), dv = p.distance_to_venue, id = 'p:' + p.id + ':' + f.d, tag = W.eveningTag || 'Evening';
+      var price = p.pricing ? (p.pricing.is_free ? 'free' : p.pricing.band) : '';
+      var why = ['Open on ' + f.d + ', ' + clock(o.opens) + ' to ' + clock(o.closes), price, (p.address && p.address.suburb) || ''].filter(Boolean).join(' \u00b7 ');
+      ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: tag, place: p.address && p.address.suburb, day: f.d, matchName: matchName(f), evening: true };
+      MODAL[id] = { type: 'product', p: p, f: f, o: o, why: why };
+      EVE_I[id] = ITEMS[id]; EVE_M[id] = MODAL[id];
+      return { p: p, id: id, why: why, f: f, tag: tag };
+    });
+  }
+  function eveningHtml(m, cls) {
+    var list = eveningFor(m); if (!list.length) return ''; // none open that evening: no label at all
+    var W = window.TP_WORDS || {};
+    return '<h5 class="tp-grp' + (cls ? ' ' + cls : '') + '">' + esc(W.notGoing || 'Not going to the match?') + '</h5><div class="tp-pcs tp-eve">' +
+      list.map(function (x) { return productCard(x.p, x.why, x.id, x.f, x.tag); }).join('') + '</div>';
+  }
+  // The plan's day card asks for the same list (concepts-plan.js), for the day's NSW match
+  tp.eveningHtml = function (m) { return eveningHtml(m, 'tp-dc-grp');
   }
   /* Getting there and back on a match day (PLACEHOLDER transport details, proposed contract field
      getting_there.event_day, gap). One line at the top of the day, from where they are staying (the venue's default
@@ -542,6 +577,7 @@
       h += '</div>';
     });
     if (!any) h += '<p class="tp-empty">Nothing listed near ' + esc(f.v) + ' is open on ' + esc(f.d) + ' yet.</p>';
+    h += eveningHtml(m);
     // A local makes a day of it: the attractions around that stadium, and on a weekend the other weekend day too
     if (M.local) {
       h += '<h5 class="tp-grp">Make a day of it</h5>';
@@ -1644,7 +1680,7 @@
       void pm.offsetWidth;
       tp.stackOpen(pm, opener);
       pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-      tp.say(isPoi || isIdea ? (isPoi ? poiP.title : ideaI.title) + ', details opened.' : isIdeas ? 'Ideas for ' + (freeInfo(tlIdeasDay) || {}).label + ', opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it.title + ', ' + x.it.day) + ', details opened.');
+      tp.say(isPoi || isIdea ? (isPoi ? poiP.title : ideaI.title) + ', details opened.' : isIdeas ? 'Ideas for ' + (freeInfo(tlIdeasDay) || {}).label + ', opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.it ? x.it.title + ', ' + x.it.day : x.p ? x.p.title + (x.f ? ', ' + x.f.d : '') : '') + ', details opened.');
       notesRefresh();
       return;
     }
@@ -2108,11 +2144,12 @@
     // Not a button inside a sheet, and not one a sheet has just redrawn away (it is no longer in the page)
     var inIdeas = !!(tlIdeas && tlIdeas.contains(e.target));
     var b = e.target.closest('.tp-add'); if (!b || (pm.contains(b) && !inIdeas) || !b.isConnected) return;
-    var it = ITEMS[b.dataset.item]; if (!it) return;
+    // An evening place keeps its Evening tag even where the map has listed the same place that day
+    var it = (b.closest('.tp-eve') && EVE_I[b.dataset.item]) || ITEMS[b.dataset.item]; if (!it) return;
     if (added(it.id)) {
       tp.removeItem(it.id);
       tp.say(it.title + ' removed from your plan. ' + state.added.length + ' added.');
-      if (!inIdeas) planToast(it.id, it.title, false); else said(it.title + ' removed from your plan.');
+      if (!inIdeas && !b.closest('#tp-tl')) planToast(it.id, it.title, false); else if (inIdeas) said(it.title + ' removed from your plan.');
     } else if (inIdeas) {
       // Added from the ideas sheet: the axis is behind the sheet, so its marker settles with a ring once the sheet closes
       tp.addItem(Object.assign({}, it));
@@ -2120,6 +2157,10 @@
       tp.say(it.title + ' added to your plan on ' + it.day + '. ' + state.added.length + ' added.');
       said(it.title + ' added to your plan on ' + it.day + '.');
       return;
+    } else if (b.closest('#tp-tl')) {
+      // From a card in the open plan (Not going to the match?): it shows on that card at once, so no toast (check 11)
+      tp.addItem(Object.assign({}, it));
+      tp.say(it.title + ' added to your plan on ' + it.day + '. ' + state.added.length + ' saved.');
     } else {
       tp.flyToBar(b);
       tp.addItem(Object.assign({}, it));
@@ -2896,7 +2937,7 @@
       else if (active.dataset.act === 'trip') keep = '#tp-third-trip [data-act="trip"]';
       else if (active.dataset.open && !pm.contains(active)) keep = '[data-open="' + CSS.escape(active.dataset.open) + '"]';
     }
-    ITEMS = {}; MODAL = {};
+    ITEMS = Object.assign({}, EVE_I); MODAL = Object.assign({}, EVE_M); // the plan's evening places keep working between redraws
     renderWatch();
     renderThird();
     renderTripLine();
