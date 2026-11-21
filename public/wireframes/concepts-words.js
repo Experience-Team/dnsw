@@ -27,7 +27,13 @@ window.TP_WORDS = {
   setDays: 'Set your days',
   // Stage C (F-029): the match-day group for whoever is not at the game, and the tag on its places
   notGoing: 'Not going to the match?',
-  eveningTag: 'Evening'
+  eveningTag: 'Evening',
+  // Stage D (F-048): a day whose matches are all interstate, on its card and in the strip's screen reader label
+  awayLine: function (cities) { return 'Away from NSW: ' + cities.join(', '); },
+  awaySay: function (cities) { return 'away from NSW, ' + cities.join(' and '); },
+  // Stage D: the count, with days set and none of the NSW matches inside them; and the number of teams (two or more)
+  noneInDays: 'none in your days',
+  teamsCount: function (n) { return n + ' teams'; }
 };
 
 /* Pool A to F come from the fixtures (team records, match names such as 2nd Pool C v 2nd Pool F), which are also used
