@@ -23,6 +23,7 @@ there). `js/plan-link.js` is the game's side; the page's is "Drop goal: the kick
 | `thk:theme` | page to game | `theme` (`hifi` or `wireframe`), `tokens`: the page's colour and font values | after `thk:ready`, and when the theme switch changes (Stage 3) |
 | `thk:teams` | page to game | `picked`: the planner's picked team names | after `thk:ready` and after any change to the plan or picks (Stage 3) |
 | `thk:card` | game to page | `open`: true or false | when the result card opens or closes; the page head dims while it is open |
+| `thk:open-plan` | game to page | nothing | See your plan on the card's line: the page closes the card, goes to the planner and opens the plan at Saved, not placed yet |
 | `thk:close` | page to game | nothing | a press on the page outside the game, or leaving the tab; the card closes and focus stays where it was |
 
 - Only the data contract's §18 fields cross (name, distance_km, route). Summary and image are not held yet.

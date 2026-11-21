@@ -10,6 +10,8 @@
 //   thk:teams    page -> game  { picked: [team names] }, the teams picked in the planner (Stage 3): they come first
 //                              in the team row, and the first is the kicker unless a team was chosen here
 //   thk:card     game -> page  { open: true | false }, when the result card opens or closes, so the page head dims
+//   thk:open-plan game -> page  See your plan on the card's line: the page closes the card, goes to the planner and
+//                              opens the plan at Saved, not placed yet
 //   thk:close    page -> game  a press on the page outside the game, or leaving the tab: the card closes (silently,
 //                              so focus stays where the person pressed)
 // Opened on its own, nothing answers, and saves stay in this page's memory as before.
@@ -18,6 +20,7 @@
   const ORIGIN = location.origin;
   const post = msg => { try { window.parent.postMessage(msg, ORIGIN); } catch (e) {} };
   window.planLink = {
+    openPlan() { post({ type: "thk:open-plan" }); },
     send(on, i) {
       const R = ROUTES[routeKey], z = R.zones[i];
       if (on) post({ type: "thk:save", name: z[0], distance_km: typeof z[1] === "number" ? z[1] : null,
@@ -57,7 +60,7 @@
     // Changed in the plan (removed there, Clear plan, Reset) while this card is open: the button follows, and a line
     // already showing is brought up to date rather than describing the change before
     updateSave();
-    if ($("cardStatus").textContent) cardStatus(open + (now ? " is in your plan." : " is no longer in your plan."));
+    if ($("cardStatus").textContent) cardStatus(now ? open + " is in your plan." : open + " is no longer in your plan.", now);
   });
   post({ type: "thk:ready" });
 })();
