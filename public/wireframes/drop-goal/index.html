@@ -31,7 +31,7 @@
       <p class="kicker" id="cardKicker">The ball landed in …</p>
       <div class="name-row">
         <h2 id="cardName" tabindex="-1">Place</h2>
-        <button class="save" id="btnSave" aria-pressed="false"><span>+ to plan</span></button>
+        <button class="save" id="btnSave" aria-pressed="false"><span aria-hidden="true">+</span><span>Add to your plan</span></button>
       </div>
       <div class="tags" id="cardTags"></div>
       <p class="blurb">Placeholder: the summary from this destination's page on sydney.com or visitnsw.com would appear here, with its hero image above.</p>
@@ -41,6 +41,7 @@
       </dl>
       <p class="note-inline" id="cardNote"></p>
       <div class="card-actions">
+        <p class="card-status" id="cardStatus" role="status"></p>
         <button id="btnAgain">Kick again</button>
         <button class="ghost" id="btnClose">Close</button>
       </div>
@@ -95,5 +96,6 @@
 <script src="js/zones.js"></script>
 <script src="js/game.js"></script>
 <script src="js/main.js"></script>
+<script src="js/plan-link.js"></script>
 </body>
 </html>

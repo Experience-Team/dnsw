@@ -88,6 +88,9 @@
   var KEY = 'tp-pick-v1';
   // added: things put on the plan (screenings, the village, products); trip: the one optional question's answer
   // tab: which of Your matches and All matches is chosen once a team is picked (kept, like everything else, on reload)
+  // Drop goal's saves (Stage 2): their own line in Saved, not placed yet, and where each route starts (see kickSync)
+  var KICK_NOTE = 'Places from Drop goal stay here; plan a day there yourself.';
+  var KICK_FROM = { sydney: 'Sydney', newcastle: 'Newcastle' };
   var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: true, city: null, v: 2 }, interstate: false, view: 'fan', nswMark: false, notGoing: [] };
   try {
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
@@ -121,7 +124,7 @@
     o.mode = o.base === 'local' ? 'local' : o.from ? 'visiting' : undefined;
     return Object.keys(o).some(function (k) { return o[k]; }) ? o : null;
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} kickSync(); }
   // Tells the annotation layer (prototype-pick-your-team.html) that what is on screen has changed
   // Tells the annotation layer that what is on screen has changed
   function notesOnly() { document.getElementById('tp-phone').dispatchEvent(new CustomEvent('tp:state')); }
@@ -1675,15 +1678,19 @@
     var tlWait = document.getElementById('tp-tl-wait');
     if (tlWait) {
       var wl = state.added.filter(function (it) { return it.unplaced; });
+      // Kick destinations (Drop goal) wait here too but never go onto a day, so the prompt and its actions are only for
+      // the others, and the kick saves get a line of their own (concepts-third-half.js, tp.waiting)
+      var wk = wl.filter(function (it) { return it.kind === 'kick'; }), wm = wl.filter(function (it) { return it.kind !== 'kick'; });
       tlWait.hidden = !wl.length;
       // The prompt under the saves (18 Nov): no team, add one so they can be planned around their matches; no days,
       // set them so each goes onto a free day; days set and still waiting, no free day fits
       var wn = !own() ? 'Add a team so these can be planned around their matches.' + (confirmed ? '' : ' Set your days and each goes onto a free day.')
-        : confirmed ? 'No free day fits ' + (wl.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Set your days and each goes onto a free day.';
-      var wa = (!own() ? '<button type="button" class="tp-link" data-wait-team>Add team</button>' : '') + (confirmed ? '' : '<button type="button" class="tp-link" data-wait-days>Set your days</button>');
+        : confirmed ? 'No free day fits ' + (wm.length === 1 ? 'this' : 'these') + ' yet. Change your days to make room.' : 'Set your days and each goes onto a free day.';
+      if (!wm.length) wn = '';
+      var wa = !wm.length ? '' : (!own() ? '<button type="button" class="tp-link" data-wait-team>Add team</button>' : '') + (confirmed ? '' : '<button type="button" class="tp-link" data-wait-days>Set your days</button>');
       var wh = wl.length ? '<h4 class="tp-tl-wait-h" id="tp-tl-wait-h">Saved, not placed yet</h4><ul>' + wl.map(function (it) {
-        return '<li><span class="tp-tl-wait-t">' + (it.poi ? '<button type="button" class="tp-link tp-place-link" data-open="poi:' + esc(it.poi) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' : esc(it.title)) + (it.fixed ? '<span>, ' + esc(it.fixed) + '</span>' : it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
-      }).join('') + '</ul><p class="tp-tl-wait-n">' + wn + '</p>' + (wa ? '<p class="tp-tl-wait-a">' + wa + '</p>' : '') : '';
+        return '<li><span class="tp-tl-wait-t">' + (it.poi ? '<button type="button" class="tp-link tp-place-link" data-open="poi:' + esc(it.poi) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' : esc(it.title)) + (it.kind === 'kick' ? (function (l) { return l ? '<span>, ' + esc(l) + '</span>' : ''; })(kickLine(it)) : it.fixed ? '<span>, ' + esc(it.fixed) + '</span>' : it.place ? '<span>, ' + esc(it.place) + '</span>' : '') + '</span><button type="button" class="tp-link" data-wait-rm="' + esc(it.id) + '">Remove<span class="visually-hidden"> ' + esc(it.title) + '</span></button></li>';
+      }).join('') + '</ul>' + (wn ? '<p class="tp-tl-wait-n">' + wn + '</p>' : '') + (wk.length ? '<p class="tp-tl-wait-n">' + esc(KICK_NOTE) + '</p>' : '') + (wa ? '<p class="tp-tl-wait-a">' + wa + '</p>' : '') : '';
       if (tlWait.innerHTML !== wh) tlWait.innerHTML = wh;
     }
     var howEl = document.getElementById('tp-tl-how');
@@ -1705,7 +1712,7 @@
       if (added) { tlBadge.style.animation = 'none'; tlBadge.offsetWidth; tlBadge.style.animation = ''; }
     }
     // One prompt at a time: which team first; the trip line only once there is a team
-    tlPrompt.hidden = !none || (!own() && state.added.some(function (it) { return it.unplaced; })); // the saves' box asks instead
+    tlPrompt.hidden = !none || (!own() && state.added.some(function (it) { return it.unplaced && it.kind !== 'kick'; })); // the saves' box asks instead
     if (tsLink) tsLink.hidden = none; // with a team (or every NSW match): add or change them over the plan
     // The key lists only the marker shapes on the axis now
     // Each entry draws its marker exactly as the axis does (the ball in the ring, the screen or pin in the square)
@@ -1858,7 +1865,7 @@
     if (next) next.focus({ preventScroll: true }); else { if (!tlCanvas.hasAttribute('tabindex')) tlCanvas.tabIndex = -1; tlCanvas.focus({ preventScroll: true }); }
   });
   tlClearBtn.addEventListener('click', function () {
-    var by = {}; state.added.forEach(function (x) { var k = x.kind === 'product' ? 'place' : x.kind; by[k] = (by[k] || 0) + 1; });
+    var by = {}; state.added.forEach(function (x) { var k = x.kind === 'product' || x.kind === 'kick' || x.kind === 'poi' ? 'place' : x.kind; /* every kind of place is a place to go; map saves were left out */ by[k] = (by[k] || 0) + 1; });
     var gone = tlClearGone(), off = [], keep = [];
     if (by.match) off.push(tlCount(by.match, 'match you added from All matches', 'matches you added from All matches'));
     if (by.screening) off.push(tlCount(by.screening, 'place to watch', 'places to watch'));
@@ -2238,7 +2245,7 @@
   tsLinkBtn.addEventListener('click', function (e) { tsOpen(e.currentTarget); });
   /* ---------- Added items and the trip answer: used by the Where to watch, Suits your 3rd half and question sections
      (concepts-third-half.js) through window.tpPicker. Saved on this device with the picks. ---------- */
-  function addItem(it) {
+  function addItem(it, quiet) {
     if (state.added.some(function (x) { return x.id === it.id; })) return false;
     // Saved with no team and no days (18 Nov): a thing tied to a date (a screening, a match day idea) waits with the
     // other saves until days are set; setting days puts it on its own date (concepts-third-half.js, slotSaved)
@@ -2246,7 +2253,7 @@
     var firstSave = it.kind !== 'match' && !state.added.some(function (x) { return x.kind !== 'match'; }), barWas = tlOn;
     state.added.push(it); save(); changed(); syncBar();
     // The first save made while the plan bar is out of sight is confirmed where they are (check 11)
-    if (firstSave && !barWas && !tlOpen) toast('Saved to your plan', it.title + (it.unplaced ? ' waits in your plan until you set your days.' : ', ' + it.day + '.'), { label: 'Open your plan', fn: function () { tlSetOpen(true); } });
+    if (firstSave && !barWas && !tlOpen && !quiet) toast('Saved to your plan', it.title + (it.unplaced ? ' waits in your plan until you set your days.' : ', ' + it.day + '.'), { label: 'Open your plan', fn: function () { tlSetOpen(true); } });
     return true;
   }
   function removeItem(id) {
@@ -2320,6 +2327,43 @@
   caption.textContent = CAPTION_REST; capClear();
   restoring = true; renderMatches(); restoring = false;
   syncBar();
+  /* ---------- Drop goal: the kick game's link to the plan (Stage 2, 21 Nov) ----------
+     The game runs in its own iframe (#tp-kick-frame) and never loads here; the two talk only through postMessage, from
+     and to that frame on this origin. Add to your plan on the game's card sends thk:save (or thk:unsave), and the place
+     goes into Saved, not placed yet as kind 'kick', one save per place name, holding only the §18 fields the game sends
+     (name as the title, distance_km and route). It is never slotted onto a day. After any change to the plan (an add,
+     Remove, Clear plan and its Undo, Reset prototype) and when the game says thk:ready, the page sends thk:saved with
+     every kick place in the plan, so the game's button always matches. No toast: the game's card confirms it where
+     the person is (check 11), and the plan bar is away on that tab. */
+  // The line under a kick save's name: "approx. 140 km from Sydney (West route)"; with no distance_km (its empty
+  // state, data contract §18): "From Sydney (West route)"
+  function kickLine(it) {
+    var k = it.kick || {}, r = k.route || {}, from = KICK_FROM[r.start] || '', route = r.label ? ' (' + r.label + ' route)' : '';
+    return (typeof k.distance_km === 'number' ? 'approx. ' + k.distance_km + ' km' + (from ? ' from ' + from : '') : from ? 'From ' + from : '') + route;
+  }
+  function kickFrame() { var f = document.getElementById('tp-kick-frame'); return f && f.contentWindow; }
+  function kickSync() {
+    var w = kickFrame(); if (!w) return;
+    var names = state.added.filter(function (it) { return it.kind === 'kick'; }).map(function (it) { return it.title; });
+    try { w.postMessage({ type: 'thk:saved', names: names }, location.origin); } catch (e) {}
+  }
+  function kickItem(d) {
+    var r = d.route, ok = d && typeof d.name === 'string' && d.name.length > 0 && d.name.length <= 80 &&
+      (d.distance_km === null || (typeof d.distance_km === 'number' && isFinite(d.distance_km) && d.distance_km >= 0)) &&
+      r && (r.start === 'sydney' || r.start === 'newcastle') && typeof r.label === 'string' && r.label.length <= 40 &&
+      r.position === Math.round(r.position) && r.position >= 1 && r.position <= 10;
+    return ok ? { id: 'kick:' + d.name, kind: 'kick', title: d.name, day: '', unplaced: true,
+      kick: { distance_km: d.distance_km, route: { start: r.start, label: r.label, position: r.position } } } : null;
+  }
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (e.origin !== location.origin || !kickFrame() || e.source !== kickFrame() || !d || typeof d.type !== 'string') return;
+    if (d.type === 'thk:ready') kickSync();
+    else if (d.type === 'thk:save') { var it = kickItem(d); if (it && !addItem(it, true)) kickSync(); }
+    else if (d.type === 'thk:unsave' && typeof d.name === 'string') { var n = state.added.length; removeItem('kick:' + d.name); if (state.added.length === n) kickSync(); }
+  });
+  (function () { var f = document.getElementById('tp-kick-frame'); if (f) f.addEventListener('load', kickSync); })();
+
   /* ---------- Reset prototype (a reviewer tool in the section header, not part of the design) ----------
      Back to a first visit: nothing picked, no tickets, nothing saved, the picker view, the hand stacked to deal open
      again, and the phone scrolled to the top. */
@@ -2346,7 +2390,7 @@
     say('Prototype reset. No teams picked.');
   });
 
-  window.tpPicker = { save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, matchClash: matchClash, clashWith: clashWith, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
+  window.tpPicker = { kickLine: kickLine, KICK_NOTE: KICK_NOTE, save: function () { save(); }, stackRegister: stackRegister, tlClash: function (id) { return tlClash[id] || null; }, matchClash: matchClash, clashWith: clashWith, tlSelect: function (k, focus, id) { tlSelect(k, focus, id); }, stackOpen: stackOpen, stackClose: stackClose, stackOn: function () { return stackEl; }, teams: TEAMS, state: state, userMatches: userMatches, addItem: addItem, removeItem: removeItem, setTrip: setTrip,
     flyToBar: flyToBar, tlLand: tlLand, tlSettle: tlSettle, say: say, allMatches: allMatches, inferTrip: inferTrip, closeTimeline: function () { if (tlOpen) tlSetOpen(false); }, openTimeline: function (focusSel) { tlSetOpen(true); var el = focusSel && tlPanel.querySelector(focusSel); if (el) el.focus({ preventScroll: true }); }, side: side, esc: esc, list: list, countPhrase: countPhrase, isoRange: isoRange, isoDay: isoDay, dayOf: dayOf, reduce: reduce, body: body,
     rugby: function () { return isPicked(RUGBY); }, picked: function () { return state.picked.length > 0; }, own: own,
     // For the match page (concepts-third-half.js): the match by its key, whether a team is picked, picking a team

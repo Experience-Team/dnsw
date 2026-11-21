@@ -5,7 +5,8 @@ let cam = { ...START_CAM };
 let pose = full("set"); pose._key = "set";
 let ball = { x: 0, y: 0.32, rot: -78, show: true };
 let trail = [], flying = false, busy = false, landedZone = -1, lastZone = -1, wind = 0;
-let saved = new Set();
+let saved = new Set();   // place names added to the plan (one save per place, whichever route it was kicked on)
+let cardChanged = false; // something was added or removed on the open card: Close reads Save
 
 /* ---------- Helpers ---------- */
 const sx = wx => 600 + (wx - cam.x) * cam.k;
@@ -252,14 +253,27 @@ function openCard(i, info) {
   $("cardDist").textContent = `approx. ${km} km from ${STARTS[startKey]}`;
   $("cardRoute").textContent = `${R.label}, stop ${i + 1} of ${NZ}`;
   $("cardNote").textContent = info.terrainNote || (info.shortKick ? "Short kick! It rolled to the nearest stop." : info.longKick ? "Huge kick! It ran out of road at the last stop." : "");
+  cardChanged = false; $("btnClose").textContent = "Close"; cardStatus("");
   updateSave();
   const c = $("card"); c.hidden = false; requestAnimationFrame(() => c.classList.add("open"));
   $("cardName").focus();
 }
 function closeCard(silent) { const c = $("card"); c.classList.remove("open"); c.hidden = true; if (!silent) $("btnKick").focus(); }
+const placeName = () => ROUTES[routeKey].zones[landedZone][0];
+// The line in the card's action bar names the latest change, so the confirmation sits where the person acted
+function cardStatus(msg) { $("cardStatus").textContent = msg; $("card").classList.toggle("has-status", !!msg); }
+function toggleSave() {
+  if (landedZone < 0) return;
+  const name = placeName(), on = !saved.has(name);
+  if (on) saved.add(name); else saved.delete(name);
+  if (window.planLink) window.planLink.send(on, landedZone);   // inside the prototype: the plan keeps it (js/plan-link.js)
+  cardChanged = true; $("btnClose").textContent = "Save";      // Save does exactly what Close does
+  cardStatus(name + (on ? " added to your plan." : " removed from your plan."));
+  updateSave();
+}
 function updateSave() {
-  const key = routeKey + ":" + landedZone, on = saved.has(key);
-  $("btnSave").setAttribute("aria-pressed", on); $("btnSave").querySelector("span").textContent = on ? "✓ In your plan" : "+ to plan";
+  const on = landedZone >= 0 && saved.has(placeName()), spans = $("btnSave").querySelectorAll("span");
+  $("btnSave").setAttribute("aria-pressed", on); spans[0].textContent = on ? "✓" : "+"; spans[1].textContent = on ? "Added to your plan" : "Add to your plan";
 }
 function cardImage(i) {
   const R = ROUTES[routeKey], g = R.ground[i];
