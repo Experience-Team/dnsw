@@ -1,10 +1,31 @@
 # The Third Half: kick to NSW (prototype)
 
-> **In this repository** (`public/wireframes/drop-goal/`, 21 Nov 2026): this game is the Drop goal tab of `public/wireframes/prototype-pick-your-team.html`, shown there in an iframe. Stage 1 brought it in unchanged except: the colour configuration tools are folded into a closed "Colour settings (temporary)" disclosure, to be removed later; a closed destination card no longer stays in the Tab order; and `tools/kit-lab.html` was not copied. Its destination fields are §18 of `docs/product-data-contract.md` (`gap`, placeholder fixtures only).
+> **In this repository** (`public/wireframes/drop-goal/`, 21 Nov 2026): this game is the Drop goal tab of `public/wireframes/prototype-pick-your-team.html`, shown there in an iframe. Stage 2 wired Add to your plan to the plan (see Messages). Stage 1 brought it in unchanged except: the colour configuration tools are folded into a closed "Colour settings (temporary)" disclosure, to be removed later; a closed destination card no longer stays in the Tab order; and `tools/kit-lab.html` was not copied. Its destination fields are §18 of `docs/product-data-contract.md` (`gap`, placeholder fixtures only).
 
-A Gorillas-style kicking game for the DNSW Rugby World Cup "Plan your 3rd half" campaign. The player picks a start city and a route, sets angle and power, allows for wind, and kicks. Wherever the ball lands is a real place in Sydney or NSW, and a destination card slides in with a "+ to plan" action.
+A Gorillas-style kicking game for the DNSW Rugby World Cup "Plan your 3rd half" campaign. The player picks a start city and a route, sets angle and power, allows for wind, and kicks. Wherever the ball lands is a real place in Sydney or NSW, and a destination card slides in with a "Add to your plan" action.
 
 Status: working prototype. All destinations, distances, summaries and images are placeholders.
+
+## Messages (inside the prototype)
+
+In the prototype's Drop goal tab the game runs in an iframe and its scripts never load in the page. Add to your plan
+saves the place to the plan's "Saved, not placed yet" group (Stage 2, 21 Nov 2026). The game and the page talk only
+through `postMessage`, same origin only, and each side checks the sender (the parent window here; the game's frame
+there). `js/plan-link.js` is the game's side; the page's is "Drop goal: the kick game's link to the plan" in
+`../concepts-teams.js`.
+
+| Message | Direction | Carries | When |
+|---|---|---|---|
+| `thk:ready` | game to page | nothing | the game has loaded; the page answers with `thk:saved` |
+| `thk:save` | game to page | `name`, `distance_km` (or `null`), `route: { start, label, position }` | Add to your plan pressed |
+| `thk:unsave` | game to page | `name` | Added to your plan pressed again |
+| `thk:saved` | page to game | `names`: every place from the game in the plan | after `thk:ready` and after any change to the plan |
+
+- Only the data contract's §18 fields cross (name, distance_km, route). Summary and image are not held yet.
+- One save per place name: Byron Bay kicked from Sydney or from Newcastle is the same save, and the plan keeps the route
+  and distance it was first saved from.
+- The plan never slots a kick destination onto a day: it stays in Saved, not placed yet.
+- Opened on its own, nothing answers, and saves stay in the page's memory until it is reloaded.
 
 ## Run it
 
@@ -31,6 +52,7 @@ The only external requests are Google Fonts (Space Mono, Archivo).
 | `js/zones.js` | Landing-zone sizing for equal exposure, the player model, Blue Mountains terrain |
 | `js/game.js` | State, rendering, physics, kick sequence, camera, destination card, colour pickers |
 | `js/main.js` | Event wiring, start-up, and the `checkDistribution()` dev helper |
+| `js/plan-link.js` | Inside the prototype only: the messages to and from the plan (see Messages). Loads last |
 
 Scripts are classic (non-module) and share globals. Load order in `index.html` matters.
 
@@ -85,7 +107,7 @@ File: Rugby-World-Cup (`LwBKfIftpu8erI6WGOi4W1`)
 ## Open items
 1. **Destination content:** verify every stop and distance, especially Newcastle Local, where close stops may be in the wrong order. Pull real summaries, hero images and links from the sydney.com and visitnsw.com destination pages. Check image usage rights.
 2. **Skin fallback** for the 7 teams with no blue or green: one shared neutral, or an agreed non-human accent colour such as teal.
-3. **"+ to plan"** currently toggles in memory only. Connect it to the Plan your 3rd half planner and the save/share lists.
+3. **Add to your plan** (was "+ to plan"): connected to the prototype's plan in Stage 2 (see Messages). On its own the game still keeps saves in memory only.
 4. **Exposure logging:** log the route, stop, angle, power and wind for each kick, to tune zones and to evidence neutrality.
 5. **More terrain:** for example the Liverpool Range on the Hunter Valley route, or the harbour or skyline on Local routes.
 6. **Destination images:** the card shows a drawn placeholder; replace it with real hero images.
