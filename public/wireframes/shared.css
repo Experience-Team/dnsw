@@ -3702,6 +3702,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 #tp-phone.is-kick :is(.tp-tl, .tp-tl-scrim, .tp-skip) { visibility: hidden; }
 #tp-phone.is-kick > .cn-body { padding-bottom: 0; }
 .tp-kick[hidden] { display: none; }
+/* Stage 3: the page's own title and intro above the game (Home's words), 16px above the frame */
+.tp-kick-head { margin: 0 var(--space-5) var(--space-4); }
+.tp-kick-intro { margin: var(--space-2) 0 0; font-size: var(--fs-base); line-height: 1.45; color: var(--c-ink-2); }
 .tp-kick-frame { display: block; width: 100%; height: 640px; border: 0; background: var(--c-surface); }
 /* ---------- Home (19 Nov, Figma 385:649, in this prototype's own styles) ----------
    The first tab. While it shows, everything else in the page body steps aside, as for the being-built page; the plan
@@ -5513,6 +5516,8 @@ span.tp-map-arrow { display: block; }
   /* Drop goal takes the full width too (no rail) and runs to the foot of the window */
   .pv-device #tp-phone.is-kick { --rail-span: 0px; }
   .pv-device #tp-phone.is-kick > .cn-body { padding-bottom: 0; }
+  .pv-device #tp-phone .tp-kick-head { margin-inline: 0; }
+  .pv-device #tp-phone .tp-kick-intro { max-width: 40rem; font-size: var(--fs-lg); line-height: 1.5; }
   .pv-device #tp-phone.is-home > .cn-body { padding-bottom: 160px; }
   .pv-device #tp-phone.is-home .tp-home-video { aspect-ratio: 16 / 7; } /* full width: a wide frame, so the hero fits the window */
   .pv-device #tp-phone.is-home .tp-tl { top: auto; bottom: 24px; left: 0; right: var(--sbw, 0px); margin-inline: auto; width: min(560px, calc(100% - 64px)); box-shadow: var(--shadow-2); }

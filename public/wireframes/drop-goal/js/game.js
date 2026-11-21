@@ -6,6 +6,7 @@ let pose = full("set"); pose._key = "set";
 let ball = { x: 0, y: 0.32, rot: -78, show: true };
 let trail = [], flying = false, busy = false, landedZone = -1, lastZone = -1, wind = 0;
 let saved = new Set();   // place names added to the plan (one save per place, whichever route it was kicked on)
+let teamOrder = null, teamChosen = false;   // inside the prototype: picked teams first; a team chosen here wins
 let cardChanged = false; // something was added or removed on the open card: Close reads Save
 
 /* ---------- Helpers ---------- */
@@ -253,7 +254,7 @@ function openCard(i, info) {
   $("cardDist").textContent = `approx. ${km} km from ${STARTS[startKey]}`;
   $("cardRoute").textContent = `${R.label}, stop ${i + 1} of ${NZ}`;
   $("cardNote").textContent = info.terrainNote || (info.shortKick ? "Short kick! It rolled to the nearest stop." : info.longKick ? "Huge kick! It ran out of road at the last stop." : "");
-  cardChanged = false; $("btnClose").textContent = "Close"; cardStatus("");
+  cardChanged = false; $("btnClose").hidden = true; cardStatus("");   // the cross closes; Save shows once something changes
   updateSave();
   const c = $("card"); c.hidden = false; requestAnimationFrame(() => c.classList.add("open"));
   $("cardName").focus();
@@ -267,7 +268,7 @@ function toggleSave() {
   const name = placeName(), on = !saved.has(name);
   if (on) saved.add(name); else saved.delete(name);
   if (window.planLink) window.planLink.send(on, landedZone);   // inside the prototype: the plan keeps it (js/plan-link.js)
-  cardChanged = true; $("btnClose").textContent = "Save";      // Save does exactly what Close does
+  cardChanged = true; $("btnClose").hidden = false;          // Save does exactly what the cross does
   cardStatus(name + (on ? " added to your plan." : " removed from your plan."));
   updateSave();
 }
@@ -288,7 +289,8 @@ function cardImage(i) {
 /* ---------- Team + curation pickers ---------- */
 function loadTeam(i) { teamIdx = i; const tc = teamCfg(TEAMS[i].code); kitIdx = tc.kit; shadeIdx = tc.skin; }
 function buildPickers() {
-  $("teams").innerHTML = TEAMS.map((t, i) => { const tc = teamCfg(t.code);
+  const order = teamOrder || TEAMS.map((_, i) => i);
+  $("teams").innerHTML = order.map(i => { const t = TEAMS[i], tc = teamCfg(t.code);
     return `<button class="chip" role="radio" aria-checked="${i === teamIdx}" data-i="${i}" title="${t.name}">
       <span class="sw"><span style="background:${kitAdjust(t.jersey, KIT_STEPS[tc.kit])}"></span><span style="background:${skinFor(t, tc.skin).skin}"></span></span>${t.code}${t.skin ? "" : "*"}</button>`; }).join("");
   const t = TEAMS[teamIdx];
@@ -299,7 +301,7 @@ function buildPickers() {
   $("fields").innerHTML = FIELDS.map(f => `<button class="fdot" role="radio" aria-label="Field ${f}" aria-checked="${f.toLowerCase() === fc.toLowerCase()}" data-f="${f}" style="background:${f}"></button>`).join("");
   $("fieldCustom").value = fc; $("fieldPerTeam").checked = cfg.fieldPerTeam;
   $("teamName").textContent = t.name + (t.skin ? "" : " (placeholder skin: no blue or green in palette)") + (cfg.fieldPerTeam ? " · field set per team" : "");
-  document.querySelectorAll(".chip").forEach(b => b.onclick = () => { loadTeam(+b.dataset.i); refreshLook(); });
+  document.querySelectorAll(".chip").forEach(b => b.onclick = () => { teamChosen = true; loadTeam(+b.dataset.i); refreshLook(); });
   document.querySelectorAll(".dot").forEach(b => b.onclick = () => { shadeIdx = +b.dataset.i; setTeamCfg({ skin: shadeIdx }); refreshLook(); });
   document.querySelectorAll(".kitdot").forEach(b => b.onclick = () => { kitIdx = +b.dataset.i; setTeamCfg({ kit: kitIdx }); refreshLook(); });
   document.querySelectorAll(".fdot").forEach(b => b.onclick = () => setField(b.dataset.f));
