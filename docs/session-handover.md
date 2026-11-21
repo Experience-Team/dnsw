@@ -147,7 +147,7 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 
 1. **New, data contract:** #534 added `highlights` (§16 of `docs/product-data-contract.md`, a proposed `gap` field on venue records) without a recorded go-ahead. CLAUDE.md says to stop and ask before using a field outside the contract. Confirm, change or remove it.
 2. **New, CLAUDE.md edits:** checks 7, 10, 11 and 12 were amended or added between 17 and 19 Nov (commits `e0977cb`, `3f073db`, `dd18721`, `26b51da` and `a185d3b`). If any wording went in without being shown first, the user may want to review it.
-3. **New, Home:** the article page (`pages/rwc-article.html`) and Drop goal are not built; is either next?
+3. **New, Home:** the article page (`pages/rwc-article.html`) is not built. Drop goal shows the kick game (Stage 1, 21 Nov); Stages 2 to 5 are still to come.
 4. **From the Where to watch critique, not chosen:** the fair venue rotation picks Wollongong and Newcastle venues for a Sydney match (the nearest fan zone was "used" on the interstate cards). Should proximity win on the night of a fan's own city match?
 5. **At 320 wide:** on the Every NSW match card the wider I have tickets button wraps long names (New Zealand) to two lines.
 6. **From #527, still unanswered:** the open plan's heading repeats "Your plan" from the bar; the end-of-page summary says "added" while the bar says "saved"; a dated save made with no team stays in the box after a team is picked, until days are set.
@@ -164,12 +164,21 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 - **One hand:** the capsule script lends `#tp-picker` to `#tp-home-hand` while Home shows (a comment node marks its planner place). `window.tpView` (`get`, `go`, `reveal`, `lend`); `goTo` reveals a section's tab first.
 - **Placeholders:** the hero video, the Drop goal picture (the Figma reference is a real video game screenshot), FAQ answers, tickets link, transport line, consent wording, the footer, Where to stay in the host city sheet, and the At a glance cards' stand-in photos and bracketed copy.
 - **Since the first build:** Read before you go (`#tp-home-reads`, dummy articles), At a glance as three cards, the stadium cards as a carousel on phones linked to the pins (`concepts-home.js`), highlights at the top of each host city sheet (`cnHostHighlights` in `concepts-fixtures.js`), and the desktop layout (full width, no rail, tabs in the header bar, the plan bar floating at the foot once a team is picked).
-- **Not done yet:** Drop goal itself; the article page; day trips in the host city sheet are listed, not linked (a trip sheet needs a free stretch to fit into).
+- **Not done yet:** Drop goal beyond Stage 1 (see below); the article page; day trips in the host city sheet are listed, not linked (a trip sheet needs a free stretch to fit into).
+
+## Drop goal: the kick game (Stage 1, 21 November)
+
+- **Which:** the Drop goal tab (`?view=kick`) shows the Third Half kick game in place of the being-built page, which is gone. Links ending `?view=kick`, and Home's Play now, now open the game.
+- **Where:** the game is its own folder, `public/wireframes/drop-goal/` (`index.html`, `css/`, `js/`), copied from the package and still runnable on its own, with the package's README.md and CLAUDE.md beside it. Its rules still apply inside it: the blue-or-green skin rule, equal exposure (run `checkDistribution()` in the game's console after any change to physics, wind, routes, terrain or `PLAYER_MODEL`; every stop within about 8 to 12%), placeholder data, no logos, a single rigged SVG, no build step and the script load order.
+- **How it is shown:** an iframe (`#tp-kick-frame` in `#tp-kick`), so none of the game's scripts load in the page. The capsule script sizes it to fill the screen under the capsule (`fitKick`); the page does not scroll on this tab and the game scrolls inside the frame. The plan bar steps aside, as before (`#tp-phone.is-kick`). On the desktop website it runs full width with no rail.
+- **Changed in the game:** only the colour tools (Kit, Skin, Field, Import, Copy curated settings, Reset this team), folded into a closed Colour settings (temporary) disclosure under the team picker, to be removed later. Also one fix: the closed destination card's buttons stayed in the Tab order off screen (`.card`'s `display: flex` overrode `[hidden]`); it is now hidden once it has slid out.
+- **Data:** the destination fields are §18 of the data contract, `gap`, from the game's `ROUTES` fixtures.
+- **Still to come:** Stage 2, + to plan saves to Saved, not placed yet (today it only remembers inside the game, and reads In your plan); Stage 3, the page's themes and the team already picked; Stages 4 and 5 as briefed. Open: the tab is called Drop goal but the game is a kick off a tee; the skin fallback for the 7 teams with no blue or green.
 
 ## Recommended next steps
 
 1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether a parallel session has merged anything since.
 2. Read CLAUDE.md (checks 7, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
 3. Raise open question 1 (the `highlights` field) before any more work on the host city sheets.
-4. Ask the user what is next (Home, Drop goal, the article page or the planner), then open with the scope check and knock-on list before building.
+4. Ask the user what is next (Home, Drop goal Stage 2, the article page or the planner), then open with the scope check and knock-on list before building.
 5. Raise open question 4 (venue proximity) only if the work touches Where to watch.

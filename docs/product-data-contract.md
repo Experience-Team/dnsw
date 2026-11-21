@@ -593,3 +593,32 @@ Not held, and not invented: a match's length or end time, and travel times betwe
   "city": "string"
 }
 ```
+
+---
+
+## 18. Kick destinations
+
+Added 21 November 2026 for the Rugby World Cup prototype's Drop goal tab, confirmed by the user as `gap`. A kick destination is a stop on one of the game's routes: a town or area, not a product, referenced as a `place_ref` (§3) once real records exist. Every field renders from placeholder fixtures only (`ROUTES` in `public/wireframes/drop-goal/js/routes.js`: 8 routes of 10 stops, in approximate road-distance order from Sydney or Newcastle). Each route needs all 10 stops, because the landing zones are sized so every stop catches about 1 in 10 kicks (equal exposure).
+
+**`name`** — `gap`, `source: authored`. The place the ball lands in, the card's heading. Empty state: a route with a stop missing its name is not offered, so exposure stays even across the other routes.
+
+**`distance_km`** — `gap`, `source: derived`. Approximate road distance from the start point, shown as "approx. 85 km from Sydney". Empty state: the Distance row is left out.
+
+**`route`** — `gap`, `source: authored`. The route the stop is on and its position, shown as "North coast, stop 4 of 10". Empty state: none, because a stop always belongs to a route; without a route there is no stop.
+
+**`summary`** — `gap`, `source: authored`, from the destination's page on sydney.com or visitnsw.com. One or two sentences. Empty state: the paragraph is left out. The prototype shows one placeholder sentence for every stop.
+
+**`image`** — `gap`, `source: authored`, the destination page's hero image, with usage rights to check. Empty state: the drawn placeholder illustration the game shows today.
+
+Not held: the card's tags (Day trip, Short trip, Road trip, Near the stadium) and its notes ("Over the bar!", "Short kick!"). The game works these out from the stop's position and the kick, so they are game copy, not data.
+
+```json
+"kick_destination": {
+  "name": "string",
+  "place": "place_ref",
+  "distance_km": "number | null",
+  "route": { "start": "sydney | newcastle", "label": "string", "position": "number" },
+  "summary": "string | null",
+  "image": "image | null"
+}
+```
