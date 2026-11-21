@@ -70,7 +70,8 @@
       if (!kinds.length) kinds.push('Free day');
       var fi = free[d];
       return { d: d, ms: dm, extra: dx, its: its, nights: nights, kinds: kinds, ideas: !!(fi && !fi.filled) && !dm.length,
-        empty: !dm.length && !dx.length && !its.length && !nights.length };
+        // The arrival and last day keep their own card, with Add ideas, and never fold into a run of free days (E2)
+        empty: !dm.length && !dx.length && !its.length && !nights.length && !(range && range.a !== range.z && (d === range.a || d === range.z)) };
     });
     return { range: range, own: own, days: out, n: days.length, first: days[0] };
   }
@@ -355,10 +356,11 @@
   // at: { day, note } when the page asks for a day (See your match day, 20 Nov); a day with no card (outside your days)
   // falls back to the rule, and the note says why
   var outNote = '';
-  /* Reopening in the same visit (22 Nov, E1): the plan comes back to the day last open when it closed, or to the day
-     last added to since then. The first open of a visit (and a reload) keeps the rule above. */
+  /* Reopening in the same visit (22 Nov, E1): the plan comes back to the day last added to since it was last opened,
+     else to the day last open when it closed. The first open of a visit (and a reload) keeps the rule above. */
   var lastOpen = null, addedSince = null, seenIds = null;
-  document.getElementById('tp-phone').addEventListener('tp:tlclose', function () { lastOpen = current; addedSince = null; });
+  // Something added while it was open wins over where they were looking when they closed it
+  document.getElementById('tp-phone').addEventListener('tp:tlclose', function () { lastOpen = addedSince !== null ? addedSince : current; addedSince = null; });
   function noteAdds() {
     var ids = state.added.map(function (x) { return x.id; });
     if (seenIds) state.added.forEach(function (x) { if (seenIds.indexOf(x.id) < 0) { var d = itemDay(x); if (d !== null) addedSince = d; } });
