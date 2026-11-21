@@ -15,7 +15,8 @@
      capsule). The route, ?view=kick and the code keep Drop goal; the markup, annotations and handover say Play. Set here, before the capsule measures its tabs */
   (function () {
     var name = (window.TP_WORDS || {}).play; if (!name) return;
-    var tab = document.querySelector('.tp-cap-i[data-view="kick"]'); if (tab) tab.textContent = name;
+    var tab = document.querySelector('.tp-cap-i[data-view="kick"]');
+    if (tab) { var ph = tab.querySelector('.tp-cap-phone'), dk = tab.querySelector('.tp-cap-desk'); if (ph) ph.textContent = name; else tab.textContent = name; if (dk) dk.textContent = (window.TP_WORDS || {}).playDesktop || name; }
     var h = document.getElementById('tp-home-kick-title'); if (h) h.textContent = name;
     var kt = document.getElementById('tp-kick-title'); if (kt) kt.textContent = name; // the tab's own top heading (21 Nov)
     var sec = document.getElementById('tp-kick'); if (sec) sec.setAttribute('aria-label', name);
