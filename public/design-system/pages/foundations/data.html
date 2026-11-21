@@ -1,0 +1,16 @@
+<h2>The contract is the source of truth</h2>
+<p><code>docs/product-data-contract.md</code> lists every product page field. Do not invent fields. If a design needs one that is not in the contract, stop and ask.</p>
+
+<h2>Field status</h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Status</th><th scope="col">Meaning</th><th scope="col">How to build</th></tr></thead><tbody>
+<tr><td><span class="ds-status ds-status--ok">live</span></td><td>In live data today.</td><td>Build against it.</td></tr>
+<tr><td><span class="ds-status ds-status--draft">gap</span></td><td>Not in live data.</td><td>Render from fixtures only, with the pink marker in wireframes, and define the empty state.</td></tr>
+<tr><td><span class="ds-status ds-status--no">unverified</span></td><td>Not confirmed.</td><td>Do not build against it until confirmed.</td></tr>
+</tbody></table></div>
+
+<h2>Every module defines its empty state</h2>
+<p>For each field a module uses, say what shows when it is missing: hide the line, show a fallback, or hide the module. Write it in the module's annotation, not only in the design.</p>
+<div class="ds-dd"><div class="ds-do"><p>"No opening hours: the line is hidden and the card still shows the price and distance."</p></div><div class="ds-dont"><p>Leave the empty state to whoever builds it.</p></div></div>
+
+<h2>Realistic data</h2>
+<p>Use real data when it is available. When it is not, ask before making it up. Opening hours, prices, travel times, testimonials and usage numbers are never invented.</p>

@@ -1,0 +1,37 @@
+<p>Sheets open where the person is, so the page does not move. Inside a sheet, more detail drills down; over a full-screen layer, a sheet stacks.</p>
+<div data-ds="cards" data-group="components/sheets"></div>
+
+<h2>Anatomy</h2>
+<div class="ds-anatomy">
+<svg viewBox="0 0 560 300" role="img" aria-label="A bottom sheet: grabber at the top centre, close cross top right, back arrow top left on deeper levels, scrolling body, and an optional pinned bottom row.">
+<rect x="1" y="1" width="558" height="298" rx="0" fill="none" stroke="currentColor" stroke-opacity=".25"/>
+<rect x="60" y="40" width="440" height="259" rx="14" fill="none" stroke="currentColor" stroke-width="2"/>
+<rect x="262" y="50" width="36" height="4" rx="2" fill="currentColor"/>
+<path d="M466 66l12 12M478 66l-12 12" stroke="currentColor" stroke-width="2"/>
+<path d="M90 72l-8 6 8 6M82 78h16" stroke="currentColor" stroke-width="2" fill="none"/>
+<rect x="84" y="104" width="220" height="14" rx="3" fill="currentColor" fill-opacity=".5"/>
+<rect x="84" y="128" width="392" height="8" rx="3" fill="currentColor" fill-opacity=".2"/>
+<rect x="84" y="144" width="360" height="8" rx="3" fill="currentColor" fill-opacity=".2"/>
+<rect x="84" y="168" width="392" height="60" rx="6" fill="currentColor" fill-opacity=".08"/>
+<line x1="60" y1="248" x2="500" y2="248" stroke="currentColor" stroke-opacity=".3"/>
+<rect x="84" y="260" width="392" height="28" rx="14" fill="currentColor"/>
+<g font-family="system-ui,sans-serif" font-size="13" fill="currentColor"><text x="300" y="30">1</text><text x="510" y="76">2</text><text x="40" y="82">3</text><text x="40" y="160">4</text><text x="40" y="280">5</text></g>
+</svg>
+<ol><li>Grabber: tap or drag to go back a step.</li><li>Close cross: top right, 16px from the edge, on every sheet and layer. Closes the whole sheet.</li><li>Back arrow: top left, only below the first level.</li><li>Body: scrolls inside the sheet.</li><li>Pinned bottom row (optional): the sheet's main action.</li></ol>
+</div>
+
+<h2>Controls</h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Control</th><th scope="col">Does</th></tr></thead><tbody>
+<tr><td>Close cross</td><td>Closes the whole sheet, drill levels and all. Over a layer, closes the sheet and leaves the layer open.</td></tr>
+<tr><td>Back arrow</td><td>Back one level.</td></tr>
+<tr><td>Escape</td><td>Back one step; closes the sheet at its first level.</td></tr>
+<tr><td>Grabber tap, or drag past a third of the height, or a flick</td><td>Back one step; closes at the first level. A shorter drag springs back.</td></tr>
+<tr><td>The dark area behind</td><td>Closes everything.</td></tr>
+</tbody></table></div>
+<p>Every grabber works. Nothing draws a grabber that does nothing.</p>
+
+<h2>Focus and announcements</h2>
+<ul><li>Focus moves into the sheet when it opens and stays there (Tab cycles inside the top sheet).</li><li>Focus returns to whatever opened the level just closed.</li><li>Announce "[name], details opened." and "Back to [title]."</li></ul>
+
+<h2>Where it lives in the code</h2>
+<p>Sheets are built in <code>concepts-third-half.js</code> (<code>pmPush</code> for drilling, <code>tpPicker.stackOpen</code> for stacking) with <code>.cn-pp</code>, <code>.tp-pm</code>, <code>.tp-stack</code> and <code>.cn-grabber</code> in <code>shared.css</code>. A live example is planned for version 0.2; until then, see them in the <a href="/wireframes/prototype-pick-your-team.html">Pick your team prototype</a>.</p>

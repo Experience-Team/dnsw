@@ -1,0 +1,57 @@
+/* Inside the prototype (Stage 3, 21 Nov 2026). The Drop goal tab shows this game in an iframe; index.html adds
+   .embedded to <html> when it runs in a frame. The page sends its current theme as values (thk:theme, js/plan-link.js),
+   set here as --e-* custom properties, so the game's controls and card follow the page's low or high fidelity theme
+   and its switch, with one source for every value. The pitch, posts, player and route bar stay in colour in both
+   themes: the scene is the content, as a photo would be. Opened on its own, none of this applies. */
+
+/* High fidelity's stand-in fonts, the same files as themes/hifi.css (see assets/fonts/README.md) */
+@font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 400; font-display: swap; src: url('../../assets/fonts/ibm-plex-sans-condensed-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 600; font-display: swap; src: url('../../assets/fonts/ibm-plex-sans-condensed-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../assets/fonts/ibm-plex-sans-condensed-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url('../../assets/fonts/ibm-plex-mono-latin-700-normal.woff2') format('woff2'); }
+
+html.embedded {
+  --ink: var(--e-c-ink, #1a1a1a);
+  --muted: var(--e-c-ink-2, #4d4d4d);
+  --panel: var(--e-c-surface, #fff);
+}
+html.embedded body { font-family: var(--e-font-body, system-ui, sans-serif); background: var(--e-c-surface, #fff); color: var(--e-c-ink, #1a1a1a); }
+
+/* The page shows its own "Drop goal" title and intro above the frame, and its own logo: the game's heading, the mark on
+   the pitch and the placeholder notes (now in the Drop goal annotation) step aside */
+html.embedded body > header, html.embedded #mark, html.embedded .note { display: none; }
+html.embedded .stage-wrap { margin-top: 0; }
+
+/* Controls */
+html.embedded .group label, html.embedded .group .lbl { font-family: var(--e-font-label, inherit); color: var(--e-c-ink-2, #4d4d4d); }
+html.embedded .route, html.embedded .kick { font-family: inherit; border: 1px solid var(--e-c-line-ink, #1a1a1a); background: var(--e-c-surface, #fff); color: var(--e-c-ink, #1a1a1a); }
+html.embedded .route[aria-pressed="true"] { background: var(--e-c-btn, #1f1f1f); border-color: var(--e-c-btn, #1f1f1f); color: var(--e-c-on-dark, #fff); }
+html.embedded .kick { background: var(--e-c-accent, #2666d9); border-color: var(--e-c-accent, #2666d9); color: var(--e-c-on-accent, #fff); }
+html.embedded .slider input { accent-color: var(--e-c-btn, #1f1f1f); }
+html.embedded .est, html.embedded .hint, html.embedded .teamname { color: var(--e-c-ink-2, #4d4d4d); }
+html.embedded .chip { background: var(--e-c-surface-2, #f5f5f5); color: var(--e-c-ink, #1a1a1a); font-family: inherit; }
+html.embedded .curate { background: var(--e-c-surface-2, #f5f5f5); }
+html.embedded .curate button.pill { border-width: 1px; background: var(--e-c-surface, #fff); color: var(--e-c-ink, #1a1a1a); }
+html.embedded :is(.route, .kick, .chip, .save, .card-actions button, .card-x, .curate-wrap > summary):focus-visible { outline: 2px solid var(--e-c-focus, #005ea2); outline-offset: 2px; }
+
+/* The result card as one of the page's sheets: its surface, ink and type, no brand stripes */
+html.embedded .card { background: var(--e-c-surface, #fff); color: var(--e-c-ink, #1a1a1a); border-left: 0; box-shadow: 0 -8px 24px rgba(0,0,0,.16);
+                      font-family: var(--e-font-body, system-ui, sans-serif); border-radius: 12px; }
+html.embedded .card-inner { margin: 0 16px; }
+html.embedded .card h2 { font-family: var(--e-font-display, inherit); }
+html.embedded .card-x { background: var(--e-c-surface, #fff); color: var(--e-c-ink, #1a1a1a); }
+html.embedded .card-actions { background: var(--e-c-surface, #fff); border-top-color: var(--e-c-line-soft, #e6e6e6); }   /* faint, as the Kick bar */
+html.embedded .card-actions::before { background: linear-gradient(to bottom, transparent, var(--e-c-surface, #fff)); }
+html.embedded .card-actions button { border-width: 1px; background: var(--e-c-btn, #1f1f1f); border-color: var(--e-c-btn, #1f1f1f); color: var(--e-c-on-dark, #fff); }
+html.embedded .card-actions button.ghost { background: transparent; border-color: var(--e-c-line-ink, #1a1a1a); color: var(--e-c-ink, #1a1a1a); }
+html.embedded .save { border-width: 1px; border-color: var(--e-c-line-ink, #1a1a1a); color: var(--e-c-ink, #1a1a1a); }
+html.embedded .save[aria-pressed="true"] { background: var(--e-c-btn, #1f1f1f); border-color: var(--e-c-btn, #1f1f1f); color: var(--e-c-on-dark, #fff); }
+html.embedded .tags span { background: var(--e-c-surface-2, #f5f5f5); color: var(--e-c-ink, #1a1a1a); }
+html.embedded .facts { border-color: var(--e-c-line, #d9d9d9); }
+html.embedded :is(.blurb, .note-inline, .kicker) { color: var(--e-c-ink-2, #4d4d4d); }
+@media (max-width: 760px) { html.embedded .card { border-radius: 12px 12px 0 0; } }
+/* Low fidelity: the card's drawn picture reads as the page's grey placeholder */
+html.embedded[data-theme="wireframe"] .card-img { filter: grayscale(1); }
+/* Desktop: the page's own column sets the edges, so the game lines up with the title above it */
+@media (min-width: 1024px) { html.embedded body { padding-inline: 0; } }
+html.embedded .kick-bar { background: var(--e-c-surface, #fff); border-top-color: var(--e-c-line-soft, #e6e6e6); }

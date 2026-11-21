@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DNSW Design System</title>
+  <meta name="description" content="Tokens, components and rules for DNSW sites and campaigns, read live from the code.">
+  <link rel="stylesheet" href="/design-system/ds.css">
+  <script>
+    /* Colour scheme before first paint, so a dark-mode reader never sees a light flash */
+    try { var s = localStorage.getItem('ds-scheme'); if (s) document.documentElement.setAttribute('data-ds-scheme', s); } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="ds-skip" href="#ds-main">Skip to content</a>
+
+  <!-- Phone and tablet: a top bar with the menu button -->
+  <header class="ds-topbar">
+    <button type="button" class="ds-icon-btn" id="ds-menu-open" aria-label="Open menu" aria-expanded="false" aria-controls="ds-drawer"></button>
+    <a class="ds-topbar-title" href="/design-system/">DNSW Design System</a>
+    <button type="button" class="ds-icon-btn" data-ds-search aria-label="Search"></button>
+  </header>
+
+  <!-- Desktop: the rail of sections, and the drawer with the current section's pages -->
+  <nav class="ds-rail" aria-label="Sections">
+    <button type="button" class="ds-search-btn" data-ds-search aria-label="Search (press /)"></button>
+    <ul class="ds-rail-list" id="ds-rail-list"></ul>
+    <div class="ds-rail-foot">
+      <button type="button" class="ds-icon-btn ds-icon-btn--ring" id="ds-pin" aria-pressed="true"></button>
+      <button type="button" class="ds-icon-btn ds-icon-btn--ring" id="ds-scheme"></button>
+    </div>
+  </nav>
+
+  <div class="ds-scrim" id="ds-scrim" hidden></div>
+  <nav class="ds-drawer" id="ds-drawer" aria-label="Pages">
+    <div class="ds-drawer-head">
+      <span class="ds-drawer-title" id="ds-drawer-title"></span>
+      <button type="button" class="ds-icon-btn ds-drawer-close" id="ds-menu-close" aria-label="Close menu"></button>
+    </div>
+    <div class="ds-drawer-body" id="ds-drawer-body"></div>
+  </nav>
+
+  <main class="ds-main" id="ds-main" tabindex="-1">
+    <div class="ds-page" id="ds-page"></div>
+  </main>
+
+  <div class="ds-live visually-hidden" id="ds-live" aria-live="polite"></div>
+
+  <dialog class="ds-search" id="ds-search" aria-label="Search the design system">
+    <form method="dialog" class="ds-search-form" role="search">
+      <span class="ds-search-ico" aria-hidden="true"></span>
+      <input type="search" id="ds-search-input" placeholder="Search pages and tokens" autocomplete="off" aria-controls="ds-search-results" aria-describedby="ds-search-hint">
+      <button type="button" class="ds-icon-btn" id="ds-search-close" aria-label="Close search"></button>
+    </form>
+    <p class="visually-hidden" id="ds-search-hint">Results update as you type. Use the arrow keys to move through them.</p>
+    <ul class="ds-search-results" id="ds-search-results" role="listbox" aria-label="Results"></ul>
+  </dialog>
+
+  <script src="/design-system/nav.js"></script>
+  <script src="/design-system/tokens.js"></script>
+  <script src="/design-system/ds.js"></script>
+</body>
+</html>

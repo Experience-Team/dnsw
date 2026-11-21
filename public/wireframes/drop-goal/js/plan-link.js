@@ -5,6 +5,10 @@
 //   thk:save     game -> page  { name, distance_km, route: { start, label, position } }, the §18 fields the game holds
 //   thk:unsave   game -> page  { name }
 //   thk:saved    page -> game  { names: [...] }, every place from the game in the plan, after any change to the plan
+//   thk:theme    page -> game  { theme: "hifi" | "wireframe", tokens: { "c-ink": "#111", ... } }, the page's theme values
+//                              (Stage 3), on load and when the theme switch changes; set as --e-* (css/embed.css)
+//   thk:teams    page -> game  { picked: [team names] }, the teams picked in the planner (Stage 3): they come first
+//                              in the team row, and the first is the kicker unless a team was chosen here
 // Opened on its own, nothing answers, and saves stay in this page's memory as before.
 (function () {
   if (window.parent === window) return;
@@ -18,9 +22,25 @@
       else post({ type: "thk:unsave", name: z[0] });
     }
   };
+  const TOKEN = /^[a-z0-9-]{1,40}$/;
+  function applyTheme(d) {
+    const root = document.documentElement, t = d.tokens && typeof d.tokens === "object" ? d.tokens : {};
+    root.setAttribute("data-theme", d.theme === "hifi" ? "hifi" : "wireframe");
+    Object.keys(t).forEach(k => { const v = t[k]; if (TOKEN.test(k) && typeof v === "string" && v.length <= 200) root.style.setProperty("--e-" + k, v.trim()); });
+  }
+  function applyTeams(d) {
+    if (busy) { setTimeout(() => applyTeams(d), 400); return; }   // not mid-kick: the team row is disabled then
+    const picked = d.picked.map(n => TEAMS.findIndex(t => t.name === n)).filter(i => i > -1);
+    teamOrder = picked.concat(TEAMS.map((_, i) => i).filter(i => picked.indexOf(i) < 0));
+    if (picked.length && !teamChosen) loadTeam(picked[0]);
+    refreshLook();
+  }
   window.addEventListener("message", e => {
     const d = e.data;
-    if (e.source !== window.parent || e.origin !== ORIGIN || !d || d.type !== "thk:saved" || !Array.isArray(d.names)) return;
+    if (e.source !== window.parent || e.origin !== ORIGIN || !d) return;
+    if (d.type === "thk:theme") { applyTheme(d); return; }
+    if (d.type === "thk:teams" && Array.isArray(d.picked)) { applyTeams(d); return; }
+    if (d.type !== "thk:saved" || !Array.isArray(d.names)) return;
     const open = !$("card").hidden && landedZone >= 0 ? placeName() : null, was = open !== null && saved.has(open);
     saved.clear(); d.names.forEach(n => { if (typeof n === "string") saved.add(n); });
     if (open === null) return;

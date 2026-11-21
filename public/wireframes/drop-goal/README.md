@@ -1,6 +1,6 @@
 # The Third Half: kick to NSW (prototype)
 
-> **In this repository** (`public/wireframes/drop-goal/`, 21 Nov 2026): this game is the Drop goal tab of `public/wireframes/prototype-pick-your-team.html`, shown there in an iframe. Stage 2 wired Add to your plan to the plan (see Messages). Stage 1 brought it in unchanged except: the colour configuration tools are folded into a closed "Colour settings (temporary)" disclosure, to be removed later; a closed destination card no longer stays in the Tab order; and `tools/kit-lab.html` was not copied. Its destination fields are §18 of `docs/product-data-contract.md` (`gap`, placeholder fixtures only).
+> **In this repository** (`public/wireframes/drop-goal/`, 21 Nov 2026): this game is the Drop goal tab of `public/wireframes/prototype-pick-your-team.html`, shown there in an iframe. Stage 2 wired Add to your plan to the plan, and Stage 3 brought in the page's theme and picked team (see Messages). Stage 3 also gave the result card a close cross, made the pitch stay in view on phones and put the controls beside it on desktops, in both the prototype and on its own. Stage 1 brought it in unchanged except: the colour configuration tools are folded into a closed "Colour settings (temporary)" disclosure, to be removed later; a closed destination card no longer stays in the Tab order; and `tools/kit-lab.html` was not copied. Its destination fields are §18 of `docs/product-data-contract.md` (`gap`, placeholder fixtures only).
 
 A Gorillas-style kicking game for the DNSW Rugby World Cup "Plan your 3rd half" campaign. The player picks a start city and a route, sets angle and power, allows for wind, and kicks. Wherever the ball lands is a real place in Sydney or NSW, and a destination card slides in with a "Add to your plan" action.
 
@@ -20,12 +20,20 @@ there). `js/plan-link.js` is the game's side; the page's is "Drop goal: the kick
 | `thk:save` | game to page | `name`, `distance_km` (or `null`), `route: { start, label, position }` | Add to your plan pressed |
 | `thk:unsave` | game to page | `name` | Added to your plan pressed again |
 | `thk:saved` | page to game | `names`: every place from the game in the plan | after `thk:ready` and after any change to the plan |
+| `thk:theme` | page to game | `theme` (`hifi` or `wireframe`), `tokens`: the page's colour and font values | after `thk:ready`, and when the theme switch changes (Stage 3) |
+| `thk:teams` | page to game | `picked`: the planner's picked team names | after `thk:ready` and after any change to the plan or picks (Stage 3) |
 
 - Only the data contract's §18 fields cross (name, distance_km, route). Summary and image are not held yet.
 - One save per place name: Byron Bay kicked from Sydney or from Newcastle is the same save, and the plan keeps the route
   and distance it was first saved from.
 - The plan never slots a kick destination onto a day: it stays in Saved, not placed yet.
 - Opened on its own, nothing answers, and saves stay in the page's memory until it is reloaded.
+- Theme (Stage 3): `css/embed.css` applies only when the game runs in a frame (`html.embedded`). It maps the controls
+  and the result card onto the page's values (`--e-*`, set from `thk:theme`) and loads high fidelity's IBM Plex
+  stand-ins from `../assets/fonts/`. The pitch, posts, player and route bar keep their colours. The page shows its own
+  "Drop goal" title, so the game's heading, the mark on the pitch and the two notes are hidden there.
+- Teams (Stage 3): picked teams come first in the team row and the first is the kicker, until someone chooses a team
+  in the game; that choice stays in the game and never changes the planner's picks.
 
 ## Run it
 
@@ -52,6 +60,7 @@ The only external requests are Google Fonts (Space Mono, Archivo).
 | `js/zones.js` | Landing-zone sizing for equal exposure, the player model, Blue Mountains terrain |
 | `js/game.js` | State, rendering, physics, kick sequence, camera, destination card, colour pickers |
 | `js/main.js` | Event wiring, start-up, and the `checkDistribution()` dev helper |
+| `css/embed.css` | Inside the prototype only: the page's theme on the controls and card, and what steps aside (Stage 3) |
 | `js/plan-link.js` | Inside the prototype only: the messages to and from the plan (see Messages). Loads last |
 
 Scripts are classic (non-module) and share globals. Load order in `index.html` matters.

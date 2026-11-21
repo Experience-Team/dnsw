@@ -1,0 +1,13 @@
+<h2>Movement can be followed</h2>
+<p>Anything that moves because of a tap or click glides, so the eye can track it from start to end. For example, a picked card travels to the middle of the fan rather than appearing there.</p>
+<ul>
+<li>Check motion frame by frame, not only where it ends up.</li>
+<li>A front-loaded curve such as expo-out covers most of the distance in the first few frames and reads as a jump. Use <code>--ease-out</code> or <code>--ease-in-out</code> from the <a href="/design-system/styles/motion">motion tokens</a>.</li>
+</ul>
+
+<h2>The movement that matters is obvious</h2>
+<p>A change people should notice must be clear at real size and speed. When a whole group moves together (a fan turning, a list shifting), the item the person acted on gets lost, so single it out: lift it, scale it, bring it above its neighbours, then settle it.</p>
+<div class="ds-dd"><div class="ds-do"><p>Judge it from a strip of frames at real size.</p></div><div class="ds-dont"><p>Accept it because the numbers prove it moved.</p></div></div>
+
+<h2>Reduced motion</h2>
+<p>Slides and scales become fades, or swap in place. Durations drop to the shortest fade or to nothing. Meaning never depends on motion.</p>

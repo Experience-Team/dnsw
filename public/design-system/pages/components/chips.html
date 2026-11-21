@@ -1,0 +1,19 @@
+<h2>Single choice</h2>
+<div data-ds="example" data-ex="chips-single" data-title="Single choice chips" data-caption="Class <code>.tp-chip</code> with <code>aria-pressed</code>. Pick a day."></div>
+<p>Pick one from a short set, such as a day. Picking one replaces the last, so exactly one is on.</p>
+
+<h2>Several at once</h2>
+<div data-ds="example" data-ex="chips-multi" data-title="Multi-select chips" data-caption="Pick, unpick, pick Anything, then Clear all."></div>
+<p>Pick any number. Follows the <a href="/design-system/patterns/selection">choosing several things</a> pattern:</p>
+<ul><li>"Anything" replaces the specific picks, and picking a specific one turns "Anything" off. The two never mix.</li><li>Clear all appears once something is picked and clears everything in one action.</li></ul>
+
+<h2>Anatomy</h2>
+<ol><li>Container: 36px high pill, <code>--bw-2</code> line in <code>--c-line-strong</code>.</li><li>Label: <code>--fs-sm</code>, <code>--fw-semi</code>, on one line.</li></ol>
+<h2>States</h2>
+<ul><li><strong>Off:</strong> outline on <code>--c-surface</code>.</li><li><strong>On:</strong> <code>--c-btn</code> fill with <code>--c-on-dark</code> text, and the line in <code>--c-line-ink</code>.</li></ul>
+
+<h2>Accessibility</h2>
+<ul><li>Buttons with <code>aria-pressed</code>, in a group with a label.</li><li>A row that scrolls sideways keeps every chip reachable by Tab.</li></ul>
+
+<h2>Tokens</h2>
+<div data-ds="tokens" data-tokens="--c-surface --c-line-strong --c-line-ink --c-btn --c-on-dark --fs-sm --fw-semi --radius-pill"></div>

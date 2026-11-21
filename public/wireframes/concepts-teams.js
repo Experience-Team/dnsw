@@ -2403,8 +2403,22 @@
   function kickSync() {
     var w = kickFrame(); if (!w) return;
     var names = state.added.filter(function (it) { return it.kind === 'kick'; }).map(function (it) { return it.title; });
-    try { w.postMessage({ type: 'thk:saved', names: names }, location.origin); } catch (e) {}
+    try {
+      w.postMessage({ type: 'thk:saved', names: names }, location.origin);
+      // Stage 3: the planner's picks, so the game's kicker wears the first picked team's kit
+      w.postMessage({ type: 'thk:teams', picked: state.picked.slice() }, location.origin);
+    } catch (e) {}
   }
+  /* Stage 3: the page's theme as values, read from the phone, so the game's controls and card follow low or high
+     fidelity (and the switch) with one source for every value (drop-goal/css/embed.css) */
+  var KICK_TOKENS = ['c-ink', 'c-ink-2', 'c-surface', 'c-surface-2', 'c-btn', 'c-on-dark', 'c-line', 'c-line-soft', 'c-line-ink', 'c-accent', 'c-on-accent', 'c-focus', 'font-body', 'font-display', 'font-label'];
+  function kickTheme() {
+    var w = kickFrame(), ph = document.getElementById('tp-phone'); if (!w || !ph) return;
+    var cs = getComputedStyle(ph), tokens = {};
+    KICK_TOKENS.forEach(function (k) { tokens[k] = cs.getPropertyValue('--' + k).trim(); });
+    try { w.postMessage({ type: 'thk:theme', theme: document.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe', tokens: tokens }, location.origin); } catch (e) {}
+  }
+  if (window.MutationObserver) new MutationObserver(kickTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   function kickItem(d) {
     var r = d.route, ok = d && typeof d.name === 'string' && d.name.length > 0 && d.name.length <= 80 &&
       (d.distance_km === null || (typeof d.distance_km === 'number' && isFinite(d.distance_km) && d.distance_km >= 0)) &&
@@ -2416,11 +2430,11 @@
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (e.origin !== location.origin || !kickFrame() || e.source !== kickFrame() || !d || typeof d.type !== 'string') return;
-    if (d.type === 'thk:ready') kickSync();
+    if (d.type === 'thk:ready') { kickTheme(); kickSync(); }
     else if (d.type === 'thk:save') { var it = kickItem(d); if (it && !addItem(it, true)) kickSync(); }
     else if (d.type === 'thk:unsave' && typeof d.name === 'string') { var n = state.added.length; removeItem('kick:' + d.name); if (state.added.length === n) kickSync(); }
   });
-  (function () { var f = document.getElementById('tp-kick-frame'); if (f) f.addEventListener('load', kickSync); })();
+  (function () { var f = document.getElementById('tp-kick-frame'); if (f) f.addEventListener('load', function () { kickTheme(); kickSync(); }); })();
 
   /* ---------- Reset prototype (a reviewer tool in the section header, not part of the design) ----------
      Back to a first visit: nothing picked, no tickets, nothing saved, the picker view, the hand stacked to deal open

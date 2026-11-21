@@ -1,0 +1,29 @@
+<div class="ds-note ds-note--warn"><span class="ds-note-t">Draft v0.1</span><p>From "The Third Half design guidelines" after Landor's early design development (Figma: Rugby World Cup, page Styling, node 261:13292). Colours were sampled from a PDF and the fonts are stand-ins, so values may change when Landor supplies final ones.</p></div>
+
+<h2>About</h2>
+<p>DNSW's own brand for "Plan your 3rd half", the Rugby World Cup 2027 trip planner. In rugby, the third half is the social part after the game. The brand belongs to DNSW, not to World Rugby, and can be used beyond the tournament.</p>
+<p>Turned on with <code>&lt;html data-theme="hifi"&gt;</code>; file <code>public/wireframes/themes/hifi.css</code>.</p>
+
+<h2>Palette</h2>
+<p>Chalk and ink, with one colourway per layout and volt as the accent. Volt is never a page background.</p>
+<div data-ds="swatches" data-brand="third-half" data-prefix="--tth-color-" data-on="--tth-color-chalk"></div>
+
+<h2>Colourways</h2>
+<p>One colourway per layout, always paired with chalk. Orange is the default; set <code>data-colourway</code> on <code>&lt;html&gt;</code> for another.</p>
+<div class="ds-group"><div data-ds="swatches" data-brand="third-half" data-colourway="orange" data-label="Orange (default)" data-tokens="--tth-surface-brand" data-text="--tth-color-ink"></div>
+<div data-ds="swatches" data-brand="third-half" data-colourway="green" data-label="Green" data-tokens="--tth-surface-brand" data-text="--tth-color-ink"></div>
+<div data-ds="swatches" data-brand="third-half" data-colourway="violet" data-label="Violet" data-tokens="--tth-surface-brand" data-text="--tth-color-ink"></div>
+<div data-ds="swatches" data-brand="third-half" data-colourway="clay" data-label="Clay" data-tokens="--tth-surface-brand" data-text="--tth-color-ink"></div></div>
+
+<h2>Rules</h2>
+<ul>
+<li>Chalk on a colourway only at 24px and up (or 19px bold). Smaller text on a colourway is ink.</li>
+<li>Square corners everywhere; no shadows. A sheet's top edge is an ink line.</li>
+<li>1px lines by default; 2px marks a selected state.</li>
+<li>Condensed for body and headings; Mono for short caps labels only.</li>
+<li>One colourway moment per screen (the <a href="/design-system/components/buttons/brand">brand button</a>).</li>
+</ul>
+
+<h2>Figma variables</h2>
+<p>Named as in Figma.</p>
+<div data-ds="tokens" data-brand="third-half" data-prefix="--tth-"></div>
