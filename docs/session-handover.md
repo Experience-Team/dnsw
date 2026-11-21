@@ -256,7 +256,8 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 ## Drop goal on phones (21 Nov, after the critique)
 
 - `/impeccable critique` of the tab (snapshot in `.impeccable/critique/`) scored 20/40; worst on phones. Fixed so far: the P0. On phones the tab opens docked (`kickDock()` in the capsule script: logo row scrolled away, capsule at the top, 24px to the title), the intro is one line (`.tp-kick-more` holds the rest for the desktop website), and `fitKick` sizes the frame for the docked state. The game's card leads with the name and Add, then the picture capped at about 30%.
-- Still to do from the critique, agreed in this order: landscape and short phones (P1, adapt); the card closing from a tap on the page, dimming and closing on tab change (P1, harden); See your plan on the card (P1, clarify); one name, Play, everywhere with a proper heading and page title (P2, clarify); then polish and a re-run of the critique.
+- Landscape and short phones (P1) done: under 620px tall the page hides the title and intro (`is-short` on `#tp-phone`, set in `fitKick`) and the frame has no minimum height; the game's short-wide layout (`@media (min-width: 600px) and (max-width: 1023px) and (max-height: 560px)` in drop-goal/css/styles.css) puts the pitch in a sticky left column capped to the frame, the controls beside it and Kick at their foot.
+- Still to do from the critique, in this order: the card closing from a tap on the page, dimming and closing on tab change (P1, harden); See your plan on the card (P1, clarify); one name, Play, everywhere with a proper heading and page title (P2, clarify); then polish and a re-run of the critique.
 
 ## Rules in line (21 Nov)
 

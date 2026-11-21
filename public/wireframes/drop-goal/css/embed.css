@@ -55,3 +55,4 @@ html.embedded[data-theme="wireframe"] .card-img { filter: grayscale(1); }
 /* Desktop: the page's own column sets the edges, so the game lines up with the title above it */
 @media (min-width: 1024px) { html.embedded body { padding-inline: 0; } }
 html.embedded .kick-bar { background: var(--e-c-surface, #fff); border-top-color: var(--e-c-line-soft, #e6e6e6); }
+@media (min-width: 600px) and (max-width: 1023px) and (max-height: 560px) { html.embedded .card { border-radius: 12px; } }

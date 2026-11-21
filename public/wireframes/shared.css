@@ -3716,6 +3716,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    the page's 44px, so the game starts about 150px down */
 .tp-kick-more { display: none; }
 #tp-phone.is-kick .tp-cap-wrap { margin-bottom: var(--space-5); }
+/* Short screens (under 620px tall: landscape phones, small phones): the title and intro step aside, still read by
+   screen readers, and the game starts 16px under the docked capsule */
+#tp-phone.is-kick.is-short .tp-kick-head { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#tp-phone.is-kick.is-short .tp-cap-wrap { margin-bottom: var(--space-4); }
 .tp-kick-frame { display: block; width: 100%; height: 640px; border: 0; background: var(--c-surface); }
 /* ---------- Home (19 Nov, Figma 385:649, in this prototype's own styles) ----------
    The first tab. While it shows, everything else in the page body steps aside, as for the being-built page; the plan
