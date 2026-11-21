@@ -3169,7 +3169,14 @@ body.cp-page code { font: inherit; }
 .tp-tl-label { font-size: var(--fs-xs); font-weight: var(--fw-semi); line-height: 1.3; color: var(--c-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tp-tl-label.is-hook { color: var(--c-accent-ink); }
 .tp-tl-value { font-size: var(--fs-lg); font-weight: var(--fw-bold); line-height: 1.2; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tp-tl-exp { position: absolute; top: 22px; right: 16px; display: grid; place-items: center; width: 36px; height: 36px; border: var(--bw-2) solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); }
+/* The way back to the plan has a word (21 Nov, F-046): Your plan (3) and the arrow, a pill on the bar's top row, so
+   the count line under it keeps the bar's full width. Part of the bar's one button (aria-hidden: the bar's own name
+   is read) */
+.tp-tl-exp { position: absolute; top: 10px; right: 16px; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 9px 0 12px; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1; white-space: nowrap; }
+.tp-tl-word { display: block; }
+.tp-tl-word.is-pop { animation: cn-pop var(--dur-small) var(--ease-spring); }
+.tp-tl-sum { right: 16px; }
+.tp-tl-label { max-width: calc(100% - var(--tl-word-w, 140px) - 12px); }
 .tp-tl-exp svg { transition: transform .3s cubic-bezier(.16, 1, .3, 1); }
 .tp-tl.is-open .tp-tl-exp svg { transform: rotate(180deg); }
 .tp-tl-badge { position: absolute; top: -7px; right: -9px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--c-accent); color: var(--c-on-accent); font-size: var(--fs-2xs); font-weight: var(--fw-bold); line-height: 1; box-shadow: 0 0 0 2px var(--c-surface); animation: cn-pop var(--dur-small) var(--ease-spring); }
@@ -5619,9 +5626,9 @@ span.tp-map-arrow { display: block; }
 
 /* Saving without a team (18 Nov): Add team on the plan bar, to the left of the open control, level with the value; the
    value gives it room. Hidden on the open plan, where the saves' box and the team prompt ask instead */
-.tp-tl-addteam { position: absolute; top: 34px; right: 64px; z-index: 1; min-height: 24px; font-size: var(--fs-md); }
+.tp-tl-addteam { position: absolute; top: 37px; right: 16px; z-index: 1; min-height: 24px; font-size: var(--fs-md); } /* on the count's row, under the Your plan pill (21 Nov) */
 .tp-tl-addteam[hidden], .tp-tl.is-open .tp-tl-addteam { display: none; }
-.tp-tl.has-addteam:not(.is-open) .tp-tl-sum { right: 150px; }
+.tp-tl.has-addteam:not(.is-open) .tp-tl-value { margin-right: 100px; } /* Add team sits on the count's row; the top row keeps its width for the pill */
 .tp-tl-wait-a { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 0; font-size: var(--fs-sm); }
 .tp-tl-wait-a .tp-link { min-height: 24px; }
 
@@ -5713,3 +5720,17 @@ span.tp-map-arrow { display: block; }
    and clipped within it, not against the panel, which they stretched to 3,306px in swipe by day. */
 .tp-tl-panel { overflow-x: hidden; }
 .tp-dc-track, .tp-wcs--car, .tp-home-cities.is-car { position: relative; }
+
+/* Placeholders with Annotations off (21 Nov, F-052): a visitor sees no "Placeholder", "Not linked yet", bracketed
+   copy or dead link. Where there is no real wording the item or tag is hidden; with Annotations on (the stage's
+   has-notes) everything shows as before, pink gap marks included, so the gaps stay visible to the team */
+#tp-stage:not(.has-notes) .tp-ph,
+#tp-stage:not(.has-notes) .tp-home-ph,
+#tp-stage:not(.has-notes) .tp-go-tag,
+#tp-stage:not(.has-notes) .tp-go-ph,
+#tp-stage:not(.has-notes) .tp-pm-full,
+#tp-stage:not(.has-notes) .tp-pm-soon,
+#tp-stage:not(.has-notes) .tp-ov-m.is-q,
+#tp-stage:not(.has-notes) .tp-out[href="#"],
+#tp-stage:not(.has-notes) #tp-home-faq,
+#tp-stage:not(.has-notes) [data-home-jump="tp-home-faq"] { display: none !important; }

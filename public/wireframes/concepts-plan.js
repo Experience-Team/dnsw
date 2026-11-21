@@ -15,6 +15,7 @@
    shows; ideas, places saved from the map and trips have none, so none is shown. Pictures are the stand-ins
    pv-device.js paints by name (grey in the wireframe). */
 (function () {
+  var TBC = (window.TP_WORDS || {}).timeTbc || 'Time to be confirmed', TBC_L = TBC.charAt(0).toLowerCase() + TBC.slice(1); // A2 (21 Nov): concepts-words.js
   var root = document.getElementById('tp-dc'), tp = window.tpPicker;
   if (!root || !tp) return;
   var html = document.documentElement, state = tp.state, esc = tp.esc;
@@ -90,7 +91,7 @@
     var f = m.f, where = f.a ? f.v + ', ' + f.a + ' (interstate)' : f.v + ', ' + f.p, tix = !watchOnly && !!m.tkey;
     return '<li class="tp-dc-m' + (f.a ? ' is-away' : '') + (tix ? ' has-tix' : '') + '">' + flags(f) +
       '<div class="tp-dc-m-b"><button type="button" class="tp-dc-name" data-dc-match="' + esc(m.key) + '" aria-haspopup="dialog">' + esc(mName(f)) + '</button>' +
-      '<span class="tp-dc-time">' + (f.k ? esc(f.k) + ' Sydney time' : 'Time to be confirmed') + '</span>' +
+      '<span class="tp-dc-time">' + (f.k ? esc(f.k) + ' Sydney time' : TBC) + '</span>' +
       '<span class="tp-dc-where">' + esc(where) + '</span>' +
       (tix ? '' : '<span class="tp-dc-tk">' + (watchOnly ? 'To watch in NSW, not in your plan' : 'Teams to be decided') + '</span>') + '</div>' +
       (tix ? '<button type="button" class="tc-act tc-tix tp-dc-tix" data-ticket="' + esc(m.tkey) + '" aria-pressed="' + hasTicket(m) + '">' + I_TIX + '<span>I have tickets</span><span class="visually-hidden">: ' + esc(mName(f)) + ', ' + esc(f.d) + '</span></button>' : '') + '</li>';
