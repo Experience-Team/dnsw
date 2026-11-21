@@ -174,6 +174,7 @@ function updateEstimate() {
 /* ---------- The kick ---------- */
 async function kick() {
   if (busy) return; busy = true; setDisabled(true); closeCard(true);
+  $("btnKick").textContent = "Kicking…";   // while the ball flies: busy, not broken (polish, 21 Nov)
   landedZone = -1; trail = [];
   await tweenTo("run1", 240); await tweenTo("run2", 200); await tweenTo("plant", 170); await tweenTo("contact", 90, t => t);
 
