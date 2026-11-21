@@ -96,3 +96,10 @@
      unchanged. Reduced motion: at once */
   .card[hidden] { visibility: hidden; transition: transform .45s cubic-bezier(.2,.8,.2,1), visibility 0s linear .45s; }
   @media (prefers-reduced-motion: reduce) { .card[hidden] { transition: none; } }
+
+  /* Stage 2: Add to your plan. The heading and the button share a row while they fit; a long name pushes the button
+     under it rather than squeezing either. The action bar's first line names the latest change on this card */
+  .name-row { flex-wrap: wrap; }
+  .name-row h2 { min-width: 0; }
+  .card-status { flex: 1 0 100%; margin: 0 0 2px; font-size: 13px; font-weight: 600; }
+  .card-status:empty { display: none; }
