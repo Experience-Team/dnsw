@@ -151,9 +151,9 @@
         (fd ? '<button type="button" class="tp-dc-ideas" data-dc-ideas="' + fd.d + '" aria-haspopup="dialog">' + window.tpIcons.add + '<span>Add ideas</span></button>' : '') +
         '<button type="button" class="tp-link" data-dc-expand="' + esc(g.key) + '" aria-expanded="false">Show each day</button></div>';
     } else {
-      // Matches they are going to that clash (tp.matchClash in concepts-teams.js): one plain line under the heading
+      // Matches at the same time, or in several cities (tp.matchClash in concepts-teams.js): one plain line under the heading
       var mc = tp.matchClash ? tp.matchClash(a) : null;
-      if (mc) h += '<p class="tp-dc-mclash">' + esc(mc.line) + '</p>';
+      if (mc) h += '<p class="tp-dc-mclash' + (mc.ring ? '' : ' is-quiet') + '">' + esc(mc.line) + '</p>';
       h += dayBody(g.days[0]);
     }
     return h + '</article>';
@@ -162,9 +162,9 @@
     return M.days.map(function (day) {
       var x = dateOf(day.d), nAdd = day.its.length + day.nights.length;
       var mc = tp.matchClash ? tp.matchClash(day.d) : null;
-      var match = day.ms[0], label = dayLabel(day.d) + ', ' + day.kinds.join(', ').toLowerCase() + (match ? ', ' + tp.list(day.ms.map(function (m) { return mName(m.f); })) : '') +
-        (mc ? ', ' + mc.say : '') + ', ' + (nAdd ? nAdd + (nAdd === 1 ? ' thing added' : ' things added') : 'nothing added');
-      return '<button type="button" class="tp-dc-day' + (match ? ' is-match' : '') + (match && match.f.a ? ' is-away' : '') + (nAdd ? ' is-filled' : '') + (mc ? ' is-clash' : '') + '" data-dc-day="' + day.d + '" aria-label="' + esc(label) + '" tabindex="-1">' +
+      var match = day.ms[0], label = dayLabel(day.d) + ', ' + day.kinds.join(', ').toLowerCase() + (mc ? ', ' + mc.say : '') + (match ? ', ' + tp.list(day.ms.map(function (m) { return mName(m.f); })) : '') +
+        ', ' + (nAdd ? nAdd + (nAdd === 1 ? ' thing added' : ' things added') : 'nothing added');
+      return '<button type="button" class="tp-dc-day' + (match ? ' is-match' : '') + (match && match.f.a ? ' is-away' : '') + (nAdd ? ' is-filled' : '') + (mc && mc.ring ? ' is-clash' : '') + '" data-dc-day="' + day.d + '" aria-label="' + esc(label) + '" tabindex="-1">' +
         '<span class="tp-dc-day-n" aria-hidden="true">' + x.getUTCDate() + '</span><span class="tp-dc-day-m" aria-hidden="true"><i class="tp-dc-ball"></i><i class="tp-dc-dot"></i></span></button>';
     }).join('');
   }

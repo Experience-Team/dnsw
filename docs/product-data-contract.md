@@ -573,7 +573,7 @@ This is not `availability` (§4) restated. `availability` is the static shape of
 
 ## 17. Match fixtures
 
-Added 20 November 2026 for the Rugby World Cup planner (Pick your team prototype), confirmed by the user as `gap`. A match is an event record of its own, not a product. The prototype renders every field here from placeholder fixtures only (`cnFixtures` and `cnVenueCity` in `public/wireframes/concepts-fixtures.js`). First use: the match clash rule (two or more matches someone is going to on one day, in different cities or at the same kick-off).
+Added 20 November 2026 for the Rugby World Cup planner (Pick your team prototype), confirmed by the user as `gap`. A match is an event record of its own, not a product. The prototype renders every field here from placeholder fixtures only (`cnFixtures` and `cnVenueCity` in `public/wireframes/concepts-fixtures.js`). First use: the plan's day labels for matches on one day (two or more of the picked teams' matches at the same kick-off, or in two or more cities).
 
 **`date`** — `gap`, `source: authored`. The day of the match. Empty state: the match is not shown.
 
@@ -583,7 +583,7 @@ Added 20 November 2026 for the Rugby World Cup planner (Pick your team prototype
 
 **`city`** — `gap`, `source: derived`. The city the venue is in (Sydney, Newcastle, Melbourne and so on). Interstate fixtures name it; for NSW stadiums the prototype takes it from the venue (`cnVenueCity`). Empty state: the clash rule falls back to the venue's precinct.
 
-Not held, and not invented: a match's length or end time, and travel times between cities. Without them the clash rule does not judge two matches in one city at different kick-offs, or whether there is time to travel between cities on one day.
+Not held, and not invented: a match's length or end time, and travel times between cities. Without them the plan does not judge whether matches at different kick-offs overlap, or whether there is time to travel between cities on one day.
 
 ```json
 "match": {

@@ -1695,8 +1695,8 @@
       if (it && it.day) clashDays[dayOf(it.day)] = true;
       (tlClash[id] || []).forEach(function (c) { if (c && c.day && /^\w{3} \d{1,2} (Oct|Nov)$/.test(c.day)) clashDays[dayOf(c.day)] = true; });
     });
-    // and so does a day with matches that clash (20 Nov)
-    shown.forEach(function (m) { if (!clashDays[m.day] && matchClash(m.day)) clashDays[m.day] = true; });
+    // and so does a day with matches at the same time (20 Nov; matches in several cities get a line, no ring)
+    shown.forEach(function (m) { if (!clashDays[m.day]) { var mc = matchClash(m.day); if (mc && mc.ring) clashDays[m.day] = true; } });
     tlDotEls.forEach(function (el, i) { el.classList.toggle('is-clash', !!clashDays[i]); });
     if (String(added || '') !== tlBadge.textContent) {
       tlBadge.hidden = !added;
@@ -2112,11 +2112,32 @@
   var stackScrim = document.getElementById('tp-stack-scrim'), stackEl = null, stackOpener = null, fwdT;
   var BACK_LIFT = 10, STACK_GAP = 16;
   function stackHide(sh) { sh.classList.remove('is-open', 'is-dragging'); sh.style.transform = ''; sh.inert = true; }
+  /* Your teams and Add team (20 Nov; check 10, Changes say they're kept): their pinned Done turns into Save, with a
+     line naming the latest change, once a team is added or taken off; both close the sheet. Reset each time it opens */
+  var teamSnap = null, teamPrev = null;
+  function teamBarReset(sheet) {
+    var acts = sheet && sheet.querySelector('.tp-ts-acts'); if (!acts) return;
+    teamSnap = state.picked.slice(); teamPrev = state.picked.slice();
+    var p = acts.querySelector('.tp-ts-said'); if (!p) { p = document.createElement('p'); p.className = 'tp-ts-said'; p.setAttribute('aria-hidden', 'true'); acts.insertBefore(p, acts.firstChild); }
+    p.textContent = ''; acts.classList.remove('is-save');
+    acts.querySelector('[data-stack-close]').textContent = 'Done';
+  }
+  phoneEl.addEventListener('tp:state', function () {
+    if (!stackEl || !teamSnap || !stackEl.querySelector('.tp-ts-acts')) return;
+    var now = state.picked, add = now.filter(function (n) { return teamPrev.indexOf(n) < 0; }), rm = teamPrev.filter(function (n) { return now.indexOf(n) < 0; });
+    teamPrev = now.slice();
+    if (!add.length && !rm.length) return;
+    var name = function (n) { return n === RUGBY.name ? 'Every NSW match' : n; };
+    var line = add.length ? list(add.map(name)) + ' added to your teams.' : list(rm.map(name)) + ' taken off your teams.';
+    var acts = stackEl.querySelector('.tp-ts-acts');
+    acts.querySelector('.tp-ts-said').textContent = line; acts.classList.add('is-save');
+    acts.querySelector('[data-stack-close]').textContent = 'Save';
+  });
   function stackOpen(sheet, opener) {
     if (!tlOpen || stackEl === sheet) return;
     if (stackEl) stackHide(stackEl); // replace, never a third level
     else stackOpener = opener || document.activeElement;
-    stackEl = sheet;
+    stackEl = sheet; teamBarReset(sheet);
     sheet.style.setProperty('--stack-top', (tl.offsetTop - BACK_LIFT + STACK_GAP) + 'px');
     sheet.scrollTop = 0;
     sheet.inert = false;
@@ -2136,7 +2157,7 @@
   function soloHold() { if (soloAnchor && soloAnchor.isConnected) body.scrollTop += soloAnchor.getBoundingClientRect().top - soloY; }
   function stackOpenSolo(sheet, opener) {
     if (stackEl) return;
-    stackOpener = opener || document.activeElement; stackEl = sheet; stackSolo = true;
+    stackOpener = opener || document.activeElement; stackEl = sheet; stackSolo = true; teamBarReset(sheet);
     soloAnchor = opener && opener.closest('section'); soloY = soloAnchor ? soloAnchor.getBoundingClientRect().top : 0;
     sheet.style.setProperty('--stack-top', '56px');
     sheet.scrollTop = 0; sheet.inert = false; sheet.classList.add('is-open');
@@ -2255,34 +2276,26 @@
   // Anything of their own: a team picked, or a match added on its own
   function own() { return state.picked.length > 0 || state.added.some(function (it) { return it.kind === 'match'; }); }
   function allMatches() { return TLM.slice(); }
-  /* Matches that clash (20 Nov). Only matches they mean to go to count: an NSW match of a team they picked, or any match
-     they have marked I have tickets on (with Every NSW match alone, only ticketed ones). Watching a match in NSW is never
-     a clash. Two or more of those on one day clash when they are in different cities, or when two share a kick-off.
-     Nothing is guessed: the fixtures hold no match lengths or travel times, so two in one city at different kick-offs,
-     or a short hop between cities, are not judged. */
+  /* Matches on one day (20 Nov, replacing the earlier going-to rule). Every match of the picked teams counts, interstate
+     ones too, using only each match's kick-off and city: the fixtures hold no match lengths or travel times, so nothing
+     is guessed. Two or more kick off at the same time: "2 matches at the same time", with the red ring on that day.
+     Otherwise, matches in two or more cities: "Matches in 3 cities", a quieter line and no ring. Both: only the first.
+     One match, or several in one city at different times: nothing. */
   function mCity(f) { return f.a || (window.cnVenueCity || {})[f.v] || f.p; }
-  function going(m) {
-    var f = m.f; if (!f.t || !own()) return false;
-    if (m.tkey && state.tickets.indexOf(m.tkey) > -1) return true;
-    return !f.a && f.t.split(' v ').some(function (n) { return state.picked.indexOf(n) > -1; });
-  }
-  function short(k) { return k.replace(':00', ''); } // 8pm, not 8:00pm
+  function sameTime(ms) { var byK = {}; ms.forEach(function (m) { if (m.f.k) (byK[m.f.k] = byK[m.f.k] || []).push(m); }); return Object.keys(byK).reduce(function (n, k) { return n + (byK[k].length > 1 ? byK[k].length : 0); }, 0); }
   function matchClash(day) {
-    var ms = userMatches().filter(function (m) { return m.day === day && going(m); });
+    var ms = userMatches().filter(function (m) { return m.day === day; });
     if (ms.length < 2) return null;
-    var cities = [], byK = {};
-    ms.forEach(function (m) { var c = mCity(m.f); if (cities.indexOf(c) < 0) cities.push(c); if (m.f.k) (byK[m.f.k] = byK[m.f.k] || []).push(m); });
-    var same = Object.keys(byK).filter(function (k) { return byK[k].length > 1; })[0];
-    if (cities.length < 2 && !same) return null;
-    if (cities.length > 1) return { ms: ms, line: 'Clash: you\u2019re going to matches in ' + list(cities) + ' this day.', say: 'clash, matches in ' + list(cities) };
-    var n = byK[same].length;
-    return { ms: ms, line: 'Clash: ' + n + ' of your matches kick off at ' + short(same) + '.', say: 'clash, ' + n + ' matches kick off at ' + short(same) };
+    var n = sameTime(ms), cities = [];
+    if (n) return { kind: 'time', ring: true, ms: ms, line: n + ' matches at the same time', say: n + ' matches at the same time' };
+    ms.forEach(function (m) { var c = mCity(m.f); if (cities.indexOf(c) < 0) cities.push(c); });
+    if (cities.length > 1) return { kind: 'cities', ring: false, ms: ms, line: 'Matches in ' + cities.length + ' cities', say: 'matches in ' + cities.length + ' cities' };
+    return null;
   }
-  // The matches one match clashes with, each with its city: [{ name, city }]
+  // The matches of the picked teams that kick off at the same time as this one, that day (for its match sheet)
   function clashWith(m) {
-    if (!going(m) || !matchClash(m.day)) return [];
-    return userMatches().filter(function (o) { return o !== m && o.day === m.day && going(o) && (mCity(o.f) !== mCity(m.f) || (o.f.k && o.f.k === m.f.k)); })
-      .map(function (o) { return { name: o.f.t, city: mCity(o.f) }; });
+    if (!m.f.k || userMatches().indexOf(m) < 0) return [];
+    return userMatches().filter(function (o) { return o !== m && o.day === m.day && o.f.k === m.f.k; }).map(function (o) { return { name: o.f.t || o.f.s, city: mCity(o.f) }; });
   }
   // The days in NSW guessed from what they have picked: first to last NSW match. Nothing to go on without a pick.
   function inferTrip() {
@@ -2365,7 +2378,7 @@
      row, a sheet's own bottom row (Done, Use these dates, the photo's buttons), the day by day map's card, the
      keyboard. Only one that is actually on top counts (a bar under an open sheet does not), and only while its foot
      is at the screen's foot. Checked while the toast is up, so it moves with the bar appearing or a sheet opening. */
-  var PINNED = '.tp-tl-bar, .tp-tl-foot, .tp-days-bar, .tp-ts-acts, .tp-cc-acts, .tp-ph-acts, .tp-mapfs:not([hidden]) .tp-map-card, .tp-kbd';
+  var PINNED = '.tp-tl-bar, .tp-tl-foot, .tp-days-bar, .tp-pm-save, .tp-ts-acts, .tp-cc-acts, .tp-ph-acts, .tp-mapfs:not([hidden]) .tp-map-card, .tp-kbd';
   var toastWatch = 0;
   function onTop(el, r) {
     var x = r.left + r.width / 2, y = r.top + Math.min(6, r.height / 2);

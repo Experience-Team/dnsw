@@ -90,6 +90,12 @@ list as set out in "Adding standing flags" above, and add it once the user has a
       sheet and leaves the layer open. A back arrow sits top left, only below the first drill level. Escape and the
       grabber go back one step. The dark area behind closes everything. Focus returns to whatever opened the level just
       closed.
+    - **Changes say they're kept.** Where a change in a sheet applies at once (Add, a ticket, a team), the first change
+      pins a bar to the sheet's foot with a line naming the latest change and a Save button. Save does exactly what the
+      close cross does, so closing any other way loses nothing; it is there because on a phone the confirmation is often
+      out of view and the cross reads as cancel. The bar stays while drilling down from that sheet and is gone when the
+      sheet next opens. A sheet that holds changes until confirmed (the days sheet's Use these dates) keeps its own
+      button instead. For example, adding a screening in a match sheet showed its line only below the fold.
     - **Grabbers work.** Every grabber on a sheet, stacked sheet or layer responds to a tap and to a drag. A tap, or a
       drag past a third of the height (or a flick), goes back one step, closing the sheet at its first level; a
       shorter drag springs back. Nothing draws a grabber that does nothing. For example, the stacked sheets' grabbers
@@ -107,9 +113,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
     changes beyond itself, and whether the person can see that from where they are. For example, I have tickets on a
     match row changes the plan, Where to watch and Around your matches, all out of view, so it needs a toast like the
     match sheet's. Don't use a toast when the change already shows itself where they acted, for example a pick that
-    offers Undo, a marker settling on the plan, or dates showing under the slider they are dragging. A toast must never
-    sit over the control someone is still using: if it would, leave it out. For example, setting your days on the
-    page's date picker showed a toast that covered the slider before the page was scrolled down.
+    offers Undo, a marker settling on the plan, dates showing under the slider they are dragging, or a sheet's Save bar
+    naming the change. A toast must never sit over the control someone is still using: if it would, leave it out. For
+    example, setting your days on the page's date picker showed a toast that covered the slider before the page was
+    scrolled down.
     - **Content.** A short title saying what they did. One line naming what it changed, listing only the parts that
       actually changed; if nothing needed to change, say so. A toast that repeats as someone adjusts something (setting
       days) is title only, with the change in the title, for example "Your days are now 14 Oct to 6 Nov", and updates
