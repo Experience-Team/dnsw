@@ -61,6 +61,8 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    Text meant to sit on one line (a tab label, a slogan line, a button) holds on one line in every theme and font,
    from 320 to 390px wide, not only in the theme being worked in; the wireframe's system font is wider than the high
    fidelity one, and a page-wide rule can let text wrap.
+   Anything pinned to the bottom of the screen (a bar, a sheet's foot, the Kick bar, the plan bar) has a faint 1px top
+   rule in the soft line colour, so it reads as sitting above the content that scrolls under it.
 7. **Patterns go everywhere they apply, and the scope is agreed first.** When a brief changes one instance of something
    that appears in several places (a component such as a date picker or a match card, or a cue such as an icon, a
    confirm step or a focus rule), first list every place it appears and ask which to update. Then change them all in
@@ -88,14 +90,28 @@ list as set out in "Adding standing flags" above, and add it once the user has a
       or in another sheet.
     - **Controls.** The close cross (check 7) closes the whole sheet, drill levels and all; over a layer it closes the
       sheet and leaves the layer open. A back arrow sits top left, only below the first drill level. Escape and the
-      grabber go back one step. The dark area behind closes everything. Focus returns to whatever opened the level just
-      closed.
+      grabber go back one step. Focus returns to whatever opened the level just closed.
+    - **A tap outside closes it.** A tap or click anywhere outside a sheet closes everything, whether or not a dark area
+      sits behind it (a sheet inside a game or frame counts too); tapping another control closes the sheet and then does
+      what that control does. Four exceptions:
+      - **Unconfirmed input.** A sheet holding something the person hasn't confirmed yet (the days sheet before Use these
+        dates, a half-typed field) never throws it away silently: it keeps the input for when the sheet reopens, or an
+        outside tap does nothing.
+      - **Confirm steps.** On a confirm step such as Clear plan, a tap outside only ever means Cancel, never the
+        destructive action.
+      - **Drags that end outside.** A press that starts inside the sheet (a slider handle, the grabber, a map pan) and
+        ends outside it is not a tap outside. Judge by where the press started.
+      - **Panels beside the page, and full-screen layers.** The desktop plan rail stays open while the page next to it
+        is used, so clicking the page does not close it. A full-screen layer has no outside to tap.
+      For example, the Drop goal result card had no backdrop and closed only with its cross or Escape.
     - **Changes say they're kept.** Where a change in a sheet applies at once (Add, a ticket, a team), the first change
       pins a bar to the sheet's foot with a line naming the latest change and a Save button. Save does exactly what the
       close cross does, so closing any other way loses nothing; it is there because on a phone the confirmation is often
       out of view and the cross reads as cancel. The bar stays while drilling down from that sheet and is gone when the
       sheet next opens. A sheet that holds changes until confirmed (the days sheet's Use these dates) keeps its own
-      button instead. For example, adding a screening in a match sheet showed its line only below the fold.
+      button instead. Save belongs on sheets where several changes build up and the confirmation can be out of view
+      (the match sheet). A sheet whose one change is confirmed in place, such as the line on the Drop goal card, needs no
+      Save. For example, adding a screening in a match sheet showed its line only below the fold.
     - **Grabbers work.** Every grabber on a sheet, stacked sheet or layer responds to a tap and to a drag. A tap, or a
       drag past a third of the height (or a flick), goes back one step, closing the sheet at its first level; a
       shorter drag springs back. Nothing draws a grabber that does nothing. For example, the stacked sheets' grabbers
