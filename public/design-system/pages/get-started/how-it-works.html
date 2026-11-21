@@ -1,0 +1,26 @@
+<h2>Three layers of tokens</h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Layer</th><th scope="col">What it is</th><th scope="col">Example</th><th scope="col">Set by</th></tr></thead><tbody>
+<tr><td><strong>Palette</strong></td><td>A brand's raw values, with no meaning attached.</td><td><code>--tth-color-orange: #ff4802</code></td><td>Each brand</td></tr>
+<tr><td><strong>Roles</strong></td><td>What a value is for. The names are shared; each brand points them at its palette.</td><td><code>--c-accent</code>, <code>--c-ink-2</code>, <code>--space-4</code></td><td>Names: the system. Values: each brand.</td></tr>
+<tr><td><strong>Component</strong></td><td>A setting for one component, only where a role is not enough.</td><td><code>--radius-card</code>, <code>--add-nudge</code></td><td>The system, pointed at roles</td></tr>
+</tbody></table></div>
+<p>Components only ever use roles and component tokens. That is what lets one component work in every brand.</p>
+
+<h2>Three tiers of components</h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Tier</th><th scope="col">What belongs</th><th scope="col">Examples</th></tr></thead><tbody>
+<tr><td><strong>Core</strong></td><td>Brand-neutral building blocks any site could use.</td><td>Buttons, chips, tags, toast, sheets, date picker</td></tr>
+<tr><td><strong>Patterns</strong></td><td>Core components solving a recurring job together.</td><td>Choosing several things, confirming a change, saving without an account</td></tr>
+<tr><td><strong>Project modules</strong></td><td>Built for one project from core parts, and kept with that project.</td><td>The Third Half's team card fan, timeline bar, Where to watch</td></tr>
+</tbody></table></div>
+<p>When a second project needs a project module, it moves down into core: its project-specific details become tokens or options. See <a href="/design-system/get-started/contributing">contributing</a>.</p>
+
+<h2>Brands are separate from projects</h2>
+<p>A brand is a set of values; a project is what is built. The Third Half is a DNSW brand used by the Rugby World Cup planner, and could be used by other DNSW work. Marks that belong to event partners (for example World Rugby's Rugby World Cup marks) are artwork, not tokens, and are kept out of the brand files.</p>
+
+<h2>What reads what</h2>
+<pre><code>public/wireframes/shared.css        :root roles (Wireframe base) + components
+public/wireframes/themes/hifi.css   The Third Half: palette + roles + a few component rules
+public/wireframes/themes/*.css      Other brands
+        |
+        v  fetched and parsed in the browser (tokens.js)
+public/design-system/               These pages: tables, swatches, live examples</code></pre>

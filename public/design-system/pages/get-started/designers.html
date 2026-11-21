@@ -1,0 +1,21 @@
+<h2>Reading a token</h2>
+<p>Every token has a name, a value and a use. Names say what a value is <em>for</em>, not what it looks like: <code>--c-ink-2</code> is secondary text, whatever colour a brand makes it. When a value comes from another token, the chain is shown under it, for example <code>--c-accent</code> via <code>--tth-surface-brand</code> &rarr; <code>--tth-color-orange</code>.</p>
+<p>Use the <strong>Brand</strong> switch above any token table or example to see the same roles in another brand. Values a brand sets itself are marked <span class="ds-own">Brand</span>; the rest come from the Wireframe base.</p>
+
+<h2>Designing with the system</h2>
+<ol>
+<li>Start from the roles. Pick colours from the role swatches, never from the brand's palette directly, so the design works in every brand.</li>
+<li>Use the type scale and the 4px spacing scale. If a size is missing, ask before adding one; a new value is a change to the system.</li>
+<li>Check the component's page for its states and behaviour before drawing a new variant. Most "new" components are an existing one in a new place.</li>
+<li>Check the <a href="/design-system/foundations/interaction">interaction rules</a>: they set how sheets, toasts and selection behave, and every prototype is checked against them.</li>
+</ol>
+
+<h2>Figma</h2>
+<p>The Third Half's Figma variables (file Rugby World Cup, page Styling) are the source the <code>--tth-*</code> values were taken from. From version 0.2, variables will be pushed from the code to Figma so both match. Until then, if Figma and these pages differ, these pages are right for what is built.</p>
+
+<h2>Handing over</h2>
+<ul>
+<li>Name the components you used, using the names in the <a href="/design-system/components/inventory">inventory</a>.</li>
+<li>Call out anything new: a value, a variant or a component. It goes through <a href="/design-system/get-started/contributing">contributing</a>.</li>
+<li>Say which fields come from the <a href="/design-system/foundations/data">product data contract</a> and what each module shows when one is missing.</li>
+</ul>

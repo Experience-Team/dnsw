@@ -1,0 +1,28 @@
+<h2>Widths</h2>
+<ul>
+<li>Phone prototypes are judged at 390 by 844, and must hold from 320 to 390 wide.</li>
+<li>Text meant to sit on one line (a tab label, a slogan line, a button) holds on one line in every brand and font from 320 to 390px. The wireframe's system font is wider than The Third Half's condensed face, so check both.</li>
+<li>Page wireframes use a 1280px container with 32px sides.</li>
+</ul>
+
+<h2>Spacing rhythm</h2>
+<p>All space comes from the <a href="/design-system/styles/spacing">4px scale</a>. Distance shows relationship:</p>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Relationship</th><th scope="col">Space</th></tr></thead><tbody>
+<tr><td>Inside a component</td><td class="ds-num">4 to 16px</td></tr>
+<tr><td>Parts of one family</td><td class="ds-num">24px</td></tr>
+<tr><td>Between families, and before each section's rule</td><td class="ds-num">48px</td></tr>
+<tr><td>After the hero</td><td>The largest break on the page</td></tr>
+</tbody></table></div>
+<p>Pairs that belong together sit closer than their neighbours, for example a slogan and its event line.</p>
+<div class="ds-dd"><div class="ds-do"><p>Separate the hand of cards, the map and the match cards with 48px so they read as three things.</p></div><div class="ds-dont"><p>Draw boxes or rules to group things that space could group.</p></div></div>
+
+<h2>Content fits its window</h2>
+<ul>
+<li>Nothing meant to be seen is cut off by its container at rest: a card corner, a shadow, a lifted item.</li>
+<li>Size containers from the content's real extremes in every state (dragged to either end, picked, lifted, focused), and measure the result.</li>
+<li>Clip only the sides that are meant to run on, such as a carousel running off the edge. A brief lift may rise out of its box.</li>
+<li>Space above and below content is even.</li>
+</ul>
+
+<h2>Optical alignment</h2>
+<p>Judge centring, padding and indents from the rendered pixels, not only the numbers: fonts and their metrics differ between brands and devices. For example, the Add buttons measured as centred but read low in one font, so they carry a small per-brand nudge (<code>--add-nudge</code>).</p>

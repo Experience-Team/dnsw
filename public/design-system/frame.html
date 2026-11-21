@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live example</title>
+  <script>
+    /* Brand first, before the CSS applies: the same switches the prototypes use (data-theme, data-colourway, a body class) */
+    (function () {
+      var q = new URLSearchParams(location.search), b = q.get('brand') || 'wireframe';
+      if (b === 'third-half') {
+        document.documentElement.setAttribute('data-theme', 'hifi');
+        if (q.get('cw') && q.get('cw') !== 'orange') document.documentElement.setAttribute('data-colourway', q.get('cw'));
+      }
+      window.DS_FRAME_BODY = { sydney: 'theme-sydney', visitnsw: 'theme-nsw', 'rwc-2027': 'theme-rwc' }[b] || '';
+    })();
+  </script>
+  <link rel="stylesheet" href="/wireframes/shared.css">
+  <link rel="stylesheet" href="/wireframes/themes/hifi.css">
+  <link rel="stylesheet" href="/wireframes/themes/sydney.css">
+  <link rel="stylesheet" href="/wireframes/themes/nsw.css">
+  <link rel="stylesheet" href="/wireframes/themes/rwc-2027.css">
+  <style>
+    /* Frame only: let the phone wrapper size to its content instead of 390 x 844 */
+    html, body { background: transparent; }
+    body { margin: 0; padding-top: 0; overflow: hidden; } /* shared.css pads the body for the wireframe top bar */
+    .cn-phone.ds-frame { width: auto; max-width: none; height: auto; display: block; border: 0; overflow: visible; padding: 24px; }
+    .ds-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; }
+    .ds-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .ds-lab { display: block; font: 12px/1.4 system-ui, sans-serif; color: var(--c-ink-3); }
+    .ds-lab--b { margin-top: 12px; }
+    .ds-stack { display: flex; flex-direction: column; gap: 8px; max-width: 380px; }
+    .ds-stack .ds-lab { margin-bottom: 16px; }
+    .ds-frame .tp-toast { position: relative; left: auto; right: auto; bottom: auto; }
+    .ds-frame .tp-tag { margin-top: 0; }
+    .ds-clear { min-height: 36px; padding: 0 4px; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-bold); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    .ds-clear[hidden] { display: none; }
+    .ds-clear:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <div class="cn-phone ds-frame" id="ex"></div>
+  <script src="/design-system/tokens.js"></script>
+  <script src="/design-system/examples.js"></script>
+  <script>
+  (function () {
+    var q = new URLSearchParams(location.search), ex = window.DS_EXAMPLES[q.get('ex')];
+    var root = document.getElementById('ex');
+    if (window.DS_FRAME_BODY) document.body.className = window.DS_FRAME_BODY;
+    function report() { parent.postMessage({ dsFrameH: root.getBoundingClientRect().height }, location.origin); }
+    if (!ex) { root.textContent = 'No example called ' + q.get('ex') + '.'; report(); return; }
+    DSTokens.loadIcons().catch(function () { return {}; }).then(function (ic) {
+      root.innerHTML = ex.html.replace(/\{\{(\w+)\}\}/g, function (a, k) { return ic[k] || ''; });
+      wire(ic);
+      report();
+      if ('ResizeObserver' in window) new ResizeObserver(report).observe(root);
+      if (document.fonts) document.fonts.ready.then(report);
+    });
+
+    /* Enough behaviour to try the states: toggles, single choice, multi-select with All and Clear all */
+    function wire(ic) {
+      root.querySelectorAll('[data-toggle]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var on = b.getAttribute('aria-pressed') !== 'true', labels = b.getAttribute('data-toggle').split('|');
+          b.setAttribute('aria-pressed', on);
+          var l = b.querySelector('.tp-pm-add-l, span[aria-hidden]');
+          l.innerHTML = (on ? ic.added : ic.add) + '<span class="tp-add-t">' + (on ? labels[1] : labels[0]) + '</span>';
+          var sr = b.querySelector('.visually-hidden');
+          if (sr) sr.textContent = on ? 'Added: Bondi to Coogee walk. Press to remove' : 'Add Bondi to Coogee walk to your plan';
+        });
+      });
+      root.querySelectorAll('[data-single]').forEach(function (g) {
+        g.addEventListener('click', function (e) {
+          var c = e.target.closest('.tp-chip'); if (!c) return;
+          g.querySelectorAll('.tp-chip').forEach(function (x) { x.setAttribute('aria-pressed', x === c); });
+        });
+      });
+      root.querySelectorAll('[data-multi]').forEach(function (g) {
+        var all = g.querySelector('[data-all]'), clear = g.querySelector('.ds-clear'), sum = root.querySelector('[data-sum]');
+        function chips() { return [].slice.call(g.querySelectorAll('.tp-chip:not([data-all])')); }
+        function sync(msg) {
+          var on = chips().filter(function (x) { return x.getAttribute('aria-pressed') === 'true'; });
+          clear.hidden = !on.length && all.getAttribute('aria-pressed') !== 'true';
+          sum.textContent = msg || (all.getAttribute('aria-pressed') === 'true' ? 'Showing anything.' : on.length ? 'Showing ' + on.map(function (x) { return x.textContent; }).join(', ') + '.' : 'Nothing picked.');
+        }
+        g.addEventListener('click', function (e) {
+          if (e.target === clear) {
+            g.querySelectorAll('.tp-chip').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+            sync('Cleared. Nothing picked.'); (all || g.querySelector('.tp-chip')).focus(); return;
+          }
+          var c = e.target.closest('.tp-chip'); if (!c) return;
+          var on = c.getAttribute('aria-pressed') !== 'true';
+          c.setAttribute('aria-pressed', on);
+          if (on && c === all) chips().forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+          if (on && c !== all) all.setAttribute('aria-pressed', 'false');
+          sync();
+        });
+        sync();
+      });
+    }
+  })();
+  </script>
+</body>
+</html>

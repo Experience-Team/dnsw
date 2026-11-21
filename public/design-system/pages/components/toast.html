@@ -1,0 +1,18 @@
+<div data-ds="example" data-ex="toast" data-title="Toast examples" data-caption="Class <code>.tp-toast</code>, built by <code>toast()</code> in <code>concepts-teams.js</code>."></div>
+
+<h2>When to use</h2>
+<p>When something a person does changes a part of the page they cannot see from where they are: another section, their plan, what is behind a sheet. Ask of every new or moved control: what does it change beyond itself, and can the person see that?</p>
+<h2>When not to use</h2>
+<ul><li>When the change already shows where they acted: a pick that offers Undo, a marker settling on the plan, dates showing under the slider being dragged.</li><li>When the toast would sit over the control the person is still using. Leave it out.</li></ul>
+
+<h2>Content</h2>
+<ul><li>A short title saying what they did.</li><li>One line naming what it changed, listing only the parts that changed. If nothing needed to change, say so.</li><li>A toast that repeats as someone adjusts something is title only, with the change in the title ("Your days are now 14 Oct to 6 Nov"), and updates in place.</li><li>At most one link, named for where it goes ("See Where to watch", "Open your plan"). No link inside a sheet that would open something over that sheet.</li></ul>
+
+<h2>Behaviour</h2>
+<ul><li>One at a time; a new one replaces the old.</li><li>Stays 6 seconds, longer while hovered or focused. A cross closes it.</li><li>Background 90% opaque. Rises and fades in; reduced motion fades only.</li><li>Not a live region when screen readers already hear the change.</li></ul>
+
+<h2>Position</h2>
+<ul><li>16px from the bottom on a phone, 24px on a desktop.</li><li>12px above whatever is pinned to the bottom and showing (a bar, a sheet's bottom row, the keyboard), and it follows them as they appear or go.</li><li>On a desktop, one row with the link beside the text, up to 520px wide.</li></ul>
+
+<h2>Tokens</h2>
+<div data-ds="tokens" data-tokens="--c-btn --c-on-dark --radius-md --fs-base --fs-sm --fw-bold --space-3 --space-4"></div>

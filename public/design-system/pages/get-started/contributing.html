@@ -1,0 +1,29 @@
+<h2>Changing a token value</h2>
+<ol>
+<li>Change it in the code: <code>shared.css</code> for the base, or the brand's theme file.</li>
+<li>Keep the comment beside it up to date. It is the description shown on these pages.</li>
+<li>Check the colour page for contrast in every brand: text roles need 4.5:1, large text and controls 3:1.</li>
+<li>Add a line to the <a href="/design-system/get-started/changelog">changelog</a>.</li>
+</ol>
+
+<h2>Adding a token</h2>
+<p>Ask first whether an existing role covers it. If it does not, add the role to <code>:root</code> in <code>shared.css</code> with a comment saying what it is for, then set it in every brand that needs a different value. Name it by job, not by look (<code>--c-line-strong</code>, not <code>--c-grey-9e</code>).</p>
+
+<h2>Documenting a component</h2>
+<ol>
+<li>Add the page to <code>nav.js</code> and write it in <code>pages/components/</code>.</li>
+<li>Cover: when to use it and when not, anatomy, states (live), behaviour, accessibility, content, and the tokens and classes it uses.</li>
+<li>Add a live example (see <a href="/design-system/get-started/developers">for developers</a>).</li>
+<li>Mark it Documented in the <a href="/design-system/components/inventory">inventory</a>.</li>
+</ol>
+
+<h2>Moving a project module into core</h2>
+<p>When a second project needs it:</p>
+<ol>
+<li>Remove anything project-specific from its CSS: hard-coded values become tokens, project wording becomes content passed in.</li>
+<li>Check it in every brand with the brand switch.</li>
+<li>Rename its classes only if both projects can move at once; otherwise keep the old class as an alias until they can.</li>
+</ol>
+
+<h2>Behaviour rules</h2>
+<p>The <a href="/design-system/foundations/interaction">interaction rules</a> come from things reviewers had to point out. A new lesson is worded as a general principle (not the one case), fitted into the existing list, and agreed before it is added. The same lessons live in the repository's <code>CLAUDE.md</code>, which is where the build checks them.</p>

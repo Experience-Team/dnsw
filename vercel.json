@@ -1,6 +1,10 @@
 {
   "redirects": [{ "source": "/wireframes", "destination": "/wireframes/", "permanent": false }],
-  "rewrites": [{ "source": "/((?!wireframes/).*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/design-system", "destination": "/design-system/index.html" },
+    { "source": "/design-system/:path*", "destination": "/design-system/index.html" },
+    { "source": "/((?!wireframes/|design-system).*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

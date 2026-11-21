@@ -1,0 +1,36 @@
+<h2>Target</h2>
+<p>WCAG 2.2 level AA on every page and prototype. Not AAA: where AA and AAA differ, build to AA and do not pad beyond it.</p>
+
+<h2>Target size</h2>
+<ul>
+<li>Every control is at least 24 by 24px to tap (2.5.8). A smaller visible control gets an invisible target around it.</li>
+<li>36px is the usual button and chip height. Do not pad tap areas out to 44px.</li>
+<li>Links inside running text are sized by their line, which AA allows.</li>
+</ul>
+
+<h2>Contrast</h2>
+<ul>
+<li>Text: 4.5:1. Large text (24px, or 19px bold) and the edges of controls: 3:1.</li>
+<li>The <a href="/design-system/styles/colour">colour page</a> shows each role's contrast in the chosen brand.</li>
+<li>Where a brand colour fails as small text, the brand sets an ink for it. For example, The Third Half's orange is 3.2:1 on chalk, so small orange text uses <code>--c-accent-ink</code> (ink) and orange is kept for fills and large type.</li>
+</ul>
+
+<h2>Not colour alone</h2>
+<p>State is carried by shape, weight or words as well as colour: a selected Team Card takes a 2px line as well as the colourway, an interstate tag is an outline and names the city, and a match outside NSW has a dashed ring.</p>
+
+<h2>Focus</h2>
+<ul>
+<li>Every control shows a 2px focus ring in <code>--c-focus</code>, offset 2px, on keyboard focus only (<code>:focus-visible</code>).</li>
+<li>Focus rules meant for the keyboard must not catch a tap: a tapped button keeps focus, so check behaviour after a tap as well as after a key.</li>
+<li>Closing anything returns focus to what opened it. See <a href="/design-system/foundations/interaction/page-movement">page movement and focus</a>.</li>
+</ul>
+
+<h2>Reduced motion</h2>
+<p>With reduced motion on, movement is swapped for a fade or an instant change. Nothing that carries meaning depends on motion alone.</p>
+
+<h2>Screen readers</h2>
+<ul>
+<li>Every change is announced once. Do not make a toast a live region when the change is already announced.</li>
+<li>Buttons that toggle use <code>aria-pressed</code>; the visible label can be short, with the full meaning in visually hidden text (for example "Add Bondi to Coogee walk to your plan").</li>
+<li>Opening a level of a sheet announces "[name], details opened." and going back announces "Back to [title]."</li>
+</ul>
