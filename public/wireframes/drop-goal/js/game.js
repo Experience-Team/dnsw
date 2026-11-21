@@ -254,7 +254,7 @@ function openCard(i, info) {
   $("cardDist").textContent = `approx. ${km} km from ${STARTS[startKey]}`;
   $("cardRoute").textContent = `${R.label}, stop ${i + 1} of ${NZ}`;
   $("cardNote").textContent = info.terrainNote || (info.shortKick ? "Short kick! It rolled to the nearest stop." : info.longKick ? "Huge kick! It ran out of road at the last stop." : "");
-  cardChanged = false; $("btnClose").hidden = true; cardStatus("");   // the cross closes; Save shows once something changes
+  cardChanged = false; cardStatus("");   // the cross, Escape or a tap outside closes it; the line names the latest change
   updateSave();
   const c = $("card"); c.hidden = false; requestAnimationFrame(() => c.classList.add("open"));
   $("cardName").focus();
@@ -268,7 +268,7 @@ function toggleSave() {
   const name = placeName(), on = !saved.has(name);
   if (on) saved.add(name); else saved.delete(name);
   if (window.planLink) window.planLink.send(on, landedZone);   // inside the prototype: the plan keeps it (js/plan-link.js)
-  cardChanged = true; $("btnClose").hidden = false;          // Save does exactly what the cross does
+  cardChanged = true;
   cardStatus(name + (on ? " added to your plan." : " removed from your plan."));
   updateSave();
 }

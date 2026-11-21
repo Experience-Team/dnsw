@@ -40,7 +40,7 @@ html.embedded .card { background: var(--e-c-surface, #fff); color: var(--e-c-ink
 html.embedded .card-inner { margin: 0 16px; }
 html.embedded .card h2 { font-family: var(--e-font-display, inherit); }
 html.embedded .card-x { background: var(--e-c-surface, #fff); color: var(--e-c-ink, #1a1a1a); }
-html.embedded .card-actions { background: var(--e-c-surface, #fff); border-top-color: var(--e-c-line, #d9d9d9); }
+html.embedded .card-actions { background: var(--e-c-surface, #fff); border-top-color: var(--e-c-line-soft, #e6e6e6); }   /* faint, as the Kick bar */
 html.embedded .card-actions::before { background: linear-gradient(to bottom, transparent, var(--e-c-surface, #fff)); }
 html.embedded .card-actions button { border-width: 1px; background: var(--e-c-btn, #1f1f1f); border-color: var(--e-c-btn, #1f1f1f); color: var(--e-c-on-dark, #fff); }
 html.embedded .card-actions button.ghost { background: transparent; border-color: var(--e-c-line-ink, #1a1a1a); color: var(--e-c-ink, #1a1a1a); }
@@ -54,3 +54,4 @@ html.embedded :is(.blurb, .note-inline, .kicker) { color: var(--e-c-ink-2, #4d4d
 html.embedded[data-theme="wireframe"] .card-img { filter: grayscale(1); }
 /* Desktop: the page's own column sets the edges, so the game lines up with the title above it */
 @media (min-width: 1024px) { html.embedded body { padding-inline: 0; } }
+html.embedded .kick-bar { background: var(--e-c-surface, #fff); border-top-color: var(--e-c-line-soft, #e6e6e6); }

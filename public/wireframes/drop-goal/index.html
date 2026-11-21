@@ -47,7 +47,6 @@
       <div class="card-actions">
         <p class="card-status" id="cardStatus" role="status"></p>
         <button id="btnAgain">Kick again</button>
-        <button class="ghost" id="btnClose" hidden>Save</button>
       </div>
     </div>
   </aside>
@@ -69,7 +68,7 @@
   <div class="group"><label for="angle">Angle</label><div class="slider"><input id="angle" type="range" min="10" max="80" value="45"><output id="angleVal">45°</output></div></div>
   <div class="group"><label for="power">Power</label><div class="slider"><input id="power" type="range" min="0" max="100" value="50"><output id="powerVal">50%</output></div><div class="est" id="estVal" aria-live="polite"></div></div>
   <div class="group"><span class="lbl">Wind</span><div id="windVal" style="font-weight:700;padding:6px 0">Calm</div></div>
-  <div class="group"><button class="kick" id="btnKick">Kick</button></div>
+  <div class="group kick-bar"><button class="kick" id="btnKick">Kick</button></div>
 </div>
 <div class="pickers"><div class="teams" id="teams" role="radiogroup" aria-label="Team"></div></div>
 <!-- TEMPORARY (prototype Stage 1): the colour curation tools, folded away and closed by default. To be removed later. -->
