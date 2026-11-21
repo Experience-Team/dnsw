@@ -253,6 +253,11 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - **Stage 3 (21 Nov): theme, team and layout.** `drop-goal/css/embed.css` (only in a frame) maps the game's controls and card onto the page's tokens, sent by `kickTheme()` in concepts-teams.js as `thk:theme` on load and when the High fidelity switch changes; the pitch and player stay in colour. `thk:teams` sends `state.picked`: picked teams first in the game's row, the first one kicks until a team is chosen in the game. The tab has the page's own Drop goal title and intro; the game's heading, pitch mark and notes are hidden there (the notes are in the annotation). The card has the close cross top right, closes on a tap outside it, and has no Save (user's call, 21 Nov). Kick is pinned to the foot of the frame below 1024px, with a faint rule above. Phone: the pitch is sticky at the top of the frame; desktop: controls beside the pitch.
 - **Still to come:** Stages 4 and 5 as briefed; a sheet for a kick destination; an Open your plan link on the card; removing the temporary Colour settings. Open: the tab is called Drop goal but the game is a kick off a tee; the skin fallback for the 7 teams with no blue or green.
 
+## Drop goal on phones (21 Nov, after the critique)
+
+- `/impeccable critique` of the tab (snapshot in `.impeccable/critique/`) scored 20/40; worst on phones. Fixed so far: the P0. On phones the tab opens docked (`kickDock()` in the capsule script: logo row scrolled away, capsule at the top, 24px to the title), the intro is one line (`.tp-kick-more` holds the rest for the desktop website), and `fitKick` sizes the frame for the docked state. The game's card leads with the name and Add, then the picture capped at about 30%.
+- Still to do from the critique, agreed in this order: landscape and short phones (P1, adapt); the card closing from a tap on the page, dimming and closing on tab change (P1, harden); See your plan on the card (P1, clarify); one name, Play, everywhere with a proper heading and page title (P2, clarify); then polish and a re-run of the critique.
+
 ## Rules in line (21 Nov)
 
 - CLAUDE.md gained three rules (#560): a tap outside closes a sheet, with four exceptions (check 10); Save only where several changes build up (check 10); a faint soft top rule on everything pinned to the bottom (check 6).

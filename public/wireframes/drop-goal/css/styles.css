@@ -136,3 +136,9 @@
     body { padding-bottom: 76px; }
   }
   .card-actions { border-top-color: rgba(0,0,0,.08); }
+
+  /* Result card (21 Nov): name and Add to your plan first, the picture after them and no taller than about 30% of the
+     card, so both show on a short phone. The first line leaves room for the close cross beside it */
+  .card .kicker { padding-right: 44px; }
+  .card-img { aspect-ratio: auto; width: 100%; height: clamp(96px, 25vh, 215px); margin: 4px 0 10px; }
+  .card .name-row { margin-top: 8px; }   /* clear of the close cross, which sits beside the first line */
