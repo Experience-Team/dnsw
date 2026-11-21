@@ -1,12 +1,12 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-20 November 2026, afternoon (Sydney). Repo `Experience-Team/dnsw`, main at `726c621` (Fri 20 Nov, 1:27pm, the merge of #545). **No PR is open** apart from this handover's own. #527 to #545 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
+21 November 2026, evening (Sydney). Repo `Experience-Team/dnsw`, main at `ae86cdc` (Sat 21 Nov, 6:46pm, the merge of #561). **No PR is open** apart from this handover's own. #546 to #562 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
-This replaces the 19 November evening handover (#543). Since then: a Low fidelity prototype tab on the desktop (#544), and the open plan no longer scrolls sideways (#545). The Home tab is built and is the tab the page opens on. Open questions are carried over, trimmed to what still stands, with new ones from the 16 to 19 Nov audit added.
+This replaces the 20 November afternoon handover (#546). Since then: the plan opens on the right day, a rule for matches on one day, map cards and the day-by-day map, Save bars in sheets, full country names in the stacked hand, a button audit, and stages A and B of the **round 3 brief**. Stages C and D of that brief are still to build: see "Round 3 brief: where it stands" below, which is the first thing to pick up. In parallel, another session built Drop goal stages 2 and 3, the sheet rules in #560 and #562, and the DNSW design system at `/design-system` (#559).
 
 ## Ways of working
 
-- **Branch:** use the branch your session is given. On 19 Nov two sessions worked in parallel, on `claude/charming-carson-1bjb9u` (planner, tickets, Reset fix) and `claude/ecstatic-volta-ooalrr` (Home). Expect the same: pull main before each task, as the other session may have merged since.
+- **Branch:** use the branch your session is given. On 20 and 21 Nov two sessions worked in parallel, on `claude/loving-hamilton-hbh1fu` (planner, round 3 brief) and `claude/eloquent-cray-olixyv` (Drop goal, sheet rules). Expect the same: pull main before each task, as the other session may have merged since. On 21 Nov the user (or GitHub's Update branch) merged main into an open PR's branch; fetch before pushing.
   - Once a PR has merged, restart the branch from main with `git fetch origin main && git checkout -B <branch> origin/main`, then push with `--force-with-lease`.
   - If you push after the user has merged, your commit misses the merge: put it on a fresh branch from main and open a new PR.
   - One commit per task, a draft PR, subscribe to it, and a 50-minute `send_later` safety net (delete it once the PR merges). Several small asks in a row can share one open PR; update its description each time.
@@ -15,7 +15,7 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 - **Previews:** only share links from the Vercel project `mopo123-gmailcoms-projects`, in chat and in PR descriptions, pointing at the page that changed.
   - The URL is `https://dnsw-git-<branch-slug>-mopo123-gmailcoms-projects.vercel.app/wireframes/prototype-pick-your-team.html?tools` (add `&theme=hifi` for high fidelity). The plain address opens **Home**; add `view=plan` for the planner (`?view=plan&tools&theme=hifi`) or `view=kick` for Drop goal, and point each link at the tab that changed. **Long branch names are shortened**: copy the slug from the Vercel bot's comment on the PR rather than building it. For `claude/charming-carson-1bjb9u` it was `claude-charming-cars-cf7f46`.
   - The second project, `moniquepompe-2020s-projects`, also deploys every push; its bot comments arrive as PR notifications. Its previews ask for sign-in, so never share them.
-- **CLAUDE.md:** read it first. It has **twelve** prototype interaction checks. Check 11 (toasts) grew this session:
+- **CLAUDE.md:** read it first. It has **twelve** prototype interaction checks. On 20 and 21 Nov check 10 gained "Changes say they're kept" (a Save bar in sheets where several changes build up) and "A tap outside closes it" (four exceptions), and check 6 a faint top rule on anything pinned to the bottom. Earlier, check 11 (toasts) grew:
   - run it on **every new or moved control**, not only on toasts already there (missed when I have tickets went on the match rows);
   - **never a toast over the control someone is still using** (the page's date slider has none for that reason);
   - a toast that repeats as someone adjusts something is title only and **updates in place**;
@@ -53,7 +53,8 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
   - the open plan, then Add ideas, then an idea;
   - saving with no team: Around the NSW matches and a map pin, then the plan bar (N saved), the open plan's dashed box, Add team, a pick in the sheet, Escape;
   - each date picker: the page (`#tp-ask`), the days sheet and the open plan's days line: slider first (activated handle with a 12/10 tooltip while dragged), your dates under it as the button that opens the fields, Undo and Reset centred; no toast from the page's picker;
-  - tickets: Wales picked, I have tickets on its Sat 16 Oct row (`[data-ticket]`), the toast and its link, Where to watch's line above the carousel, See your match day, Not going after all?, then an interstate ticket from a match sheet and its Watching in NSW instead?;
+  - tickets: Wales picked, I have tickets on its Sat 16 Oct row (`[data-ticket]`), the toast and its link, Where to watch's line above the carousel ("You're at [match]", the match name opens the match sheet, where I have a ticket undoes it), See your match day, then an interstate ticket from a match sheet and its Watching in NSW instead?. Not going after all? was removed on 21 Nov;
+  - placeholders: with Annotations off (`localStorage['tp-annotations'] = 'off'`) no placeholder, dead link or bracketed stand-in text may show anywhere; a scan of every screen's text for `Placeholder`, `Not linked yet`, `[`, `to come`, `to be confirmed`, `pool`, `knockout`, `Drop goal` is the quickest check;
   - the full-screen map card, and the day-by-day card;
   - Getting there and back, then Add where you're staying, then Done.
 - **Figma:** file `LwBKfIftpu8erI6WGOi4W1` (Rugby World Cup). Call `create_session` first.
@@ -64,6 +65,7 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
   - It holds the phone markup and the stacked sheets over the open plan: `#tp-ss` Save & share, `#tp-ts` Your teams (a list), `#tp-at` Add team (lends the page picker), `#tp-cc` Clear your plan?
   - It also holds the annotations array.
   - Page order in the picker section: Find row, the hand, its caption (Clear all now ends the caption's sentence, `capClear()` in teams), then Your days in NSW (`#tp-ask`, since 18 Nov), then the tabs (Your matches, All matches) and the chosen tab's content; the map (`#tp-ov`) follows All matches.
+- **`concepts-words.js` (new, 21 Nov):** every visitor-facing string added or changed by the round 3 brief, in one block (`window.TP_WORDS`), so the user can approve or change them in one place. Each entry is a placeholder until approved. It also swaps the fixtures' Pool A to F to Group A to F in what the phone shows (a MutationObserver on `#tp-phone`, text and aria-labels only, never data or ids). Loaded before concepts-teams.js. Add any new round 3 string here.
 - **`concepts-teams.js`:**
   - the fan and picks;
   - the plan bar and open plan (code names `tp-tl*`; the bar drags, and a tap toggles it). With no team the bar reads No matches yet or N saved, with Add team (`#tp-tl-addteam`);
@@ -96,6 +98,80 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 - **`concepts-plan.js`:** the day cards in the open plan (`?plan=cards`, the default, or `?plan=swipe`). `tpPlan.same(el)` finds an opener again after a redraw.
 - **`pv-device.js`:** paints library images in high fidelity, from `data-img` keys (`imgKey(title)` in third-half).
 - **`shared.css`:** everything for this page is under `.tp-*`. Page section spacing comes from `--sec-gap` (64px). Your days now sits inside the picker, 24px under Clear all, with no box. The desktop layout is under `@media (min-width:1024px)`, scoped to `.pv-device #tp-phone`.
+
+## Round 3 brief: where it stands (pick this up first)
+
+The user's brief of 21 Nov, "Change the current build. Do not rebuild anything", runs in four stages, in order. **After each stage, stop and show, and don't start the next until the user says go.** Its rules for every stage:
+- Don't invent content. Placeholder wording goes in `concepts-words.js`; list every string added.
+- A government site: nothing favours one business, so use the fair rotation for any list of places.
+- Update the annotations and CLAUDE.md checks a stage touches, and list each edit.
+- Check at 390 and 320, with `?plan=cards` and `?plan=swipe`, with Annotations on and off.
+- Keep the plan bar, sheets, day cards and strip, match sheet, I have tickets, the fan and stacked hand, the map, Where to watch, and the date slider's place under the team picker. Leave anything not named untouched.
+
+**Stage A (merged, #558):**
+- The plan bar's pill reads Your plan or Your plan (3), with an arrow.
+- With Annotations off, every placeholder, dead link and bracketed line is hidden (CSS on `#tp-stage:not(.has-notes)`, the `.tp-ph` class and others at the end of `shared.css`).
+- Wording swaps: Check the official timetable; group matches; the later rounds; 9 group + 8 later-round matches; Group A to F; Image of … for stand-in photos.
+- The visible name Drop goal is now Play. The code, notes and `?view=kick` keep Drop goal.
+- No tickets marked yet and Not going after all? are removed.
+
+**Stage B (merged, #561):**
+- One line above the dates on the page, in the plan and in the days sheet: "Set your days to see ideas for the rest of your trip."
+- With no days set, a dashed card under the last match day: "Staying after your last match?" with Set your days, which opens the days sheet. In swipe it sits under the cards.
+- The user said keep the plan's own slider (B1 had asked to remove it). The days sheet keeps Use these dates.
+
+**Stage C: not started.** Match night for someone not going (F-029). For the second round running, a tester whose partner was at the match found the match-day block was all about getting there and had nothing for her evening. This is the one finding still rated Blocks.
+- C1. In the match-day block (the day card's "Before the match", "After the final whistle" and "Near the stadium" labels), add a third label for people who are not going. Placeholder label: "Not going to the match?".
+  - It shows evening ideas in the city of the match, using the fair rotation rule, and only ideas open after 5pm on that day.
+  - If the data has no opening hours for an idea, don't show it under this label.
+- C2. Use the ideas the build already has (dummy content, marked as such). Don't invent new places. If fewer than three are open in the evening, show what exists and list the real content needed (fields: type, opening hours, area, price).
+- C3. No new question up front. Don't change "Who's coming?".
+- C4. Show the label on every NSW match day, ticket or not. Not for a match played interstate.
+- Stage C check:
+  - Ireland alone, Mon 4 Oct (5:15pm evening match): the label shows with only evening-open ideas.
+  - New Zealand, Sat 9 Oct: the same.
+  - A day card with no suitable ideas: the label is hidden, not empty.
+  - Screen reader order: before, the match, after, then this label.
+- Then stop and show.
+- **Expect:** the idea fixtures are thin on opening hours (idea sheets show "[Opening hours to come]", hidden with Annotations off), so few or no ideas may qualify. Check the data first and report what exists before building.
+
+**Stage D: not started.** Away days on the plan (F-048). A tester following four teams couldn't see which days he was in NSW and which he was away; the strip only marks match days.
+- D1. Days not set: keep the strip and cards as they are (nothing is guessed). On any day whose matches are all outside NSW, add a plain-text line to the card: "Away from NSW: [city]", using the city already on the match row. No ideas, no buttons, no greyed row that does nothing.
+- D2. Days set: show every day in the range in the strip and the cards. A day with no match and no suggestions can collapse into one card, as the notes already describe. A day whose matches are all interstate shows the same line and no ideas.
+- D3. The bar's count adds the number of teams. Placeholder wording: "4 teams · 11 group matches · 3 in NSW".
+- Keep the strip's interstate marker (`is-away`) and its screen reader label, which now also says "away from NSW".
+- Stage D check:
+  - Ireland, Scotland, France and New Zealand: Sat 2 Oct (three interstate matches) shows the away line; Mon 4 Oct does not.
+  - With days 1 to 17 Oct set, every day appears.
+  - The strip's labels are read in order.
+- Then stop and show.
+
+**Final:** when all four stages are approved, give one list of:
+- every string added (the `concepts-words.js` block, for approval);
+- every note and check edited;
+- everything hidden for lack of real content (Stage A hid the FAQs, the At a glance transport line, the consent box, Buy tickets, View full page, Learn more on Practical info, Placeholder tags, and idea hours and prices);
+- the real content still needed.
+
+**Answers already given (21 Nov):**
+- Yes to Group A to F, later-round matches, Play in the kick-game lines, and Image of for screen readers.
+- The plan bar's line duplicating Your plan with no team is fine.
+- The plan keeps its slider.
+- The days sheet keeps Use these dates.
+
+## Done on 20 and 21 November (#546 to #562)
+
+- **#561, #558:** round 3 stages B and A (above).
+- **#562, #560 (other session):** sheet rules (tap outside, Save only where changes build up, a soft rule on pinned bars) and the bars and days sheet brought in line; the days sheet keeps unconfirmed days as a draft.
+- **#559 (other session):** the DNSW design system at `/design-system`.
+- **#552, #554, #556, #557 (other session):** Drop goal stages 2 and 3 (see the Drop goal section).
+- **#555:** full country names on the stacked hand (arcs of five, fewer to an arc where the names need it); room at the end of the plan so the last day's card can come to the top.
+- **#553:** after a button audit: Follow day by day's venue and ticked pins open their details; focus fixes.
+- **#551:** a Save bar in every sheet where a change applies at once (check 10, "Changes say they're kept"), and the toast rule addition to check 11.
+- **#550:** half-day ideas as stops in the map's card row; See your match day (F-028) opens the plan on the match day.
+- **#549:** the map's cards open on the first NSW match; "Played in X. Watch it in NSW." on interstate stops; the days filter.
+- **#548:** a rule for matches on one day. Every match of the picked teams counts: the same kick-off gives a red line "N matches at the same time" and a ring on the strip; otherwise two or more cities give a quieter "Matches in N cities" with no ring. Tickets don't change it.
+- **#547:** the plan opens on the rule's day: the first of your days, else the earliest dated save, else the first NSW match, else the plan's first day.
+- **#546:** the previous version of this handover.
 
 ## Done on 19 and 20 November (#528 to #545)
 
@@ -147,7 +223,7 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 
 1. **New, data contract:** #534 added `highlights` (§16 of `docs/product-data-contract.md`, a proposed `gap` field on venue records) without a recorded go-ahead. CLAUDE.md says to stop and ask before using a field outside the contract. Confirm, change or remove it.
 2. **New, CLAUDE.md edits:** checks 7, 10, 11 and 12 were amended or added between 17 and 19 Nov (commits `e0977cb`, `3f073db`, `dd18721`, `26b51da` and `a185d3b`). If any wording went in without being shown first, the user may want to review it.
-3. **New, Home:** the article page (`pages/rwc-article.html`) is not built. Drop goal shows the kick game (Stage 1, 21 Nov); Stages 2 to 5 are still to come.
+3. **Home:** the article page (`pages/rwc-article.html`) is not built. Drop goal (visible name Play since 21 Nov) has stages 1 to 3 built; stages 4 and 5 are still to come.
 4. **From the Where to watch critique, not chosen:** the fair venue rotation picks Wollongong and Newcastle venues for a Sydney match (the nearest fan zone was "used" on the interstate cards). Should proximity win on the night of a fan's own city match?
 5. **At 320 wide:** on the Every NSW match card the wider I have tickets button wraps long names (New Zealand) to two lines.
 6. **From #527, still unanswered:** the open plan's heading repeats "Your plan" from the bar; the end-of-page summary says "added" while the bar says "saved"; a dated save made with no team stays in the box after a team is picked, until days are set.
@@ -185,7 +261,7 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 ## Recommended next steps
 
 1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether a parallel session has merged anything since.
-2. Read CLAUDE.md (checks 7, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
-3. Raise open question 1 (the `highlights` field) before any more work on the host city sheets.
-4. Ask the user what is next (Home, Drop goal Stage 2, the article page or the planner), then open with the scope check and knock-on list before building.
-5. Raise open question 4 (venue proximity) only if the work touches Where to watch.
+2. Read CLAUDE.md (checks 7, 10, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
+3. Ask the user for go on **Stage C** of the round 3 brief (above). Before building, report which ideas have opening hours that put them open after 5pm, and say what else the change touches (check 12).
+4. After each stage: stop and show, with no commit until the user answers. Then Stage D, then the Final list.
+5. Raise open question 1 (the `highlights` field) before any more work on the host city sheets, and open question 4 (venue proximity) only if the work touches Where to watch.
