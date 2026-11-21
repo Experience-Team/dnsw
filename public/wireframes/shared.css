@@ -3162,7 +3162,7 @@ body.cp-page code { font: inherit; }
 .tp-tl-scrim { position: absolute; inset: 0; z-index: 99; background: var(--c-scrim); opacity: 0; visibility: hidden; transition: opacity .22s ease-in, visibility 0s linear .22s; }
 .tp-tl-scrim.is-on { opacity: 1; visibility: visible; transition: opacity .3s ease-out, visibility 0s; }
 /* The bar: one button. Layout as in the design: label 20px down, summary 38px, the expand circle on the right, the strip */
-.tp-tl-bar { position: relative; display: block; width: 100%; height: 88px; padding: 0; border: 0; border-top: var(--bw-1) solid var(--c-line); border-radius: 12px 12px 0 0; background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; box-shadow: 0 -6px 18px rgba(0,0,0,.1); }
+.tp-tl-bar { position: relative; display: block; width: 100%; height: 88px; padding: 0; border: 0; border-top: var(--bw-1) solid var(--c-line-soft); border-radius: 12px 12px 0 0; background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; box-shadow: 0 -6px 18px rgba(0,0,0,.1); }
 .tp-tl-bar:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -4px; }
 .tp-tl-grab { position: absolute; top: 6px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: var(--c-fill-mid); }
 .tp-tl-sum { position: absolute; top: 18px; left: 16px; right: 72px; display: flex; flex-direction: column; gap: 3px; }
@@ -5001,10 +5001,13 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-days-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); }
 .tp-days-acts .tp-pill[disabled] { opacity: .4; cursor: default; }
 /* The days sheet: what is picked and Use these dates stay fixed to the bottom of the sheet while the calendar scrolls */
-.tp-days-bar { position: sticky; bottom: 0; z-index: 2; align-self: stretch; margin: var(--space-2) calc(-1 * var(--space-4)) calc(-1 * var(--space-4)); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); }
+.tp-days-bar { position: sticky; bottom: 0; z-index: 2; align-self: stretch; margin: var(--space-2) calc(-1 * var(--space-4)) calc(-1 * var(--space-4)); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line-soft); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); }
 .tp-days-bar .tp-days-sum { margin: 0; }
 /* Save in the match sheet (20 Nov): pinned to the sheet's foot once something changes; it closes the sheet, as the cross does */
-.tp-pm-save { flex: none; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); position: relative; z-index: 2; }
+/* Days sheet (21 Nov): the line naming days picked but not saved yet, above the summary */
+.tp-days-draft { margin: 0 0 var(--space-1); font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink); }
+.tp-days-draft[hidden] { display: none; }
+.tp-pm-save { flex: none; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4) var(--space-4); background: var(--c-surface); border-top: var(--bw-1) solid var(--c-line-soft); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); position: relative; z-index: 2; }
 .tp-pm-save[hidden] { display: none; }
 .tp-pm-save-said { flex: 1; min-width: 0; margin: 0; font-size: var(--fs-sm); line-height: 1.4; }
 .tp-pm-save .tp-pill { flex: none; }

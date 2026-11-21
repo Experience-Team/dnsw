@@ -177,6 +177,11 @@ This replaces the 19 November evening handover (#543). Since then: a Low fidelit
 - **Stage 3 (21 Nov): theme, team and layout.** `drop-goal/css/embed.css` (only in a frame) maps the game's controls and card onto the page's tokens, sent by `kickTheme()` in concepts-teams.js as `thk:theme` on load and when the High fidelity switch changes; the pitch and player stay in colour. `thk:teams` sends `state.picked`: picked teams first in the game's row, the first one kicks until a team is chosen in the game. The tab has the page's own Drop goal title and intro; the game's heading, pitch mark and notes are hidden there (the notes are in the annotation). The card has the close cross top right, closes on a tap outside it, and has no Save (user's call, 21 Nov). Kick is pinned to the foot of the frame below 1024px, with a faint rule above. Phone: the pitch is sticky at the top of the frame; desktop: controls beside the pitch.
 - **Still to come:** Stages 4 and 5 as briefed; a sheet for a kick destination; an Open your plan link on the card; removing the temporary Colour settings. Open: the tab is called Drop goal but the game is a kick off a tee; the skin fallback for the 7 teams with no blue or green.
 
+## Rules in line (21 Nov)
+
+- CLAUDE.md gained three rules (#560): a tap outside closes a sheet, with four exceptions (check 10); Save only where several changes build up (check 10); a faint soft top rule on everything pinned to the bottom (check 6).
+- Brought in line: the plan bar, the days sheet's bar and the sheet Save bar now use `--c-line-soft`. The days sheet keeps unconfirmed days as a draft (`dDraft` in concepts-third-half.js) and says Not saved yet when reopened. Every other sheet already met the tap-outside rule: backdrops act on a click, so a drag that ends on them does not close the sheet; Clear plan's backdrop is Cancel; the desktop rail and full-screen layers have no backdrop.
+
 ## Recommended next steps
 
 1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether a parallel session has merged anything since.
