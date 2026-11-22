@@ -1,4 +1,4 @@
-/* ── High fidelity theme for the prototypes (prototype-pick-your-team.html, prototype-itinerary.html) ─────────────
+/* ── High fidelity theme for the prototype (prototype-pick-your-team.html) ─────────────
    On when <html data-theme="hifi">: the High fidelity switch in the viewer panel, or ?theme=hifi (works with ?phone,
    so the QR code opens the same theme). Phone only: every rule is inside .cn-phone, so the viewer panel stays
    wireframe.
