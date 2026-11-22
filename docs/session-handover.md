@@ -347,7 +347,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - Polish (#571) done. Since: the capsule label is Play on phones and Play Drop Goal on the desktop website (`.tp-cap-phone` / `.tp-cap-desk`, `TP_WORDS.playDesktop`), and every tab's top heading is an h2 (the planner's slogan was an h3).
 - 22 Nov, after the re-critique (25/40): the result card on phones opens at full height; dragging its grabber or head down shrinks it to a short card (the place, Add to your plan, the action bar) so the landing shows on the pitch, and dragging further or a flick closes it; a tap on the grabber switches the heights (user's call; `drop-goal/js/card-sheet.js`). The card's Kick again is now Line up next kick. Names as above.
 - 22 Nov, the visit (`drop-goal/js/visit.js`): a random start per visit (a random route from Sydney, aimed at a stop picked at random); never the same stop twice per visit, by a late gust or off the upright on top of the physics (lines: Off the upright!, Caught the breeze!, Off the upright and caught the breeze!, Off the upright and over!, Over the bar and caught the breeze!); every stop seen adds "You've seen every stop on this route. Try another route?" and starts the list again; Explore all stops (pan the pitch, identical markers with a tick when seen, a hidden list of stop buttons for the keyboard, Back to kicking on the Kick bar); previous and next on the card (the content slides inside the card, the marker and camera follow, Add applies to the stop showing, "Taree, stop 4 of 10"); the estimate under Power only with `?tools`; Reset prototype starts a new visit (`thk:reset`). `checkDistribution()` simulates whole visits: 8.7 to 10.6% per stop on every route.
-- Still to do: the critique's remaining items (swipe-down chaining off the Kick bar, focus and tab order, the page-head dimming), which the user is working through separately; check 10 now covers a sheet with two heights and previous and next as a sideways step (22 Nov).
+- Still to do: the critique's remaining items (focus and tab order, the page-head dimming), which the user is working through separately; check 10 now covers a sheet with two heights and previous and next as a sideways step (22 Nov). Swipe-down chaining off the Kick bar was fixed on 23 Nov.
 
 ## Drop goal: where it stands (22 Nov)
 
@@ -356,7 +356,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - **Messages:** `thk:ready`, `thk:save`, `thk:unsave`, `thk:saved`, `thk:theme`, `thk:teams`, `thk:card`, `thk:open-plan`, `thk:close`, `thk:reset` (drop-goal/README.md).
 - **Testing it:** in the console, set `visit.seen[routeKey]` and `wind` before a kick to force each re-route case; `?tools` shows the estimate. The test scripts used this session were in the scratchpad, not the repo.
 - **Still to do:**
-  - the critique's remaining items: a swipe down on the game chains to the page and can push the Kick bar off screen; focus and tab order (focus lost on close in places, tabbing out of the frame, 28 team chip stops); the page head dims while the card is open (the user is working through these separately);
+  - the critique's remaining items: focus and tab order (focus lost on close in places, tabbing out of the frame, 28 team chip stops); the page head dims while the card is open (the user is working through these separately);
   - remove the temporary Colour settings; the skin fallback for the 7 teams with no blue or green;
   - a sheet for a kick destination, if still wanted (see open question 3).
 
