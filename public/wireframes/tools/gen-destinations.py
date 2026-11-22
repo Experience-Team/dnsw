@@ -11,7 +11,16 @@ def summary(n):
     s = T[n][ANS].strip()
     # Editor notes about the source page are not visitor copy: drop them (Brooklyn)
     s = re.sub(r'\s*Sydney\.com has no dedicated \w+ page\.$', '', s)
+    # A government site names no business ahead of others: trimmed with the user's go-ahead (22 Nov 2026).
+    # Each edit only removes names or replaces them with what the business does; nothing is added.
+    for old, new in TRIM.get(n, []):
+        assert old in s, (n, old); s = s.replace(old, new)
     return s
+TRIM = {
+    'Brooklyn': [('the base for The Riverboat Postman cruises, Hawkesbury River Kayaks, boat hire for fishing, Sydney Oyster Farm Tours and',
+                  'the base for river cruises, kayaking, boat hire for fishing, oyster farm tours and')],
+    'Narooma': [('Merivale-revamped venues have made it', 'Revamped venues have made it')],
+}
 J = lambda o: json.dumps(o, ensure_ascii=False)
 
 # ---- Drop goal: one summary per stop name (§18 summary)
