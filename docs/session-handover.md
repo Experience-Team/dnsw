@@ -2,7 +2,7 @@
 
 22 November 2026 (Sydney), evening, updated after #591. Repo `Experience-Team/dnsw`, main at `cd143a9` (the merge of #590, after #591). **No PR is open** apart from this update's own. #579 to #591 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
-**The next session creates more prototype options.** Read "Prototype options: how they work" below first: each option is its own tab in the viewer, the same page with a flag (Option A is `?flow=a`, #593). Compare options (#587) was removed on 23 Nov at the user's request, so each tab shows one phone.
+**The next session creates more prototype options.** Read "Prototype options: how they work" below first: each option is its own tab in the viewer, the same page with a flag (Option B is `?flow=a`, #593; the main prototype is Option A). Compare options (#587) was removed on 23 Nov at the user's request, so each tab shows one phone.
 
 This replaces the 22 November morning handover (#578). Since then, two sessions worked in parallel:
 - **This session** (`claude/gallant-cori-aajo32`): real destination data from the user's spreadsheet for Drop goal and the free-day ideas (#582), business names trimmed from every summary (#583), article pages for Read before you go with a Quick answers block for SEO and AEO (#583), the Leave the car at home card's line and link (#585, #588), and pictures between paragraphs in the articles (#589).
@@ -48,11 +48,12 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
   1. Agree the scope first (CLAUDE.md checks 7 and 12): which part of the page the option changes, and everywhere that part appears.
   2. Pick a short flag name and values, for example `hero=a|b`. Read it in the `<head>` script beside `slogan`, and set `data-hero` on `<html>`.
   3. Build the alternative beside the current one, switched by the attribute. Keep the default as it is today, so existing links don't change (CLAUDE.md "Previews": say which links behave differently, if any).
-  4. Give it a tab: add it to `.pv-tabs` with `data-flow-tab` (as Option A), and to the `<head>` storage script if it should keep its own saved state. If it needs a switch too, add one to the tools panel like the existing tests.
+  4. Give it a tab: add it to `.pv-tabs` with `data-flow-tab` (as Option B), and to the `<head>` storage script if it should keep its own saved state. If it needs a switch too, add one to the tools panel like the existing tests.
   5. Add an annotation for the option ("TEST: …"), a build log row, and say in the PR how to see each version (for example `?tools&theme=hifi&hero=b`).
   6. Check every option in both themes at 390 and 320.
-- **Option A (23 Nov, `?flow=a`, #593):** its own tab in the viewer (the user's call). Same page; `data-flow="a"` on `<html>`; its own saved state under `flow-a:` (the `<head>` storage script), viewer settings (theme, Annotations) shared. In the planner a pick from the hand glides to Your matches with the new card (`flowScroll`), and `#tp-more` (Add more teams, which opens `#tp-at`, then `#tp-ask`) sits under the cards. A later Option B would follow the same pattern: a `flow=b` value and a tab.
-- **Other prototypes.** The viewer's top tabs (`.pv-tabs`) list the prototypes: Pick your team, Option A (`?flow=a`) and a "[next] prototype" placeholder (the Share/edit itinerary prototype was removed on 22 Nov) that shows only with `?tools`. A new standalone prototype would replace that placeholder tab.
+- **Option B (23 Nov, `?flow=a`, #593; first named Option A):** its own tab in the viewer (the user's call). Same page; `data-flow="a"` on `<html>`; its own saved state under `flow-a:` (the `<head>` storage script), viewer settings (theme, Annotations) shared. In the planner a pick from the hand glides to Your matches with the new card (`flowScroll`), and `#tp-more` (Add more teams, which opens `#tp-at`, then `#tp-ask`) sits under the cards. The main prototype's tab is named Option A (renamed from Pick your team on 23 Nov, user's call); the address stays `?tools`, and Option B stays `?flow=a`. A later Option C would follow the same pattern: a new `flow=` value and a tab.
+- **Tab names:** the viewer's tabs read Option A (the main prototype) and Option B (`?flow=a`). The panel heading reads Pick your team: Option A or Option B.
+- **Other prototypes.** The viewer's top tabs (`.pv-tabs`) list the prototypes: Option A (the main prototype), Option B (`?flow=a`) and a "[next] prototype" placeholder (the Share/edit itinerary prototype was removed on 22 Nov) that shows only with `?tools`. A new standalone prototype would replace that placeholder tab.
 - **Ask the user first** whether "more prototype options" means flags on this page (above), new screens or flows, or another prototype tab.
 
 ## Running and testing
@@ -282,7 +283,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - **Tests start on Home:** Home is the default tab, so click the Plan tab (or open `?view=plan`) before testing the planner.
 - **Date fields in headless Chromium** show mm/dd/yyyy (en-US); real phones in Australia show dd/mm/yyyy.
 - **Test server:** a background `python3 -m http.server` is stopped by the session's background time limit; start it again when a test can't connect.
-- **Option A and Drop goal:** Option A keeps its own saved state by prefixing keys (`flow-a:`) in the page's `<head>`, but the Drop goal game in its own iframe still shares its saved stops with the main prototype.
+- **Option B and Drop goal:** Option B keeps its own saved state by prefixing keys (`flow-a:`) in the page's `<head>`, but the Drop goal game in its own iframe still shares its saved stops with the main prototype.
 - **Marker tooltips (#587):** desktop only (`(hover: hover) and (pointer: fine)`), one `.tp-hovertip` on `body`. The Your days slider's start and end ticks sit under its handles until days are set, so they only show a label once the handles move.
 - **Shell safety check:** a Bash heredoc that writes a test script containing `rm` (even as a variable name) can be stopped as a possible deletion. Write test scripts with the Write tool into the scratchpad instead.
 - **Two Vercel projects** deploy every push. The user hasn't decided whether to disconnect one.

@@ -304,7 +304,7 @@
       card._pull.onfinish = card._pull.oncancel = function () { card.style.zIndex = ''; card._pull = null; };
     }
     renderChosen();
-    // Option A: a pick from the planner's own hand (or Find above it) takes the page down to the new card. Not a pick
+    // Option B: a pick from the planner's own hand (or Find above it) takes the page down to the new card. Not a pick
     // on Home, in the Add team sheet or the Your teams sheet, or from a match page (keepTab); never an unpick
     var flowGo = FLOW_A && on && !keepTab && picker.closest('#tp-pick') && picker.getClientRects().length &&
       (from === undefined || picker.contains(from)) && !(tlOpen && !wide());
@@ -1313,7 +1313,7 @@
     if (tlReady) syncBar();
     notesOnly();
   }
-  /* ---------- Option A (?flow=a, 23 Nov) ----------
+  /* ---------- Option B (?flow=a, 23 Nov) ----------
      Its own prototype tab in the viewer. Everything is as on Pick your team except: under the match cards, Add more
      teams (opens the Add team sheet where you are) with Your days in NSW under it, and a pick from the planner's hand
      scrolls down to its match card (flowScroll, called from toggle). #tp-more holds both; on the All matches tab it

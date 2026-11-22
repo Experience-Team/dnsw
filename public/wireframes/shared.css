@@ -5904,8 +5904,9 @@ span.tp-map-arrow { display: block; }
 .tp-tl-value.is-tight { font-size: var(--fs-md); } /* Stage D: a long count steps down a size rather than cut off (check 6) */
 .tp-tl-value.is-tighter { font-size: var(--fs-sm); }
 .tp-tl-value.no-teams .tp-tl-vteams { position: absolute; width: 1px; height: 1px; overflow: hidden; min-height: 0; clip-path: inset(50%); white-space: nowrap; } /* still read out */
-/* Option A (?flow=a, 23 Nov): its own tab in the viewer. The panel's heading and line say so only there */
+/* Option B (?flow=a, 23 Nov; was named Option A): its own tab in the viewer. The panel's heading and line say so only there */
 :root:not([data-flow="a"]) .pv-flow-a { display: none; }
+:root[data-flow="a"] .pv-flow-main { display: none; }
 /* Under the match cards: Add more teams, full width and prominent (the card-fan icon, as on every Pick your teams
    prompt), then Your days in NSW. 24px from the cards (one family), 48px to Your days. On the All matches tab the block
    follows the All matches list, outside the picker, so it takes the page's side margins itself */
