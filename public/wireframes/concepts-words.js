@@ -1,7 +1,8 @@
 /* Visitor-facing wording added or changed on 21 Nov (stage A to D of the round 3 fixes), in one place so it can be
    approved or changed here and nowhere else. Every entry is a placeholder the user has still to approve.
-   Code and the fixtures' own field names keep their old words (pool, knockout, Drop goal); the annotations and handover say Play.
-   Approved 21 Nov: Group A to F, later-round matches in counts, Play in the kick-game lines, Image of for stand-in photos. */
+   Code and the fixtures' own field names keep their old words (pool, knockout). The kick game is called Drop goal, shown as
+   Play on phones (22 Nov); the annotations and handover use that wording.
+   Approved 21 Nov: Group A to F, later-round matches in counts, Play in the kick-game lines (since 22 Nov they say Drop goal, the name), Image of for stand-in photos. */
 window.TP_WORDS = {
   // A1: the way back to the plan, on the plan bar (F-046)
   planLabel: 'Your plan',
@@ -11,17 +12,20 @@ window.TP_WORDS = {
   // A2: visitor-facing names for the stages (F-052); the fixtures keep pool and knockout
   groupMatches: 'group matches', groupMatch: 'group match',
   laterRounds: 'the later rounds',
-  // A3: the kick game's visible name (F-034), everywhere it shows, page title included; the route, ?view=kick and the code keep Drop goal
+  // The kick game's name, Drop goal (22 Nov, user's call), for screen readers: the tab's section, the game's frame, Home's still
+  dropGoal: 'Drop goal',
+  // A3 (F-034): its short label on phones, in the capsule and the two headings (the tab's own and Home's section)
   play: 'Play',
-  // The capsule on the desktop website (21 Nov, user's call): the name with the game it is; phones keep Play
+  // The desktop website (21 and 22 Nov, user's calls): the capsule says Play Drop Goal and the two headings Drop Goal
   playDesktop: 'Play Drop Goal',
+  dropGoalTitle: 'Drop Goal',
   // A2 follow-up (21 Nov): the number forms of the later rounds
   laterRoundMatches: function (shown, n) { return shown + (n === 1 ? ' later-round match' : ' later-round matches'); },
   // A2 follow-up: the fixtures' Pool A to F, shown as Group A to F
   groupName: function (s) { return String(s).replace(/\bPool ([A-F])\b/g, 'Group $1').replace(/\bthe pools finish\b/g, 'the groups finish'); },
   // A2 follow-up: what screen readers hear for a stand-in photo
   imageOf: function (s) { return 'Image of ' + s; },
-  kickStill: 'A still from the Play game',
+  kickStill: 'A still from the Drop goal game',
   // B2 (F-053): what setting days does, above the dates on the page, in the plan and in the days sheet
   setDaysWhy: 'Set your days to see ideas for the rest of your trip.',
   // B3 (F-051): the plan's card under the last match day while no days are set
