@@ -933,7 +933,17 @@
      at their top again. "Top" is where the page starts under the capsule: if the capsule is floating, it stays put and
      the page starts below it; nearer the top of the screen the scroll stays as it is, so nothing jumps under a finger. */
   var qv = /[?&]view=(plan|kick|home)\b/.exec(location.search);
-  var view = qv ? (qv[1] === 'home' ? 'event' : qv[1]) : 'event', Y = {}, touched = {};
+  /* A reload (the browser's button, or pulling down on a phone) stays on the tab that was showing (22 Nov), kept for this
+     browser tab only (sessionStorage). A fresh visit or a shared link still opens on Home, and ?view= still wins */
+  var VKEY = 'tp-view:' + location.pathname, saved = null;
+  try {
+    var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (nav && nav.type === 'reload') saved = sessionStorage.getItem(VKEY);
+  } catch (e) {}
+  if (!/^(event|plan|kick)$/.test(saved || '')) saved = null;
+  var view = qv ? (qv[1] === 'home' ? 'event' : qv[1]) : saved || 'event', Y = {}, touched = {};
+  function keepView() { try { sessionStorage.setItem(VKEY, view); } catch (e) {} }
+  keepView();
   Y[view] = 0; touched[view] = true;
   function showView() {
     phone.classList.toggle('is-kick', view === 'kick');
@@ -1013,7 +1023,7 @@
       void b.offsetWidth; b.style.transition = ''; b.style.transform = '';
     });
     place(true);
-    var leaving = view; view = v;
+    var leaving = view; view = v; keepView();
     if (leaving === 'kick' && window.tpKickClose) window.tpKickClose(); // the game's result card does not wait behind another tab
     var was = body.scrollTop;
     Y[leaving] = was;
