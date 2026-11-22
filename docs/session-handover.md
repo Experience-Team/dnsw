@@ -309,7 +309,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 
 12. **New, articles:** dummy content. The Pacific fans article makes cultural statements written without a source (team colours, greetings, crowds falling quiet during the challenge) and needs review by someone from those communities. Match details come from the placeholder fixtures. Articles show no pink marks with Annotations on; only the annotation says they are dummy. Articles are not in the data contract; offer a section if wanted.
 13. **New, destination data:** most Newcastle ideas have no travel time from Newcastle (the pages give times from Sydney). The spreadsheet's Current notices column is not shown anywhere (for example the Great Western Highway closure for Lithgow and Bathurst). Venue names change: recheck against the live pages before launch.
-14. **New, Home FAQs:** the answers are still `[Answer to come]`, so the FAQs and their links stay hidden with Annotations off. Ticketing and fan festival details are needed to write them.
+14. **Answered, Home FAQs:** the user supplied the six answers (22 Nov); they show with Annotations off again, and the site footer is built from the user's sydney.com copy.
 15. **New, the itinerary prototype's Save & share** (`prototype-itinerary.html`) still has the old tiles; #584 and #591 changed only Pick your team's. Ask whether it should match.
 16. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
 

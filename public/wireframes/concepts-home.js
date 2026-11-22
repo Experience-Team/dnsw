@@ -5,7 +5,7 @@
    - Plan around your matches, shown once anything is picked: the planner, at Your days;
    - Where the matches are: a cut-down planner map with the three NSW stadiums (each opens its host city sheet,
      concepts-third-half.js pmCity) and a few regions within reach, shown lightly; one card per stadium;
-   - the FAQs (placeholder answers until copy is supplied), the updates sign-up and Share this page. */
+   - the FAQs (answers supplied 22 Nov), the updates sign-up and Share this page. */
 (function () {
   'use strict';
   var tp = window.tpPicker, GEO = window.cnGeo;
@@ -271,15 +271,38 @@
   if (startA && artBy(startA[1])) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startArt); else setTimeout(startArt, 0); }
   window.tpArticle = { open: function (s) { openArt(s, { push: true }); }, close: back, get: function () { return reading; } };
 
-  /* ---------- FAQs: one open at a time is not forced; each opens and closes on its own ---------- */
-  var FAQ = ['How can I buy Rugby World Cup 2027 tickets?', 'Will there be fan festivals?', 'What can I do before or after a match?',
-    'How do I get to Rugby World Cup 2027 matches in NSW?', 'Can I visit both Sydney and Newcastle during the tournament?',
-    'What else can I see and do in NSW during Rugby World Cup 2027?'];
+  /* ---------- FAQs (answers supplied 22 Nov): each opens and closes on its own ----------
+     The questions and answers as the user gave them, links included. An answer is a list of paragraphs; [text](url)
+     marks a link, which opens in a new tab and says so to screen readers. */
+  var FAQ = [
+    ['How can I buy Rugby World Cup 2027 tickets?', [
+      'Tickets for Men’s Rugby World Cup 2027 are on sale now and are subject to availability. Always purchase tickets through official [Rugby World Cup 2027](https://rwc2027.rugbyworldcup.com/) ticketing channels.']],
+    ['Will there be fan festivals?', [
+      'Fan festivals are planned across the Rugby World Cup 2027 host cities, including Sydney and [Newcastle](https://www.visitnsw.com/destinations/north-coast/newcastle-area). More details about locations, dates and programming will be announced closer to the tournament on the official website.']],
+    ['What can I do before or after a match?', [
+      'Make match day part of a bigger NSW adventure. Explore Sydney’s iconic [harbour](https://www.sydney.com/destinations/sydney/sydney-city/sydney-harbour), [beaches](https://www.sydney.com/things-to-do/beaches-and-water-activities), [dining](https://www.sydney.com/things-to-do/food-and-drink) and [neighbourhoods](https://www.sydney.com/destinations), or discover Newcastle’s [best beaches](https://www.visitnsw.com/articles/different-ways-to-play-at-newcastles-best-beaches), coastal walks and [hikes](https://www.visitnsw.com/articles/best-hikes-and-walks-in-newcastle), and thriving [food and drink scene](https://www.visitnsw.com/articles/food-and-drink-experiences-in-newcastle). With matches spread across the tournament, there’s also plenty of time to squeeze in a [day trip](https://www.sydney.com/articles/best-day-trips-from-sydney) and explore further afield.']],
+    ['How do I get to Rugby World Cup 2027 matches in NSW?', [
+      'Public transport is an easy way to get to Rugby World Cup matches in Sydney and Newcastle. Use the Transport for NSW [Trip Planner](https://transportnsw.info/trip-planner) to plan your journey to Sydney Football Stadium, Accor Stadium (Stadium Australia) and Newcastle Stadium, with detailed event transport information available closer to the tournament.',
+      'Planning to explore beyond the host cities? Hiring a car is a great option if you want to turn your journey between Sydney and Newcastle into a road trip, with the Central Coast, Hunter Valley and more to discover along the way. Find out more about [car hire and driving in NSW](https://www.sydney.com/travel-information/car-rentals-and-driving).']],
+    ['Can I visit both Sydney and Newcastle during the tournament?', [
+      'Absolutely. Sydney and Newcastle are around 160km apart, making it easy to include both cities in your Rugby World Cup trip. Travel by train or make a road trip of it, stopping to explore the [Central Coast](https://www.visitnsw.com/destinations/central-coast) and [Hunter Valley](https://www.visitnsw.com/destinations/hunter/hunter-valley) along the way.']],
+    ['What else can I see and do in NSW during Rugby World Cup 2027?', [
+      'There’s plenty to discover beyond the host cities. Add a coastal [road trip](https://www.visitnsw.com/things-to-do/drives-and-road-trips), visit the [wineries of the Hunter Valley](https://www.visitnsw.com/articles/sip-through-hunter-valleys-best-wineries-and-cellar-doors), escape to the [Blue Mountains](https://www.visitnsw.com/destinations/blue-mountains) or spend a few days exploring [regional NSW](https://www.visitnsw.com/destinations/country-nsw). Use our travel inspiration articles to [start planning your trip](https://www.visitnsw.com/articles).']]
+  ];
+  // Plain text with [text](url) links: the text is escaped, each link opens in a new tab and says so
+  function linked(t) {
+    var out = '', re = /\[([^\]]+)\]\((https?:[^)\s]+)\)/g, last = 0, m;
+    while ((m = re.exec(t))) {
+      out += esc(t.slice(last, m.index)) + '<a class="tp-faq-link" href="' + esc(m[2]) + '" target="_blank" rel="noopener">' + esc(m[1]) + '<span class="visually-hidden"> (opens in a new tab)</span></a>';
+      last = re.lastIndex;
+    }
+    return out + esc(t.slice(last));
+  }
   var faq = document.getElementById('tp-faq');
-  faq.innerHTML = FAQ.map(function (q, i) {
-    return '<div class="tp-faq-i"><h4 class="tp-faq-h"><button type="button" class="tp-faq-q" id="tp-faq-q' + i + '" aria-expanded="false" aria-controls="tp-faq-a' + i + '"><span>' + esc(q) + '</span>' +
+  faq.innerHTML = FAQ.map(function (f, i) {
+    return '<div class="tp-faq-i"><h4 class="tp-faq-h"><button type="button" class="tp-faq-q" id="tp-faq-q' + i + '" aria-expanded="false" aria-controls="tp-faq-a' + i + '"><span>' + esc(f[0]) + '</span>' +
       '<svg class="tp-faq-chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 6l4.5 4.5L12.5 6"/></svg></button></h4>' +
-      '<div class="tp-faq-a" id="tp-faq-a' + i + '" role="region" aria-labelledby="tp-faq-q' + i + '"><div class="tp-faq-in"><p class="tp-home-ph">[Answer to come]</p></div></div></div>';
+      '<div class="tp-faq-a" id="tp-faq-a' + i + '" role="region" aria-labelledby="tp-faq-q' + i + '"><div class="tp-faq-in">' + f[1].map(function (p) { return '<p>' + linked(p) + '</p>'; }).join('') + '</div></div></div>';
   }).join('');
   faq.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-faq-q'); if (!b) return;

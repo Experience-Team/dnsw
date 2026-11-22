@@ -3901,8 +3901,32 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-home-share-said { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.4; color: var(--c-ink-2); overflow-wrap: anywhere; }
 .tp-home-share-said:empty { display: none; }
 .tp-home-share-url { color: var(--c-ink); user-select: all; }
-.tp-home-foot { margin-top: var(--sec-gap); padding: var(--space-7) var(--space-5); background: var(--c-btn); color: var(--c-on-dark); text-align: center; }
-.tp-home-foot p { margin: 0; font-size: var(--fs-base); }
+.tp-home-foot { margin-top: var(--sec-gap); padding: var(--space-7) var(--space-5) var(--space-8); background: var(--c-btn); color: var(--c-on-dark); }
+.tp-home-foot p { margin: 0; font-size: var(--fs-sm); line-height: 1.5; }
+/* The site footer (22 Nov): two sign-ups, the Acknowledgement of Country, social links, four link groups and the
+   copyright, on the dark band. One column on a phone; the groups sit two to a row, four on the desktop website */
+.tp-home-foot a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.tp-home-foot a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.tp-foot-h { margin: 0 0 var(--space-2); font-size: var(--fs-base); font-weight: var(--fw-semi); }
+.tp-foot-news { display: grid; gap: var(--space-6); }
+.tp-foot-promo p { opacity: .85; }
+.tp-home-foot .tp-foot-btn { display: inline-flex; align-items: center; min-height: 36px; margin-top: var(--space-3); padding: 0 var(--space-5); border: var(--bw-1) solid currentColor; border-radius: var(--radius-pill); font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: none; }
+@media (hover: hover) { .tp-home-foot .tp-foot-btn:hover { background: rgba(255, 255, 255, .12); } }
+.tp-home-foot .tp-foot-ack { margin-top: var(--space-7); padding-top: var(--space-6); border-top: var(--bw-1) solid rgba(255, 255, 255, .25); opacity: .85; }
+.tp-foot-social { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); margin: var(--space-5) 0 0; padding: 0; list-style: none; }
+.tp-foot-social a, .tp-foot-col a { display: inline-flex; align-items: center; min-height: 32px; font-size: var(--fs-sm); }
+.tp-foot-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6) var(--space-5); margin-top: var(--space-7); }
+.tp-foot-col ul { margin: 0; padding: 0; list-style: none; }
+.tp-foot-col a { text-decoration: none; }
+@media (hover: hover) { .tp-foot-col a:hover { text-decoration: underline; } }
+.tp-home-foot .tp-foot-copy { margin-top: var(--space-7); font-size: var(--fs-xs); opacity: .75; }
+.tp-faq-in p + p { margin-top: calc(-1 * var(--space-2)); }
+.tp-faq-link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.tp-faq-link:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .tp-foot-news { grid-template-columns: 1fr 1fr; gap: var(--space-7); }
+  .pv-device #tp-phone .tp-foot-cols { grid-template-columns: repeat(4, 1fr); }
+}
 /* Host city sheet (concepts-third-half.js pmCity) */
 .tp-pm-city .tp-ko-list, .tp-pm-city .tp-city-hl { align-self: stretch; margin-top: var(--space-2); }
 .tp-city-ph, .tp-city-empty { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
@@ -5891,9 +5915,7 @@ span.tp-map-arrow { display: block; }
 #tp-stage:not(.has-notes) .tp-pm-full,
 #tp-stage:not(.has-notes) .tp-pm-soon,
 #tp-stage:not(.has-notes) .tp-ov-m.is-q,
-#tp-stage:not(.has-notes) .tp-out[href="#"],
-#tp-stage:not(.has-notes) #tp-home-faq,
-#tp-stage:not(.has-notes) [data-home-jump="tp-home-faq"] { display: none !important; }
+#tp-stage:not(.has-notes) .tp-out[href="#"] { display: none !important; } /* the FAQs show again since their answers came (22 Nov) */
 
 /* B3 (21 Nov, F-051): under the last match day while no days are set, what setting them unlocks */
 .tp-dc-stay { padding: var(--space-4); border: var(--bw-1) dashed var(--c-line); border-radius: var(--radius-sm); }
