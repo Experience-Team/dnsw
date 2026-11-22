@@ -1,4 +1,5 @@
-// Start points and routes. ALL DESTINATIONS AND DISTANCES ARE PLACEHOLDERS (approximate, unverified).
+// Start points and routes. The stops are real places, each with a summary from its town page (js/summaries.js);
+// the DISTANCES ARE PLACEHOLDERS (approximate, unverified).
 
 /* ---------- Start points and routes (placeholder destinations, ordered by approx. road distance from the start) ----------
    Local covers roughly the first 30 km; North, South and West start beyond that so stops are not repeated. */

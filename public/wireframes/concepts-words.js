@@ -43,7 +43,9 @@ window.TP_WORDS = {
   // E3 (22 Nov): the plan's one line for days while none are set; its button is setDays (Set your days)
   planDaysUnset: 'Your days in NSW: not set.',
   // E2: the ideas sheet's line for an arrival or last day (only half-day ideas are offered)
-  arrivalDay: 'Arrival day', lastDay: 'Last day'
+  arrivalDay: 'Arrival day', lastDay: 'Last day',
+  // 22 Nov, real destinations (§19): a free-day idea whose town page gives no travel time from that city
+  gettingTbc: 'Getting there to be confirmed'
 };
 
 /* Pool A to F come from the fixtures (team records, match names such as 2nd Pool C v 2nd Pool F), which are also used

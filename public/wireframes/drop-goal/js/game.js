@@ -264,6 +264,9 @@ function fillCard(i, info) {
   $("cardName").textContent = name;
   $("cardTags").innerHTML = [R.label, dirKey === "local" ? "Near the stadium" : i < 2 ? "Day trip" : i < 6 ? "Short trip" : "Road trip"]
     .map(t => `<span>${t}</span>`).join("");
+  // The destination page's summary (js/summaries.js, §18); a stop with none leaves the paragraph out
+  const blurb = (typeof SUMMARIES !== "undefined" && SUMMARIES[name]) || "";
+  $("cardBlurb").textContent = blurb; $("cardBlurb").hidden = !blurb;
   $("cardDist").textContent = `approx. ${km} km from ${STARTS[startKey]}`;
   $("cardRoute").textContent = `${R.label}, stop ${i + 1} of ${NZ}`;
   const note = info.explore ? "" : info.terrainNote || (info.shortKick ? "Short kick! It rolled to the nearest stop." : info.longKick ? "Huge kick! It ran out of road at the last stop." : "");

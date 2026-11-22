@@ -702,7 +702,10 @@
     }
     return out;
   }
+  // A real destination (§19) says how far it is in the page's own words, or that it is still to be confirmed
+  var GET_TBC = (window.TP_WORDS || {}).gettingTbc || 'Getting there to be confirmed';
   function howLine(i) {
+    if (i.dest) return i.dest.travel || GET_TBC;
     if (i.car) return 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from + ' (no public transport)';
     return i.how.mode + ' from ' + i.how.from + ' · ' + (i.how.mins ? mins(i.how.mins) + ' by public transport' : TBC_L);
   }
@@ -712,7 +715,7 @@
     var km = ideaKm(i), why = 'Fits ' + dl + (km !== null ? ' · ' + kmLine(km) : '') + ' · ' + howLine(i);
     // In the ideas sheet the day is the heading, so the line leads with how to get there and how long, then distance:
     // Ferry from Sydney CBD, 35 min · about 9 km away (the details give the full wording)
-    if (open) why = (i.car ? 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from : i.how.mode + ' from ' + i.how.from + (i.how.mins ? ', ' + mins(i.how.mins) : ', ' + TBC_L)) + (km !== null ? ' · ' + (km < 1 ? 'under\u00a01\u00a0km' : 'about\u00a0' + Math.round(km) + '\u00a0km') + '\u00a0away' : '');
+    if (open) why = i.dest ? howLine(i) + (km !== null ? ' · ' + (km < 1 ? 'under\u00a01\u00a0km' : 'about\u00a0' + Math.round(km) + '\u00a0km') + '\u00a0away' : '') : (i.car ? 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from : i.how.mode + ' from ' + i.how.from + (i.how.mins ? ', ' + mins(i.how.mins) : ', ' + TBC_L)) + (km !== null ? ' · ' + (km < 1 ? 'under\u00a01\u00a0km' : 'about\u00a0' + Math.round(km) + '\u00a0km') + '\u00a0away' : '');
     ITEMS[key] = { id: id, kind: 'place', idea: i.kind, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', place: howLine(i), day: dl };
     return '<article class="tp-pc tp-idea' + (open ? ' tp-idea--open' : '') + '" data-id="' + esc(key) + '">' + (open ? '<button type="button" class="tp-pc-main" data-idea-open="' + esc(key) + '">' : '<button type="button" class="tp-pc-main" data-open="idea:' + esc(key) + '" aria-haspopup="dialog">') +
       '<span class="ph-img tp-pc-img"' + imgKey(i.title) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title' + (i.placeholder ? ' provenance-gap' : '') + '">' + esc(i.title) + '</span>' +
@@ -723,7 +726,8 @@
   }
   /* An idea's details (its own sheet from the page, or a level of the ideas sheet, back by the arrow): a placeholder image, title and
      type, why it fits that day, how to get there and how long it takes, then opening hours, price and a short
-     description. Ideas are fixture-only (cnFreeIdeas has no hours, price or description), so those three are
+     description. Since 22 Nov 2026 the ideas are real towns (concepts-destinations.js, §19): the description is the
+     town page's summary and a town has no hours or price rows. Sydney Opera House, the one idea with no row, keeps
      bracketed placeholders, pink with Annotations on. Add to your plan and View full page (not linked yet). */
   function ideaDetail(i, d, noBack) {
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), km = ideaKm(i);
@@ -734,10 +738,12 @@
     h += '<h2 class="cn-pp-title' + (i.placeholder ? ' provenance-gap' : '') + '" id="tp-pm-title" tabindex="-1">' + esc(i.title) + '</h2>';
     h += '<p class="tp-pm-why provenance-gap">Fits ' + esc(dl) + (i.kind === 'half' ? ': it takes about half the day' : ': it takes the whole day') + (km !== null ? ', ' + esc(kmLine(km)) : '') + '.</p>';
     h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
-      '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + esc(howLine(i)) + '</span>' + (i.car ? '<br><span class="provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</dd></div>' +
-      '<div class="tp-ph"><dt>Opening hours</dt><dd><span class="provenance-gap">[Opening hours to come]</span></dd></div>' +
-      '<div class="tp-ph"><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div></dl>';
-    h += '<p class="cn-pp-text provenance-gap tp-idea-desc">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
+      '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + esc(howLine(i)) + '</span>' + (i.dest && i.dest.getting ? '<span class="provenance-gap tp-idea-get">' + esc(i.dest.getting) + '</span>' : '') + (i.car ? '<br><span class="provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</dd></div>' +
+      // A town or suburb has no opening hours or price: the rows are left out (§19 empty state); other ideas keep them
+      (i.dest ? '' : '<div class="tp-ph"><dt>Opening hours</dt><dd><span class="provenance-gap">[Opening hours to come]</span></dd></div>' +
+      '<div class="tp-ph"><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div>') + '</dl>';
+    h += i.dest ? '<p class="cn-pp-text provenance-gap tp-idea-desc">' + esc(i.dest.summary) + '</p>'
+      : '<p class="cn-pp-text provenance-gap tp-idea-desc tp-ph">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
     return h + pmActions(key, i.title + ' on ' + dl);
   }
   function freeBody(b) {

@@ -606,7 +606,7 @@ Added 21 November 2026 for the Rugby World Cup prototype's Drop goal tab (shown 
 
 **`route`** — `gap`, `source: authored`. The route the stop is on and its position, shown as "North coast, stop 4 of 10". Empty state: none, because a stop always belongs to a route; without a route there is no stop.
 
-**`summary`** — `gap`, `source: authored`, from the destination's page on sydney.com or visitnsw.com. One or two sentences. Empty state: the paragraph is left out. The prototype shows one placeholder sentence for every stop.
+**`summary`** — `gap`, `source: authored`, from the destination's page on sydney.com or visitnsw.com: its direct answer, 40 to 60 words, written to stand alone (changed from one or two sentences on 22 November 2026, user's call). Empty state: the paragraph is left out. Since 22 November 2026 every stop has one, from sydney-towns-aeo.xlsx (the town pages read that day; `SUMMARIES` in `public/wireframes/drop-goal/js/summaries.js`). An editor's note in the source (Brooklyn's "Sydney.com has no dedicated Brooklyn page") is left out.
 
 **`image`** — `gap`, `source: authored`, the destination page's hero image, with usage rights to check. Empty state: the drawn placeholder illustration the game shows today.
 
@@ -620,5 +620,34 @@ Not held: the card's tags (Day trip, Short trip, Road trip, Near the stadium) an
   "route": { "start": "sydney | newcastle", "label": "string", "position": "number" },
   "summary": "string | null",
   "image": "image | null"
+}
+```
+
+---
+
+## 19. Destinations
+
+Added 22 November 2026 for the Rugby World Cup planner (Pick your team prototype), confirmed by the user as `gap`. A destination is a town, suburb, precinct or area with a page on sydney.com or visitnsw.com, not a product: the same kind of place as a kick destination (§18), and referenced as a `place_ref` (§3) once real records exist. The prototype's free-day ideas (half days and day trips) are destinations. Every field renders from fixtures only (`cnDestinations` in `public/wireframes/concepts-destinations.js`, generated from sydney-towns-aeo.xlsx, the town pages read on 22 November 2026). Venue names and notices on those pages change, so recheck them against the live pages before use.
+
+**`name`** — `gap`, `source: authored`. The place, the card's and the details' heading. An idea can be named for what to do there (Manly ferry, Bondi to Coogee walk) and still take its fields from the place. Empty state: the idea is not offered.
+
+**`summary`** — `gap`, `source: authored`. The page's direct answer, 40 to 60 words, as for §18. Shown as the idea's description. Empty state: the bracketed description placeholder (shown with Annotations on only).
+
+**`travel_time`** — `gap`, `source: authored`. How far it is from the idea's city, in the page's own words ("12 minutes by ferry from Circular Quay"). The pages give times from Sydney, so most Newcastle ideas have none. Empty state: "Getting there to be confirmed".
+
+**`getting_there`** — `gap`, `source: authored`. The page's Getting there text, shown in the details under the travel time. Not used for a Newcastle idea when the page only says how to come from Sydney. Empty state: the line is left out.
+
+**`official_url`** — `gap`, `source: authored`. The page it came from. Held, not shown yet.
+
+Not held, and not invented: opening hours and price (a town has neither, so those rows are left out for a destination; an attraction idea such as Sydney Opera House keeps them as placeholders), and coordinates. The map places each idea at an approximate public town centre (`cnGeo.ideas` in `public/wireframes/concepts-geo.js`), prototype only. Who an idea suits (solo, couple, friends, family), used only to order ideas, is read from the page's Best for list where it names families, couples or groups; where it names none, the idea suits everyone.
+
+```json
+"destination": {
+  "name": "string",
+  "place": "place_ref",
+  "summary": "string | null",
+  "travel_time": "string | null",
+  "getting_there": "string | null",
+  "official_url": "string | null"
 }
 ```
