@@ -1858,7 +1858,7 @@
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
       // The tournament at a glance, with the same two handles as on the page: drag either end, or tap the track
       '<div class="tp-range tp-days-range' + (dsel && dsel.z !== null ? '' : ' is-unset') + '"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
-        '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
+        RANGE_MARKS +
         rangeDots() +
         '<span class="tp-range-h" role="slider" tabindex="0" data-dh="from" aria-label="First day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '">' + TIP + '</span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-dh="to" aria-label="Last day" aria-valuemin="' + RMIN + '" aria-valuemax="' + RMAX + '">' + TIP + '</span></div>' +
@@ -2351,12 +2351,17 @@
      team with only interstate pool matches still shows them; a day with both is solid. Drawn with the slider, which
      is redrawn whenever a team is picked or removed. */
   function rangeDots() {
-    var d = {};
-    (tp.own() ? tp.userMatches() : []).forEach(function (m) { d[m.day] = d[m.day] || !m.f.a; });
+    var d = {}, names = {};
+    (tp.own() ? tp.userMatches() : []).forEach(function (m) {
+      d[m.day] = d[m.day] || !m.f.a;
+      (names[m.day] = names[m.day] || []).push(matchName(m.f) + (m.f.a ? ' (in ' + m.f.a + ')' : ', ' + m.f.p) + (hasTicket(m) ? ', your ticket' : ''));
+    });
+    // On the desktop, hovering a dot says what it marks (22 Nov; the tooltip is in prototype-pick-your-team.html)
     return Object.keys(d).map(function (k) {
-      return '<span class="tp-range-match' + (d[k] ? '' : ' is-away') + '" aria-hidden="true" style="left:' + ((+k - RMIN) / RSPAN * 100) + '%"></span>';
+      return '<span class="tp-range-match' + (d[k] ? '' : ' is-away') + '" aria-hidden="true" data-tip="' + esc(dayLabel(+k) + ': ' + names[k].join('; ')) + '" style="left:' + ((+k - RMIN) / RSPAN * 100) + '%"></span>';
     }).join('');
   }
+  var RANGE_MARKS = '<span class="tp-range-mark" aria-hidden="true" data-tip="Fri 1 Oct: the tournament starts" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" data-tip="Sat 13 Nov: the final" style="left:' + (45 / 47 * 100) + '%"></span>';
   function shortDay(d) { var dt = new Date(Date.UTC(2027, 9, 1 + d)); return dt.getUTCDate() + '/' + (dt.getUTCMonth() + 1); }
   function tipSet(h, d) {
     var tip = h.querySelector('.tp-range-tip'); if (!tip) return;
@@ -2391,7 +2396,7 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       h += '<p class="tp-sec-note">' + esc(WHY) + '</p>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
-        '<span class="tp-range-mark" aria-hidden="true" style="left:' + (2 / 47 * 100) + '%"></span><span class="tp-range-mark" aria-hidden="true" style="left:' + (45 / 47 * 100) + '%"></span>' +
+        RANGE_MARKS +
         rangeDots() +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="from" aria-label="First day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span>' +
         '<span class="tp-range-h" role="slider" tabindex="0" data-h="to" aria-label="Last day" aria-valuemin="-2" aria-valuemax="45">' + TIP + '</span></div>' +

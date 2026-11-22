@@ -4112,7 +4112,29 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-page .cn-body { overscroll-behavior: contain; } /* reaching the end of the prototype never hands the scroll on */
 .pv-spare { flex: none; width: 390px; height: min(844px, 100%); border: 1px dashed #b3b3b3; } /* placeholder for another prototype */
 /* No room for the spare frame: it goes */
-@media (max-width: 1352px) { .pv-spare { display: none; } } /* 460 panel + 2 × 390 + 48 gap + 64 padding */
+@media (max-width: 1352px) { .pv-spare { display: none; } }
+/* Compare options (22 Nov, pv-compare.js): a panel group under the tests, and up to three framed phones to the right of
+   the main one, each named above its top left corner. The stage scrolls sideways when they do not all fit, and starts
+   at the left so nothing is cut off; the main phone keeps room on its left for Reset and Open in desktop */
+.pv-cmp-panel { margin-top: var(--space-5); }
+.pv-cmp-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.pv-cmp-h { margin: 0; font-size: 1rem; font-weight: 600; }
+.pv-cmp-add { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 var(--space-4); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; }
+.pv-cmp-add:disabled { border-color: #d1d1d1; color: #8a8a8a; cursor: default; }
+.pv-cmp-add:focus-visible, .pv-cmp-rm:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+@media (hover: hover) { .pv-cmp-add:not(:disabled):hover { background: #f0f5ff; } .pv-cmp-rm:hover { color: #1a1a1a; } }
+.pv-cmp-p { margin: var(--space-2) 0 0; font-size: .8125rem; line-height: 1.45; color: #5a5a5a; }
+.pv-cmp-list { margin: 0; padding: 0; list-style: none; }
+.pv-cmp-opt { margin-top: var(--space-3); padding: var(--space-3); border: 1px solid #d1d1d1; border-radius: var(--radius-md); }
+.pv-cmp-opt-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.pv-cmp-opt-name { font-size: .875rem; font-weight: 600; }
+.pv-cmp-rm { min-height: 28px; padding: 0; border: 0; background: none; color: #5a5a5a; font: inherit; font-size: .8125rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.pv-cmp-flags { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); margin-top: var(--space-1); }
+.pv-stage.has-cmp { justify-content: flex-start; overflow-x: auto; padding-left: calc(36px + var(--space-2) + var(--space-6)); }
+.pv-stage.has-cmp .pv-spare { display: none; }
+.pv-cmp-frame { position: relative; flex: none; width: 390px; height: min(844px, 100%); }
+.pv-cmp-frame iframe { display: block; width: 100%; height: 100%; border: 1px solid #d1d1d1; background: #fff; }
+.pv-cmp-label { position: absolute; left: 0; bottom: 100%; margin: 0 0 6px; font: 600 .8125rem/1.2 system-ui, sans-serif; color: #5a5a5a; white-space: nowrap; } /* 460 panel + 2 × 390 + 48 gap + 64 padding */
 @media (max-width: 960px) { .pv-page { grid-template-columns: 360px minmax(0, 1fr); } .pv-header, .pv-tabs, .pv-concept { padding-inline: var(--space-4); } .pv-tabs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent); mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent); } }
 /* Too short or too narrow for a fixed screen: an ordinary page, panel above, phone at full size */
 @media (max-height: 600px), (max-width: 800px) {
@@ -5206,6 +5228,14 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tp-days .tp-days-flex .tp-chip { flex: none; white-space: nowrap; }
 .tp-days-range { margin: var(--space-2) 0 var(--space-4); }
 .tp-range-match { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--c-accent); pointer-events: none; z-index: 1; }
+/* Marker tooltips (22 Nov, desktop only): the markers take the pointer, with a hit area wider than the dot, and one
+   small dark label shows above the marker being hovered */
+.tp-hovertip { position: fixed; z-index: 1000; max-width: 300px; padding: 6px var(--space-2); border-radius: var(--radius-sm); background: #1a1a1a; color: #fff; font: 600 12px/1.35 var(--font-body, system-ui, sans-serif); pointer-events: none; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+.tp-hovertip[hidden] { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .tp-range-match[data-tip], .tp-range-mark[data-tip], .tp-tl-dot[data-tip] { pointer-events: auto; cursor: default; }
+  .tp-range-match[data-tip]::before, .tp-range-mark[data-tip]::before, .tp-tl-dot[data-tip]::before { content: ""; position: absolute; inset: -6px 0; }
+}
 .tp-range-match.is-away { box-sizing: border-box; background: var(--c-surface); border: 1.5px solid var(--c-accent); } /* interstate: hollow */
 
 /* Your days on the page: no Use these dates, so Undo and Reset sit as quiet text links with icons (16 Nov) */
@@ -5856,3 +5886,6 @@ span.tp-map-arrow { display: block; }
 .tp-tl-value.is-tight { font-size: var(--fs-md); } /* Stage D: a long count steps down a size rather than cut off (check 6) */
 .tp-tl-value.is-tighter { font-size: var(--fs-sm); }
 .tp-tl-value.no-teams .tp-tl-vteams { position: absolute; width: 1px; height: 1px; overflow: hidden; min-height: 0; clip-path: inset(50%); white-space: nowrap; } /* still read out */
+.pv-stage.has-cmp .pv-phone::before { content: "Main"; position: absolute; left: 0; bottom: 100%; margin-bottom: 6px; font: 600 .8125rem/1.2 system-ui, sans-serif; color: #5a5a5a; }
+/* With options listed the panel can outgrow the window: its upper part scrolls, so the QR box at its foot never covers them */
+.pv-concept:has(.pv-cmp-opt) { overflow-y: auto; }

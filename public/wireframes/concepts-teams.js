@@ -1725,8 +1725,13 @@
     var spans = state.added.some(function (it) { return it.kind === 'trip' && it.nights > 0; });
     tlCanvas.style.height = (60 + rows * 32 + (spans ? 34 : 0)) + 'px';
     if (!own()) dayType = {}; // empty plan: no match dots on the bar's strip (the open plan still previews them)
+    // What each day's dot marks, for the hover tooltip on the desktop (22 Nov): its matches, then what was added
+    var dayTip = {};
+    if (own()) shown.forEach(function (m) { var tk = !!m.tkey && state.tickets.indexOf(m.tkey) > -1; (dayTip[m.day] = dayTip[m.day] || []).push(tlName(m) + (m.f.a ? ' (in ' + m.f.a + ')' : '') + (tk ? ', your ticket' : '')); });
+    state.added.forEach(function (it) { if (it.kind === 'match') return; var dd = dayOf(it.day); if (dd >= 0 && dd < DAYS && itemDays[dd]) (dayTip[dd] = dayTip[dd] || []).push(it.title); });
     tlDotEls.forEach(function (el, i) {
       var t = dayType[i];
+      if (dayTip[i] && (t !== undefined || itemDays[i])) el.setAttribute('data-tip', dayLabel(i) + ': ' + dayTip[i].join('; ')); else el.removeAttribute('data-tip');
       el.className = 'tp-tl-dot' + (t === undefined && !itemDays[i] ? ' is-off' : t === undefined ? ' is-item' : t === 3 ? ' is-ticket' : t === 1 ? ' is-away' : t === 0 ? ' is-tbd' : '') + (itemDays[i] && t !== undefined ? ' has-item' : '');
     });
     // The bar's words. One reading that never changes meaning: the label names your teams; the value is the plan's total
