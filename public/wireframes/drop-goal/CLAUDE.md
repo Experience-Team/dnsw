@@ -10,7 +10,7 @@ Read `README.md` first. It explains the rig, physics, zone sizing and the open i
 - Write all copy and comments in UK English. Do not use em dashes.
 - **Skin colour:** only a blue or green from the team's own palette. Never red, yellow, orange, white, brown or black, and never realistic skin tones. Do not relax this rule.
 - **Equal exposure:** after any change to physics, wind, power, routes, terrain or `PLAYER_MODEL`, run `checkDistribution()` in the browser console. Every stop should stay within about 8–12%.
-- **Placeholder data:** all destinations, distances, summaries and images are placeholders. Do not present them as verified.
+- **Destination data:** the stops are real places, and each card's summary is the direct answer from the place's page on sydney.com or visitnsw.com (`js/summaries.js`, generated from sydney-towns-aeo.xlsx, read 22 Nov 2026). Distances and images are still placeholders: do not present them as verified. Venue names in summaries change, so recheck against the live pages before launch.
 - **No real logos, crests or sponsor marks** on the player kits.
 - Keep the player a single rigged SVG: new poses are joint angles in `P` (`js/rig.js`), not new drawings.
 - No build step. Keep it runnable by opening `index.html`. Scripts are classic and share globals, so keep the load order in `index.html` intact.

@@ -4,7 +4,7 @@
 
 A Gorillas-style kicking game for the DNSW Rugby World Cup "Plan your 3rd half" campaign. The player picks a start city and a route, sets angle and power, allows for wind, and kicks. Wherever the ball lands is a real place in Sydney or NSW, and a destination card slides in with a "Add to your plan" action.
 
-Status: working prototype. All destinations, distances, summaries and images are placeholders.
+Status: working prototype. Every stop has a real summary from its town page (`js/summaries.js`, 22 Nov 2026); distances and images are placeholders.
 
 ## Messages (inside the prototype)
 
@@ -27,7 +27,7 @@ there). `js/plan-link.js` is the game's side; the page's is "Drop goal: the kick
 | `thk:reset` | page to game | nothing | Reset prototype: a new visit. The seen lists and the random start are cleared and a new start is picked (22 Nov) |
 | `thk:close` | page to game | nothing | a press on the page outside the game, or leaving the tab; the card closes and focus stays where it was |
 
-- Only the data contract's §18 fields cross (name, distance_km, route). Summary and image are not held yet.
+- Only the data contract's §18 fields cross (name, distance_km, route). The summary shows on the card only; image is not held yet.
 - One save per place name: Byron Bay kicked from Sydney or from Newcastle is the same save, and the plan keeps the route
   and distance it was first saved from.
 - The plan never slots a kick destination onto a day: it stays in Saved, not placed yet.
@@ -60,7 +60,8 @@ The only external requests are Google Fonts (Space Mono, Archivo).
 | `js/teams.js` | 24 teams and their kit colours, skin-colour rule, kit/skin/field curation state (saved to localStorage) |
 | `js/rig.js` | The rigged SVG player: skeleton, 10 poses, forward kinematics, part drawings, ball |
 | `js/config.js` | World constants (posts, zone start, gravity, camera start) |
-| `js/routes.js` | Start points (Sydney, Newcastle) and 8 routes of 10 stops each. **Placeholder data** |
+| `js/routes.js` | Start points (Sydney, Newcastle) and 8 routes of 10 stops each. **Distances are placeholders** |
+| `js/summaries.js` | `SUMMARIES`: the card summary for every stop name, the direct answer from its sydney.com or visitnsw.com page (§18 `summary`). Generated from sydney-towns-aeo.xlsx; a stop with none leaves the paragraph out |
 | `js/zones.js` | Landing-zone sizing for equal exposure, the player model, Blue Mountains terrain |
 | `js/game.js` | State, rendering, physics, kick sequence, camera, destination card, colour pickers |
 | `js/visit.js` | One visit (22 Nov): the random start, never the same stop twice (re-routing a kick by a gust or off the upright), Explore all stops, previous and next on the card, and the visit simulation for `checkDistribution()`. Loads before `main.js`, which calls `visitBoot()` |
@@ -123,7 +124,7 @@ File: Rugby-World-Cup (`LwBKfIftpu8erI6WGOi4W1`)
 - Destination card mock-up ("The ball landed in…"): node `394:7961`
 
 ## Open items
-1. **Destination content:** verify every stop and distance, especially Newcastle Local, where close stops may be in the wrong order. Pull real summaries, hero images and links from the sydney.com and visitnsw.com destination pages. Check image usage rights.
+1. **Destination content:** summaries are in (22 Nov 2026). Still to do: verify every distance, especially Newcastle Local, where close stops may be in the wrong order; hero images and links from the destination pages, with usage rights checked.
 2. **Skin fallback** for the 7 teams with no blue or green: one shared neutral, or an agreed non-human accent colour such as teal.
 3. **Add to your plan** (was "+ to plan"): connected to the prototype's plan in Stage 2 (see Messages). On its own the game still keeps saves in memory only.
 4. **Exposure logging:** log the route, stop, angle, power and wind for each kick, to tune zones and to evidence neutrality.

@@ -43,7 +43,8 @@
       <!-- The place and Add to your plan lead (21 Nov); the picture follows, kept to about 30% of the card -->
       <div class="card-img" id="cardImg"></div>
       <div class="tags" id="cardTags"></div>
-      <p class="blurb">Placeholder: the summary from this destination's page on sydney.com or visitnsw.com would appear here, with its hero image above.</p>
+      <!-- The summary from the destination's page on sydney.com or visitnsw.com (js/summaries.js); left out when a stop has none -->
+      <p class="blurb" id="cardBlurb"></p>
       <dl class="facts">
         <div><dt>Distance</dt><dd id="cardDist"></dd></div>
         <div><dt>Route</dt><dd id="cardRoute"></dd></div>
@@ -109,6 +110,7 @@
 <script src="js/rig.js"></script>
 <script src="js/config.js"></script>
 <script src="js/routes.js"></script>
+<script src="js/summaries.js"></script>
 <script src="js/zones.js"></script>
 <script src="js/game.js"></script>
 <script src="js/visit.js"></script>
