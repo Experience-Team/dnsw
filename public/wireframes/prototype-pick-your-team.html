@@ -1035,6 +1035,18 @@
   }
   if (window.ResizeObserver) new ResizeObserver(fitKick).observe(body);
   window.addEventListener('resize', fitKick);
+  // Play on phones (23 Nov): the page stays docked. Kick is pinned to the foot of the frame, and the frame fills the
+  // screen from the docked position, so any page scroll away from it (a swipe or wheel over the title, or one that
+  // chains out of the game) would push Kick below the screen. The game scrolls inside its own frame instead
+  var kickHold = 0;
+  body.addEventListener('scroll', function () {
+    if (view !== 'kick' || !kickPhone() || kickHold) return;
+    kickHold = requestAnimationFrame(function () {
+      kickHold = 0;
+      if (view !== 'kick' || !kickPhone()) return;
+      var d = kickDock(); if (Math.abs(body.scrollTop - d) > 1) body.scrollTop = d;
+    });
+  }, { passive: true });
   items.forEach(function (b) { var on = b.dataset.view === view; b.classList.toggle('is-on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   showView();
   if (view !== 'plan') window.dispatchEvent(new Event('resize')); // the hand lays itself out again in its new place

@@ -70,3 +70,7 @@ html.embedded .card-grab:focus-visible { outline-color: var(--e-c-focus, #005ea2
 html.embedded .explore-btn { color: var(--e-c-ink, #1a1a1a); }
 html.embedded :is(.explore-btn, .card-actions .step):focus-visible { outline: 2px solid var(--e-c-focus, #005ea2); outline-offset: 2px; }
 html.embedded .card-actions .step { background: none; border: 0; color: var(--e-c-ink, #1a1a1a); }
+
+/* In the prototype's frame (23 Nov): a scroll that reaches the game's top or bottom stays in the frame, never chaining to
+   the page, which would move the frame and push the pinned Kick bar off screen */
+html.embedded, html.embedded body { overscroll-behavior: contain; }

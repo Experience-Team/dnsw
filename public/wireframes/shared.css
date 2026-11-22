@@ -3713,7 +3713,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    capsule script) and the game scrolls inside it, so the page keeps no room at the bottom and does not scroll here. */
 #tp-phone.is-kick .tp-body > :not(.tp-top):not(.tp-cap-wrap):not(.tp-kick) { display: none !important; }
 #tp-phone.is-kick :is(.tp-tl, .tp-tl-scrim, .tp-skip) { visibility: hidden; }
-#tp-phone.is-kick > .cn-body { padding-bottom: 0; }
+#tp-phone.is-kick > .cn-body { padding-bottom: 0; overscroll-behavior: contain; } /* docked on phones: no bounce or hand-on of the scroll (23 Nov) */
 .tp-kick[hidden] { display: none; }
 /* Stage 3: the page's own title and intro above the game (Home's words), 16px above the frame */
 .tp-kick-head { margin: 0 var(--space-5) var(--space-4); }
