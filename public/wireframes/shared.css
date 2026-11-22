@@ -5910,3 +5910,22 @@ span.tp-map-arrow { display: block; }
 .pv-stage.has-cmp .pv-phone::before { content: "Main"; position: absolute; left: 0; bottom: 100%; margin-bottom: 6px; font: 600 .8125rem/1.2 system-ui, sans-serif; color: #5a5a5a; }
 /* With options listed the panel can outgrow the window: its upper part scrolls, so the QR box at its foot never covers them */
 .pv-concept:has(.pv-cmp-opt) { overflow-y: auto; }
+/* Option A (?flow=a, 23 Nov): its own tab in the viewer. The panel's heading and line say so only there */
+:root:not([data-flow="a"]) .pv-flow-a { display: none; }
+/* Under the match cards: Add more teams, full width and prominent (the card-fan icon, as on every Pick your teams
+   prompt), then Your days in NSW. 24px from the cards (one family), 48px to Your days. On the All matches tab the block
+   follows the All matches list, outside the picker, so it takes the page's side margins itself */
+.tp-more { margin-top: var(--space-3); } /* the deck already has 12px under the cards: 24px in all */
+.tp-more[hidden] { display: none; }
+.tp-more.is-after-all { margin: 0 var(--space-4); padding-top: var(--space-5); }
+.tp-more-btn { display: flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; }
+.tp-more-btn .tp-ico-fan { width: auto; height: 16px; fill: currentColor; }
+.tp-more-btn:focus-visible { outline: 2px solid var(--c-focus, #005EA2); outline-offset: 2px; }
+.cn-phone > .cn-body .tp-more > #tp-ask:not([hidden]), .tp-more > #tp-ask:not([hidden]) { margin-top: var(--space-7); }
+.tp-more.is-after-all + .tp-ov { margin-top: var(--space-7); }
+.tp-deck .tp-rcard:focus { outline: none; } /* focus lands on the new card after the scroll; the keyboard ring is below */
+.tp-deck .tp-rcard:focus-visible { outline: 2px solid var(--c-focus, #005EA2); outline-offset: 2px; }
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .tp-more { margin-inline: 0; }
+  .pv-device #tp-phone .tp-more-btn { width: auto; display: inline-flex; padding-inline: var(--space-6); }
+}

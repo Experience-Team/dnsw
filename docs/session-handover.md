@@ -51,6 +51,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
   4. Add it to `FLAGS` in `pv-compare.js` (`{ k, label, on, off }`), so each compared phone can switch it. If it needs a main-phone switch too, add one to the tools panel like the existing tests, and read it in `mainFlags()`.
   5. Add an annotation for the option ("TEST: …"), a build log row, and say in the PR how to see each version (for example `?tools&theme=hifi&hero=b`).
   6. Check every option in both themes at 390 and 320, and in Compare options side by side.
+- **Option A (23 Nov, `?flow=a`):** the first option, built as its own tab in the viewer (the user's call) rather than only a Compare options switch, though it is one there too. Same page; `data-flow="a"` on `<html>`; its own saved state under `flow-a:` (set up in the `<head>` beside `opt-`), viewer settings shared. In the planner a pick from the hand glides to Your matches with the new card (`flowScroll`), and `#tp-more` (Add more teams, which opens `#tp-at`, then `#tp-ask`) sits under the cards. A later Option B would follow the same pattern: a `flow=b` value, a tab, a `FLAGS` entry.
 - **Other prototypes.** The viewer's top tabs (`.pv-tabs`) list the prototypes: Pick your team, Share/edit itinerary (`prototype-itinerary.html`) and a "[next] prototype" placeholder that shows only with `?tools`. A new standalone prototype would replace that placeholder tab.
 - **Ask the user first** whether "more prototype options" means flags on this page (above), new screens or flows, or another prototype tab.
 
