@@ -24,6 +24,7 @@ there). `js/plan-link.js` is the game's side; the page's is "Drop goal: the kick
 | `thk:teams` | page to game | `picked`: the planner's picked team names | after `thk:ready` and after any change to the plan or picks (Stage 3) |
 | `thk:card` | game to page | `open`: true or false | when the result card opens or closes; the page head dims while it is open |
 | `thk:open-plan` | game to page | nothing | See your plan on the card's line: the page closes the card, goes to the planner and opens the plan at Saved, not placed yet |
+| `thk:reset` | page to game | nothing | Reset prototype: a new visit. The seen lists and the random start are cleared and a new start is picked (22 Nov) |
 | `thk:close` | page to game | nothing | a press on the page outside the game, or leaving the tab; the card closes and focus stays where it was |
 
 - Only the data contract's §18 fields cross (name, distance_km, route). Summary and image are not held yet.
@@ -62,6 +63,7 @@ The only external requests are Google Fonts (Space Mono, Archivo).
 | `js/routes.js` | Start points (Sydney, Newcastle) and 8 routes of 10 stops each. **Placeholder data** |
 | `js/zones.js` | Landing-zone sizing for equal exposure, the player model, Blue Mountains terrain |
 | `js/game.js` | State, rendering, physics, kick sequence, camera, destination card, colour pickers |
+| `js/visit.js` | One visit (22 Nov): the random start, never the same stop twice (re-routing a kick by a gust or off the upright), Explore all stops, previous and next on the card, and the visit simulation for `checkDistribution()`. Loads before `main.js`, which calls `visitBoot()` |
 | `js/main.js` | Event wiring, start-up, and the `checkDistribution()` dev helper |
 | `css/embed.css` | Inside the prototype only: the page's theme on the controls and card, and what steps aside (Stage 3) |
 | `js/card-sheet.js` | Phones only (the bottom sheet): the result card's two heights. It opens full; drag the grabber or head down for a short card that shows the landing, further or a flick to close; a tap on the grabber switches heights |
@@ -94,6 +96,9 @@ Scripts are classic (non-module) and share globals. Load order in `index.html` m
 DNSW can't favour destinations, so each stop should be landed on about equally often.
 - `computeBounds()` simulates 4,000 kicks using a **player model** (`PLAYER_MODEL`: angle 20°–70°, power 3–100%, random wind). It then sets zone boundaries at the 10% quantiles, so each stop catches about 1 in 10 kicks. That's why zones have uneven widths.
 - Current result: 8–11% per stop on all 8 routes. Run `checkDistribution()` in the browser console to recheck after any change.
+- **One visit (22 Nov).** Each visit opens on a random route from Sydney, aimed (no wind) at a stop picked at random, so the first kick favours no stop; the angle stays between 30° and 60° and the power in the top half of what reaches that stop. Moving a control replaces it for the visit (sessionStorage).
+- **Never twice.** A stop counts as seen once its card has shown (landed, explored or via previous and next). A kick that would land on a seen stop is sent to the nearest unseen one, a tie going the way the ball was travelling: one stop on with the wind (or none) is a late gust; back, or against the wind, is off the upright; two or more stops is off the upright, then the gust. Off the upright always clears the crossbar: a ball that never reached the posts, or went under the bar, can only be carried by a gust. The path is the physics up to the posts (upright) or late in the flight (gust), then bent smoothly to the new stop's pin; the physics, zones, routes, terrain and `PLAYER_MODEL` are untouched. Once all ten are seen the kick lands where the physics says, the card says so, and the route's list starts again.
+- `checkDistribution()` now prints a second table: whole visits (random start, then up to 7 more kicks from `PLAYER_MODEL`, most visits short, through the seen list and the re-routing), each stop's share of the cards shown. 22 Nov: 8.7 to 10.6% on every route. The first stop is lowest because re-routing only reaches it from one side.
 - The guarantee only holds if real players behave like the model. With wider play (angles 10°–80°) it drifts to roughly 7–17%. Recommended: log real kicks after launch, refit `PLAYER_MODEL` (or the boundaries directly) from that data, and keep the logs as evidence of even exposure.
 
 ### Terrain (Sydney West only)

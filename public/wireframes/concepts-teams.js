@@ -2522,6 +2522,7 @@
     place(false);
     body.scrollTop = 0;
     tlSetOpen(false, false); tlSel = -1; tlSelItem = null; state.added = []; state.trip = null; save(); changed();
+    var kw = kickFrame(); if (kw) try { kw.postMessage({ type: 'thk:reset' }, location.origin); } catch (e) {}   // Drop goal: a new visit, seen stops and random start cleared (22 Nov)
     watchDeal();
     say('Prototype reset. No teams picked.');
   });

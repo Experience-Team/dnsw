@@ -610,7 +610,7 @@ Added 21 November 2026 for the Rugby World Cup prototype's Drop goal tab (shown 
 
 **`image`** — `gap`, `source: authored`, the destination page's hero image, with usage rights to check. Empty state: the drawn placeholder illustration the game shows today.
 
-Not held: the card's tags (Day trip, Short trip, Road trip, Near the stadium) and its notes ("Over the bar!", "Short kick!"). The game works these out from the stop's position and the kick, so they are game copy, not data.
+Not held: the card's tags (Day trip, Short trip, Road trip, Near the stadium) and its notes ("Over the bar!", "Short kick!", and since 22 Nov "Off the upright!", "Caught the breeze!" and "Exploring"). Nor is which stops someone has seen: that is per-visit state in the browser (sessionStorage), used to show a new stop each kick, not data. The re-routing evens exposure out across a visit and does not rank stops. The game works these out from the stop's position and the kick, so they are game copy, not data.
 
 ```json
 "kick_destination": {
