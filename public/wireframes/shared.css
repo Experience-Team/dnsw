@@ -3833,6 +3833,44 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-read-a.is-soon .tp-read-m { color: var(--c-ink); font-weight: var(--fw-semi); }
 @media (hover: hover) { .tp-read-a:hover .tp-read-img { filter: brightness(.94); } .tp-read-a:hover .tp-read-t { text-decoration: underline; text-underline-offset: 3px; } }
 @media (min-width: 1024px) { .pv-device #tp-phone .tp-reads { columns: 3; } }
+/* An article from Read before you go (22 Nov): shown in place of Home's sections; the header, capsule and footer stay.
+   Spacing: 4 to 16px inside a part, 24px between parts, 48px before Quick answers and More to read (principle 4) */
+.tp-home.is-reading > :not(#tp-article):not(.tp-home-foot) { display: none !important; }
+.tp-art { margin: var(--space-5) var(--space-5) 0; }
+.tp-art-back { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; color: var(--c-ink); font-size: var(--fs-md); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; }
+.tp-art-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.tp-art-back:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+.tp-art-cat { margin-top: var(--space-4); font-family: var(--font-label); font-size: var(--fs-2xs); font-weight: var(--fw-bold); letter-spacing: .06em; text-transform: uppercase; color: var(--c-ink-2); }
+.tp-art-h { margin-top: var(--space-2); font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: var(--fw-heavy); line-height: 1.2; letter-spacing: -.01em; text-wrap: balance; }
+.tp-art-h:focus, .tp-art-h:focus-visible { outline: none; } /* focused on opening so screen readers start at the title; it is not a control */
+.tp-art-dek { margin-top: var(--space-3); font-size: var(--fs-lg-2); line-height: 1.45; color: var(--c-ink-2); text-wrap: pretty; }
+.tp-art-by { margin-top: var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-art-img { display: block; margin-top: var(--space-5); aspect-ratio: 3 / 2; border-radius: var(--radius-md); background-size: cover; background-position: center; }
+.tp-art-body { margin-top: var(--space-2); }
+.tp-art-body p { margin-top: var(--space-4); font-size: var(--fs-lg); line-height: 1.65; text-wrap: pretty; }
+.tp-art-body h3 { margin-top: var(--space-6); font-size: var(--fs-xl); font-weight: var(--fw-heavy); line-height: 1.25; text-wrap: balance; }
+.tp-art-body h3 + p { margin-top: var(--space-2); }
+/* Quick answers: formatted for reading, search and answer engines */
+.tp-art-aeo, .tp-art-more { margin-top: var(--space-7); padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-art-aeo h4 { margin-top: var(--space-5); font-size: var(--fs-lg); font-weight: var(--fw-bold); line-height: 1.3; }
+.tp-art-short h4 { margin-top: var(--space-4); }
+.tp-art-short p { margin-top: var(--space-2); font-size: var(--fs-lg); line-height: 1.6; }
+.tp-art-facts { margin: var(--space-2) 0 0; }
+.tp-art-facts > div { display: grid; gap: 2px; padding: var(--space-3) 0; border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tp-art-facts > div:first-child { border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-art-facts dt { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-art-facts dd { margin: 0; font-size: var(--fs-base); line-height: 1.45; }
+.tp-art-faq { margin-top: var(--space-4); }
+.tp-art-faq h5 { font-size: var(--fs-base); font-weight: var(--fw-semi); line-height: 1.35; }
+.tp-art-faq p { margin-top: var(--space-1); font-size: var(--fs-base); line-height: 1.55; color: var(--c-ink-2); }
+.tp-art-places { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.tp-art-places li { padding: 4px 10px; border: var(--bw-1) solid var(--c-line-soft); border-radius: var(--radius-pill); font-size: var(--fs-sm); }
+.tp-art-more .tp-home-cta { margin-top: var(--space-2); }
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .tp-art { max-width: 44rem; margin-inline: auto; }
+  .pv-device #tp-phone .tp-art-facts > div { grid-template-columns: 12rem 1fr; gap: var(--space-4); }
+  .pv-device #tp-phone .tp-art-more .tp-reads { columns: 2; }
+}
 /* Drop goal */
 .tp-home-kick-img { width: auto; aspect-ratio: 4 / 5; margin: var(--space-4) calc(var(--space-5) * -1) 0; background-size: cover; background-position: center; }
 /* FAQs: each opens on its own; the answer's height glides open */

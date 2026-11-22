@@ -136,32 +136,134 @@
     requestAnimationFrame(sync);
   }
 
-  /* ---------- Articles: a masonry grid (two columns of cards in their own heights) of dummy content ----------
-     Titles, categories, read times and pictures are placeholders. Cards link to the article page's future address; it
-     is not built, so a tap keeps the person here and the card's meta line says Article page to come for a few
-     seconds (in place, no toast). */
-  var READS = [
-    { slug: 'match-day-sydney', cat: 'Match day', title: 'A first-timer\u2019s guide to match day in Sydney', mins: 5, img: 'hero-stadium', r: '4 / 5' },
-    { slug: 'eat-moore-park', cat: 'Food and drink', title: 'Where to eat near Moore Park before kick-off', mins: 4, img: 'city-dining', r: '1 / 1' },
-    { slug: 'newcastle-day-trips', cat: 'Day trips', title: 'Five day trips from Newcastle between matches', mins: 6, img: 'Newcastle baths', r: '3 / 4' },
-    { slug: 'ocean-pools', cat: 'Coast', title: 'Ocean pools for a post-match swim', mins: 3, img: 'Merwether baths', r: '4 / 3' },
-    { slug: 'pacific-fans', cat: 'Culture', title: 'How Pacific fans celebrate their rugby', mins: 5, img: 'village', r: '4 / 5' },
-    { slug: 'blue-mountains-day', cat: 'Nature', title: 'The Blue Mountains in a day: a fan\u2019s itinerary', mins: 7, img: 'Bush', r: '1 / 1' }
-  ];
-  var reads = document.getElementById('tp-reads');
-  reads.innerHTML = READS.map(function (a) {
-    return '<li class="tp-read"><a class="tp-read-a" href="pages/rwc-article.html?a=' + esc(a.slug) + '" data-read>' +
+  /* ---------- Articles: a masonry grid (two columns of cards in their own heights) of dummy articles (22 Nov) ----------
+     The articles are in concepts-articles.js. A tile is a link to its article, which opens here, in place of Home's
+     sections: the address gains ?a=<slug>, so the browser's back button returns to the tile and a shared link opens the
+     article. Back to Read before you go does the same. The prose comes first; under it, a block formatted for reading,
+     search and answer engines (the short answer, key facts, questions people ask, the places named), with matching
+     structured data (Article, FAQPage and BreadcrumbList) and a meta description while the article shows. */
+  var ARTS = window.TP_ARTICLES || [], W = window.TP_WORDS || {};
+  var imgOf = W.imageOf || function (s) { return 'Image of ' + s; };
+  function artBy(slug) { for (var i = 0; i < ARTS.length; i++) if (ARTS[i].slug === slug) return ARTS[i]; return null; }
+  function tile(a) {
+    return '<li class="tp-read"><a class="tp-read-a" href="?a=' + esc(a.slug) + '" data-read="' + esc(a.slug) + '">' +
       '<span class="ph-img tp-read-img" data-img="' + esc(a.img) + '" style="aspect-ratio:' + a.r + '" aria-hidden="true"></span>' +
       '<span class="tp-read-cat">' + esc(a.cat) + '</span><span class="tp-read-t">' + esc(a.title) + '</span>' +
-      '<span class="tp-read-m" aria-live="polite">' + a.mins + ' min read</span></a></li>';
-  }).join('');
-  reads.addEventListener('click', function (e) {
-    var a = e.target.closest('[data-read]'); if (!a) return;
-    e.preventDefault();
-    var m = a.querySelector('.tp-read-m'), was = m.dataset.was || m.textContent;
-    m.dataset.was = was; m.textContent = 'Article page to come'; a.classList.add('is-soon');
-    clearTimeout(a._t); a._t = setTimeout(function () { m.textContent = was; a.classList.remove('is-soon'); }, 4000);
+      '<span class="tp-read-m">' + a.mins + ' min read</span></a></li>';
+  }
+  var reads = document.getElementById('tp-reads');
+  reads.innerHTML = ARTS.map(tile).join('');
+
+  var home = document.getElementById('tp-home'), artEl = document.getElementById('tp-article');
+  var pbody = phone.querySelector('.cn-body'), reading = null, pushed = false, backY = 0, backSlug = null, prevTitle = '';
+  var UPDATED = '22 November 2026', UPDATED_ISO = '2026-11-22';
+  function artHtml(a) {
+    var h = '<article class="tp-art" aria-labelledby="tp-art-title">';
+    h += '<a class="tp-art-back" href="' + esc(urlFor(null)) + '" data-art-back><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4L3 8l4 4"/></svg>Read before you go</a>';
+    h += '<p class="tp-art-cat">' + esc(a.cat) + '</p><h2 class="tp-art-h" id="tp-art-title" tabindex="-1">' + esc(a.title) + '</h2>';
+    h += '<p class="tp-art-dek">' + esc(a.dek) + '</p>';
+    h += '<p class="tp-art-by">Destination NSW <span aria-hidden="true">·</span> Updated ' + UPDATED + ' <span aria-hidden="true">·</span> ' + a.mins + ' min read</p>';
+    h += '<div class="ph-img tp-art-img" data-img="' + esc(a.img) + '" role="img" aria-label="' + esc(imgOf(a.title)) + '"></div>';
+    h += '<div class="tp-art-body">' + a.body.map(function (b) { return b[0] === 'h' ? '<h3>' + esc(b[1]) + '</h3>' : '<p>' + esc(b[1]) + '</p>'; }).join('') + '</div>';
+    // For reading, search and answer engines: one short answer that stands alone, then facts, questions and places
+    h += '<section class="tp-art-aeo" aria-labelledby="tp-art-aeo-h"><h3 class="tp-sec-title" id="tp-art-aeo-h">Quick answers</h3>';
+    h += '<div class="tp-art-short"><h4>' + esc(a.q) + '</h4><p>' + esc(a.answer) + '</p></div>';
+    h += '<h4>Key facts</h4><dl class="tp-art-facts">' + a.facts.map(function (f) { return '<div><dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd></div>'; }).join('') + '</dl>';
+    h += '<h4>Questions people ask</h4><div class="tp-art-faqs">' + a.faqs.map(function (f) { return '<div class="tp-art-faq"><h5>' + esc(f[0]) + '</h5><p>' + esc(f[1]) + '</p></div>'; }).join('') + '</div>';
+    h += '<h4>Places in this article</h4><ul class="tp-art-places">' + a.places.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></section>';
+    var more = ARTS.filter(function (x) { return x.slug !== a.slug; }).slice(0, 4);
+    h += '<section class="tp-art-more" aria-labelledby="tp-art-more-h"><h3 class="tp-sec-title" id="tp-art-more-h">More to read</h3><ul class="tp-reads">' + more.map(tile).join('') + '</ul>';
+    h += '<button type="button" class="tp-home-cta" data-view="plan">Plan your 3rd half<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button></section>';
+    return h + '</article>';
+  }
+  function urlFor(slug) {
+    var q = new URLSearchParams(location.search);
+    if (slug) { q.set('a', slug); if (q.has('view')) q.set('view', 'home'); } else q.delete('a');
+    var s = q.toString().replace(/=(?=&|$)/g, ''); // keep bare flags (?phone&tools) bare
+    return location.pathname + (s ? '?' + s : '') + location.hash;
+  }
+  // Structured data and the meta description, only while an article shows
+  function seo(a) {
+    var ld = document.getElementById('tp-art-ld'), md = document.getElementById('tp-art-desc');
+    if (!a) { if (ld) ld.remove(); if (md) md.remove(); return; }
+    var data = [
+      { '@context': 'https://schema.org', '@type': 'Article', headline: a.title, description: a.dek, articleSection: a.cat, inLanguage: 'en-AU',
+        dateModified: UPDATED_ISO, author: { '@type': 'Organization', name: 'Destination NSW' }, publisher: { '@type': 'Organization', name: 'Destination NSW' },
+        about: a.places.map(function (p) { return { '@type': 'Place', name: p }; }) },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [[a.q, a.answer]].concat(a.faqs).map(function (f) {
+        return { '@type': 'Question', name: f[0], acceptedAnswer: { '@type': 'Answer', text: f[1] } }; }) },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Rugby World Cup 2027 in NSW' }, { '@type': 'ListItem', position: 2, name: 'Read before you go' },
+        { '@type': 'ListItem', position: 3, name: a.title }] }
+    ];
+    if (!ld) { ld = document.createElement('script'); ld.type = 'application/ld+json'; ld.id = 'tp-art-ld'; document.head.appendChild(ld); }
+    ld.textContent = JSON.stringify(data);
+    if (!md) { md = document.createElement('meta'); md.name = 'description'; md.id = 'tp-art-desc'; document.head.appendChild(md); }
+    md.content = a.dek;
+  }
+  function openArt(slug, opts) {
+    var a = artBy(slug); if (!a) return;
+    opts = opts || {};
+    if (!reading) { backY = pbody.scrollTop; prevTitle = document.title; backSlug = opts.from || slug; }
+    reading = slug;
+    artEl.innerHTML = artHtml(a); artEl.hidden = false; home.classList.add('is-reading');
+    document.title = a.title + ' · ' + (prevTitle.split(' · ').slice(1).join(' · ') || prevTitle);
+    seo(a);
+    if (opts.push) { history.pushState({ tpArt: slug }, '', urlFor(slug)); pushed = true; }
+    // A new page starts at its top, under the header and capsule, with focus on its title
+    pbody.scrollTop = 0;
+    var t = document.getElementById('tp-art-title'); if (t) t.focus({ preventScroll: true });
+  }
+  function closeArt(opts) {
+    if (!reading) return;
+    opts = opts || {};
+    reading = null; pushed = false;
+    home.classList.remove('is-reading'); artEl.hidden = true; artEl.innerHTML = '';
+    document.title = prevTitle; seo(null);
+    if (!opts.fromHistory && location.search.indexOf('a=') > -1) history.replaceState(null, '', urlFor(null));
+    // Back where they left: the same scroll, and focus on the tile they opened (not when another tab takes over)
+    pbody.scrollTop = backY;
+    if (!opts.quiet) { var b = reads.querySelector('[data-read="' + CSS.escape(backSlug || '') + '"]'); if (b) b.focus({ preventScroll: true }); }
+  }
+  function back() { if (pushed && history.state && history.state.tpArt) history.back(); else closeArt(); }
+  phone.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-read]');
+    if (t && phone.contains(t)) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return; // a new tab or window loads the article there
+      e.preventDefault();
+      var from = reads.contains(t) ? t.dataset.read : backSlug;
+      // One article at a time in the history: from an article, the next replaces it, so back always means Home
+      if (reading) { history.replaceState(pushed ? { tpArt: t.dataset.read } : null, '', urlFor(t.dataset.read)); openArt(t.dataset.read, { from: from }); }
+      else openArt(t.dataset.read, { push: true, from: from });
+      return;
+    }
+    if (e.target.closest('[data-art-back]')) { e.preventDefault(); back(); }
   });
+  // A tab picked while an article shows: Home's own tab goes back to the tile; another tab closes it first, quietly
+  phone.addEventListener('click', function (e) {
+    var v = e.target.closest('[data-view]'); if (!v || !reading || !phone.contains(v)) return;
+    // The article's own buttons go when it closes, so the tab is picked from here
+    e.stopPropagation();
+    if (v.dataset.view === 'event') back(); else { var to = v.dataset.view; closeArt({ quiet: true }); if (window.tpView) window.tpView.go(to);
+      var tab = document.querySelector('#tp-cap [data-view="' + to + '"]'); if (tab && !v.closest('#tp-cap')) tab.focus({ preventScroll: true }); }
+  }, true);
+  window.addEventListener('popstate', function () {
+    var m = /[?&]a=([a-z0-9-]+)/.exec(location.search);
+    if (m && artBy(m[1])) {
+      if (window.tpView && window.tpView.get() !== 'event') window.tpView.go('event');
+      openArt(m[1], { from: backSlug || m[1] }); pushed = !!(history.state && history.state.tpArt);
+    }
+    else closeArt({ fromHistory: true });
+  });
+  // A shared link (?a=<slug>) opens the article on Home once the page has set itself up
+  var startA = /[?&]a=([a-z0-9-]+)/.exec(location.search);
+  function startArt() {
+    if (window.tpView && window.tpView.get() !== 'event') window.tpView.go('event');
+    openArt(startA[1], { from: startA[1] });
+    history.replaceState(null, '', urlFor(startA[1])); // the address names Home (view=home where a view was given)
+  }
+  if (startA && artBy(startA[1])) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startArt); else setTimeout(startArt, 0); }
+  window.tpArticle = { open: function (s) { openArt(s, { push: true }); }, close: back, get: function () { return reading; } };
 
   /* ---------- FAQs: one open at a time is not forced; each opens and closes on its own ---------- */
   var FAQ = ['How can I buy Rugby World Cup 2027 tickets?', 'Will there be fan festivals?', 'What can I do before or after a match?',
