@@ -2880,15 +2880,109 @@
     return stops.length === 1 ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(stops[0] + ', NSW')
       : 'https://www.google.com/maps/dir/' + stops.map(function (x) { return encodeURIComponent(x + ', NSW'); }).join('/');
   }
+  /* ---------- Add to calendar (22 Nov): a link per event, no .ics file ----------
+     Each match or dated thing gets its own Google Calendar and Outlook link. Matches start at kick-off (Sydney time,
+     so the times hold for someone in another time zone) and last two hours; a match still to be confirmed, a dated
+     thing or a trip is all day (a trip over its nights). Things not placed yet have no date, so they are left out. */
+  var SYD = function (d) { return d >= 2 ? 11 : 10; }; // daylight saving starts on Sun 3 Oct 2027 (day 2)
+  function ymd(d) { var x = new Date(Date.UTC(2027, 9, 1 + d)); return x.toISOString().slice(0, 10); }
+  function calItems() {
+    var out = [];
+    if (tp.own()) tp.userMatches().forEach(function (m) {
+      var f = m.f, k = /^(\d{1,2}):(\d{2})\s*(am|pm)$/i.exec(f.k || ''), at = null;
+      if (k) { var h = (+k[1] % 12) + (/pm/i.test(k[3]) ? 12 : 0); at = Date.UTC(2027, 9, 1 + m.day, h - SYD(m.day), +k[2]); }
+      out.push({ d: m.day, what: matchName(f), when: f.d + ', ' + (f.k ? f.k + ' Sydney time' : TBC_L), where: f.v + ', ' + f.p, at: at, mins: 120, days: 1,
+        note: 'Rugby World Cup 2027 match' + (f.s && f.t ? ', ' + f.s : '') + '. Kick-off is Sydney time.' + (hasTicket(m) ? ' You have a ticket.' : '') });
+    });
+    state.added.forEach(function (it) {
+      if (it.kind === 'match' || it.kind === 'kick' || it.unplaced) return;
+      var d = it.start != null ? it.start : (function () { try { return tp.dayOf(it.day); } catch (e) { return null; } })();
+      if (d == null || isNaN(d) || d < 0 || d > 60) return;
+      var trip = it.kind === 'trip', n = trip && it.nights ? it.nights : 0;
+      out.push({ d: d, what: it.title + (trip ? (n ? ' (' + n + (n === 1 ? ' night)' : ' nights)') : ' (day trip)') : ''), when: (n ? spanLabel(d, d + n) : it.day || dayLabel(d)) + ', all day',
+        where: it.place || (trip ? it.title : ''), at: null, days: n + 1, note: 'From your Rugby World Cup 2027 plan.' + (it.matchName ? ' For ' + it.matchName + '.' : '') });
+    });
+    return out.sort(function (a, b) { return a.d - b.d || (a.at || 0) - (b.at || 0); });
+  }
+  function calLinks(e) {
+    var g, o, enc = encodeURIComponent, base = 'subject=' + enc(e.what) + '&location=' + enc(e.where) + '&body=' + enc(e.note);
+    if (e.at) {
+      var a = new Date(e.at), z = new Date(e.at + e.mins * 6e4), gz = function (x) { return x.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); };
+      g = gz(a) + '/' + gz(z);
+      o = '&startdt=' + enc(a.toISOString().replace(/\.\d{3}/, '')) + '&enddt=' + enc(z.toISOString().replace(/\.\d{3}/, ''));
+    } else {
+      g = ymd(e.d).replace(/-/g, '') + '/' + ymd(e.d + e.days).replace(/-/g, '');
+      o = '&allday=true&startdt=' + ymd(e.d) + '&enddt=' + ymd(e.d + e.days);
+    }
+    return {
+      google: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + enc(e.what) + '&dates=' + g + '&details=' + enc(e.note) + '&location=' + enc(e.where) + '&ctz=Australia/Sydney',
+      outlook: 'https://outlook.live.com/calendar/0/action/compose?rru=addevent&' + base + o
+    };
+  }
+
+  /* ---------- The peek under the tiles (22 Nov) ----------
+     Group chat and AI assistant show exactly what will be copied, with Copy beside it; Add to calendar lists the
+     links. One peek at a time: another tile swaps it, the same tile closes it, and it is gone when the sheet opens. */
+  var peek = document.getElementById('tp-ss-peek'), peekLabel = document.getElementById('tp-ss-peek-label'), peekText = document.getElementById('tp-ss-peek-text');
+  var peekCopy = document.getElementById('tp-ss-peek-copy'), peekCopyL = peekCopy.querySelector('.tp-ss-peek-copy-l'), peekCal = document.getElementById('tp-ss-cal-list'), peekOn = null;
+  var PEEK = {
+    'tp-ss-chat': { label: 'What you\u2019ll copy for the group chat', text: function () { return planText(); }, msg: 'Copied. Paste it into a chat, a note or an email.' },
+    'tp-ss-ai': { label: 'What you\u2019ll copy for your AI assistant', text: function () { return aiText(); }, msg: 'Copied. Paste it into your AI assistant.' },
+    'tp-ss-cal': { label: 'Add each one to your calendar' }
+  };
+  function peekClose() {
+    peek.hidden = true; peekOn = null;
+    ss.querySelectorAll('[aria-controls="tp-ss-peek"]').forEach(function (t) { t.setAttribute('aria-expanded', 'false'); });
+  }
+  function peekOpen(tile) {
+    if (peekOn === tile) { peekClose(); return; }
+    peekClose(); fb.hidden = true;
+    var p = PEEK[tile.id], cal = tile.id === 'tp-ss-cal';
+    peekOn = tile; tile.setAttribute('aria-expanded', 'true');
+    peekLabel.textContent = p.label;
+    peekCopy.hidden = cal; peekText.hidden = cal; peekCal.hidden = !cal; peekCopyL.textContent = 'Copy';
+    if (cal) {
+      var items = calItems();
+      peekCal.innerHTML = items.length ? items.map(function (e) {
+        var l = calLinks(e), nm = esc(e.what);
+        return '<li><span class="tp-ss-cal-what">' + nm + '</span><span class="tp-ss-cal-when">' + esc(e.when) + (e.where ? ', ' + esc(e.where) : '') + '</span>' +
+          '<span class="tp-ss-cal-links"><a href="' + esc(l.google) + '" target="_blank" rel="noopener" aria-label="Add ' + nm + ' to Google Calendar, opens in a new tab">Google Calendar</a>' +
+          '<a href="' + esc(l.outlook) + '" target="_blank" rel="noopener" aria-label="Add ' + nm + ' to Outlook, opens in a new tab">Outlook</a></span></li>';
+      }).join('') : '<li class="tp-ss-cal-none">Nothing in your plan has a date yet. Matches and things placed on a day show here.</li>';
+    } else {
+      peekText.textContent = p.text(); peekText.scrollTop = 0;
+    }
+    peek.hidden = false;
+    // Opens where the person is: the sheet scrolls only as far as needed to show the peek's top
+    var sr = ss.getBoundingClientRect(), pr = peek.getBoundingClientRect(), room = sr.bottom - 80;
+    if (pr.top + Math.min(pr.height, 160) > room) ss.scrollTo({ top: ss.scrollTop + (pr.top + Math.min(pr.height, 160) - room), behavior: tp.reduce.matches ? 'auto' : 'smooth' });
+  }
+  peekCopy.addEventListener('click', function () {
+    var p = peekOn && PEEK[peekOn.id]; if (!p || !p.text) return;
+    var tile = peekOn;
+    copy(p.text(), tile, p.msg);
+    if (navigator.clipboard && navigator.clipboard.writeText) { peekCopyL.textContent = 'Copied'; clearTimeout(peekCopy._t); peekCopy._t = setTimeout(function () { peekCopyL.textContent = 'Copy'; }, 2400); }
+  });
+
+  /* Ordered for the device each time the sheet opens (22 Nov): a phone puts copying for a chat first and printing last;
+     the desktop website puts Print or save as PDF first */
+  var gKeep = document.getElementById('tp-ss-g-keep'), gCopy = document.getElementById('tp-ss-g-copy');
+  function ssOrder() {
+    var desk = document.documentElement.classList.contains('pv-device') && matchMedia('(min-width: 1024px)').matches;
+    var groups = gKeep.parentNode, keep = gKeep.querySelector('.cn-tiles');
+    var pr = document.getElementById('tp-ss-print'), tx = document.getElementById('tp-ss-txt'), sp = document.getElementById('tp-ss-split');
+    if (desk) { groups.insertBefore(gKeep, gCopy); [pr, tx, sp].forEach(function (el) { keep.appendChild(el); }); }
+    else { groups.insertBefore(gCopy, gKeep); [sp, tx, pr].forEach(function (el) { keep.appendChild(el); }); }
+  }
+
   ss.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     switch (b.id) {
       case 'tp-ss-print': printPlan(); break;
       case 'tp-ss-txt': download(planText(), 'text/plain;charset=utf-8', 'txt'); mark(b); ssSay('Downloaded ' + fileName('txt')); break;
-      case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(b); ssSay('Downloaded ' + fileName('csv')); break;
-      case 'tp-ss-chat': copy(planText(), b, 'Copied. Paste it into a chat, a note or an email.'); break;
-      case 'tp-ss-sheet': copy(tsv(), b, 'Copied for your spreadsheet. Paste into cells.'); break;
-      case 'tp-ss-ai': copy(aiText(), b, 'Copied. Paste it into your AI assistant.'); break;
+      case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(document.getElementById('tp-ss-split')); ssSay('Downloaded ' + fileName('csv')); break;
+      case 'tp-ss-sheet': copy(tsv(), document.getElementById('tp-ss-split'), 'Copied for your spreadsheet. Paste into cells.'); break;
+      case 'tp-ss-chat': case 'tp-ss-ai': case 'tp-ss-cal': peekOpen(b); break;
       case 'tp-ss-maps': var u = mapsUrl(); if (u) window.open(u, '_blank', 'noopener'); else ssSay('Nothing in your plan has a place in NSW yet.'); break;
       case 'tp-ss-send': send(); break;
       case 'tp-ss-again': ss.classList.remove('is-sent'); note.textContent = NOTE; email.focus(); break;
@@ -2908,7 +3002,7 @@
   email.addEventListener('input', function () { if (email.getAttribute('aria-invalid')) { email.removeAttribute('aria-invalid'); emailErr.hidden = true; } });
   email.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(); } });
   // Opens as a sheet stacked over the plan (tp.stackOpen in concepts-teams.js: motion, closing, focus, Tab)
-  ssBtn.addEventListener('click', function () { fb.hidden = true; toast.hidden = true; tp.stackOpen(ss, ssBtn); });
+  ssBtn.addEventListener('click', function () { fb.hidden = true; toast.hidden = true; peekClose(); ssOrder(); ss.scrollTop = 0; tp.stackOpen(ss, ssBtn); });
 
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};
