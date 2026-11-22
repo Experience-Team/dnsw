@@ -1,12 +1,12 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-21 November 2026, evening (Sydney). Repo `Experience-Team/dnsw`, main at `ae86cdc` (Sat 21 Nov, 6:46pm, the merge of #561). **No PR is open** apart from this handover's own. #546 to #562 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
+22 November 2026 (Sydney). Repo `Experience-Team/dnsw`, main at `9206eb9` (Sun 22 Nov, the merge of #576). **No PR is open** apart from this handover's own. #546 to #576 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
-This replaces the 20 November afternoon handover (#546). Since then: the plan opens on the right day, a rule for matches on one day, map cards and the day-by-day map, Save bars in sheets, full country names in the stacked hand, a button audit, and stages A and B of the **round 3 brief**. Stages C and D of that brief are still to build: see "Round 3 brief: where it stands" below, which is the first thing to pick up. In parallel, another session built the kick game's stages 2 and 3 (Drop goal, now Play), the sheet rules in #560 and #562, and the DNSW design system at `/design-system` (#559).
+This replaces the 21 November evening handover (#563). Since then: round 3 stages C and D (#566, #568) and the round 5 open plan fixes E1 to E6 (#573) on the planner; on Drop goal, the phone critique fixes (#564 to #572), the name settled as Drop goal shown as Play on phones, the result card's two heights (#575), and a whole visit: random start, never the same stop twice, Explore all stops, and previous and next on the card (#576). See "Done on 21 and 22 November" and "Drop goal: where it stands" below. The round 3 Final list may still be owed to the user (see Round 3 below).
 
 ## Ways of working
 
-- **Branch:** use the branch your session is given. On 20 and 21 Nov two sessions worked in parallel, on `claude/loving-hamilton-hbh1fu` (planner, round 3 brief) and `claude/eloquent-cray-olixyv` (the kick game, now Play; sheet rules). Expect the same: pull main before each task, as the other session may have merged since. On 21 Nov the user (or GitHub's Update branch) merged main into an open PR's branch; fetch before pushing.
+- **Branch:** use the branch your session is given. On 20 and 21 Nov two sessions worked in parallel, on `claude/loving-hamilton-hbh1fu` (planner, round 3 brief) and `claude/eloquent-cray-olixyv` (the kick game, Drop goal; sheet rules). Expect the same: pull main before each task, as the other session may have merged since. On 21 Nov the user (or GitHub's Update branch) merged main into an open PR's branch; fetch before pushing.
   - Once a PR has merged, restart the branch from main with `git fetch origin main && git checkout -B <branch> origin/main`, then push with `--force-with-lease`.
   - If you push after the user has merged, your commit misses the merge: put it on a fresh branch from main and open a new PR.
   - One commit per task, a draft PR, subscribe to it, and a 50-minute `send_later` safety net (delete it once the PR merges). Several small asks in a row can share one open PR; update its description each time.
@@ -15,6 +15,8 @@ This replaces the 20 November afternoon handover (#546). Since then: the plan op
 - **Previews:** only share links from the Vercel project `mopo123-gmailcoms-projects`, in chat and in PR descriptions, pointing at the page that changed.
   - The URL is `https://dnsw-git-<branch-slug>-mopo123-gmailcoms-projects.vercel.app/wireframes/prototype-pick-your-team.html?tools` (add `&theme=hifi` for high fidelity). The plain address opens **Home**; add `view=plan` for the planner (`?view=plan&tools&theme=hifi`) or `view=kick` for Play (once Drop goal), and point each link at the tab that changed. **Long branch names are shortened**: copy the slug from the Vercel bot's comment on the PR rather than building it. For `claude/charming-carson-1bjb9u` it was `claude-charming-cars-cf7f46`.
   - The second project, `moniquepompe-2020s-projects`, also deploys every push; its bot comments arrive as PR notifications. Its previews ask for sign-in, so never share them.
+- **Stop hook:** a hook asks to commit and push whenever the tree has changes. During a stop and show, don't: say why (CLAUDE.md, "A stop means stop") and wait for the user's answers.
+- **"As you choose":** the user often answers open questions this way. Take it as approval of your stated recommendations, including any CLAUDE.md wording you showed, and say back what you took it to cover.
 - **CLAUDE.md:** read it first. It has **twelve** prototype interaction checks. On 20 and 21 Nov check 10 gained "Changes say they're kept" (a Save bar in sheets where several changes build up) and "A tap outside closes it" (four exceptions), and check 6 a faint top rule on anything pinned to the bottom. Earlier, check 11 (toasts) grew:
   - run it on **every new or moved control**, not only on toasts already there (missed when I have tickets went on the match rows);
   - **never a toast over the control someone is still using** (the page's date slider has none for that reason);
@@ -99,7 +101,7 @@ This replaces the 20 November afternoon handover (#546). Since then: the plan op
 - **`pv-device.js`:** paints library images in high fidelity, from `data-img` keys (`imgKey(title)` in third-half).
 - **`shared.css`:** everything for this page is under `.tp-*`. Page section spacing comes from `--sec-gap` (64px). Your days now sits inside the picker, 24px under Clear all, with no box. The desktop layout is under `@media (min-width:1024px)`, scoped to `.pv-device #tp-phone`.
 
-## Round 3 brief: where it stands (pick this up first)
+## Round 3 brief: where it stands (stages A to D merged; check the Final list with the user)
 
 The user's brief of 21 Nov, "Change the current build. Do not rebuild anything", runs in four stages, in order. **After each stage, stop and show, and don't start the next until the user says go.** Its rules for every stage:
 - Don't invent content. Placeholder wording goes in `concepts-words.js`; list every string added.
@@ -120,7 +122,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - With no days set, a dashed card under the last match day: "Staying after your last match?" with Set your days, which opens the days sheet. In swipe it sits under the cards.
 - The user said keep the plan's own slider (B1 had asked to remove it). The days sheet keeps Use these dates.
 
-**Stage C: not started.** Match night for someone not going (F-029). For the second round running, a tester whose partner was at the match found the match-day block was all about getting there and had nothing for her evening. This is the one finding still rated Blocks.
+**Stage C (merged, #566):** built as below: a Not going to the match? group, tagged Evening, on every NSW match day (only places with opening hours, open after 5pm). The brief as given: Match night for someone not going (F-029). For the second round running, a tester whose partner was at the match found the match-day block was all about getting there and had nothing for her evening. This is the one finding still rated Blocks.
 - C1. In the match-day block (the day card's "Before the match", "After the final whistle" and "Near the stadium" labels), add a third label for people who are not going. Placeholder label: "Not going to the match?".
   - It shows evening ideas in the city of the match, using the fair rotation rule, and only ideas open after 5pm on that day.
   - If the data has no opening hours for an idea, don't show it under this label.
@@ -135,7 +137,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - Then stop and show.
 - **Expect:** the idea fixtures are thin on opening hours (idea sheets show "[Opening hours to come]", hidden with Annotations off), so few or no ideas may qualify. Check the data first and report what exists before building.
 
-**Stage D: not started.** Away days on the plan (F-048). A tester following four teams couldn't see which days he was in NSW and which he was away; the strip only marks match days.
+**Stage D (merged, #568):** built as below, plus one count for your days across the bar, the Your teams sheet, Your matches and Your plan so far. Round 5 (#573) then fixed the open plan, E1 to E6 (E4 not reproduced). The brief as given: Away days on the plan (F-048). A tester following four teams couldn't see which days he was in NSW and which he was away; the strip only marks match days.
 - D1. Days not set: keep the strip and cards as they are (nothing is guessed). On any day whose matches are all outside NSW, add a plain-text line to the card: "Away from NSW: [city]", using the city already on the match row. No ideas, no buttons, no greyed row that does nothing.
 - D2. Days set: show every day in the range in the strip and the cards. A day with no match and no suggestions can collapse into one card, as the notes already describe. A day whose matches are all interstate shows the same line and no ideas.
 - D3. The bar's count adds the number of teams. Placeholder wording: "4 teams · 11 group matches · 3 in NSW".
@@ -157,6 +159,16 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - The plan bar's line duplicating Your plan with no team is fine.
 - The plan keeps its slider.
 - The days sheet keeps Use these dates.
+
+## Done on 21 and 22 November (#563 to #576)
+
+- **#576:** Drop goal, one visit (`drop-goal/js/visit.js`): random start, never twice, Explore all stops, previous and next, estimate only with `?tools`, Reset prototype sends `thk:reset`; `checkDistribution()` simulates visits. CLAUDE.md check 10: two-height sheets and sideways steps.
+- **#575:** Drop goal named Drop goal, shown as Play on phones (desktop headings Drop Goal); the result card's two heights on phones (`js/card-sheet.js`); Kick again became Line up next kick.
+- **#573 (other session):** open plan fixes E1 to E6 (round 5).
+- **#572:** the capsule says Play Drop Goal on the desktop website; every tab's top heading is an h2.
+- **#571, #570, #569, #567, #565, #564:** Drop goal after the phone critique: the game starts about 150px down, landscape and short phones, the result card and the page (dimming, tap outside), See your plan on the card's line, one name, polish.
+- **#568, #566 (other session):** round 3 stages D and C.
+- **#563:** the previous version of this handover.
 
 ## Done on 20 and 21 November (#546 to #562)
 
@@ -223,7 +235,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 
 1. **New, data contract:** #534 added `highlights` (§16 of `docs/product-data-contract.md`, a proposed `gap` field on venue records) without a recorded go-ahead. CLAUDE.md says to stop and ask before using a field outside the contract. Confirm, change or remove it.
 2. **New, CLAUDE.md edits:** checks 7, 10, 11 and 12 were amended or added between 17 and 19 Nov (commits `e0977cb`, `3f073db`, `dd18721`, `26b51da` and `a185d3b`). If any wording went in without being shown first, the user may want to review it.
-3. **Home:** the article page (`pages/rwc-article.html`) is not built. Drop goal (visible name Play since 21 Nov) has stages 1 to 3 built; stages 4 and 5 are still to come.
+3. **Home:** the article page (`pages/rwc-article.html`) is not built. Drop goal (shown as Play on phones) has stages 1 to 3, the critique fixes and the visit (#576) built; whether the original stages 4 and 5 are still wanted, or were replaced by the 22 Nov briefs, is for the user to say.
 4. **From the Where to watch critique, not chosen:** the fair venue rotation picks Wollongong and Newcastle venues for a Sydney match (the nearest fan zone was "used" on the interstate cards). Should proximity win on the night of a fan's own city match?
 5. **At 320 wide:** on the Every NSW match card the wider I have tickets button wraps long names (New Zealand) to two lines.
 6. **From #527, still unanswered:** the open plan's heading repeats "Your plan" from the bar; the end-of-page summary says "added" while the bar says "saved"; a dated save made with no team stays in the box after a team is picked, until days are set.
@@ -249,8 +261,8 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - **How it is shown:** an iframe (`#tp-kick-frame` in `#tp-kick`), so none of the game's scripts load in the page. The capsule script sizes it to fill the screen under the capsule (`fitKick`); the page does not scroll on this tab and the game scrolls inside the frame. The plan bar steps aside, as before (`#tp-phone.is-kick`). On the desktop website it runs full width with no rail.
 - **Changed in the game:** only the colour tools (Kit, Skin, Field, Import, Copy curated settings, Reset this team), folded into a closed Colour settings (temporary) disclosure under the team picker, to be removed later. Also one fix: the closed destination card's buttons stayed in the Tab order off screen (`.card`'s `display: flex` overrode `[hidden]`); it is now hidden once it has slid out.
 - **Data:** the destination fields are §18 of the data contract, `gap`, from the game's `ROUTES` fixtures.
-- **Stage 2 (21 Nov): Add to your plan.** The card's button (was + to plan) saves the place to Saved, not placed yet as kind `kick`, one save per place name, holding only §18 fields (name as the title, distance_km, route). Kick saves are never slotted onto a day (`tp.waiting()` is the saves that are; `tp.kicks()` the kick ones) and get their own line, Places from Play stay here; plan a day there yourself. Confirmed on the card only: the action bar's first line names the latest change (no Save button since 21 Nov: the cross, Escape or a tap outside closes the card); no page toast (`addItem(it, true)`). The page and the game talk through `thk:ready`, `thk:save`, `thk:unsave` and `thk:saved` (drop-goal/README.md, Messages); every `save()` sends `thk:saved`, so Remove, Clear plan, Undo and Reset update the game's button.
-- **Stage 3 (21 Nov): theme, team and layout.** `drop-goal/css/embed.css` (only in a frame) maps the game's controls and card onto the page's tokens, sent by `kickTheme()` in concepts-teams.js as `thk:theme` on load and when the High fidelity switch changes; the pitch and player stay in colour. `thk:teams` sends `state.picked`: picked teams first in the game's row, the first one kicks until a team is chosen in the game. The tab has the page's own title (now Play) and intro; the game's heading, pitch mark and notes are hidden there (the notes are in the annotation). The card has the close cross top right, closes on a tap outside it, and has no Save (user's call, 21 Nov). Kick is pinned to the foot of the frame below 1024px, with a faint rule above. Phone: the pitch is sticky at the top of the frame; desktop: controls beside the pitch.
+- **Stage 2 (21 Nov): Add to your plan.** The card's button (was + to plan) saves the place to Saved, not placed yet as kind `kick`, one save per place name, holding only §18 fields (name as the title, distance_km, route). Kick saves are never slotted onto a day (`tp.waiting()` is the saves that are; `tp.kicks()` the kick ones) and get their own line, Places from Drop goal stay here; plan a day there yourself. Confirmed on the card only: the action bar's first line names the latest change (no Save button since 21 Nov: the cross, Escape or a tap outside closes the card); no page toast (`addItem(it, true)`). The page and the game talk through `thk:ready`, `thk:save`, `thk:unsave` and `thk:saved` (drop-goal/README.md, Messages); every `save()` sends `thk:saved`, so Remove, Clear plan, Undo and Reset update the game's button.
+- **Stage 3 (21 Nov): theme, team and layout.** `drop-goal/css/embed.css` (only in a frame) maps the game's controls and card onto the page's tokens, sent by `kickTheme()` in concepts-teams.js as `thk:theme` on load and when the High fidelity switch changes; the pitch and player stay in colour. `thk:teams` sends `state.picked`: picked teams first in the game's row, the first one kicks until a team is chosen in the game. The tab has the page's own title (Drop Goal on the desktop website, Play on phones) and intro; the game's heading, pitch mark and notes are hidden there (the notes are in the annotation). The card has the close cross top right, closes on a tap outside it, and has no Save (user's call, 21 Nov). Kick is pinned to the foot of the frame below 1024px, with a faint rule above. Phone: the pitch is sticky at the top of the frame; desktop: controls beside the pitch.
 - **Still to come:** Stages 4 and 5 as briefed; a sheet for a kick destination; an Open your plan link on the card; removing the temporary Colour settings. Open: the skin fallback for the 7 teams with no blue or green.
 
 ## Drop goal on phones (21 Nov, after the critique)
@@ -265,6 +277,17 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - 22 Nov, the visit (`drop-goal/js/visit.js`): a random start per visit (a random route from Sydney, aimed at a stop picked at random); never the same stop twice per visit, by a late gust or off the upright on top of the physics (lines: Off the upright!, Caught the breeze!, Off the upright and caught the breeze!, Off the upright and over!, Over the bar and caught the breeze!); every stop seen adds "You've seen every stop on this route. Try another route?" and starts the list again; Explore all stops (pan the pitch, identical markers with a tick when seen, a hidden list of stop buttons for the keyboard, Back to kicking on the Kick bar); previous and next on the card (the content slides inside the card, the marker and camera follow, Add applies to the stop showing, "Taree, stop 4 of 10"); the estimate under Power only with `?tools`; Reset prototype starts a new visit (`thk:reset`). `checkDistribution()` simulates whole visits: 8.7 to 10.6% per stop on every route.
 - Still to do: the critique's remaining items (swipe-down chaining off the Kick bar, focus and tab order, the page-head dimming), which the user is working through separately; check 10 now covers a sheet with two heights and previous and next as a sideways step (22 Nov).
 
+## Drop goal: where it stands (22 Nov)
+
+- **Name:** Drop goal; Play is only the phone label (capsule and the two headings). Words in `concepts-words.js` (`play`, `playDesktop`, `dropGoal`, `dropGoalTitle`).
+- **The visit:** `drop-goal/js/visit.js` loads before `main.js`, which calls `visitBoot()`. sessionStorage key `thk-visit-1` holds the start and the seen lists per route. Re-routing never touches `simulate()`, the zones, routes, terrain or `PLAYER_MODEL`; it bends the drawn path after the posts (upright, only for a kick that clears the bar) or late in the flight (gust). `checkDistribution()` prints single kicks and whole visits; on 22 Nov visits ran 8.7 to 10.6% per stop.
+- **Messages:** `thk:ready`, `thk:save`, `thk:unsave`, `thk:saved`, `thk:theme`, `thk:teams`, `thk:card`, `thk:open-plan`, `thk:close`, `thk:reset` (drop-goal/README.md).
+- **Testing it:** in the console, set `visit.seen[routeKey]` and `wind` before a kick to force each re-route case; `?tools` shows the estimate. The test scripts used this session were in the scratchpad, not the repo.
+- **Still to do:**
+  - the critique's remaining items: a swipe down on the game chains to the page and can push the Kick bar off screen; focus and tab order (focus lost on close in places, tabbing out of the frame, 28 team chip stops); the page head dims while the card is open (the user is working through these separately);
+  - remove the temporary Colour settings; the skin fallback for the 7 teams with no blue or green;
+  - a sheet for a kick destination, if still wanted (see open question 3).
+
 ## Rules in line (21 Nov)
 
 - CLAUDE.md gained three rules (#560): a tap outside closes a sheet, with four exceptions (check 10); Save only where several changes build up (check 10); a faint soft top rule on everything pinned to the bottom (check 6).
@@ -274,6 +297,6 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 
 1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether a parallel session has merged anything since.
 2. Read CLAUDE.md (checks 7, 10, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
-3. Ask the user for go on **Stage C** of the round 3 brief (above). Before building, report which ideas have opening hours that put them open after 5pm, and say what else the change touches (check 12).
-4. After each stage: stop and show, with no commit until the user answers. Then Stage D, then the Final list.
+3. Planner: ask the user whether the round 3 Final list (strings added, notes and checks edited, what is hidden, real content needed) is still owed, and what comes after round 5.
+4. Drop goal: ask which of its remaining items to take next (see "Drop goal: where it stands"). Start any brief with the scope check (checks 7 and 12), and stop and show where the brief says so.
 5. Raise open question 1 (the `highlights` field) before any more work on the host city sheets, and open question 4 (venue proximity) only if the work touches Where to watch.
