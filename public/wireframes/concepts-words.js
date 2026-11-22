@@ -28,6 +28,7 @@ window.TP_WORDS = {
   kickStill: 'A still from the Drop goal game',
   // B2 (F-053): what setting days does, above the dates on the page, in the plan and in the days sheet
   setDaysWhy: 'Set your days to see ideas for the rest of your trip.',
+  setDaysWhyNoTeam: 'Set your days to see ideas for your time in NSW.', // Option B (23 Nov): Your days under the hand before a team is picked
   // B3 (F-051): the plan's card under the last match day while no days are set
   stayAfter: 'Staying after your last match?',
   setDays: 'Set your days',

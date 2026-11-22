@@ -5932,3 +5932,7 @@ span.tp-map-arrow { display: block; }
 @media (min-width: 1024px) { .pv-device #tp-phone .tp-pick .tp-yours-title { margin-top: var(--space-7); } }
 .tp-pick + .tp-ov { margin-top: var(--space-5); } /* Option B: the map right after the picker; with the picker's 24px foot, 48px before its rule */
 @media (min-width: 1024px) { .pv-device #tp-phone .tp-all.is-home .tp-all-col { width: calc((100% - 2 * var(--space-6)) / 3); } } /* Option B on the desktop website: three columns of five across Home's full width */
+/* Option B before a pick: Your days alone under the hand, 24px under the caption as in the picker's family */
+.tp-more.no-btn { margin-top: 0; }
+.cn-phone > .cn-body .tp-more.no-btn > #tp-ask:not([hidden]), .tp-more.no-btn > #tp-ask:not([hidden]) { margin-top: var(--space-5); }
+.tp-more-btn[hidden] { display: none; }

@@ -1334,9 +1334,11 @@
   } else if (moreEl) moreEl.remove();
   function morePlace() {
     if (!FLOW_A || !moreEl) return;
+    // Before a pick: Your days alone under the hand; Add more teams shows once a team is picked
     var has = state.picked.length > 0;
-    moreEl.hidden = !has;
-    if (!has) return;
+    moreEl.hidden = false;
+    document.getElementById('tp-more-teams').hidden = !has;
+    moreEl.classList.toggle('no-btn', !has);
     var after = results;
     if (after.nextElementSibling !== moreEl && !moreEl.contains(document.activeElement)) after.parentNode.insertBefore(moreEl, after.nextSibling);
   }
