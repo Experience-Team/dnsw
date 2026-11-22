@@ -114,7 +114,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
       Save. For example, adding a screening in a match sheet showed its line only below the fold.
     - **Grabbers work.** Every grabber on a sheet, stacked sheet or layer responds to a tap and to a drag. A tap, or a
       drag past a third of the height (or a flick), goes back one step, closing the sheet at its first level; a
-      shorter drag springs back. Nothing draws a grabber that does nothing. For example, the stacked sheets' grabbers
+      shorter drag springs back. A sheet with two heights is the exception: it opens full, a tap on its grabber switches
+      between the heights, a drag down moves it to the short height and a further drag or a flick closes it. Use two
+      heights only where the short height lets people see what the sheet is about (for example, the Drop goal result
+      card on phones shrinks so the landing shows on the pitch). Nothing draws a grabber that does nothing. For example, the stacked sheets' grabbers
       ignored a tap, and page sheets drew a grabber that could not be dragged.
     - **Motion.** A drill-down pushes in from the right and goes back to the right. A stack slides up and the layer
       behind steps back. Reduced motion swaps in place. Announce "[name], details opened." and "Back to [title]."
@@ -122,6 +125,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
       content moves, never the sheet's edge. A taller level scrolls inside it. Going back keeps the same height. The
       height changes only when the sheet first opens or closes. For example, a venue drilled from Where to watch
       shrank the sheet to its short content, which read as a jump.
+      **Sideways between equals.** Previous and next between items of the same kind (stops on a route) is not a
+      drill-down: the content slides in from the side it comes from (previous from the left, next from the right)
+      inside the sheet, which holds its height. There is no back arrow; the buttons name where they go and hide at
+      either end, and screen readers hear the item and its position ("Taree, stop 4 of 10").
     - For example, Escape on an idea's details closed the whole ideas sheet instead of going back to the list.
 11. **A change that lands out of view is confirmed where the person is.** When something a person does changes a part
     of the page they can't see from where they are (another section, their plan, what's behind a sheet), confirm it

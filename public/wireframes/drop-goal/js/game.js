@@ -7,6 +7,7 @@ let ball = { x: 0, y: 0.32, rot: -78, show: true };
 let trail = [], flying = false, busy = false, landedZone = -1, lastZone = -1, wind = 0;
 let saved = new Set();   // place names added to the plan (one save per place, whichever route it was kicked on)
 let teamOrder = null, teamChosen = false;   // inside the prototype: picked teams first; a team chosen here wins
+let cardZone = -1, cardOpener = null;   // the stop the card shows (previous and next change it; js/visit.js) and what opened it
 let cardChanged = false; // something was added or removed on the open card: Close reads Save
 
 /* ---------- Helpers ---------- */
@@ -86,15 +87,7 @@ function render() {
   $("player").innerHTML = playerMarkup(pose, "none");
   // screen-space overlay: zone pins, trail, ball, guide
   const R = ROUTES[routeKey], out = [];
-  for (let i = 0; i < NZ; i++) {
-    const cx = sx(zCentre(i));
-    if (cx < -100 || cx > 1300) continue;
-    const hit = i === landedZone, h = 26 + (i % 2) * 22, base = sy(terrain(zCentre(i)));
-    out.push(`<g class="pin${hit ? " hit" : ""}" transform="translate(0 ${(base - GY).toFixed(1)})">
-      <line x1="${cx}" y1="${GY}" x2="${cx}" y2="${GY - h}" stroke="${hit ? "#17211a" : "rgba(23,33,26,.55)"}" stroke-width="2"/>
-      <circle cx="${cx}" cy="${GY - h}" r="${hit ? 6 : 4}" fill="${hit ? "#ff4d00" : "#17211a"}"/>
-      <text x="${cx}" y="${GY - h - 10}" text-anchor="middle">${R.zones[i][0]}</text></g>`);
-  }
+  for (let i = 0; i < NZ; i++) out.push(pinMarkup(i));   // the stops' markers (js/visit.js: the same in Explore)
   // route overview bar (always visible, helps aiming)
   const bx0 = 170, bw = 500, by = 34, seg = bw / NZ;
   out.push(`<g class="routebar"><text x="${bx0}" y="${by - 8}" font-size="12" font-weight="700" fill="#17211a">${R.label.toUpperCase()} FROM ${STARTS[startKey].toUpperCase()}</text>`);
@@ -103,7 +96,8 @@ function render() {
   out.push(`<text x="${bx0}" y="${by + 26}" font-size="11" fill="#17211a" opacity=".7">${R.zones[0][0]} · ${R.zones[0][1]} km</text><text x="${bx0 + bw}" y="${by + 26}" text-anchor="end" font-size="11" fill="#17211a" opacity=".7">${R.zones[NZ - 1][0]} · ${R.zones[NZ - 1][1]} km</text></g>`);
   if (R.solid) { const mc = (R.mtn.p0 + R.mtn.p1) / 2, mx = sx(mc), my = sy(R.solid(mc)) + 26; if (mx > 0 && mx < 1200 && cam.k < 20) out.push(`<text x="${mx}" y="${my}" text-anchor="middle" font-size="12" font-weight="700" fill="rgba(255,255,255,.85)" letter-spacing="2">${R.solidName.toUpperCase()}</text>`); }
   if (trail.length > 1) out.push(`<polyline points="${trail.map(p => `${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`).join(" ")}" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>`);
-  if (!busy && !flying) out.push(guideMarkup());
+  out.push(postFlashMarkup(), gustMarkup());
+  if (!busy && !flying && !exploring) out.push(guideMarkup());
   if (ball.show) {
     const bs = clamp(cam.k * 0.028, 0.55, 1.3);
     out.push(`<g transform="translate(${sx(ball.x).toFixed(1)} ${sy(ball.y).toFixed(1)}) rotate(${ball.rot.toFixed(1)}) scale(${bs.toFixed(3)})">${ballSVG()}</g>`);
@@ -124,6 +118,9 @@ function guideMarkup() {
 }
 function newWind() {
   wind = Math.round((Math.random() * 2 - 1) * WIND_MAX * 10) / 10;   // horizontal acceleration
+  drawWind();
+}
+function drawWind() {
   const kmh = Math.round(Math.abs(wind) * 30), dir = wind === 0 ? "" : wind > 0 ? "→" : "←";
   $("windVal").textContent = wind === 0 ? "Calm" : `${kmh} km/h ${dir}`;
   const len = Math.abs(wind) * 66, sign = Math.sign(wind) || 1;
@@ -178,9 +175,17 @@ async function kick() {
   landedZone = -1; trail = [];
   await tweenTo("run1", 240); await tweenTo("run2", 200); await tweenTo("plant", 170); await tweenTo("contact", 90, t => t);
 
-  const s = simulate(angle(), power(), wind), { T, tHit, pos, maxH } = s;
-  let landX = s.landX;
+  const s = simulate(angle(), power(), wind), { T, tHit, maxH } = s;
+  let landX = s.landX, pos = s.pos;
   let over = false; { let prev = pos(0); for (let t = 0.01; t <= tHit; t += 0.01) { const p = pos(t); if (prev[0] < POST_X && p[0] >= POST_X) { over = p[1] > BAR_H; break; } prev = p; } }
+
+  // Never twice (js/visit.js): where the physics puts it, and if that stop has been seen this visit, the nearest one not
+  // seen yet, decided now so the ball flies one path
+  const rest0 = restX(landX), zNat = zoneOf(Math.max(rest0, ZONE_START));
+  const plan = planKick(zNat, s.hit && rest0 < landX ? -1 : 1);
+  const rr = plan.kind ? reroutePath(s, plan, over) : null;
+  if (rr) { pos = rr.pos; landX = rr.xEnd; }
+  let flashed = false, gusted = false;
 
   const minX = Math.min(-4, landX - 10), maxX = Math.max(POST_X + 6, landX + 14);
   const fitK = Math.min(1080 / (maxX - minX), 470 / (maxH + 4), 55);
@@ -190,7 +195,10 @@ async function kick() {
   const followP = tweenTo("follow", 260);
   const camStart = { ...cam };
   await anim(D, t => {
-    const p = pos(t * tHit); ball.x = p[0]; ball.y = Math.max(terrain(p[0]), p[1]); ball.rot = -78 + t * 1100;
+    const tt = t * tHit;
+    if (rr && rr.tp !== null && !flashed && tt >= rr.tp) { flashed = true; flashPost(); }
+    if (rr && rr.ts !== null && !gusted && tt >= rr.ts) { gusted = true; showGust(rr.gustKmh, rr.gustDir); }
+    const p = pos(tt); ball.x = p[0]; ball.y = Math.max(terrain(p[0]), p[1]); ball.rot = -78 + t * 1100;
     trail.push([ball.x, ball.y]); if (trail.length > 160) trail.splice(1, 1);
     const ck = ease(Math.min(1, t / 0.35));
     cam.k = Math.exp(lerp(Math.log(camStart.k), Math.log(fit.k), ck)); cam.x = lerp(camStart.x, fit.x, ck);
@@ -201,7 +209,7 @@ async function kick() {
   ball.x = landX; ball.y = terrain(landX);
 
   // terrain: bounce back off the face, or roll down the far side
-  const rx = restX(landX);
+  const rx = rr ? landX : restX(landX);
   const hitFace = s.hit && rx < landX, rolledOn = s.hit && rx > landX;
   if (rx !== landX) {
     const x0 = landX;
@@ -214,7 +222,8 @@ async function kick() {
   }
 
   landedZone = zoneOf(Math.max(landX, ZONE_START)); lastZone = landedZone;
-  const shortKick = landX < ZONE_START, longKick = landX > B()[NZ];
+  if (rr) landedZone = plan.to;
+  const shortKick = !rr && landX < ZONE_START, longKick = !rr && landX > B()[NZ];
   const zoneMid = zCentre(landedZone);
   if (shortKick || longKick) { const bx = ball.x; await anim(700, t => { ball.x = lerp(bx, longKick ? B()[NZ] - 4 : ZONE_START + 4, ease(t)); ball.rot += 9; render(); }); }
   render();
@@ -222,10 +231,11 @@ async function kick() {
   const k2 = 7.5;
   await camTo({ k: k2, x: zoneMid + (600 - 330) / k2 }, 900);
   const R = ROUTES[routeKey];
-  const terrainNote = !R.solid ? "" : hitFace ? `Too low! It hit the ${R.solidName} and rolled back down.` :
+  const terrainNote = !R.solid || rr ? "" : hitFace ? `Too low! It hit the ${R.solidName} and rolled back down.` :
                       rolledOn ? `It cleared the top and rolled down the far side of the ${R.solidName}.` :
                       (s.hit && terrain(landX) > 0.05) ? `It came down in the ${R.solidName}.` : "";
-  openCard(landedZone, { over, shortKick, longKick, terrainNote });
+  cardOpener = null;
+  openCard(landedZone, { over, shortKick, longKick, terrainNote, reroute: rr ? rr.kind : null, allSeen: !!plan.allSeen });
   if (over) tweenTo("celebrate", 320);
   busy = false; setDisabled(false);
   $("btnKick").textContent = "Line up next kick";
@@ -234,6 +244,7 @@ async function kick() {
 async function resetKick() {
   if (busy) return; busy = true; setDisabled(true);
   closeCard(true);
+  if (exploring) { exploring = false; $("btnExplore").setAttribute("aria-pressed", "false"); $("exploreWrap").hidden = true; document.body.classList.remove("exploring"); }
   trail = []; landedZone = -1;
   await camTo(START_CAM, 900);
   ball = { x: 0, y: 0.32, rot: -78, show: true };
@@ -242,26 +253,42 @@ async function resetKick() {
   busy = false; setDisabled(false);
   $("btnKick").textContent = "Kick";
 }
-function setDisabled(d) { ["btnKick"].forEach(id => $(id).disabled = d); document.querySelectorAll(".route").forEach(b => b.disabled = d); document.querySelectorAll(".chip").forEach(b => b.disabled = d); }
+function setDisabled(d) { ["btnKick", "btnExplore"].forEach(id => $(id).disabled = d); document.querySelectorAll(".route").forEach(b => b.disabled = d); document.querySelectorAll(".chip").forEach(b => b.disabled = d); }
 
 /* ---------- Destination card ---------- */
-function openCard(i, info) {
+function fillCard(i, info) {
   const R = ROUTES[routeKey], [name, km] = R.zones[i];
+  cardZone = i;
   $("cardImg").innerHTML = cardImage(i);
-  $("cardKicker").textContent = info.over ? "Over the bar! The ball landed in …" : "The ball landed in …";
+  $("cardKicker").textContent = kickerLine(info);
   $("cardName").textContent = name;
   $("cardTags").innerHTML = [R.label, dirKey === "local" ? "Near the stadium" : i < 2 ? "Day trip" : i < 6 ? "Short trip" : "Road trip"]
     .map(t => `<span>${t}</span>`).join("");
   $("cardDist").textContent = `approx. ${km} km from ${STARTS[startKey]}`;
   $("cardRoute").textContent = `${R.label}, stop ${i + 1} of ${NZ}`;
-  $("cardNote").textContent = info.terrainNote || (info.shortKick ? "Short kick! It rolled to the nearest stop." : info.longKick ? "Huge kick! It ran out of road at the last stop." : "");
-  cardChanged = false; cardStatus("");   // the cross, Escape or a tap outside closes it; the line names the latest change
-  updateSave();
-  const c = $("card"); c.hidden = false; requestAnimationFrame(() => c.classList.add("open"));
-  $("cardName").focus();
+  const note = info.explore ? "" : info.terrainNote || (info.shortKick ? "Short kick! It rolled to the nearest stop." : info.longKick ? "Huge kick! It ran out of road at the last stop." : "");
+  $("cardNote").textContent = [note, info.allSeen ? ALL_SEEN : ""].filter(Boolean).join(" ");
+  markSeen(i);   // seen once its card has shown, however it was reached
+  if (exploring) buildExploreList();
+  fillSteps(); updateSave();
 }
-function closeCard(silent) { const c = $("card"); c.classList.remove("open"); c.hidden = true; if (!silent) $("btnKick").focus(); }
-const placeName = () => ROUTES[routeKey].zones[landedZone][0];
+function openCard(i, info) {
+  cardInfo = info;
+  fillCard(i, info);
+  cardChanged = false; cardStatus("");   // the cross, Escape or a tap outside closes it; the line names the latest change
+  $("cardSay").textContent = "";
+  const c = $("card"); c.style.height = ""; c.hidden = false; requestAnimationFrame(() => c.classList.add("open"));
+  $("cardName").focus();
+  render();
+}
+function closeCard(silent) {
+  const c = $("card"), was = !c.hidden; c.classList.remove("open"); c.hidden = true; cardZone = -1;
+  // Focus goes back to what opened it: a stop in Explore's list, or Kick
+  if (!silent) { const o = cardOpener && document.contains(cardOpener) && !cardOpener.closest("[hidden]") ? cardOpener : $("btnKick"); o.focus({ focusVisible: false }); }
+  cardOpener = null;
+  if (was) render();
+}
+const placeName = () => ROUTES[routeKey].zones[cardZone][0];   // the stop showing on the card
 // The line in the card's action bar names the latest change, so the confirmation sits where the person acted
 // The line may end with "See your plan" (inside the prototype only, where there is a plan to see; js/plan-link.js)
 function cardStatus(msg, seePlan) {
@@ -269,16 +296,16 @@ function cardStatus(msg, seePlan) {
   if (seePlan && window.planLink) { const b = document.createElement("button"); b.type = "button"; b.className = "see-plan"; b.textContent = "See your plan"; b.onclick = () => window.planLink.openPlan(); s.append(" ", b); }
 }
 function toggleSave() {
-  if (landedZone < 0) return;
+  if (cardZone < 0) return;
   const name = placeName(), on = !saved.has(name);
   if (on) saved.add(name); else saved.delete(name);
-  if (window.planLink) window.planLink.send(on, landedZone);   // inside the prototype: the plan keeps it (js/plan-link.js)
+  if (window.planLink) window.planLink.send(on, cardZone);   // inside the prototype: the plan keeps it (js/plan-link.js)
   cardChanged = true;
   cardStatus(on ? name + " added." : name + " removed from your plan.", on);
   updateSave();
 }
 function updateSave() {
-  const on = landedZone >= 0 && saved.has(placeName()), spans = $("btnSave").querySelectorAll("span");
+  const on = cardZone >= 0 && saved.has(placeName()), spans = $("btnSave").querySelectorAll("span");
   $("btnSave").setAttribute("aria-pressed", on); spans[0].textContent = on ? "✓" : "+"; spans[1].textContent = on ? "Added to your plan" : "Add to your plan";
 }
 function cardImage(i) {

@@ -11,7 +11,7 @@ document.querySelectorAll(".dirbtn").forEach(b => b.onclick = () => { if (busy) 
 document.querySelectorAll(".startbtn").forEach(b => b.onclick = () => { if (busy) return; startKey = b.dataset.s; setRoute(); });
 $("angle").addEventListener("input", syncReadouts);
 $("power").addEventListener("input", syncReadouts);
-$("btnKick").onclick = () => landedZone >= 0 ? resetKick().then(() => {}) : kick();
+$("btnKick").onclick = () => exploring ? setExplore(false) : landedZone >= 0 ? resetKick().then(() => {}) : kick();   // Back to kicking while exploring (js/visit.js)
 $("btnAgain").onclick = () => resetKick();
 $("btnX").onclick = () => closeCard();
 $("btnSave").onclick = () => toggleSave();
@@ -33,6 +33,7 @@ document.addEventListener("pointerdown", e => {
 
 for (const k in ROUTES) computeBounds(ROUTES[k]);
 loadTeam(1); setPalette(); buildParts(); buildPickers(); applyField(); newWind(); syncReadouts(); render();
+visitBoot();   // the visit's random start, never twice and Explore (js/visit.js)
 
 // Dev helper: run checkDistribution() in the browser console to see, per route, the % of
 // simulated kicks landing on each stop (same player model used to size the zones).
@@ -47,5 +48,10 @@ window.checkDistribution = function (n = 8000) {
     }
     rows[r] = Object.fromEntries(ROUTES[r].zones.map((z, i) => [z[0], Math.round(c[i] / n * 1000) / 10 + "%"]));
   }
-  routeKey = keep; console.table(rows); return rows;
+  routeKey = keep; console.log("Kicks: each stop's share of single kicks"); console.table(rows);
+  // Whole visits (js/visit.js): the random start, a series of kicks, the seen list and the re-routing; each stop's share
+  // of the cards shown. Should stay within about 8 to 12%
+  const visits = {}; for (const r in ROUTES) visits[r] = visitShares(r);
+  console.log("Visits: each stop's share of the cards shown"); console.table(visits);
+  return { kicks: rows, visits };
 };

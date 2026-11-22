@@ -67,3 +67,6 @@ html.embedded .card-actions #btnAgain { background: transparent; border-color: v
 html.embedded .kick:disabled { opacity: 1; background: var(--e-c-surface-2, #f5f5f5); border-color: var(--e-c-line, #d9d9d9); color: var(--e-c-ink-2, #4d4d4d); }
 html.embedded .card-grab { color: var(--e-c-ink, #1a1a1a); }
 html.embedded .card-grab:focus-visible { outline-color: var(--e-c-focus, #005ea2); }
+html.embedded .explore-btn { color: var(--e-c-ink, #1a1a1a); }
+html.embedded :is(.explore-btn, .card-actions .step):focus-visible { outline: 2px solid var(--e-c-focus, #005ea2); outline-offset: 2px; }
+html.embedded .card-actions .step { background: none; border: 0; color: var(--e-c-ink, #1a1a1a); }

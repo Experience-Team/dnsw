@@ -12,6 +12,7 @@
 //   thk:card     game -> page  { open: true | false }, when the result card opens or closes, so the page head dims
 //   thk:open-plan game -> page  See your plan on the card's line: the page closes the card, goes to the planner and
 //                              opens the plan at Saved, not placed yet
+//   thk:reset    page -> game  Reset prototype: a new visit (the seen lists and the random start are cleared; js/visit.js)
 //   thk:close    page -> game  a press on the page outside the game, or leaving the tab: the card closes (silently,
 //                              so focus stays where the person pressed)
 // Opened on its own, nothing answers, and saves stay in this page's memory as before.
@@ -48,11 +49,12 @@
   window.addEventListener("message", e => {
     const d = e.data;
     if (e.source !== window.parent || e.origin !== ORIGIN || !d) return;
+    if (d.type === "thk:reset") { if (window.visitReset) window.visitReset(); return; }
     if (d.type === "thk:close") { if (!$("card").hidden) closeCard(true); return; }
     if (d.type === "thk:theme") { applyTheme(d); return; }
     if (d.type === "thk:teams" && Array.isArray(d.picked)) { applyTeams(d); return; }
     if (d.type !== "thk:saved" || !Array.isArray(d.names)) return;
-    const open = !$("card").hidden && landedZone >= 0 ? placeName() : null, was = open !== null && saved.has(open);
+    const open = !$("card").hidden && cardZone >= 0 ? placeName() : null, was = open !== null && saved.has(open);
     saved.clear(); d.names.forEach(n => { if (typeof n === "string") saved.add(n); });
     if (open === null) return;
     const now = saved.has(open);

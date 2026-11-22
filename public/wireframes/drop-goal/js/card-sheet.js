@@ -19,6 +19,7 @@
   // Change height while keeping the card's top edge where it is now, then let it glide to its new resting place
   function setShort(short, fromY) {
     const top0 = card.getBoundingClientRect().top;
+    card.style.height = "";   // a height held for previous and next (js/visit.js) gives way to the new one
     card.classList.add("dragging");
     card.style.transform = "";
     card.classList.toggle("is-short", short);
@@ -89,8 +90,8 @@
   grab.addEventListener("click", e => { if (e.detail === 0) setShort(!card.classList.contains("is-short")); });
 
   function shortHeight() {
-    const keep = card.style.transform; card.classList.add("dragging", "is-short");
-    const h = card.offsetHeight; card.classList.remove("is-short"); card.style.transform = keep;
+    const keep = card.style.transform, held = card.style.height; card.style.height = ""; card.classList.add("dragging", "is-short");
+    const h = card.offsetHeight; card.classList.remove("is-short"); card.style.transform = keep; card.style.height = held;
     return h;
   }
 

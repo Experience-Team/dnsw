@@ -33,6 +33,8 @@
     <button class="card-grab" id="cardGrab" type="button" aria-controls="card" aria-expanded="true" aria-label="Show less"><span aria-hidden="true"></span></button>
     <button class="card-x" id="btnX" type="button" aria-label="Close"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <div class="card-inner">
+      <!-- The stop showing: previous and next slide this across inside the card, which holds its height (22 Nov) -->
+      <div class="card-stop" id="cardStop">
       <p class="kicker" id="cardKicker">The ball landed in …</p>
       <div class="name-row">
         <h2 id="cardName" tabindex="-1">Place</h2>
@@ -47,7 +49,10 @@
         <div><dt>Route</dt><dd id="cardRoute"></dd></div>
       </dl>
       <p class="note-inline" id="cardNote"></p>
+      </div>
+      <p class="sr-only" id="cardSay" aria-live="polite"></p>
       <div class="card-actions">
+        <div class="card-steps"><button class="step" id="btnPrev" type="button"><span aria-hidden="true">←</span> <span class="step-name"></span></button><button class="step step-next" id="btnNext" type="button"><span class="step-name"></span> <span aria-hidden="true">→</span></button></div>
         <p class="card-status" id="cardStatus" role="status"></p>
         <button id="btnAgain">Line up next kick</button>
       </div>
@@ -67,7 +72,12 @@
       <button class="route dirbtn" data-r="north" aria-pressed="true">North</button>
       <button class="route dirbtn" data-r="south" aria-pressed="false">South</button>
       <button class="route dirbtn" data-r="west" aria-pressed="false">West</button>
-    </div></div>
+    </div>
+    <!-- Explore all stops (22 Nov): pan the pitch, every stop marked the same; the stops are also this list of buttons for
+         the keyboard and screen readers, hidden until one has focus (its marker then shows the focus ring) -->
+    <button class="explore-btn" id="btnExplore" type="button" aria-pressed="false"><svg width="14" height="16" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 15s5-4.6 5-8.5A5 5 0 0 0 2 6.5C2 10.4 7 15 7 15z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="7" cy="6.5" r="1.8" fill="currentColor"/></svg>Explore all stops</button>
+    <div id="exploreWrap" class="sr-only-list" hidden><p class="sr-only" id="exploreHead">Stops on this route, in distance order</p><ul id="exploreList" aria-labelledby="exploreHead"></ul></div>
+  </div>
   <div class="group"><label for="angle">Angle</label><div class="slider"><input id="angle" type="range" min="10" max="80" value="45"><output id="angleVal">45°</output></div></div>
   <div class="group"><label for="power">Power</label><div class="slider"><input id="power" type="range" min="0" max="100" value="50"><output id="powerVal">50%</output></div><div class="est" id="estVal" aria-live="polite"></div></div>
   <div class="group"><span class="lbl">Wind</span><div id="windVal" style="font-weight:700;padding:6px 0">Calm</div></div>
@@ -101,6 +111,7 @@
 <script src="js/routes.js"></script>
 <script src="js/zones.js"></script>
 <script src="js/game.js"></script>
+<script src="js/visit.js"></script>
 <script src="js/main.js"></script>
 <script src="js/card-sheet.js"></script>
 <script src="js/plan-link.js"></script>
