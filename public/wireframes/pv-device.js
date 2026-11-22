@@ -159,7 +159,8 @@
   // address of Pick your team) opens as it is. ?tools carries over, so a scan of the tools version opens the tools version
   function phoneUrl() {
     var tools = /[?&]tools\b/.test(location.search);
-    return location.origin + location.pathname + '?' + (tools ? 'tools&' : '') + 'phone' + (themeBtn ? '&theme=hifi' : '');
+    var flow = /[?&]flow=a\b/.test(location.search) ? '&flow=a' : ''; // Option A keeps its flow on the phone
+    return location.origin + location.pathname + '?' + (tools ? 'tools&' : '') + 'phone' + (themeBtn ? '&theme=hifi' : '') + flow;
   }
   function drawQr() {
     if (!box) return;
@@ -238,7 +239,8 @@
     else if (own) sessionStorage.removeItem('pv-tools');
     if (tools || sessionStorage.getItem('pv-tools') === '1') {
       document.querySelectorAll('.pv-tabs a[data-tools]').forEach(function (a) {
-        if (!/[?&]tools\b/.test(a.getAttribute('href'))) a.setAttribute('href', a.getAttribute('href').split('?')[0] + '?tools');
+        var h = a.getAttribute('href'); // keeps any other flag, such as Option A's flow=a
+        if (!/[?&]tools\b/.test(h)) a.setAttribute('href', h + (h.indexOf('?') > -1 ? '&' : '?') + 'tools');
       });
     }
   } catch (e) {}

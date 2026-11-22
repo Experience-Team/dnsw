@@ -304,7 +304,13 @@
       card._pull.onfinish = card._pull.oncancel = function () { card.style.zIndex = ''; card._pull = null; };
     }
     renderChosen();
+    // Option A: a pick from the planner's own hand (or Find above it) takes the page down to the new card. Not a pick
+    // on Home, in the Add team sheet or the Your teams sheet, or from a match page (keepTab); never an unpick
+    var flowGo = FLOW_A && on && !keepTab && picker.closest('#tp-pick') && picker.getClientRects().length &&
+      (from === undefined || picker.contains(from)) && !(tlOpen && !wide());
+    if (flowGo) { flowStop(); if (tabsOn && state.tab !== 'yours') setTab('yours'); }
     renderMatches(on ? c.name : null, on ? null : c.name, keepTab);
+    if (flowGo) flowScroll(c.name, from === undefined ? Math.min(dur, 900) : 560);
     var msg = pickLine(c, on);
     showCaption(c.name + (on ? ' added' : ' removed'), msg.slice((c.name + (on ? ' added' : ' removed')).length), note);
     say(msg + '.' + note);
@@ -1276,6 +1282,7 @@
     if (!has) {
       tabsOn = false; lastN = 0;
       tabsEl.hidden = true; results.hidden = true; deck.innerHTML = '';
+      morePlace();
       if (allSec) { allSec.hidden = false; allSec.classList.remove('is-tabbed'); allSec.removeAttribute('role'); allSec.setAttribute('aria-labelledby', 'tp-all-title'); }
       return;
     }
@@ -1302,8 +1309,63 @@
     results.hidden = !y;
     if (allSec) { allSec.hidden = y; allSec.classList.add('is-tabbed'); allSec.setAttribute('role', 'tabpanel'); allSec.setAttribute('aria-labelledby', 'tp-tab-all'); }
     if (focus) (y ? tabYours : tabAll).focus({ preventScroll: true });
+    morePlace();
     if (tlReady) syncBar();
     notesOnly();
+  }
+  /* ---------- Option A (?flow=a, 23 Nov) ----------
+     Its own prototype tab in the viewer. Everything is as on Pick your team except: under the match cards, Add more
+     teams (opens the Add team sheet where you are) with Your days in NSW under it, and a pick from the planner's hand
+     scrolls down to its match card (flowScroll, called from toggle). #tp-more holds both; on the All matches tab it
+     follows the All matches list, so it always sits under the matches showing. Found by id, as Your days can be lent. */
+  var FLOW_A = document.documentElement.getAttribute('data-flow') === 'a';
+  var moreEl = document.getElementById('tp-more');
+  if (FLOW_A && moreEl) {
+    var askEl = document.getElementById('tp-ask');
+    if (askEl) moreEl.appendChild(askEl);
+    var moreBtn = document.getElementById('tp-more-teams');
+    moreBtn.insertAdjacentHTML('afterbegin', window.tpIcons.fan);
+    moreBtn.addEventListener('click', function () { atOpen(moreBtn); });
+  } else if (moreEl) moreEl.remove();
+  function morePlace() {
+    if (!FLOW_A || !moreEl) return;
+    var has = state.picked.length > 0;
+    moreEl.hidden = !has;
+    if (!has) return;
+    var after = state.tab === 'all' && allSec ? allSec : results;
+    if (after.nextElementSibling !== moreEl && !moreEl.contains(document.activeElement)) after.parentNode.insertBefore(moreEl, after.nextSibling);
+    moreEl.classList.toggle('is-after-all', after === allSec);
+  }
+  // The page glides down to the new card once the pick has landed in the hand: eased in and out, so the eye can follow
+  // it (check 1). Reduced motion: it jumps. A touch, wheel or key on the way stops it, so it never fights the person.
+  var flowT = 0, flowRaf = 0, flowKey = false; // flowKey: the pick came from the keyboard, so the card shows its focus ring
+  document.addEventListener('keydown', function () { flowKey = true; }, true);
+  document.addEventListener('pointerdown', function () { flowKey = false; }, true);
+  function flowStop() { clearTimeout(flowT); cancelAnimationFrame(flowRaf); flowT = flowRaf = 0; }
+  ['wheel', 'touchstart', 'keydown'].forEach(function (ev) { body.addEventListener(ev, function () { if (flowRaf) flowStop(); }, { passive: true }); });
+  function flowScroll(name, wait) {
+    flowStop();
+    flowT = setTimeout(function () {
+      flowT = 0;
+      var el = deck.querySelector('.tp-rcard[data-name="' + CSS.escape(name) + '"]');
+      if (!el || results.hidden || !el.getClientRects().length) return;
+      var nav = phoneEl.querySelector('.tp-cap-wrap'), off = nav ? nav.offsetHeight + 24 : 16;
+      var target = tabsEl.hidden ? el : tabsEl; // the tabs, then the cards: so it reads as Your matches, with the new card in it
+      var from = body.scrollTop, to = Math.max(0, Math.min(body.scrollHeight - body.clientHeight, from + target.getBoundingClientRect().top - body.getBoundingClientRect().top - off));
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+      var key = flowKey, land = function () { el.focus({ preventScroll: true, focusVisible: key }); };
+      if (Math.abs(to - from) < 4) { land(); return; }
+      if (reduce.matches) { body.scrollTop = to; land(); return; }
+      var dist = Math.abs(to - from), dur = Math.round(Math.min(900, 480 + dist * .4)), t0 = 0;
+      var ease = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }; // ease-in-out cubic, not front-loaded
+      var step = function (now) {
+        if (!t0) t0 = now;
+        var t = Math.min(1, (now - t0) / dur);
+        body.scrollTop = from + (to - from) * ease(t);
+        if (t < 1) flowRaf = requestAnimationFrame(step); else { flowRaf = 0; land(); }
+      };
+      flowRaf = requestAnimationFrame(step);
+    }, reduce.matches ? 120 : wait);
   }
   // Standard tabs: click or arrow keys (Home and End too) move the selection, which follows focus
   tabsEl.addEventListener('click', function (e) { var b = e.target.closest('[role="tab"]'); if (b) setTab(b === tabYours ? 'yours' : 'all', true); });

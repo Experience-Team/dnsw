@@ -6,15 +6,19 @@
 <!-- Compare view (22 Nov): a phone opened as Option A, B or C (?opt=a, in a frame beside the main phone, pv-compare.js)
      keeps its own saved state. Every key it reads or writes in this browser's storage is filed under opt-a: (and so on),
      so its picks, days, plan and theme never touch the main phone's or the other options'. First, before anything reads
-     storage -->
+     storage.
+     Option A (23 Nov, ?flow=a, its own tab in the viewer's left panel) keeps its own saved state the same way, under
+     flow-a:, so testing it never changes the main prototype's picks. Viewer settings (the theme, the annotations,
+     Compare options' list) stay shared, so both tabs look the same. A compared phone (?opt=) keeps its own prefix. -->
 <script>(function () {
-  var m = /[?&]opt=([abc])\b/.exec(location.search); if (!m) return;
-  var P = 'opt-' + m[1] + ':';
+  var q = location.search, m = /[?&]opt=([abc])\b/.exec(q), P, own;
+  if (m) { P = 'opt-' + m[1] + ':'; own = function () { return true; }; document.documentElement.classList.add('pv-opt'); }
+  else if (/[?&]flow=a\b/.test(q)) { P = 'flow-a:'; own = function (k) { return !/^(pv-|opt-[abc]:|flow-a:)/.test(k) && k !== 'tp-annotations'; }; }
+  else return;
   ['getItem', 'setItem', 'removeItem'].forEach(function (fn) {
     var o = Storage.prototype[fn];
-    Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); a[0] = P + k; return o.apply(this, a); };
+    Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); if (own(String(k))) a[0] = P + k; return o.apply(this, a); };
   });
-  document.documentElement.classList.add('pv-opt');
 })();</script>
 <!-- Two addresses, one file. This address shows the prototype in the low fidelity (wireframe) theme only, with every side
      control except the High fidelity switch. Add ?tools (prototype-pick-your-team.html?tools) for the version we work
@@ -34,6 +38,7 @@
   }
   if (/[?&]slogan=b\b/.test(q)) d.setAttribute('data-slogan', 'b'); // the alternative slogan, for testing
   if (/[?&]plan=swipe\b/.test(q)) d.setAttribute('data-plan', 'swipe'); // Your plan as one day card at a time; ?plan=cards (the default) stacks them
+  if (/[?&]flow=a\b/.test(q)) d.setAttribute('data-flow', 'a'); // Option A: a pick scrolls to its match card, with Add more teams and Your days under the cards
 })();</script>
 <title>Pick your team · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
@@ -49,16 +54,25 @@
     <h1 class="pv-title">RWC prototypes</h1>
     <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
   </header>
-  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab is-active" href="prototype-pick-your-team.html" aria-current="page" data-tools>Pick your team</a><a class="pv-tab" href="prototype-itinerary.html">Share/edit itinerary</a><span class="pv-tab pv-tab--next" aria-disabled="true">[next] prototype</span></nav>
-  <!-- On the tools version, this page's own tab keeps ?tools, so clicking it never drops you back to the low fidelity address -->
-  <script>if (document.documentElement.classList.contains('pv-tools')) document.querySelector('.pv-tabs [aria-current="page"]').setAttribute('href', 'prototype-pick-your-team.html?tools');</script>
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-tools data-flow-tab="">Pick your team</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-tools data-flow-tab="a">Option A</a><a class="pv-tab" href="prototype-itinerary.html">Share/edit itinerary</a><span class="pv-tab pv-tab--next" aria-disabled="true">[next] prototype</span></nav>
+  <!-- Pick your team and Option A (23 Nov, ?flow=a) are this one page: the tab for the flow showing is marked current.
+       On the tools version both keep ?tools, so clicking them never drops you back to the low fidelity address -->
+  <script>(function () {
+    var d = document.documentElement, flow = d.getAttribute('data-flow') || '', tools = d.classList.contains('pv-tools');
+    [].forEach.call(document.querySelectorAll('.pv-tabs [data-flow-tab]'), function (a) {
+      var on = a.getAttribute('data-flow-tab') === flow;
+      a.classList.toggle('is-active', on); if (on) a.setAttribute('aria-current', 'page');
+      if (tools) a.setAttribute('href', 'prototype-pick-your-team.html?' + (a.getAttribute('data-flow-tab') ? 'flow=a&' : '') + 'tools');
+    });
+  })();</script>
   <!-- Build-only items (the [next] placeholder tab, the spare frame, the test switches) show only on the tools version:
        the plain address is the one DNSW reviewers get -->
   <script>if (!document.documentElement.classList.contains('pv-tools')) document.querySelector('.pv-tab--next').remove();</script>
   <div class="pv-concept">
     <div class="pv-concept-head">
-      <h2 class="pv-h2">Pick your team</h2>
+      <h2 class="pv-h2">Pick your team<span class="pv-flow-a">: Option A</span></h2>
     </div>
+    <p class="pv-p pv-flow-a">Option A: in Plan your 3rd half, picking a team scrolls down to its match card, with Add more teams and Your days under the cards. Everything else is the same as Pick your team, with its own saved picks.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. With Annotations on, pink marks data that is not confirmed yet.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
@@ -352,6 +366,10 @@
             <div class="tp-deck" id="tp-deck" role="group" aria-label="Your matches"></div>
             <p class="tp-deck-hint" id="tp-deck-hint" hidden>Swipe for your other cards.</p>
           </div>
+          <!-- Option A only (?flow=a, 23 Nov): under the match cards, Add more teams opens the Add team sheet where you are,
+               and Your days in NSW (#tp-ask) moves under it. concepts-teams.js fills the icon and shows it once a team is
+               picked; on the All matches tab both follow the All matches list. -->
+          <div class="tp-more" id="tp-more" hidden><button type="button" class="tp-pill tp-more-btn" id="tp-more-teams" aria-haspopup="dialog">Add more teams</button></div>
           <p class="visually-hidden" id="tp-live" role="status" aria-live="polite"></p>
         </section>
         <!-- All matches: right under the picker and its tabs whether or not anyone has picked a team, so the All matches tab and its list are never split by Your days or the map (17 Nov). Minimal, as this page is not the main
@@ -746,6 +764,7 @@
       { sel: '.tp-all-btn', title: 'A match sheet', text: 'Save (20 Nov, and since then in every sheet where a change applies at once, CLAUDE.md check 10: venues, products, places, ideas, the plan\u2019s ideas sheet, a plan item\u2019s Move, host city, Where to watch; Your teams and Add team turn their Done into Save with the change, e.g. Ireland added to your teams.; not the days sheet, which keeps Use these dates): every change in a match sheet (Add a screening, Add to my plan, I have a ticket, a team) applies at once, but on a phone the line saying so sat below the fold and the cross reads as cancel, so once something changes a bar pins to the sheet\u2019s foot with that line (Foreshore Park Fan Zone added to your plan on Sat 2 Oct.) and Save. Save does exactly what the cross does: it closes the sheet and puts focus back on what opened it. The bar stays while drilled into a venue from the match, and is gone when the sheet next opens. As the bar says what was added, the Added to your plan toast is left out in a sheet (check 11); the ticket toast stays, as it names the parts of the page that changed out of view, and sits 12px above the bar. Tapping a row in All matches, or a match on a team card in Your matches (its date, teams and venue are one button; the ticket box sits outside it), opens a sheet from the bottom over a dimmed page (tap outside, the cross or Escape to close; products and places stay full-screen pages): date, Sydney kick-off, venue, city, In NSW or interstate. Add to my plan adds that one match, even when neither team is picked (T12, a ticket for a match their team is not in); it shows on the plan and in Copy plan as a match. Add [team] to my teams does exactly what picking its card does, and is a toggle like Add to my plan: pressed it reads \u2713 Wales added to my teams, and pressing it again takes the team off (the undo), with the line under it saying what happened. I have a ticket shows for any match with known teams; ticking it also puts the match on the plan, as a ticket means they are going. Tapping the row itself never adds a team. Focus moves in and stays in; Escape or the cross returns it to the row. An interstate match\u2019s sheet leads with Where to watch it in NSW: the fan zone, the village and the pubs screening it (cnWatchSpots, gap data, so the pink marks stay with Annotations on), each with Add; with none listed it says No NSW screenings listed for this match yet.' }
     ]).concat(EXTRA, TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
     results: { items: PICKER.concat([
+      { sel: '#tp-more', title: 'TEST: Option A, scroll to your card', text: '23 Nov. Option A is its own tab in the viewer (?flow=a), the same page with its own saved picks; the theme, Annotations and Compare options are shared with Pick your team. Only the planner changes. A team picked from the hand (or Find) takes the page down to Your matches once the card has landed in the hand: an eased glide of about half a second to the tabs, with the new card in view and focus on it (a ring only when the pick came from the keyboard); reduced motion jumps; a touch, wheel or key on the way stops it. Picking from the All matches tab switches to Your matches. No scroll for an unpick, a pick on Home, in the Add team or Your teams sheets, from a match page or from Add every NSW match. Under the cards: Add more teams, full width, which opens the Add team sheet where you are (focus returns to it on close), then Your days in NSW, moved here from above the tabs. On the All matches tab both follow the list. Flagged against check 8: the page moves on a pick, which no label promises; built as asked to test it.' },
       { sel: '#tp-tabs', title: 'Your matches and All matches', text: 'Two tabs appear below the picker with the first pick, and Your matches is chosen. After that the chosen tab stays put, and is kept on reload. A pick made from a match page keeps All matches chosen, so closing the page goes back to its row. Standard tabs: arrow keys, Home and End move between them, the selected state is announced. Clearing every pick removes the tabs. The count in Your matches (N) is the matches on your plan, and washes blue for a moment when it changes.' },
       { sel: '.tp-rcard-new', title: 'The newest card', text: 'Each newly picked team\u2019s card rises gently into Your matches, the deck slides to it, and it says Just added for a moment with a soft outline. A card that goes fades out first.' },
       { sel: '.tc-head', title: 'A team card (redesigned 16 Nov)', text: 'Leads with the team: a band in its colours, a large flag, its name and one line of what is ahead (3 matches in 13 days \u00b7 next: v Argentina, Sat 2 Oct), then a quiet meta line (Pool C \u00b7 3 pool matches \u00b7 all interstate, or 1 in NSW). The old box saying a team plays all its pool matches interstate is gone: the meta line says it. One row per match: a date block, the opponent with its flag, the city and kick-off; the whole row opens the match\u2019s sheet. Interstate rows have Watch in NSW (TV icon), which opens that sheet at Where to watch it in NSW; NSW rows carry the stadium mark. No form fields on the card: the ticket question and its reason live in the match sheet. A chip shows only once something is set: Ticket, or Watching at [venue] once a screening is added; unset rows stay clean. One knockout line (If Canada finishes second in Pool C: Round of 16 in Sydney, Sat 23 Oct) opens the knockout path in NSW in a small sheet. One next step: See where to watch all 3 in NSW (a sheet of each match\u2019s screenings with Add) for a team with no NSW match, See your match day for one with (20 Nov, F-028; it was Plan around your match day, which opened the days sheet with a ticket toggle, a third copy of controls the card and Your days in NSW already have): your plan opens on the team\u2019s first NSW match day inside your days, that day\u2019s card at the top (as far as the sheet can scroll) and marked on the strip, its heading focused; closing the plan puts focus back on the button. Screen readers hear the match too (See your match day: Ireland v Portugal, Mon 4 Oct). With days set and no NSW match of the team inside them, the plan opens as usual and says so above the strip (Mon 4 Oct is outside your days (9 to 12 Oct)). Every NSW match keeps Plan around your match days (the days sheet). Nothing on the card moves the page; every sheet returns focus to what opened it, even when the card has redrawn.' },
