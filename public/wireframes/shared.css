@@ -2940,7 +2940,7 @@ body.cp-page code { font: inherit; }
 .cn-bar { flex: none; display: flex; align-items: center; gap: var(--space-4); height: 52px; padding: 0 var(--space-4); border-bottom: var(--bw-1) solid var(--c-line); }
 .cn-close { flex: none; width: 36px; height: 36px; display: inline-grid; place-items: center; border: var(--bw-2) solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
 .cn-bar-title { flex: 1; min-width: 0; font-size: var(--fs-md); font-weight: var(--fw-semi); }
-.cn-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3) var(--space-4) var(--space-5); }
+.cn-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: var(--space-3) var(--space-4) var(--space-5); } /* the page never pans sideways (23 Nov): anything that pokes out, from a rotated card Safari doesn't clip to a hidden label that escapes a carousel, can't drag it; carousels keep their own sideways scroll */
 .cn-seg { position: relative; display: flex; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-pill); overflow: hidden; background: var(--c-surface); }
 /* The dark thumb slides to the chosen view, so the switch reads as one control moving, not two buttons repainting */
 .cn-seg::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 50%; border-radius: var(--radius-pill); background: var(--c-btn); transform: translateX(100%); transition: transform var(--dur-small) var(--ease-out); }
@@ -3139,7 +3139,7 @@ body.cp-page code { font: inherit; }
 .tp-all-m:first-child { border-top: 0; }
 /* Columns of five, each a card without a border, swiped sideways. The strip runs to the phone's edges; the next
    column peeks in so it reads as swipeable. */
-.tp-all-scroll { display: flex; gap: var(--space-6); margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: 0 var(--space-4); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-4); scrollbar-width: none; }
+.tp-all-scroll { position: relative; display: flex; gap: var(--space-6); margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: 0 var(--space-4); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-4); scrollbar-width: none; } /* positioned (23 Nov): its rows' visually hidden labels were placed against a far ancestor and stretched the page 500 to 1,300px sideways */
 .tp-all-scroll::-webkit-scrollbar { display: none; }
 .tp-all-scroll:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
 .tp-all-col { flex: none; width: calc(100% - 56px); list-style: none; scroll-snap-align: start; }
@@ -3886,7 +3886,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-faq-i.is-open .tp-faq-chev { transform: rotate(180deg); }
 .tp-faq-a { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows var(--dur-small) var(--ease-in-out), visibility 0s var(--dur-small); }
 .tp-faq-i.is-open .tp-faq-a { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows var(--dur-small) var(--ease-in-out), visibility 0s; }
-.tp-faq-in { overflow: hidden; }
+.tp-faq-in { position: relative; overflow: hidden; } /* positioned, so its links' hidden "opens in a new tab" labels stay inside */
 .tp-faq-in p { margin: 0; padding-bottom: var(--space-4); font-size: var(--fs-base); line-height: 1.45; }
 /* Updates */
 .tp-news { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
