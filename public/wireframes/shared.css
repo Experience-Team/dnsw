@@ -4053,6 +4053,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-m-where { margin-top: var(--space-1); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-tag { font-family: var(--font-label); display: inline-block; margin-top: var(--space-2); padding: var(--space-1) var(--space-2); border: var(--bw-1) solid var(--c-line-ink); border-radius: var(--radius-pill); font-size: var(--fs-2xs); font-weight: var(--fw-semi); }
 .tp-tag--away { border-style: dashed; color: var(--c-ink-2); border-color: var(--c-ink-3); }
+/* In NSW on every NSW match (22 Nov): the same pill, compact, so a list can be scanned for NSW at a glance */
+.tp-tag--inline { margin: 0; padding: 1px var(--space-2); line-height: 1.4; white-space: nowrap; vertical-align: 1px; }
+.tc-nsw, .tp-dc-nsw { display: table; margin: var(--space-1) 0 0; }
 .tp-m-also { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--c-ink-2); }
 .tp-ticket { display: flex; align-items: center; gap: var(--space-2); min-height: 36px; margin-bottom: calc(var(--space-3) * -1); font-size: var(--fs-sm); cursor: pointer; }
 .tp-ticket input { flex: none; appearance: none; -webkit-appearance: none; display: grid; place-items: center; width: 20px; height: 20px; margin: 0; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-sm); background: var(--c-surface); cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out); }
