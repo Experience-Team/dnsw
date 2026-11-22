@@ -91,7 +91,7 @@
   // added: things put on the plan (screenings, the village, products); trip: the one optional question's answer
   // tab: which of Your matches and All matches is chosen once a team is picked (kept, like everything else, on reload)
   // Drop goal's saves (Stage 2): their own line in Saved, not placed yet, and where each route starts (see kickSync)
-  var KICK_NOTE = 'Places from ' + ((window.TP_WORDS || {}).play || 'Drop goal') + ' stay here; plan a day there yourself.';
+  var KICK_NOTE = 'Places from ' + ((window.TP_WORDS || {}).dropGoal || 'Drop goal') + ' stay here; plan a day there yourself.';
   var KICK_FROM = { sydney: 'Sydney', newcastle: 'Newcastle' };
   var state = { picked: [], tickets: [], tab: 'yours', added: [], trip: null, allFilter: { nsw: true, city: null, v: 2 }, interstate: false, view: 'fan', nswMark: false, notGoing: [] };
   try {

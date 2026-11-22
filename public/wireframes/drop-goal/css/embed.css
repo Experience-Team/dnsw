@@ -59,9 +59,11 @@ html.embedded .kick-bar { background: var(--e-c-surface, #fff); border-top-color
 html.embedded .see-plan:focus-visible { outline-color: var(--e-c-focus, #005ea2); }
 html.embedded .card-actions .see-plan { padding: 0 2px; border: 0; background: none; color: var(--e-c-ink, #1a1a1a); }
 /* Polish (21 Nov). Add to your plan matches the page's sheets: a dark pill to add, light with an outline once added; so
-   Kick again, beside it, is the outline button and the card never shows two equal dark buttons. While the ball flies,
+   Line up next kick, beside it, is the outline button and the card never shows two equal dark buttons. While the ball flies,
    Kick reads Kicking… on a quiet fill rather than a faded orange that looks broken */
 html.embedded .save { background: var(--e-c-btn, #1f1f1f); border-color: var(--e-c-btn, #1f1f1f); color: var(--e-c-on-dark, #fff); }
 html.embedded .save[aria-pressed="true"] { background: var(--e-c-surface, #fff); border-color: var(--e-c-line-ink, #1a1a1a); color: var(--e-c-ink, #1a1a1a); }
 html.embedded .card-actions #btnAgain { background: transparent; border-color: var(--e-c-line-ink, #1a1a1a); color: var(--e-c-ink, #1a1a1a); }
 html.embedded .kick:disabled { opacity: 1; background: var(--e-c-surface-2, #f5f5f5); border-color: var(--e-c-line, #d9d9d9); color: var(--e-c-ink-2, #4d4d4d); }
+html.embedded .card-grab { color: var(--e-c-ink, #1a1a1a); }
+html.embedded .card-grab:focus-visible { outline-color: var(--e-c-focus, #005ea2); }

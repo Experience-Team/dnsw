@@ -112,7 +112,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - The plan bar's pill reads Your plan or Your plan (3), with an arrow.
 - With Annotations off, every placeholder, dead link and bracketed line is hidden (CSS on `#tp-stage:not(.has-notes)`, the `.tp-ph` class and others at the end of `shared.css`).
 - Wording swaps: Check the official timetable; group matches; the later rounds; 9 group + 8 later-round matches; Group A to F; Image of … for stand-in photos.
-- The visible name Drop goal is now Play, everywhere it shows: the capsule, the tab's top heading (an h2), Home's section, the game's screen reader names and the browser page title (which names whichever tab shows). The annotations and this handover say Play; the code, folder names and `?view=kick` keep Drop goal.
+- The kick game is called Drop goal, shown as Play on phones (22 Nov, user's call; on 21 Nov it had been renamed Play everywhere). On phones the capsule and the two headings (the tab's h2 and Home's section) say Play; on the desktop website the capsule says Play Drop Goal and the headings Drop Goal. The section, frame and Home's still are named Drop goal for screen readers; the plan's and the shared plan's lines say Drop goal. `?view=kick` is the route.
 - No tickets marked yet and Not going after all? are removed.
 
 **Stage B (merged, #561):**
@@ -163,7 +163,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - **#561, #558:** round 3 stages B and A (above).
 - **#562, #560 (other session):** sheet rules (tap outside, Save only where changes build up, a soft rule on pinned bars) and the bars and days sheet brought in line; the days sheet keeps unconfirmed days as a draft.
 - **#559 (other session):** the DNSW design system at `/design-system`.
-- **#552, #554, #556, #557 (other session):** Drop goal stages 2 and 3 (see the Play section).
+- **#552, #554, #556, #557 (other session):** Drop goal stages 2 and 3 (see the Drop goal section).
 - **#555:** full country names on the stacked hand (arcs of five, fewer to an arc where the names need it); room at the end of the plan so the last day's card can come to the top.
 - **#553:** after a button audit: Follow day by day's venue and ticked pins open their details; focus fixes.
 - **#551:** a Save bar in every sheet where a change applies at once (check 10, "Changes say they're kept"), and the toast rule addition to check 11.
@@ -238,13 +238,13 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - **Which:** the **Home** tab of the Pick your team prototype, from Figma 385:649, in the prototype's own styles. It is now the tab the page opens on; `?view=plan` opens the planner. Links shared before this that expected the planner now open on Home.
 - **Where:** markup in `#tp-home` (`prototype-pick-your-team.html`), script `concepts-home.js`, styles under "Home" in `shared.css`, the host city sheet as `city:` ids in `openPm` (`pmCity`, `tp.hosts`, `tp.hostMatches` in concepts-third-half.js).
 - **One hand:** the capsule script lends `#tp-picker` to `#tp-home-hand` while Home shows (a comment node marks its planner place). `window.tpView` (`get`, `go`, `reveal`, `lend`); `goTo` reveals a section's tab first.
-- **Placeholders:** the hero video, the Play picture on Home (the Figma reference is a real video game screenshot), FAQ answers, tickets link, transport line, consent wording, the footer, Where to stay in the host city sheet, and the At a glance cards' stand-in photos and bracketed copy.
+- **Placeholders:** the hero video, the Drop goal picture on Home (the Figma reference is a real video game screenshot), FAQ answers, tickets link, transport line, consent wording, the footer, Where to stay in the host city sheet, and the At a glance cards' stand-in photos and bracketed copy.
 - **Since the first build:** Read before you go (`#tp-home-reads`, dummy articles), At a glance as three cards, the stadium cards as a carousel on phones linked to the pins (`concepts-home.js`), highlights at the top of each host city sheet (`cnHostHighlights` in `concepts-fixtures.js`), and the desktop layout (full width, no rail, tabs in the header bar, the plan bar floating at the foot once a team is picked).
 - **Not done yet:** Play beyond the stages and critique fixes below; the article page; day trips in the host city sheet are listed, not linked (a trip sheet needs a free stretch to fit into).
 
-## Play (was Drop goal): the kick game (Stage 1, 21 November)
+## Drop goal (shown as Play on phones): the kick game (Stage 1, 21 November)
 
-- **Which:** the Play tab (`?view=kick`; called Drop goal until 21 Nov) shows the Third Half kick game in place of the being-built page, which is gone. Links ending `?view=kick`, and Home's Play now, now open the game.
+- **Which:** the Drop goal tab (shown as Play on phones; `?view=kick`) shows the Third Half kick game in place of the being-built page, which is gone. Links ending `?view=kick`, and Home's Play now, now open the game.
 - **Where:** the game is its own folder, `public/wireframes/drop-goal/` (`index.html`, `css/`, `js/`), copied from the package and still runnable on its own, with the package's README.md and CLAUDE.md beside it. Its rules still apply inside it: the blue-or-green skin rule, equal exposure (run `checkDistribution()` in the game's console after any change to physics, wind, routes, terrain or `PLAYER_MODEL`; every stop within about 8 to 12%), placeholder data, no logos, a single rigged SVG, no build step and the script load order.
 - **How it is shown:** an iframe (`#tp-kick-frame` in `#tp-kick`), so none of the game's scripts load in the page. The capsule script sizes it to fill the screen under the capsule (`fitKick`); the page does not scroll on this tab and the game scrolls inside the frame. The plan bar steps aside, as before (`#tp-phone.is-kick`). On the desktop website it runs full width with no rail.
 - **Changed in the game:** only the colour tools (Kit, Skin, Field, Import, Copy curated settings, Reset this team), folded into a closed Colour settings (temporary) disclosure under the team picker, to be removed later. Also one fix: the closed destination card's buttons stayed in the Tab order off screen (`.card`'s `display: flex` overrode `[hidden]`); it is now hidden once it has slid out.
@@ -253,15 +253,16 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - **Stage 3 (21 Nov): theme, team and layout.** `drop-goal/css/embed.css` (only in a frame) maps the game's controls and card onto the page's tokens, sent by `kickTheme()` in concepts-teams.js as `thk:theme` on load and when the High fidelity switch changes; the pitch and player stay in colour. `thk:teams` sends `state.picked`: picked teams first in the game's row, the first one kicks until a team is chosen in the game. The tab has the page's own title (now Play) and intro; the game's heading, pitch mark and notes are hidden there (the notes are in the annotation). The card has the close cross top right, closes on a tap outside it, and has no Save (user's call, 21 Nov). Kick is pinned to the foot of the frame below 1024px, with a faint rule above. Phone: the pitch is sticky at the top of the frame; desktop: controls beside the pitch.
 - **Still to come:** Stages 4 and 5 as briefed; a sheet for a kick destination; an Open your plan link on the card; removing the temporary Colour settings. Open: the skin fallback for the 7 teams with no blue or green.
 
-## Play on phones (21 Nov, after the critique)
+## Drop goal on phones (21 Nov, after the critique)
 
 - `/impeccable critique` of the tab (snapshot in `.impeccable/critique/`) scored 20/40; worst on phones. Fixed so far: the P0. On phones the tab opens docked (`kickDock()` in the capsule script: logo row scrolled away, capsule at the top, 24px to the title), the intro is one line (`.tp-kick-more` holds the rest for the desktop website), and `fitKick` sizes the frame for the docked state. The game's card leads with the name and Add, then the picture capped at about 30%.
 - Landscape and short phones (P1) done: under 620px tall the page hides the title and intro (`is-short` on `#tp-phone`, set in `fitKick`) and the frame has no minimum height; the game's short-wide layout (`@media (min-width: 600px) and (max-width: 1023px) and (max-height: 560px)` in drop-goal/css/styles.css) puts the pitch in a sticky left column capped to the frame, the controls beside it and Kick at their foot.
 - The card and the page (P1) done: the game reports its card (`thk:card`), the page dims its head (`is-kick-card` on `#tp-phone`) and closes the card on a press outside the frame or on leaving the tab (`thk:close`, `window.tpKickClose`).
 - See your plan (P1) done: the card's line ends with See your plan after an add (`cardStatus(msg, seePlan)` in game.js; only in the prototype); `thk:open-plan` makes the page close the card, go to the planner, open the plan at Saved, not placed yet and focus its heading.
-- One name (P2) done: Play everywhere it shows, the tab's heading an h2, the browser page title per tab (set in the capsule script's `showView` from the capsule labels, so it follows `TP_WORDS.play`).
+- One name (P2) done, then changed 22 Nov (see the naming bullet above): it was Play everywhere it shows, the tab's heading an h2, the browser page title per tab (set in the capsule script's `showView` from the capsule labels, so it follows `TP_WORDS.play`).
 - Polish (#571) done. Since: the capsule label is Play on phones and Play Drop Goal on the desktop website (`.tp-cap-phone` / `.tp-cap-desk`, `TP_WORDS.playDesktop`), and every tab's top heading is an h2 (the planner's slogan was an h3).
-- Still to do: a re-run of the critique (it scored 20/40); CLAUDE.md's two Drop goal examples in check 10 (needs the user's approval).
+- 22 Nov, after the re-critique (25/40): the result card on phones opens at full height; dragging its grabber or head down shrinks it to a short card (the place, Add to your plan, the action bar) so the landing shows on the pitch, and dragging further or a flick closes it; a tap on the grabber switches the heights (user's call; `drop-goal/js/card-sheet.js`). The card's Kick again is now Line up next kick. Names as above.
+- Still to do: the critique's remaining items (swipe-down chaining off the Kick bar, focus and tab order, the page-head dimming), which the user is working through separately; check 10's grabber wording for the card's two heights (proposed, needs the user's approval).
 
 ## Rules in line (21 Nov)
 

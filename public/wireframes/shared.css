@@ -3696,6 +3696,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* The Play tab's label (21 Nov): Play on phones, Play Drop Goal on the desktop website, where the bar has room */
 .tp-cap-desk { display: none; }
 @media (min-width: 1024px) { .pv-device #tp-phone .tp-cap-desk { display: inline; } .pv-device #tp-phone .tp-cap-phone { display: none; } }
+/* The same swap for the kick game's two headings (22 Nov): Play on phones, Drop Goal on the desktop website */
+.tp-on-desk { display: none; }
+@media (min-width: 1024px) { .pv-device #tp-phone .tp-on-desk { display: inline; } .pv-device #tp-phone .tp-on-phone { display: none; } }
 .tp-cap { font-size: 1rem; }
 .tp-cap.is-tight { overflow-x: auto; scrollbar-width: none; } .tp-cap.is-tight::-webkit-scrollbar { display: none; } .tp-cap.is-tight .tp-cap-i { flex: none; min-width: auto; }
 .tp-cap-i.is-on { flex: 1 1 auto; padding: 0 var(--cap-pad, var(--space-3)); /* the same side padding as the other tabs, so the gaps between labels are even (16 Nov) */ color: var(--c-ink); font-weight: 600; cursor: default; }

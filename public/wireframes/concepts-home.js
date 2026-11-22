@@ -10,17 +10,20 @@
   'use strict';
   var tp = window.tpPicker, GEO = window.cnGeo;
   var home = document.getElementById('tp-home');
-  /* The kick game's visible name (21 Nov, F-034: 0 of 4 testers understood Drop goal): the capsule tab, the tab's own
-     heading, Home's section heading above Play now, and the game's names for screen readers (the page title follows the
-     capsule). The route, ?view=kick and the code keep Drop goal; the markup, annotations and handover say Play. Set here, before the capsule measures its tabs */
+  /* The kick game is called Drop goal, shown as Play on phones (22 Nov, user's call; Play came in on 21 Nov, F-034). On
+     phones the capsule and the two headings (the tab's own h2 and Home's section) say Play; on the desktop website the
+     capsule says Play Drop Goal and the headings Drop Goal. The tab's section, its frame and Home's still are named Drop
+     goal for screen readers; the capsule and headings are read as shown (WCAG 2.5.3). The page title follows the capsule.
+     Set here, before the capsule measures its tabs */
   (function () {
-    var name = (window.TP_WORDS || {}).play; if (!name) return;
-    var tab = document.querySelector('.tp-cap-i[data-view="kick"]');
-    if (tab) { var ph = tab.querySelector('.tp-cap-phone'), dk = tab.querySelector('.tp-cap-desk'); if (ph) ph.textContent = name; else tab.textContent = name; if (dk) dk.textContent = (window.TP_WORDS || {}).playDesktop || name; }
-    var h = document.getElementById('tp-home-kick-title'); if (h) h.textContent = name;
-    var kt = document.getElementById('tp-kick-title'); if (kt) kt.textContent = name; // the tab's own top heading (21 Nov)
-    var sec = document.getElementById('tp-kick'); if (sec) sec.setAttribute('aria-label', name);
-    var fr = document.getElementById('tp-kick-frame'); if (fr) fr.title = fr.title.replace(/^Drop goal/, name);
+    var W = window.TP_WORDS || {}, name = W.play; if (!name) return;
+    var both = function (el, phone, desk) { if (!el) return; var ph = el.querySelector('.tp-cap-phone, .tp-on-phone'), dk = el.querySelector('.tp-cap-desk, .tp-on-desk'); if (ph) ph.textContent = phone; else el.textContent = phone; if (dk) dk.textContent = desk || phone; };
+    both(document.querySelector('.tp-cap-i[data-view="kick"]'), name, W.playDesktop);
+    both(document.getElementById('tp-home-kick-title'), name, W.dropGoalTitle);
+    both(document.getElementById('tp-kick-title'), name, W.dropGoalTitle);
+    var full = W.dropGoal || 'Drop goal';
+    var sec = document.getElementById('tp-kick'); if (sec) sec.setAttribute('aria-label', full);
+    var fr = document.getElementById('tp-kick-frame'); if (fr) fr.title = fr.title.replace(/^[^:]+/, full);
   })();
   if (!tp || !home) return;
   var phone = document.getElementById('tp-phone'), esc = tp.esc, state = tp.state;
