@@ -3724,7 +3724,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 #tp-phone.is-kick .tp-cap-wrap { margin-bottom: var(--space-5); }
 /* Short screens (under 620px tall: landscape phones, small phones): the title and intro step aside, still read by
    screen readers, and the game starts 16px under the docked capsule */
-#tp-phone.is-kick.is-short .tp-kick-head { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#tp-phone.is-kick.is-short .tp-kick-head { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; min-height: 0; clip-path: inset(50%); white-space: nowrap; }
 #tp-phone.is-kick.is-short .tp-cap-wrap { margin-bottom: var(--space-4); }
 /* While the game's result card is open the page head dims, as the rest of a page does behind a sheet; a press on it
    closes the card (concepts-teams.js). The capsule stays at full strength: it still takes you to another tab */
@@ -5384,6 +5384,13 @@ span.tp-map-arrow { display: block; }
 .tp-ov-skip { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 24px; margin-bottom: var(--space-3); }
 .tp-ov-skip svg { width: 14px; height: 14px; }
 .tp-ov-end { display: block; height: 0; outline: none; }
+/* Skip the map on the desktop layout (22 Nov): shown on phones only, where one finger on the map can trap the scroll.
+   On the desktop a mouse scrolls past, so it is hidden until a keyboard reaches it, then shows over the map's top left
+   corner (no offsets, so it sits where it would have been) without moving anything. Keyboard users keep the bypass */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone :is(.tp-ov-skip, a.tp-map-skip):not(:focus) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; min-height: 0; clip-path: inset(50%); white-space: nowrap; }
+  .pv-device #tp-phone .tp-ov-skip:focus { position: absolute; z-index: 5; margin: var(--space-3) 0 0 var(--space-3); padding: 0 var(--space-3); min-height: 36px; border-radius: var(--radius-pill); background: var(--c-surface); box-shadow: 0 2px 8px rgba(0,0,0,.16); }
+}
 .tp-ov-map { transition: height .3s ease-out; }
 .tp-ov-map.has-rail .tp-ov-dots, .tp-ov-map.has-rail .tp-ov-tvs { display: none; } /* the route's own pins stand for them */
 .tp-ov-pins { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
@@ -5776,4 +5783,4 @@ span.tp-map-arrow { display: block; }
 .tp-dc-away { margin: var(--space-1) 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-tl-value.is-tight { font-size: var(--fs-md); } /* Stage D: a long count steps down a size rather than cut off (check 6) */
 .tp-tl-value.is-tighter { font-size: var(--fs-sm); }
-.tp-tl-value.no-teams .tp-tl-vteams { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* still read out */
+.tp-tl-value.no-teams .tp-tl-vteams { position: absolute; width: 1px; height: 1px; overflow: hidden; min-height: 0; clip-path: inset(50%); white-space: nowrap; } /* still read out */
