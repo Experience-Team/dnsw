@@ -1,8 +1,14 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-22 November 2026 (Sydney), updated after #577. Repo `Experience-Team/dnsw`, main at `674b947` (Sun 22 Nov, the merge of #577). **No PR is open** apart from this update's own. #546 to #577 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
+22 November 2026 (Sydney), evening, updated after #589. Repo `Experience-Team/dnsw`, main at `41f01da` (the merge of #589). **No PR is open** apart from this update's own. #579 to #589 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
-This replaces the 21 November evening handover (#563). Since then: round 3 stages C and D (#566, #568) and the round 5 open plan fixes E1 to E6 (#573, with a follow-up in #574) on the planner; on Drop goal, the phone critique fixes (#564 to #572), the name settled as Drop goal shown as Play on phones, the result card's two heights (#575), and a whole visit: random start, never the same stop twice, Explore all stops, and previous and next on the card (#576). See "Done on 21 and 22 November" and "Drop goal: where it stands" below. The round 3 Final list was given to the user in chat on 21 Nov, and a report of the day's planner changes is at https://claude.ai/artifact/VwfXDnQV9bUkieWFxN1Ufx (private to the user). See "Round 5: open plan fixes" below.
+**The next session creates more prototype options.** Read "Prototype options: how they work" below first: the tools viewer's Compare options (#587) shows up to three more phones side by side, each with its own flags, and that is where new options plug in.
+
+This replaces the 22 November morning handover (#578). Since then, two sessions worked in parallel:
+- **This session** (`claude/gallant-cori-aajo32`): real destination data from the user's spreadsheet for Drop goal and the free-day ideas (#582), business names trimmed from every summary (#583), article pages for Read before you go with a Quick answers block for SEO and AEO (#583), the Leave the car at home card's line and link (#585, #588), and pictures between paragraphs in the articles (#589).
+- **The other session** (`claude/adoring-allen-rxwblh`): a Reset icon in the header (#579), a reload stays on its tab (#580), Skip the map on phones only (#581), a new slogan and Save & share ordered by device (#584), the In NSW pill on every NSW match (#586), and marker tooltips plus **Compare options** in the tools viewer (#587).
+
+See "Done on 22 November, afternoon" below. The earlier sections are kept for reference.
 
 ## Ways of working
 
@@ -31,6 +37,22 @@ This replaces the 21 November evening handover (#563). Since then: round 3 stage
 - **Annotations:** update the annotations array in `prototype-pick-your-team.html` with every behaviour change. This session kept them up to date for its own changes.
 - **Language:** the person's plan is "Your plan" or "the plan" everywhere a person can see it ("the open plan" for the full-screen layer). Don't write "timeline" in anything user-facing; code names (`tp-tl*`, `tlOpen`, `openTimeline`) are unchanged.
 - **Writing style:** UK English, AUD, Sydney time, few em dashes. Rate how confidential and how safe to upload any work document that's shared.
+
+## Prototype options: how they work (for the next session)
+
+- **Where options live.** The prototype is one page, `prototype-pick-your-team.html`. An option is a flag that changes part of it, so every option stays the real, working prototype rather than a copy.
+- **Flags in the address.** A script in the page's `<head>` reads the address before anything draws and sets an attribute on `<html>`. For example `?slogan=b` sets `data-slogan="b"` (line 35), and `?plan=swipe` sets `data-plan`. CSS and scripts then show one version or the other, for example `:root:not([data-slogan="b"]) .tp-slogan--b { display: none; }` in `shared.css`. Theme works the same way (`?theme=hifi`, only with `?tools`).
+- **Switches in the tools panel.** The test switches (Stacked hand (test), Plan: one day at a time (test)) sit in the viewer's left panel and show only with `?tools`. Each changes the same attribute as its address flag. Label a test switch "(test)".
+- **Compare options (#587, `pv-compare.js`).** In the tools viewer on the desktop, Compare options adds up to three more phones beside the main one, Option A, B and C. Each is the page in a frame (`?phone&tools&opt=a…`) with its own flags and its own saved state, copied from the main phone when added. Its `FLAGS` list (theme, fan, plan, slogan) is what the panel offers per option.
+- **To add an option:**
+  1. Agree the scope first (CLAUDE.md checks 7 and 12): which part of the page the option changes, and everywhere that part appears.
+  2. Pick a short flag name and values, for example `hero=a|b`. Read it in the `<head>` script beside `slogan`, and set `data-hero` on `<html>`.
+  3. Build the alternative beside the current one, switched by the attribute. Keep the default as it is today, so existing links don't change (CLAUDE.md "Previews": say which links behave differently, if any).
+  4. Add it to `FLAGS` in `pv-compare.js` (`{ k, label, on, off }`), so each compared phone can switch it. If it needs a main-phone switch too, add one to the tools panel like the existing tests, and read it in `mainFlags()`.
+  5. Add an annotation for the option ("TEST: …"), a build log row, and say in the PR how to see each version (for example `?tools&theme=hifi&hero=b`).
+  6. Check every option in both themes at 390 and 320, and in Compare options side by side.
+- **Other prototypes.** The viewer's top tabs (`.pv-tabs`) list the prototypes: Pick your team, Share/edit itinerary (`prototype-itinerary.html`) and a "[next] prototype" placeholder that shows only with `?tools`. A new standalone prototype would replace that placeholder tab.
+- **Ask the user first** whether "more prototype options" means flags on this page (above), new screens or flows, or another prototype tab.
 
 ## Running and testing
 
@@ -68,6 +90,11 @@ This replaces the 21 November evening handover (#563). Since then: round 3 stage
   - It also holds the annotations array.
   - Page order in the picker section: Find row, the hand, its caption (Clear all now ends the caption's sentence, `capClear()` in teams), then Your days in NSW (`#tp-ask`, since 18 Nov), then the tabs (Your matches, All matches) and the chosen tab's content; the map (`#tp-ov`) follows All matches.
 - **`concepts-words.js` (new, 21 Nov):** every visitor-facing string added or changed by the round 3 brief, in one block (`window.TP_WORDS`), so the user can approve or change them in one place. Each entry is a placeholder until approved. It also swaps the fixtures' Pool A to F to Group A to F in what the phone shows (a MutationObserver on `#tp-phone`, text and aria-labels only, never data or ids). Loaded before concepts-teams.js. Add any new round 3 string here.
+- **`concepts-destinations.js` (22 Nov):** `window.cnDestinations`, 35 real towns for the free-day ideas (data contract §19, gap), generated from the user's spreadsheet `sydney-towns-aeo.xlsx` by `tools/gen-destinations.py`. Each has summary, travel line, getting there, official URL and who it suits. Loaded before `concepts-fixtures.js`, which builds `cnFreeIdeas` from it (Sydney Opera House is the one idea with no row and keeps its placeholders).
+- **`tools/gen-destinations.py` (22 Nov):** regenerates `concepts-destinations.js` and `drop-goal/js/summaries.js` from the spreadsheet (`python3 public/wireframes/tools/gen-destinations.py path/to/sydney-towns-aeo.xlsx`, needs openpyxl). The spreadsheet itself is not in the repo. Its `TRIM` list removes business names from summaries (user's call); keep edits there, not in the generated files.
+- **`concepts-articles.js` (22 Nov):** `window.TP_ARTICLES`, the six Read before you go articles: tile (category, picture, shape), dek, body (`h` heading, `p` paragraph, `i` picture as `[i, key, what it shows]`), then the Quick answers data (`q`, `answer`, `facts`, `faqs`, `places`). Read times are worked out from the page. Dummy editorial content; no business named; not in the data contract.
+- **`concepts-home.js`, articles (22 Nov):** renders the tiles and the article view (`#tp-article`, `.tp-home.is-reading`), routes `?a=<slug>` with history, sets the meta description and JSON-LD while an article shows, and returns focus to whatever opened it (`backEl`). `window.tpArticle` (`open`, `close`, `get`).
+- **`pv-compare.js` (other session, #587):** Compare options in the tools viewer (see "Prototype options").
 - **`concepts-teams.js`:**
   - the fan and picks;
   - the plan bar and open plan (code names `tp-tl*`; the bar drags, and a tap toggles it). With no team the bar reads No matches yet or N saved, with Add team (`#tp-tl-addteam`);
@@ -172,6 +199,18 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - **Words added:** `planDaysUnset`, `arrivalDay`, `lastDay`. Notes edited: Plan bar (opening rule), Your days in the plan (rewritten), One card a day, the strip.
 - **Learnt:** the user can merge within minutes of a push. #573 merged before the E1 and E2 follow-up landed, which then needed #574. Push everything before saying a PR is ready.
 
+## Done on 22 November, afternoon (#579 to #589)
+
+- **#582, real destination data:** from the user's spreadsheet (89 places, the town pages on sydney.com and visitnsw.com, read 22 Nov; confidentiality low, public data).
+  - Drop goal: every one of the 80 stops shows its page's direct answer on the card (`drop-goal/js/summaries.js`). §18 `summary` is now "the direct answer, 40 to 60 words" (user's call). Distances and images are still placeholders.
+  - Planner: the free-day ideas are 35 real towns (17 Sydney and 8 Newcastle half days, 6 Sydney and 4 Newcastle day trips) in place of invented names. New contract §19 Destinations (gap). Travel lines in the pages' words ("Getting there to be confirmed" where not stated, as for most Newcastle ideas, `TP_WORDS.gettingTbc`). Towns have no hours or price rows. Approximate town centres in `cnGeo.ideas`. La Perouse left out (Bare Island closed until late 2027).
+- **#583, business names trimmed:** a government site names no business ahead of others (user's call). 17 summaries keep what each place offers without the name (Doyle's, Zimmermann, Pokolbin's wineries, Scenic World, SEA LIFE and others). Landmarks (Big Banana, Big UGG Boots), the stadium's name and public bodies stay. Theatres (Enmore, Belvoir St) were kept; the user wasn't asked again.
+- **#583, article pages:** the six Read before you go cards open their articles inside Home, with `?a=<slug>`. Under the prose, Quick answers for reading, SEO and AEO: a 40 to 60 word answer, key facts, questions people ask (answers of 50 words or fewer, shown, not folded), places named; plus a meta description and JSON-LD (Article, FAQPage, BreadcrumbList) while it shows. Back (the link, the browser, the Home tab) returns to the card at the same scroll with focus on it; one article at a time in the history.
+- **#585, #588, Leave the car at home:** the At a glance card's line is written from the town data, and its link is Read the match day guide (the FAQ link stayed hidden while the FAQ answers are unwritten).
+- **#589:** two or three pictures between paragraphs in each article, stand-ins from the library, none of a named business.
+- **Other session:** #579 Reset icon top left; #580 a reload stays on its tab; #581 Skip the map on phones only; #584 new slogan (`?slogan=b` tests the alternative) and Save & share ordered by device; #586 In NSW pill on every NSW match; #587 marker tooltips on the desktop and Compare options.
+- **Learnt:** the user merges within minutes, so a follow-up commit pushed after a merge needs its own PR (it happened with #583 then #585). Check the PR's state before pushing more to it.
+
 ## Done on 21 and 22 November (#563 to #577)
 
 - **#576:** Drop goal, one visit (`drop-goal/js/visit.js`): random start, never twice, Explore all stops, previous and next, estimate only with `?tools`, Reset prototype sends `thk:reset`; `checkDistribution()` simulates visits. CLAUDE.md check 10: two-height sheets and sideways steps.
@@ -248,7 +287,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 
 1. **New, data contract:** #534 added `highlights` (§16 of `docs/product-data-contract.md`, a proposed `gap` field on venue records) without a recorded go-ahead. CLAUDE.md says to stop and ask before using a field outside the contract. Confirm, change or remove it.
 2. **New, CLAUDE.md edits:** checks 7, 10, 11 and 12 were amended or added between 17 and 19 Nov (commits `e0977cb`, `3f073db`, `dd18721`, `26b51da` and `a185d3b`). If any wording went in without being shown first, the user may want to review it.
-3. **Home:** the article page (`pages/rwc-article.html`) is not built. Drop goal (shown as Play on phones) has stages 1 to 3, the critique fixes and the visit (#576) built; whether the original stages 4 and 5 are still wanted, or were replaced by the 22 Nov briefs, is for the user to say.
+3. **Home:** the article pages are built (#583, inside Home, not `pages/rwc-article.html`). Drop goal (shown as Play on phones) has stages 1 to 3, the critique fixes and the visit (#576) built; whether the original stages 4 and 5 are still wanted, or were replaced by the 22 Nov briefs, is for the user to say.
 4. **From the Where to watch critique, not chosen:** the fair venue rotation picks Wollongong and Newcastle venues for a Sydney match (the nearest fan zone was "used" on the interstate cards). Should proximity win on the night of a fan's own city match?
 5. **At 320 wide:** on the Every NSW match card the wider I have tickets button wraps long names (New Zealand) to two lines.
 6. **From #527, still unanswered:** the open plan's heading repeats "Your plan" from the bar; the end-of-page summary says "added" while the bar says "saved"; a dated save made with no team stays in the box after a team is picked, until days are set.
@@ -257,6 +296,11 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 9. **Section gaps:** 64px (`--sec-gap`) against the principles' 48px between families.
 10. **CLAUDE.md tidy-up:** "9. Look, don't only measure" sits under Build notes instead of the numbered checks (still true after the #545 build note).
 11. **Carried over, not raised since:** trip stops aren't links; the annotations are stale for the sheet work in #512 to #516; venue match counts for Adelaide and Townsville; the dashed Every NSW match icon; "Pick your team" / "Your teams" / "Add team" wording; the bar's counts and Tab order.
+
+12. **New, articles:** dummy content. The Pacific fans article makes cultural statements written without a source (team colours, greetings, crowds falling quiet during the challenge) and needs review by someone from those communities. Match details come from the placeholder fixtures. Articles show no pink marks with Annotations on; only the annotation says they are dummy. Articles are not in the data contract; offer a section if wanted.
+13. **New, destination data:** most Newcastle ideas have no travel time from Newcastle (the pages give times from Sydney). The spreadsheet's Current notices column is not shown anywhere (for example the Great Western Highway closure for Lithgow and Bathurst). Venue names change: recheck against the live pages before launch.
+14. **New, Home FAQs:** the answers are still `[Answer to come]`, so the FAQs and their links stay hidden with Annotations off. Ticketing and fan festival details are needed to write them.
+15. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
 
 ## The homepage (built 19 November, second session)
 
@@ -308,8 +352,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 
 ## Recommended next steps
 
-1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether a parallel session has merged anything since.
+1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether the other session has merged anything since.
 2. Read CLAUDE.md (checks 7, 10, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
-3. Planner: round 3 and round 5 are done. Ask the user what comes next, and whether they have approved the wording in `concepts-words.js`. Real content is still needed for Not going to the match? (each day it shows on has only one evening place, and Newcastle has none) and for the free-day ideas' hours and prices.
-4. Drop goal: ask which of its remaining items to take next (see "Drop goal: where it stands"). Start any brief with the scope check (checks 7 and 12), and stop and show where the brief says so.
-5. Raise open question 1 (the `highlights` field) before any more work on the host city sheets, and open question 4 (venue proximity) only if the work touches Where to watch.
+3. **Prototype options (the next session's work):** read "Prototype options: how they work" above. Ask the user what kind of options they mean (flags on this page compared side by side, new screens or flows, or a new prototype tab), which part of the page each covers, and how many versions. Then do the scope check (checks 7 and 12) before building, and stop and show where the brief says so.
+4. Open questions 1 (the `highlights` field), 12 (article review) and 14 (FAQ answers) are the ones most likely to come up; raise them when the work touches those parts.
