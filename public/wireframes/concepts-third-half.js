@@ -2807,7 +2807,7 @@
   });
 
   /* ---------- Save & share: a second sheet stacked over the open plan ----------
-     The options come from the Share/edit itinerary prototype's sheet; what they keep or send is this plan. */
+     What they keep or send is this plan. */
   var ssBtn = document.getElementById('tp-tl-share'), ss = document.getElementById('tp-ss');
   var KIND = { screening: 'Screening', place: 'Place', product: 'Thing to do', poi: 'Place', kick: 'Place to go' };
   // One row per match or thing added, in date order: for the table, the spreadsheet and the route
