@@ -1,8 +1,8 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-22 November 2026 (Sydney). Repo `Experience-Team/dnsw`, main at `9206eb9` (Sun 22 Nov, the merge of #576). **No PR is open** apart from this handover's own. #546 to #576 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
+22 November 2026 (Sydney), updated after #577. Repo `Experience-Team/dnsw`, main at `674b947` (Sun 22 Nov, the merge of #577). **No PR is open** apart from this update's own. #546 to #577 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
-This replaces the 21 November evening handover (#563). Since then: round 3 stages C and D (#566, #568) and the round 5 open plan fixes E1 to E6 (#573) on the planner; on Drop goal, the phone critique fixes (#564 to #572), the name settled as Drop goal shown as Play on phones, the result card's two heights (#575), and a whole visit: random start, never the same stop twice, Explore all stops, and previous and next on the card (#576). See "Done on 21 and 22 November" and "Drop goal: where it stands" below. The round 3 Final list may still be owed to the user (see Round 3 below).
+This replaces the 21 November evening handover (#563). Since then: round 3 stages C and D (#566, #568) and the round 5 open plan fixes E1 to E6 (#573, with a follow-up in #574) on the planner; on Drop goal, the phone critique fixes (#564 to #572), the name settled as Drop goal shown as Play on phones, the result card's two heights (#575), and a whole visit: random start, never the same stop twice, Explore all stops, and previous and next on the card (#576). See "Done on 21 and 22 November" and "Drop goal: where it stands" below. The round 3 Final list was given to the user in chat on 21 Nov, and a report of the day's planner changes is at https://claude.ai/artifact/VwfXDnQV9bUkieWFxN1Ufx (private to the user). See "Round 5: open plan fixes" below.
 
 ## Ways of working
 
@@ -54,7 +54,7 @@ This replaces the 21 November evening handover (#563). Since then: round 3 stage
   - a match sheet, then a venue;
   - the open plan, then Add ideas, then an idea;
   - saving with no team: Around the NSW matches and a map pin, then the plan bar (N saved), the open plan's dashed box, Add team, a pick in the sheet, Escape;
-  - each date picker: the page (`#tp-ask`), the days sheet and the open plan's days line: slider first (activated handle with a 12/10 tooltip while dragged), your dates under it as the button that opens the fields, Undo and Reset centred; no toast from the page's picker;
+  - each date picker: the page (`#tp-ask`) and the days sheet (the open plan has no slider since 22 Nov, E3: its days line opens the sheet): slider first (activated handle with a 12/10 tooltip while dragged), your dates under it as the button that opens the fields, Undo and Reset centred; no toast from the page's picker;
   - tickets: Wales picked, I have tickets on its Sat 16 Oct row (`[data-ticket]`), the toast and its link, Where to watch's line above the carousel ("You're at [match]", the match name opens the match sheet, where I have a ticket undoes it), See your match day, then an interstate ticket from a match sheet and its Watching in NSW instead?. Not going after all? was removed on 21 Nov;
   - placeholders: with Annotations off (`localStorage['tp-annotations'] = 'off'`) no placeholder, dead link or bracketed stand-in text may show anywhere; a scan of every screen's text for `Placeholder`, `Not linked yet`, `[`, `to come`, `to be confirmed`, `pool`, `knockout`, `Drop goal` is the quickest check;
   - the full-screen map card, and the day-by-day card;
@@ -91,7 +91,7 @@ This replaces the 21 November evening handover (#563). Since then: round 3 stage
   - `rangeDots()`: every picked team's match on the date sliders, NSW solid, interstate hollow. `onPagePicker()` silences the days toast from the page's picker.
   - `tp.mapStops`: the overview map's cards. An interstate stop uses `spotItem`, so it opens the venue.
   - `tp.slotSaved`: places saved items when days are set (team or not); a held dated item goes on its own date.
-  - `renderAsk` (the page date picker), `renderDaysLine` (the open plan's), `pmDays` (the days sheet). All three lead with the slider (matches dotted) and share `rangeEnds` (your dates between 29 Sep and 15 Nov, a button, kept live by `outSet`), `tipSet` (the handle tooltip) and `typeFields`: the dates button shows 36px First and Last day fields, open or closed per picker in `typeOpen` (the sheet starts closed). `flexChips` and the ± days chips were removed on 18 Nov.
+  - `renderAsk` (the page date picker) and `pmDays` (the days sheet) lead with the slider; `renderDaysLine` (the open plan's) is one line since 22 Nov (E3): Your days in NSW: not set. with Set your days, or Your days: [range] · Change, both opening the days sheet. The two sliders (matches dotted) and share `rangeEnds` (your dates between 29 Sep and 15 Nov, a button, kept live by `outSet`), `tipSet` (the handle tooltip) and `typeFields`: the dates button shows 36px First and Last day fields, open or closed per picker in `typeOpen` (the sheet starts closed). `flexChips` and the ± days chips were removed on 18 Nov.
   - `thirdName()`: Around your matches, or Around the NSW matches with no team.
   - The ideas list (`tlIdeas`) is lent to the sheet while it's open (`tlIdeasReturn` takes it back). An idea and Next free day are drill levels.
 - **`concepts-map.js`:** the overview map, "Around the matches in NSW".
@@ -101,7 +101,7 @@ This replaces the 21 November evening handover (#563). Since then: round 3 stage
 - **`pv-device.js`:** paints library images in high fidelity, from `data-img` keys (`imgKey(title)` in third-half).
 - **`shared.css`:** everything for this page is under `.tp-*`. Page section spacing comes from `--sec-gap` (64px). Your days now sits inside the picker, 24px under Clear all, with no box. The desktop layout is under `@media (min-width:1024px)`, scoped to `.pv-device #tp-phone`.
 
-## Round 3 brief: where it stands (stages A to D merged; check the Final list with the user)
+## Round 3 brief: done (stages A to D merged, Final list given 21 Nov)
 
 The user's brief of 21 Nov, "Change the current build. Do not rebuild anything", runs in four stages, in order. **After each stage, stop and show, and don't start the next until the user says go.** Its rules for every stage:
 - Don't invent content. Placeholder wording goes in `concepts-words.js`; list every string added.
@@ -120,7 +120,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 **Stage B (merged, #561):**
 - One line above the dates on the page, in the plan and in the days sheet: "Set your days to see ideas for the rest of your trip."
 - With no days set, a dashed card under the last match day: "Staying after your last match?" with Set your days, which opens the days sheet. In swipe it sits under the cards.
-- The user said keep the plan's own slider (B1 had asked to remove it). The days sheet keeps Use these dates.
+- The user first said keep the plan's own slider (B1 had asked to remove it); round 5 E3 (22 Nov) then removed it, so the B2 line now shows on the page and in the days sheet only. The days sheet keeps Use these dates.
 
 **Stage C (merged, #566):** built as below: a Not going to the match? group, tagged Evening, on every NSW match day (only places with opening hours, open after 5pm). The brief as given: Match night for someone not going (F-029). For the second round running, a tester whose partner was at the match found the match-day block was all about getting there and had nothing for her evening. This is the one finding still rated Blocks.
 - C1. In the match-day block (the day card's "Before the match", "After the final whistle" and "Near the stadium" labels), add a third label for people who are not going. Placeholder label: "Not going to the match?".
@@ -148,7 +148,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
   - The strip's labels are read in order.
 - Then stop and show.
 
-**Final:** when all four stages are approved, give one list of:
+**Final (given in chat on 21 Nov; the same lists are in the report linked at the top):** one list of:
 - every string added (the `concepts-words.js` block, for approval);
 - every note and check edited;
 - everything hidden for lack of real content (Stage A hid the FAQs, the At a glance transport line, the consent box, Buy tickets, View full page, Learn more on Practical info, Placeholder tags, and idea hours and prices);
@@ -157,14 +157,27 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 **Answers already given (21 Nov):**
 - Yes to Group A to F, later-round matches, Play in the kick-game lines, and Image of for screen readers.
 - The plan bar's line duplicating Your plan with no team is fine.
-- The plan keeps its slider.
+- The plan keeps its slider (reversed 22 Nov by round 5 E3: no slider in the plan).
 - The days sheet keeps Use these dates.
 
-## Done on 21 and 22 November (#563 to #576)
+## Round 5: open plan fixes E1 to E6 (merged, #573 and #574)
+
+From round 5 testing. The user's rules: don't touch Not going to the match? or the away lines beyond E5 and E6, and keep the 5pm evening rule. All six checks pass in cards and swipe, at 390 and 320, with Annotations on and off, in both themes.
+- **E1, reopening:** the first open of a visit keeps the 20 Nov rule (`openDay` in concepts-plan.js). Reopened in the same visit, the plan returns to the day last added to since it was last opened, else to the day last open when it closed (`lastOpen`, `addedSince`, `noteAdds()`; memory only, so a reload starts again). Check: England, 14 to 24 Oct, add on Sat 16 Oct, close, reopen: Sat 16 Oct.
+- **E2, arrival and last days:** they are half days on purpose (no flight times). They now keep their own cards (never folded into a run of free days) with Add ideas, offering only the city's half-day ideas (`FREEINFO` entries with `half`, built after the free days in `renderThird`; left out of `tpFreeApi`). No time is guessed; two fill the day.
+- **E3, one slider:** the plan's slider is gone (`renderDaysLine`). The plan shows one line and both forms open the days sheet; it is the same whether the team was picked on the page or in the Add team sheet.
+- **E4, last button under the footer:** not reproduced (640 to 844px tall, toast open or closed); unchanged.
+- **E5:** Matches in N cities is not shown beside an Away from NSW line (card and strip label); the red same-time line still is.
+- **E6:** the strip's away label lists cities with commas and a final and (`awaySay` in concepts-words.js).
+- **Words added:** `planDaysUnset`, `arrivalDay`, `lastDay`. Notes edited: Plan bar (opening rule), Your days in the plan (rewritten), One card a day, the strip.
+- **Learnt:** the user can merge within minutes of a push. #573 merged before the E1 and E2 follow-up landed, which then needed #574. Push everything before saying a PR is ready.
+
+## Done on 21 and 22 November (#563 to #577)
 
 - **#576:** Drop goal, one visit (`drop-goal/js/visit.js`): random start, never twice, Explore all stops, previous and next, estimate only with `?tools`, Reset prototype sends `thk:reset`; `checkDistribution()` simulates visits. CLAUDE.md check 10: two-height sheets and sideways steps.
 - **#575:** Drop goal named Drop goal, shown as Play on phones (desktop headings Drop Goal); the result card's two heights on phones (`js/card-sheet.js`); Kick again became Line up next kick.
-- **#573 (other session):** open plan fixes E1 to E6 (round 5).
+- **#577:** the 22 Nov handover (other session); this update follows it.
+- **#574, #573 (other session):** open plan fixes E1 to E6 (round 5, above).
 - **#572:** the capsule says Play Drop Goal on the desktop website; every tab's top heading is an h2.
 - **#571, #570, #569, #567, #565, #564:** Drop goal after the phone critique: the game starts about 150px down, landscape and short phones, the result card and the page (dimming, tap outside), See your plan on the card's line, one name, polish.
 - **#568, #566 (other session):** round 3 stages D and C.
@@ -297,6 +310,6 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 
 1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether a parallel session has merged anything since.
 2. Read CLAUDE.md (checks 7, 10, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
-3. Planner: ask the user whether the round 3 Final list (strings added, notes and checks edited, what is hidden, real content needed) is still owed, and what comes after round 5.
+3. Planner: round 3 and round 5 are done. Ask the user what comes next, and whether they have approved the wording in `concepts-words.js`. Real content is still needed for Not going to the match? (each day it shows on has only one evening place, and Newcastle has none) and for the free-day ideas' hours and prices.
 4. Drop goal: ask which of its remaining items to take next (see "Drop goal: where it stands"). Start any brief with the scope check (checks 7 and 12), and stop and show where the brief says so.
 5. Raise open question 1 (the `highlights` field) before any more work on the host city sheets, and open question 4 (venue proximity) only if the work touches Where to watch.
