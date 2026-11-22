@@ -5908,19 +5908,27 @@ span.tp-map-arrow { display: block; }
 :root:not([data-flow="a"]) .pv-flow-a { display: none; }
 :root[data-flow="a"] .pv-flow-main { display: none; }
 /* Under the match cards: Add more teams, full width and prominent (the card-fan icon, as on every Pick your teams
-   prompt), then Your days in NSW. 24px from the cards (one family), 48px to Your days. On the All matches tab the block
-   follows the All matches list, outside the picker, so it takes the page's side margins itself */
+   prompt), then Your days in NSW. 24px from the cards (one family), 48px to Your days */
 .tp-more { margin-top: var(--space-3); } /* the deck already has 12px under the cards: 24px in all */
 .tp-more[hidden] { display: none; }
-.tp-more.is-after-all { margin: 0 var(--space-4); padding-top: var(--space-5); }
 .tp-more-btn { display: flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; }
 .tp-more-btn .tp-ico-fan { width: auto; height: 16px; fill: currentColor; }
 .tp-more-btn:focus-visible { outline: 2px solid var(--c-focus, #005EA2); outline-offset: 2px; }
 .cn-phone > .cn-body .tp-more > #tp-ask:not([hidden]), .tp-more > #tp-ask:not([hidden]) { margin-top: var(--space-7); }
-.tp-more.is-after-all + .tp-ov { margin-top: var(--space-7); }
 .tp-deck .tp-rcard:focus { outline: none; } /* focus lands on the new card after the scroll; the keyboard ring is below */
 .tp-deck .tp-rcard:focus-visible { outline: 2px solid var(--c-focus, #005EA2); outline-offset: 2px; }
 @media (min-width: 1024px) {
   .pv-device #tp-phone .tp-more { margin-inline: 0; }
   .pv-device #tp-phone .tp-more-btn { width: auto; display: inline-flex; padding-inline: var(--space-6); }
 }
+
+/* Option B: Your matches is a section heading in place of the tabs, at the tabs' place (64px under the picker); the
+   line under it carries the counts. All matches is a Home section after Where the matches are, in Home's margins */
+.tp-yours-title[hidden] { display: none; }
+.tp-yours-title { margin-top: var(--sec-gap); }
+.tp-yours-title:focus { outline: none; }
+.tp-yours-title + .tp-results-sum { margin-top: var(--space-2); }
+.tp-all.is-home { margin: var(--sec-gap) var(--space-5) 0; padding: var(--space-5) 0 0; }
+@media (min-width: 1024px) { .pv-device #tp-phone .tp-pick .tp-yours-title { margin-top: var(--space-7); } }
+.tp-pick + .tp-ov { margin-top: var(--space-5); } /* Option B: the map right after the picker; with the picker's 24px foot, 48px before its rule */
+@media (min-width: 1024px) { .pv-device #tp-phone .tp-all.is-home .tp-all-col { width: calc((100% - 2 * var(--space-6)) / 3); } } /* Option B on the desktop website: three columns of five across Home's full width */
