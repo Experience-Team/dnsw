@@ -3,18 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-<!-- Compare view (22 Nov): a phone opened as Option A, B or C (?opt=a, in a frame beside the main phone, pv-compare.js)
-     keeps its own saved state. Every key it reads or writes in this browser's storage is filed under opt-a: (and so on),
-     so its picks, days, plan and theme never touch the main phone's or the other options'. First, before anything reads
-     storage.
-     Option A (23 Nov, ?flow=a, its own tab in the viewer's left panel) keeps its own saved state the same way, under
-     flow-a:, so testing it never changes the main prototype's picks. Viewer settings (the theme, the annotations,
-     Compare options' list) stay shared, so both tabs look the same. A compared phone (?opt=) keeps its own prefix. -->
+<!-- Option A (23 Nov, ?flow=a, its own tab in the viewer's left panel) keeps its own saved state: every key it reads or
+     writes in this browser's storage is filed under flow-a:, so testing it never changes the main prototype's picks.
+     Viewer settings (the theme, the annotations) stay shared, so both tabs look the same. First, before anything reads
+     storage. Compare options (22 Nov) was removed on 23 Nov, as options are now tabs: what it saved in this browser
+     (its list, pv-compare, and each compared phone's state under opt-a: to opt-c:) is cleared here. -->
 <script>(function () {
-  var q = location.search, m = /[?&]opt=([abc])\b/.exec(q), P, own;
-  if (m) { P = 'opt-' + m[1] + ':'; own = function () { return true; }; document.documentElement.classList.add('pv-opt'); }
-  else if (/[?&]flow=a\b/.test(q)) { P = 'flow-a:'; own = function (k) { return !/^(pv-|opt-[abc]:|flow-a:)/.test(k) && k !== 'tp-annotations'; }; }
-  else return;
+  [window.localStorage, window.sessionStorage].forEach(function (st) {
+    try {
+      var gone = [];
+      for (var i = 0; i < st.length; i++) { var k = st.key(i); if (k === 'pv-compare' || /^opt-[abc]:/.test(k)) gone.push(k); }
+      gone.forEach(function (k) { st.removeItem(k); });
+    } catch (e) {}
+  });
+  if (!/[?&]flow=a\b/.test(location.search)) return;
+  var P = 'flow-a:', own = function (k) { return !/^(pv-|flow-a:)/.test(k) && k !== 'tp-annotations'; };
   ['getItem', 'setItem', 'removeItem'].forEach(function (fn) {
     var o = Storage.prototype[fn];
     Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); if (own(String(k))) a[0] = P + k; return o.apply(this, a); };
@@ -93,16 +96,6 @@
       <button type="button" class="cn-switch pv-switch" id="tp-plan-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plan: one day at a time (test)</button>
       <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('tp-plan-toggle').remove();</script>
     </div>
-    <!-- Compare (22 Nov, tools version only, pv-compare.js): up to three more phones beside the main one, Option A, B and
-         C. Each starts as a copy of the main phone (its picks, days and plan), then keeps its own saved state, and has its
-         own option flags: the design tests above, and the theme. The choice of options is remembered in this browser -->
-    <section class="pv-cmp-panel" id="pv-cmp-panel" aria-labelledby="pv-cmp-h">
-      <div class="pv-cmp-head"><h3 class="pv-cmp-h" id="pv-cmp-h">Compare options</h3><button type="button" class="pv-cmp-add" id="pv-cmp-add"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1v10M1 6h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Add option</button></div>
-      <p class="pv-cmp-p" id="pv-cmp-p">Up to three phones beside this one, each with its own settings below. Each starts as a copy of this phone, then keeps its own picks, days and plan.</p>
-      <ul class="pv-cmp-list" id="pv-cmp-list"></ul>
-      <span class="visually-hidden" id="pv-cmp-status" role="status"></span>
-    </section>
-    <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('pv-cmp-panel').remove();</script>
     <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
       <ol class="cn-notes-list" id="cn-notes-list"></ol>
@@ -654,9 +647,6 @@
     var b = document.getElementById('tp-reset'), top = document.querySelector('#tp-phone .tp-top');
     if (b && top) { b.className = 'tp-dev-reset'; top.appendChild(b); }
   })();</script>
-  <!-- Placeholder for another prototype, as in the Figma layout -->
-  <div class="pv-spare" aria-hidden="true"></div>
-  <script>if (!document.documentElement.classList.contains('pv-tools')) document.querySelector('.pv-spare').remove();</script>
 </main>
 
 <script>
@@ -781,7 +771,7 @@
       { sel: '.tp-all-btn', title: 'A match sheet', text: 'Save (20 Nov, and since then in every sheet where a change applies at once, CLAUDE.md check 10: venues, products, places, ideas, the plan\u2019s ideas sheet, a plan item\u2019s Move, host city, Where to watch; Your teams and Add team turn their Done into Save with the change, e.g. Ireland added to your teams.; not the days sheet, which keeps Use these dates): every change in a match sheet (Add a screening, Add to my plan, I have a ticket, a team) applies at once, but on a phone the line saying so sat below the fold and the cross reads as cancel, so once something changes a bar pins to the sheet\u2019s foot with that line (Foreshore Park Fan Zone added to your plan on Sat 2 Oct.) and Save. Save does exactly what the cross does: it closes the sheet and puts focus back on what opened it. The bar stays while drilled into a venue from the match, and is gone when the sheet next opens. As the bar says what was added, the Added to your plan toast is left out in a sheet (check 11); the ticket toast stays, as it names the parts of the page that changed out of view, and sits 12px above the bar. Tapping a row in All matches, or a match on a team card in Your matches (its date, teams and venue are one button; the ticket box sits outside it), opens a sheet from the bottom over a dimmed page (tap outside, the cross or Escape to close; products and places stay full-screen pages): date, Sydney kick-off, venue, city, In NSW or interstate. Add to my plan adds that one match, even when neither team is picked (T12, a ticket for a match their team is not in); it shows on the plan and in Copy plan as a match. Add [team] to my teams does exactly what picking its card does, and is a toggle like Add to my plan: pressed it reads \u2713 Wales added to my teams, and pressing it again takes the team off (the undo), with the line under it saying what happened. I have a ticket shows for any match with known teams; ticking it also puts the match on the plan, as a ticket means they are going. Tapping the row itself never adds a team. Focus moves in and stays in; Escape or the cross returns it to the row. An interstate match\u2019s sheet leads with Where to watch it in NSW: the fan zone, the village and the pubs screening it (cnWatchSpots, gap data, so the pink marks stay with Annotations on), each with Add; with none listed it says No NSW screenings listed for this match yet.' }
     ]).concat(EXTRA, TL), todo: 'Not wired: nothing picked here is carried into the itinerary prototype yet.' },
     results: { items: PICKER.concat([
-      { sel: '#tp-more', title: 'TEST: Option A, scroll to your card', text: '23 Nov. Option A is its own tab in the viewer (?flow=a), the same page with its own saved picks; the theme, Annotations and Compare options are shared with Pick your team. Only the planner changes. A team picked from the hand (or Find) takes the page down to Your matches once the card has landed in the hand: an eased glide of about half a second to the tabs, with the new card in view and focus on it (a ring only when the pick came from the keyboard); reduced motion jumps; a touch, wheel or key on the way stops it. Picking from the All matches tab switches to Your matches. No scroll for an unpick, a pick on Home, in the Add team or Your teams sheets, from a match page or from Add every NSW match. Under the cards: Add more teams, full width, which opens the Add team sheet where you are (focus returns to it on close), then Your days in NSW, moved here from above the tabs. On the All matches tab both follow the list. Flagged against check 8: the page moves on a pick, which no label promises; built as asked to test it.' },
+      { sel: '#tp-more', title: 'TEST: Option A, scroll to your card', text: '23 Nov. Option A is its own tab in the viewer (?flow=a), the same page with its own saved picks; the theme and Annotations are shared with Pick your team. Only the planner changes. A team picked from the hand (or Find) takes the page down to Your matches once the card has landed in the hand: an eased glide of about half a second to the tabs, with the new card in view and focus on it (a ring only when the pick came from the keyboard); reduced motion jumps; a touch, wheel or key on the way stops it. Picking from the All matches tab switches to Your matches. No scroll for an unpick, a pick on Home, in the Add team or Your teams sheets, from a match page or from Add every NSW match. Under the cards: Add more teams, full width, which opens the Add team sheet where you are (focus returns to it on close), then Your days in NSW, moved here from above the tabs. On the All matches tab both follow the list. Flagged against check 8: the page moves on a pick, which no label promises; built as asked to test it.' },
       { sel: '#tp-tabs', title: 'Your matches and All matches', text: 'Two tabs appear below the picker with the first pick, and Your matches is chosen. After that the chosen tab stays put, and is kept on reload. A pick made from a match page keeps All matches chosen, so closing the page goes back to its row. Standard tabs: arrow keys, Home and End move between them, the selected state is announced. Clearing every pick removes the tabs. The count in Your matches (N) is the matches on your plan, and washes blue for a moment when it changes.' },
       { sel: '.tp-rcard-new', title: 'The newest card', text: 'Each newly picked team\u2019s card rises gently into Your matches, the deck slides to it, and it says Just added for a moment with a soft outline. A card that goes fades out first.' },
       { sel: '.tc-head', title: 'A team card (redesigned 16 Nov)', text: 'Leads with the team: a band in its colours, a large flag, its name and one line of what is ahead (3 matches in 13 days \u00b7 next: v Argentina, Sat 2 Oct), then a quiet meta line (Pool C \u00b7 3 pool matches \u00b7 all interstate, or 1 in NSW). The old box saying a team plays all its pool matches interstate is gone: the meta line says it. One row per match: a date block, the opponent with its flag, the city and kick-off; the whole row opens the match\u2019s sheet. Interstate rows have Watch in NSW (TV icon), which opens that sheet at Where to watch it in NSW; NSW rows carry the stadium mark. No form fields on the card: the ticket question and its reason live in the match sheet. A chip shows only once something is set: Ticket, or Watching at [venue] once a screening is added; unset rows stay clean. One knockout line (If Canada finishes second in Pool C: Round of 16 in Sydney, Sat 23 Oct) opens the knockout path in NSW in a small sheet. One next step: See where to watch all 3 in NSW (a sheet of each match\u2019s screenings with Add) for a team with no NSW match, See your match day for one with (20 Nov, F-028; it was Plan around your match day, which opened the days sheet with a ticket toggle, a third copy of controls the card and Your days in NSW already have): your plan opens on the team\u2019s first NSW match day inside your days, that day\u2019s card at the top (as far as the sheet can scroll) and marked on the strip, its heading focused; closing the plan puts focus back on the button. Screen readers hear the match too (See your match day: Ireland v Portugal, Mon 4 Oct). With days set and no NSW match of the team inside them, the plan opens as usual and says so above the strip (Mon 4 Oct is outside your days (9 to 12 Oct)). Every NSW match keeps Plan around your match days (the days sheet). Nothing on the card moves the page; every sheet returns focus to what opened it, even when the card has redrawn.' },
@@ -1271,7 +1261,6 @@
 </script>
 <script src="vendor/qrcode.js"></script>
 <script src="pv-device.js"></script>
-<script src="pv-compare.js"></script>
 <script>
 /* Marker tooltips (22 Nov), desktop only (a mouse that can hover): hovering a marker on the Your days slider, the plan
    bar's strip or the open plan's axis shows what it marks. The text is the marker's data-tip (set where it is drawn),

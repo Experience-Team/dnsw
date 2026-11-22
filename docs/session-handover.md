@@ -2,7 +2,7 @@
 
 22 November 2026 (Sydney), evening, updated after #591. Repo `Experience-Team/dnsw`, main at `cd143a9` (the merge of #590, after #591). **No PR is open** apart from this update's own. #579 to #591 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
-**The next session creates more prototype options.** Read "Prototype options: how they work" below first: the tools viewer's Compare options (#587) shows up to three more phones side by side, each with its own flags, and that is where new options plug in.
+**The next session creates more prototype options.** Read "Prototype options: how they work" below first: each option is its own tab in the viewer, the same page with a flag (Option A is `?flow=a`, #593). Compare options (#587) was removed on 23 Nov at the user's request, so each tab shows one phone.
 
 This replaces the 22 November morning handover (#578). Since then, two sessions worked in parallel:
 - **This session** (`claude/gallant-cori-aajo32`): real destination data from the user's spreadsheet for Drop goal and the free-day ideas (#582), business names trimmed from every summary (#583), article pages for Read before you go with a Quick answers block for SEO and AEO (#583), the Leave the car at home card's line and link (#585, #588), and pictures between paragraphs in the articles (#589).
@@ -43,15 +43,15 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 - **Where options live.** The prototype is one page, `prototype-pick-your-team.html`. An option is a flag that changes part of it, so every option stays the real, working prototype rather than a copy.
 - **Flags in the address.** A script in the page's `<head>` reads the address before anything draws and sets an attribute on `<html>`. For example `?slogan=b` sets `data-slogan="b"` (line 35), and `?plan=swipe` sets `data-plan`. CSS and scripts then show one version or the other, for example `:root:not([data-slogan="b"]) .tp-slogan--b { display: none; }` in `shared.css`. Theme works the same way (`?theme=hifi`, only with `?tools`).
 - **Switches in the tools panel.** The test switches (Stacked hand (test), Plan: one day at a time (test)) sit in the viewer's left panel and show only with `?tools`. Each changes the same attribute as its address flag. Label a test switch "(test)".
-- **Compare options (#587, `pv-compare.js`).** In the tools viewer on the desktop, Compare options adds up to three more phones beside the main one, Option A, B and C. Each is the page in a frame (`?phone&tools&opt=a…`) with its own flags and its own saved state, copied from the main phone when added. Its `FLAGS` list (theme, fan, plan, slogan) is what the panel offers per option.
+- **Options are tabs (23 Nov).** Compare options (#587, framed phones beside the main one) and the empty dashed spare frame were removed at the user's request, so each tab shows one phone. The page's `<head>` clears what Compare options saved in a browser (`pv-compare`, `opt-a:` to `opt-c:`).
 - **To add an option:**
   1. Agree the scope first (CLAUDE.md checks 7 and 12): which part of the page the option changes, and everywhere that part appears.
   2. Pick a short flag name and values, for example `hero=a|b`. Read it in the `<head>` script beside `slogan`, and set `data-hero` on `<html>`.
   3. Build the alternative beside the current one, switched by the attribute. Keep the default as it is today, so existing links don't change (CLAUDE.md "Previews": say which links behave differently, if any).
-  4. Add it to `FLAGS` in `pv-compare.js` (`{ k, label, on, off }`), so each compared phone can switch it. If it needs a main-phone switch too, add one to the tools panel like the existing tests, and read it in `mainFlags()`.
+  4. Give it a tab: add it to `.pv-tabs` with `data-flow-tab` (as Option A), and to the `<head>` storage script if it should keep its own saved state. If it needs a switch too, add one to the tools panel like the existing tests.
   5. Add an annotation for the option ("TEST: …"), a build log row, and say in the PR how to see each version (for example `?tools&theme=hifi&hero=b`).
-  6. Check every option in both themes at 390 and 320, and in Compare options side by side.
-- **Option A (23 Nov, `?flow=a`):** the first option, built as its own tab in the viewer (the user's call) rather than only a Compare options switch, though it is one there too. Same page; `data-flow="a"` on `<html>`; its own saved state under `flow-a:` (set up in the `<head>` beside `opt-`), viewer settings shared. In the planner a pick from the hand glides to Your matches with the new card (`flowScroll`), and `#tp-more` (Add more teams, which opens `#tp-at`, then `#tp-ask`) sits under the cards. A later Option B would follow the same pattern: a `flow=b` value, a tab, a `FLAGS` entry.
+  6. Check every option in both themes at 390 and 320.
+- **Option A (23 Nov, `?flow=a`, #593):** its own tab in the viewer (the user's call). Same page; `data-flow="a"` on `<html>`; its own saved state under `flow-a:` (the `<head>` storage script), viewer settings (theme, Annotations) shared. In the planner a pick from the hand glides to Your matches with the new card (`flowScroll`), and `#tp-more` (Add more teams, which opens `#tp-at`, then `#tp-ask`) sits under the cards. A later Option B would follow the same pattern: a `flow=b` value and a tab.
 - **Other prototypes.** The viewer's top tabs (`.pv-tabs`) list the prototypes: Pick your team, Option A (`?flow=a`) and a "[next] prototype" placeholder (the Share/edit itinerary prototype was removed on 22 Nov) that shows only with `?tools`. A new standalone prototype would replace that placeholder tab.
 - **Ask the user first** whether "more prototype options" means flags on this page (above), new screens or flows, or another prototype tab.
 
@@ -95,7 +95,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 - **`tools/gen-destinations.py` (22 Nov):** regenerates `concepts-destinations.js` and `drop-goal/js/summaries.js` from the spreadsheet (`python3 public/wireframes/tools/gen-destinations.py path/to/sydney-towns-aeo.xlsx`, needs openpyxl). The spreadsheet itself is not in the repo. Its `TRIM` list removes business names from summaries (user's call); keep edits there, not in the generated files.
 - **`concepts-articles.js` (22 Nov):** `window.TP_ARTICLES`, the six Read before you go articles: tile (category, picture, shape), dek, body (`h` heading, `p` paragraph, `i` picture as `[i, key, what it shows]`), then the Quick answers data (`q`, `answer`, `facts`, `faqs`, `places`). Read times are worked out from the page. Dummy editorial content; no business named; not in the data contract.
 - **`concepts-home.js`, articles (22 Nov):** renders the tiles and the article view (`#tp-article`, `.tp-home.is-reading`), routes `?a=<slug>` with history, sets the meta description and JSON-LD while an article shows, and returns focus to whatever opened it (`backEl`). `window.tpArticle` (`open`, `close`, `get`).
-- **`pv-compare.js` (other session, #587):** Compare options in the tools viewer (see "Prototype options").
+- **`pv-compare.js`:** removed on 23 Nov with Compare options (see "Prototype options").
 - **`concepts-teams.js`:**
   - the fan and picks;
   - the plan bar and open plan (code names `tp-tl*`; the bar drags, and a tap toggles it). With no team the bar reads No matches yet or N saved, with Add team (`#tp-tl-addteam`);
@@ -282,7 +282,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - **Tests start on Home:** Home is the default tab, so click the Plan tab (or open `?view=plan`) before testing the planner.
 - **Date fields in headless Chromium** show mm/dd/yyyy (en-US); real phones in Australia show dd/mm/yyyy.
 - **Test server:** a background `python3 -m http.server` is stopped by the session's background time limit; start it again when a test can't connect.
-- **Compare options (#587) and Drop goal:** the frames' storage is kept apart by prefixing keys (`opt-a:`…) in the page's `<head>`, but the Drop goal game in its own iframe still shares its saved stops with the main phone. Adding an option scrolls it into view, which can push the main phone partly off the left of the stage.
+- **Option A and Drop goal:** Option A keeps its own saved state by prefixing keys (`flow-a:`) in the page's `<head>`, but the Drop goal game in its own iframe still shares its saved stops with the main prototype.
 - **Marker tooltips (#587):** desktop only (`(hover: hover) and (pointer: fine)`), one `.tp-hovertip` on `body`. The Your days slider's start and end ticks sit under its handles until days are set, so they only show a label once the handles move.
 - **Shell safety check:** a Bash heredoc that writes a test script containing `rm` (even as a variable name) can be stopped as a possible deletion. Write test scripts with the Write tool into the scratchpad instead.
 - **Two Vercel projects** deploy every push. The user hasn't decided whether to disconnect one.
