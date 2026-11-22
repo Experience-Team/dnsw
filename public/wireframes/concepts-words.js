@@ -16,6 +16,8 @@ window.TP_WORDS = {
   dropGoal: 'Drop goal',
   // A3 (F-034): its short label on phones, in the capsule and the two headings (the tab's own and Home's section)
   play: 'Play',
+  // The Play tab's own heading on phones (23 Nov, user's call); the capsule and Home's section heading keep Play
+  playTitle: 'Play Drop Goal',
   // The desktop website (21 and 22 Nov, user's calls): the capsule says Play Drop Goal and the two headings Drop Goal
   playDesktop: 'Play Drop Goal',
   dropGoalTitle: 'Drop Goal',

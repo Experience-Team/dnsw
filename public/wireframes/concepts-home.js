@@ -11,7 +11,7 @@
   var tp = window.tpPicker, GEO = window.cnGeo;
   var home = document.getElementById('tp-home');
   /* The kick game is called Drop goal, shown as Play on phones (22 Nov, user's call; Play came in on 21 Nov, F-034). On
-     phones the capsule and the two headings (the tab's own h2 and Home's section) say Play; on the desktop website the
+     phones the capsule and Home's section heading say Play, and the tab's own h2 Play Drop Goal (23 Nov); on the desktop website the
      capsule says Play Drop Goal and the headings Drop Goal. The tab's section, its frame and Home's still are named Drop
      goal for screen readers; the capsule and headings are read as shown (WCAG 2.5.3). The page title follows the capsule.
      Set here, before the capsule measures its tabs */
@@ -20,7 +20,7 @@
     var both = function (el, phone, desk) { if (!el) return; var ph = el.querySelector('.tp-cap-phone, .tp-on-phone'), dk = el.querySelector('.tp-cap-desk, .tp-on-desk'); if (ph) ph.textContent = phone; else el.textContent = phone; if (dk) dk.textContent = desk || phone; };
     both(document.querySelector('.tp-cap-i[data-view="kick"]'), name, W.playDesktop);
     both(document.getElementById('tp-home-kick-title'), name, W.dropGoalTitle);
-    both(document.getElementById('tp-kick-title'), name, W.dropGoalTitle);
+    both(document.getElementById('tp-kick-title'), W.playTitle || W.playDesktop || name, W.dropGoalTitle); // the tab's own heading: Play Drop Goal on phones too (23 Nov)
     var full = W.dropGoal || 'Drop goal';
     var sec = document.getElementById('tp-kick'); if (sec) sec.setAttribute('aria-label', full);
     var fr = document.getElementById('tp-kick-frame'); if (fr) fr.title = fr.title.replace(/^[^:]+/, full);
