@@ -1,12 +1,12 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-22 November 2026 (Sydney), evening, updated after #589. Repo `Experience-Team/dnsw`, main at `41f01da` (the merge of #589). **No PR is open** apart from this update's own. #579 to #589 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
+22 November 2026 (Sydney), evening, updated after #591. Repo `Experience-Team/dnsw`, main at `cd143a9` (the merge of #590, after #591). **No PR is open** apart from this update's own. #579 to #591 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
 
 **The next session creates more prototype options.** Read "Prototype options: how they work" below first: the tools viewer's Compare options (#587) shows up to three more phones side by side, each with its own flags, and that is where new options plug in.
 
 This replaces the 22 November morning handover (#578). Since then, two sessions worked in parallel:
 - **This session** (`claude/gallant-cori-aajo32`): real destination data from the user's spreadsheet for Drop goal and the free-day ideas (#582), business names trimmed from every summary (#583), article pages for Read before you go with a Quick answers block for SEO and AEO (#583), the Leave the car at home card's line and link (#585, #588), and pictures between paragraphs in the articles (#589).
-- **The other session** (`claude/adoring-allen-rxwblh`): a Reset icon in the header (#579), a reload stays on its tab (#580), Skip the map on phones only (#581), a new slogan and Save & share ordered by device (#584), the In NSW pill on every NSW match (#586), and marker tooltips plus **Compare options** in the tools viewer (#587).
+- **The other session** (`claude/adoring-allen-rxwblh`): a Reset icon in the header (#579), a reload stays on its tab (#580), Skip the map on phones only (#581), a new slogan and Save & share ordered by device (#584), the In NSW pill on every NSW match (#586), marker tooltips plus **Compare options** in the tools viewer (#587), and Save & share rebuilt as a list (#591, which replaces #584's device ordering).
 
 See "Done on 22 November, afternoon" below. The earlier sections are kept for reference.
 
@@ -86,7 +86,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 ## Where things are
 
 - **`public/wireframes/prototype-pick-your-team.html`:** the page.
-  - It holds the phone markup and the stacked sheets over the open plan: `#tp-ss` Save & share, `#tp-ts` Your teams (a list), `#tp-at` Add team (lends the page picker), `#tp-cc` Clear your plan?
+  - It holds the phone markup and the stacked sheets over the open plan: `#tp-ss` Save & share (a list since #591, see below), `#tp-ts` Your teams (a list), `#tp-at` Add team (lends the page picker), `#tp-cc` Clear your plan?
   - It also holds the annotations array.
   - Page order in the picker section: Find row, the hand, its caption (Clear all now ends the caption's sentence, `capClear()` in teams), then Your days in NSW (`#tp-ask`, since 18 Nov), then the tabs (Your matches, All matches) and the chosen tab's content; the map (`#tp-ov`) follows All matches.
 - **`concepts-words.js` (new, 21 Nov):** every visitor-facing string added or changed by the round 3 brief, in one block (`window.TP_WORDS`), so the user can approve or change them in one place. Each entry is a placeholder until approved. It also swaps the fixtures' Pool A to F to Group A to F in what the phone shows (a MutationObserver on `#tp-phone`, text and aria-labels only, never data or ids). Loaded before concepts-teams.js. Add any new round 3 string here.
@@ -199,7 +199,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - **Words added:** `planDaysUnset`, `arrivalDay`, `lastDay`. Notes edited: Plan bar (opening rule), Your days in the plan (rewritten), One card a day, the strip.
 - **Learnt:** the user can merge within minutes of a push. #573 merged before the E1 and E2 follow-up landed, which then needed #574. Push everything before saying a PR is ready.
 
-## Done on 22 November, afternoon (#579 to #589)
+## Done on 22 November, afternoon (#579 to #591)
 
 - **#582, real destination data:** from the user's spreadsheet (89 places, the town pages on sydney.com and visitnsw.com, read 22 Nov; confidentiality low, public data).
   - Drop goal: every one of the 80 stops shows its page's direct answer on the card (`drop-goal/js/summaries.js`). §18 `summary` is now "the direct answer, 40 to 60 words" (user's call). Distances and images are still placeholders.
@@ -209,6 +209,13 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - **#585, #588, Leave the car at home:** the At a glance card's line is written from the town data, and its link is Read the match day guide (the FAQ link stayed hidden while the FAQ answers are unwritten).
 - **#589:** two or three pictures between paragraphs in each article, stand-ins from the library, none of a named business.
 - **Other session:** #579 Reset icon top left; #580 a reload stays on its tab; #581 Skip the map on phones only; #584 new slogan (`?slogan=b` tests the alternative) and Save & share ordered by device; #586 In NSW pill on every NSW match; #587 marker tooltips on the desktop and Compare options.
+- **#591, Save & share as a list** (replaces the tiles and #584's device ordering; `concepts-third-half.js` Save & share section, `.tp-ss-*` in `shared.css`):
+  - Full-width rows, one button each (icon, name, caption), a 1px `--c-line-soft` rule between rows, and a chevron on rows that open in place. The same order on every device (`ssOrder` removed).
+  - **Keep a copy:** Email ("Your plan comes as a PDF attachment."; the field, Send my plan, legal line and opt-in open under the row as a panel and keep what was typed; nothing is sent) and Copy plan (a peek with Detailed = `planText`, Compact = `compactText`, For AI assistant = `aiText`; the choice is kept while the sheet is open, back to Detailed when it reopens).
+  - **Open in your apps:** Add to calendar (per-event Google Calendar and Outlook links, no .ics: user's call), Add to maps (`placeItems`: Google Maps and Apple Maps per place, the whole route from `mapsUrl()` on top; interstate venues left out), Download table (.csv) and Copy for a spreadsheet as two rows (user's call: the brief's "each row is one button" won over keeping them on one row).
+  - Removed: Group chat, Download text, Print or save as PDF and `printPlan`.
+  - One peek element is moved under whichever row opened it (an `li.tp-ss-peek-li`); one thing open at a time, the email panel included. The Email row's id is `tp-ss-mailrow`, because `tp-ss-email` is the field.
+  - At 320 the brief's two captions wrap to two lines (not cut), and the For AI assistant chip wraps to a second row.
 - **Learnt:** the user merges within minutes, so a follow-up commit pushed after a merge needs its own PR (it happened with #583 then #585). Check the PR's state before pushing more to it.
 
 ## Done on 21 and 22 November (#563 to #577)
@@ -273,6 +280,9 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 - **Tests start on Home:** Home is the default tab, so click the Plan tab (or open `?view=plan`) before testing the planner.
 - **Date fields in headless Chromium** show mm/dd/yyyy (en-US); real phones in Australia show dd/mm/yyyy.
 - **Test server:** a background `python3 -m http.server` is stopped by the session's background time limit; start it again when a test can't connect.
+- **Compare options (#587) and Drop goal:** the frames' storage is kept apart by prefixing keys (`opt-a:`…) in the page's `<head>`, but the Drop goal game in its own iframe still shares its saved stops with the main phone. Adding an option scrolls it into view, which can push the main phone partly off the left of the stage.
+- **Marker tooltips (#587):** desktop only (`(hover: hover) and (pointer: fine)`), one `.tp-hovertip` on `body`. The Your days slider's start and end ticks sit under its handles until days are set, so they only show a label once the handles move.
+- **Shell safety check:** a Bash heredoc that writes a test script containing `rm` (even as a variable name) can be stopped as a possible deletion. Write test scripts with the Write tool into the scratchpad instead.
 - **Two Vercel projects** deploy every push. The user hasn't decided whether to disconnect one.
 
 ## Where the build stands (checked 19 Nov evening)
@@ -300,7 +310,8 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 12. **New, articles:** dummy content. The Pacific fans article makes cultural statements written without a source (team colours, greetings, crowds falling quiet during the challenge) and needs review by someone from those communities. Match details come from the placeholder fixtures. Articles show no pink marks with Annotations on; only the annotation says they are dummy. Articles are not in the data contract; offer a section if wanted.
 13. **New, destination data:** most Newcastle ideas have no travel time from Newcastle (the pages give times from Sydney). The spreadsheet's Current notices column is not shown anywhere (for example the Great Western Highway closure for Lithgow and Bathurst). Venue names change: recheck against the live pages before launch.
 14. **New, Home FAQs:** the answers are still `[Answer to come]`, so the FAQs and their links stay hidden with Annotations off. Ticketing and fan festival details are needed to write them.
-15. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
+15. **New, the itinerary prototype's Save & share** (`prototype-itinerary.html`) still has the old tiles; #584 and #591 changed only Pick your team's. Ask whether it should match.
+16. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
 
 ## The homepage (built 19 November, second session)
 
