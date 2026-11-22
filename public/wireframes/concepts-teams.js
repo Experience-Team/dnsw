@@ -1152,8 +1152,8 @@
     return '<li class="tc-row' + (f.a ? ' is-away' : ' is-nsw') + (has ? ' has-ticket' : '') + '" data-key="' + esc(id) + '">' +
       '<button type="button" class="tc-open" data-open="match:' + esc(id) + '" aria-haspopup="dialog" aria-label="' + esc(lbl) + '">' +
         '<span class="tc-date" aria-hidden="true"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b><em>' + esc(p[2]) + '</em></span>' +
-        '<span class="tc-who" aria-hidden="true"><span class="tc-opp">' + who + '</span><span class="tc-where">' + esc(cityShort(f)) + ' · ' + esc(kick(f)) + (also.length ? ' · also your ' + esc(list(also)) : '') + '</span>' + chip + '</span>' +
-        (f.a || tix ? '' : '<span class="tc-go" aria-hidden="true"><span class="tc-go-dot">' + I_GO + '</span>' + (full ? '' : '<span>In NSW</span>') + '</span>') +
+        '<span class="tc-who" aria-hidden="true"><span class="tc-opp">' + who + '</span><span class="tc-where">' + esc(cityShort(f)) + ' · ' + esc(kick(f)) + (also.length ? ' · also your ' + esc(list(also)) : '') + '</span>' + (f.a ? '' : '<span class="tp-tag tp-tag--inline tc-nsw">In NSW</span>') + chip + '</span>' +
+        (f.a || tix ? '' : '<span class="tc-go" aria-hidden="true"><span class="tc-go-dot">' + I_GO + '</span></span>') +
       '</button>' +
       (tix ? '<button type="button" class="tc-act tc-tix" data-ticket="' + esc(id) + '" data-name="' + esc(name) + '" aria-pressed="' + has + '">' + I_TIX + '<span>I have tickets</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
       (f.a ? '<button type="button" class="tc-act" data-open-watch="' + esc(id) + '" aria-haspopup="dialog">' + I_TV + '<span>Watch in NSW</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
@@ -1336,7 +1336,7 @@
       var who = f.t ? f.t.split(' v ').map(side).join(' <span class="tp-all-v">v</span> ') : esc(f.s) + ' <span class="tp-all-v">· teams to be decided</span>';
       return '<li class="tp-all-m' + (f.a ? ' is-away' : '') + '" data-key="' + esc(f.d + '|' + (f.t || f.s)) + '"><button type="button" class="tp-all-btn" data-open="match:' + esc(f.d + '|' + (f.t || f.s)) + '" aria-haspopup="dialog">' +
         '<span class="tp-all-when">' + esc(f.d) + ', ' + esc(f.k || TBC_L) + (ko && f.t ? ' · ' + esc(f.s.replace(/ \(\d+\)$/, '')) : '') + '</span><span class="tp-all-teams">' + who + '</span>' +
-        '<span class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '') + '</span></button></li>';
+        '<span class="tp-all-where">' + esc(f.v + ', ' + f.p) + (f.a ? ' (interstate)' : '<span class="visually-hidden">, in NSW</span> <span class="tp-tag tp-tag--inline" aria-hidden="true">In NSW</span>') + '</span></button></li>';
     }
     var allScroll = document.getElementById('tp-all-scroll'), allBtns = [], allAt = 0;
     var allNote = document.getElementById('tp-all-note'), allHint = document.getElementById('tp-all-hint');

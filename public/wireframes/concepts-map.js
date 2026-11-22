@@ -1037,7 +1037,8 @@
       i = Math.max(0, Math.min(FLAT.length - 1, i)); rcur = i;
       var x = FLAT[i];
       curKey = x.it.key;
-      rstop.textContent = x.st.label;
+      // A stop at an NSW match carries the In NSW pill (22 Nov), as every NSW match does; a Played in … stop does not
+      rstop.innerHTML = '<span>' + esc(x.st.label) + (x.st.kind === 'match' ? ' <span class="tp-tag tp-tag--inline">In NSW</span>' : '') + '</span>';
       rsub.hidden = !x.st.sub; rsub.textContent = x.st.sub || '';
       rpos.textContent = (i + 1) + ' of ' + FLAT.length;
       // In the card row itself: in full screen the map and its cards leave the section for the whole phone

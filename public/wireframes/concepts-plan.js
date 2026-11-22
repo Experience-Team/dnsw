@@ -100,6 +100,7 @@
     return '<li class="tp-dc-m' + (f.a ? ' is-away' : '') + (tix ? ' has-tix' : '') + '">' + flags(f) +
       '<div class="tp-dc-m-b"><button type="button" class="tp-dc-name" data-dc-match="' + esc(m.key) + '" aria-haspopup="dialog">' + esc(mName(f)) + '</button>' +
       '<span class="tp-dc-time">' + (f.k ? esc(f.k) + ' Sydney time' : TBC) + '</span>' +
+      (f.a ? '' : '<span class="tp-tag tp-tag--inline tp-dc-nsw">In NSW</span>') +
       '<span class="tp-dc-where">' + esc(where) + '</span>' +
       (tix ? '' : '<span class="tp-dc-tk">' + (watchOnly ? 'To watch in NSW, not in your plan' : 'Teams to be decided') + '</span>') + '</div>' +
       (tix ? '<button type="button" class="tc-act tc-tix tp-dc-tix" data-ticket="' + esc(m.tkey) + '" aria-pressed="' + hasTicket(m) + '">' + I_TIX + '<span>I have tickets</span><span class="visually-hidden">: ' + esc(mName(f)) + ', ' + esc(f.d) + '</span></button>' : '') + '</li>';
