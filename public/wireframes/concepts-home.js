@@ -155,7 +155,7 @@
   reads.innerHTML = ARTS.map(tile).join('');
 
   var home = document.getElementById('tp-home'), artEl = document.getElementById('tp-article');
-  var pbody = phone.querySelector('.cn-body'), reading = null, pushed = false, backY = 0, backSlug = null, prevTitle = '';
+  var pbody = phone.querySelector('.cn-body'), reading = null, pushed = false, backY = 0, backSlug = null, backEl = null, prevTitle = '';
   var UPDATED = '22 November 2026', UPDATED_ISO = '2026-11-22';
   function artHtml(a) {
     var h = '<article class="tp-art" aria-labelledby="tp-art-title">';
@@ -204,7 +204,7 @@
   function openArt(slug, opts) {
     var a = artBy(slug); if (!a) return;
     opts = opts || {};
-    if (!reading) { backY = pbody.scrollTop; prevTitle = document.title; backSlug = opts.from || slug; }
+    if (!reading) { backY = pbody.scrollTop; prevTitle = document.title; backSlug = opts.from || slug; backEl = opts.el || null; }
     reading = slug;
     artEl.innerHTML = artHtml(a); artEl.hidden = false; home.classList.add('is-reading');
     document.title = a.title + ' · ' + (prevTitle.split(' · ').slice(1).join(' · ') || prevTitle);
@@ -223,7 +223,8 @@
     if (!opts.fromHistory && location.search.indexOf('a=') > -1) history.replaceState(null, '', urlFor(null));
     // Back where they left: the same scroll, and focus on the tile they opened (not when another tab takes over)
     pbody.scrollTop = backY;
-    if (!opts.quiet) { var b = reads.querySelector('[data-read="' + CSS.escape(backSlug || '') + '"]'); if (b) b.focus({ preventScroll: true }); }
+    // Focus goes back to what opened it: a card, or a link elsewhere on Home (Read the match day guide)
+    if (!opts.quiet) { var b = backEl && backEl.isConnected ? backEl : reads.querySelector('[data-read="' + CSS.escape(backSlug || '') + '"]'); if (b) b.focus({ preventScroll: true }); }
   }
   function back() { if (pushed && history.state && history.state.tpArt) history.back(); else closeArt(); }
   phone.addEventListener('click', function (e) {
@@ -234,7 +235,7 @@
       var from = reads.contains(t) ? t.dataset.read : backSlug;
       // One article at a time in the history: from an article, the next replaces it, so back always means Home
       if (reading) { history.replaceState(pushed ? { tpArt: t.dataset.read } : null, '', urlFor(t.dataset.read)); openArt(t.dataset.read, { from: from }); }
-      else openArt(t.dataset.read, { push: true, from: from });
+      else openArt(t.dataset.read, { push: true, from: from, el: t });
       return;
     }
     if (e.target.closest('[data-art-back]')) { e.preventDefault(); back(); }
