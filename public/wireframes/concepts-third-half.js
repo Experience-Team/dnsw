@@ -2852,7 +2852,7 @@
     clearTimeout(toastT); toastT = setTimeout(function () { toast.hidden = true; }, 2600);
   }
   function mark(tile) {
-    ss.querySelectorAll('.cn-tile.is-copied').forEach(function (t) { t.classList.remove('is-copied'); });
+    ss.querySelectorAll('.is-copied').forEach(function (t) { t.classList.remove('is-copied'); });
     tile.classList.add('is-copied');
     clearTimeout(tile._t); tile._t = setTimeout(function () { tile.classList.remove('is-copied'); }, 2400);
   }
@@ -2861,22 +2861,6 @@
     fb.hidden = true;
     function fallback() { fb.hidden = false; fbText.value = text; fbText.focus(); fbText.select(); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { mark(tile); ssSay(msg); }, fallback); else fallback();
-  }
-  function printPlan() {
-    var lines = planText().split('\n'), html = '', inList = false;
-    lines.forEach(function (l, i) {
-      if (/^- /.test(l)) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + esc(l.slice(2)) + '</li>'; return; }
-      if (inList) { html += '</ul>'; inList = false; }
-      if (!l) return;
-      html += i === 0 ? '<h1>' + esc(l) + '</h1>' : /:$/.test(l) ? '<h2>' + esc(l.slice(0, -1)) + '</h2>' : '<p>' + esc(l) + '</p>';
-    });
-    if (inList) html += '</ul>';
-    var fr = document.createElement('iframe');
-    fr.setAttribute('aria-hidden', 'true'); fr.style.cssText = 'position:fixed;width:0;height:0;border:0;';
-    document.body.appendChild(fr);
-    var d = fr.contentDocument;
-    d.open(); d.write('<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><title>' + esc(fileName('pdf').replace('.pdf', '')) + '</title><style>body{font:14px/1.5 system-ui,sans-serif;color:#111;margin:24px}h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:20px 0 6px}ul{padding-left:18px;margin:0}li{margin:4px 0}p{margin:4px 0}</style></head><body>' + html + '</body></html>'); d.close();
-    setTimeout(function () { fr.contentWindow.focus(); fr.contentWindow.print(); setTimeout(function () { fr.remove(); }, 1000); }, 50);
   }
   function mapsUrl() {
     var stops = [];
@@ -2925,70 +2909,127 @@
     };
   }
 
-  /* ---------- The peek under the tiles (22 Nov) ----------
-     Group chat and AI assistant show exactly what will be copied, with Copy beside it; Add to calendar lists the
-     links. One peek at a time: another tile swaps it, the same tile closes it, and it is gone when the sheet opens. */
-  var peek = document.getElementById('tp-ss-peek'), peekLabel = document.getElementById('tp-ss-peek-label'), peekText = document.getElementById('tp-ss-peek-text');
-  var peekCopy = document.getElementById('tp-ss-peek-copy'), peekCopyL = peekCopy.querySelector('.tp-ss-peek-copy-l'), peekCal = document.getElementById('tp-ss-cal-list'), peekOn = null;
-  var PEEK = {
-    'tp-ss-chat': { label: 'What you\u2019ll copy for the group chat', text: function () { return planText(); }, msg: 'Copied. Paste it into a chat, a note or an email.' },
-    'tp-ss-ai': { label: 'What you\u2019ll copy for your AI assistant', text: function () { return aiText(); }, msg: 'Copied. Paste it into your AI assistant.' },
-    'tp-ss-cal': { label: 'Add each one to your calendar' }
+  /* ---------- Copy plan in three formats (22 Nov) ----------
+     Detailed is planText; For AI assistant is aiText; Compact is one line per match or thing (day, time, name, place),
+     the In NSW days line, and saves not placed yet by name only. No notes, no base or party, no disclaimer. */
+  function compactText() {
+    var t = trip(), lines = ['My Rugby World Cup 2027 plan (Plan your 3rd half)'];
+    if (t && t.from && t.to) lines.push('In NSW ' + tp.isoRange(t.from, t.to));
+    var rows = [];
+    if (tp.own()) tp.userMatches().forEach(function (m) {
+      var f = m.f; rows.push({ at: m.day, k: 0, line: f.d + ', ' + (f.k || TBC_L) + ': ' + matchName(f) + ', ' + f.v });
+    });
+    state.added.forEach(function (it) {
+      if (it.kind === 'match' || it.kind === 'kick' || it.unplaced) return;
+      var at = it.start != null ? it.start : (function () { try { return tp.dayOf(it.day); } catch (e) { return 99; } })();
+      var when = it.kind === 'trip' && it.nights ? spanLabel(it.start, it.start + it.nights) : it.day;
+      rows.push({ at: at, k: 1, line: when + ': ' + it.title + (it.kind === 'trip' ? (it.nights ? ' (' + it.nights + (it.nights === 1 ? ' night)' : ' nights)') : ' (day trip)') : (it.place ? ', ' + it.place : '')) });
+    });
+    rows.sort(function (a, b) { return a.at - b.at || a.k - b.k; });
+    if (rows.length) { lines.push(''); rows.forEach(function (r) { lines.push('- ' + r.line); }); }
+    var later = tp.waiting().concat(tp.kicks());
+    if (later.length) { lines.push('', 'Not placed yet:'); later.forEach(function (it) { lines.push('- ' + it.title); }); }
+    return lines.join('\n');
+  }
+  var FORMATS = {
+    detailed: { text: function () { return planText(); }, label: 'Your plan in full', msg: 'Copied. Paste it into a note, an email or a chat.' },
+    compact: { text: function () { return compactText(); }, label: 'One line each', msg: 'Copied. Paste it into a note, an email or a chat.' },
+    ai: { text: function () { return aiText(); }, label: 'Your plan with a short request', msg: 'Copied. Paste it into your AI assistant.' }
   };
+  var ssFormat = 'detailed';
+
+  /* ---------- Add to maps (22 Nov): a link per place, in date order ----------
+     Each place in the plan (interstate venues left out, as for the route) with Google Maps and Apple Maps links; the
+     whole route in Google Maps sits on top when there are two places or more. */
+  function placeItems() {
+    var seen = {}, out = [];
+    planRows().forEach(function (r) {
+      if (!r.place) return;
+      var k = r.at + '|' + r.place; if (seen[k]) return; seen[k] = 1;
+      out.push({ when: r.at >= 999 ? 'Not placed yet' : r.date, what: r.what, place: r.place });
+    });
+    return out;
+  }
+
+  /* ---------- The peek under a row (22 Nov) ----------
+     One panel, moved to sit right under the row that opened it: Copy plan (a choice of three formats, the text, Copy),
+     Add to calendar and Add to maps (one line each with its links). One thing open at a time, the email panel included:
+     another row swaps it, the same row closes it, and it is gone when the sheet opens. */
+  var peek = document.getElementById('tp-ss-peek'), peekLabel = document.getElementById('tp-ss-peek-label'), peekText = document.getElementById('tp-ss-peek-text');
+  var peekCopy = document.getElementById('tp-ss-peek-copy'), peekCopyL = peekCopy.querySelector('.tp-ss-peek-copy-l'), peekList = document.getElementById('tp-ss-cal-list'), peekOn = null;
+  var fmtBox = document.getElementById('tp-ss-fmt'), route = document.getElementById('tp-ss-route');
+  var mailRow = document.getElementById('tp-ss-mailrow'), mailPanel = document.getElementById('tp-ss-mail');
+  var peekLi = document.createElement('li'); peekLi.className = 'tp-ss-peek-li'; peekLi.appendChild(peek);
   function peekClose() {
-    peek.hidden = true; peekOn = null;
+    peek.hidden = true; peekOn = null; if (peekLi.parentNode) peekLi.remove();
     ss.querySelectorAll('[aria-controls="tp-ss-peek"]').forEach(function (t) { t.setAttribute('aria-expanded', 'false'); });
   }
-  function peekOpen(tile) {
-    if (peekOn === tile) { peekClose(); return; }
-    peekClose(); fb.hidden = true;
-    var p = PEEK[tile.id], cal = tile.id === 'tp-ss-cal';
-    peekOn = tile; tile.setAttribute('aria-expanded', 'true');
-    peekLabel.textContent = p.label;
-    peekCopy.hidden = cal; peekText.hidden = cal; peekCal.hidden = !cal; peekCopyL.textContent = 'Copy';
-    if (cal) {
-      var items = calItems();
-      peekCal.innerHTML = items.length ? items.map(function (e) {
+  function mailSet(open) {
+    mailPanel.hidden = !open; mailRow.setAttribute('aria-expanded', open ? 'true' : 'false');
+    mailPanel.parentNode.classList.toggle('is-open', open);
+  }
+  function into(el) {
+    // Opens where the person is: the sheet scrolls only as far as needed to show the top of what opened
+    var sr = ss.getBoundingClientRect(), pr = el.getBoundingClientRect(), room = sr.bottom - 80;
+    if (pr.top + Math.min(pr.height, 160) > room) ss.scrollTo({ top: ss.scrollTop + (pr.top + Math.min(pr.height, 160) - room), behavior: tp.reduce.matches ? 'auto' : 'smooth' });
+  }
+  function fmtShow() {
+    var f = FORMATS[ssFormat];
+    fmtBox.querySelectorAll('[data-fmt]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.fmt === ssFormat ? 'true' : 'false'); });
+    peekLabel.textContent = f.label; peekText.textContent = f.text(); peekText.scrollTop = 0; peekCopyL.textContent = 'Copy';
+  }
+  function linkList(items, empty, fn) {
+    peekList.innerHTML = items.length ? items.map(fn).join('') : '<li class="tp-ss-cal-none">' + esc(empty) + '</li>';
+  }
+  function peekOpen(row) {
+    if (peekOn === row) { peekClose(); return; }
+    peekClose(); mailSet(false); fb.hidden = true;
+    peekOn = row; row.setAttribute('aria-expanded', 'true');
+    row.parentNode.after(peekLi);
+    var kind = row.id === 'tp-ss-copy' ? 'copy' : row.id === 'tp-ss-cal' ? 'cal' : 'maps';
+    fmtBox.hidden = kind !== 'copy'; peekCopy.hidden = kind !== 'copy'; peekText.hidden = kind !== 'copy';
+    peekList.hidden = kind === 'copy'; route.hidden = true;
+    if (kind === 'copy') fmtShow();
+    else if (kind === 'cal') {
+      peekLabel.textContent = 'Add each one to your calendar';
+      linkList(calItems(), 'Nothing in your plan has a date yet. Matches and things placed on a day show here.', function (e) {
         var l = calLinks(e), nm = esc(e.what);
         return '<li><span class="tp-ss-cal-what">' + nm + '</span><span class="tp-ss-cal-when">' + esc(e.when) + (e.where ? ', ' + esc(e.where) : '') + '</span>' +
           '<span class="tp-ss-cal-links"><a href="' + esc(l.google) + '" target="_blank" rel="noopener" aria-label="Add ' + nm + ' to Google Calendar, opens in a new tab">Google Calendar</a>' +
           '<a href="' + esc(l.outlook) + '" target="_blank" rel="noopener" aria-label="Add ' + nm + ' to Outlook, opens in a new tab">Outlook</a></span></li>';
-      }).join('') : '<li class="tp-ss-cal-none">Nothing in your plan has a date yet. Matches and things placed on a day show here.</li>';
+      });
     } else {
-      peekText.textContent = p.text(); peekText.scrollTop = 0;
+      var places = placeItems(), u = places.length > 1 ? mapsUrl() : null;
+      peekLabel.textContent = 'Open each place in your maps app';
+      if (u) { route.hidden = false; route.firstChild.href = u; }
+      linkList(places, 'Nothing in your plan has a place in NSW yet. Matches in NSW and places you add show here.', function (x) {
+        var q = encodeURIComponent(x.place + ', NSW'), nm = esc(x.what);
+        return '<li><span class="tp-ss-cal-what">' + nm + '</span><span class="tp-ss-cal-when">' + esc(x.when) + (x.place !== x.what ? ', ' + esc(x.place) : '') + '</span>' +
+          '<span class="tp-ss-cal-links"><a href="https://www.google.com/maps/search/?api=1&amp;query=' + q + '" target="_blank" rel="noopener" aria-label="Open ' + nm + ' in Google Maps, opens in a new tab">Google Maps</a>' +
+          '<a href="https://maps.apple.com/?q=' + q + '" target="_blank" rel="noopener" aria-label="Open ' + nm + ' in Apple Maps, opens in a new tab">Apple Maps</a></span></li>';
+      });
     }
     peek.hidden = false;
-    // Opens where the person is: the sheet scrolls only as far as needed to show the peek's top
-    var sr = ss.getBoundingClientRect(), pr = peek.getBoundingClientRect(), room = sr.bottom - 80;
-    if (pr.top + Math.min(pr.height, 160) > room) ss.scrollTo({ top: ss.scrollTop + (pr.top + Math.min(pr.height, 160) - room), behavior: tp.reduce.matches ? 'auto' : 'smooth' });
+    into(peek);
   }
+  fmtBox.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-fmt]'); if (!b || b.dataset.fmt === ssFormat) return;
+    ssFormat = b.dataset.fmt; fb.hidden = true; fmtShow();
+  });
   peekCopy.addEventListener('click', function () {
-    var p = peekOn && PEEK[peekOn.id]; if (!p || !p.text) return;
-    var tile = peekOn;
-    copy(p.text(), tile, p.msg);
+    if (!peekOn || peekOn.id !== 'tp-ss-copy') return;
+    var f = FORMATS[ssFormat];
+    copy(f.text(), peekOn, f.msg);
     if (navigator.clipboard && navigator.clipboard.writeText) { peekCopyL.textContent = 'Copied'; clearTimeout(peekCopy._t); peekCopy._t = setTimeout(function () { peekCopyL.textContent = 'Copy'; }, 2400); }
   });
-
-  /* Ordered for the device each time the sheet opens (22 Nov): a phone puts copying for a chat first and printing last;
-     the desktop website puts Print or save as PDF first */
-  var gKeep = document.getElementById('tp-ss-g-keep'), gCopy = document.getElementById('tp-ss-g-copy');
-  function ssOrder() {
-    var desk = document.documentElement.classList.contains('pv-device') && matchMedia('(min-width: 1024px)').matches;
-    var groups = gKeep.parentNode, keep = gKeep.querySelector('.cn-tiles');
-    var pr = document.getElementById('tp-ss-print'), tx = document.getElementById('tp-ss-txt'), sp = document.getElementById('tp-ss-split');
-    if (desk) { groups.insertBefore(gKeep, gCopy); [pr, tx, sp].forEach(function (el) { keep.appendChild(el); }); }
-    else { groups.insertBefore(gCopy, gKeep); [sp, tx, pr].forEach(function (el) { keep.appendChild(el); }); }
-  }
 
   ss.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     switch (b.id) {
-      case 'tp-ss-print': printPlan(); break;
-      case 'tp-ss-txt': download(planText(), 'text/plain;charset=utf-8', 'txt'); mark(b); ssSay('Downloaded ' + fileName('txt')); break;
-      case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(document.getElementById('tp-ss-split')); ssSay('Downloaded ' + fileName('csv')); break;
-      case 'tp-ss-sheet': copy(tsv(), document.getElementById('tp-ss-split'), 'Copied for your spreadsheet. Paste into cells.'); break;
-      case 'tp-ss-chat': case 'tp-ss-ai': case 'tp-ss-cal': peekOpen(b); break;
-      case 'tp-ss-maps': var u = mapsUrl(); if (u) window.open(u, '_blank', 'noopener'); else ssSay('Nothing in your plan has a place in NSW yet.'); break;
+      case 'tp-ss-mailrow': var open = mailPanel.hidden; peekClose(); mailSet(open); if (open) { into(mailPanel); setTimeout(function () { (ss.classList.contains('is-sent') ? document.getElementById('tp-ss-again') : email).focus({ preventScroll: true }); }, 0); } break;
+      case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(b); ssSay('Downloaded ' + fileName('csv')); break;
+      case 'tp-ss-sheet': copy(tsv(), b, 'Copied for your spreadsheet. Paste into cells.'); break;
+      case 'tp-ss-copy': case 'tp-ss-cal': case 'tp-ss-maps': peekOpen(b); break;
       case 'tp-ss-send': send(); break;
       case 'tp-ss-again': ss.classList.remove('is-sent'); note.textContent = NOTE; email.focus(); break;
     }
@@ -3000,14 +3041,14 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { email.setAttribute('aria-invalid', 'true'); emailErr.hidden = false; email.focus(); return; }
     email.removeAttribute('aria-invalid'); emailErr.hidden = true;
     document.getElementById('tp-ss-sent-text').textContent = 'Sent to ' + to;
-    note.textContent = 'Sent to ' + to + '. Check your inbox. It is still saved on this device too.';
+    note.textContent = 'Sent to ' + to + ' as a PDF. Check your inbox. It is still saved on this device too.';
     ss.classList.add('is-sent');
     document.getElementById('tp-ss-again').focus({ preventScroll: true });
   }
   email.addEventListener('input', function () { if (email.getAttribute('aria-invalid')) { email.removeAttribute('aria-invalid'); emailErr.hidden = true; } });
   email.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(); } });
   // Opens as a sheet stacked over the plan (tp.stackOpen in concepts-teams.js: motion, closing, focus, Tab)
-  ssBtn.addEventListener('click', function () { fb.hidden = true; toast.hidden = true; peekClose(); ssOrder(); ss.scrollTop = 0; tp.stackOpen(ss, ssBtn); });
+  ssBtn.addEventListener('click', function () { fb.hidden = true; toast.hidden = true; peekClose(); mailSet(false); ssFormat = 'detailed'; ss.scrollTop = 0; tp.stackOpen(ss, ssBtn); });
 
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};
