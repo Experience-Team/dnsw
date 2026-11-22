@@ -4308,6 +4308,35 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-ss.is-sent .cn-again { display: block; }
 .tp-ss.is-sent .cn-note-dot { background: var(--c-accent); }
 .tp-ss .cn-toast { position: sticky; left: auto; right: auto; bottom: 0; flex: none; margin-top: var(--space-3); }
+/* Save & share (22 Nov): icons in the tiles, the Spreadsheet tile with two actions, and the peek under the tiles */
+.tp-ss-groups { display: flex; flex-direction: column; }
+.tp-ss .cn-tile-icon { display: grid; place-items: center; color: var(--c-ink); }
+.tp-ss .cn-tile-icon svg, .tp-ss-mini svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tp-ss .cn-tile[aria-expanded="true"] { border-color: var(--c-ink); box-shadow: inset 0 0 0 1px var(--c-ink); }
+.tp-ss-split { flex-wrap: wrap; row-gap: var(--space-2); padding-block: var(--space-3); cursor: default; }
+.tp-ss-split:active { transform: none; }
+.tp-ss-split-acts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); width: 100%; }
+.tp-ss-mini { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 0 var(--space-2); border: var(--bw-1) solid var(--c-line-strong); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-xs); font-weight: var(--fw-semi); line-height: 1.2; text-align: center; white-space: nowrap; cursor: pointer; }
+.tp-ss-mini svg { flex: none; width: 14px; height: 14px; }
+.tp-ss-mini:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-ss-mini:active { transform: scale(.98); }
+@media (hover: hover) { .tp-ss-mini:hover { border-color: var(--c-ink); } }
+.tp-ss-peek { margin-top: var(--space-3); padding: var(--space-3); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md); background: var(--c-surface-2); }
+.tp-ss-peek[hidden] { display: none; }
+.tp-ss-peek-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.tp-ss-peek-label { font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.tp-ss-peek-text { max-height: 180px; overflow: auto; margin: var(--space-2) 0 0; padding: var(--space-2) var(--space-3); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-sm, 6px); background: var(--c-surface); color: var(--c-ink-2); font: inherit; font-size: var(--fs-xs); line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tp-ss-peek-text:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-ss-peek-text[hidden], .tp-ss-cal[hidden], .tp-ss-mini[hidden] { display: none; }
+.tp-ss-cal { margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.tp-ss-cal li { padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-ss-cal li:first-child { border-top: 0; padding-top: 0; }
+.tp-ss-cal-what { display: block; font-size: var(--fs-sm); font-weight: var(--fw-semi); line-height: 1.3; }
+.tp-ss-cal-when { display: block; margin-top: 2px; font-size: var(--fs-xs); color: var(--c-ink-2); line-height: 1.35; }
+.tp-ss-cal-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
+.tp-ss-cal-links a { display: inline-flex; align-items: center; min-height: 32px; color: var(--c-ink); font-size: var(--fs-xs); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; }
+.tp-ss-cal-links a:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-ss-cal-none { font-size: var(--fs-xs); color: var(--c-ink-2); }
 .tp-ss .cn-view { padding-bottom: 72px; } /* room under the last line, so the toast never sits on the opt-in when scrolled to the end */
 
 /* Pick your team: the timeline sheet drags by its bar (handle included): down to close, up to open */
