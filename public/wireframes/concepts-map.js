@@ -763,7 +763,11 @@
       '<p class="visually-hidden" aria-live="polite" id="tp-ov-say"></p><span class="tp-ov-end" id="tp-ov-end" tabindex="-1"></span>';
     // After All matches (18 Nov): Your days in NSW moved up into the team picker, so the map follows the match list
     var allSec = document.getElementById('tp-all');
-    if (allSec) allSec.parentNode.insertBefore(sec, allSec.nextSibling); else pick.parentNode.insertBefore(sec, pick.nextSibling);
+    // Option B (?flow=a): All matches is on Home, so the map follows the whole picker section (the hand, then Your matches)
+    var pickSec = document.getElementById('tp-pick');
+    if (allSec && !allSec.closest('#tp-home')) allSec.parentNode.insertBefore(sec, allSec.nextSibling);
+    else if (pickSec) pickSec.parentNode.insertBefore(sec, pickSec.nextSibling);
+    else pick.parentNode.insertBefore(sec, pick.nextSibling);
     var box = sec.querySelector('.tp-ov-map'), oview = sec.querySelector('.tp-ov-view'), olayer = sec.querySelector('.tp-ov-layer'), oimg = olayer.querySelector('img');
     var otvs = sec.querySelector('.tp-ov-tvs'), omarks = sec.querySelector('.tp-ov-marks'), oedges = sec.querySelector('.tp-ov-edges'), opop = sec.querySelector('.tp-ov-pop'), hint = sec.querySelector('.tp-ov-hint');
     var osub = sec.querySelector('.tp-ov-sub'), ofollow = sec.querySelector('.tp-ov-follow'), osay = sec.querySelector('#tp-ov-say');

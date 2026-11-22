@@ -304,7 +304,7 @@
       card._pull.onfinish = card._pull.oncancel = function () { card.style.zIndex = ''; card._pull = null; };
     }
     renderChosen();
-    // Option A: a pick from the planner's own hand (or Find above it) takes the page down to the new card. Not a pick
+    // Option B: a pick from the planner's own hand (or Find above it) takes the page down to the new card. Not a pick
     // on Home, in the Add team sheet or the Your teams sheet, or from a match page (keepTab); never an unpick
     var flowGo = FLOW_A && on && !keepTab && picker.closest('#tp-pick') && picker.getClientRects().length &&
       (from === undefined || picker.contains(from)) && !(tlOpen && !wide());
@@ -1283,7 +1283,7 @@
       tabsOn = false; lastN = 0;
       tabsEl.hidden = true; results.hidden = true; deck.innerHTML = '';
       morePlace();
-      if (allSec) { allSec.hidden = false; allSec.classList.remove('is-tabbed'); allSec.removeAttribute('role'); allSec.setAttribute('aria-labelledby', 'tp-all-title'); }
+      if (allSec && !FLOW_A) { allSec.hidden = false; allSec.classList.remove('is-tabbed'); allSec.removeAttribute('role'); allSec.setAttribute('aria-labelledby', 'tp-all-title'); }
       return;
     }
     if (!tabsOn) { tabsOn = true; if (!restoring) { state.tab = keepTab ? 'all' : 'yours'; save(); } tabsEl.hidden = false; if (!restoring && !reduce.matches && tabsEl.animate) tabsEl.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.2, .8, .2, 1)' }); }
@@ -1302,23 +1302,28 @@
     setTab(state.tab);
   }
   function setTab(t, focus) {
+    if (FLOW_A) t = 'yours'; // Option B: no tabs; All matches lives on Home
     state.tab = t; save();
     var y = t === 'yours';
     tabYours.setAttribute('aria-selected', y ? 'true' : 'false'); tabAll.setAttribute('aria-selected', y ? 'false' : 'true');
     tabYours.tabIndex = y ? 0 : -1; tabAll.tabIndex = y ? -1 : 0;
     results.hidden = !y;
-    if (allSec) { allSec.hidden = y; allSec.classList.add('is-tabbed'); allSec.setAttribute('role', 'tabpanel'); allSec.setAttribute('aria-labelledby', 'tp-tab-all'); }
+    if (allSec && !FLOW_A) { allSec.hidden = y; allSec.classList.add('is-tabbed'); allSec.setAttribute('role', 'tabpanel'); allSec.setAttribute('aria-labelledby', 'tp-tab-all'); }
+    if (FLOW_A) tabsEl.hidden = true;
     if (focus) (y ? tabYours : tabAll).focus({ preventScroll: true });
     morePlace();
     if (tlReady) syncBar();
     notesOnly();
   }
-  /* ---------- Option A (?flow=a, 23 Nov) ----------
+  /* ---------- Option B (?flow=a, 23 Nov) ----------
      Its own prototype tab in the viewer. Everything is as on Pick your team except: under the match cards, Add more
      teams (opens the Add team sheet where you are) with Your days in NSW under it, and a pick from the planner's hand
-     scrolls down to its match card (flowScroll, called from toggle). #tp-more holds both; on the All matches tab it
-     follows the All matches list, so it always sits under the matches showing. Found by id, as Your days can be lent. */
+     scrolls down to its match card (flowScroll, called from toggle). #tp-more holds both. No tabs: Your matches is a
+     heading, and All matches is on Home (moved below, once allSec is found). */
   var FLOW_A = document.documentElement.getAttribute('data-flow') === 'a';
+  // Option B: Your matches is a heading over the cards in place of the tabs (no count: the line under it gives it)
+  var yoursTitle = FLOW_A ? document.getElementById('tp-yours-title') : null;
+  if (yoursTitle) { yoursTitle.hidden = false; results.removeAttribute('role'); results.setAttribute('aria-labelledby', 'tp-yours-title'); tabsEl.hidden = true; }
   var moreEl = document.getElementById('tp-more');
   if (FLOW_A && moreEl) {
     var askEl = document.getElementById('tp-ask');
@@ -1329,12 +1334,13 @@
   } else if (moreEl) moreEl.remove();
   function morePlace() {
     if (!FLOW_A || !moreEl) return;
+    // Before a pick: Your days alone under the hand; Add more teams shows once a team is picked
     var has = state.picked.length > 0;
-    moreEl.hidden = !has;
-    if (!has) return;
-    var after = state.tab === 'all' && allSec ? allSec : results;
+    moreEl.hidden = false;
+    document.getElementById('tp-more-teams').hidden = !has;
+    moreEl.classList.toggle('no-btn', !has);
+    var after = results;
     if (after.nextElementSibling !== moreEl && !moreEl.contains(document.activeElement)) after.parentNode.insertBefore(moreEl, after.nextSibling);
-    moreEl.classList.toggle('is-after-all', after === allSec);
   }
   // The page glides down to the new card once the pick has landed in the hand: eased in and out, so the eye can follow
   // it (check 1). Reduced motion: it jumps. A touch, wheel or key on the way stops it, so it never fights the person.
@@ -1350,7 +1356,7 @@
       var el = deck.querySelector('.tp-rcard[data-name="' + CSS.escape(name) + '"]');
       if (!el || results.hidden || !el.getClientRects().length) return;
       var nav = phoneEl.querySelector('.tp-cap-wrap'), off = nav ? nav.offsetHeight + 24 : 16;
-      var target = tabsEl.hidden ? el : tabsEl; // the tabs, then the cards: so it reads as Your matches, with the new card in it
+      var target = yoursTitle || el; // the Your matches heading, then the cards, with the new card in it
       var from = body.scrollTop, to = Math.max(0, Math.min(body.scrollHeight - body.clientHeight, from + target.getBoundingClientRect().top - body.getBoundingClientRect().top - off));
       if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
       var key = flowKey, land = function () { el.focus({ preventScroll: true, focusVisible: key }); };
@@ -1381,6 +1387,17 @@
      as this page is not the main source for matches. Once a team is picked it is the All matches tab. Each row opens the
      match's own full-screen page (concepts-third-half.js): add that one match to the plan, or add either team. */
   var allSec = document.getElementById('tp-all');
+  // Option B: All matches moves to Home, after Where the matches are, as a Home section of its own; the planner keeps
+  // only the picked teams' cards. Found by id (it is not lent back), so every handler on it works as before
+  if (FLOW_A && allSec) {
+    var where = document.getElementById('tp-home-where');
+    if (where) {
+      where.parentNode.insertBefore(allSec, where.nextSibling);
+      allSec.classList.add('tp-home-sec', 'is-home');
+      allSec.hidden = false; allSec.classList.remove('is-tabbed'); allSec.removeAttribute('role'); allSec.setAttribute('aria-labelledby', 'tp-all-title');
+      var allT = document.getElementById('tp-all-title'); if (allT) allT.classList.add('tp-sec-title');
+    }
+  }
   function minutes(k) { var m = /^(\d+):(\d+)(am|pm)$/.exec(k || ''); return m ? ((+m[1] % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + +m[2] : 24 * 60; }
   function side(n) { return FLAG[n] ? '<span class="tp-flag" aria-hidden="true">' + FLAG[n] + '</span> ' + esc(n) : esc(n); }
   // Host venues (cnVenues): nsw drives In NSW, city the city control. A fixture whose venue is not in the list

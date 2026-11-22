@@ -16,6 +16,9 @@
   'use strict';
   var TBC = (window.TP_WORDS || {}).timeTbc || 'Time to be confirmed', TBC_L = TBC.charAt(0).toLowerCase() + TBC.slice(1); // A2 (21 Nov): concepts-words.js
   var WHY = (window.TP_WORDS || {}).setDaysWhy || 'Set dates and the ideas below fit around your matches.'; // B2 (21 Nov)
+  // Option B (?flow=a, 23 Nov): Your days shows under the hand before any team is picked, worded for no team
+  var FLOW_B = document.documentElement.getAttribute('data-flow') === 'a';
+  var WHY_NONE = (window.TP_WORDS || {}).setDaysWhyNoTeam || 'Set your days to see ideas for your time in NSW.';
   var PLAY = (window.TP_WORDS || {}).dropGoal || 'Drop goal', IMG = (window.TP_WORDS || {}).imageOf || function (x) { return 'Placeholder image of ' + x; }; // A2 follow-up (21 Nov)
   var GM = (window.TP_WORDS || {}).groupMatches || 'pool matches', GM1 = (window.TP_WORDS || {}).groupMatch || 'pool match', LR = (window.TP_WORDS || {}).laterRounds || 'the knockouts', LR_C = LR.charAt(0).toUpperCase() + LR.slice(1); // A2 (21 Nov): visitor-facing stage names
   var tp = window.tpPicker, FIX = window.cnFixtures;
@@ -2385,7 +2388,7 @@
     b.setAttribute('aria-expanded', typeOpen[key] + ''); box.hidden = !typeOpen[key];
   });
   function renderAsk() {
-    var t = trip() || {}, show = tp.own();
+    var t = trip() || {}, own = tp.own(), show = own || FLOW_B;
     ask.hidden = !show;
     if (!show) { ask.innerHTML = ''; return; }
     if (askError && rRoot === ask) typeOpen.ask = true;
@@ -2394,7 +2397,7 @@
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
-      h += '<p class="tp-sec-note">' + esc(WHY) + '</p>' +
+      h += '<p class="tp-sec-note">' + esc(own ? WHY : WHY_NONE) + '</p>' +
         '<div class="tp-range" id="tp-range"><div class="tp-range-track"><span class="tp-range-fill"></span>' +
         RANGE_MARKS +
         rangeDots() +
