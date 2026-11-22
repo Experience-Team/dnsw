@@ -606,7 +606,7 @@ Added 21 November 2026 for the Rugby World Cup prototype's Drop goal tab (shown 
 
 **`route`** — `gap`, `source: authored`. The route the stop is on and its position, shown as "North coast, stop 4 of 10". Empty state: none, because a stop always belongs to a route; without a route there is no stop.
 
-**`summary`** — `gap`, `source: authored`, from the destination's page on sydney.com or visitnsw.com: its direct answer, 40 to 60 words, written to stand alone (changed from one or two sentences on 22 November 2026, user's call). Empty state: the paragraph is left out. Since 22 November 2026 every stop has one, from sydney-towns-aeo.xlsx (the town pages read that day; `SUMMARIES` in `public/wireframes/drop-goal/js/summaries.js`). An editor's note in the source (Brooklyn's "Sydney.com has no dedicated Brooklyn page") is left out. As a government site names no business ahead of others, business names are trimmed from a summary (Brooklyn's tour and kayak operators, Narooma's Merivale; 22 November 2026, user's call), keeping what they offer; the edits are listed in `public/wireframes/tools/gen-destinations.py` (`TRIM`).
+**`summary`** — `gap`, `source: authored`, from the destination's page on sydney.com or visitnsw.com: its direct answer, 40 to 60 words, written to stand alone (changed from one or two sentences on 22 November 2026, user's call). Empty state: the paragraph is left out. Since 22 November 2026 every stop has one, from sydney-towns-aeo.xlsx (the town pages read that day; `SUMMARIES` in `public/wireframes/drop-goal/js/summaries.js`). An editor's note in the source (Brooklyn's "Sydney.com has no dedicated Brooklyn page") is left out. As a government site names no business ahead of others, business names are trimmed from a summary (for example Brooklyn's tour operators, Watsons Bay's Doyle's, Pokolbin's wineries, Katoomba's Scenic World; 22 November 2026, user's call; landmarks such as the Big Banana, the stadium's name and public bodies such as Taronga Zoo stay), keeping what they offer; the edits are listed in `public/wireframes/tools/gen-destinations.py` (`TRIM`).
 
 **`image`** — `gap`, `source: authored`, the destination page's hero image, with usage rights to check. Empty state: the drawn placeholder illustration the game shows today.
 
@@ -631,7 +631,7 @@ Added 22 November 2026 for the Rugby World Cup planner (Pick your team prototype
 
 **`name`** — `gap`, `source: authored`. The place, the card's and the details' heading. An idea can be named for what to do there (Manly ferry, Bondi to Coogee walk) and still take its fields from the place. Empty state: the idea is not offered.
 
-**`summary`** — `gap`, `source: authored`. The page's direct answer, 40 to 60 words, as for §18. Shown as the idea's description. Empty state: the bracketed description placeholder (shown with Annotations on only).
+**`summary`** — `gap`, `source: authored`. The page's direct answer, 40 to 60 words, as for §18. Business names are trimmed as for §18. Shown as the idea's description. Empty state: the bracketed description placeholder (shown with Annotations on only).
 
 **`travel_time`** — `gap`, `source: authored`. How far it is from the idea's city, in the page's own words ("12 minutes by ferry from Circular Quay"). The pages give times from Sydney, so most Newcastle ideas have none. Empty state: "Getting there to be confirmed".
 
