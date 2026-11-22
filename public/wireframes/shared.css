@@ -3461,7 +3461,7 @@ body.cp-page code { font: inherit; }
 @media (hover: hover) { .cn-handle:hover { background: var(--c-surface-2); } }
 .cn-item { position: relative; }
 /* Reorder. The row stays in the list as a dashed slot that shows where it will land; .cn-ghost is the lifted copy
-   that follows the pointer (concepts-itinerary.js). Lift, settle and the sliding rows are Web Animations there. */
+   that follows the pointer (written for concepts-itinerary.js, removed 22 Nov with its prototype). Lift, settle and the sliding rows are Web Animations there. */
 .cn-item { transition: box-shadow var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out); }
 .cn-item.is-slot { border-style: dashed; border-color: var(--c-line-strong); background: var(--c-surface-2); }
 .cn-item.is-slot > * { visibility: hidden; }
@@ -4069,8 +4069,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-deck-hint { font-size: var(--fs-xs); color: var(--c-ink-2); }
 @media (prefers-reduced-motion: reduce) { .tp-card { transition: opacity var(--dur-small) linear, background-color var(--dur-micro) linear; } }
 
-/* Prototype viewer (Figma: Rugby World Cup, node 204:12914): prototype-pick-your-team.html and
-   prototype-itinerary.html. A single static screen: a left panel (title, tabs, then the concept with its Reset, jump
+/* Prototype viewer (Figma: Rugby World Cup, node 204:12914): prototype-pick-your-team.html (the Share/edit itinerary
+   prototype was removed on 22 Nov; some .cn-* rules here were written for it). A single static screen: a left panel (title, tabs, then the concept with its Reset, jump
    links, Annotations switch and annotations) and a stage with the phone and a spare frame for another prototype. The
    page never scrolls; only the annotations and the phone scroll, each inside its own window. The phone keeps its
    390px width and fills the window height up to 844px. Short or narrow windows fall back to an ordinary page. */

@@ -1,6 +1,6 @@
 # High fidelity images
 
-Pictures for the high fidelity version of the prototypes (`prototype-pick-your-team.html` and `prototype-itinerary.html`).
+Pictures for the high fidelity version of the prototype (`prototype-pick-your-team.html`).
 They show only when the **High fidelity** switch is on, or the page is opened with `?theme=hifi`. The wireframe keeps
 its grey blocks.
 

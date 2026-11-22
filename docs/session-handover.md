@@ -51,7 +51,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
   4. Add it to `FLAGS` in `pv-compare.js` (`{ k, label, on, off }`), so each compared phone can switch it. If it needs a main-phone switch too, add one to the tools panel like the existing tests, and read it in `mainFlags()`.
   5. Add an annotation for the option ("TEST: …"), a build log row, and say in the PR how to see each version (for example `?tools&theme=hifi&hero=b`).
   6. Check every option in both themes at 390 and 320, and in Compare options side by side.
-- **Other prototypes.** The viewer's top tabs (`.pv-tabs`) list the prototypes: Pick your team, Share/edit itinerary (`prototype-itinerary.html`) and a "[next] prototype" placeholder that shows only with `?tools`. A new standalone prototype would replace that placeholder tab.
+- **Other prototypes.** The viewer's top tabs (`.pv-tabs`) list the prototypes: Pick your team and a "[next] prototype" placeholder (the Share/edit itinerary prototype was removed on 22 Nov) that shows only with `?tools`. A new standalone prototype would replace that placeholder tab.
 - **Ask the user first** whether "more prototype options" means flags on this page (above), new screens or flows, or another prototype tab.
 
 ## Running and testing
@@ -216,6 +216,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
   - Removed: Group chat, Download text, Print or save as PDF and `printPlan`.
   - One peek element is moved under whichever row opened it (an `li.tp-ss-peek-li`); one thing open at a time, the email panel included. The Email row's id is `tp-ss-mailrow`, because `tp-ss-email` is the field.
   - At 320 the brief's two captions wrap to two lines (not cut), and the For AI assistant chip wraps to a second row.
+- **Share/edit itinerary removed (user's call, 22 Nov):** `prototype-itinerary.html` and the scripts only it loaded (`concepts-itinerary.js`, `concepts-copy.js`, `concepts-products.js`) are deleted, with its viewer tab and its link on `index.html`. `concepts.html` forwards every old link to Pick your team, and `vercel.json` redirects the old address there. Some `.cn-*` rules in `shared.css` were written for it and may now be unused; they were left, as Pick your team's sheets share that family.
 - **Learnt:** the user merges within minutes, so a follow-up commit pushed after a merge needs its own PR (it happened with #583 then #585). Check the PR's state before pushing more to it.
 
 ## Done on 21 and 22 November (#563 to #577)
@@ -302,7 +303,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 5. **At 320 wide:** on the Every NSW match card the wider I have tickets button wraps long names (New Zealand) to two lines.
 6. **From #527, still unanswered:** the open plan's heading repeats "Your plan" from the bar; the end-of-page summary says "added" while the bar says "saved"; a dated save made with no team stays in the box after a team is picked, until days are set.
 7. **Seen at 320 wide, predating these changes:** "Your matches (6)" wraps in low fidelity (check 6).
-8. **The itinerary prototype** (`prototype-itinerary.html`) has its own date fields, not matched to the new picker, and no I have tickets button. The full-screen Follow day by day map card has no ticket button either. Ask before changing them.
+8. **The full-screen Follow day by day map card** has no I have tickets button. Ask before changing it. (The itinerary prototype this question also covered was removed on 22 Nov.)
 9. **Section gaps:** 64px (`--sec-gap`) against the principles' 48px between families.
 10. **CLAUDE.md tidy-up:** "9. Look, don't only measure" sits under Build notes instead of the numbered checks (still true after the #545 build note).
 11. **Carried over, not raised since:** trip stops aren't links; the annotations are stale for the sheet work in #512 to #516; venue match counts for Adelaide and Townsville; the dashed Every NSW match icon; "Pick your team" / "Your teams" / "Add team" wording; the bar's counts and Tab order.
@@ -310,7 +311,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 12. **New, articles:** dummy content. The Pacific fans article makes cultural statements written without a source (team colours, greetings, crowds falling quiet during the challenge) and needs review by someone from those communities. Match details come from the placeholder fixtures. Articles show no pink marks with Annotations on; only the annotation says they are dummy. Articles are not in the data contract; offer a section if wanted.
 13. **New, destination data:** most Newcastle ideas have no travel time from Newcastle (the pages give times from Sydney). The spreadsheet's Current notices column is not shown anywhere (for example the Great Western Highway closure for Lithgow and Bathurst). Venue names change: recheck against the live pages before launch.
 14. **New, Home FAQs:** the answers are still `[Answer to come]`, so the FAQs and their links stay hidden with Annotations off. Ticketing and fan festival details are needed to write them.
-15. **New, the itinerary prototype's Save & share** (`prototype-itinerary.html`) still has the old tiles; #584 and #591 changed only Pick your team's. Ask whether it should match.
+15. **Answered:** the itinerary prototype's Save & share no longer matters: the whole Share/edit itinerary prototype was removed (22 Nov).
 16. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
 
 ## The homepage (built 19 November, second session)
