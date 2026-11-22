@@ -18,7 +18,8 @@
     { k: 'theme', label: 'High fidelity', on: 'hifi', off: 'wireframe' },
     { k: 'fan', label: 'Stacked hand (test)', on: 'stacked', off: 'classic' },
     { k: 'plan', label: 'Plan: one day at a time (test)', on: 'swipe', off: 'cards' },
-    { k: 'slogan', label: 'Slogan B (test)', on: 'b', off: 'a' }
+    { k: 'slogan', label: 'Slogan B (test)', on: 'b', off: 'a' },
+    { k: 'flow', label: 'Option A flow (test)', on: 'a', off: 'main' }
   ];
   var opts = [], els = {};
   try { var rec = JSON.parse(localStorage.getItem(KEY) || '[]'); if (Array.isArray(rec)) opts = rec.filter(function (o) { return o && IDS.indexOf(o.id) > -1; }); } catch (e) {}
@@ -33,7 +34,8 @@
       theme: root.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe',
       fan: fan && fan.getAttribute('aria-checked') === 'false' ? 'classic' : 'stacked',
       plan: root.getAttribute('data-plan') === 'swipe' ? 'swipe' : 'cards',
-      slogan: root.getAttribute('data-slogan') === 'b' ? 'b' : 'a'
+      slogan: root.getAttribute('data-slogan') === 'b' ? 'b' : 'a',
+      flow: root.getAttribute('data-flow') === 'a' ? 'a' : 'main'
     };
   }
   function keys(store) { var out = []; try { for (var i = 0; i < store.length; i++) out.push(store.key(i)); } catch (e) {} return out; }
@@ -41,7 +43,7 @@
   // Viewer settings (the theme, the annotations, this list) and other options' keys are not copied
   function copyState(id) {
     keys(localStorage).forEach(function (k) {
-      if (/^opt-[abc]:/.test(k) || /^pv-/.test(k) || k === 'tp-annotations') return;
+      if (/^opt-[abc]:/.test(k) || /^flow-a:/.test(k) || /^pv-/.test(k) || k === 'tp-annotations') return; // on Option A's tab, reading k gives Option A's own state
       try { localStorage.setItem('opt-' + id + ':' + k, localStorage.getItem(k)); } catch (e) {}
     });
   }
@@ -52,7 +54,7 @@
   }
   function url(o, view) {
     return location.pathname + '?phone&tools&opt=' + o.id + '&theme=' + o.theme + '&fan=' + o.fan + '&plan=' + o.plan +
-      (o.slogan === 'b' ? '&slogan=b' : '') + (view ? '&view=' + view : '');
+      (o.slogan === 'b' ? '&slogan=b' : '') + (o.flow === 'a' ? '&flow=a' : '') + (view ? '&view=' + view : '');
   }
 
   function flagRow(o, f) {
