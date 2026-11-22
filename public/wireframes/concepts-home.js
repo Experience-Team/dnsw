@@ -164,7 +164,12 @@
     h += '<p class="tp-art-dek">' + esc(a.dek) + '</p>';
     h += '<p class="tp-art-by">Destination NSW <span aria-hidden="true">·</span> Updated ' + UPDATED + ' <span aria-hidden="true">·</span> ' + a.mins + ' min read</p>';
     h += '<div class="ph-img tp-art-img" data-img="' + esc(a.img) + '" role="img" aria-label="' + esc(imgOf(a.title)) + '"></div>';
-    h += '<div class="tp-art-body">' + a.body.map(function (b) { return b[0] === 'h' ? '<h3>' + esc(b[1]) + '</h3>' : '<p>' + esc(b[1]) + '</p>'; }).join('') + '</div>';
+    h += '<div class="tp-art-body">' + a.body.map(function (b) {
+      if (b[0] === 'h') return '<h3>' + esc(b[1]) + '</h3>';
+      // A picture between paragraphs: a stand-in from the library, named for screen readers as the picture it stands for
+      if (b[0] === 'i') return '<div class="ph-img tp-art-img tp-art-fig" data-img="' + esc(b[1]) + '" role="img" aria-label="' + esc(imgOf(b[2])) + '"></div>';
+      return '<p>' + esc(b[1]) + '</p>';
+    }).join('') + '</div>';
     // For reading, search and answer engines: one short answer that stands alone, then facts, questions and places
     h += '<section class="tp-art-aeo" aria-labelledby="tp-art-aeo-h"><h3 class="tp-sec-title" id="tp-art-aeo-h">Quick answers</h3>';
     h += '<div class="tp-art-short"><h4>' + esc(a.q) + '</h4><p>' + esc(a.answer) + '</p></div>';

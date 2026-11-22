@@ -3850,6 +3850,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-art-body p { margin-top: var(--space-4); font-size: var(--fs-lg); line-height: 1.65; text-wrap: pretty; }
 .tp-art-body h3 { margin-top: var(--space-6); font-size: var(--fs-xl); font-weight: var(--fw-heavy); line-height: 1.25; text-wrap: balance; }
 .tp-art-body h3 + p { margin-top: var(--space-2); }
+/* Pictures between paragraphs: 24px either side, a step more than between paragraphs, so they read as a pause */
+.tp-art-body .tp-art-fig { margin: var(--space-5) 0; }
+.tp-art-body .tp-art-fig + p { margin-top: 0; }
 /* Quick answers: formatted for reading, search and answer engines */
 .tp-art-aeo, .tp-art-more { margin-top: var(--space-7); padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
 .tp-art-aeo h4 { margin-top: var(--space-5); font-size: var(--fs-lg); font-weight: var(--fw-bold); line-height: 1.3; }
