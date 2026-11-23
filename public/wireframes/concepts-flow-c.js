@@ -43,7 +43,14 @@
   function city(f) { return (window.cnVenueCity || {})[f.v] || f.p; }
   // The matches a ticket can be marked on: your teams' NSW matches whose teams are known (as the match cards' I have
   // tickets), by date
-  function tixMatches() { return tp.own() ? tp.userMatches().filter(function (m) { return !m.f.a && m.tkey; }) : []; }
+  // Every match of your teams whose teams are known: NSW first, then interstate (24 Nov; NSW only before, which left
+  // teams that play all their pool matches interstate with nothing to mark). The plan and each match's sheet already
+  // take an interstate ticket. Knockouts are left out: with no teams yet, a ticket for one cannot be recorded
+  function tixMatches() {
+    if (!tp.own()) return [];
+    var ms = tp.userMatches().filter(function (m) { return m.tkey; });
+    return ms.filter(function (m) { return !m.f.a; }).concat(ms.filter(function (m) { return m.f.a; }));
+  }
   function myTickets() { return tixMatches().filter(function (m) { return state.tickets.indexOf(m.tkey) > -1; }); }
   function baseLabel(b) { return b === 'local' ? 'I’m a local' : b === 'outside' ? 'Outside NSW' : b; }
   function teamsText() { return state.picked.length ? tp.list(state.picked.slice()) : 'None picked'; }
@@ -69,8 +76,8 @@
   function stepNote(s) {
     if (s === 'teams') return 'Pick one or more teams. No team? Add every NSW match under the cards.';
     if (s === 'tickets') {
-      if (!tp.own()) return 'Pick a team first, and its matches in NSW show here.';
-      return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'Your teams’ pool matches are all outside NSW, so there are no tickets to mark here.';
+      if (!tp.own()) return 'Pick a team first, and its matches show here.';
+      return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'There are no matches to mark yet: their teams are still to be decided.';
     }
     if (s === 'days') {
       var t = state.trip;
@@ -87,10 +94,12 @@
     var on = myTickets().length;
     return '<div class="tp-fc-tix" role="group" aria-label="Tickets you have">' +
       '<button type="button" class="tp-fc-opt tp-fc-none" data-fc-none aria-pressed="' + (fc.none && !on) + '">' + TICK + '<span class="tp-fc-opt-t">No tickets yet</span></button>' +
-      ms.map(function (m) {
+      ms.map(function (m, i) {
         var has = state.tickets.indexOf(m.tkey) > -1;
-        return '<button type="button" class="tp-fc-opt" data-fc-tix="' + esc(m.tkey) + '" aria-pressed="' + has + '">' + TICK +
-          '<span class="tp-fc-opt-t">' + esc(m.f.t) + '</span><span class="tp-fc-opt-m">' + esc(m.f.d + ' · ' + m.f.k + ' · ' + m.f.v + ', ' + city(m.f)) + '</span></button>';
+        // A heading where the list turns from NSW to interstate matches (or leads it, when every match is interstate)
+        var sub = m.f.a && (i === 0 || !ms[i - 1].f.a) ? '<p class="tp-fc-sub">' + (i === 0 ? 'Your teams’ matches, all interstate' : 'Interstate') + '</p>' : '';
+        return sub + '<button type="button" class="tp-fc-opt" data-fc-tix="' + esc(m.tkey) + '" aria-pressed="' + has + '">' + TICK +
+          '<span class="tp-fc-opt-t">' + esc(m.f.t) + '</span><span class="tp-fc-opt-m">' + esc(m.f.d + ' · ' + m.f.k + (m.f.a ? ' Sydney time · ' + m.f.v + ', ' + m.f.a : ' · ' + m.f.v + ', ' + city(m.f))) + '</span></button>';
       }).join('') + '</div>' +
       (on ? '<p class="tp-fc-clear"><button type="button" class="tp-link" data-fc-clear>Clear all</button></p>' : '');
   }
