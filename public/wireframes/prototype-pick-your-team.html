@@ -40,7 +40,6 @@
     if (t === 'hifi') d.setAttribute('data-theme', 'hifi');
   }
   if (/[?&]slogan=b\b/.test(q)) d.setAttribute('data-slogan', 'b'); // the alternative slogan, for testing
-  if (/[?&]plan=swipe\b/.test(q)) d.setAttribute('data-plan', 'swipe'); // Your plan as one day card at a time; ?plan=cards (the default) stacks them
   if (/[?&]flow=a\b/.test(q)) d.setAttribute('data-flow', 'a'); // Option B: a pick scrolls to its match card, with Add more teams and Your days under the cards
 })();</script>
 <title>Pick your team · RWC prototypes</title>
@@ -91,10 +90,6 @@
       <!-- TEST: which hand of team cards shows: the stacked hand (on) or the original fan (off). Remembered in this browser -->
       <button type="button" class="cn-switch pv-switch" id="tp-fan-toggle" role="switch" aria-checked="true"><span class="cn-switch-track" aria-hidden="true"></span>Stacked hand (test)</button>
       <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('tp-fan-toggle').remove();</script>
-      <!-- TEST (16 Nov): Your plan's layout, the same as ?plan=swipe (on) or ?plan=cards (off, the default). It changes the
-           address too, so the link can be shared. Only on the tools version, as the theme switch (concepts-plan.js) -->
-      <button type="button" class="cn-switch pv-switch" id="tp-plan-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plan: one day at a time (test)</button>
-      <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('tp-plan-toggle').remove();</script>
     </div>
     <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
@@ -483,7 +478,7 @@
           <!-- Saved from the map before your days were set: waiting for a free day (concepts-teams.js, tlUpdate) -->
           <section class="tp-tl-wait" id="tp-tl-wait" aria-labelledby="tp-tl-wait-h" hidden></section>
           <!-- Your plan, day by day (16 Nov, concepts-plan.js): a strip of your days as an index, then one card per day with
-               names, times and pictures. ?plan=cards (the default) stacks the cards; ?plan=swipe shows one at a time. -->
+               names, times and pictures, stacked. -->
           <section class="tp-dc" id="tp-dc" aria-label="Your plan, day by day"></section>
           <!-- A free day's ideas: lent to the stacked sheet (#tp-pm) when its + on the axis is tapped, and put back here
                hidden when it closes; drawn by concepts-third-half.js (renderTlIdeas) -->
@@ -1197,11 +1192,6 @@
       "Clashes: two matches at the same time get a red line, 2 matches at the same time, plus the ring on the strip. Matches in several cities get a quieter line. Something added on a day it cannot share, or on a day it is closed, says Clashes with … on its row.",
       "Empty state: with no days set, a dashed card under the last match day says Staying after your last match? Set your days to see ideas for the rest of your trip., with Set your days.",
       "Nothing is guessed: no arrival or departure day and no ideas for days that are not set."
-    ] },
-    { sel: ".tp-dc-nav", title: "One day at a time (test layout)", points: [
-      "Test: an alternative layout of the same day cards, one at a time. Open it with ?plan=swipe, from the wireframes index, or with the switch in the tools panel. The stacked cards are the default (?plan=cards).",
-      "Swipe sideways (it snaps to each day) or use Previous day and Next day, with Day 3 of 8 between them.",
-      "Keyboard: only the card in view can take focus."
     ] },
     { sel: "#tp-tl-ideas", title: "A free day’s ideas (stacked sheet)", points: [
       "Opened from Add ideas on a day card. Stacks over the plan, which steps back.",
