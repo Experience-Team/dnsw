@@ -10,4 +10,6 @@ To update, copy `SKILL.md`, `README.md`, `LICENSE`, `assets/`, `scripts/` and `r
   two exits drew both going everywhere. A boundary box also names the outside block's top-level stage, so a step
   in one group can link straight to a step in another. An edge with `"loop": true` is drawn even though it points
   left (the renderer otherwise drops every leftward edge on desktop). Search the file for "dnsw change".
+- `assets/flowchart-template.html`: the left column (View, Groups, Connections, Visible) has a Hide panel button that
+  collapses it to a narrow strip; Show panel brings it back, and the choice is remembered on the device.
 - `scripts/package.json`: marks the scripts as CommonJS, because this repo's `package.json` sets `"type": "module"`.
