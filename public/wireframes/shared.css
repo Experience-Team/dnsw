@@ -5859,8 +5859,10 @@ span.tp-map-arrow { display: block; }
 
 /* Placeholders with Annotations off (21 Nov, F-052): a visitor sees no "Placeholder", "Not linked yet", bracketed
    copy or dead link. Where there is no real wording the item or tag is hidden; with Annotations on (the stage's
-   has-notes) everything shows as before, pink gap marks included, so the gaps stay visible to the team */
-#tp-stage:not(.has-notes) .tp-ph,
+   has-notes) everything shows as before, pink gap marks included, so the gaps stay visible to the team. The marker is
+   .tp-placeholder, not .tp-ph, which is the photo details panel (23 Nov: sharing the name drew the newsletter consent
+   line as a panel over the page, and hid the photo panel with Annotations off) */
+#tp-stage:not(.has-notes) .tp-placeholder,
 #tp-stage:not(.has-notes) .tp-home-ph,
 #tp-stage:not(.has-notes) .tp-go-tag,
 #tp-stage:not(.has-notes) .tp-go-ph,

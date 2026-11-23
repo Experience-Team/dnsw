@@ -142,7 +142,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 
 **Stage A (merged, #558):**
 - The plan bar's pill reads Your plan or Your plan (3), with an arrow.
-- With Annotations off, every placeholder, dead link and bracketed line is hidden (CSS on `#tp-stage:not(.has-notes)`, the `.tp-ph` class and others at the end of `shared.css`).
+- With Annotations off, every placeholder, dead link and bracketed line is hidden (CSS on `#tp-stage:not(.has-notes)`, the `.tp-placeholder` class and others at the end of `shared.css`).
 - Wording swaps: Check the official timetable; group matches; the later rounds; 9 group + 8 later-round matches; Group A to F; Image of … for stand-in photos.
 - The kick game is called Drop goal, shown as Play on phones (22 Nov, user's call; on 21 Nov it had been renamed Play everywhere). On phones the capsule and the two headings (the tab's h2 and Home's section) say Play; on the desktop website the capsule says Play Drop Goal and the headings Drop Goal. The section, frame and Home's still are named Drop goal for screen readers; the plan's and the shared plan's lines say Drop goal. `?view=kick` is the route.
 - No tickets marked yet and Not going after all? are removed.
