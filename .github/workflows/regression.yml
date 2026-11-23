@@ -1,0 +1,140 @@
+# Prototype regression checks (tests/regression): screenshots of a fixed list of states compared pixel for pixel with
+# their baselines, and behaviour smoke tests. Runs on every PR. Failures show as annotations, in the job summary and in
+# one PR comment that is updated in place.
+#
+# Approving new baselines: add the label approve-baselines to the PR. The approve job remakes every screenshot in the
+# same Docker image, commits them to the PR branch, removes the label (so adding it again approves again) and starts
+# the checks on the new commit. Pushes made with the workflow's own token start no runs, hence the dispatch.
+name: Prototype regression
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number to report to (optional)
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: regression-${{ github.event.pull_request.number || inputs.pr || github.ref }}-${{ github.event.action == 'labeled' && 'approve' || 'check' }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Screenshots and smoke tests
+    if: github.event_name == 'workflow_dispatch' || github.event.action != 'labeled'
+    runs-on: ubuntu-latest
+    # Baselines are only valid from this image (keep its version the same as @playwright/test in package.json): fonts
+    # and rendering differ on any other machine
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run the suite
+        id: run
+        env:
+          CI: '1'
+          HOME: /root
+        run: npx playwright test
+        continue-on-error: true
+      - name: Keep the report
+        id: report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+      - name: Summarise
+        if: always()
+        run: |
+          node tests/regression/summary.mjs "${{ steps.report.outputs.artifact-url }}" > summary.md
+          cat summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Comment on the PR
+        if: always() && (github.event.pull_request.number || inputs.pr)
+        uses: actions/github-script@v7
+        env:
+          PR: ${{ github.event.pull_request.number || inputs.pr }}
+          FAILED: ${{ steps.run.outcome == 'failure' }}
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('summary.md', 'utf8');
+            const issue_number = Number(process.env.PR);
+            const { owner, repo } = context.repo;
+            const all = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+            const mine = all.find((c) => c.user.type === 'Bot' && c.body.includes('<!-- prototype-regression -->'));
+            if (mine) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+            else if (process.env.FAILED === 'true') await github.rest.issues.createComment({ owner, repo, issue_number, body });
+      - name: Fail if any check failed
+        if: steps.run.outcome == 'failure'
+        run: exit 1
+
+  approve:
+    name: Approve new baselines
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'approve-baselines'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Remake every screenshot
+        env:
+          CI: '1'
+          HOME: /root
+        run: |
+          rm -rf tests/regression/__screenshots__
+          npx playwright test --project=visual --update-snapshots=all
+      - name: Commit the new baselines
+        id: commit
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A tests/regression/__screenshots__
+          if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git commit -m "Approve visual baselines" -m "Approved with the approve-baselines label by ${{ github.actor }}."
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Remove the label and run the checks on the new commit
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = Number(process.env.PR);
+            await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'approve-baselines' }).catch(() => {});
+            try {
+              await github.rest.actions.createWorkflowDispatch({ owner, repo, workflow_id: 'regression.yml', ref: process.env.BRANCH, inputs: { pr: String(issue_number) } });
+            } catch (e) {
+              // Only a workflow already on the default branch can be dispatched (not so on the PR that adds it)
+              core.notice(`Could not start the checks on the new commit (${e.message}). The next push to the branch runs them.`);
+            }

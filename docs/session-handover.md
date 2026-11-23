@@ -63,6 +63,13 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 
 - **Serve:** `cd public && python3 -m http.server 8123`, then open `/wireframes/prototype-pick-your-team.html?phone` (high fidelity; add `&theme=wireframe` for low fidelity).
   - Without `?phone`, the phone frame stays 358px wide at any window size.
+- **Regression suite (23 Nov):** `npm run test:regression` runs `tests/regression` (see its README): 100 screenshots
+  (Options A, B and C, both themes, 390 and 320, Home to the match sheet) compared pixel for pixel with
+  `tests/regression/__screenshots__/`, plus behaviour smoke tests; any console error fails. It runs on every PR
+  (`.github/workflows/regression.yml`), which comments the failed states; the `approve-baselines` label remakes the
+  baselines in CI. Baselines only match inside the Playwright Docker image, so a local visual run fails on fonts alone;
+  the smoke tests (`npm run test:behaviour`) run anywhere. A renamed id or label the tests use (`#tp-reset`,
+  `.tp-card2`, `.tp-fc-next`) needs the test updated in the same PR.
 - **Test:** Playwright via `NODE_PATH=$(npm root -g) node script.js`.
   - Check by eye from screenshots in both themes at 390 and 320 wide (CLAUDE.md "Look, don't only measure").
   - Run with and without `reducedMotion: 'reduce'`, and keyboard only.

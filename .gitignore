@@ -10,3 +10,7 @@ contract/.build
 .impeccable/live/server.json
 .impeccable/live/sessions/
 .impeccable/live/annotations/
+
+# Regression suite output (tests/regression)
+test-results/
+playwright-report/
