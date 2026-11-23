@@ -357,9 +357,9 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 13. **New, destination data:** most Newcastle ideas have no travel time from Newcastle (the pages give times from Sydney). The spreadsheet's Current notices column is not shown anywhere (for example the Great Western Highway closure for Lithgow and Bathurst). Venue names change: recheck against the live pages before launch.
 14. **Answered, Home FAQs:** the user supplied the six answers (22 Nov); they show with Annotations off again, and the site footer is built from the user's sydney.com copy.
 15. **Answered:** the itinerary prototype's Save & share no longer matters: the whole Share/edit itinerary prototype was removed (22 Nov).
+16. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
 17. **New, 24 Nov, knockout tickets:** three decisions waiting (see "Next session: start here").
 18. **New, 24 Nov, the open Your answers level is long** (the hand of cards alone is about 1,000px). If it feels too long, the hand could drill one level further.
-16. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
 
 ## The homepage (built 19 November, second session)
 
