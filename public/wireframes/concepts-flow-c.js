@@ -27,9 +27,13 @@
   var KEY = 'tp-fc-v1';
   var fc = { step: 'teams', none: false, filled: false };
   try { if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY); } catch (e) {} // ?reset starts the flow again too
-  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null'); if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null }; } catch (e) {}
+  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null'); if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
+  // Step 1 is the one required answer since 24 Nov. A place saved before then that got past it with nothing picked
+  // goes back to step 1; saves since carry v: 2, so a card left with no team after the flow stays as it is
+  if (fc.v !== 2 && fc.step !== 'teams' && !state.picked.length) fc.step = 'teams';
+  fc.v = 2;
   var edit = ''; // was a step reopened from Your answers; no longer set since the answers became a card (24 Nov)
-  function keep() { try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
+  function keep() { fc.v = 2; try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
   // The step showing, or '' once the flow is finished and nothing is reopened
   function step() { return edit || (fc.step === 'done' ? '' : fc.step); }
   window.tpFlowC = {
@@ -117,7 +121,7 @@
   if (window.ResizeObserver) new ResizeObserver(footRoom).observe(foot);
 
   function stepNote(s) {
-    if (s === 'teams') return 'Pick one or more teams. No team? Add every NSW match under the cards.';
+    if (s === 'teams') return 'Pick one or more teams to see their matches. No team? Show every NSW match.';
     if (s === 'tickets') {
       if (!tp.own()) return 'Pick a team first, and its matches show here.';
       return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'There are no matches to mark yet: their teams are still to be decided.';
@@ -176,9 +180,14 @@
     if (!s) return '';
     if (edit) return '<div class="tp-fc-nav"><button type="button" class="tp-home-cta" data-fc-done>Done</button></div>';
     // Skip on the left moves on to the next screen without this answer; Next on the right (24 Nov). The plan bar under
-    // the foot already says what is on the plan, so the foot carries the buttons only
-    return '<div class="tp-fc-nav"><button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>' +
-      '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1">' + NEXT[s] + ARR + '</button></div>';
+    // the foot already says what is on the plan, so the foot carries the buttons only.
+    // Step 1 is required (24 Nov): until a team or Every NSW match is picked, Next is unavailable (aria-disabled, so it
+    // stays in place and in the Tab order) with a line saying why, and the left button is Show every NSW match
+    var need = s === 'teams' && !state.picked.length;
+    return (need ? '<p class="tp-fc-why" id="tp-fc-why">Pick a team to carry on, or show every NSW match.</p>' : '') +
+      '<div class="tp-fc-nav">' + (need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
+        : '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>') +
+      '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1"' + (need ? ' aria-disabled="true" aria-describedby="tp-fc-why"' : '') + '>' + NEXT[s] + ARR + '</button></div>';
   }
 
   /* ---------- Drawing ---------- */
@@ -186,7 +195,7 @@
   function focusKey(el) {
     if (!el || !el.dataset) return null;
     if (el.dataset.fcTix) return '[data-fc-tix="' + CSS.escape(el.dataset.fcTix) + '"]';
-    var ks = ['fcNone', 'fcClear', 'fcDone', 'fcSkip'];
+    var ks = ['fcNone', 'fcClear', 'fcDone', 'fcSkip', 'fcAll'];
     for (var i = 0; i < ks.length; i++) if (el.dataset[ks[i]] !== undefined) return '[data-' + ks[i].replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + ']';
     if (el.dataset.fcGo) return '[data-fc-go="' + el.dataset.fcGo + '"]';
     if (el.dataset.fcCard) return '[data-fc-card="' + el.dataset.fcCard + '"]';
@@ -259,6 +268,9 @@
   phone.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b))) return;
     var s = step(), i = STEPS.indexOf(s);
+    // Next on step 1 with nothing picked: it says why (the line is also its description) and stays where it is
+    if (b.getAttribute('aria-disabled') === 'true') { tp.say('Pick a team to carry on, or show every NSW match.'); return; }
+    if (b.dataset.fcAll !== undefined) { tp.addRugby(b); go('tickets', 1); return; }
     if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
     if (b.dataset.fcSkip !== undefined) {
       // Skipping Your days takes back the days started for them, if they were left as they were: a skip is not a yes
@@ -299,6 +311,6 @@
   });
   phone.addEventListener('tp:state', function () { draw(); });
   var reset = document.getElementById('tp-reset');
-  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', none: false, filled: false }; edit = ''; cardOpen = false; keep(); show(0, false); });
+  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', none: false, filled: false, v: 2 }; edit = ''; cardOpen = false; keep(); show(0, false); });
   show(0, false);
 })();

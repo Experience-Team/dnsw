@@ -2547,6 +2547,14 @@
   window.tpPicker.toastHide = toastHide;
   window.tpPicker.goTo = goTo;
   window.tpPicker.syncBar = syncBar;
+  // Option C's step 1 (24 Nov): Show every NSW match picks it exactly as the Add every NSW match links do
+  window.tpPicker.addRugby = function (from) {
+    if (isPicked(RUGBY)) return;
+    setRugby(true, from || null, true);
+    showCaption('Every NSW match added', ': ' + countPhrase(nswPool.concat(nswKo)));
+    say('Every NSW match added: ' + countPhrase(nswPool.concat(nswKo)) + '.');
+    notesOnly();
+  };
   window.tpPicker.openPlan = function () { if (!tlOpen) tlSetOpen(true); };
   /* The plan, opened on one day by something on the page (20 Nov): a team card's See your match day, and Where to
      watch's See your match day. The day's card comes to the top and its heading takes focus; closing the plan puts

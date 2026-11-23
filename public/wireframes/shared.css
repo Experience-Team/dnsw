@@ -5922,7 +5922,7 @@ span.tp-map-arrow { display: block; }
    section below the picker wait until the flow is finished. The plan bar stays in view but does not open yet */
 .tp-fc { display: none; }
 .tp-fc-rugby { display: none; }
-#tp-phone[data-fc="teams"] .tp-fc-rugby:not([hidden]) { display: block; margin-top: var(--space-4); text-align: center; }
+/* Step 1's own Add every NSW match link went on 24 Nov: the foot's Show every NSW match does it. The card keeps one */
 :root[data-flow="c"] .tp-fc { display: block; }
 /* The foot floats at the bottom of the screen (24 Nov), with a faint top rule (check 6). It sits on the plan bar's
    collapsed 88px when the bar is up and glides up and down with it, on the bar's own curves, so the two move as one.
@@ -5976,7 +5976,13 @@ span.tp-map-arrow { display: block; }
 @media (hover: hover) { .tp-fc-opt:hover { border-color: var(--c-line-ink); } }
 .tp-fc-clear { margin: var(--space-3) 0 0; }
 /* The foot: what is on the plan so far, then Back and Next side by side, Skip under them */
-.tp-fc-nav { display: flex; gap: var(--space-3); }
+.tp-fc-nav { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); } /* two rows when both labels cannot fit on one (Show every NSW match at 320), so neither is cut off (check 6) */
+/* Step 1 before a pick (24 Nov): Next is unavailable, with the reason over the buttons */
+.tp-fc-why { margin: 0 0 var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-fc-nav .tp-fc-next[aria-disabled="true"] { background: var(--c-fill-soft); border-color: var(--c-fill-soft); color: var(--c-ink-3); cursor: not-allowed; }
+@media (hover: hover) { .tp-fc-nav .tp-fc-next[aria-disabled="true"]:hover { background: var(--c-fill-soft); } }
+.tp-fc-nav .tp-fc-allbtn { flex: 1 1 auto; padding-inline: var(--space-3); }
+.tp-fc-nav .tp-fc-next { flex: 1 1 auto; }
 .tp-fc-nav .tp-home-cta { width: auto; flex: 1 1 auto; min-height: 36px; white-space: nowrap; }
 .tp-fc-nav .tp-fc-skipbtn { flex: 0 0 auto; min-width: 88px; }
 /* Back, from step 2: an arrow beside the count, 24px to tap (AA) */
