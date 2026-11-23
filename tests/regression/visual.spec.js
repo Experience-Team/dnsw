@@ -7,9 +7,9 @@ import {
 
 const [ONE, TWO] = TEAMS;
 
-// Option C: from two teams picked, through each step to Your answers
+// Option C: from two teams picked, through each step (teams, tickets, your days) to Your answers
 async function finishC(page) {
-  for (let i = 0; i < 4 && (await fcStep(page)); i++) await fcNext(page);
+  for (let i = 0; i < 3 && (await fcStep(page)); i++) await fcNext(page);
   expect(await fcStep(page)).toBe('');
 }
 
@@ -26,12 +26,16 @@ const STATES = {
     await goPlan(page); await pick(page, ONE); await pick(page, TWO); await fcNext(page); await fcNext(page);
     expect(await fcStep(page)).toBe('days');
   } },
-  'c-stay': { only: 'C', full: true, run: async (page) => {
-    await goPlan(page); await pick(page, ONE); await pick(page, TWO); await fcNext(page); await fcNext(page); await fcNext(page);
-    expect(await fcStep(page)).toBe('stay');
-  } },
-  'c-answers': { only: 'C', full: true, run: async (page) => {
+  // The page once the questions are done; Your answers is a card in the open plan (plan-open)
+  'c-done': { only: 'C', full: true, run: async (page) => {
     await goPlan(page); await pick(page, ONE); await pick(page, TWO); await finishC(page);
+  } },
+  // Change on the Your answers card drills down inside the open plan to every answer's controls
+  'c-answers': { only: 'C', full: false, run: async (page) => {
+    await goPlan(page); await pick(page, ONE); await pick(page, TWO); await finishC(page); await openPlan(page);
+    await page.locator('#tp-phone [data-fc-card="open"]:visible').first().click();
+    await settle(page);
+    await expect(page.locator('#tp-fc-lh')).toBeVisible();
   } },
   'plan-open': { full: false, run: async (page, option) => {
     await goPlan(page); await pick(page, ONE); await pick(page, TWO);
