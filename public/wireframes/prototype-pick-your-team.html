@@ -23,22 +23,18 @@
     Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); if (own(String(k))) a[0] = P + k; return o.apply(this, a); };
   });
 })();</script>
-<!-- Two addresses, one file. This address shows the prototype in the low fidelity (wireframe) theme only, with every side
-     control except the High fidelity switch. Add ?tools (prototype-pick-your-team.html?tools) for the version we work
-     in: every side control, the High fidelity switch included. Nothing is copied, so a change shows on both.
-     Tools version theme: ?theme=hifi or ?theme=wireframe, else the last choice in this browser (pv-theme), else the
-     wireframe; data-theme="hifi" on <html> switches the phone to the high fidelity tokens in themes/hifi.css. Without
-     ?tools the page never reads or writes that choice and ignores ?theme=, so this address is always the wireframe.
+<!-- One address, with every side control (the High fidelity switch and the test switches included). The low fidelity
+     address without them was removed on 23 Nov; ?tools is still accepted, so old links work, but changes nothing.
+     Theme: ?theme=hifi or ?theme=wireframe, else the last choice in this browser (pv-theme), else high fidelity;
+     data-theme="hifi" on <html> switches the phone to the high fidelity tokens in themes/hifi.css.
      Phone view: ?phone (the QR code in the panel), or a touch screen under 500px wide, shows only the phone screen, edge
      to edge, with the phone's own keyboard and controls. All set before the first paint; see pv-device.js -->
 <script>(function () {
-  var d = document.documentElement, q = location.search, tools = /[?&]tools\b/.test(q), m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
+  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
   if (/[?&]phone\b/.test(q) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) d.classList.add('pv-device');
-  if (tools) {
-    d.classList.add('pv-tools');
-    try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
-    if (t === 'hifi') d.setAttribute('data-theme', 'hifi');
-  }
+  d.classList.add('pv-tools'); // every side control shows (the class is kept for the scripts and styles that read it)
+  try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
+  if (t !== 'wireframe') d.setAttribute('data-theme', 'hifi'); // high fidelity unless wireframe was asked for or chosen
   if (/[?&]slogan=b\b/.test(q)) d.setAttribute('data-slogan', 'b'); // the alternative slogan, for testing
   if (/[?&]flow=a\b/.test(q)) d.setAttribute('data-flow', 'a'); // Option B: a pick scrolls to its match card, with Add more teams and Your days under the cards
 })();</script>
@@ -56,20 +52,16 @@
     <h1 class="pv-title">RWC prototypes</h1>
     <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
   </header>
-  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-tools data-flow-tab="">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-tools data-flow-tab="a">Option B</a><span class="pv-tab pv-tab--next" aria-disabled="true">[next] prototype</span></nav>
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-flow-tab="">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-flow-tab="a">Option B</a><span class="pv-tab pv-tab--next" aria-disabled="true">[next] prototype</span></nav>
   <!-- Option A (the main prototype) and Option B (23 Nov, ?flow=a; the tabs were renamed from Pick your team and Option A on 23 Nov) are this one page: the tab for the flow showing is marked current.
-       On the tools version both keep ?tools, so clicking them never drops you back to the low fidelity address -->
+-->
   <script>(function () {
-    var d = document.documentElement, flow = d.getAttribute('data-flow') || '', tools = d.classList.contains('pv-tools');
+    var d = document.documentElement, flow = d.getAttribute('data-flow') || '';
     [].forEach.call(document.querySelectorAll('.pv-tabs [data-flow-tab]'), function (a) {
       var on = a.getAttribute('data-flow-tab') === flow;
       a.classList.toggle('is-active', on); if (on) a.setAttribute('aria-current', 'page');
-      if (tools) a.setAttribute('href', 'prototype-pick-your-team.html?' + (a.getAttribute('data-flow-tab') ? 'flow=a&' : '') + 'tools');
     });
   })();</script>
-  <!-- Build-only items (the [next] placeholder tab, the spare frame, the test switches) show only on the tools version:
-       the plain address is the one DNSW reviewers get -->
-  <script>if (!document.documentElement.classList.contains('pv-tools')) document.querySelector('.pv-tab--next').remove();</script>
   <div class="pv-concept">
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team: <span class="pv-flow-main">Option A</span><span class="pv-flow-a">Option B</span></h2>
@@ -81,15 +73,11 @@
       <!-- The phone in the wireframe or the high fidelity theme (pv-device.js; remembered in this browser). High fidelity
            follows the draft Third Half guidelines (Figma: Rugby World Cup, Styling page, node 261:13292), in themes/hifi.css -->
       <button type="button" class="cn-switch pv-switch" id="pv-theme-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>High fidelity</button>
-      <!-- Only on the tools version (?tools): this address stays low fidelity, so the switch is taken out before it shows -->
-      <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('pv-theme-toggle').remove();</script>
     </div>
     <!-- The design tests in a group of their own, 24px below the view settings, so a reviewer can tell a way of viewing
-         the prototype from a version of the design (tools version only; empty and hidden on the plain address) -->
+         the prototype from a version of the design -->
     <div class="pv-switches pv-switches--test">
-      <!-- TEST: which hand of team cards shows: the stacked hand (on) or the original fan (off). Remembered in this browser -->
-      <button type="button" class="cn-switch pv-switch" id="tp-fan-toggle" role="switch" aria-checked="true"><span class="cn-switch-track" aria-hidden="true"></span>Stacked hand (test)</button>
-      <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('tp-fan-toggle').remove();</script>
+      <!-- No design tests at the moment: the group hides itself while it is empty -->
     </div>
     <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
@@ -332,17 +320,12 @@
             </div>
           </div>
           <div class="tp-picker" id="tp-picker">
-            <div class="tp-fan-wrap">
-              <div class="tp-fan" id="tp-fan" role="group" aria-label="Teams" aria-describedby="tp-fan-help"></div>
-            </div>
-            <!-- TEST (14 Nov 2026): the stacked hand, from Figma node 282:26254. All 24 teams at once in four overlapping
-                 arcs. The original fan above is kept and hidden while this shows; the panel switch "Stacked hand (test)"
-                 or ?fan=classic brings it back (concepts-teams.js, "the stacked hand"). -->
+            <!-- The hand of cards, from Figma node 282:26254: all 24 teams at once on overlapping arcs, or as a grid
+                 (concepts-teams.js, "the hand of cards") -->
             <div class="tp-fan2-wrap" id="tp-fan2-wrap" hidden>
               <div class="tp-fan2" id="tp-fan2" role="group" aria-label="Teams" aria-describedby="tp-fan2-help"></div>
             </div>
-            <p class="visually-hidden" id="tp-fan2-help" hidden>Arrow keys move between the teams, up and down between the rows; type a letter to jump to teams starting with it. Space or Enter picks one. You can pick more than one.</p>
-            <p class="visually-hidden" id="tp-fan-help">Left and right arrow keys move through the teams; type a letter to jump to teams starting with it. Space or Enter picks one. You can pick more than one.</p>
+            <p class="visually-hidden" id="tp-fan2-help">Arrow keys move between the teams, up and down between the rows; type a letter to jump to teams starting with it. Space or Enter picks one. You can pick more than one.</p>
             <!-- The feedback line: what the last pick did (its text is read out by the live region; Undo, when offered, is a
                  real button here) -->
             <div class="tp-under">
@@ -799,7 +782,7 @@
       "At the top of the planner the hand peeks in just under the hero, and glides up into view once on arrival.",
       "Scrolling the first stretch, the cards hold still while the row above them (Find, Grid, Plays in NSW) rises from behind them in step with the scroll. Scrolling back reverses it. After that the page scrolls normally.",
       "Reading and Tab order never change. Tabbing to the controls before they are revealed scrolls just far enough to show them.",
-      "Works the same with the stacked hand, the fan and Grid.",
+      "Works the same in the hand and in Grid.",
       "Reduced motion: the finished layout, no peek.",
       "Design: Figma 337:40429."
     ] },
@@ -807,22 +790,16 @@
       "The hero’s last line is also this section’s heading, so it stays in view above the cards.",
       "Screen readers hear it, with the keyboard help, as the description of the hand."
     ] },
-    { sel: "#tp-fan2-wrap", title: "Stacked hand (test)", points: [
+    { sel: "#tp-fan2-wrap", title: "The hand of cards", points: [
       "All 24 teams at once, A to Z, on overlapping arcs. Each card shows the team’s code, flag and full country name.",
       "Names never go below 12px and words never break. If the names will not fit, each arc takes fewer cards and the hand grows taller.",
-      "Tap, Space or Enter picks or unpicks. It works exactly like the fan: same Undo, plan, saving and teams sheet.",
+      "Tap, Space or Enter picks or unpicks. Pick as many as you like. There is no confirm button: a pick takes effect at once, and Your matches, the plan, Where to watch and Around your matches all follow it.",
       "A pick rises out of its row, larger and above its neighbours, then settles slightly lifted, in the picked colours with a tick.",
       "The first time it comes into view, the rows rise into place one after another.",
       "Keyboard: left and right move along the hand, up and down between rows, Home and End to either end, and a letter jumps to the next team starting with it.",
-      "Test: this is the default. The original fan is kept: the Stacked hand (test) switch (with ?tools), or ?fan=classic, brings it back, and the choice is remembered.",
+      "Grid shows the same cards upright, four to a row with full names; the button beside Find switches between Grid and the hand (Fan). Picks stay, and the cards glide between the two layouts.",
+      "Reduced motion: nothing moves; the colour and tick still change.",
       "Design: Figma 282:26254."
-    ] },
-    { sel: ".tp-fan-wrap", title: "The fan", points: [
-      "The 24 teams A to Z, then Every NSW match. Drag, swipe or scroll sideways, or use the arrow keys, Home and End. Swiping up or down still scrolls the page.",
-      "Tap or Space picks. Pick as many as you like; tap again to take one off.",
-      "There is no confirm button. A pick takes effect at once, and Your matches, the plan, Where to watch and Around your matches all follow it.",
-      "A pick lifts out above its neighbours, travels to the middle as the hand turns under it, and settles lifted and dark with a tick.",
-      "Reduced motion: nothing moves; the colour and tick still change."
     ] },
     { sel: "#tp-find-open", title: "Find a team", points: [
       "Find sits in the row above the hand. Tapped, the search field slides out over Grid and Plays in NSW, so nothing below moves. Suggestions float over the hand.",

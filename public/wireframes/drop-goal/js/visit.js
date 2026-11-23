@@ -14,8 +14,9 @@ const seenList = (rk = routeKey) => (visit.seen[rk] = (visit.seen[rk] || []).fil
 function markSeen(i) { const l = seenList(); if (i >= 0 && l.indexOf(i) < 0) { l.push(i); saveVisit(); } }
 const isSeen = i => seenList().indexOf(i) > -1;
 
-// The estimate under Power is a testing aid: only with ?tools (on the page around the game, or on the game on its own)
-const TOOLS = (() => { const t = s => /[?&]tools\b/.test(s); try { return t(location.search) || (window.parent !== window && t(window.parent.location.search)); } catch (e) { return t(location.search); } })();
+// The estimate under Power is a testing aid: always inside the prototype page (which always shows its tools), and
+// with ?tools when the game is opened on its own
+const TOOLS = (() => { const t = s => /[?&]tools\b/.test(s); try { return t(location.search) || (window.parent !== window && (t(window.parent.location.search) || window.parent.document.documentElement.classList.contains('pv-tools'))); } catch (e) { return t(location.search); } })();
 
 /* ---------- 1. A random start ----------
    Each visit opens on a random route (from Sydney) with an angle and power that send the first kick to a stop picked

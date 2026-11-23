@@ -3131,7 +3131,6 @@ body.cp-page code { font: inherit; }
 .tp-count, .tp-fan-caption, .tp-clear, .tp-link, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-ask { position: relative; }
 
 /* The fan's badge sits in the empty corner inside its frame (the frame clips its sides, and above it is the intro text) */
-.tp-fan-wrap > .cn-badge { top: 8px; right: 24px; }
 .tp-fan2-wrap > .cn-badge { top: 24px; right: 16px; } /* the stacked hand's frame clips its sides too; clear of the picker's own badge */
 
 /* Pick your team: all matches, a minimal list below the picker */
@@ -3998,23 +3997,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    STEP 6.5, GAP 5): across every drag position the lowest corner visible in the 390px window dips 44px below the
    card baseline, and a picked middle card tops out 203px above it. So the baseline sits 60px up and the box is
    278px tall, leaving about 16px clear above and below. Only the sides clip; the pull on a pick may rise above. */
-.tp-fan-wrap { position: relative; height: 278px; margin: var(--space-6) calc(var(--space-4) * -1) 0; overflow: hidden; overflow-x: clip; overflow-y: visible; }
-.tp-fan { position: absolute; inset: 0; touch-action: pan-y; cursor: grab; }
-.tp-fan.is-dragging { cursor: grabbing; }
-.tp-card { position: absolute; left: 50%; bottom: 60px; width: 116px; height: 168px; margin-left: -58px; display: flex; flex-direction: column; align-items: flex-start; padding: 10px 10px 12px; border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-card); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: inherit; transform-origin: 50% calc(100% + 460px); box-shadow: -2px 0 6px rgba(0,0,0,.08); transition: transform 420ms cubic-bezier(.3, .7, .2, 1), opacity var(--dur-small) var(--ease-out), background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); -webkit-tap-highlight-color: transparent; }
 .tp-card-code { font-family: var(--font-label); font-size: var(--fs-2xl); font-weight: var(--fw-heavy); line-height: 1; letter-spacing: -.01em; }
 .tp-card-name { margin-top: var(--space-2); font-size: var(--fs-xs); font-weight: var(--fw-semi); line-height: 1.2; }
 .tp-card-meta { margin-top: auto; font-size: var(--fs-2xs); line-height: 1.35; color: var(--c-ink-2); }
-/* In the fan only the middle card shows its pool line (it has room either side); on the others the next card would cut across it */
-.tp-fan .tp-card:not(.is-mid) .tp-card-meta { visibility: hidden; }
 .tp-card-tick { display: none; position: absolute; top: 12px; right: 10px; }
-.tp-card--rugby { background: var(--c-surface-3); border-style: var(--border-loose); }
-/* The card just picked stays on top in the middle, so it does not drop behind its neighbour after the pull */
-.tp-card.is-mid.is-picked { z-index: 30; }
-.tp-card.is-picked { background: var(--c-btn); border-color: var(--c-line-ink); color: var(--c-on-dark); box-shadow: -2px 0 10px rgba(0,0,0,.2); }
-.tp-card.is-picked .tp-card-meta { color: var(--c-on-dark-2); }
-.tp-card.is-picked .tp-card-tick { display: block; animation: cn-pop var(--dur-small) var(--ease-spring); }
-.tp-card:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 3px; }
 /* TEST: the stacked hand (Figma 282:26254). Four overlapping arcs of six small cards; concepts-teams.js places each
    card (left, top, size, pivot, angle). The box is sized to the hand's real extremes, lifted cards included. */
 .tp-fan2-wrap { position: relative; height: 339px; transition: height 520ms cubic-bezier(.45, .05, .25, 1); margin: var(--space-6) calc(var(--space-4) * -1) 0; overflow-x: clip; }
@@ -4037,7 +4023,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-card2.is-out { opacity: 0; visibility: hidden; pointer-events: none; }
 .tp-card2:focus-visible { z-index: 70 !important; outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-card2:not(.is-picked):hover { background: var(--c-surface-2); } }
-@media (hover: hover) { .tp-card:not(.is-picked):hover { background: var(--c-surface-2); } .tp-card--rugby:not(.is-picked):hover { background: var(--c-surface-3); } }
 .tp-fan-caption { min-height: 1.4em; margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); text-align: center; }
 .tp-fan-caption strong { color: var(--c-ink); }
 .tp-chosen-row { display: flex; align-items: center; justify-content: center; margin-top: var(--space-1); min-height: 36px; }
@@ -4095,7 +4080,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-m.has-ticket .tp-m-teams::after { content: " \00b7  ticket"; font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-accent-ink); }
 .tp-ko { margin-top: var(--space-3); font-size: var(--fs-xs); line-height: 1.45; color: var(--c-ink-2); }
 .tp-deck-hint { font-size: var(--fs-xs); color: var(--c-ink-2); }
-@media (prefers-reduced-motion: reduce) { .tp-card { transition: opacity var(--dur-small) linear, background-color var(--dur-micro) linear; } }
 
 /* Prototype viewer (Figma: Rugby World Cup, node 204:12914): prototype-pick-your-team.html (the Share/edit itinerary
    prototype was removed on 22 Nov; some .cn-* rules here were written for it). A single static screen: a left panel (title, tabs, then the concept with its Reset, jump
@@ -4104,6 +4088,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    390px width and fills the window height up to 844px. Short or narrow windows fall back to an ordinary page. */
 .pv-page { --topbar-h: 0px; height: 100vh; height: 100dvh; display: grid; grid-template-columns: 460px minmax(0, 1fr); overflow: hidden; background: #fff; color: #1a1a1a; }
 .pv-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #d1d1d1; overflow-y: auto; overscroll-behavior: contain; } /* the panel scrolls as a whole */
+.pv-side > * { flex-shrink: 0; } /* in a scrolling panel nothing is squeezed to fit: the tabs row kept its height */
 .pv-header { padding: var(--space-5) var(--space-6) 0; }
 .pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.02em; }
 .pv-desc { margin-top: var(--space-1); max-width: 21rem; font-size: 1rem; line-height: 1.5; color: #333; }
@@ -4699,7 +4684,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    beside the code (the widest code ends at about 38px of the 57px card; the tick takes 42 to 53px) */
 .tp-fan2-wrap:not(.is-grid) .tp-nsw-mark { position: absolute; top: 26px; right: 10px; padding: 0 2px; font-size: .4375rem; }
 .show-nsw .tp-fan2-wrap:not(.is-grid) .tp-card2 .tp-card-tick { top: 7px; right: 4px; }
-.tp-card .tp-nsw-mark { margin-top: auto; font-size: .6875rem; }
 .tp-fan2-wrap.is-grid .tp-nsw-mark { position: absolute; right: 8px; top: 29px; font-size: .625rem; } /* in the flag row, right; the tick takes the top right */
 
 /* Your days and Refine your plan, on the page under the team picker (they used to be in the open timeline) */
