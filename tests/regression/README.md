@@ -29,6 +29,9 @@ docker run --rm --ipc=host -v "$PWD":/work -w /work mcr.microsoft.com/playwright
 
 ## When a screenshot differs
 
+**Merge only once the checks are green.** A PR merged while its screenshots have no baseline leaves main without them,
+and every later PR then fails with "No baseline yet" until another PR adds them with the label.
+
 The PR's comment and job summary list each state that changed. The run's `regression-report` artifact holds the
 expected, actual and diff image for each one. Then either:
 
