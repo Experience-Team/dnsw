@@ -21,18 +21,31 @@
   var pick = document.getElementById('tp-pick'), ask = document.getElementById('tp-ask');
   if (!phone || !pick || !ask) return;
 
-  var STEPS = ['teams', 'tickets', 'days', 'stay'];
+  // Three steps since 24 Nov: Where you're staying left the up-front questions and stays an optional refinement in
+  // the Your answers card (the user's call)
+  var STEPS = ['teams', 'tickets', 'days'];
   var NAME = { teams: 'Your teams', tickets: 'Tickets', days: 'Your days', stay: 'Where you’re staying' };
-  var NEXT = { teams: 'Next: tickets', tickets: 'Next: your days', days: 'Next: your stay', stay: 'See your plan' };
+  var NEXT = { teams: 'Next: tickets', tickets: 'Next: your days', days: 'See your plan' };
   var KEY = 'tp-fc-v1';
   var fc = { step: 'teams', none: false, filled: false };
   try { if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY); } catch (e) {} // ?reset starts the flow again too
-  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null'); if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null }; } catch (e) {}
-  var edit = ''; // the step reopened from Your answers (not kept: a reload comes back to the answers)
-  function keep() { try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
+  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (rec && rec.step === 'stay') rec.step = 'done'; // saved on the old stay step: the flow is finished, the answer kept
+    if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
+  // Step 1 is the one required answer since 24 Nov. A place saved before then that got past it with nothing picked
+  // goes back to step 1; saves since carry v: 2, so a card left with no team after the flow stays as it is
+  if (fc.v !== 2 && fc.step !== 'teams' && !state.picked.length) fc.step = 'teams';
+  fc.v = 2;
+  var edit = ''; // was a step reopened from Your answers; no longer set since the answers became a card (24 Nov)
+  function keep() { fc.v = 2; try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
   // The step showing, or '' once the flow is finished and nothing is reopened
   function step() { return edit || (fc.step === 'done' ? '' : fc.step); }
-  window.tpFlowC = { step: step, focusStep: function () { requestAnimationFrame(function () { toTop(); focusHead(); }); } };
+  window.tpFlowC = {
+    step: step,
+    inCard: function () { return !step(); }, // finished: Your days and Where you're staying sit in the card
+    // Home's Plan around your matches: the step showing, or the card opened once the questions are done
+    focusStep: function () { requestAnimationFrame(function () { if (!step() && !cardOpen) setCard(true, false); toTop(); focusHead(); }); }
+  };
 
   var reduce = tp.reduce;
   var TICK = '<svg class="tp-fc-tick" width="14" height="12" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
@@ -43,9 +56,16 @@
   function city(f) { return (window.cnVenueCity || {})[f.v] || f.p; }
   // The matches a ticket can be marked on: your teams' NSW matches whose teams are known (as the match cards' I have
   // tickets), by date
-  function tixMatches() { return tp.own() ? tp.userMatches().filter(function (m) { return !m.f.a && m.tkey; }) : []; }
+  // Every match of your teams whose teams are known: NSW first, then interstate (24 Nov; NSW only before, which left
+  // teams that play all their pool matches interstate with nothing to mark). The plan and each match's sheet already
+  // take an interstate ticket. Knockouts are left out: with no teams yet, a ticket for one cannot be recorded
+  function tixMatches() {
+    if (!tp.own()) return [];
+    var ms = tp.userMatches().filter(function (m) { return m.tkey; });
+    return ms.filter(function (m) { return !m.f.a; }).concat(ms.filter(function (m) { return m.f.a; }));
+  }
   function myTickets() { return tixMatches().filter(function (m) { return state.tickets.indexOf(m.tkey) > -1; }); }
-  function baseLabel(b) { return b === 'local' ? 'I’m a local' : b === 'outside' ? 'Outside NSW' : b; }
+  function baseLabel(b) { return b === 'outside' ? 'Outside NSW' : b; }
   function teamsText() { return state.picked.length ? tp.list(state.picked.slice()) : 'None picked'; }
   function ticketsText() { var n = myTickets().length; return n ? n + (n === 1 ? ' match' : ' matches') : fc.none ? 'None yet' : 'Not answered'; }
   function daysText() { var t = state.trip; return t && t.from && t.to ? tp.isoRange(t.from, t.to) : 'Not set'; }
@@ -55,6 +75,44 @@
   head.className = 'tp-fc'; head.id = 'tp-fc';
   head.setAttribute('aria-labelledby', 'tp-fc-h');
   pick.insertBefore(head, pick.firstChild);
+  /* Once the questions are done (24 Nov), Your answers is one condensed card: the teams, then tickets, days and where
+     you're staying in a line. Change opens it, and inside are all the answers' own controls: the hand of cards (with
+     Find and Every NSW match), the tickets list, Your days and Where you're staying. They are the same controls the
+     steps borrow, moved into the card's body by id; Home and the Add team sheet still borrow the hand from wherever it
+     is, and put it back there. Done (at the top or the foot of the card) closes it. Closed again on every visit. */
+  var headTop = document.createElement('div'); headTop.className = 'tp-fc-head';
+  var cardBody = document.createElement('div'); cardBody.className = 'tp-fc-body'; cardBody.id = 'tp-fc-body';
+  cardBody.setAttribute('role', 'region'); cardBody.setAttribute('aria-label', 'Your answers');
+  cardBody.innerHTML = '<h4 class="tp-fc-bh">Your teams</h4><div class="tp-fc-slot" id="tp-fc-slot-teams"></div>' +
+    '<h4 class="tp-fc-bh">Tickets</h4><div class="tp-fc-slot" id="tp-fc-slot-tix"></div>' +
+    '<div class="tp-fc-slot" id="tp-fc-slot-ask"></div>' +
+    '<p class="tp-fc-bdone"><button type="button" class="tp-home-cta tp-home-cta--line" data-fc-card="close">Done</button></p>';
+  head.appendChild(headTop); head.appendChild(cardBody);
+  var slotTeams = cardBody.querySelector('#tp-fc-slot-teams'), slotTix = cardBody.querySelector('#tp-fc-slot-tix'), slotAsk = cardBody.querySelector('#tp-fc-slot-ask');
+  var cardOpen = false;
+  // The planner's own controls the card holds, in order. The hand's place marker (a comment the tab script leaves so
+  // the hand comes back from Home) moves with it, so Home returns the hand to the card
+  function pickMark() {
+    var w = document.createTreeWalker(document.getElementById('tp-phone'), NodeFilter.SHOW_COMMENT);
+    while (w.nextNode()) if (/hand of cards lives here/.test(w.currentNode.nodeValue)) return w.currentNode;
+    return null;
+  }
+  function borrowed(id) {
+    var el = document.getElementById(id);
+    // Lent elsewhere right now (Home, the Add team sheet): left where it is; it comes back to its marker or placeholder
+    return el && !el.closest('#tp-home, #tp-at') ? el : null;
+  }
+  function place() {
+    var inCard = !step(), mark = pickMark(), tabs = document.getElementById('tp-tabs');
+    var teamBits = [borrowed('tp-util'), mark, borrowed('tp-picker'), borrowed('tp-fc-rugby')];
+    var ask = borrowed('tp-ask');
+    if (inCard) {
+      teamBits.forEach(function (el) { if (el && el.parentNode !== slotTeams) slotTeams.appendChild(el); });
+      if (ask && ask.parentNode !== slotAsk) slotAsk.appendChild(ask);
+    } else {
+      teamBits.concat([ask]).forEach(function (el) { if (el && el.parentNode !== pick) pick.insertBefore(el, tabs); });
+    }
+  }
   // The foot floats at the bottom of the screen, out of the scrolling page (24 Nov): it sits just before the plan bar,
   // so when the bar rises into view the foot rises with it, on the same curve (shared.css, "Option C")
   var foot = document.createElement('div');
@@ -67,10 +125,10 @@
   if (window.ResizeObserver) new ResizeObserver(footRoom).observe(foot);
 
   function stepNote(s) {
-    if (s === 'teams') return 'Pick one or more teams. No team? Add every NSW match under the cards.';
+    if (s === 'teams') return 'Pick one or more teams to see their matches. No team? Show every NSW match.';
     if (s === 'tickets') {
-      if (!tp.own()) return 'Pick a team first, and its matches in NSW show here.';
-      return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'Your teams’ pool matches are all outside NSW, so there are no tickets to mark here.';
+      if (!tp.own()) return 'Pick a team first, and its matches show here.';
+      return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'There are no matches to mark yet: their teams are still to be decided.';
     }
     if (s === 'days') {
       var t = state.trip;
@@ -87,20 +145,29 @@
     var on = myTickets().length;
     return '<div class="tp-fc-tix" role="group" aria-label="Tickets you have">' +
       '<button type="button" class="tp-fc-opt tp-fc-none" data-fc-none aria-pressed="' + (fc.none && !on) + '">' + TICK + '<span class="tp-fc-opt-t">No tickets yet</span></button>' +
-      ms.map(function (m) {
+      ms.map(function (m, i) {
         var has = state.tickets.indexOf(m.tkey) > -1;
-        return '<button type="button" class="tp-fc-opt" data-fc-tix="' + esc(m.tkey) + '" aria-pressed="' + has + '">' + TICK +
-          '<span class="tp-fc-opt-t">' + esc(m.f.t) + '</span><span class="tp-fc-opt-m">' + esc(m.f.d + ' · ' + m.f.k + ' · ' + m.f.v + ', ' + city(m.f)) + '</span></button>';
+        // A heading where the list turns from NSW to interstate matches (or leads it, when every match is interstate)
+        var sub = m.f.a && (i === 0 || !ms[i - 1].f.a) ? '<p class="tp-fc-sub">' + (i === 0 ? 'Your teams’ matches, all interstate' : 'Interstate') + '</p>' : '';
+        return sub + '<button type="button" class="tp-fc-opt" data-fc-tix="' + esc(m.tkey) + '" aria-pressed="' + has + '">' + TICK +
+          '<span class="tp-fc-opt-t">' + esc(m.f.t) + '</span><span class="tp-fc-opt-m">' + esc(m.f.d + ' · ' + m.f.k + (m.f.a ? ' Sydney time · ' + m.f.v + ', ' + m.f.a : ' · ' + m.f.v + ', ' + city(m.f))) + '</span></button>';
       }).join('') + '</div>' +
       (on ? '<p class="tp-fc-clear"><button type="button" class="tp-link" data-fc-clear>Clear all</button></p>' : '');
   }
+  var CHEV = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // The condensed card: the teams on one line, then tickets, days and where you're staying, each only once answered
   function answersHtml() {
-    var rows = [['teams', 'Your teams', teamsText()], ['tickets', 'Tickets', ticketsText()], ['days', 'Your days', daysText()], ['stay', 'Where you’re staying', stayText()]];
-    return '<h3 class="tp-fc-ah" id="tp-fc-h" tabindex="-1">Your answers</h3>' +
-      '<dl class="tp-fc-ans">' + rows.map(function (r) {
-        return '<div class="tp-fc-row"><dt>' + r[1] + '</dt><dd><span class="tp-fc-val">' + esc(r[2]) + '</span>' +
-          '<button type="button" class="tp-link" data-fc-change="' + r[0] + '" aria-label="Change ' + esc(r[1].charAt(0).toLowerCase() + r[1].slice(1)) + '">Change</button></dd></div>';
-      }).join('') + '</dl>';
+    var n = myTickets().length, t = state.trip || {}, bits = [];
+    bits.push(n ? n + (n === 1 ? ' ticket' : ' tickets') : fc.none ? 'No tickets yet' : '');
+    bits.push(t.from && t.to ? tp.isoRange(t.from, t.to) : 'No days set');
+    if (t.base) bits.push(t.base === 'outside' ? 'From outside NSW' : 'Staying in ' + t.base);
+    return '<h3 class="tp-fc-ah"><button type="button" class="tp-fc-cardbtn" id="tp-fc-h" data-fc-card="toggle" aria-expanded="' + cardOpen + '" aria-controls="tp-fc-body">' +
+      '<span class="tp-fc-cardt">Your answers</span><span class="tp-fc-cardact">' + (cardOpen ? 'Done' : 'Change') + CHEV + '</span></button></h3>' +
+      '<p class="tp-fc-sum1">' + esc(state.picked.length ? tp.list(state.picked.slice()) : 'No team picked') + '</p>' +
+      '<p class="tp-fc-sum2">' + esc(bits.filter(Boolean).join(' · ')) + '</p>';
+  }
+  function tixSlotHtml() {
+    return ticketsHtml() || '<p class="tp-fc-note">' + esc(stepNote('tickets')) + '</p>';
   }
   function headHtml(s) {
     if (!s) return answersHtml();
@@ -117,9 +184,14 @@
     if (!s) return '';
     if (edit) return '<div class="tp-fc-nav"><button type="button" class="tp-home-cta" data-fc-done>Done</button></div>';
     // Skip on the left moves on to the next screen without this answer; Next on the right (24 Nov). The plan bar under
-    // the foot already says what is on the plan, so the foot carries the buttons only
-    return '<div class="tp-fc-nav"><button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>' +
-      '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1">' + NEXT[s] + ARR + '</button></div>';
+    // the foot already says what is on the plan, so the foot carries the buttons only.
+    // Step 1 is required (24 Nov): until a team or Every NSW match is picked, Next is unavailable (aria-disabled, so it
+    // stays in place and in the Tab order) with a line saying why, and the left button is Show every NSW match
+    var need = s === 'teams' && !state.picked.length;
+    return (need ? '<p class="tp-fc-why" id="tp-fc-why">Pick a team to carry on, or show every NSW match.</p>' : '') +
+      '<div class="tp-fc-nav">' + (need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
+        : '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>') +
+      '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1"' + (need ? ' aria-disabled="true" aria-describedby="tp-fc-why"' : '') + '>' + NEXT[s] + ARR + '</button></div>';
   }
 
   /* ---------- Drawing ---------- */
@@ -127,18 +199,21 @@
   function focusKey(el) {
     if (!el || !el.dataset) return null;
     if (el.dataset.fcTix) return '[data-fc-tix="' + CSS.escape(el.dataset.fcTix) + '"]';
-    var ks = ['fcNone', 'fcClear', 'fcDone', 'fcSkip'];
+    var ks = ['fcNone', 'fcClear', 'fcDone', 'fcSkip', 'fcAll'];
     for (var i = 0; i < ks.length; i++) if (el.dataset[ks[i]] !== undefined) return '[data-' + ks[i].replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + ']';
     if (el.dataset.fcGo) return '[data-fc-go="' + el.dataset.fcGo + '"]';
-    if (el.dataset.fcChange) return '[data-fc-change="' + el.dataset.fcChange + '"]';
+    if (el.dataset.fcCard) return '[data-fc-card="' + el.dataset.fcCard + '"]';
     return null;
   }
-  var lastH = '', lastF = '';
+  var lastH = '', lastF = '', lastX = '';
   function draw() {
-    var s = step(), a = document.activeElement, k = (head.contains(a) || foot.contains(a)) ? focusKey(a) : null;
+    var s = step(), a = document.activeElement, k = ((headTop.contains(a) || slotTix.contains(a)) || foot.contains(a)) ? focusKey(a) : null;
     if (s) phone.setAttribute('data-fc', s); else phone.removeAttribute('data-fc');
-    var h = headHtml(s), f = footHtml(s);
-    if (h !== lastH) { head.innerHTML = h; lastH = h; }
+    if (s) phone.removeAttribute('data-fc-card'); else phone.setAttribute('data-fc-card', cardOpen ? 'open' : 'closed');
+    place();
+    var h = headHtml(s), f = footHtml(s), x = s ? '' : tixSlotHtml();
+    if (h !== lastH) { headTop.innerHTML = h; lastH = h; }
+    if (x !== lastX) { slotTix.innerHTML = x; lastX = x; }
     if (f !== lastF) { foot.innerHTML = f; lastF = f; }
     if (k) { var el = phone.querySelector(k); if (el && el !== document.activeElement) el.focus({ preventScroll: true }); else if (!el) focusHead(); }
   }
@@ -178,7 +253,17 @@
     if (focus) { toTop(); focusHead(); }
     slideIn(dir);
   }
+  function setCard(on, focusBtn) {
+    cardOpen = on; draw();
+    if (tp.askRender) tp.askRender();
+    window.dispatchEvent(new Event('resize')); // the hand measures again, now that it shows
+    if (on && !reduce.matches && cardBody.animate) cardBody.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.25, .1, .25, 1)' });
+    if (!on) toTop(); // closing from the foot of a long card: the card's top comes back into view
+    if (focusBtn) { var b = document.getElementById('tp-fc-h'); if (b) b.focus({ preventScroll: true }); }
+    tp.say(on ? 'Your answers, opened.' : 'Your answers, closed.');
+  }
   function go(to, dir) {
+    if (to === 'done') cardOpen = false;
     fc.step = to; keep(); show(dir, true);
     tp.say(to === 'done' ? 'Your plan, with your answers.' : '');
   }
@@ -187,6 +272,9 @@
   phone.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b))) return;
     var s = step(), i = STEPS.indexOf(s);
+    // Next on step 1 with nothing picked: it says why (the line is also its description) and stays where it is
+    if (b.getAttribute('aria-disabled') === 'true') { tp.say('Pick a team to carry on, or show every NSW match.'); return; }
+    if (b.dataset.fcAll !== undefined) { tp.addRugby(b); go('tickets', 1); return; }
     if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
     if (b.dataset.fcSkip !== undefined) {
       // Skipping Your days takes back the days started for them, if they were left as they were: a skip is not a yes
@@ -194,12 +282,7 @@
       if (s === 'days' && t && pre && t.from === pre.from && t.to === pre.to) tp.setTrip({ base: t.base, party: t.party });
       go(i + 1 >= STEPS.length ? 'done' : STEPS[i + 1], 1); return;
     }
-    if (b.dataset.fcChange) { edit = b.dataset.fcChange; show(1, true); return; }
-    if (b.dataset.fcDone !== undefined) {
-      var was = edit; edit = ''; show(-1, false); toTop();
-      var c = head.querySelector('[data-fc-change="' + was + '"]'); if (c) c.focus({ preventScroll: true });
-      return;
-    }
+    if (b.dataset.fcCard) { setCard(b.dataset.fcCard === 'toggle' ? !cardOpen : false, true); return; }
     if (b.dataset.fcNone !== undefined) {
       // No tickets yet replaces any marked; pressing it again takes the answer back
       var had = myTickets();
@@ -225,13 +308,13 @@
       var first = head.querySelector('[data-fc-none]'); if (first) first.focus({ preventScroll: true });
     }
   });
-  // Escape in a reopened step is the same as Done
+  // Escape inside the open card closes it, back to its Change (not while Find is open: Escape closes Find first)
   phone.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape' || !edit || !(head.contains(e.target) || foot.contains(e.target) || pick.contains(e.target))) return;
-    var d = foot.querySelector('[data-fc-done]'); if (d && !e.defaultPrevented && !document.querySelector('.tp-find:not([hidden])')) d.click();
+    if (e.key !== 'Escape' || !cardOpen || step() || !head.contains(e.target) || e.defaultPrevented || document.querySelector('#tp-fc .tp-find:not([hidden])')) return;
+    setCard(false, true);
   });
   phone.addEventListener('tp:state', function () { draw(); });
   var reset = document.getElementById('tp-reset');
-  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', none: false, filled: false }; edit = ''; keep(); show(0, false); });
+  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', none: false, filled: false, v: 2 }; edit = ''; cardOpen = false; keep(); show(0, false); });
   show(0, false);
 })();

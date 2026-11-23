@@ -5922,7 +5922,7 @@ span.tp-map-arrow { display: block; }
    section below the picker wait until the flow is finished. The plan bar stays in view but does not open yet */
 .tp-fc { display: none; }
 .tp-fc-rugby { display: none; }
-#tp-phone[data-fc="teams"] .tp-fc-rugby:not([hidden]) { display: block; margin-top: var(--space-4); text-align: center; }
+/* Step 1's own Add every NSW match link went on 24 Nov: the foot's Show every NSW match does it. The card keeps one */
 :root[data-flow="c"] .tp-fc { display: block; }
 /* The foot floats at the bottom of the screen (24 Nov), with a faint top rule (check 6). It sits on the plan bar's
    collapsed 88px when the bar is up and glides up and down with it, on the bar's own curves, so the two move as one.
@@ -5933,7 +5933,7 @@ span.tp-map-arrow { display: block; }
 #tp-phone[data-fc] .tp-tl.is-on .tp-tl-bar { border-radius: 0; } /* under the foot, the bar's top corners would show a notch */
 #tp-phone[data-fc] #tp-pick { padding-bottom: calc(var(--fc-foot-h, 64px) + var(--space-5)); }
 @media (prefers-reduced-motion: reduce) { #tp-phone[data-fc] .tp-fc-foot { transition: none !important; } }
-#tp-phone[data-fc] .tp-hero, #tp-phone[data-fc] #tp-all, #tp-phone[data-fc] #tp-ov, #tp-phone[data-fc] #tp-watch,
+#tp-phone[data-fc] .tp-hero, #tp-phone[data-fc] #tp-all:not(.is-home), #tp-phone[data-fc] #tp-ov, #tp-phone[data-fc] #tp-watch,
 #tp-phone[data-fc] #tp-third, #tp-phone[data-fc] #tp-plan, #tp-phone[data-fc] #tp-pick > #tp-tabs,
 #tp-phone[data-fc] #tp-pick > #tp-results, #tp-phone[data-fc] #tp-pick > #tp-more,
 #tp-phone[data-fc] #tp-pick > #tp-pick-title { display: none !important; }
@@ -5971,11 +5971,18 @@ span.tp-map-arrow { display: block; }
 .tp-fc-opt-t { font-size: var(--fs-md); font-weight: var(--fw-bold); }
 .tp-fc-opt-m { grid-column: 2; font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-fc-none { margin-bottom: var(--space-2); }
+.tp-fc-sub { margin: var(--space-3) 0 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink-2); } /* Interstate, over those matches */
 .tp-fc-opt:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-fc-opt:hover { border-color: var(--c-line-ink); } }
 .tp-fc-clear { margin: var(--space-3) 0 0; }
 /* The foot: what is on the plan so far, then Back and Next side by side, Skip under them */
-.tp-fc-nav { display: flex; gap: var(--space-3); }
+.tp-fc-nav { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); } /* two rows when both labels cannot fit on one (Show every NSW match at 320), so neither is cut off (check 6) */
+/* Step 1 before a pick (24 Nov): Next is unavailable, with the reason over the buttons */
+.tp-fc-why { margin: 0 0 var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-fc-nav .tp-fc-next[aria-disabled="true"] { background: var(--c-fill-soft); border-color: var(--c-fill-soft); color: var(--c-ink-3); cursor: not-allowed; }
+@media (hover: hover) { .tp-fc-nav .tp-fc-next[aria-disabled="true"]:hover { background: var(--c-fill-soft); } }
+.tp-fc-nav .tp-fc-allbtn { flex: 1 1 auto; padding-inline: var(--space-3); }
+.tp-fc-nav .tp-fc-next { flex: 1 1 auto; }
 .tp-fc-nav .tp-home-cta { width: auto; flex: 1 1 auto; min-height: 36px; white-space: nowrap; }
 .tp-fc-nav .tp-fc-skipbtn { flex: 0 0 auto; min-width: 88px; }
 /* Back, from step 2: an arrow beside the count, 24px to tap (AA) */
@@ -5983,13 +5990,34 @@ span.tp-map-arrow { display: block; }
 .tp-fc-backbtn { display: grid; place-items: center; width: 24px; height: 24px; margin-left: -4px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
 .tp-fc-backbtn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 0; }
 @media (hover: hover) { .tp-fc-backbtn:hover { background: var(--c-surface-2); } }
-/* Your answers, once the flow is finished: one row per answer, each with Change */
-.tp-fc-ans { margin: var(--space-3) 0 0; padding: 0; }
-.tp-fc-row { display: grid; grid-template-columns: 1fr; padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
-.tp-fc-row:last-child { border-bottom: var(--bw-1) solid var(--c-line-soft); }
-.tp-fc-row dt { font-size: var(--fs-sm); color: var(--c-ink-2); }
-.tp-fc-row dd { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin: var(--space-1) 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); }
-#tp-phone:not([data-fc]) .tp-fc { margin-bottom: var(--space-7); }
+/* Your answers, once the flow is finished (24 Nov): a condensed card (the teams, then tickets, days and staying in a
+   line) whose Change opens it to every answer's own control. The page's lead line waits, as the card says it */
+:root[data-flow="c"] #tp-pick > #tp-pick-title { display: none; }
+#tp-phone[data-fc-card] .tp-fc { padding: var(--space-4); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md); background: var(--c-surface); }
+.tp-fc-ah { margin: 0; }
+.tp-fc-cardbtn { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-xl); font-weight: var(--fw-heavy); text-align: left; cursor: pointer; }
+.tp-fc-cardact { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-md); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; }
+.tp-fc-chev { transition: transform var(--dur-small) var(--ease-out); }
+.tp-fc-cardbtn[aria-expanded="true"] .tp-fc-chev { transform: rotate(180deg); }
+.tp-fc-cardbtn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-fc-sum1 { margin: var(--space-1) 0 0; font-size: var(--fs-base); font-weight: var(--fw-semi); }
+.tp-fc-sum2 { margin: var(--space-1) 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-fc-sum2:empty { display: none; }
+.tp-fc-body { display: none; }
+#tp-phone[data-fc-card="open"] .tp-fc-body { display: block; margin-top: var(--space-5); padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-fc-bh { margin: var(--space-5) 0 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.tp-fc-bh:first-child { margin-top: 0; }
+.tp-fc-slot #tp-util { margin-top: var(--space-3); margin-inline: 0; }
+.tp-fc-slot .tp-fc-tix { margin-top: var(--space-3); }
+.tp-fc-slot .tp-fc-rugby:not([hidden]) { display: block; margin-top: var(--space-3); text-align: center; }
+#tp-fc-slot-ask #tp-ask { margin-top: var(--space-5); padding-top: 0; border-top: 0; }
+#tp-fc-slot-ask .tp-refine-btn, #tp-fc-slot-ask .tp-refine-sum, #tp-fc-slot-ask #tp-q-party, #tp-fc-slot-ask #tp-q-party + .tp-quick { display: none; }
+#tp-fc-slot-ask .tp-refine, #tp-fc-slot-ask .tp-refine-panel { margin: 0; padding: 0; border: 0; }
+.tp-fc-bdone { margin: var(--space-5) 0 0; }
+.tp-opt { font-weight: var(--fw-regular, 400); color: var(--c-ink-2); }
+#tp-fc-slot-ask .tp-q-base-note { margin-top: var(--space-1); }
+.tp-fc-bdone .tp-home-cta { min-height: 36px; }
+#tp-phone:not([data-fc]) .tp-fc { margin-bottom: 0; } /* Your matches' own section gap sits under the card (it was 48px more, 116px in all) */
 /* Under the match cards: Add more teams, full width and prominent (the card-fan icon, as on every Pick your teams
    prompt), then Your days in NSW. 24px from the cards (one family), 48px to Your days */
 .tp-more { margin-top: var(--space-3); } /* the deck already has 12px under the cards: 24px in all */
