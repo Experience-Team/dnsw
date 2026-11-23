@@ -39,12 +39,14 @@ for (const option of ['A', 'B', 'C']) {
     });
 
     // Every NSW match sits in a different place in each option: the Plan tab's All matches in A, Home's All matches in
-    // B, the teams step in C; Home's I'm just here for the rugby does the same in all three
-    const EVERY = { A: ['Plan your 3rd half', '#tp-all'], B: ['Home', '#tp-all'], C: ['Plan your 3rd half', '#tp-fc-rugby'] };
-    for (const [where, tab, sel] of [['its own place', ...EVERY[option]], ['Home', 'Home', '#tp-home-rugby']]) {
+    // B; Home's I'm just here for the rugby does the same in all three. Option C's teams step has its own button (below)
+    const EVERY = { A: ['Plan your 3rd half', '#tp-all .tp-rugby-link'], B: ['Home', '#tp-all .tp-rugby-link'] };
+    const places = [['Home', 'Home', '#tp-home-rugby .tp-rugby-link']];
+    if (EVERY[option]) places.unshift(['its own place', ...EVERY[option]]);
+    for (const [where, tab, sel] of places) {
       test(`Every NSW match (${where}) and a team replace each other`, async ({ page }) => {
         await goTab(page, tab);
-        await page.locator(`${sel} .tp-rugby-link`).click();
+        await page.locator(sel).click();
         await settle(page);
         expect(await state(page)).toEqual(['Every NSW match']);
         await expect(bar(page)).toContainText('Every NSW match');
@@ -143,18 +145,33 @@ test.describe('Address flags', () => {
     expect(a.match).toBeGreaterThan(a.h);
   });
 
-  test('?flow=c: the Plan tab asks step by step, and Next moves on', async ({ page }) => {
+  test('?flow=c: the Plan tab asks step by step, Next waits for a team, and Next moves on', async ({ page }) => {
     await open(page, { option: 'C' });
     await goPlan(page);
     expect(await fcStep(page)).toBe('teams');
-    await expect(page.locator('#tp-fc')).toContainText('Step 1 of 4');
+    await expect(page.locator('#tp-fc')).toContainText('Step 1 of 3');
+    const next = page.locator('#tp-phone .tp-fc-next:visible');
+    // Step 1 is the one required answer: Next stays in place, unavailable, with a line saying why, until a team is picked
+    await expect(next).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('#tp-fc-why')).toBeVisible();
     await pick(page, ONE);
-    await page.locator('#tp-phone .tp-fc-next:visible').click();
+    await expect(next).not.toHaveAttribute('aria-disabled', 'true');
+    await next.click();
     await settle(page);
     expect(await fcStep(page)).toBe('tickets');
     await page.reload();
     await settle(page);
     expect(await fcStep(page)).toBe('tickets');
+  });
+
+  test('?flow=c: Show every NSW match answers step 1 and moves on', async ({ page }) => {
+    await open(page, { option: 'C' });
+    await goPlan(page);
+    await page.locator('#tp-phone [data-fc-all]').click();
+    await settle(page);
+    expect(await state(page)).toEqual(['Every NSW match']);
+    await expect(bar(page)).toContainText('Every NSW match');
+    expect(await fcStep(page)).not.toBe('teams');
   });
 
   test('?phone shows only the phone screen', async ({ page }) => {

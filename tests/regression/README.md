@@ -5,7 +5,7 @@ theme or state. Two suites, run on every PR by `.github/workflows/regression.yml
 
 - **Visual** (`visual.spec.js`): 100 screenshots compared pixel for pixel with the baselines in `__screenshots__/`.
   Options A, B and C, both themes (hifi, wireframe), 390 and 320 wide, in these states: Home, Plan tab with nothing
-  picked, one team card picked, two cards picked, Option C's three later steps and Your answers, the open plan, a match
+  picked, one team card picked, two cards picked, Option C's Tickets and Your days steps, its page once done and its Your answers level (Change in the open plan), the open plan, a match
   sheet and the Settings menu. Page states are captured at their full height; sheets and menus at the screen's size.
   Files are named `<option>-<theme>-<width>-<state>.png`.
 - **Behaviour** (`behaviour.spec.js`): pick, unpick, Clear all, Every NSW match, reload, Reset prototype and `?reset` in
