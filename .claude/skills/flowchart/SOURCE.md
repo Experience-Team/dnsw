@@ -20,6 +20,12 @@ To update, copy `SKILL.md`, `README.md`, `LICENSE`, `assets/`, `scripts/` and `r
   for what is selected); text is 12px or more; every control has a 2px ink focus ring; both dialogs have a close cross,
   Escape goes back or closes, and focus moves in and back; the left panel starts folded on narrow screens; inside a
   frame the chart's own title hides; the words are steps and boxes, not graph terms.
+- `assets/flowchart-template.html`: a view may carry a `placeholder` line, shown in place of the chart while that
+  view is chosen; or a `frame` page, shown across the whole workspace with the side panels hidden (the Wire flow tab
+  shows `wireflow/index.html` this way); view buttons carry `aria-pressed`.
+- `assets/flowchart-template.html`: box labels use IBM Plex Sans Condensed (the canvas used a wider default font, so
+  labels crowded their boxes), are redrawn once the font has loaded, are a touch smaller (12px minimum), and get more of the box (text width 240
+  of 280).
 - `scripts/lint_flowchart_html.js`: the side panel headings are matched in any case (they are sentence case now), and
   the check that forbade close buttons is off, because CLAUDE.md check 10 asks for a close cross.
 - `scripts/package.json`: marks the scripts as CommonJS, because this repo's `package.json` sets `"type": "module"`.

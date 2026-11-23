@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wire flow · No plan yet</title>
+<!-- Wire flow (23 Nov): the happy path for someone with no plan yet, Option A, high fidelity, 390 x 844, as screenshots
+     taken from prototype-pick-your-team.html with real taps. The screenshots are made by capture.cjs beside this file
+     (node public/wireframes/wireflow/capture.cjs); run it again when the prototype changes and check the titles and
+     arrow labels below still say what the screens show. Shown in the flow chart's Wire flow tab. Look: the high
+     fidelity prototype's (chalk, ink, square corners, IBM Plex Sans Condensed), as the flow chart. -->
+<style>
+  @font-face { font-family: "IBM Plex Sans Condensed"; font-weight: 400; font-display: swap; src: url("../assets/fonts/ibm-plex-sans-condensed-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Sans Condensed"; font-weight: 600; font-display: swap; src: url("../assets/fonts/ibm-plex-sans-condensed-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Mono"; font-weight: 700; font-display: swap; src: url("../assets/fonts/ibm-plex-mono-latin-700-normal.woff2") format("woff2"); }
+  :root {
+    --chalk: #faf7f0; --card: #fffdf8; --ink: #111111; --ink-2: #3d3a35; --ink-3: #625d55; --line: #d6cfc1; --brand: #ff4802;
+    --shot-w: 220px;           /* screenshot width; height follows 390 x 844 */
+    --title-h: 84px;           /* room for a three-line title above each screenshot */
+    --mid: calc(var(--title-h) + var(--shot-w) * 844 / 780); /* the screenshot's middle, where arrows run (1.083 = 844/780) */
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--chalk); color: var(--ink); font-family: "IBM Plex Sans Condensed", system-ui, sans-serif; }
+  ::selection { background: #ecfe54; color: var(--ink); }
+  header { padding: 20px 24px 8px; }
+  h1 { margin: 0; font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+  .meta { margin: 6px 0 0; font-size: .875rem; color: var(--ink-2); }
+  .hint { margin: 4px 0 0; font-size: .8125rem; color: var(--ink-3); }
+
+  /* The flow: one row that scrolls sideways on wide screens */
+  .wf-scroll { overflow-x: auto; padding: 16px 24px 32px; scrollbar-color: var(--ink-3) transparent; }
+  .wf-scroll:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+  .wf { list-style: none; margin: 0; padding: 0; display: flex; align-items: flex-start; width: max-content; }
+
+  /* A screen: title, then the screenshot */
+  .screen { width: var(--shot-w); flex: none; }
+  .screen h2 { margin: 0; height: var(--title-h); display: flex; align-items: flex-end; gap: 8px; padding-bottom: 8px; font-size: 1rem; font-weight: 600; line-height: 1.2; }
+  .screen .n { flex: none; display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 4px; background: var(--ink); color: var(--chalk); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8125rem; font-weight: 700; }
+  .screen img { display: block; width: 100%; height: auto; aspect-ratio: 780 / 1688; border: 1px solid var(--ink); background: var(--card); }
+
+  /* A link between screens: its label, then an arrow running at the screenshots' middle */
+  .link { flex: none; width: 128px; height: calc(var(--mid) + 8px); display: flex; flex-direction: column; justify-content: flex-end; padding: 0 10px; }
+  .link p { margin: 0 0 8px; font-size: .875rem; line-height: 1.25; color: var(--ink); text-align: center; }
+  .arrow { display: flex; align-items: center; height: 16px; }
+  .arrow .shaft { flex: 1; height: 2px; background: var(--ink); }
+  .arrow svg { flex: none; width: 14px; height: 16px; fill: var(--ink); }
+  .arrow.down { flex-direction: column; width: 16px; height: 40px; }
+  .arrow.down .shaft { width: 2px; height: auto; flex: 1; }
+  .arrow.down svg { width: 16px; height: 14px; }
+
+  /* The branch: a decision, its No answer below it */
+  .branch { flex: none; width: 168px; display: flex; flex-direction: column; align-items: center; padding-top: calc(var(--mid) - 56px); }
+  .decision { width: 112px; height: 112px; display: grid; place-items: center; }
+  .decision span { position: relative; z-index: 1; width: 80px; font-size: .875rem; font-weight: 600; line-height: 1.2; text-align: center; }
+  .decision::before { content: ""; position: absolute; width: 78px; height: 78px; transform: rotate(45deg); border: 2px solid var(--ink); background: var(--card); }
+  .decision { position: relative; }
+  .no { display: flex; flex-direction: column; align-items: center; margin-top: 2px; }
+  .no p { margin: 6px 0; font-size: .875rem; }
+  .no-box { width: 160px; padding: 10px 12px; border: 1px dashed var(--ink); background: var(--card); }
+  .no-box h2 { margin: 0 0 4px; font-size: 1rem; font-weight: 600; }
+  .no-box p { margin: 0; font-size: .8125rem; line-height: 1.3; color: var(--ink-2); }
+
+  footer { padding: 0 24px 24px; font-size: .8125rem; color: var(--ink-3); max-width: 70ch; }
+  footer p { margin: 0 0 6px; }
+
+  /* Phones: top to bottom, arrows pointing down; the No answer sits beside its decision */
+  @media (max-width: 700px) {
+    :root { --shot-w: 200px; }
+    header { padding: 16px 16px 4px; }
+    .hint { display: none; }
+    .wf-scroll { overflow-x: visible; padding: 12px 16px 24px; }
+    .wf { flex-direction: column; align-items: flex-start; width: auto; }
+    .screen h2 { height: auto; min-height: 0; padding-bottom: 8px; }
+    .link { width: var(--shot-w); height: auto; flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 10px; padding: 8px 0 8px calc(var(--shot-w) / 2 - 8px); }
+    .link p { margin: 0; text-align: left; }
+    .link .arrow { flex-direction: column; width: 16px; height: 44px; }
+    .link .arrow .shaft { width: 2px; height: auto; flex: 1; }
+    .link .arrow svg { width: 16px; height: 14px; transform: rotate(90deg); }
+    .branch { width: auto; flex-direction: row; align-items: center; padding: 0 0 0 calc(var(--shot-w) / 2 - 56px); }
+    .no { flex-direction: row; align-items: center; margin: 0 0 0 2px; }
+    .no .arrow.down { flex-direction: row; width: 36px; height: 16px; }
+    .no .arrow.down .shaft { width: auto; height: 2px; }
+    .no .arrow.down svg { width: 14px; height: 16px; transform: none; }
+    .no-label { display: none; }
+    .no-box { width: 128px; padding: 8px 10px; }
+    footer { padding: 0 16px 20px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Wire flow: someone with no plan yet</h1>
+  <p class="meta">Option A · high fidelity · 390 × 844 · screens captured from the prototype with real taps on 23 Nov 2026</p>
+  <p class="hint">Scroll sideways to follow the flow.</p>
+</header>
+
+<div class="wf-scroll" tabindex="0" role="region" aria-label="Wire flow, scrolls sideways">
+  <ol class="wf">
+    <li class="screen">
+      <h2><span class="n">1</span>Home, nothing picked</h2>
+      <img src="1-home.jpg" width="780" height="1688" alt="Home tab on a phone: the logo, the Home, Plan your 3rd half and Play tabs, a stadium photo and the countdown. Nothing is picked yet.">
+    </li>
+    <li class="link"><p>Scrolls to the hand, taps Australia</p><div class="arrow" aria-hidden="true"><span class="shaft"></span><svg viewBox="0 0 14 16"><path d="M0 0 L14 8 L0 16 Z"/></svg></div></li>
+    <li class="screen">
+      <h2><span class="n">2</span>Australia picked; Plan around your matches appears</h2>
+      <img src="2-picked.jpg" width="780" height="1688" alt="The hand of team cards on Home. The caption reads Australia added: 3 group matches, 1 in NSW, and a Plan around your matches button sits under it. The plan bar shows Your teams: Australia.">
+    </li>
+    <li class="link"><p>Taps Plan around your matches</p><div class="arrow" aria-hidden="true"><span class="shaft"></span><svg viewBox="0 0 14 16"><path d="M0 0 L14 8 L0 16 Z"/></svg></div></li>
+    <li class="branch">
+      <div class="decision"><span>Your days showing?</span></div>
+      <div class="no">
+        <p class="no-label">No, not showing</p>
+        <div class="arrow down" aria-hidden="true"><span class="shaft"></span><svg viewBox="0 0 16 14"><path d="M0 0 L16 0 L8 14 Z"/></svg></div>
+        <div class="no-box">
+          <h2>No: team picker</h2>
+          <p>Not reached on this path: Your days shows as soon as a team is picked.</p>
+        </div>
+      </div>
+    </li>
+    <li class="link"><p>Yes, showing</p><div class="arrow" aria-hidden="true"><span class="shaft"></span><svg viewBox="0 0 14 16"><path d="M0 0 L14 8 L0 16 Z"/></svg></div></li>
+    <li class="screen">
+      <h2><span class="n">3</span>Yes: Your days</h2>
+      <img src="3-your-days.jpg" width="780" height="1688" alt="The Plan your 3rd half tab, scrolled to Your days in NSW (optional) with an empty slider from 29 Sep to 15 Nov, and Australia's match card below.">
+    </li>
+    <li class="link"><p>Drags the slider to 4 to 13 Oct</p><div class="arrow" aria-hidden="true"><span class="shaft"></span><svg viewBox="0 0 14 16"><path d="M0 0 L14 8 L0 16 Z"/></svg></div></li>
+    <li class="screen">
+      <h2><span class="n">4</span>Days set: 4 to 13 Oct</h2>
+      <img src="4-days-set.jpg" width="780" height="1688" alt="Your days now reads 4 to 13 Oct under the slider, with Undo and Reset. The plan bar shows the days marked.">
+    </li>
+    <li class="link"><p>Scrolls to Around your matches, taps Add</p><div class="arrow" aria-hidden="true"><span class="shaft"></span><svg viewBox="0 0 14 16"><path d="M0 0 L14 8 L0 16 Z"/></svg></div></li>
+    <li class="screen">
+      <h2><span class="n">5</span>Idea added: Entertainment Quarter</h2>
+      <img src="5-idea-added.jpg" width="780" height="1688" alt="Around your matches on the arrival day, Mon 4 Oct. Entertainment Quarter's button now reads Added, and a toast says Added to your plan, Entertainment Quarter, Mon 4 Oct, with Open your plan.">
+    </li>
+    <li class="link"><p>Taps Your plan on the plan bar</p><div class="arrow" aria-hidden="true"><span class="shaft"></span><svg viewBox="0 0 14 16"><path d="M0 0 L14 8 L0 16 Z"/></svg></div></li>
+    <li class="screen">
+      <h2><span class="n">6</span>Your plan, open</h2>
+      <img src="6-plan.jpg" width="780" height="1688" alt="The open plan: Your days 4 to 13 Oct, a strip of days, Mon 4 Oct arrival day with Entertainment Quarter on it, then 4 free days, and Save and share at the foot.">
+    </li>
+  </ol>
+</div>
+
+<footer>
+  <p>The screens are made by capture.cjs in this folder: run <code>node public/wireframes/wireflow/capture.cjs</code> after the prototype changes, then check these titles and arrows still match.</p>
+  <p>Seen while capturing: the picked card is not shown as picked in the hand (screen 2), although Australia is saved and the caption says it was added.</p>
+</footer>
+</body>
+</html>
