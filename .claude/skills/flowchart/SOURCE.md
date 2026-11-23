@@ -15,4 +15,11 @@ To update, copy `SKILL.md`, `README.md`, `LICENSE`, `assets/`, `scripts/` and `r
 - `assets/flowchart-template.html`: arrowheads scale with the line (at least 14px, about three times its width), and
   the last straight piece before a box is at least one arrowhead long, so no arrowhead folds into a bend or hides
   under the box it points at.
+- `assets/flowchart-template.html` (critique, 23 Nov 2026): the chart wears the high fidelity prototype's look (chalk,
+  ink, square corners, no shadows, IBM Plex Sans Condensed and Plex Mono from `public/wireframes/assets/fonts`, orange
+  for what is selected); text is 12px or more; every control has a 2px ink focus ring; both dialogs have a close cross,
+  Escape goes back or closes, and focus moves in and back; the left panel starts folded on narrow screens; inside a
+  frame the chart's own title hides; the words are steps and boxes, not graph terms.
+- `scripts/lint_flowchart_html.js`: the side panel headings are matched in any case (they are sentence case now), and
+  the check that forbade close buttons is off, because CLAUDE.md check 10 asks for a close cross.
 - `scripts/package.json`: marks the scripts as CommonJS, because this repo's `package.json` sets `"type": "module"`.

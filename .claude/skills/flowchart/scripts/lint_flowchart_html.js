@@ -643,7 +643,7 @@ async function main() {
         const detailText = document.getElementById("subgraph-detail")?.textContent || "";
         const boundary = window.flowchartApp.activeSubgraphBoundaryForAudit();
         const issues = [];
-        if (!/How It Connects/.test(detailText)) {
+        if (!/How It Connects/i.test(detailText)) {
           issues.push({
             severity: "error",
             type: "subgraph-boundary-missing",
@@ -697,14 +697,14 @@ async function main() {
             });
           }
         }
-        if (internal.length && !/Flow Notes/.test(detailText)) {
+        if (internal.length && !/Flow Notes/i.test(detailText)) {
           issues.push({
             severity: "error",
             type: "subgraph-flow-notes-missing",
             message: `${id} expanded view must show edge captions in the sidebar`
           });
         }
-        if (hasBranch && !/Branches At/.test(detailText)) {
+        if (hasBranch && !/Branches At/i.test(detailText)) {
           issues.push({
             severity: "error",
             type: "subgraph-branch-summary-missing",
@@ -716,7 +716,7 @@ async function main() {
           const branchId = firstBranch[0];
           const selected = window.flowchartApp.selectSubgraphNodeForAudit(branchId);
           const selectedText = document.getElementById("subgraph-detail")?.textContent || "";
-          if (!selected || !/Flow Notes/.test(selectedText)) {
+          if (!selected || !/Flow Notes/i.test(selectedText)) {
             issues.push({
               severity: "error",
               type: "branch-node-flow-notes-missing",
@@ -741,7 +741,7 @@ async function main() {
 
     const modalStructureReport = await page.evaluate(() => {
       const issues = [];
-      for (const id of ["close-modal-button", "close-subgraph-button"]) {
+      for (const id of []) { // dnsw change: close crosses are wanted (CLAUDE.md check 10)
         if (document.getElementById(id)) {
           issues.push({
             severity: "error",
