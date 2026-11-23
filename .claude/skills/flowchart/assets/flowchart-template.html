@@ -2039,7 +2039,8 @@
         }
         return true;
       }
-      return target.x >= source.x - 8;
+      // dnsw change: an edge marked "loop": true may point left, so a loop back to an earlier stage can be drawn.
+      return target.x >= source.x - 8 || edge.loop === true;
     }
 
     function average(values, fallback = 0) {
@@ -2087,7 +2088,16 @@
       const seenIncoming = new Set();
       const seenOutgoing = new Set();
 
+      // dnsw change: a boundary box names the outside block's top-level stage, even when the edge comes from (or goes
+      // to) a step inside another stage, so steps in two expanded groups can link to each other.
+      function topLevelOf(id) {
+        let node = nodesById.get(id);
+        while (node && node.parent && nodesById.has(node.parent)) node = nodesById.get(node.parent);
+        return node ? node.id : id;
+      }
+
       function addIncoming(sourceId, targetId, sourceEdge = {}) {
+        sourceId = topLevelOf(sourceId);
         if (!childIds.has(targetId) || !nodesById.has(sourceId)) return;
         const key = `${sourceId}->${targetId}`;
         if (seenIncoming.has(key)) return;
@@ -2117,6 +2127,7 @@
       }
 
       function addOutgoing(sourceId, targetId, sourceEdge = {}) {
+        targetId = topLevelOf(targetId);
         if (!childIds.has(sourceId) || !nodesById.has(targetId)) return;
         const key = `${sourceId}->${targetId}`;
         if (seenOutgoing.has(key)) return;
@@ -2211,8 +2222,14 @@
       }
 
       const rootIncoming = incomingByNode.get(rootId) || [];
+      // dnsw change: likewise, an entry with its own edge from an outside block keeps only that edge.
+      const explicitEntries = new Set((DATA.edges || [])
+        .filter((edge) => childIds.has(edge.target) && !childIds.has(edge.source) && edge.source !== rootId)
+        .map((edge) => edge.target));
       if (rootIncoming.length) {
-        for (const entryId of entryIds) addCombinedIncoming(rootIncoming.map((edge) => edge.source), entryId, rootIncoming);
+        for (const entryId of entryIds) {
+          if (!explicitEntries.has(entryId)) addCombinedIncoming(rootIncoming.map((edge) => edge.source), entryId, rootIncoming);
+        }
       }
       for (const edge of (DATA.edges || [])) {
         if (childIds.has(edge.target) && !childIds.has(edge.source) && edge.source !== rootId) {
@@ -2221,8 +2238,15 @@
       }
 
       const rootOutgoing = outgoingByNode.get(rootId) || [];
+      // dnsw change: an exit with its own edge to an outside block keeps only that edge, rather than also being
+      // joined to every block the parent leads to (which drew one exit going everywhere).
+      const explicitExits = new Set((DATA.edges || [])
+        .filter((edge) => childIds.has(edge.source) && !childIds.has(edge.target) && edge.target !== rootId)
+        .map((edge) => edge.source));
       if (rootOutgoing.length) {
-        for (const exitId of exitIds) addCombinedOutgoing(exitId, rootOutgoing.map((edge) => edge.target), rootOutgoing);
+        for (const exitId of exitIds) {
+          if (!explicitExits.has(exitId)) addCombinedOutgoing(exitId, rootOutgoing.map((edge) => edge.target), rootOutgoing);
+        }
       }
       for (const edge of (DATA.edges || [])) {
         if (childIds.has(edge.source) && !childIds.has(edge.target) && edge.target !== rootId) {
