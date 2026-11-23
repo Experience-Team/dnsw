@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-<!-- Version 2 (23 Nov): a fresh start, separate from Options A, B and C (prototype-pick-your-team.html). It shares their
+<!-- Version 2 (23 Nov): a fresh start. Rules for working on it, and for iterations, are in v2/README.md. A fresh start, separate from Options A, B and C (prototype-pick-your-team.html). It shares their
      styles (shared.css, themes/hifi.css), their components (copy markup and classes across) and their data files, but
      none of their behaviour scripts, and it keeps its own saved state: every key it reads or writes in this browser's
      storage is filed under v2:, so testing it never changes the other options' picks, nor theirs this one. Viewer
@@ -30,15 +30,8 @@
 <title>Pick your team, version 2 · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
 <link rel="stylesheet" href="themes/hifi.css" />
-<style>
-  /* Version 2's own styles go here until they are worth moving into shared.css. Prefix new classes v2- so nothing
-     here can change Options A to C. */
-  #v2-body { display: flex; flex-direction: column; }
-  .v2-empty { flex: 1; display: grid; place-content: center; gap: var(--space-2); padding: var(--space-6); text-align: center; color: var(--c-ink-2); }
-  .v2-empty-t { margin: 0; font-size: 1rem; font-weight: 600; color: var(--c-ink); }
-  .v2-empty-p { margin: 0; font-size: .875rem; }
-  .v2-top { position: relative; min-height: 0; }
-</style>
+<!-- Version 2's own styles, after the shared ones: v2-prefixed classes only, never a change to a shared class -->
+<link rel="stylesheet" href="v2/v2.css" />
 </head>
 <body class="pv-page">
 <!-- Prototype viewer, as on the other options: the left panel (title, tabs, the concept, its controls and annotations)
@@ -48,19 +41,17 @@
     <h1 class="pv-title">RWC prototypes</h1>
     <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
   </header>
-  <!-- Version 2 is a page of its own. Its tab is only on this page for now: Options A to C and the flow chart do not
-       link here yet. -->
-  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a">Option B</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=c">Option C</a><a class="pv-tab is-active" href="prototype-pick-your-team-v2.html" aria-current="page">Version 2</a><a class="pv-tab" href="flow-chart.html">Flow chart</a></nav>
-  <!-- Five tabs run past the panel's width: the row scrolls sideways, so start it with this page's tab in view -->
-  <script>(function () {
-    var row = document.querySelector('.pv-tabs'), a = row && row.querySelector('.is-active');
-    if (a && a.offsetLeft + a.offsetWidth > row.clientWidth) row.scrollLeft = a.offsetLeft + a.offsetWidth - row.clientWidth + 32;
-  })();</script>
+  <!-- Version 2 is a page of its own, and its tabs show only Version 2: Options A to C and the flow chart are left out
+       (they still work at their own addresses), and they do not link here. Iterations is a placeholder, not a link: once
+       an iteration is saved it becomes a tab of its own (see v2/README.md). The phone view's Switch prototype menu lists
+       the same tabs, links only. -->
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab is-active" href="prototype-pick-your-team-v2.html" aria-current="page">Version 2</a><span class="pv-tab v2-tab-soon" aria-disabled="true">Iterations<span class="visually-hidden">, none saved yet</span></span></nav>
   <div class="pv-concept">
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team: Version 2</h2>
     </div>
     <p class="pv-p">A fresh start, separate from Options A, B and C, with its own saved picks. It uses the same styles, components and data.</p>
+    <p class="pv-p">Iterations will show as tabs beside Version 2 once they are saved.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
@@ -213,7 +204,7 @@
   var menu = document.createElement('div');
   menu.className = 'tp-dev-menu'; menu.id = 'tp-dev-menu'; menu.hidden = true;
   menu.setAttribute('role', 'group'); menu.setAttribute('aria-label', 'Settings');
-  var links = [].map.call(document.querySelectorAll('.pv-side .pv-tabs .pv-tab'), function (a) {
+  var links = [].map.call(document.querySelectorAll('.pv-side .pv-tabs a.pv-tab'), function (a) {
     var href = a.getAttribute('href'), cur = a.classList.contains('is-active');
     if (phoneQ) href += (href.indexOf('?') > -1 ? '&' : '?') + 'phone';
     return '<li><a class="tp-dev-item" href="' + href + '"' + (cur ? ' aria-current="page"' : '') + '>' + a.textContent + (cur ? TICK : '') + '</a></li>';
