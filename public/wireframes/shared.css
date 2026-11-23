@@ -5984,13 +5984,32 @@ span.tp-map-arrow { display: block; }
 .tp-fc-backbtn { display: grid; place-items: center; width: 24px; height: 24px; margin-left: -4px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
 .tp-fc-backbtn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 0; }
 @media (hover: hover) { .tp-fc-backbtn:hover { background: var(--c-surface-2); } }
-/* Your answers, once the flow is finished: one row per answer, each with Change */
-.tp-fc-ans { margin: var(--space-3) 0 0; padding: 0; }
-.tp-fc-row { display: grid; grid-template-columns: 1fr; padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
-.tp-fc-row:last-child { border-bottom: var(--bw-1) solid var(--c-line-soft); }
-.tp-fc-row dt { font-size: var(--fs-sm); color: var(--c-ink-2); }
-.tp-fc-row dd { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin: var(--space-1) 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); }
-#tp-phone:not([data-fc]) .tp-fc { margin-bottom: var(--space-7); }
+/* Your answers, once the flow is finished (24 Nov): a condensed card (the teams, then tickets, days and staying in a
+   line) whose Change opens it to every answer's own control. The page's lead line waits, as the card says it */
+:root[data-flow="c"] #tp-pick > #tp-pick-title { display: none; }
+#tp-phone[data-fc-card] .tp-fc { padding: var(--space-4); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md); background: var(--c-surface); }
+.tp-fc-ah { margin: 0; }
+.tp-fc-cardbtn { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: 36px; padding: 0; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-xl); font-weight: var(--fw-heavy); text-align: left; cursor: pointer; }
+.tp-fc-cardact { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-md); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; }
+.tp-fc-chev { transition: transform var(--dur-small) var(--ease-out); }
+.tp-fc-cardbtn[aria-expanded="true"] .tp-fc-chev { transform: rotate(180deg); }
+.tp-fc-cardbtn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-fc-sum1 { margin: var(--space-1) 0 0; font-size: var(--fs-base); font-weight: var(--fw-semi); }
+.tp-fc-sum2 { margin: var(--space-1) 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-fc-sum2:empty { display: none; }
+.tp-fc-body { display: none; }
+#tp-phone[data-fc-card="open"] .tp-fc-body { display: block; margin-top: var(--space-5); padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-fc-bh { margin: var(--space-5) 0 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.tp-fc-bh:first-child { margin-top: 0; }
+.tp-fc-slot #tp-util { margin-top: var(--space-3); margin-inline: 0; }
+.tp-fc-slot .tp-fc-tix { margin-top: var(--space-3); }
+.tp-fc-slot .tp-fc-rugby:not([hidden]) { display: block; margin-top: var(--space-3); text-align: center; }
+#tp-fc-slot-ask #tp-ask { margin-top: var(--space-5); padding-top: 0; border-top: 0; }
+#tp-fc-slot-ask .tp-refine-btn, #tp-fc-slot-ask .tp-refine-sum, #tp-fc-slot-ask #tp-q-party, #tp-fc-slot-ask #tp-q-party + .tp-quick { display: none; }
+#tp-fc-slot-ask .tp-refine, #tp-fc-slot-ask .tp-refine-panel { margin: 0; padding: 0; border: 0; }
+.tp-fc-bdone { margin: var(--space-5) 0 0; }
+.tp-fc-bdone .tp-home-cta { min-height: 36px; }
+#tp-phone:not([data-fc]) .tp-fc { margin-bottom: 0; } /* Your matches' own section gap sits under the card (it was 48px more, 116px in all) */
 /* Under the match cards: Add more teams, full width and prominent (the card-fan icon, as on every Pick your teams
    prompt), then Your days in NSW. 24px from the cards (one family), 48px to Your days */
 .tp-more { margin-top: var(--space-3); } /* the deck already has 12px under the cards: 24px in all */

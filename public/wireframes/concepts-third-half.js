@@ -22,6 +22,8 @@
   // shows, Your days and Where you're staying are borrowed into it: fc() says which step, and toasts stay away, as the
   // sections they would point to are hidden until the flow is finished
   function fc() { return window.tpFlowC ? window.tpFlowC.step() : ''; }
+  // Finished (24 Nov): Your days and Where you're staying sit open in the Your answers card, slider and all
+  function fcCard() { return !!(window.tpFlowC && window.tpFlowC.inCard && window.tpFlowC.inCard()); }
   var WHY_NONE = (window.TP_WORDS || {}).setDaysWhyNoTeam || 'Set your days to see ideas for your time in NSW.';
   var PLAY = (window.TP_WORDS || {}).dropGoal || 'Drop goal', IMG = (window.TP_WORDS || {}).imageOf || function (x) { return 'Placeholder image of ' + x; }; // A2 follow-up (21 Nov)
   var GM = (window.TP_WORDS || {}).groupMatches || 'pool matches', GM1 = (window.TP_WORDS || {}).groupMatch || 'pool match', LR = (window.TP_WORDS || {}).laterRounds || 'the knockouts', LR_C = LR.charAt(0).toUpperCase() + LR.slice(1); // A2 (21 Nov): visitor-facing stage names
@@ -2396,12 +2398,12 @@
     b.setAttribute('aria-expanded', typeOpen[key] + ''); box.hidden = !typeOpen[key];
   });
   function renderAsk() {
-    var t = trip() || {}, own = tp.own(), step = fc(), show = own || FLOW_B || step === 'days' || step === 'stay';
+    var t = trip() || {}, own = tp.own(), step = fc(), card = fcCard(), show = own || FLOW_B || step === 'days' || step === 'stay' || card;
     ask.hidden = !show;
     if (!show) { ask.innerHTML = ''; return; }
     if (askError && rRoot === ask) typeOpen.ask = true;
     var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW' + (has && !askEditing ? '' : ' (optional)') + '</h3>';
-    if (has && !askEditing && step !== 'days') {
+    if (has && !askEditing && step !== 'days' && !card) {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
@@ -2425,7 +2427,7 @@
     var bits = [t.base ? baseLabel(t.base) : '', t.party ? partyLabel(t.party) : ''].filter(Boolean);
     h += '<div class="tp-refine"><button type="button" class="tp-refine-btn" data-act="refine" aria-expanded="' + refineOpen + '" aria-controls="tp-refine-panel">Refine your plan by adding more details<svg class="tp-refine-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
       (bits.length && !refineOpen ? '<p class="tp-refine-sum">' + esc(bits.join(' · ')) + '</p>' : '');
-    if (refineOpen || step === 'stay') {
+    if (refineOpen || step === 'stay' || card) {
       var cur = t.base || '', fromList = basePlace() && !BASE_Q.some(function (x) { return x[0] === cur; });
       h += '<div class="tp-refine-panel" id="tp-refine-panel">' +
         '<h4 class="tp-refine-q" id="tp-q-base">Do you know where you’re staying?</h4>' +

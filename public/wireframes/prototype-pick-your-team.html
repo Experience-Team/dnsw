@@ -925,7 +925,7 @@
       "Your days start from your first to last NSW match, the first time the step opens with none set.",
       "A button bar floats at the bottom: Skip on the left moves on to the next screen without that answer (skipping Your days takes back the days started for you, if left as they were), Next on the right. From step 2, a back arrow beside the step count goes back one step.",
       "The plan bar is hidden on step 1 until a team is picked; then it rises and the button bar rises with it, on the same curve. It fills as you answer, but does not open (and shows no grabber) until the flow is finished. No toasts while a step shows, as the sections they point to are hidden.",
-      "Finished: the planner under Your answers. Change opens that step in place; Done or Escape comes back to the answer. As in Option B, Your matches is a heading with no tabs, and All matches is a section on Home after Where the matches are (also during the flow). Option B’s glide to the new card and Add more teams are not used.",
+      "Finished: Your answers is a condensed card (the teams, then tickets, days and where you’re staying in one line) over Your matches. Change opens it to every answer’s own control: the hand of cards with Find and Add every NSW match, the tickets list, Your days (the slider) and Where you’re staying. Done, at its top or foot, or Escape closes it. Home’s Plan around your matches opens it. As in Option B, Your matches is a heading with no tabs, and All matches is a section on Home after Where the matches are (also during the flow). Option B’s glide to the new card and Add more teams are not used.",
       "A reload comes back to the step you were on; Reset prototype and ?reset start again. Breaks principle 1 (reward early) on purpose, to test asking first."
     ] },
     { sel: "#tp-more", only: "results", title: "Option B test: scroll to your card", points: [
@@ -1807,8 +1807,8 @@
   function measure() { D = Math.max(0, picker.offsetTop - (heroCopy ? heroCopy.offsetTop + heroCopy.offsetHeight + PEEK : intro[0].offsetTop)); }
   function apply() {
     raf = 0;
-    // Option C's steps (data-fc on the phone) have no peek: the step's question sits above the cards
-    var p = reduce.matches || !D || pick.offsetParent === null || phone.hasAttribute('data-fc') ? 1 : Math.max(0, Math.min(1, body.scrollTop / D));
+    // Option C has no peek: a step's question, or the Your answers card, sits above the cards
+    var p = reduce.matches || !D || pick.offsetParent === null || document.documentElement.getAttribute('data-flow') === 'c' ? 1 : Math.max(0, Math.min(1, body.scrollTop / D));
     picker.style.transform = p < 1 ? 'translateY(' + (-(1 - p) * D).toFixed(1) + 'px)' : '';
     intro.forEach(function (el) {
       el.style.opacity = p < 1 ? p.toFixed(3) : '';
@@ -1826,7 +1826,7 @@
   // Focus in the intro while it is still behind the cards: bring it fully out
   intro.forEach(function (el) { el.addEventListener('focusin', function () { measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
   // The peek glides up into view once, on arrival at the top of the page
-  if (!reduce.matches && body.scrollTop < 4 && picker.animate && !phone.hasAttribute('data-fc')) picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
+  if (!reduce.matches && body.scrollTop < 4 && picker.animate && document.documentElement.getAttribute('data-flow') !== 'c') picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
 })();
 </script>
 <script src="vendor/qrcode.js"></script>
