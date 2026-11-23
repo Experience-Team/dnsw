@@ -4341,6 +4341,30 @@
       ];
     }
 
+    // dnsw change: the last straight piece before a box is at least one arrowhead long, so the arrowhead never folds
+    // into a bend. The lane between the two ends moves back from the target to make room, never past the source.
+    function ensureArrowRoom(segments, minLength) {
+      const count = segments.length;
+      if (count < 3) return segments;
+      const last = segments[count - 1];
+      const turn = segments[count - 2];
+      const before = segments[count - 3];
+      const horizontal = Math.abs(last.end.y - last.start.y) < 0.5;
+      const axis = horizontal ? "x" : "y";
+      const length = Math.abs(last.end[axis] - last.start[axis]);
+      if (length >= minLength) return segments;
+      const origin = segments[0].start[axis];
+      const direction = Math.sign(last.end[axis] - origin);
+      if (!direction) return segments;
+      let lane = last.end[axis] - direction * minLength;
+      if ((lane - origin) * direction < 0) lane = origin;
+      last.start[axis] = lane;
+      turn.start[axis] = lane;
+      turn.end[axis] = lane;
+      before.end[axis] = lane;
+      return segments;
+    }
+
     function pathForSegments(segments) {
       if (!segments.length) return "";
       const first = segments[0].start;
@@ -4375,21 +4399,23 @@
 
       const boxesById = new Map(instance.nodes().toArray().map((node) => [node.id(), renderedNodeBox(node)]));
       instance.edges().forEach((edge, index) => {
-        const segments = edgeRouteSegments(edge, boxesById);
-        const pathData = pathForSegments(segments);
-        if (!pathData) return;
         const highlighted = edge.hasClass("highlighted");
         const dimmed = edge.hasClass("dimmed");
         const color = highlighted ? "#2b49d4" : (edge.data("color") || "#46506a");
         const width = highlighted ? EDGE_WIDTH_HIGHLIGHT : (Number(edge.data("width")) || EDGE_WIDTH_DEFAULT);
+        // dnsw change: the arrowhead grows with the line, so it is always clearly wider than the line it ends
+        const arrowSize = Math.max(14, width * 3.2);
+        const segments = ensureArrowRoom(edgeRouteSegments(edge, boxesById), arrowSize + 8);
+        const pathData = pathForSegments(segments);
+        if (!pathData) return;
         const markerId = `arrow_${svgSafeId(edge.id())}_${index}`;
         const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
         marker.setAttribute("id", markerId);
         marker.setAttribute("viewBox", "0 0 10 10");
         marker.setAttribute("refX", "9");
         marker.setAttribute("refY", "5");
-        marker.setAttribute("markerWidth", "9");
-        marker.setAttribute("markerHeight", "9");
+        marker.setAttribute("markerWidth", String(arrowSize));
+        marker.setAttribute("markerHeight", String(arrowSize));
         marker.setAttribute("markerUnits", "userSpaceOnUse");
         marker.setAttribute("orient", "auto-start-reverse");
         const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
