@@ -4103,7 +4103,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    page never scrolls; only the annotations and the phone scroll, each inside its own window. The phone keeps its
    390px width and fills the window height up to 844px. Short or narrow windows fall back to an ordinary page. */
 .pv-page { --topbar-h: 0px; height: 100vh; height: 100dvh; display: grid; grid-template-columns: 460px minmax(0, 1fr); overflow: hidden; background: #fff; color: #1a1a1a; }
-.pv-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #d1d1d1; }
+.pv-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #d1d1d1; overflow-y: auto; overscroll-behavior: contain; } /* the panel scrolls as a whole */
 .pv-header { padding: var(--space-5) var(--space-6) 0; }
 .pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.02em; }
 .pv-desc { margin-top: var(--space-1); max-width: 21rem; font-size: 1rem; line-height: 1.5; color: #333; }
@@ -4118,7 +4118,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-tab--next { border-style: dashed; cursor: default; }
 @media (hover: hover) { a.pv-tab:not(.is-active):hover { background: #f2f6fd; } }
 .pv-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
-.pv-concept { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); border-top: 1px solid #d1d1d1; } /* the rule under the tabs, here so their fade leaves it whole */
+.pv-concept { flex: 1 0 auto; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); border-top: 1px solid #d1d1d1; } /* the rule under the tabs, here so their fade leaves it whole */
 .pv-concept-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
 .pv-h2 { font-size: 1.25rem; font-weight: 400; line-height: 1.5; }
 .pv-reset { flex: none; padding: 2px 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -4134,7 +4134,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-switches--test { margin-top: var(--space-5); }
 .pv-switches--test:not(:has(.pv-switch)) { display: none; }
 .pv-switch { align-self: flex-start; }
-.pv-notes.cn-notes { flex: 1; min-height: 0; max-width: none; margin-top: var(--space-3); overflow-y: auto; overscroll-behavior: contain; }
+/* The annotations get a tall window of their own, nearly the window's height, and scroll inside it; scrolling the panel
+   brings the whole window into view */
+.pv-notes.cn-notes { flex: none; height: max(360px, calc(100dvh - var(--space-6) * 2)); max-width: none; margin-top: var(--space-3); overflow-y: auto; overscroll-behavior: contain; }
 .pv-stage { min-height: 0; display: flex; justify-content: center; align-items: center; gap: var(--space-7); padding: var(--space-6); }
 /* The phone sits in the middle of the stage: on a window taller than the 844px phone the spare room is shared above and
    below instead of all falling under it */
@@ -4145,8 +4147,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Too short or too narrow for a fixed screen: an ordinary page, panel above, phone at full size */
 @media (max-height: 600px), (max-width: 800px) {
   .pv-page { display: block; height: auto; overflow: visible; }
-  .pv-side { border-right: 0; }
-  .pv-notes.cn-notes { max-height: 60vh; }
+  .pv-side { border-right: 0; overflow: visible; }
+  .pv-notes.cn-notes { height: auto; max-height: 80vh; }
   .pv-stage { justify-content: flex-start; padding: var(--space-4); }
   .pv-page .pv-phone > .cn-phone { height: 844px; }
 }
@@ -5406,13 +5408,12 @@ span.tp-map-arrow { display: block; }
 /* Add to your timeline and the team toggles were already centred (their longer labels balance the line box), so they are left as they are */
 
 /* ---------- Your plan, day by day (16 Nov, concepts-plan.js) ----------
-   The strip of your days (an index, 36px buttons) and one card per day. ?plan=cards stacks the cards and the strip sticks
-   under the sheet's header; ?plan=swipe shows one card at a time with Previous day and Next day. 4px rhythm: 4 to 16px
+   The strip of your days (an index, 36px buttons) and one card per day. The cards are stacked and the strip sticks
+   under the sheet's header. 4px rhythm: 4 to 16px
    inside a card, 24px between cards. */
 .tp-dc { margin: var(--space-4) 0 0; }
 .tp-dc[hidden] { display: none; }
 .tp-dc-strip { position: sticky; top: var(--dc-top, 0px); z-index: 2; margin: 0 calc(var(--space-4) * -1); padding: var(--space-2) var(--space-4); background: var(--c-surface); }
-.tp-dc.is-swipe .tp-dc-strip { position: static; }
 .tp-dc-strip-h { margin: 0 0 var(--space-1); font-size: var(--fs-2xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
 .tp-dc-days { display: flex; gap: var(--space-1); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; padding: 4px; margin: -4px; } /* room for the focus outline and a clash ring */
 .tp-dc-days::-webkit-scrollbar { display: none; }
@@ -5472,16 +5473,6 @@ span.tp-map-arrow { display: block; }
 .tp-dc-run-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
 .tp-dc-run-acts .tp-dc-ideas { margin-top: var(--space-3); }
 .tp-dc-run-acts .tp-link { margin-top: var(--space-3); }
-/* One day at a time */
-.tp-dc-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-3); }
-.tp-dc-step { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 36px; padding: 0 var(--space-3); border: var(--bw-1) solid var(--c-line-ink); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; }
-.tp-dc-step svg { width: 16px; height: 16px; }
-.tp-dc-step:disabled { opacity: .4; cursor: default; }
-.tp-dc-step:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
-.tp-dc-pos { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); white-space: nowrap; }
-.tp-dc-track { display: flex; gap: var(--space-4); margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: 0 var(--space-4); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 var(--space-4); scrollbar-width: none; align-items: flex-start; }
-.tp-dc-track::-webkit-scrollbar { display: none; }
-.tp-dc-track .tp-dc-card { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; }
 @media (prefers-reduced-motion: reduce) { .tp-dc-it.is-flash { transition: none; } }
 
 /* Polish (16 Nov): the top of the open timeline in fewer lines. The title row no longer sticks (only the plan bar and the
@@ -5876,11 +5867,11 @@ span.tp-map-arrow { display: block; }
     -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 }
 
-/* The open plan never scrolls sideways (19 Nov): only its day track and its timeline do. A sideways scroller holds its
+/* The open plan never scrolls sideways (19 Nov): only its timeline does. A sideways scroller holds its
    own contents (position: relative), so screen-reader labels inside a card (a button's visually-hidden text) are placed
-   and clipped within it, not against the panel, which they stretched to 3,306px in swipe by day. */
+   and clipped within it, not against the panel. */
 .tp-tl-panel { overflow-x: hidden; }
-.tp-dc-track, .tp-wcs--car, .tp-home-cities.is-car { position: relative; }
+.tp-wcs--car, .tp-home-cities.is-car { position: relative; }
 
 /* Placeholders with Annotations off (21 Nov, F-052): a visitor sees no "Placeholder", "Not linked yet", bracketed
    copy or dead link. Where there is no real wording the item or tag is hidden; with Annotations on (the stage's
@@ -5899,7 +5890,6 @@ span.tp-map-arrow { display: block; }
 .tp-dc-stay-p { margin: 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-dc-stay-p strong { display: block; margin-bottom: var(--space-1); font-size: var(--fs-base, 1rem); color: var(--c-ink); }
 .tp-dc-stay .tp-dc-ideas { margin-top: var(--space-3); }
-.tp-dc.is-swipe .tp-dc-stay { margin-top: var(--space-4); }
 
 /* Stage D (21 Nov, F-048): a day whose matches are all interstate says so under its heading; plain text, nothing to press */
 .tp-dc-away { margin: var(--space-1) 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }

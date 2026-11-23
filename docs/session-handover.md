@@ -41,8 +41,8 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 ## Prototype options: how they work (for the next session)
 
 - **Where options live.** The prototype is one page, `prototype-pick-your-team.html`. An option is a flag that changes part of it, so every option stays the real, working prototype rather than a copy.
-- **Flags in the address.** A script in the page's `<head>` reads the address before anything draws and sets an attribute on `<html>`. For example `?slogan=b` sets `data-slogan="b"` (line 35), and `?plan=swipe` sets `data-plan`. CSS and scripts then show one version or the other, for example `:root:not([data-slogan="b"]) .tp-slogan--b { display: none; }` in `shared.css`. Theme works the same way (`?theme=hifi`, only with `?tools`).
-- **Switches in the tools panel.** The test switches (Stacked hand (test), Plan: one day at a time (test)) sit in the viewer's left panel and show only with `?tools`. Each changes the same attribute as its address flag. Label a test switch "(test)".
+- **Flags in the address.** A script in the page's `<head>` reads the address before anything draws and sets an attribute on `<html>`. For example `?slogan=b` sets `data-slogan="b"` (line 35), and `?flow=a` sets `data-flow` (Option B). CSS and scripts then show one version or the other, for example `:root:not([data-slogan="b"]) .tp-slogan--b { display: none; }` in `shared.css`. Theme works the same way (`?theme=hifi`, only with `?tools`).
+- **Switches in the tools panel.** The test switches (Stacked hand (test)) sit in the viewer's left panel and show only with `?tools`. Each changes the same attribute as its address flag. Label a test switch "(test)".
 - **Options are tabs (23 Nov).** Compare options (#587, framed phones beside the main one) and the empty dashed spare frame were removed at the user's request, so each tab shows one phone. The page's `<head>` clears what Compare options saved in a browser (`pv-compare`, `opt-a:` to `opt-c:`).
 - **To add an option:**
   1. Agree the scope first (CLAUDE.md checks 7 and 12): which part of the page the option changes, and everywhere that part appears.
@@ -127,7 +127,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 - **`concepts-map.js`:** the overview map, "Around the matches in NSW".
   - It holds the route cards, the pins and full screen (`.tp-ov-map.is-full`).
   - It also holds Follow day by day, full screen (`.tp-mapfs`), with its own card panel and grabber.
-- **`concepts-plan.js`:** the day cards in the open plan (`?plan=cards`, the default, or `?plan=swipe`). `tpPlan.same(el)` finds an opener again after a redraw.
+- **`concepts-plan.js`:** the day cards in the open plan, stacked. `tpPlan.same(el)` finds an opener again after a redraw.
 - **`pv-device.js`:** paints library images in high fidelity, from `data-img` keys (`imgKey(title)` in third-half).
 - **`shared.css`:** everything for this page is under `.tp-*`. Page section spacing comes from `--sec-gap` (64px). Your days now sits inside the picker, 24px under Clear all, with no box. The desktop layout is under `@media (min-width:1024px)`, scoped to `.pv-device #tp-phone`.
 
@@ -137,7 +137,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - Don't invent content. Placeholder wording goes in `concepts-words.js`; list every string added.
 - A government site: nothing favours one business, so use the fair rotation for any list of places.
 - Update the annotations and CLAUDE.md checks a stage touches, and list each edit.
-- Check at 390 and 320, with `?plan=cards` and `?plan=swipe`, with Annotations on and off.
+- Check at 390 and 320, with Annotations on and off.
 - Keep the plan bar, sheets, day cards and strip, match sheet, I have tickets, the fan and stacked hand, the map, Where to watch, and the date slider's place under the team picker. Leave anything not named untouched.
 
 **Stage A (merged, #558):**
@@ -149,7 +149,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 
 **Stage B (merged, #561):**
 - One line above the dates on the page, in the plan and in the days sheet: "Set your days to see ideas for the rest of your trip."
-- With no days set, a dashed card under the last match day: "Staying after your last match?" with Set your days, which opens the days sheet. In swipe it sits under the cards.
+- With no days set, a dashed card under the last match day: "Staying after your last match?" with Set your days, which opens the days sheet.
 - The user first said keep the plan's own slider (B1 had asked to remove it); round 5 E3 (22 Nov) then removed it, so the B2 line now shows on the page and in the days sheet only. The days sheet keeps Use these dates.
 
 **Stage C (merged, #566):** built as below: a Not going to the match? group, tagged Evening, on every NSW match day (only places with opening hours, open after 5pm). The brief as given: Match night for someone not going (F-029). For the second round running, a tester whose partner was at the match found the match-day block was all about getting there and had nothing for her evening. This is the one finding still rated Blocks.
@@ -291,7 +291,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 
 ## Where the build stands (checked 19 Nov evening)
 
-- **Plan layouts:** both are in. `?plan=cards` (vertical day cards) is the default; `?plan=swipe` shows one card at a time; the tools panel switches between them.
+- **Plan layout:** stacked day cards only. The one-day-at-a-time test (`?plan=swipe` and its tools switch) was removed on 23 Nov; old `?plan=swipe` links now open the stacked cards.
 - **Team cards:** the country name (with its flag) sits under the three-letter code, in the grid and, since 21 Nov, in the stacked hand too (arcs of five, 14 to 12px, fewer to an arc where the names need it).
 - **Kick-offs in Sydney time:** not on the event line. It was dropped on 16 Nov to match the Figma reference; kick-off times elsewhere still say "Sydney time".
 - **Pick your teams button on the first screen:** removed (planner hero, 16 Nov), and Home's hero has no button either (19 Nov). The hand of cards under "Plan your 3rd half" is the way in.

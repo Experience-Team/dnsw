@@ -8,9 +8,7 @@
      picture, name, type and time where the data has one, each with Move (the item sheet's "Move it to" days, here on
      the card) and Remove. Screenings only Remove: a screening is for one match. Days with nothing added get Add
      ideas (the ideas sheet the + used to open); a run of two or more empty days is one card until it is opened up.
-   Two layouts of the same cards, for the next test round: ?plan=cards (the default) stacks them and the sheet scrolls,
-   with the strip stuck under the sheet's header; ?plan=swipe shows one card at a time, swiped sideways with snapping,
-   with Previous day, Next day and "Day 3 of 8". The tools panel switches between them.
+   The cards are stacked and the sheet scrolls, with the strip stuck under the sheet's header.
    Nothing here invents data: times are a product's indicative opening hours that day, or the kick-off a screening
    shows; ideas, places saved from the map and trips have none, so none is shown. Pictures are the stand-ins
    pv-device.js paints by name (grey in the wireframe). */
@@ -18,13 +16,12 @@
   var TBC = (window.TP_WORDS || {}).timeTbc || 'Time to be confirmed', TBC_L = TBC.charAt(0).toLowerCase() + TBC.slice(1); // A2 (21 Nov): concepts-words.js
   var root = document.getElementById('tp-dc'), tp = window.tpPicker;
   if (!root || !tp) return;
-  var html = document.documentElement, state = tp.state, esc = tp.esc;
+  var state = tp.state, esc = tp.esc;
   var panel = document.getElementById('tp-tl-panel'), head = panel && panel.querySelector('.tp-tl-head');
   var foot = document.getElementById('tp-tl-foot');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)');
   var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MON = ['Oct', 'Nov'];
   var expanded = {}, moving = null, current = null, flashIds = [];
-  function swipe() { return html.getAttribute('data-plan') === 'swipe'; }
   function dateOf(d) { return new Date(Date.UTC(2027, 9, 1 + d)); }
   function dayLabel(d) { var x = dateOf(d); return WD[x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + MON[x.getUTCMonth() - 9]; }
   function spanLabel(a, z) {
@@ -191,12 +188,12 @@
   function snapshot() {
     var a = document.activeElement, sel = null;
     if (a && root.contains(a)) {
-      var attrs = ['dcDay', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcIdeas', 'dcExpand', 'dcTo', 'dcPrev', 'dcNext', 'ticket', 'item'];
+      var attrs = ['dcDay', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcIdeas', 'dcExpand', 'dcTo', 'ticket', 'item'];
       for (var i = 0; i < attrs.length; i++) if (a.dataset[attrs[i]] !== undefined) { sel = '[data-' + attrs[i].replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(a.dataset[attrs[i]]) + '"]'; break; }
       if (!sel && a.id) sel = '#' + CSS.escape(a.id);
     }
-    var st = root.querySelector('.tp-dc-days'), tr = root.querySelector('.tp-dc-track');
-    return { sel: sel, strip: st ? st.scrollLeft : 0, track: tr ? tr.scrollLeft : null };
+    var st = root.querySelector('.tp-dc-days');
+    return { sel: sel, strip: st ? st.scrollLeft : 0 };
   }
   function render() {
     noteAdds();
@@ -207,32 +204,20 @@
     G = groups(M);
     var cards = G.map(function (g, i) { return cardHtml(g, i, G.length, M); });
     /* B3 (21 Nov, F-051): with no days set, one card under the last match day says what days unlock. Nothing is
-       guessed: no arrival or departure day, no ideas for undated days. In swipe it sits under the cards */
+       guessed: no arrival or departure day, no ideas for undated days */
     var W = window.TP_WORDS || {}, stay = '', lastM = -1;
     G.forEach(function (g, i) { if (!g.run && g.days[0].ms.length) lastM = i; });
     if (!M.range && M.own && lastM > -1) stay = '<section class="tp-dc-stay" aria-labelledby="tp-dc-stay-h"><p class="tp-dc-stay-p"><strong id="tp-dc-stay-h">' + esc(W.stayAfter || 'Staying after your last match?') + '</strong> ' +
       esc(W.setDaysWhy || '') + '</p><button type="button" class="tp-dc-ideas" data-dc-setdays aria-haspopup="dialog">' + window.tpIcons.cal + '<span>' + esc(W.setDays || 'Set your days') + '</span></button></section>';
-    if (stay && !swipe()) cards.splice(lastM + 1, 0, stay);
+    if (stay) cards.splice(lastM + 1, 0, stay);
     cards = cards.join('');
     // With days set, the line above the strip already says Your days (and their dates), so its label is for screen
     // readers only; with match days only, it says so on screen, as the days are not in a row
     var h = (outNote ? '<p class="tp-dc-out">' + esc(outNote) + '</p>' : '') + '<div class="tp-dc-strip"><p class="tp-dc-strip-h' + (M.range ? ' visually-hidden' : '') + '" id="tp-dc-strip-h">' + esc(M.range ? 'Your days' : 'Your match days') + '</p>' +
       '<div class="tp-dc-days" role="group" aria-labelledby="tp-dc-strip-h">' + stripHtml(M) + '</div></div>';
-    if (swipe()) {
-      h += '<div class="tp-dc-nav"><button type="button" class="tp-dc-step" data-dc-prev>' + '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Previous day</span></button>' +
-        '<p class="tp-dc-pos" id="tp-dc-pos"></p>' +
-        '<button type="button" class="tp-dc-step" data-dc-next><span>Next day</span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>' +
-        '<div class="tp-dc-track">' + cards + '</div>' + stay;
-    } else h += '<div class="tp-dc-cards">' + cards + '</div><div class="tp-dc-tail" aria-hidden="true"></div>';
+    h += '<div class="tp-dc-cards">' + cards + '</div><div class="tp-dc-tail" aria-hidden="true"></div>';
     root.innerHTML = h;
-    root.classList.toggle('is-swipe', swipe());
     var st = root.querySelector('.tp-dc-days'); st.scrollLeft = snap.strip;
-    var tr = root.querySelector('.tp-dc-track');
-    if (tr) {
-      if (snap.track !== null) tr.scrollLeft = snap.track;
-      else if (current !== null) { var c0 = cardFor(current); if (c0) tr.scrollLeft = c0.offsetLeft - tr.offsetLeft; }
-      tr.addEventListener('scroll', onTrack, { passive: true });
-    }
     measure();
     tail();
     if (current === null || !M.days.some(function (x) { return x.d === current; })) current = M.first;
@@ -247,7 +232,7 @@
     // Only the strip sticks now (16 Nov polish): the title row scrolls away with the rest
     var sh = root.querySelector('.tp-dc-strip'), fh = foot && foot.offsetParent ? foot.offsetHeight : 0;
     panel.style.setProperty('--dc-top', '-8px');
-    panel.style.scrollPaddingTop = ((sh && !swipe() ? sh.offsetHeight : 0) + 8) + 'px';
+    panel.style.scrollPaddingTop = ((sh ? sh.offsetHeight : 0) + 8) + 'px';
     panel.style.scrollPaddingBottom = (fh + 8) + 'px';
   }
 
@@ -259,7 +244,7 @@
     return parseFloat(cs.paddingTop) + (parseFloat(getComputedStyle(strip).top) || 0) + strip.offsetHeight + 12;
   }
   function tail() {
-    var t = root.querySelector('.tp-dc-tail'); if (!t || !panel || swipe()) return;
+    var t = root.querySelector('.tp-dc-tail'); if (!t || !panel) return;
     var cardsEl = root.querySelectorAll('.tp-dc-card'), last = cardsEl[cardsEl.length - 1]; if (!last) return;
     t.style.height = '0px';
     var pr = panel.getBoundingClientRect(), y = last.getBoundingClientRect().top - pr.top - panel.clientTop + panel.scrollTop;
@@ -285,22 +270,11 @@
       var st = on.parentNode, l = on.offsetLeft - st.offsetLeft;
       if (l < st.scrollLeft + 8 || l + on.offsetWidth > st.scrollLeft + st.clientWidth - 8) st.scrollTo({ left: Math.max(0, l - st.clientWidth / 2 + on.offsetWidth / 2), behavior: instant || reduce.matches ? 'auto' : 'smooth' });
     }
-    if (swipe()) {
-      var cards = root.querySelectorAll('.tp-dc-card'), pos = root.querySelector('#tp-dc-pos'), i = Array.prototype.indexOf.call(cards, card);
-      cards.forEach(function (c) { c.inert = c !== card; });
-      if (pos && card && M0) {
-        var ia = M0.days.map(function (x) { return x.d; }).indexOf(a) + 1, iz = M0.days.map(function (x) { return x.d; }).indexOf(z) + 1;
-        pos.textContent = (ia === iz ? 'Day ' + ia : 'Days ' + ia + ' to ' + iz) + ' of ' + M0.n;
-      }
-      var pv = root.querySelector('[data-dc-prev]'), nx = root.querySelector('[data-dc-next]');
-      if (pv) pv.disabled = i <= 0;
-      if (nx) nx.disabled = i < 0 || i >= cards.length - 1;
-    }
   }
   // Cards: the day whose card is at the top of the sheet, under the strip, is the current one
   var raf = 0, lockT = 0;
   if (panel) panel.addEventListener('scroll', function () {
-    if (swipe() || raf || Date.now() < lockT) return;
+    if (raf || Date.now() < lockT) return;
     raf = requestAnimationFrame(function () {
       raf = 0;
       var strip = root.querySelector('.tp-dc-strip'); if (!strip) return;
@@ -309,29 +283,13 @@
       if (pick && +pick.dataset.dcA !== current) { current = +pick.dataset.dcA; syncCurrent(true); }
     });
   }, { passive: true });
-  // Swipe: the card that has snapped into view is the current one
-  var trackT = 0;
-  function onTrack() {
-    clearTimeout(trackT);
-    trackT = setTimeout(function () {
-      var tr = root.querySelector('.tp-dc-track'); if (!tr) return;
-      var mid = tr.scrollLeft + tr.clientWidth / 2, pick = null;
-      tr.querySelectorAll('.tp-dc-card').forEach(function (c) { var l = c.offsetLeft - tr.offsetLeft; if (mid >= l && mid < l + c.offsetWidth) pick = c; });
-      if (pick && +pick.dataset.dcA !== current) { current = +pick.dataset.dcA; syncCurrent(true); }
-    }, 90);
-  }
-  // Go to a day: its card comes to the top of the sheet (cards) or into view (swipe). Only the sheet or the track
-  // scrolls, never the page behind
+  // Go to a day: its card comes to the top of the sheet. Only the sheet scrolls, never the page behind
   function goTo(d, focus, instant) {
     var card = cardFor(d); if (!card) return;
     current = +card.dataset.dcA;
     lockT = Date.now() + 900; // the day asked for stays the current one while the sheet scrolls to it (and when the last days cannot reach the top)
     var beh = instant || reduce.matches ? 'auto' : 'smooth';
-    if (swipe()) {
-      var tr = root.querySelector('.tp-dc-track');
-      card.inert = false;
-      tr.scrollTo({ left: card.offsetLeft - tr.offsetLeft, behavior: beh });
-    } else if (panel) {
+    if (panel) {
       // Aim for where the strip will be once it has stuck, not where it is now: from the top of the sheet the title
       // rows above it scroll away too, so measuring against the strip as it sits undershoots by their height
       var strip = root.querySelector('.tp-dc-strip'), cs = getComputedStyle(panel), pr = panel.getBoundingClientRect();
@@ -345,7 +303,7 @@
   /* Where the plan first opens in a visit (20 Nov): your days in NSW (their first day), else the earliest-dated thing
      you added, else your first NSW match, else the plan's first day. Reopening in the same visit returns to the day
      last open or last added to (22 Nov, E1, below); a ticket does not change it. The strip's current day and the card
-     at the top of the sheet (or in view, one day at a time) are set together. The first card stays at the very top of
+     at the top of the sheet are set together. The first card stays at the very top of
      the sheet, with the heading and your days line above it. */
   function openDay(M) {
     if (M.range) return M.range.a;
@@ -375,7 +333,7 @@
     var back = addedSince !== null && cardFor(addedSince) ? addedSince : lastOpen !== null && cardFor(lastOpen) ? lastOpen : null;
     var d = at && at.day != null && cardFor(at.day) ? at.day : back !== null ? back : openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
     if (!card) return;
-    if (card === first && !swipe()) {
+    if (card === first) {
       current = +card.dataset.dcA; lockT = Date.now() + 900;
       if (panel) panel.scrollTop = 0;
       syncCurrent(true, true);
@@ -389,12 +347,6 @@
     var ds = b.dataset;
     if (ds.dcDay !== undefined) { goTo(+ds.dcDay, true); return; }
     if (ds.dcSetdays !== undefined) { tp.openDays(b); return; }
-    if (ds.dcPrev !== undefined || ds.dcNext !== undefined) {
-      var cards = Array.prototype.slice.call(root.querySelectorAll('.tp-dc-card')), i = cards.indexOf(cardFor(current));
-      var to = cards[i + (ds.dcNext !== undefined ? 1 : -1)];
-      if (to) goTo(+to.dataset.dcA, false);
-      return;
-    }
     if (ds.dcOpen) { tp.openSheet('item:' + ds.dcOpen, b); return; }
     if (ds.dcMatch) { tp.openSheet('match:' + ds.dcMatch, b); return; }
     if (ds.dcIdeas) { if (window.tpFreeApi) window.tpFreeApi.toggle(+ds.dcIdeas, b); return; }
@@ -450,23 +402,6 @@
     all.forEach(function (x) { x.tabIndex = x === to ? 0 : -1; });
     to.focus();
   });
-
-  /* ---------- The tools switch: cards or one day at a time (also in the address, ?plan=swipe) ---------- */
-  var tog = document.getElementById('tp-plan-toggle');
-  if (tog) {
-    tog.setAttribute('aria-checked', swipe() ? 'true' : 'false');
-    tog.addEventListener('click', function () {
-      var on = !swipe();
-      if (on) html.setAttribute('data-plan', 'swipe'); else html.removeAttribute('data-plan');
-      tog.setAttribute('aria-checked', on ? 'true' : 'false');
-      try {
-        var u = new URL(location.href); u.searchParams.set('plan', on ? 'swipe' : 'cards');
-        history.replaceState(null, '', u.pathname + u.search.replace(/=(?=&|$)/g, '') + u.hash);
-      } catch (err) {}
-      var keep = current; render(); if (keep !== null) goTo(keep, false);
-      tp.say(on ? 'Your plan shows one day at a time.' : 'Your plan shows every day, one under the other.');
-    });
-  }
 
   window.tpPlan = {
     render: render,

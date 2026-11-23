@@ -40,7 +40,6 @@
     if (t === 'hifi') d.setAttribute('data-theme', 'hifi');
   }
   if (/[?&]slogan=b\b/.test(q)) d.setAttribute('data-slogan', 'b'); // the alternative slogan, for testing
-  if (/[?&]plan=swipe\b/.test(q)) d.setAttribute('data-plan', 'swipe'); // Your plan as one day card at a time; ?plan=cards (the default) stacks them
   if (/[?&]flow=a\b/.test(q)) d.setAttribute('data-flow', 'a'); // Option B: a pick scrolls to its match card, with Add more teams and Your days under the cards
 })();</script>
 <title>Pick your team · RWC prototypes</title>
@@ -50,8 +49,8 @@
 <body class="pv-page">
 <!-- Prototype viewer (Figma: Rugby World Cup, node 204:12914). One prototype per page, each with its own address. It
      behaves as a single static screen: the left panel (title, tabs, the concept, its controls and annotations) and the
-     stage (the phone and a spare frame for another prototype) are fixed to the window, and only the annotations and
-     the phone scroll, each inside its own window. -->
+     stage (the phone and a spare frame for another prototype) are fixed to the window. The left panel scrolls as a
+     whole, the annotations scroll inside their own tall window, and the phone scrolls inside its frame. -->
 <aside class="pv-side">
   <header class="pv-header">
     <h1 class="pv-title">RWC prototypes</h1>
@@ -75,8 +74,8 @@
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team: <span class="pv-flow-main">Option A</span><span class="pv-flow-a">Option B</span></h2>
     </div>
-    <p class="pv-p pv-flow-a">Option B: in Plan your 3rd half, picking a team scrolls down to its match card, with Add more teams and Your days under the cards. Your matches is a heading with no tabs, and All matches is on Home. Everything else is the same as Option A, with its own saved picks.</p>
-    <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. With Annotations on, pink marks data that is not confirmed yet.</p>
+    <p class="pv-p pv-flow-a">Option B: picking a team scrolls you to its card. Everything else matches Option A, with its own saved picks. Turn on Annotations for the details.</p>
+    <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
       <!-- The phone in the wireframe or the high fidelity theme (pv-device.js; remembered in this browser). High fidelity
@@ -91,10 +90,6 @@
       <!-- TEST: which hand of team cards shows: the stacked hand (on) or the original fan (off). Remembered in this browser -->
       <button type="button" class="cn-switch pv-switch" id="tp-fan-toggle" role="switch" aria-checked="true"><span class="cn-switch-track" aria-hidden="true"></span>Stacked hand (test)</button>
       <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('tp-fan-toggle').remove();</script>
-      <!-- TEST (16 Nov): Your plan's layout, the same as ?plan=swipe (on) or ?plan=cards (off, the default). It changes the
-           address too, so the link can be shared. Only on the tools version, as the theme switch (concepts-plan.js) -->
-      <button type="button" class="cn-switch pv-switch" id="tp-plan-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plan: one day at a time (test)</button>
-      <script>if (!document.documentElement.classList.contains('pv-tools')) document.getElementById('tp-plan-toggle').remove();</script>
     </div>
     <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
@@ -483,7 +478,7 @@
           <!-- Saved from the map before your days were set: waiting for a free day (concepts-teams.js, tlUpdate) -->
           <section class="tp-tl-wait" id="tp-tl-wait" aria-labelledby="tp-tl-wait-h" hidden></section>
           <!-- Your plan, day by day (16 Nov, concepts-plan.js): a strip of your days as an index, then one card per day with
-               names, times and pictures. ?plan=cards (the default) stacks the cards; ?plan=swipe shows one at a time. -->
+               names, times and pictures, stacked. -->
           <section class="tp-dc" id="tp-dc" aria-label="Your plan, day by day"></section>
           <!-- A free day's ideas: lent to the stacked sheet (#tp-pm) when its + on the axis is tapped, and put back here
                hidden when it closes; drawn by concepts-third-half.js (renderTlIdeas) -->
@@ -1198,11 +1193,6 @@
       "Empty state: with no days set, a dashed card under the last match day says Staying after your last match? Set your days to see ideas for the rest of your trip., with Set your days.",
       "Nothing is guessed: no arrival or departure day and no ideas for days that are not set."
     ] },
-    { sel: ".tp-dc-nav", title: "One day at a time (test layout)", points: [
-      "Test: an alternative layout of the same day cards, one at a time. Open it with ?plan=swipe, from the wireframes index, or with the switch in the tools panel. The stacked cards are the default (?plan=cards).",
-      "Swipe sideways (it snaps to each day) or use Previous day and Next day, with Day 3 of 8 between them.",
-      "Keyboard: only the card in view can take focus."
-    ] },
     { sel: "#tp-tl-ideas", title: "A free day’s ideas (stacked sheet)", points: [
       "Opened from Add ideas on a day card. Stacks over the plan, which steps back.",
       "Headed with the day, Free day and how many ideas. The same ideas and Add buttons as that day on the page, so adding here or there is one plan.",
@@ -1432,6 +1422,12 @@
     var b = e.target.closest && e.target.closest('.cn-badge'); if (!b) return;
     e.preventDefault(); e.stopPropagation(); // the badge is a note marker, not the part it sits on
     var li = notesList.querySelector('li[data-n="' + b.dataset.n + '"]'); if (!li) return;
+    // The panel scrolls as a whole: bring the annotations window into view first if any of it is out of sight
+    var side = notesBox.closest('.pv-side');
+    if (side && side.scrollHeight > side.clientHeight) {
+      var sr = side.getBoundingClientRect(), nr = notesBox.getBoundingClientRect();
+      if (nr.top < sr.top || nr.bottom > sr.bottom) scrollWithin(side, notesBox, 12);
+    }
     scrollWithin(notesBox, li, 12);
     flash(b.dataset.n);
   }, true);
