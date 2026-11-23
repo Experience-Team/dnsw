@@ -150,7 +150,16 @@
             </div>
           </section>
 
-          <!-- Plan your 3rd half: the planner's hand of cards and its caption are lent here (#tp-home-hand) while Home shows -->
+          <!-- Articles (19 Nov; pages 22 Nov): a masonry grid of dummy stories, the first section under the hero (23 Nov; it was under the team picker), built by
+               concepts-home.js from concepts-articles.js. A card opens its article here (#tp-article), in place of Home's
+               sections, and the address gains ?a=<slug>. -->
+          <section class="tp-home-sec" id="tp-home-reads" aria-labelledby="tp-home-reads-title">
+            <h3 class="tp-sec-title" id="tp-home-reads-title">Read before you go</h3>
+            <p class="tp-home-intro">Match-day tips and ideas for the days around your matches.</p>
+            <ul class="tp-reads" id="tp-reads"></ul>
+          </section>
+
+          <!-- Plan your 3rd half: the planner's hand of cards and its caption are lent here (#tp-home-hand) while Home shows. Under the articles since 23 Nov -->
           <section class="tp-home-sec tp-home-plan" id="tp-home-plan" aria-labelledby="tp-home-plan-title">
             <h3 class="tp-sec-title" id="tp-home-plan-title" tabindex="-1">Plan your 3rd half</h3>
             <p class="tp-home-intro">Pick your teams, see their matches, and plan your NSW days around game time.</p>
@@ -159,15 +168,6 @@
             <a class="tp-home-cta" href="#tp-ask" id="tp-home-go" hidden>Plan around your matches<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
             <!-- No team: every NSW match, added in place (the same quiet link as in All matches; hidden once a team is picked) -->
             <p class="tp-rugby-line tp-home-rugby" id="tp-home-rugby"><span class="tp-home-rugby-q">No team, or no tickets yet?</span><button type="button" class="tp-link tp-rugby-link" data-rugby data-rugby-home aria-describedby="tp-rugby-why-h"><span class="tp-u">I&rsquo;m just here for the rugby</span></button><span class="tp-rugby-why" id="tp-rugby-why-h">This adds every match played in NSW.</span></p>
-          </section>
-
-          <!-- Articles (19 Nov; pages 22 Nov): a masonry grid of dummy stories under the team picker, built by
-               concepts-home.js from concepts-articles.js. A card opens its article here (#tp-article), in place of Home's
-               sections, and the address gains ?a=<slug>. -->
-          <section class="tp-home-sec" id="tp-home-reads" aria-labelledby="tp-home-reads-title">
-            <h3 class="tp-sec-title" id="tp-home-reads-title">Read before you go</h3>
-            <p class="tp-home-intro">Match-day tips and ideas for the days around your matches.</p>
-            <ul class="tp-reads" id="tp-reads"></ul>
           </section>
 
           <!-- At a glance: three cards of high-level facts; See all FAQs jumps to the FAQs on this page -->
@@ -728,6 +728,23 @@
     ] },
 
     // Home
+    { sel: "#tp-reads", title: "Home: Read before you go", points: [
+      "The first section under the hero, above the team picker. A grid of article cards, two columns on phones and three on desktop, each card at its own height: picture, category, title and read time.",
+      "Read time is worked out from the article at about 200 words a minute.",
+      "Each card opens its article in place of Home’s sections.",
+      "Screen readers: cards read down the first column, then the second.",
+      "Data: six dummy articles written for the prototype. No business is named."
+    ] },
+    { sel: ".tp-art", title: "Article", points: [
+      "Opens in place of Home’s sections. The header, tabs, plan bar and footer stay.",
+      "The address gains ?a= and the article’s name, so the browser’s back button returns to the card (same scroll, focus on the card), and a shared or reloaded link opens the article.",
+      "Read before you go (top left) and the Home tab also go back. Any other tab closes the article first.",
+      "The page: category, title, standfirst, byline with read time, a picture, then the text with two or three pictures through it.",
+      "Under the text, a Quick answers block written for search and answer engines: a 40 to 60 word answer, Key facts, Questions people ask (answers of 50 words or fewer, always shown, never folded away) and Places in this article.",
+      "While an article shows, the page has a meta description and structured data (Article, FAQPage, BreadcrumbList), and the browser title is the article’s.",
+      "More to read offers four other articles. Plan your 3rd half goes to the planner.",
+      "Data: dummy copy. Articles are editorial pages, not products, so they are not in the product data contract."
+    ] },
     { sel: "#tp-home-hand", title: "Home: pick your teams", points: [
       "Home shows the same hand of team cards as the planner. It is the planner’s own picker, moved across while Home shows, so a pick on Home is the same pick in the planner and the plan bar counts it.",
       "Once anything is picked, Plan around your matches appears. It opens the planner at Your days, and its label says so.",
@@ -750,23 +767,6 @@
       "Phones: the stadium cards are a carousel, one at a time with the next peeking in, and the card in view highlights its pin. Tapping a pin also brings its card into view. Only the carousel moves sideways, never the page.",
       "Desktop: the cards are a list.",
       "Data: highlights are a proposed field (product data contract §16, gap). Match counts come from the fixtures (Moore Park 5, Olympic Park 8, Newcastle 4). Getting there is a placeholder."
-    ] },
-    { sel: "#tp-reads", title: "Home: Read before you go", points: [
-      "A grid of article cards, two columns on phones and three on desktop, each card at its own height: picture, category, title and read time.",
-      "Read time is worked out from the article at about 200 words a minute.",
-      "Each card opens its article in place of Home’s sections.",
-      "Screen readers: cards read down the first column, then the second.",
-      "Data: six dummy articles written for the prototype. No business is named."
-    ] },
-    { sel: ".tp-art", title: "Article", points: [
-      "Opens in place of Home’s sections. The header, tabs, plan bar and footer stay.",
-      "The address gains ?a= and the article’s name, so the browser’s back button returns to the card (same scroll, focus on the card), and a shared or reloaded link opens the article.",
-      "Read before you go (top left) and the Home tab also go back. Any other tab closes the article first.",
-      "The page: category, title, standfirst, byline with read time, a picture, then the text with two or three pictures through it.",
-      "Under the text, a Quick answers block written for search and answer engines: a 40 to 60 word answer, Key facts, Questions people ask (answers of 50 words or fewer, always shown, never folded away) and Places in this article.",
-      "While an article shows, the page has a meta description and structured data (Article, FAQPage, BreadcrumbList), and the browser title is the article’s.",
-      "More to read offers four other articles. Plan your 3rd half goes to the planner.",
-      "Data: dummy copy. Articles are editorial pages, not products, so they are not in the product data contract."
     ] },
     { sel: "#tp-faq", title: "Home: FAQs, updates, share and footer", points: [
       "Six questions, each opening on its own; the answer glides open. Links in answers open in a new tab.",

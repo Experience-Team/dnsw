@@ -3763,7 +3763,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-home-sec > .tp-home-cta { margin-top: var(--space-5); }
 .tp-home-ph { color: var(--c-ink-3); } /* bracketed placeholders: copy or data still to come */
 /* Plan your 3rd half: the planner's hand, lent here. Its own layout expects 16px at the sides */
-.tp-home-plan { border-top: 0; margin-top: var(--space-7); padding-top: 0; }
+/* The first section under the hero has no rule above it and keeps the hero's gap (the articles since 23 Nov) */
+.tp-home-hero + .tp-home-sec { border-top: 0; margin-top: var(--space-7); padding-top: 0; }
 .tp-home-hand { margin: 0 calc(var(--space-4) - var(--space-5)); }
 .tp-home-hand .tp-fan2-wrap { margin-top: var(--space-4); }
 .tp-home-plan > .tp-home-cta { margin-top: var(--space-4); }
