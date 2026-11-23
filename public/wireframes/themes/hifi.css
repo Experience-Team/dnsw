@@ -124,13 +124,8 @@
 :root[data-theme="hifi"] .cn-phone .tp-tag { text-transform: uppercase; letter-spacing: .06em; }
 :root[data-theme="hifi"] .cn-phone :is(.tp-card-code, .tp-back-code) { font-weight: 700; letter-spacing: .02em; }
 
-/* Team Card: chalk with a 1px ink line; Selected takes the colourway, a 2px line, the code in chalk (24px Mono is
-   large text) and the name and meta in ink. Selection shows in the line weight too, not colour alone. */
-:root[data-theme="hifi"] .cn-phone .tp-card.is-picked { background: var(--tth-surface-brand); border-width: 2px; border-color: var(--tth-border-default); color: var(--tth-text-on-brand-small); box-shadow: none; }
-:root[data-theme="hifi"] .cn-phone .tp-card.is-picked .tp-card-code { color: var(--tth-text-on-brand); }
-:root[data-theme="hifi"] .cn-phone .tp-card.is-picked .tp-card-meta { color: var(--tth-text-on-brand-small); }
 :root[data-theme="hifi"] .cn-phone .tp-back-code { border-radius: 0; }
-/* TEST stacked hand: picked takes the colourway (Team Card / Selected), with a 2px line; the 15px code stays ink, as
+/* The hand of cards: picked takes the colourway (Team Card / Selected), with a 2px line; the 15px code stays ink, as
    chalk on a colourway needs 24px */
 :root[data-theme="hifi"] .cn-phone .tp-card2.is-picked { background: var(--tth-surface-brand); border-width: 2px; color: var(--tth-text-on-brand-small); box-shadow: none; }
 :root[data-theme="hifi"] .cn-phone .tp-card2-code { font-weight: 700; }

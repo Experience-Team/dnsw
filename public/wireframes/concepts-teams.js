@@ -18,7 +18,6 @@
   var FIX = window.cnFixtures;
   if (!root || !Array.isArray(FIX)) return;
 
-  var fan = document.getElementById('tp-fan');
   var caption = document.getElementById('tp-fan-caption');
   var chosenEl = document.getElementById('tp-chosen');
   var tabsEl = document.getElementById('tp-tabs'), tabYours = document.getElementById('tp-tab-yours'), tabAll = document.getElementById('tp-tab-all');
@@ -162,120 +161,19 @@
   function esc(x) { return String(x).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
   function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
 
-  /* ---------- The fan ----------
-     Each card turns about a pivot well below the fan, so the hand curves like cards held in a hand. Later cards lie
-     on top, so every card shows its code at the top left. offset is the index of the card in the middle; it moves
-     with a drag and settles on a whole card. */
-  var STEP = 6.5, PIVOT = 460, PX = 64, LIFT = 26;
-  // The middle card gets extra room either side (GAP degrees), so the card that is in focus is never covered by its
-  // neighbour and its pool and NSW line can be read on the card itself. It eases in over the first card of distance,
-  // so a drag stays continuous.
-  var GAP = 5;
-  function angleOf(rel) { return rel * STEP + Math.max(-1, Math.min(1, rel)) * GAP; }
+  /* ---------- The hand of cards: shared pieces ---------- */
   var TICK = '<svg class="tp-card-tick" width="14" height="12" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
   // Cards show the team only (no pool or match info). With Plays in NSW on, teams with a match in NSW get a small marker
   var NSW_MARK = '<span class="tp-nsw-mark" aria-hidden="true">NSW</span>';
   function cardLabel(c) { return c.rugby ? c.name + ', no team, see every match in NSW' : c.name + (state.nswMark && c.nsw > 0 ? ', plays in NSW' : ''); }
-  function front(c) {
-    // The code stays alone at the top left, so it shows on cards the next card overlaps; the flag sits with the name
-    return '<span class="tp-card-code">' + esc(c.code) + '</span><span class="tp-card-name">' + (FLAG[c.name] ? '<span class="tp-card-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') + esc(c.name) + '</span>' +
-      (c.nsw > 0 ? NSW_MARK : '');
-  }
-  fan.innerHTML = CARDS.map(function (c, i) {
-    return '<button type="button" class="tp-card' + (c.rugby ? ' tp-card--rugby' : '') + '" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
-      esc(cardLabel(c)) + '">' + front(c) + TICK + '</button>';
-  }).join('');
-  var cards = Array.prototype.slice.call(fan.children);
-  /* seq: the cards in the hand, in order (all of them, or only teams playing in NSW, see "In NSW" below). offset counts
-     positions in seq, not card indexes. The hand opens on Australia, the host nation, rather than whichever card
-     happens to sit fourth alphabetically. */
+  /* seq: the cards in the hand, in order (all of them, or only teams playing in NSW, see "In NSW" below) */
   var seq = CARDS.map(function (c, i) { return i; });
   function pos(i) { return seq.indexOf(i); }
-  function midCard() { return cards[seq[Math.max(0, Math.min(seq.length - 1, Math.round(offset)))]]; }
-  var START = Math.max(0, CARDS.findIndex(function (c) { return c.name === 'Australia'; }));
-  var offset = START, dealt = false;
-  // trans: an inline transition for this move only (the glide to a picked card); otherwise the stylesheet's
-  function place(animate, trans) {
-    var mid = Math.round(offset);
-    cards.forEach(function (b, i) {
-      var p = pos(i), out = p < 0, c = CARDS[i];
-      // A card out of the hand (In NSW on) stays where it last was and fades out; it comes back the same way
-      var rel = out ? (b._rel || 0) : p - offset;
-      if (!out) b._rel = rel;
-      var lift = (isPicked(c) ? LIFT : 0) + (p === mid ? 6 : 0);
-      b.style.transition = !animate ? 'none' : trans || '';
-      b.style.transform = dealt ? 'rotate(' + angleOf(rel).toFixed(2) + 'deg) translateY(' + (-lift) + 'px)' : 'rotate(0deg) translateY(0)';
-      var far = out || Math.abs(rel) > 7.5;
-      b.style.opacity = far ? '0' : '';
-      b.style.visibility = far ? 'hidden' : '';
-      b.tabIndex = p === mid ? 0 : -1;
-      b.classList.toggle('is-mid', p === mid);
-      b.classList.toggle('is-picked', isPicked(c));
-      b.setAttribute('aria-pressed', isPicked(c) ? 'true' : 'false');
-    });
-    sync2(animate);
-  }
-  function settle(to, focus, trans) {
-    offset = Math.max(0, Math.min(seq.length - 1, Math.round(to)));
-    place(true, trans);
-    if (focus) midCard().focus({ preventScroll: true });
-  }
-  // The deal: the first time the fan comes into view, the hand opens from a stack. The one authored moment here.
-  function deal() {
-    if (dealt) return;
-    dealt = true;
-    if (reduce.matches) { place(false); return; }
-    cards.forEach(function (b, i) { b.style.transitionDelay = (pos(i) < 0 ? 0 : Math.abs(pos(i) - offset) * 22) + 'ms'; });
-    place(true);
-    setTimeout(function () { cards.forEach(function (b) { b.style.transitionDelay = ''; }); }, 900);
-  }
-  place(false);
-  // The hand deals open the first time the fan comes into view (and again after Reset prototype)
-  function watchDeal() {
-    if (!('IntersectionObserver' in window)) { deal(); return; }
-    var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); deal(); } }, { root: body, threshold: .4 });
-    io.observe(fan);
-  }
-  watchDeal();
-
-  // Drag or swipe sideways; a tap picks. Vertical swipes still scroll the phone (touch-action: pan-y).
-  var drag = null, suppress = false;
-  fan.addEventListener('pointerdown', function (e) {
-    if (e.button > 0) return;
-    drag = { id: e.pointerId, x: e.clientX, o: offset, moved: false, t: performance.now(), lx: e.clientX, v: 0 };
-  });
-  fan.addEventListener('pointermove', function (e) {
-    if (!drag || e.pointerId !== drag.id) return;
-    var dx = e.clientX - drag.x;
-    if (!drag.moved && Math.abs(dx) < 6) return;
-    if (!drag.moved) { drag.moved = true; fan.setPointerCapture(e.pointerId); fan.classList.add('is-dragging'); deal(); }
-    var now = performance.now();
-    drag.v = (e.clientX - drag.lx) / Math.max(1, now - drag.t); drag.t = now; drag.lx = e.clientX;
-    offset = Math.max(-.6, Math.min(seq.length - .4, drag.o - dx / PX));
-    place(false);
-  });
-  function endDrag(e) {
-    if (!drag || e.pointerId !== drag.id) return;
-    var d = drag; drag = null;
-    if (!d.moved) return;
-    fan.classList.remove('is-dragging');
-    suppress = true; setTimeout(function () { suppress = false; }, 0);
-    settle(offset - d.v * 140 / PX); // a flick carries on a little
-  }
-  fan.addEventListener('pointerup', endDrag);
-  fan.addEventListener('pointercancel', endDrag);
-  fan.addEventListener('wheel', function (e) {
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-    e.preventDefault();
-    offset = Math.max(0, Math.min(seq.length - 1, offset + e.deltaX / PX));
-    place(false);
-    clearTimeout(fan._w); fan._w = setTimeout(function () { settle(offset); }, 120);
-  }, { passive: false });
-
-  // from: where the pick came from, for the dots to fly out of (the card itself unless said otherwise; null for none,
-  // as from the match page, which covers the fan and the bar)
+  // from: where the pick came from, for the dots to fly out of (the team's card in the hand unless said otherwise; null
+  // for none, as from the match page, which covers the hand and the bar)
   function toggle(i, from, keepTab) {
     var c = CARDS[i], on = !isPicked(c), note = '';
+    if (from === undefined) from = cards2 ? cards2[i] : null; // the card is singled out by the hand's own click handler
     // While the first pick's dots are in the air the bar has no count of theirs yet, so it says what is happening
     var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
     // Here for the rugby already covers every match in NSW, so it stands alone: picking it puts the team cards back in
@@ -284,37 +182,18 @@
     else if (on && !c.rugby && isPicked(RUGBY)) { state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; }); note = ' Every NSW match is off.'; }
     if (on) state.picked.push(c.name); else state.picked = state.picked.filter(function (n) { return n !== c.name; });
     save();
-    // The pick is a visible moment, not just a turn of the hand: the card is pulled up out of the fan above its
-    // neighbours, travels to the middle while the hand turns under it, and settles back in. A fan step is only 6.5deg,
-    // so without the pull a pick one or two cards over hardly reads. Slower the further it goes, eased in and out.
-    // Reduced motion keeps the stylesheet's (no movement); the colour and tick still change.
-    var dist = Math.abs(pos(i) - offset), dur = Math.round(Math.min(1100, 620 + 120 * dist));
-    var ease = 'cubic-bezier(.65, 0, .35, 1)';
-    settle(pos(i), false, reduce.matches ? '' : 'transform ' + dur + 'ms ' + ease + ', opacity 220ms ease-out, background-color 200ms ease-out, color 200ms ease-out');
-    if (!reduce.matches && cards[i].animate) {
-      var card = cards[i];
-      if (card._pull) card._pull.cancel();
-      card.style.zIndex = 60; // rides above the cards it passes
-      // translate and scale are separate properties, so they add to the fan's rotate without fighting it
-      card._pull = card.animate([
-        { translate: '0 0', scale: '1', boxShadow: '-2px 0 6px rgba(0,0,0,.08)' },
-        { translate: '0 ' + (on ? -46 : -30) + 'px', scale: on ? '1.1' : '1.05', boxShadow: '0 18px 30px rgba(0,0,0,.25)', offset: .4 },
-        { translate: '0 0', scale: '1', boxShadow: '-2px 0 6px rgba(0,0,0,.08)' }
-      ], { duration: Math.max(dur, 700), easing: ease });
-      card._pull.onfinish = card._pull.oncancel = function () { card.style.zIndex = ''; card._pull = null; };
-    }
     renderChosen();
     // Option B: a pick from the planner's own hand (or Find above it) takes the page down to the new card. Not a pick
     // on Home, in the Add team sheet or the Your teams sheet, or from a match page (keepTab); never an unpick
     var flowGo = FLOW_A && on && !keepTab && picker.closest('#tp-pick') && picker.getClientRects().length &&
-      (from === undefined || picker.contains(from)) && !(tlOpen && !wide());
+      (!from || picker.contains(from)) && !(tlOpen && !wide());
     if (flowGo) { flowStop(); if (tabsOn && state.tab !== 'yours') setTab('yours'); }
     renderMatches(on ? c.name : null, on ? null : c.name, keepTab);
-    if (flowGo) flowScroll(c.name, from === undefined ? Math.min(dur, 900) : 560);
+    if (flowGo) flowScroll(c.name, 560);
     var msg = pickLine(c, on);
     showCaption(c.name + (on ? ' added' : ' removed'), msg.slice((c.name + (on ? ' added' : ' removed')).length), note);
     say(msg + '.' + note);
-    pickFlights(from === undefined ? cards[i] : from, before, oldValue, barWasOn, c.rugby, from === undefined ? dur : 0);
+    pickFlights(from, before, oldValue, barWasOn, c.rugby, 0);
     notesOnly(); // after the caption is rewritten, which would otherwise wipe its annotation badge
     return msg;
   }
@@ -401,11 +280,6 @@
     var list = sweep ? [inc[0]] : inc, done = 0;
     setTimeout(function () {
       var a = src.getBoundingClientRect();
-      if (src.classList.contains('tp-card')) {
-        // The card's resting place in the middle of the fan: its own layout box, upright, lifted as a pick is
-        var fr = fan.getBoundingClientRect();
-        a = { left: fr.left + src.offsetLeft, top: fr.top + src.offsetTop - LIFT - 6, width: src.offsetWidth, height: src.offsetHeight };
-      }
       list.forEach(function (m, k) {
         var dest = tlDotEls[m.day], b = dest.getBoundingClientRect(), g = document.createElement('span');
         g.className = 'tp-fly tp-fly--dot';
@@ -431,43 +305,16 @@
       if (tlValue.animate) tlValue.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' });
     }
   }
-  fan.addEventListener('click', function (e) {
-    var b = e.target.closest('.tp-card');
-    if (!b || suppress) return;
-    toggle(+b.dataset.i);
-  });
-  fan.addEventListener('keydown', function (e) {
-    var k = e.key, to = null;
-    if (k === 'ArrowRight' || k === 'ArrowDown') to = Math.round(offset) + 1;
-    else if (k === 'ArrowLeft' || k === 'ArrowUp') to = Math.round(offset) - 1;
-    else if (k === 'Home') to = 0;
-    else if (k === 'End') to = seq.length - 1;
-    else if (/^[a-z]$/i.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey) to = jumpTo(k);
-    if (to === null) return;
-    e.preventDefault();
-    deal();
-    settle(to, true);
-  });
 
-  /* ---------- TEST: the stacked hand (Figma node 282:26254) ----------
-     A copy of the fan's job in a new layout: all 24 teams at once, in rows of six on four overlapping arcs, each card
-     turned about a pivot below its row, later rows lying over earlier ones so each card's code and flag show at its top.
-     It is a test: the original fan is kept, hidden, and comes back with the panel switch "Stacked hand (test)" or
-     ?fan=classic (?fan=stacked forces this one); the choice is remembered in this browser (tp-fan-variant). Both hands
-     go through the same toggle(), so picks, Undo, the plan, saving and the Your teams sheet behave the same.
+  /* ---------- The hand of cards (Figma node 282:26254) ----------
+     All 24 teams at once, in rows on overlapping arcs, each card turned about a pivot below its row, later rows lying
+     over earlier ones so each card's code and flag show at its top. Picks go through toggle(), so picks, Undo, the
+     plan, saving and the Your teams sheet behave the same wherever they are made. (The original single fan, and the
+     switch between the two, were removed on 23 Nov.)
      Geometry from the Figma frame (462 wide), scaled to the phone: per-column angles, a 214px radius, rows 67px apart. */
-  var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2'), fanWrap = root.querySelector('.tp-fan-wrap');
+  var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2');
   var cards2 = null, f2Dealt = false, f2Focus = 0, viewLabel = function () {}, syncNswMark = function () {};
-  function fanVariant() {
-    var m = /[?&]fan=(classic|stacked)\b/.exec(location.search), v = m && m[1];
-    // ?fan= wins, else the switch's remembered choice, else the stacked hand
-    try { if (v) localStorage.setItem('tp-fan-variant', v); else v = localStorage.getItem('tp-fan-variant'); } catch (e) {}
-    return v === 'classic' ? 'classic' : 'stacked';
-  }
-  var variant = fan2 ? fanVariant() : 'classic';
-  function stacked() { return variant === 'stacked' && !!fan2; }
-  function handFocusEl() { return stacked() || grid() ? fan2.querySelector('.tp-card2[tabindex="0"]') : midCard(); }
-  function handWrap() { return stacked() || grid() ? fan2Wrap : fanWrap; }
+  function handFocusEl() { return fan2 && fan2.querySelector('.tp-card2[tabindex="0"]'); }
   if (fan2) {
     fan2.innerHTML = CARDS.map(function (c, i) {
       return '<button type="button" class="tp-card2" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
@@ -556,37 +403,32 @@
       b.style.zIndex = sl.z;
       if (!animate) { void b.offsetWidth; b.style.transition = ''; }
     });
-    if (stacked() && !grid() && HG) fan2Wrap.style.height = HG.height + 'px'; // the box follows the hand's real height
+    if (!grid() && HG) fan2Wrap.style.height = HG.height + 'px'; // the box follows the hand's real height
   }
   function showVariant(animate) {
     if (!fan2) return;
-    fan2Wrap.hidden = !stacked() && !grid();
-    fanWrap.hidden = stacked() || grid();
+    fan2Wrap.hidden = false;
     fan2Wrap.classList.toggle('is-grid', grid());
     fan2Wrap.style.height = grid() ? gridHeight(seq.length) + 'px' : '';
     fitHand();
-    var help = document.getElementById('tp-fan-help'), help2 = document.getElementById('tp-fan2-help');
-    if (help) help.hidden = stacked(); if (help2) help2.hidden = !stacked();
-    var sw = document.getElementById('tp-fan-toggle');
-    if (sw) sw.setAttribute('aria-checked', stacked() ? 'true' : 'false');
     sync2(!!animate);
-    if (stacked() || grid()) deal2(); else watchDeal();
+    deal2();
   }
   // The hand's box takes the hand's real height (handGeo); nothing is scaled
   function fitHand() {
     if (!fan2) return;
     fan2.style.transform = '';
-    if (!stacked() || grid()) return;
+    if (grid()) return;
     HG_KEY = ''; // a new width or font: measure again
     var n = seq.length; handGeo(n);
     fan2Wrap.style.height = HG.height + 'px';
   }
-  window.addEventListener('resize', function () { fitHand(); if (stacked() && !grid()) sync2(false); });
+  window.addEventListener('resize', function () { fitHand(); if (!grid()) sync2(false); });
   // The hand is measured in its own font: once the web font has loaded (high fidelity), measure again
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!fan2) return; HG_KEY = ''; if (stacked() && !grid()) { fitHand(); sync2(false); } });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!fan2) return; HG_KEY = ''; if (!grid()) { fitHand(); sync2(false); } });
   // The deal: the first time the stacked hand comes into view its cards come up into place, row by row
   function deal2() {
-    if (f2Dealt || !stacked()) return;
+    if (f2Dealt) return;
     var go = function () {
       if (f2Dealt) return;
       f2Dealt = true;
@@ -636,14 +478,6 @@
       sync2(true);
       cards2[seq[f2Focus]].focus({ preventScroll: true });
     });
-    var fanSw = document.getElementById('tp-fan-toggle');
-    if (fanSw) fanSw.addEventListener('click', function () {
-      variant = stacked() ? 'classic' : 'stacked';
-      try { localStorage.setItem('tp-fan-variant', variant); } catch (e) {}
-      showVariant(false);
-      say(stacked() ? 'Showing the stacked hand (test).' : 'Showing the original fan.');
-      notesOnly();
-    });
     /* Grid / Fan: the same 24 cards, laid out as a grid (upright, four to a row, full names) or as the hand. Picks stay.
        The cards glide from one layout to the other, a few milliseconds apart in reading order, so the eye can follow
        them; the box grows or shrinks with them. Reduced motion: the new layout appears at once. */
@@ -656,7 +490,7 @@
     if (viewBtn) viewBtn.addEventListener('click', function () {
       state.view = grid() ? 'fan' : 'grid';
       save();
-      var glide = !reduce.matches && (stacked() || !fan2Wrap.hidden);
+      var glide = !reduce.matches;
       clearTimeout(viewTimer);
       if (glide) cards2.forEach(function (b) {
         var k = seq.indexOf(+b.dataset.i);
@@ -680,7 +514,6 @@
       nswSw.setAttribute('aria-checked', state.nswMark ? 'true' : 'false');
       pickerEl().classList.toggle('show-nsw', state.nswMark);
       cards2.forEach(function (b) { b.setAttribute('aria-label', cardLabel(CARDS[+b.dataset.i])); });
-      cards.forEach(function (b) { b.setAttribute('aria-label', cardLabel(CARDS[+b.dataset.i])); });
     };
     if (nswSw) nswSw.addEventListener('click', function () {
       state.nswMark = !state.nswMark;
@@ -694,36 +527,24 @@
   }
 
   /* ---------- Finding your team ----------
-     Three ways in, so nobody swipes through 25 cards for theirs: type in Find your team (suggestions under the field;
-     the hand glides to the first match; choosing one picks it), type a letter while the hand has focus (jumps to the
-     next team starting with it), or narrow the hand to the 15 teams with a pool match in NSW. */
-  function jumpTo(letter) {
-    var L = letter.toLowerCase(), cur = Math.round(offset);
-    for (var n = 1; n <= seq.length; n++) {
-      var p = (cur + n) % seq.length, c = CARDS[seq[p]];
-      if (!c.rugby && c.name.toLowerCase().charAt(0) === L) return p;
-    }
-    return null;
-  }
+     Three ways in: type in Find your team (suggestions under the field; choosing one picks it), type a letter while
+     the hand has focus (jumps to the next team starting with it), or narrow the hand to the 15 teams with a pool match
+     in NSW. */
   var nswBtn = document.getElementById('tp-nsw'), findIn = document.getElementById('tp-find-in'), findList = document.getElementById('tp-find-list');
   var NSW_COUNT = names.filter(function (n) { return TEAMS[n].nsw > 0; }).length;
   function setNsw(on) {
     if (!nswBtn || (nswBtn.getAttribute('aria-pressed') === 'true') === on) return;
-    var keep = seq[Math.round(offset)];
     nswBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     // Teams with a pool match in NSW, plus Here for the rugby and anything already picked (never hide a pick)
     seq = CARDS.map(function (c, i) { return i; }).filter(function (i) { var c = CARDS[i]; return !on || c.rugby || c.nsw > 0 || isPicked(c); });
-    var p = pos(keep);
-    if (p < 0) { p = 0; while (p < seq.length - 1 && seq[p] < keep) p++; } // the nearest card that stays
-    offset = p;
-    place(dealt && !reduce.matches, 'transform 420ms cubic-bezier(.3, .7, .2, 1), opacity 260ms ease-out, background-color 200ms ease-out');
+    sync2(!reduce.matches);
   }
   if (nswBtn) {
     nswBtn.textContent = 'In NSW \u00b7 ' + NSW_COUNT;
     nswBtn.setAttribute('aria-label', 'Only the ' + NSW_COUNT + ' teams with a ' + GM1 + ' in NSW');
     nswBtn.addEventListener('click', function () {
       var on = nswBtn.getAttribute('aria-pressed') !== 'true';
-      deal(); setNsw(on);
+      setNsw(on);
       say(on ? 'Showing the ' + NSW_COUNT + ' teams with a ' + GM1 + ' in NSW, ' + seq.length + ' cards.' : 'Showing all 24 teams.');
     });
   }
@@ -794,11 +615,6 @@
         '<span class="tp-find-text"><span class="tp-find-name">' + esc(n) + '</span><span class="tp-find-meta">' + esc(t.pool) + ' \u00b7 ' + esc(nswLine(t)) + '</span></span>' +
         '<span class="tp-find-state" aria-hidden="true">' + (picked ? 'Picked' : 'Pick') + '</span></button></li>';
     }).join('');
-    // The hand glides to the first match while you type, so the card is already there when you look up
-    var i = CARDS.indexOf(TEAMS[found[0]]);
-    if (pos(i) < 0) setNsw(false);
-    deal();
-    settle(pos(i), false, reduce.matches ? '' : 'transform 520ms cubic-bezier(.45, .05, .25, 1), opacity 220ms ease-out');
   }
   function pickFound(n) {
     var i = CARDS.indexOf(TEAMS[n]);
@@ -907,7 +723,7 @@
     var lead = on ? 'Every NSW match added' : 'Every NSW match removed', rest = on ? ': ' + countPhrase(nswPool.concat(nswKo), { short: true }) : '';
     showCaption(lead, rest);
     tsNote(lead + rest + '.' + (swapped ? ' Your teams are cleared.' : ''), swapped ? function () {
-      state.picked = prev; save(); place(true); renderChosen(); renderMatches();
+      state.picked = prev; save(); sync2(true); renderChosen(); renderMatches();
       tsNote('Your teams are back: ' + list(prev) + '.');
       say('Undone. Your teams are back.');
       tsFind.focus({ preventScroll: true });
@@ -1050,7 +866,7 @@
     state.tickets = state.tickets.filter(function (x) { return keepT.indexOf(x) > -1; });
     var dropped = prevTickets.length - state.tickets.length;
     save();
-    place(true);
+    sync2(true);
     renderChosen();
     renderMatches();
     pickFlights(null, before, old, bar);
@@ -1059,7 +875,7 @@
     showCaption(onlyRugby ? 'Every NSW match cleared' : 'All teams cleared', '', '', function (u) {
       var b2 = ownKeys(), o2 = tlValue.textContent, bar2 = tlOn;
       state.picked = prevPicked; state.tickets = prevTickets; state.tab = prevTab;
-      save(); place(true); renderChosen(); renderMatches(null, null, prevTab === 'all');
+      save(); sync2(true); renderChosen(); renderMatches(null, null, prevTab === 'all');
       pickFlights(null, b2, o2, bar2); // the bar shows its total at once (no flight from the caption, which read as a lag)
       showCaption(onlyRugby ? 'Every NSW match is back' : 'Your teams are back', onlyRugby ? '' : ': ' + list(prevPicked.map(function (n) { return n; })));
       say('Undone. Your teams' + (prevTickets.length ? ' and ticket marks' : '') + ' are back.');
@@ -1079,7 +895,7 @@
     var before = ownKeys(), oldValue = own() ? tlValue.textContent : 'Adding matches\u2026', barWasOn = tlOn;
     if (on) state.picked = [RUGBY.name]; else state.picked = state.picked.filter(function (n) { return n !== RUGBY.name; });
     save();
-    place(true);
+    sync2(true);
     renderChosen();
     renderMatches(on ? RUGBY.name : null, on ? null : RUGBY.name, keepTab);
     pickFlights(from, before, oldValue, barWasOn, on, 0);
@@ -2140,7 +1956,7 @@
     var atEnd = body.scrollTop + body.clientHeight >= body.scrollHeight - 2;
     var seen = !!(r && r.height > 0 && (r.top < box.top || (atEnd && r.top < box.bottom && r.bottom > box.top)));
     // Once something is on the plan, the bar stays up anywhere below the fan, so an Add never goes nowhere
-    var fanBox = handWrap().getBoundingClientRect();
+    var fanBox = fan2Wrap.getBoundingClientRect();
     var belowFan = fanBox.height > 0 && fanBox.bottom < box.top;
     // A pick is shown working: the bar is up whenever a team is picked
     // From a moment after the page loads the bar is always up, empty to start (Your plan, No matches yet), so the plan is
@@ -2589,23 +2405,22 @@
   if (resetBtn) resetBtn.addEventListener('click', function () {
     if (stackEl) stackClose(false);
     deck.getAnimations && deck.querySelectorAll('*').forEach(function (el) { el.getAnimations().forEach(function (a) { a.cancel(); }); });
-    cards.forEach(function (b) { if (b._pull) b._pull.cancel(); b.style.zIndex = ''; });
+    if (cards2) cards2.forEach(function (b) { if (b._pull) b._pull.cancel(); });
     state.picked = []; state.tickets = []; state.allFilter = { nsw: true, city: null, v: 2 };
     try { localStorage.removeItem(KEY); } catch (e) {}
     if (allReset) allReset();
     deck.innerHTML = '';
-    setNsw(false); closeFind(false); clearFind(); offset = START; dealt = false;
+    setNsw(false); closeFind(false); clearFind(); f2Dealt = false;
     state.view = 'fan'; state.nswMark = false; state.notGoing = []; showVariant(false); viewLabel(); syncNswMark();
     state.tab = 'yours';
     clearTimeout(undoTimer);
     renderChosen();
     renderMatches();
     caption.textContent = CAPTION_REST; capClear();
-    place(false);
+    sync2(false);
     body.scrollTop = 0;
     tlSetOpen(false, false); tlSel = -1; tlSelItem = null; state.added = []; state.trip = null; save(); changed();
     var kw = kickFrame(); if (kw) try { kw.postMessage({ type: 'thk:reset' }, location.origin); } catch (e) {}   // Drop goal: a new visit, seen stops and random start cleared (22 Nov)
-    watchDeal();
     say('Prototype reset. No teams picked.');
   });
 

@@ -42,7 +42,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 
 - **Where options live.** The prototype is one page, `prototype-pick-your-team.html`. An option is a flag that changes part of it, so every option stays the real, working prototype rather than a copy.
 - **Flags in the address.** A script in the page's `<head>` reads the address before anything draws and sets an attribute on `<html>`. For example `?slogan=b` sets `data-slogan="b"` (line 35), and `?flow=a` sets `data-flow` (Option B). CSS and scripts then show one version or the other, for example `:root:not([data-slogan="b"]) .tp-slogan--b { display: none; }` in `shared.css`. Theme works the same way (`?theme=hifi`, only with `?tools`).
-- **Switches in the tools panel.** The test switches (Stacked hand (test)) sit in the viewer's left panel. Each changes the same attribute as its address flag. Label a test switch "(test)".
+- **Switches in the tools panel.** Test switches sit in the viewer's left panel, in their own group (none at the moment: the stacked hand became the only hand of cards on 23 Nov). Each changes the same attribute as its address flag. Label a test switch "(test)".
 - **Options are tabs (23 Nov).** Compare options (#587, framed phones beside the main one) and the empty dashed spare frame were removed at the user's request, so each tab shows one phone. The page's `<head>` clears what Compare options saved in a browser (`pv-compare`, `opt-a:` to `opt-c:`).
 - **To add an option:**
   1. Agree the scope first (CLAUDE.md checks 7 and 12): which part of the page the option changes, and everywhere that part appears.
@@ -138,7 +138,7 @@ The user's brief of 21 Nov, "Change the current build. Do not rebuild anything",
 - A government site: nothing favours one business, so use the fair rotation for any list of places.
 - Update the annotations and CLAUDE.md checks a stage touches, and list each edit.
 - Check at 390 and 320, with Annotations on and off.
-- Keep the plan bar, sheets, day cards and strip, match sheet, I have tickets, the fan and stacked hand, the map, Where to watch, and the date slider's place under the team picker. Leave anything not named untouched.
+- Keep the plan bar, sheets, day cards and strip, match sheet, I have tickets, the hand of cards, the map, Where to watch, and the date slider's place under the team picker. Leave anything not named untouched.
 
 **Stage A (merged, #558):**
 - The plan bar's pill reads Your plan or Your plan (3), with an arrow.
