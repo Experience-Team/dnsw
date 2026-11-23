@@ -622,13 +622,57 @@
     </div>
   </div>
   <!-- Phone view and the desktop layout (html.pv-device: a real phone, or Open in desktop) have no frame beside the
-       screen, so Reset moves into the header's top left corner, icon only and faint (22 Nov). It scrolls away with the
-       header, so it never sits over the sticky tabs, a sheet or a layer; Reset itself goes back to the top. Open in
-       desktop stays out, as the phone or the desktop layout is already what it opens. -->
+       screen and no side panel. Since 23 Nov the header's top left corner holds a Settings icon (it was Reset alone, 22
+       Nov), faint, opening a small menu: Switch prototype (the viewer's own tabs, the one showing ticked; a link keeps
+       ?phone, and the theme is remembered anyway) and Reset prototype (the same #tp-reset, moved in). A tap outside,
+       Escape or picking anything closes it, and focus goes back to the icon. It scrolls away with the header, so it
+       never sits over the sticky tabs, a sheet or a layer. Open in desktop stays out, as the phone or the desktop
+       layout is already what it opens. A reviewer tool, not part of the design. -->
   <script>(function () {
     if (!document.documentElement.classList.contains('pv-device')) return;
-    var b = document.getElementById('tp-reset'), top = document.querySelector('#tp-phone .tp-top');
-    if (b && top) { b.className = 'tp-dev-reset'; top.appendChild(b); }
+    var reset = document.getElementById('tp-reset'), top = document.querySelector('#tp-phone .tp-top');
+    if (!reset || !top) return;
+    var phoneQ = /[?&]phone\b/.test(location.search);
+    var TICK = '<svg class="tp-dev-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'tp-dev-set'; btn.id = 'tp-dev-set';
+    btn.setAttribute('aria-label', 'Settings'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'tp-dev-menu');
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+    var menu = document.createElement('div');
+    menu.className = 'tp-dev-menu'; menu.id = 'tp-dev-menu'; menu.hidden = true;
+    menu.setAttribute('role', 'group'); menu.setAttribute('aria-label', 'Settings');
+    var links = [].map.call(document.querySelectorAll('.pv-side .pv-tabs .pv-tab'), function (a) {
+      var href = a.getAttribute('href'), on = a.classList.contains('is-active');
+      if (phoneQ) href += (href.indexOf('?') > -1 ? '&' : '?') + 'phone';
+      return '<li><a class="tp-dev-item" href="' + href + '"' + (on ? ' aria-current="page"' : '') + '>' + a.textContent + (on ? TICK : '') + '</a></li>';
+    }).join('');
+    menu.innerHTML = '<p class="tp-dev-h" id="tp-dev-h">Switch prototype</p><ul class="tp-dev-list" aria-labelledby="tp-dev-h">' + links + '</ul><div class="tp-dev-sep" aria-hidden="true"></div>';
+    reset.className = 'tp-dev-item'; reset.removeAttribute('title'); reset.removeAttribute('aria-label');
+    reset.innerHTML = 'Reset prototype';
+    menu.appendChild(reset);
+    top.appendChild(btn); top.appendChild(menu);
+    var still = matchMedia('(prefers-reduced-motion: reduce)');
+    function open() {
+      menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
+      if (menu.animate) menu.animate(still.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: 'ease-out' });
+      var f = menu.querySelector('[aria-current="page"]') || menu.querySelector('.tp-dev-item'); f.focus({ preventScroll: true });
+    }
+    function close(back) {
+      if (menu.hidden) return;
+      menu.hidden = true; btn.setAttribute('aria-expanded', 'false');
+      if (back) btn.focus({ preventScroll: true });
+    }
+    btn.addEventListener('click', function () { if (menu.hidden) open(); else close(true); });
+    // Reset runs its own listeners (concepts-teams.js and the rest), then the menu closes with focus on the icon
+    reset.addEventListener('click', function () { close(true); });
+    document.addEventListener('pointerdown', function (e) { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false); }, true);
+    menu.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); return; }
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      var its = [].slice.call(menu.querySelectorAll('.tp-dev-item')), i = its.indexOf(document.activeElement);
+      e.preventDefault(); its[(i + (e.key === 'ArrowDown' ? 1 : its.length - 1)) % its.length].focus();
+    });
+    menu.addEventListener('focusout', function (e) { if (!menu.hidden && e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== btn) close(false); });
   })();</script>
 </main>
 
