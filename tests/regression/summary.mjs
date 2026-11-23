@@ -39,6 +39,14 @@ const out = [MARK, '### Prototype regression checks', ''];
 if (!failed) {
   out.push(`All ${passed} checks pass: every screenshot matches its baseline and every smoke test passes.`);
 } else {
+  const missing = rows.visual.filter(([, w]) => w === 'No baseline yet').length;
+  if (missing) {
+    out.push(
+      `> [!WARNING]`,
+      `> **Don't merge yet.** ${missing} screenshot${missing === 1 ? ' has' : 's have'} no baseline${missing === 1 ? '' : 's'}. Add the **approve-baselines** label to make ${missing === 1 ? 'it' : 'them'}, and merge once the checks rerun green. Merged without them, every later PR fails with "No baseline yet".`,
+      '',
+    );
+  }
   out.push(`**${failed} failed**, ${passed} passed${flaky ? `, ${flaky} flaky` : ''}.`, '');
   if (rows.visual.length) {
     out.push(`#### Screenshots that differ from the baseline (${rows.visual.length})`, '', '| State | What changed |', '|---|---|');
