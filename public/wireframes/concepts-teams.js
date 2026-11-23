@@ -838,6 +838,10 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
+    // Every card shows whether it is picked, whichever way the pick came (the hand, Find, a sheet, Home, a match page).
+    // The old single fan used to do this on every pick; it went with it on 23 Nov (53f24f1), so cards stopped showing
+    // their picked state (fixed 24 Nov)
+    if (cards2) cards2.forEach(function (bt, i) { var on = isPicked(CARDS[i]); bt.classList.toggle('is-picked', on); bt.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     tsSync();
     clearBtn.hidden = !state.picked.length; // anything picked, Every NSW match included, can be cleared from the picker (check 3)
     var cSep = caption.querySelector('.tp-clear-sep'); if (cSep) cSep.hidden = clearBtn.hidden;
@@ -1964,6 +1968,8 @@
     var on = barIntro || tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
     // Home (19 Nov): the bar stays away until a team is picked (or every NSW match), then floats at the foot, closed
     if (phoneEl.classList.contains('is-home') && !tlOpen && !state.picked.length) on = false;
+    // Option C's first step (24 Nov): no plan bar until a team is picked, so the step's question comes first
+    if (window.tpFlowC && window.tpFlowC.step() === 'teams' && !tlOpen && !state.picked.length) on = false;
     // Option C (concepts-flow-c.js): while the questions are being asked the bar shows the plan building up, but it does
     // not open yet (the user's call, 23 Nov)
     var fcLock = !!(window.tpFlowC && window.tpFlowC.step()), lockMoved = fcLock !== tl.classList.contains('is-locked');
