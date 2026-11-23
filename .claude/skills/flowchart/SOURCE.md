@@ -12,4 +12,7 @@ To update, copy `SKILL.md`, `README.md`, `LICENSE`, `assets/`, `scripts/` and `r
   left (the renderer otherwise drops every leftward edge on desktop). Search the file for "dnsw change".
 - `assets/flowchart-template.html`: the left column (View, Groups, Connections, Visible) has a Hide panel button that
   collapses it to a narrow strip; Show panel brings it back, and the choice is remembered on the device.
+- `assets/flowchart-template.html`: arrowheads scale with the line (at least 14px, about three times its width), and
+  the last straight piece before a box is at least one arrowhead long, so no arrowhead folds into a bend or hides
+  under the box it points at.
 - `scripts/package.json`: marks the scripts as CommonJS, because this repo's `package.json` sets `"type": "module"`.
