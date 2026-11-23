@@ -4101,7 +4101,6 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-tabs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-6)), transparent); mask-image: linear-gradient(to right, #000 calc(100% - var(--space-6)), transparent); }
 .pv-tab { flex: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--space-5); border: 1px solid #2666d9; border-radius: var(--radius-pill); background: #fff; color: #2666d9; font-size: .8125rem; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
 .pv-tab.is-active { background: #2666d9; color: #fff; }
-.pv-tab--next { border-style: dashed; cursor: default; }
 @media (hover: hover) { a.pv-tab:not(.is-active):hover { background: #f2f6fd; } }
 .pv-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 .pv-concept { flex: 1 0 auto; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); border-top: 1px solid #d1d1d1; } /* the rule under the tabs, here so their fade leaves it whole */
@@ -4138,6 +4137,16 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
   .pv-stage { justify-content: flex-start; padding: var(--space-4); }
   .pv-page .pv-phone > .cn-phone { height: 844px; }
 }
+/* Flow chart (flow-chart.html): no left panel. The title and the tabs run along the top, with a rule under them, and
+   the chart has the rest of the window, scrolling inside its own area */
+.pv-page.pv-page--chart { display: flex; flex-direction: column; }
+.pv-chart-top { flex: none; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; column-gap: var(--space-6); border-bottom: 1px solid #d1d1d1; }
+.pv-chart-top .pv-header { padding-bottom: var(--space-4); }
+.pv-chart-top .pv-tabs { padding-top: 0; align-self: flex-end; }
+.pv-chart { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: center; padding: var(--space-6); background: #fafafa; }
+.pv-chart-empty { margin: 0; font-size: 1rem; color: #666; }
+/* Small windows: still one screen, the chart filling what is left under the title and tabs */
+@media (max-height: 600px), (max-width: 800px) { .pv-page.pv-page--chart { display: flex; height: 100vh; height: 100dvh; overflow: hidden; } }
 /* QR code for the phone view, pinned at the foot of the panel (pv-device.js draws it): the code beside its heading,
    line and Copy link. Short windows: one row, and the code opens as a popover above it from the QR code button. */
 .pv-qr { position: relative; flex: none; display: grid; grid-template-columns: 112px minmax(0, 1fr); grid-template-areas: "code title" "code p" "code acts" "code url"; grid-template-rows: auto auto auto 1fr; align-content: center; column-gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }

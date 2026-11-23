@@ -52,9 +52,9 @@
     <h1 class="pv-title">RWC prototypes</h1>
     <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
   </header>
-  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-flow-tab="">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-flow-tab="a">Option B</a><span class="pv-tab pv-tab--next" aria-disabled="true">[next] prototype</span></nav>
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-flow-tab="">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-flow-tab="a">Option B</a><a class="pv-tab" href="flow-chart.html">Flow chart</a></nav>
   <!-- Option A (the main prototype) and Option B (23 Nov, ?flow=a; the tabs were renamed from Pick your team and Option A on 23 Nov) are this one page: the tab for the flow showing is marked current.
--->
+       Flow chart (flow-chart.html) is a page of its own, with the same title and tabs and no left panel. -->
   <script>(function () {
     var d = document.documentElement, flow = d.getAttribute('data-flow') || '';
     [].forEach.call(document.querySelectorAll('.pv-tabs [data-flow-tab]'), function (a) {
