@@ -4137,12 +4137,10 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
   .pv-stage { justify-content: flex-start; padding: var(--space-4); }
   .pv-page .pv-phone > .cn-phone { height: 844px; }
 }
-/* Flow chart (flow-chart.html): no left panel. The title and the tabs run along the top, with a rule under them, and
+/* Flow chart (flow-chart.html): no left panel. The heading and the tabs under it sit at the top, with a rule under them, and
    the chart has the rest of the window, scrolling inside its own area */
 .pv-page.pv-page--chart { display: flex; flex-direction: column; }
-.pv-chart-top { flex: none; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; column-gap: var(--space-6); border-bottom: 1px solid #d1d1d1; }
-.pv-chart-top .pv-header { padding-bottom: var(--space-4); }
-.pv-chart-top .pv-tabs { padding-top: 0; align-self: flex-end; }
+.pv-chart-top { flex: none; border-bottom: 1px solid #d1d1d1; } /* the heading, then the tabs under it, as in the viewer's panel */
 .pv-chart { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: center; padding: var(--space-6); background: #fafafa; }
 .pv-chart-empty { margin: 0; font-size: 1rem; color: #666; }
 /* The chart in a frame (flow-chart-planner.html): a one-line bar naming it, with Open on its own, then the frame

@@ -982,13 +982,28 @@
       min-width: 48px;
     }
 
+    /* dnsw change: collapsible left column */
+    .rail-head { display: flex; justify-content: flex-end; padding: 8px 10px 0; }
+    .rail-toggle { width: auto; min-width: 32px; padding: 0 8px; gap: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); }
+    .rail-toggle svg { flex: none; transition: transform 200ms ease; }
+    .workspace.rail-collapsed { grid-template-columns: 52px minmax(0, 1fr) 348px; }
+    .workspace.rail-collapsed .rail { overflow: hidden; }
+    .workspace.rail-collapsed .rail-head { justify-content: center; padding: 10px 0 0; }
+    .workspace.rail-collapsed .rail-body { display: none; }
+    .workspace.rail-collapsed .rail-toggle { padding: 0; }
+    .workspace.rail-collapsed .rail-toggle-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .workspace.rail-collapsed .rail-toggle svg { transform: rotate(180deg); }
+    @media (prefers-reduced-motion: reduce) { .rail-toggle svg { transition: none; } }
+
     /* ===== responsive ===== */
     @media (max-width: 1180px) {
       .workspace { grid-template-columns: 230px minmax(0, 1fr) 312px; }
+      .workspace.rail-collapsed { grid-template-columns: 52px minmax(0, 1fr) 312px; }
     }
 
     @media (max-width: 980px) {
       .workspace { grid-template-columns: 210px minmax(0, 1fr) 280px; }
+      .workspace.rail-collapsed { grid-template-columns: 52px minmax(0, 1fr) 280px; }
       input { width: min(220px, 22vw); }
     }
 
@@ -1003,10 +1018,14 @@
       }
       .controls { justify-content: flex-start; }
       input { width: 100%; }
-      .workspace {
+      .workspace,
+      .workspace.rail-collapsed {
         grid-template-columns: 1fr;
         grid-template-rows: auto 72vh auto;
       }
+      .workspace.rail-collapsed .rail-head { justify-content: flex-start; padding: 8px 10px; }
+      .workspace.rail-collapsed .rail-toggle { padding: 0 8px; }
+      .workspace.rail-collapsed .rail-toggle-text { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
       .rail, .inspector {
         border-right: 0;
         border-left: 0;
@@ -1068,7 +1087,12 @@
     </header>
 
     <main class="workspace">
-      <aside class="rail">
+      <aside class="rail" id="rail">
+        <!-- dnsw change: the left column collapses to a narrow strip, giving the chart more room. -->
+        <div class="rail-head">
+          <button class="icon-button rail-toggle" id="rail-toggle" type="button" aria-expanded="true" aria-controls="rail-body" title="Hide panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg><span class="rail-toggle-text">Hide panel</span></button>
+        </div>
+        <div class="rail-body" id="rail-body">
         <section class="section">
           <h2>View</h2>
           <p id="view-description">Overview</p>
@@ -1085,6 +1109,7 @@
           <h2>Visible</h2>
           <div class="stats" id="stats"></div>
         </section>
+        </div>
       </aside>
 
       <section class="graph-shell" aria-label="Flowchart graph">
@@ -1188,7 +1213,7 @@
     {
       "id": "all",
       "label": "Everything",
-      "description": "The whole planner, from page load to the open plan."
+      "description": "The whole planner, from page load to the open plan. Every change is saved and redraws every stage, so it loops."
     },
     {
       "id": "option-b",
@@ -1213,8 +1238,8 @@
         "y": 100
       },
       "colorGroup": "shell",
-      "summary": "Reads the address, restores saved picks and chooses the first tab.",
-      "description": "Before anything draws, scripts in the page head read the address flags (Option B, phone view, theme, slogan) and keep Option B's saved state apart from Option A's. The planner state is restored from the browser, then the page opens on Home unless the address or a reload says otherwise.",
+      "summary": "Reads the address, restores saved picks and opens Home, the planner or Play.",
+      "description": "Before anything draws, scripts in the page head read the address flags (Option B, phone view, theme, slogan) and keep Option B's saved state apart from Option A's. The planner state is restored from the browser. The page opens on Home unless the address or a reload says otherwise.",
       "evidence": [
         {
           "label": "head scripts",
@@ -1239,7 +1264,7 @@
       },
       "colorGroup": "planner",
       "summary": "Picking teams (or Every NSW match) is the input everything else builds on.",
-      "description": "Teams are picked from the hand of cards, Find, or the team sheets; Every NSW match is the no-team choice and replaces any teams. Each change is saved, announced and flown into the plan bar. The picked teams' matches show as cards, where a match sheet adds the match or marks a ticket.",
+      "description": "Teams are picked from the hand of cards, Find, or the team sheets; Every NSW match is the no-team choice and replaces any teams. Each change is saved, announced and flown into the plan bar. The picked teams' matches show as cards; opening a match sheet to add a match or mark a ticket is optional.",
       "evidence": [
         {
           "label": "toggle",
@@ -1260,7 +1285,7 @@
     },
     {
       "id": "results",
-      "label": "Results",
+      "label": "Watch & ideas",
       "type": "phase",
       "level": 1,
       "position": {
@@ -1269,7 +1294,7 @@
       },
       "colorGroup": "planner",
       "summary": "Where to watch, Around your matches and the maps, each with Add.",
-      "description": "Every change redraws Where to watch (an evening card per match day with screening venues) and Around your matches (a block per match day, free stretch and half day, with products, ideas and trips). The overview map and the day-by-day map follow the same state. Anything can be added to the plan from here.",
+      "description": "Every saved change redraws Where to watch (an evening card per match day with screening venues) and Around your matches (a block per match day, free stretch and half day, with products, ideas and trips), and the maps. They show straight away for the picks; days and details only refine them. Anything here can be added to the plan.",
       "evidence": [
         {
           "label": "renderWatch",
@@ -1289,155 +1314,13 @@
       ]
     },
     {
-      "id": "state",
-      "label": "Saved state",
-      "type": "artifact",
-      "level": 1,
-      "position": {
-        "x": 2100,
-        "y": 100
-      },
-      "colorGroup": "shell",
-      "summary": "One saved record, tp-pick-v1, that every section reads and redraws from.",
-      "description": "Picks, tickets, added items, days and trip details are saved together in the browser (Option B keeps its own copy). Every change runs the same steps: save, place waiting items, redraw the plan bar and plan, then tell Home, the results and the annotations to redraw.",
-      "evidence": [
-        {
-          "label": "state, save, changed",
-          "path": "public/wireframes/concepts-teams.js",
-          "lines": "89-152"
-        }
-      ],
-      "badges": [
-        "saved in browser"
-      ]
-    },
-    {
-      "id": "rules",
-      "label": "Every rule",
-      "type": "artifact",
-      "level": 1,
-      "position": {
-        "x": 2500,
-        "y": 100
-      },
-      "colorGroup": "shell",
-      "summary": "The full rule list for each stage, written out from the prototype's code.",
-      "description": "The graph keeps each stage to a few steps. These lists hold every rule behind them: states, conditions, wording, timings, Option A and B differences and empty states. Select this node, then open a list from Artifacts.",
-      "artifacts": [
-        {
-          "label": "Page opens",
-          "language": "markdown",
-          "path": "public/wireframes/prototype-pick-your-team.html",
-          "summary": "Every rule found in the prototype's code for Page opens, grouped by what people see.",
-          "content": "## Address flags\n| Flag | What it does |\n|---|---|\n| `?flow=a` | Option B. Sets `data-flow=\"a\"`; every saved key except `pv-*`, `flow-a:*` and `tp-annotations` is stored under `flow-a:` |\n| `?phone` | Phone view (also on a touch screen under 500px) |\n| `?theme=hifi` or `wireframe` | Saved as `pv-theme` and reused; high fidelity by default |\n| `?slogan=b` | Second slogan |\n| `?view=plan`, `kick` or `home` | First tab |\n| `?a=<slug>` | Opens that article on Home |\n| `?reset` | Wipes the saved picks before they are read |\n| `?tp-now=` | Shifts the countdown clock |\n| `?tools` | Accepted, but no longer changes anything |\n\n## Start-up order\n1. Clear storage left by the removed Compare options feature.\n2. Option B storage split (above).\n3. Viewer tabs mark Option A or Option B as current; Flow chart is its own page.\n4. Phone view moves Reset prototype into the header.\n5. Countdowns fill (Home's and the planner's).\n6. Scripts load: destinations, fixtures, geo, words, teams, third half, map, plan, articles, home.\n7. Saved picks are restored (`tp-pick-v1`): picked, tickets, tab, All matches filter, interstate switch, grid or fan, Plays in NSW, not-going list, added items, days and trip details.\n8. Annotations render (deferred a tick so they match the opening tab), slogan lines are fitted.\n9. Tab script: `?view=` wins; otherwise a reload reuses the saved tab; otherwise Home.\n10. About 700ms after load the plan bar intro runs; on Home the bar stays hidden until something is picked.\n\n## Restore rules\n- Old names Here for the rugby and All matches become Every NSW match; unknown team names are dropped.\n- Days need both ends or neither; a local base sets the mode to local.\n- A storage error leaves the defaults.\n- Not restored: Undo timers, Find text, the In NSW filter, an open plan."
-        },
-        {
-          "label": "Home tab",
-          "language": "markdown",
-          "path": "public/wireframes/concepts-home.js",
-          "summary": "Every rule found in the prototype's code for Home tab, grouped by what people see.",
-          "content": "## Touches the planner\n- **Hand of cards** is the planner's own hand, lent to Home while Home shows (found by id, never by section). Same pick as the planner; Option B's glide does not run from Home. If the Add team sheet is holding it, Home keeps a placeholder.\n- **I'm just here for the rugby** turns on Every NSW match, keeps focus on the link and stays on Home. While on it reads Remove every NSW match; under it, \"This adds all N matches played in NSW.\" It hides while any team is picked.\n- **Plan around your matches** shows while anything is picked (Every NSW match included). It switches to the planner, then scrolls to Your days if showing, otherwise to the team picker, and focuses that heading.\n- **Where the matches are**: pins and city cards open the host city sheet (highlights, match rows, public transport placeholder, places near the stadium, day trips). Match rows drill down to the match sheet: Add to my plan, Add the team, I have a ticket. A pin also scrolls its card into view. The section's own Plan your 3rd half button only scrolls up to the hand.\n- **Play now** switches to the Play tab (Drop goal game).\n- **Read before you go**: articles open in place, push `?a=` so Back closes them; the article's Plan your 3rd half button closes it quietly and switches tab. Articles never read planner state.\n- **Option B**: All matches sits on Home after Where the matches are; its rows and Add every NSW match change the planner from Home.\n\n## Does not touch the planner\nFAQ, newsletter (checks the email, confirms in place), Share this page (shares the address with its flags; no plan travels), countdown, Buy tickets, video, footer.\n\n## Switching tabs\n- The pill glides; the tab is saved for a reload.\n- Scroll: a tab the person scrolled themselves returns to where they left it; otherwise it opens at the top under the capsule. Play docks under the logo.\n- Leaving Play closes the game's card. Focus stays on the tapped tab.\n- Picking another tab while an article is open closes the article first."
-        },
-        {
-          "label": "Your teams",
-          "language": "markdown",
-          "path": "public/wireframes/concepts-teams.js",
-          "summary": "Every rule found in the prototype's code for Your teams, grouped by what people see.",
-          "content": "## Picking\n- **Card in the hand**: tap, Space or Enter. The card lifts 18px and scales to 1.14 (less on an unpick) so it stands out from the fan. Arrows move one card, Up and Down one row, a letter jumps to the next team.\n- **Find your team**: up to four matches by word start, name start or code; Enter picks the first; the field keeps focus.\n- **Your teams sheet**: Every NSW match first, then picks, then teams playing in NSW, then interstate, A to Z. Chips remove a pick. Clear all appears with two or more teams. Done becomes Save once a team changes (\"X added to your teams.\"). Opens over the page, or stacked over the open plan.\n- **Add team sheet**: borrows the hand and its utility row; opened by Option B's Add more teams, the bar's Add team, and the saved list.\n- **Every NSW match**: turning it on replaces every team (Undo in the Your teams sheet); picking a team turns it off (\"Every NSW match is off.\"). Caption: \"Every NSW match added: N pool matches + 8 knockouts\".\n- **Clear all**: removes every pick; tickets stay only on matches added on their own; Undo for 6 seconds, focus on Undo.\n- **Grid or Fan**, **Plays in NSW**: looks only, saved.\n\n## After a change\n1. Save, then place waiting items, redraw the deck, plan bar and plan, broadcast to every section.\n2. Caption \"X added: N pool matches, M in NSW\" or \"X removed\", flashed and spoken.\n3. Dots fly from the card to the plan bar, one per match day (faster for quick repeats; none with reduced motion or while the Your teams sheet is on top).\n4. Option B only: a pick (not an unpick) from the planner's hand or Find glides the page to Your matches and focuses the new card; any wheel, touch or key stops the glide.\n\n## Match cards\n- One card per picked team, in pick order, Every NSW match last, plus Matches you added.\n- A match between two picked teams sits on the first team's card; the other says \"on your X card\".\n- NSW rows carry I have tickets; interstate rows carry Watch in NSW.\n- Every NSW match card shows four rows and \"N more pool matches\".\n- Each card ends with the knockout line and a next step: See your match day, Watch [team] in NSW, or Set your days.\n- A new card shows Just added and the deck scrolls to it.\n- Option A: Your matches and All matches tabs, shown once something is picked. Option B: a heading, no tabs.\n\n## Match sheet and tickets\n- Date, Sydney kick-off, venue, clash line. Interstate matches lead with every NSW screening.\n- On your plan via a team, or Add to my plan to add it on its own.\n- I have a ticket adds the match if nothing covers it; unticking removes a match there only for its ticket.\n- Toast \"Ticket marked: [match]\" with \"Your plan, Where to watch and Around \u2026 are updated\" and a link to the first changed section (or Open your plan). No link inside a sheet; no toast if it would cover the ticket button.\n- Add [team] to my teams picks it exactly like the card."
-        },
-        {
-          "label": "Your days",
-          "language": "markdown",
-          "path": "public/wireframes/concepts-third-half.js",
-          "summary": "Every rule found in the prototype's code for Your days, grouped by what people see.",
-          "content": "## Your days on the page\n- Shown once there is something to plan around; Option B shows it before any pick (\"Set your days to see ideas for your time in NSW.\").\n- Days set: \"range \u00b7 Change\". Otherwise a note, a two-handle slider from 29 Sep to 15 Nov with marks for 1 Oct and 13 Nov, and a dot per match (solid NSW, hollow interstate).\n- Handles never cross; a tap on the track moves the nearer one. Arrows \u00b11 day, Page Up and Down \u00b17, Home and End; keyboard changes apply after 450ms.\n- Type your dates: errors \"Pick days between 29 Sep and 15 Nov\u2026\" and \"The last day is before the first day.\"\n- Undo restores the previous days and puts the places they had placed back in Saved. Reset clears the days.\n\n## Days sheet\n- Opened from the trip line, the plan, Set your days buttons and Add where you're staying (staying version).\n- Slider, typed dates, October and November calendars (Monday first). First tap sets the first day, second the last; a tap before the first day restarts.\n- An unconfirmed range survives any close (\"Not saved yet\u2026\"). Use these dates confirms; Remove my days clears.\n- Stacks over the plan when the plan is open. Never shows a Save bar.\n\n## Applying days\n- Unchanged: nothing happens. Otherwise: Undo step, hold the panel in place, save, fly newly placed saves onto the plan.\n- Toast only from the sheet or plan: \"Your days are now X to Y\", title only, updated in place, link to the first changed section. The page slider shows its own change, so it gets none.\n\n## Refine your plan\n- Where you're staying: I'm a local, Sydney CBD, Newcastle, Bondi, Outside NSW, or search 45 NSW places (\"Staying in X \u00b7 Remove\"). Who's coming: Solo, Couple, Friends, Family. A second tap clears.\n- Base changes: venue order (city first), ideas by distance, free and half-day base, route start, first-timer pattern, map anchors; a local gets distance first and Make a day of it.\n- Party changes order only: Family puts attractions and free things first; Couple and Friends put food and drink first; Solo keeps the usual order.\n- Each answer tints changed sections as they come into view and shows a toast (\"Staying in X\", \"Ideas now suit a family\", \"\u2026is cleared\")."
-        },
-        {
-          "label": "Results",
-          "language": "markdown",
-          "path": "public/wireframes/concepts-third-half.js",
-          "summary": "Every rule found in the prototype's code for Results, grouped by what people see.",
-          "content": "## Which matches\nPicked teams' matches plus matches added on their own; every NSW match for Every NSW match; inside the days if set. No team: a first look at the next NSW match day only.\n\n## Where to watch\n- One card per evening; two or more matches make a clash card (\"N of your matches tonight\", \"tonight\" only when every kick-off is 5pm or later).\n- Up to three venues per evening: venues showing all the matches first, then in the city they stay, then rotated by fixture; avoid repeating a type, area or a venue used on more than two evenings.\n- Ticketed matches become \"You're at [match]\" lines with See your match day.\n- \"Going to [match]?\" opens the match sheet at I have a ticket.\n- Empty: \"None of your matches falls in your days (range).\" or \"Pick your teams to see where to watch their matches.\"\n\n## Around your matches\n- Title: Around your matches with a team, Around the NSW matches without.\n- Without days: a block per NSW match day (every NSW match day if the team only plays interstate).\n- With days, each day becomes: match (NSW match), away (interstate with a ticket), watch (interstate without), half (first and last day) or free.\n- Base for free and half days: where they stay, else the nearest match's city, else Sydney.\n- **Match day**: getting there (placeholder), products at the venue open that day, grouped Near the stadium, Before the match, After the final whistle; Not going to the match? (three evening places); locals get Make a day of it.\n- **Free day**: three to five ideas per day (half, half, trip for first-timers in Sydney), More ideas; a full day says what is planned; three or more days add longer trips.\n- **Half day**: nearby food and attractions within 6 km, three shown, More places.\n- Trip line: \"Staying longer? Set your days\" or \"Your days: range \u00b7 Change\"; opens the days sheet.\n\n## Maps\n- Overview: stage 1 (no team) everything; stage 2 your stadiums lit with route cards; stage 3 (days set) Follow day by day. Pins open a pop-up with Add; TV pins link to Where to watch; full screen available. Loads only near view.\n- Day by day: full-screen layer; arrows, dots, swipe or the day list step days while the camera glides; Explore freely shows every stop with zoom; See as a list opens that day in Around your matches.\n\n## Adding\n- Page Add: flies to the bar; toast \"Added to your plan\" (or \"Saved to your plan\u2026 once you set your days\"); removing says \"Removed from your plan\". No toast inside the open plan.\n- Sheet Add: the first change pins a Save bar naming the latest change; Save closes like the cross.\n- Toasts: one at a time, 6 seconds (longer while hovered or focused), 16px from the foot on phones, 24px on desktop, 12px above anything pinned."
-        },
-        {
-          "label": "Saved state",
-          "language": "markdown",
-          "path": "public/wireframes/concepts-teams.js",
-          "summary": "Every rule found in the prototype's code for Saved state, grouped by what people see.",
-          "content": "## The saved record (tp-pick-v1)\n| Field | Holds |\n|---|---|\n| picked | Team names, or Every NSW match |\n| tickets | Matches with a ticket |\n| tab | Your matches or All matches (Option B always Your matches) |\n| added | Items: kind, day, title, unplaced, fixed date, nights |\n| trip | First and last day, base, party, mode (local or visiting) |\n| allFilter | NSW only and city for All matches |\n| interstate | Show interstate matches in the plan (Every NSW match only) |\n| view | Grid or fan |\n| nswMark | Plays in NSW marks |\n| notGoing | Read by the results; nothing writes it now |\n\n## Every change\n1. Save the record (Option B: under flow-a:).\n2. Tell the Drop goal game the picks and saves.\n3. Place waiting items on a day if one fits.\n4. Redraw the deck if tickets changed, the plan bar and the plan.\n5. Broadcast so Home, the results and the annotations redraw.\n\n## Reset prototype\nClears picks, tickets, filters, view, marks, not-going list, tab, added items and days, scrolls to the top, closes the plan and tells the game. The interstate switch is not reset."
-        },
-        {
-          "label": "Your plan",
-          "language": "markdown",
-          "path": "public/wireframes/concepts-plan.js",
-          "summary": "Every rule found in the prototype's code for Your plan, grouped by what people see.",
-          "content": "## Placing saved items\n- A place goes on its stadium's match day if that day is in the days and it is open; otherwise the first open free or watch day with fewer than two items.\n- An item with a fixed date goes on that date if it falls in the days. Drop goal kicks are never placed automatically.\n- Announced 1.5 seconds later: \"Saved, now placed: \u2026\".\n\n## Plan bar\n- Shown after the intro, when the plan is open, once anything is picked or added; on Home only once something is picked.\n- Label: Your plan, Every NSW match, or \"Your teams: \u2026\" with flags and codes (up to four, then +N). Value: No matches yet, N saved, or the match count.\n- Tap, or drag past a third (or flick), opens it. Desktop: a rail beside the page, no drag, page not made inert.\n\n## Opening and closing\n- Opens on: the day asked for, else the day last added to, else the day it closed on, else the first of your days, earliest item or first NSW match.\n- Phone: the page behind is inert; Tab stays inside. Escape closes a stacked sheet first, then the plan.\n- Closing returns focus to the opener; sections that changed glow once seen.\n\n## Day by day\n- Strip: one button per day, marks for match, away, filled and clash; follows the scroll; roving keys.\n- Days: with days, the whole range; without, match days only; any day with an item always shows. Two or more empty days fold into \"N free days\" with Show each day.\n- Card order: things before kick-off, matches, interstate extras, screenings and things after, trip nights.\n- Match rows carry I have tickets. Without days, \"Staying after your last match?\" offers Set your days.\n- Items: Move (chips for the days it is open; screenings cannot move) and Remove (no Undo). Focus stays put.\n- Free days: Add ideas opens an ideas sheet stacked over the plan; added ideas land with a ring when it closes.\n\n## Saved, not placed yet\nMap saves and kicks with no day, each with Remove; Add team and Set your days above.\n\n## Clear plan\nConfirm sheet lists what comes off and what stays; focus on the safe button. Clear empties added items and tickets on matches only there for the ticket; \"Plan cleared: N things taken off.\" with Undo for 6 seconds.\n\n## Save and share\nCopy (detailed, compact, for an AI), calendar links (Google, Outlook; matches two hours from kick-off, Sydney time), map links and a route, CSV and spreadsheet copy, a pretend email send. One panel open at a time.\n\n## Stacked sheets\nNever more than two levels. Inside a sheet, details drill down with a back arrow; the cross closes the sheet and leaves the plan open; Escape and the grabber go back one step.\n\n## Drop goal game\nKicks save places as unplaced kick items; Unsave removes them; Open your plan switches tab and opens the plan at the saved list. The planner sends picks (first team kicks), saves, theme, close and reset."
-        }
-      ]
-    },
-    {
-      "id": "home",
-      "label": "Home tab",
-      "type": "phase",
-      "level": 1,
-      "position": {
-        "x": 500,
-        "y": 276
-      },
-      "colorGroup": "home",
-      "summary": "Lends the hand of cards to Home and sends people into the planner.",
-      "description": "Home shows the hand of cards, I'm just here for the rugby and Plan around your matches, all of which change or open the planner. Host city sheets can add matches and tickets. Play now switches to the Drop goal game, whose saves land in Your plan. FAQ, newsletter, Share this page and the countdown never touch the planner.",
-      "evidence": [
-        {
-          "label": "concepts-home.js",
-          "path": "public/wireframes/concepts-home.js",
-          "lines": "1-346"
-        },
-        {
-          "label": "Home markup",
-          "path": "public/wireframes/prototype-pick-your-team.html",
-          "lines": "142-260"
-        }
-      ]
-    },
-    {
-      "id": "days",
-      "label": "Your days",
-      "type": "phase",
-      "level": 1,
-      "position": {
-        "x": 1300,
-        "y": 276
-      },
-      "colorGroup": "planner",
-      "summary": "Optional dates and trip details refine every result in place.",
-      "description": "Your days is a slider on the page with typed dates, and a calendar in the days sheet. Refine your plan adds where they are staying and who is coming. Nothing is required: results already show without them, and each answer says what it changed.",
-      "evidence": [
-        {
-          "label": "renderAsk",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "2390"
-        },
-        {
-          "label": "applyDays",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "2520"
-        },
-        {
-          "label": "days sheet",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "1845-1880"
-        }
-      ]
-    },
-    {
       "id": "plan",
       "label": "Your plan",
       "type": "phase",
       "level": 1,
       "position": {
-        "x": 2100,
-        "y": 276
+        "x": 2500,
+        "y": 100
       },
       "colorGroup": "plan",
       "summary": "Items are placed on days; the plan bar opens the plan, day by day.",
@@ -1461,6 +1344,69 @@
       ]
     },
     {
+      "id": "home",
+      "label": "Home & Play",
+      "type": "phase",
+      "level": 1,
+      "position": {
+        "x": 500,
+        "y": 276
+      },
+      "colorGroup": "home",
+      "summary": "Home lends the hand of cards and leads into the planner; Play saves kicks.",
+      "description": "On Home, picking a team or every NSW match shows Plan around your matches, which goes to Your days if it is showing, otherwise to the team picker. On the Play tab, the Drop goal game saves places straight into the plan. FAQ, newsletter, Share this page and the countdown never touch the planner.",
+      "evidence": [
+        {
+          "label": "concepts-home.js",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "1-346"
+        },
+        {
+          "label": "Home markup",
+          "path": "public/wireframes/prototype-pick-your-team.html",
+          "lines": "142-260"
+        },
+        {
+          "label": "Drop goal",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "2326-2399"
+        }
+      ]
+    },
+    {
+      "id": "days",
+      "label": "Your days",
+      "type": "phase",
+      "level": 1,
+      "position": {
+        "x": 1300,
+        "y": 276
+      },
+      "colorGroup": "planner",
+      "summary": "Optional: dates and trip details refine the results but are never required.",
+      "description": "Your days is a slider on the page with typed dates, and a calendar in the days sheet. Refine your plan adds where they are staying and who is coming. People can skip both: the results already show without them, and each answer says what it changed.",
+      "evidence": [
+        {
+          "label": "renderAsk",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "2390"
+        },
+        {
+          "label": "applyDays",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "2520"
+        },
+        {
+          "label": "days sheet",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "1845-1880"
+        }
+      ],
+      "badges": [
+        "optional"
+      ]
+    },
+    {
       "id": "loose",
       "label": "Loose ends",
       "type": "note",
@@ -1471,9 +1417,187 @@
       },
       "colorGroup": "shell",
       "summary": "Behaviour in the code that looks unfinished or inconsistent.",
-      "description": "Found while mapping the code; none has been changed.\n- Quick picks for Your days are still handled but never drawn.\n- The plan's Set your days button may do nothing when no team is picked but saves exist.\n- The days sheet's Who's coming chips give no tint or toast, unlike the page's.\n- The overview and day-by-day map pop-ups have no tap-outside close (project check 10).\n- Removing from a plan day card has no Undo.\n- Follow day by day still announces stepping 'as you scroll'.\n- Option B's own annotations may never show, and Open in desktop drops ?flow=a.\n- Reset does not reset the interstate switch, and nothing writes the not-going list.\n- The project rules say high fidelity needs ?tools, but the page now ignores ?tools.",
+      "description": "Found while mapping the code; none has been changed.\n- Quick picks for Your days are still handled but never drawn.\n- The plan's Set your days button may do nothing when no team is picked but saves exist.\n- The days sheet's Who's coming chips give no tint or toast, unlike the page's.\n- The overview and day-by-day map pop-ups have no tap-outside close (project check 10).\n- Removing from a plan day card has no Undo.\n- Follow day by day still announces stepping 'as you scroll'.\n- Option B's own annotations may never show, and Open in desktop drops ?flow=a.\n- Reset does not reset the interstate switch, and nothing writes the not-going list.",
       "badges": [
         "to check"
+      ]
+    },
+    {
+      "id": "rules",
+      "label": "Every rule",
+      "type": "artifact",
+      "level": 1,
+      "position": {
+        "x": 100,
+        "y": 452
+      },
+      "colorGroup": "shell",
+      "summary": "The full rule list for each stage, written out from the prototype's code.",
+      "description": "The graph keeps each stage to a few steps. These lists hold every rule behind them: states, conditions, wording, timings, Option A and B differences and empty states. Select this node, then open a list from Artifacts.",
+      "artifacts": [
+        {
+          "label": "Page opens",
+          "language": "markdown",
+          "path": "public/wireframes/prototype-pick-your-team.html",
+          "summary": "Every rule found in the prototype's code for Page opens, grouped by what people see.",
+          "content": "## Address flags\n| Flag | What it does |\n|---|---|\n| `?flow=a` | Option B. Sets `data-flow=\"a\"`; every saved key except `pv-*`, `flow-a:*` and `tp-annotations` is stored under `flow-a:` |\n| `?phone` | Phone view (also on a touch screen under 500px) |\n| `?theme=hifi` or `wireframe` | Saved as `pv-theme` and reused; high fidelity by default |\n| `?slogan=b` | Second slogan |\n| `?view=plan`, `kick` or `home` | First tab |\n| `?a=<slug>` | Opens that article on Home |\n| `?reset` | Wipes the saved picks before they are read |\n| `?tp-now=` | Shifts the countdown clock |\n| `?tools` | Accepted, but no longer changes anything |\n\n## Start-up order\n1. Clear storage left by the removed Compare options feature.\n2. Option B storage split (above).\n3. Viewer tabs mark Option A or Option B as current; Flow chart is its own page.\n4. Phone view moves Reset prototype into the header.\n5. Countdowns fill (Home's and the planner's).\n6. Scripts load: destinations, fixtures, geo, words, teams, third half, map, plan, articles, home.\n7. Saved picks are restored (`tp-pick-v1`): picked, tickets, tab, All matches filter, interstate switch, grid or fan, Plays in NSW, not-going list, added items, days and trip details.\n8. Annotations render (deferred a tick so they match the opening tab), slogan lines are fitted.\n9. Tab script: `?view=` wins; otherwise a reload reuses the saved tab; otherwise Home.\n10. About 700ms after load the plan bar intro runs; on Home the bar stays hidden until something is picked.\n\n## Restore rules\n- Old names Here for the rugby and All matches become Every NSW match; unknown team names are dropped.\n- Days need both ends or neither; a local base sets the mode to local.\n- A storage error leaves the defaults.\n- Not restored: Undo timers, Find text, the In NSW filter, an open plan."
+        },
+        {
+          "label": "Home & Play",
+          "language": "markdown",
+          "path": "public/wireframes/concepts-home.js",
+          "summary": "Every rule found in the prototype's code for Home & Play, grouped by what people see.",
+          "content": "## Touches the planner\n- **Hand of cards** is the planner's own hand, lent to Home while Home shows (found by id, never by section). Same pick as the planner; Option B's glide does not run from Home. If the Add team sheet is holding it, Home keeps a placeholder.\n- **I'm just here for the rugby** turns on Every NSW match, keeps focus on the link and stays on Home. While on it reads Remove every NSW match; under it, \"This adds all N matches played in NSW.\" It hides while any team is picked.\n- **Plan around your matches** shows while anything is picked (Every NSW match included). It switches to the planner, then scrolls to Your days if showing, otherwise to the team picker, and focuses that heading.\n- **Where the matches are**: pins and city cards open the host city sheet (highlights, match rows, public transport placeholder, places near the stadium, day trips). Match rows drill down to the match sheet: Add to my plan, Add the team, I have a ticket. A pin also scrolls its card into view. The section's own Plan your 3rd half button only scrolls up to the hand.\n- **Play now** switches to the Play tab (Drop goal game).\n- **Read before you go**: articles open in place, push `?a=` so Back closes them; the article's Plan your 3rd half button closes it quietly and switches tab. Articles never read planner state.\n- **Option B**: All matches sits on Home after Where the matches are; its rows and Add every NSW match change the planner from Home.\n\n## Does not touch the planner\nFAQ, newsletter (checks the email, confirms in place), Share this page (shares the address with its flags; no plan travels), countdown, Buy tickets, video, footer.\n\n## Switching tabs\n- The pill glides; the tab is saved for a reload.\n- Scroll: a tab the person scrolled themselves returns to where they left it; otherwise it opens at the top under the capsule. Play docks under the logo.\n- Leaving Play closes the game's card. Focus stays on the tapped tab.\n- Picking another tab while an article is open closes the article first."
+        },
+        {
+          "label": "Your teams",
+          "language": "markdown",
+          "path": "public/wireframes/concepts-teams.js",
+          "summary": "Every rule found in the prototype's code for Your teams, grouped by what people see.",
+          "content": "## Picking\n- **Card in the hand**: tap, Space or Enter. The card lifts 18px and scales to 1.14 (less on an unpick) so it stands out from the fan. Arrows move one card, Up and Down one row, a letter jumps to the next team.\n- **Find your team**: up to four matches by word start, name start or code; Enter picks the first; the field keeps focus.\n- **Your teams sheet**: Every NSW match first, then picks, then teams playing in NSW, then interstate, A to Z. Chips remove a pick. Clear all appears with two or more teams. Done becomes Save once a team changes (\"X added to your teams.\"). Opens over the page, or stacked over the open plan.\n- **Add team sheet**: borrows the hand and its utility row; opened by Option B's Add more teams, the bar's Add team, and the saved list.\n- **Every NSW match**: turning it on replaces every team (Undo in the Your teams sheet); picking a team turns it off (\"Every NSW match is off.\"). Caption: \"Every NSW match added: N pool matches + 8 knockouts\".\n- **Clear all**: removes every pick; tickets stay only on matches added on their own; Undo for 6 seconds, focus on Undo.\n- **Grid or Fan**, **Plays in NSW**: looks only, saved.\n\n## After a change\n1. Save, then place waiting items, redraw the deck, plan bar and plan, broadcast to every section.\n2. Caption \"X added: N pool matches, M in NSW\" or \"X removed\", flashed and spoken.\n3. Dots fly from the card to the plan bar, one per match day (faster for quick repeats; none with reduced motion or while the Your teams sheet is on top).\n4. Option B only: a pick (not an unpick) from the planner's hand or Find glides the page to Your matches and focuses the new card; any wheel, touch or key stops the glide.\n\n## Match cards\n- One card per picked team, in pick order, Every NSW match last, plus Matches you added.\n- A match between two picked teams sits on the first team's card; the other says \"on your X card\".\n- NSW rows carry I have tickets; interstate rows carry Watch in NSW.\n- Every NSW match card shows four rows and \"N more pool matches\".\n- Each card ends with the knockout line and a next step: See your match day, Watch [team] in NSW, or Set your days.\n- A new card shows Just added and the deck scrolls to it.\n- Option A: Your matches and All matches tabs, shown once something is picked. Option B: a heading, no tabs.\n\n## Match sheet and tickets\n- Date, Sydney kick-off, venue, clash line. Interstate matches lead with every NSW screening.\n- On your plan via a team, or Add to my plan to add it on its own.\n- I have a ticket adds the match if nothing covers it; unticking removes a match there only for its ticket.\n- Toast \"Ticket marked: [match]\" with \"Your plan, Where to watch and Around \u2026 are updated\" and a link to the first changed section (or Open your plan). No link inside a sheet; no toast if it would cover the ticket button.\n- Add [team] to my teams picks it exactly like the card."
+        },
+        {
+          "label": "Your days",
+          "language": "markdown",
+          "path": "public/wireframes/concepts-third-half.js",
+          "summary": "Every rule found in the prototype's code for Your days, grouped by what people see.",
+          "content": "## Your days on the page\n- Shown once there is something to plan around; Option B shows it before any pick (\"Set your days to see ideas for your time in NSW.\").\n- Days set: \"range \u00b7 Change\". Otherwise a note, a two-handle slider from 29 Sep to 15 Nov with marks for 1 Oct and 13 Nov, and a dot per match (solid NSW, hollow interstate).\n- Handles never cross; a tap on the track moves the nearer one. Arrows \u00b11 day, Page Up and Down \u00b17, Home and End; keyboard changes apply after 450ms.\n- Type your dates: errors \"Pick days between 29 Sep and 15 Nov\u2026\" and \"The last day is before the first day.\"\n- Undo restores the previous days and puts the places they had placed back in Saved. Reset clears the days.\n\n## Days sheet\n- Opened from the trip line, the plan, Set your days buttons and Add where you're staying (staying version).\n- Slider, typed dates, October and November calendars (Monday first). First tap sets the first day, second the last; a tap before the first day restarts.\n- An unconfirmed range survives any close (\"Not saved yet\u2026\"). Use these dates confirms; Remove my days clears.\n- Stacks over the plan when the plan is open. Never shows a Save bar.\n\n## Applying days\n- Unchanged: nothing happens. Otherwise: Undo step, hold the panel in place, save, fly newly placed saves onto the plan.\n- Toast only from the sheet or plan: \"Your days are now X to Y\", title only, updated in place, link to the first changed section. The page slider shows its own change, so it gets none.\n\n## Refine your plan\n- Where you're staying: I'm a local, Sydney CBD, Newcastle, Bondi, Outside NSW, or search 45 NSW places (\"Staying in X \u00b7 Remove\"). Who's coming: Solo, Couple, Friends, Family. A second tap clears.\n- Base changes: venue order (city first), ideas by distance, free and half-day base, route start, first-timer pattern, map anchors; a local gets distance first and Make a day of it.\n- Party changes order only: Family puts attractions and free things first; Couple and Friends put food and drink first; Solo keeps the usual order.\n- Each answer tints changed sections as they come into view and shows a toast (\"Staying in X\", \"Ideas now suit a family\", \"\u2026is cleared\")."
+        },
+        {
+          "label": "Watch & ideas",
+          "language": "markdown",
+          "path": "public/wireframes/concepts-third-half.js",
+          "summary": "Every rule found in the prototype's code for Watch & ideas, grouped by what people see.",
+          "content": "## Which matches\nPicked teams' matches plus matches added on their own; every NSW match for Every NSW match; inside the days if set. No team: a first look at the next NSW match day only.\n\n## Where to watch\n- One card per evening; two or more matches make a clash card (\"N of your matches tonight\", \"tonight\" only when every kick-off is 5pm or later).\n- Up to three venues per evening: venues showing all the matches first, then in the city they stay, then rotated by fixture; avoid repeating a type, area or a venue used on more than two evenings.\n- Ticketed matches become \"You're at [match]\" lines with See your match day.\n- \"Going to [match]?\" opens the match sheet at I have a ticket.\n- Empty: \"None of your matches falls in your days (range).\" or \"Pick your teams to see where to watch their matches.\"\n\n## Around your matches\n- Title: Around your matches with a team, Around the NSW matches without.\n- Without days: a block per NSW match day (every NSW match day if the team only plays interstate).\n- With days, each day becomes: match (NSW match), away (interstate with a ticket), watch (interstate without), half (first and last day) or free.\n- Base for free and half days: where they stay, else the nearest match's city, else Sydney.\n- **Match day**: getting there (placeholder), products at the venue open that day, grouped Near the stadium, Before the match, After the final whistle; Not going to the match? (three evening places); locals get Make a day of it.\n- **Free day**: three to five ideas per day (half, half, trip for first-timers in Sydney), More ideas; a full day says what is planned; three or more days add longer trips.\n- **Half day**: nearby food and attractions within 6 km, three shown, More places.\n- Trip line: \"Staying longer? Set your days\" or \"Your days: range \u00b7 Change\"; opens the days sheet.\n\n## Maps\n- Overview: stage 1 (no team) everything; stage 2 your stadiums lit with route cards; stage 3 (days set) Follow day by day. Pins open a pop-up with Add; TV pins link to Where to watch; full screen available. Loads only near view.\n- Day by day: full-screen layer; arrows, dots, swipe or the day list step days while the camera glides; Explore freely shows every stop with zoom; See as a list opens that day in Around your matches.\n\n## Adding\n- Page Add: flies to the bar; toast \"Added to your plan\" (or \"Saved to your plan\u2026 once you set your days\"); removing says \"Removed from your plan\". No toast inside the open plan.\n- Sheet Add: the first change pins a Save bar naming the latest change; Save closes like the cross.\n- Toasts: one at a time, 6 seconds (longer while hovered or focused), 16px from the foot on phones, 24px on desktop, 12px above anything pinned."
+        },
+        {
+          "label": "Saved state",
+          "language": "markdown",
+          "path": "public/wireframes/concepts-teams.js",
+          "summary": "Every rule found in the prototype's code for Saved state, grouped by what people see.",
+          "content": "## The saved record (tp-pick-v1)\n| Field | Holds |\n|---|---|\n| picked | Team names, or Every NSW match |\n| tickets | Matches with a ticket |\n| tab | Your matches or All matches (Option B always Your matches) |\n| added | Items: kind, day, title, unplaced, fixed date, nights |\n| trip | First and last day, base, party, mode (local or visiting) |\n| allFilter | NSW only and city for All matches |\n| interstate | Show interstate matches in the plan (Every NSW match only) |\n| view | Grid or fan |\n| nswMark | Plays in NSW marks |\n| notGoing | Read by the results; nothing writes it now |\n\n## Every change\n1. Save the record (Option B: under flow-a:).\n2. Tell the Drop goal game the picks and saves.\n3. Place waiting items on a day if one fits.\n4. Redraw the deck if tickets changed, the plan bar and the plan.\n5. Broadcast so Home, the results and the annotations redraw.\n\n## Reset prototype\nClears picks, tickets, filters, view, marks, not-going list, tab, added items and days, scrolls to the top, closes the plan and tells the game. The interstate switch is not reset."
+        },
+        {
+          "label": "Your plan",
+          "language": "markdown",
+          "path": "public/wireframes/concepts-plan.js",
+          "summary": "Every rule found in the prototype's code for Your plan, grouped by what people see.",
+          "content": "## Placing saved items\n- A place goes on its stadium's match day if that day is in the days and it is open; otherwise the first open free or watch day with fewer than two items.\n- An item with a fixed date goes on that date if it falls in the days. Drop goal kicks are never placed automatically.\n- Announced 1.5 seconds later: \"Saved, now placed: \u2026\".\n\n## Plan bar\n- Shown after the intro, when the plan is open, once anything is picked or added; on Home only once something is picked.\n- Label: Your plan, Every NSW match, or \"Your teams: \u2026\" with flags and codes (up to four, then +N). Value: No matches yet, N saved, or the match count.\n- Tap, or drag past a third (or flick), opens it. Desktop: a rail beside the page, no drag, page not made inert.\n\n## Opening and closing\n- Opens on: the day asked for, else the day last added to, else the day it closed on, else the first of your days, earliest item or first NSW match.\n- Phone: the page behind is inert; Tab stays inside. Escape closes a stacked sheet first, then the plan.\n- Closing returns focus to the opener; sections that changed glow once seen.\n\n## Day by day\n- Strip: one button per day, marks for match, away, filled and clash; follows the scroll; roving keys.\n- Days: with days, the whole range; without, match days only; any day with an item always shows. Two or more empty days fold into \"N free days\" with Show each day.\n- Card order: things before kick-off, matches, interstate extras, screenings and things after, trip nights.\n- Match rows carry I have tickets. Without days, \"Staying after your last match?\" offers Set your days.\n- Items: Move (chips for the days it is open; screenings cannot move) and Remove (no Undo). Focus stays put.\n- Free days: Add ideas opens an ideas sheet stacked over the plan; added ideas land with a ring when it closes.\n\n## Saved, not placed yet\nMap saves and kicks with no day, each with Remove; Add team and Set your days above.\n\n## Clear plan\nConfirm sheet lists what comes off and what stays; focus on the safe button. Clear empties added items and tickets on matches only there for the ticket; \"Plan cleared: N things taken off.\" with Undo for 6 seconds.\n\n## Save and share\nCopy (detailed, compact, for an AI), calendar links (Google, Outlook; matches two hours from kick-off, Sydney time), map links and a route, CSV and spreadsheet copy, a pretend email send. One panel open at a time.\n\n## Stacked sheets\nNever more than two levels. Inside a sheet, details drill down with a back arrow; the cross closes the sheet and leaves the plan open; Escape and the grabber go back one step.\n\n## Drop goal game\nKicks save places as unplaced kick items; Unsave removes them; Open your plan switches tab and opens the plan at the saved list. The planner sends picks (first team kicks), saves, theme, close and reset."
+        }
+      ]
+    },
+    {
+      "id": "state",
+      "label": "Saved state",
+      "type": "artifact",
+      "level": 1,
+      "position": {
+        "x": 2100,
+        "y": 628
+      },
+      "colorGroup": "shell",
+      "summary": "One saved record that every change writes and every section redraws from.",
+      "description": "Picks, tickets, added items, days and trip details are saved together in the browser (Option B keeps its own copy). Every change, from any stage, runs the same steps: save, place waiting items, redraw the plan bar and plan, then tell Home, the results and the annotations to redraw. So the planner is a loop, not a one-way path.",
+      "evidence": [
+        {
+          "label": "state, save, changed",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "89-152"
+        }
+      ],
+      "badges": [
+        "loop"
+      ]
+    },
+    {
+      "id": "redraw",
+      "label": "Redraw everything",
+      "type": "process",
+      "level": 1,
+      "position": {
+        "x": 500,
+        "y": 628
+      },
+      "colorGroup": "shell",
+      "summary": "Every saved change redraws every stage, so the planner loops back on itself.",
+      "description": "A pick, a ticket, an added item, new days or details all end in Saved state, which then redraws Home, the match cards, Where to watch, Around your matches, the maps and the plan together. People move round this loop as often as they like; nothing is a one-way step.",
+      "evidence": [
+        {
+          "label": "tp:state",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "131-152"
+        }
+      ],
+      "badges": [
+        "loop"
+      ]
+    },
+    {
+      "id": "o-share",
+      "label": "Save and share",
+      "type": "entry",
+      "level": 2,
+      "position": {
+        "x": 1700,
+        "y": -428
+      },
+      "colorGroup": "plan",
+      "summary": "Copy, calendar, maps, spreadsheet and email.",
+      "description": "Copy in three formats; Google and Outlook calendar links (matches last two hours, Sydney time); map links and a route; a spreadsheet file; and a pretend email send.",
+      "parent": "plan",
+      "evidence": [
+        {
+          "label": "concepts-third-half.js",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "2812"
+        }
+      ]
+    },
+    {
+      "id": "o-foot",
+      "label": "Keep or clear",
+      "type": "entry",
+      "level": 2,
+      "position": {
+        "x": 1300,
+        "y": -252
+      },
+      "colorGroup": "plan",
+      "summary": "The plan's own actions: Clear plan and Save and share.",
+      "description": "Clear plan sits at the head of the open plan and Save and share at its foot, pinned with a faint top rule so it reads as sitting above the scrolling days.",
+      "parent": "plan",
+      "evidence": [
+        {
+          "label": "concepts-teams.js",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "1862"
+        },
+        {
+          "label": "concepts-third-half.js",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "2812"
+        }
+      ]
+    },
+    {
+      "id": "o-clear",
+      "label": "Clear plan",
+      "type": "process",
+      "level": 2,
+      "position": {
+        "x": 1700,
+        "y": -252
+      },
+      "colorGroup": "plan",
+      "summary": "A confirm step lists what comes off; Undo for 6 seconds.",
+      "description": "Empties added items and tickets on matches that were only added; picked teams stay. A tap outside means Cancel, never Clear.",
+      "parent": "plan",
+      "evidence": [
+        {
+          "label": "tlClearDo",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "1887"
+        }
       ]
     },
     {
@@ -1487,7 +1611,7 @@
       },
       "colorGroup": "shell",
       "summary": "Flags pick the version, view and theme; Option B gets its own saves.",
-      "description": "?flow=a is Option B, and its saves are filed under flow-a: so the two options never share picks (theme and annotations stay shared). ?phone, or a touch screen under 500px, is phone view. ?theme=hifi or wireframe is saved and reused; high fidelity is the default. ?slogan=b swaps the slogan, ?reset wipes the saved picks and ?tp-now= shifts the countdown. ?tools is accepted but no longer changes anything.",
+      "description": "?flow=a is Option B, and its saves are filed under flow-a: so the two options never share picks (theme and annotations stay shared). ?phone, or a touch screen under 500px, is phone view. ?theme=hifi or wireframe is saved and reused; high fidelity is the default. ?slogan=b swaps the slogan, ?reset wipes the saved picks and ?tp-now= shifts the countdown.",
       "parent": "start",
       "evidence": [
         {
@@ -1523,7 +1647,7 @@
     },
     {
       "id": "s-tab",
-      "label": "First tab?",
+      "label": "Which tab first?",
       "type": "decision",
       "level": 2,
       "position": {
@@ -1532,51 +1656,14 @@
       },
       "colorGroup": "shell",
       "summary": "?view= wins, then the saved tab on a reload only, then Home.",
-      "description": "The tab is remembered per browser tab, but only a reload reuses it; a fresh visit opens on Home. Showing a tab hides the others and sets the page title.",
+      "description": "The tab is remembered per browser tab, but only a reload reuses it; a fresh visit opens on Home. Either way the countdowns fill, the annotations render for the open tab, and about 700ms later the plan bar slides in (on Home only once something is picked).",
       "parent": "start",
       "evidence": [
         {
           "label": "prototype-pick-your-team.html",
           "path": "public/wireframes/prototype-pick-your-team.html",
           "lines": "1488-1501"
-        }
-      ]
-    },
-    {
-      "id": "s-home",
-      "label": "Open on Home",
-      "type": "process",
-      "level": 2,
-      "position": {
-        "x": 1300,
-        "y": 100
-      },
-      "colorGroup": "shell",
-      "summary": "Moves the hand of cards into Home.",
-      "description": "The team picker (hand, caption, Clear all) moves into Home's Plan your 3rd half section, leaving a marker in the planner so it can go back. Find and the grid or fan switch stay in the planner.",
-      "parent": "start",
-      "evidence": [
-        {
-          "label": "prototype-pick-your-team.html",
-          "path": "public/wireframes/prototype-pick-your-team.html",
-          "lines": "1476-1483"
-        }
-      ]
-    },
-    {
-      "id": "s-ready",
-      "label": "Sections draw",
-      "type": "process",
-      "level": 2,
-      "position": {
-        "x": 1700,
-        "y": 100
-      },
-      "colorGroup": "shell",
-      "summary": "Countdown, annotations, line fitting and the plan bar intro run.",
-      "description": "Both countdowns fill, the annotations render for the open tab, and the slogan lines are fitted (skipping anything hidden). About 700ms after load the plan bar slides in; on Home it stays away until something is picked.",
-      "parent": "start",
-      "evidence": [
+        },
         {
           "label": "prototype-pick-your-team.html",
           "path": "public/wireframes/prototype-pick-your-team.html",
@@ -1590,121 +1677,93 @@
       ]
     },
     {
-      "id": "h-arrive",
-      "label": "Home shows",
-      "type": "entry",
-      "level": 2,
-      "position": {
-        "x": 100,
-        "y": 100
-      },
-      "colorGroup": "home",
-      "summary": "Home's sections; the hand and the host city map lead into the planner.",
-      "description": "Read before you go and Play now switch tabs (see Switch tabs and the Drop goal game in Your plan). FAQ, newsletter, Share this page (the address only; the plan stays on the device), countdown and Buy tickets never touch the planner.",
-      "parent": "home",
-      "evidence": [
-        {
-          "label": "concepts-home.js",
-          "path": "public/wireframes/concepts-home.js",
-          "lines": "18-47"
-        },
-        {
-          "label": "no planner link",
-          "path": "public/wireframes/concepts-home.js",
-          "lines": "301-346"
-        }
-      ]
-    },
-    {
-      "id": "h-hand",
-      "label": "Hand and rugby",
-      "type": "entry",
-      "level": 2,
-      "position": {
-        "x": 500,
-        "y": 100
-      },
-      "colorGroup": "home",
-      "summary": "The planner's hand of cards, lent to Home, and the rugby link.",
-      "description": "Tapping a card runs exactly the same pick as in the planner; Option B's glide does not run from Home. If the Add team sheet is holding the hand, Home keeps a placeholder. I'm just here for the rugby turns on Every NSW match and keeps focus on the link; it hides while any team is picked.",
-      "parent": "home",
-      "evidence": [
-        {
-          "label": "prototype-pick-your-team.html",
-          "path": "public/wireframes/prototype-pick-your-team.html",
-          "lines": "157-161"
-        },
-        {
-          "label": "concepts-teams.js",
-          "path": "public/wireframes/concepts-teams.js",
-          "lines": "795-823"
-        },
-        {
-          "label": "rugby link",
-          "path": "public/wireframes/concepts-teams.js",
-          "lines": "846-917"
-        }
-      ]
-    },
-    {
-      "id": "h-cta",
-      "label": "Plan around it",
-      "type": "decision",
-      "level": 2,
-      "position": {
-        "x": 900,
-        "y": 100
-      },
-      "colorGroup": "home",
-      "summary": "Plan around your matches shows once anything is picked.",
-      "description": "It appears while at least one pick exists, Every NSW match included. It switches to the planner, then scrolls to Your days if showing, otherwise to the team picker, and focuses that heading.",
-      "parent": "home",
-      "evidence": [
-        {
-          "label": "concepts-home.js",
-          "path": "public/wireframes/concepts-home.js",
-          "lines": "36-47"
-        }
-      ]
-    },
-    {
-      "id": "h-tabs",
-      "label": "Switch tabs",
+      "id": "s-home",
+      "label": "Home or Play",
       "type": "process",
       "level": 2,
       "position": {
         "x": 1300,
         "y": 100
       },
-      "colorGroup": "home",
-      "summary": "Moves to the planner, keeping each tab's own scroll.",
-      "description": "The pill glides to the new tab and the choice is saved for a reload. A tab the person scrolled themselves comes back where they left it; otherwise it opens at the top. Leaving Play closes the game's card. An article's Plan your 3rd half button also lands here, after closing the article.",
-      "parent": "home",
+      "colorGroup": "shell",
+      "summary": "Home borrows the hand of cards; Play shows only the game.",
+      "description": "On Home, the team picker (hand, caption, Clear all) moves into Plan your 3rd half, leaving a marker in the planner so it can go back. On Play, only the Drop goal game shows, docked under the logo, and the plan bar is hidden.",
+      "parent": "start",
       "evidence": [
         {
           "label": "prototype-pick-your-team.html",
           "path": "public/wireframes/prototype-pick-your-team.html",
-          "lines": "1580-1615"
+          "lines": "1476-1483"
         },
         {
-          "label": "articles",
-          "path": "public/wireframes/concepts-home.js",
-          "lines": "181-271"
+          "label": "prototype-pick-your-team.html",
+          "path": "public/wireframes/prototype-pick-your-team.html",
+          "lines": "1510-1539"
         }
       ]
     },
     {
-      "id": "t-ways",
-      "label": "Ways to pick",
+      "id": "h-play",
+      "label": "Play tab",
       "type": "entry",
       "level": 2,
       "position": {
         "x": 100,
         "y": 100
       },
+      "colorGroup": "home",
+      "summary": "Play now, or the Play tab, shows the Drop goal game.",
+      "description": "A tab switch only: the plan bar hides while Play shows, and leaving Play closes the game's result card.",
+      "parent": "home",
+      "evidence": [
+        {
+          "label": "prototype-pick-your-team.html",
+          "path": "public/wireframes/prototype-pick-your-team.html",
+          "lines": "223"
+        },
+        {
+          "label": "prototype-pick-your-team.html",
+          "path": "public/wireframes/prototype-pick-your-team.html",
+          "lines": "1510-1539"
+        }
+      ]
+    },
+    {
+      "id": "h-game",
+      "label": "Drop goal game",
+      "type": "external",
+      "level": 2,
+      "position": {
+        "x": 500,
+        "y": 100
+      },
+      "colorGroup": "home",
+      "summary": "A kick that lands saves that place to the plan.",
+      "description": "The place is saved as Saved, not placed yet; kicks are never placed on a day automatically. The game's card offers Open your plan, which switches to the planner and opens the plan at the saved list. The planner sends the game the picked teams (the first is the kicker), its saves, the theme and Reset.",
+      "parent": "home",
+      "evidence": [
+        {
+          "label": "concepts-teams.js",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "2326-2399"
+        }
+      ],
+      "badges": [
+        "iframe"
+      ]
+    },
+    {
+      "id": "t-ways",
+      "label": "Team or none?",
+      "type": "decision",
+      "level": 2,
+      "position": {
+        "x": 100,
+        "y": 100
+      },
       "colorGroup": "planner",
-      "summary": "Pick teams, or choose Every NSW match instead.",
-      "description": "Both change the same list of picks, and the two never mix. Grid or Fan and Plays in NSW only change how the hand looks; the In NSW filter chip is hidden.",
+      "summary": "People pick teams, or choose Every NSW match instead.",
+      "description": "The two never mix: turning on Every NSW match clears the teams, and picking a team turns it off. Grid or Fan and Plays in NSW only change how the hand looks; the In NSW filter chip is hidden.",
       "parent": "teams",
       "evidence": [
         {
@@ -1716,7 +1775,7 @@
     },
     {
       "id": "t-hand",
-      "label": "Hand or sheets",
+      "label": "Pick teams",
       "type": "entry",
       "level": 2,
       "position": {
@@ -1814,8 +1873,8 @@
       ]
     },
     {
-      "id": "t-match",
-      "label": "Match sheet",
+      "id": "t-ready",
+      "label": "Matches ready",
       "type": "process",
       "level": 2,
       "position": {
@@ -1823,34 +1882,29 @@
         "y": 100
       },
       "colorGroup": "planner",
-      "summary": "Add the match, mark a ticket or add the team.",
-      "description": "Shows the date, Sydney kick-off, venue and any clash; interstate matches lead with where to watch in NSW. I have a ticket adds the match if nothing covers it and shows a toast naming the sections that changed, with no link inside a sheet.",
+      "summary": "The person's matches are known; the rest of the planner follows.",
+      "description": "From here people can add days and details (optional) or go straight to the results, which already show for these matches.",
       "parent": "teams",
       "evidence": [
         {
-          "label": "pmMatch",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "1181"
-        },
-        {
-          "label": "ticketToggle",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "2243"
+          "label": "concepts-teams.js",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "145-152"
         }
       ]
     },
     {
       "id": "d-show",
-      "label": "Your days shows",
-      "type": "entry",
+      "label": "Add what?",
+      "type": "decision",
       "level": 2,
       "position": {
         "x": 100,
         "y": 100
       },
       "colorGroup": "planner",
-      "summary": "Shown once there is something to plan around, or always in Option B.",
-      "description": "With days set it is a summary with Change. Otherwise a note and a slider from 29 Sep to 15 Nov, with dots for the person's matches (solid in NSW, hollow interstate). Option B shows it before any pick, worded for no team.",
+      "summary": "Both are optional; people can add either, both, or neither.",
+      "description": "Your days shows once there is something to plan around (always in Option B, worded for no team). With days set it is a summary with Change; otherwise a note and a slider from 29 Sep to 15 Nov, with dots for the person's matches. Refine your plan sits folded underneath.",
       "parent": "days",
       "evidence": [
         {
@@ -1952,7 +2006,7 @@
       },
       "colorGroup": "planner",
       "summary": "Every saved change redraws the sections whose inputs changed.",
-      "description": "The sections read the person's matches: picked teams, matches added on their own, or every NSW match for rugby, inside their days if set. New cards fade up, changed lines glow, and focus goes back to the control that had it.",
+      "description": "A pick, a ticket, an added item, new days or details all trigger it. New cards fade up, changed lines glow, and focus goes back to the control that had it.",
       "parent": "results",
       "evidence": [
         {
@@ -1963,7 +2017,7 @@
       ]
     },
     {
-      "id": "r-first",
+      "id": "r-team",
       "label": "Team picked?",
       "type": "decision",
       "level": 2,
@@ -1972,20 +2026,25 @@
         "y": 100
       },
       "colorGroup": "planner",
-      "summary": "With no team, both sections are a first look at the next NSW match day.",
-      "description": "The note says it is a first look, so people know more comes once they pick. Your plan so far offers Pick your teams.",
+      "summary": "Both sections always show; a team decides what is in them.",
+      "description": "With a team (or Every NSW match), the sections cover the person's matches. With no team, they are a first look at the next NSW match day, so people see something useful before choosing.",
       "parent": "results",
       "evidence": [
         {
           "label": "concepts-third-half.js",
           "path": "public/wireframes/concepts-third-half.js",
           "lines": "259-280"
+        },
+        {
+          "label": "concepts-third-half.js",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "381-450"
         }
       ]
     },
     {
-      "id": "r-around",
-      "label": "Around matches",
+      "id": "r-yes",
+      "label": "Yes: your matches",
       "type": "process",
       "level": 2,
       "position": {
@@ -1993,10 +2052,36 @@
         "y": 100
       },
       "colorGroup": "planner",
-      "summary": "A block per match day, free stretch and half day.",
-      "description": "Match days list products open before, near or after kick-off and Not going to the match? ideas. Free days get three to five ideas and longer trips for three days or more; half days get nearby food and attractions. The trip line underneath opens the days sheet.",
+      "summary": "The person's matches, inside their days if set.",
+      "description": "Picked teams' matches, matches added on their own, or every NSW match for Every NSW match. Without days, Around your matches shows their NSW match days; with days, every day of the stay.",
       "parent": "results",
       "evidence": [
+        {
+          "label": "concepts-teams.js",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "1461"
+        }
+      ]
+    },
+    {
+      "id": "r-sections",
+      "label": "Sections and maps",
+      "type": "process",
+      "level": 2,
+      "position": {
+        "x": 1300,
+        "y": 100
+      },
+      "colorGroup": "planner",
+      "summary": "Where to watch, Around your matches and the maps, all redrawn together.",
+      "description": "Where to watch: an evening card per match day with up to three venues, chosen so none is favoured; ticketed matches become 'You're at' lines. Around your matches: a block per match day, free stretch and half day, with products near the stadium, ideas and trips. The overview map lights your stadiums; with days set, Follow day by day steps through the plan on a full-screen map.",
+      "parent": "results",
+      "evidence": [
+        {
+          "label": "venuesFor",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "196"
+        },
         {
           "label": "matchBody",
           "path": "public/wireframes/concepts-third-half.js",
@@ -2008,9 +2093,9 @@
           "lines": "752"
         },
         {
-          "label": "trip line",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "2670"
+          "label": "maps",
+          "path": "public/wireframes/concepts-map.js",
+          "lines": "1-1314"
         }
       ]
     },
@@ -2020,11 +2105,11 @@
       "type": "process",
       "level": 2,
       "position": {
-        "x": 1300,
+        "x": 1700,
         "y": 100
       },
       "colorGroup": "planner",
-      "summary": "Add on any card or sheet stores the item.",
+      "summary": "Add on any card, sheet or map pin stores the item.",
       "description": "On the page, adding flies the item to the plan bar with a toast ('Added' or 'Saved to your plan'). In a sheet, the first change pins a Save bar naming it. One toast at a time, 6 seconds, above anything pinned to the foot.",
       "parent": "results",
       "evidence": [
@@ -2047,7 +2132,7 @@
     },
     {
       "id": "o-slot",
-      "label": "Place saved items",
+      "label": "Does a day fit?",
       "type": "decision",
       "level": 2,
       "position": {
@@ -2055,8 +2140,8 @@
         "y": 100
       },
       "colorGroup": "plan",
-      "summary": "After every change, waiting items go on a day if one fits.",
-      "description": "A place goes on its stadium's match day if open, otherwise the first open free day with room. Fixed dates go on their date if inside the days. Screen readers hear 'Saved, now placed' 1.5 seconds later.",
+      "summary": "After every change, each waiting item goes on a day if one fits.",
+      "description": "A place goes on its stadium's match day if open, otherwise the first open free day with room. Fixed dates go on their date if inside the days. Drop goal kicks are never placed automatically.",
       "parent": "plan",
       "evidence": [
         {
@@ -2068,7 +2153,7 @@
     },
     {
       "id": "o-bar",
-      "label": "Plan bar",
+      "label": "Yes: on a day",
       "type": "entry",
       "level": 2,
       "position": {
@@ -2076,8 +2161,8 @@
         "y": 100
       },
       "colorGroup": "plan",
-      "summary": "Pinned to the foot; tap or drag up to open.",
-      "description": "Shows after the intro, or once anything is picked or added; on Home only once something is picked. Its label names the teams and its value counts matches or saves; on desktop it is a rail. Your plan so far on the page sums up the same plan, with Copy plan and Open your plan.",
+      "summary": "It joins that day; the plan bar's count updates.",
+      "description": "Screen readers hear 'Saved, now placed' 1.5 seconds later. The plan bar shows after the intro, or once anything is picked or added (on Home only once something is picked); its label names the teams. Your plan so far on the page sums up the same plan, with Copy plan.",
       "parent": "plan",
       "evidence": [
         {
@@ -2107,7 +2192,7 @@
         "y": 100
       },
       "colorGroup": "plan",
-      "summary": "Opens on the most useful day and focuses its heading.",
+      "summary": "The bar opens the plan on the most useful day.",
       "description": "The day asked for, else the day last added to, else the day it closed on, else the first day. The page behind is made inert on phones. Closing returns focus to the opener, and changed sections glow once seen.",
       "parent": "plan",
       "evidence": [
@@ -2166,8 +2251,8 @@
       ]
     },
     {
-      "id": "s-other",
-      "label": "Planner or Play",
+      "id": "s-plan",
+      "label": "The planner",
       "type": "process",
       "level": 2,
       "position": {
@@ -2175,8 +2260,8 @@
         "y": 276
       },
       "colorGroup": "shell",
-      "summary": "The planner shows its sections; Play shows only the game.",
-      "description": "On the planner, Home and Play are hidden and the hero, team picker, results and Your plan so far show down the page. On Play, only the Drop goal game shows, docked under the logo, and the plan bar is hidden.",
+      "summary": "The planner shows its sections with the hand in place.",
+      "description": "Home and Play are hidden; the hero, team picker, match cards, results and Your plan so far show in order down the page.",
       "parent": "start",
       "evidence": [
         {
@@ -2187,46 +2272,17 @@
       ]
     },
     {
-      "id": "h-where",
-      "label": "Host city map",
-      "type": "entry",
-      "level": 2,
-      "position": {
-        "x": 500,
-        "y": 276
-      },
-      "colorGroup": "home",
-      "summary": "Pins and city cards open a host city sheet.",
-      "description": "The sheet lists that city's matches; a match drills down to the match sheet, where Add to my plan, Add the team and I have a ticket change the planner. In Option B, All matches also sits on Home, after this section.",
-      "parent": "home",
-      "evidence": [
-        {
-          "label": "concepts-home.js",
-          "path": "public/wireframes/concepts-home.js",
-          "lines": "50-133"
-        },
-        {
-          "label": "city sheet",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "1642-1667"
-        }
-      ],
-      "badges": [
-        "Option B"
-      ]
-    },
-    {
       "id": "t-rugby",
       "label": "Every NSW match",
-      "type": "decision",
+      "type": "process",
       "level": 2,
       "position": {
         "x": 500,
         "y": 276
       },
       "colorGroup": "planner",
-      "summary": "The no-team choice; it replaces any picked teams.",
-      "description": "Links on All matches, the empty plan and Home, and a row in the Your teams sheet, turn it on or off. Turning it on clears the teams (with Undo in the sheet); picking a team turns it off. The caption counts the pool and knockout matches it adds.",
+      "summary": "The no-team choice: every match played in NSW.",
+      "description": "Links on All matches, the empty plan and Home, and a row in the Your teams sheet, turn it on or off. Turning it on clears the teams (with Undo in the sheet). The caption counts the pool and knockout matches it adds.",
       "parent": "teams",
       "evidence": [
         {
@@ -2234,6 +2290,35 @@
           "path": "public/wireframes/concepts-teams.js",
           "lines": "894-917"
         }
+      ]
+    },
+    {
+      "id": "t-match",
+      "label": "Match sheet",
+      "type": "process",
+      "level": 2,
+      "position": {
+        "x": 1700,
+        "y": 276
+      },
+      "colorGroup": "planner",
+      "summary": "Optional: add a match, mark a ticket or add the team.",
+      "description": "Opened by tapping any match. Shows the date, Sydney kick-off, venue and any clash; interstate matches lead with where to watch in NSW. I have a ticket adds the match if nothing covers it and shows a toast naming the sections that changed, with no link inside a sheet.",
+      "parent": "teams",
+      "evidence": [
+        {
+          "label": "pmMatch",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "1181"
+        },
+        {
+          "label": "ticketToggle",
+          "path": "public/wireframes/concepts-third-half.js",
+          "lines": "2243"
+        }
+      ],
+      "badges": [
+        "optional"
       ]
     },
     {
@@ -2259,7 +2344,7 @@
     },
     {
       "id": "d-trip",
-      "label": "Stay and party",
+      "label": "Staying and group",
       "type": "process",
       "level": 2,
       "position": {
@@ -2279,8 +2364,8 @@
       ]
     },
     {
-      "id": "r-watch",
-      "label": "Where to watch",
+      "id": "r-no",
+      "label": "No: first look",
       "type": "process",
       "level": 2,
       "position": {
@@ -2288,19 +2373,35 @@
         "y": 276
       },
       "colorGroup": "planner",
-      "summary": "An evening card per match day, with up to three venues.",
-      "description": "Venues showing every match that evening come first, then ones where they stay, rotated so none is favoured. Ticketed matches become 'You're at' lines. Going to [match]? opens the match sheet at I have a ticket.",
+      "summary": "Only the next NSW match day, as a preview.",
+      "description": "The notes say it is a first look, so people know more comes once they pick. Your plan so far offers Pick your teams.",
       "parent": "results",
       "evidence": [
         {
-          "label": "venuesFor",
+          "label": "concepts-third-half.js",
           "path": "public/wireframes/concepts-third-half.js",
-          "lines": "196"
-        },
+          "lines": "259-280"
+        }
+      ]
+    },
+    {
+      "id": "o-wait",
+      "label": "No: saved list",
+      "type": "process",
+      "level": 2,
+      "position": {
+        "x": 500,
+        "y": 276
+      },
+      "colorGroup": "plan",
+      "summary": "It waits in Saved, not placed yet.",
+      "description": "The list offers Add team, Set your days and Remove for each item. Setting days places most of them automatically; Drop goal kicks stay until the person places them.",
+      "parent": "plan",
+      "evidence": [
         {
-          "label": "renderWatch",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "259"
+          "label": "concepts-teams.js",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "1667-1682"
         }
       ]
     },
@@ -2331,141 +2432,135 @@
       ]
     },
     {
-      "id": "o-foot",
-      "label": "Keep or clear",
+      "id": "h-home",
+      "label": "Home tab",
       "type": "entry",
-      "level": 2,
-      "position": {
-        "x": 1300,
-        "y": 276
-      },
-      "colorGroup": "plan",
-      "summary": "The plan's own actions: Clear plan and Save and share.",
-      "description": "Clear plan sits at the head of the open plan and Save and share at its foot, pinned with a faint top rule so it reads as sitting above the scrolling days.",
-      "parent": "plan",
-      "evidence": [
-        {
-          "label": "concepts-teams.js",
-          "path": "public/wireframes/concepts-teams.js",
-          "lines": "1862"
-        },
-        {
-          "label": "concepts-third-half.js",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "2812"
-        }
-      ]
-    },
-    {
-      "id": "o-wait",
-      "label": "Saved list",
-      "type": "process",
-      "level": 2,
-      "position": {
-        "x": 500,
-        "y": 276
-      },
-      "colorGroup": "plan",
-      "summary": "Saved, not placed yet, with Add team and Set your days.",
-      "description": "Lists map saves and Drop goal kicks that have no day yet, each with Remove. Setting your days places most of them automatically.",
-      "parent": "plan",
-      "evidence": [
-        {
-          "label": "concepts-teams.js",
-          "path": "public/wireframes/concepts-teams.js",
-          "lines": "1667-1682"
-        }
-      ]
-    },
-    {
-      "id": "r-maps",
-      "label": "Maps",
-      "type": "process",
-      "level": 2,
-      "position": {
-        "x": 500,
-        "y": 452
-      },
-      "colorGroup": "planner",
-      "summary": "The overview map, and Follow day by day once days are set.",
-      "description": "The overview lights your stadiums and shows route cards; its pins open a pop-up with Add. With days set, Follow day by day opens a full-screen layer that steps through the plan with a gliding camera, and Explore freely shows every stop. A map add shows itself in the pop-up instead of a toast.",
-      "parent": "results",
-      "evidence": [
-        {
-          "label": "overview",
-          "path": "public/wireframes/concepts-map.js",
-          "lines": "727-1314"
-        },
-        {
-          "label": "day by day",
-          "path": "public/wireframes/concepts-map.js",
-          "lines": "1-725"
-        }
-      ]
-    },
-    {
-      "id": "o-clear",
-      "label": "Clear plan",
-      "type": "decision",
-      "level": 2,
-      "position": {
-        "x": 1700,
-        "y": 452
-      },
-      "colorGroup": "plan",
-      "summary": "A confirm step lists what comes off; Undo for 6 seconds.",
-      "description": "Empties added items and tickets on matches that were only added; picked teams stay. A tap outside means Cancel.",
-      "parent": "plan",
-      "evidence": [
-        {
-          "label": "tlClearDo",
-          "path": "public/wireframes/concepts-teams.js",
-          "lines": "1887"
-        }
-      ]
-    },
-    {
-      "id": "o-kick",
-      "label": "Drop goal game",
-      "type": "external",
       "level": 2,
       "position": {
         "x": 100,
         "y": 452
       },
-      "colorGroup": "plan",
-      "summary": "The kick game on the Play tab saves places to the plan.",
-      "description": "A kick that lands saves the place as Saved, not placed yet; kicks are never placed automatically. The game's card offers Open your plan, which switches to the planner and opens the plan at the saved list. The planner sends the game the picked teams (the first is the kicker), its saves, the theme and Reset.",
-      "parent": "plan",
+      "colorGroup": "home",
+      "summary": "Home's sections; the hand and host city map can change the planner.",
+      "description": "Read before you go articles open in place; their Plan your 3rd half button switches to the planner. FAQ, newsletter, Share this page (the address only; the plan stays on the device), countdown and Buy tickets never touch the planner.",
+      "parent": "home",
       "evidence": [
         {
-          "label": "concepts-teams.js",
-          "path": "public/wireframes/concepts-teams.js",
-          "lines": "2326-2399"
+          "label": "concepts-home.js",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "18-47"
+        },
+        {
+          "label": "articles",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "181-271"
+        },
+        {
+          "label": "no planner link",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "301-346"
         }
-      ],
-      "badges": [
-        "iframe"
       ]
     },
     {
-      "id": "o-share",
-      "label": "Save and share",
+      "id": "h-pick",
+      "label": "Pick on Home",
       "type": "entry",
       "level": 2,
       "position": {
-        "x": 1700,
-        "y": 628
+        "x": 500,
+        "y": 452
       },
-      "colorGroup": "plan",
-      "summary": "Copy, calendar, maps, spreadsheet and email.",
-      "description": "Copy in three formats; Google and Outlook calendar links (matches last two hours, Sydney time); map links and a route; a spreadsheet file; and a pretend email send.",
-      "parent": "plan",
+      "colorGroup": "home",
+      "summary": "The lent hand of cards, the rugby link and host city sheets.",
+      "description": "Tapping a card runs the same pick as in the planner (Option B's glide does not run from Home). I'm just here for the rugby turns on Every NSW match and hides while any team is picked. Host city pins open a sheet whose match rows can add the match, add the team or mark a ticket. In Option B, All matches sits on Home too.",
+      "parent": "home",
       "evidence": [
         {
-          "label": "concepts-third-half.js",
-          "path": "public/wireframes/concepts-third-half.js",
-          "lines": "2812"
+          "label": "prototype-pick-your-team.html",
+          "path": "public/wireframes/prototype-pick-your-team.html",
+          "lines": "157-161"
+        },
+        {
+          "label": "rugby link",
+          "path": "public/wireframes/concepts-teams.js",
+          "lines": "846-917"
+        },
+        {
+          "label": "host cities",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "50-133"
+        }
+      ],
+      "badges": [
+        "Option B"
+      ]
+    },
+    {
+      "id": "h-cta",
+      "label": "Days showing?",
+      "type": "decision",
+      "level": 2,
+      "position": {
+        "x": 900,
+        "y": 452
+      },
+      "colorGroup": "home",
+      "summary": "Plan around your matches appears once anything is picked.",
+      "description": "It switches to the planner and lands on Your days if that is showing (it shows once there is something to plan around, or always in Option B), otherwise on the team picker, and focuses that heading. Each tab keeps its own scroll.",
+      "parent": "home",
+      "evidence": [
+        {
+          "label": "concepts-home.js",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "36-47"
+        },
+        {
+          "label": "tab switch",
+          "path": "public/wireframes/prototype-pick-your-team.html",
+          "lines": "1580-1615"
+        }
+      ]
+    },
+    {
+      "id": "h-to-days",
+      "label": "Yes: Your days",
+      "type": "process",
+      "level": 2,
+      "position": {
+        "x": 1300,
+        "y": 452
+      },
+      "colorGroup": "home",
+      "summary": "Lands on Your days and focuses its heading.",
+      "description": "The page scrolls so Your days sits under the floating tab bar, ready for dates. This is the usual landing once a team is picked.",
+      "parent": "home",
+      "evidence": [
+        {
+          "label": "concepts-home.js",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "36-42"
+        }
+      ]
+    },
+    {
+      "id": "h-to-teams",
+      "label": "No: team picker",
+      "type": "process",
+      "level": 2,
+      "position": {
+        "x": 1300,
+        "y": 628
+      },
+      "colorGroup": "home",
+      "summary": "Lands on the team picker and focuses its heading.",
+      "description": "Used when Your days isn't showing yet, so the person can see their match cards and pick more teams first.",
+      "parent": "home",
+      "evidence": [
+        {
+          "label": "concepts-home.js",
+          "path": "public/wireframes/concepts-home.js",
+          "lines": "36-42"
         }
       ]
     }
@@ -2476,31 +2571,55 @@
       "source": "start",
       "target": "home",
       "type": "flow",
-      "label": "opens on Home",
-      "summary": "Home opens first unless the address or a reload chose another tab."
+      "label": "opens Home or Play",
+      "summary": "Home opens first; ?view=kick or a reload on Play opens Play."
+    },
+    {
+      "id": "start--teams",
+      "source": "start",
+      "target": "teams",
+      "type": "flow",
+      "label": "opens the planner",
+      "summary": "?view=plan, or a reload on the planner, opens it directly."
     },
     {
       "id": "home--teams",
       "source": "home",
       "target": "teams",
       "type": "flow",
-      "label": "hand and CTA",
-      "summary": "The hand is the same element on both tabs; Plan around your matches goes to the planner."
+      "label": "CTA, no days yet",
+      "summary": "Plan around your matches goes to the team picker when Your days isn't showing."
+    },
+    {
+      "id": "home--days",
+      "source": "home",
+      "target": "days",
+      "type": "flow",
+      "label": "CTA, days showing",
+      "summary": "Plan around your matches goes to Your days when it is showing."
     },
     {
       "id": "teams--days",
       "source": "teams",
       "target": "days",
       "type": "flow",
-      "label": "matches known",
-      "summary": "Your days shows once there is something to plan around."
+      "label": "optional details",
+      "summary": "Your days shows once there is something to plan around; it is optional."
+    },
+    {
+      "id": "teams--results",
+      "source": "teams",
+      "target": "results",
+      "type": "flow",
+      "label": "skips Your days",
+      "summary": "Results show for the picks straight away, with no days or details needed."
     },
     {
       "id": "days--results",
       "source": "days",
       "target": "results",
       "type": "flow",
-      "label": "days and details",
+      "label": "refines results",
       "summary": "Days, where they stay and who is coming refine the results."
     },
     {
@@ -2508,8 +2627,8 @@
       "source": "results",
       "target": "state",
       "type": "data",
-      "label": "items added",
-      "summary": "Adds, tickets and days are saved and broadcast."
+      "label": "adds saved",
+      "summary": "Adds and tickets are saved; so is every pick and day change."
     },
     {
       "id": "state--plan",
@@ -2518,6 +2637,23 @@
       "type": "data",
       "label": "redraws the plan",
       "summary": "The plan bar and plan redraw from the saved state."
+    },
+    {
+      "id": "state--redraw",
+      "source": "state",
+      "target": "redraw",
+      "type": "control",
+      "label": "every change",
+      "summary": "Every saved change, from any stage, starts a redraw.",
+      "loop": true
+    },
+    {
+      "id": "redraw--home",
+      "source": "redraw",
+      "target": "home",
+      "type": "control",
+      "label": "redraws all stages",
+      "summary": "Home, Your teams, Watch and ideas and Your plan all redraw; people carry on from wherever they are."
     },
     {
       "id": "s-flags--s-restore",
@@ -2538,75 +2674,110 @@
       "source": "s-tab",
       "target": "s-home",
       "type": "control",
-      "label": "Home",
-      "summary": "Default, or ?view=home in the address."
+      "label": "Home or Play",
+      "summary": "Default, ?view=home or kick, or a reload on Home or Play."
     },
     {
-      "id": "s-tab--s-other",
+      "id": "s-tab--s-plan",
       "source": "s-tab",
-      "target": "s-other",
+      "target": "s-plan",
       "type": "control",
-      "label": "planner or Play",
-      "summary": "?view=plan or kick, or a reload on that tab."
+      "label": "the planner",
+      "summary": "?view=plan, or a reload while on the planner."
     },
     {
-      "id": "s-home--s-ready",
+      "id": "s-home--h-home",
       "source": "s-home",
-      "target": "s-ready",
+      "target": "h-home",
       "type": "flow",
-      "summary": "Home drawn, sections start."
+      "summary": "The page opens on Home."
     },
     {
-      "id": "s-other--s-ready",
-      "source": "s-other",
-      "target": "s-ready",
+      "id": "s-home--h-play",
+      "source": "s-home",
+      "target": "h-play",
       "type": "flow",
-      "summary": "Planner or Play drawn, sections start."
+      "summary": "The page opens on Play."
     },
     {
-      "id": "h-arrive--h-hand",
-      "source": "h-arrive",
-      "target": "h-hand",
+      "id": "state--h-home",
+      "source": "state",
+      "target": "h-home",
       "type": "control",
-      "label": "picks on Home",
-      "summary": "Picks a team, or every NSW match."
+      "summary": "Every saved change redraws Home."
     },
     {
-      "id": "h-arrive--h-where",
-      "source": "h-arrive",
-      "target": "h-where",
-      "type": "control",
-      "label": "browses cities",
-      "summary": "Opens a host city and its matches."
+      "id": "s-plan--t-ways",
+      "source": "s-plan",
+      "target": "t-ways",
+      "type": "flow",
+      "summary": "The planner is showing, starting at the team picker."
     },
     {
-      "id": "h-hand--h-cta",
-      "source": "h-hand",
+      "id": "h-home--h-pick",
+      "source": "h-home",
+      "target": "h-pick",
+      "type": "flow",
+      "summary": "A pick on Home changes the planner."
+    },
+    {
+      "id": "h-pick--h-cta",
+      "source": "h-pick",
       "target": "h-cta",
       "type": "flow",
-      "summary": "Any pick, rugby included, shows the call to action."
+      "summary": "Any pick shows Plan around your matches."
     },
     {
-      "id": "h-where--h-cta",
-      "source": "h-where",
-      "target": "h-cta",
-      "type": "flow",
-      "summary": "Adding the team from a match sheet counts as a pick."
-    },
-    {
-      "id": "h-cta--h-tabs",
+      "id": "h-cta--h-to-days",
       "source": "h-cta",
-      "target": "h-tabs",
+      "target": "h-to-days",
+      "type": "control",
+      "label": "yes, showing",
+      "summary": "Your days is showing, so go there."
+    },
+    {
+      "id": "h-cta--h-to-teams",
+      "source": "h-cta",
+      "target": "h-to-teams",
+      "type": "control",
+      "label": "no, not yet",
+      "summary": "Your days isn't showing, so go to the team picker."
+    },
+    {
+      "id": "h-to-days--d-show",
+      "source": "h-to-days",
+      "target": "d-show",
       "type": "flow",
-      "summary": "Plan around your matches switches to the planner."
+      "summary": "Arrives at Your days."
+    },
+    {
+      "id": "h-to-teams--t-ways",
+      "source": "h-to-teams",
+      "target": "t-ways",
+      "type": "flow",
+      "summary": "Arrives at the team picker."
+    },
+    {
+      "id": "h-play--h-game",
+      "source": "h-play",
+      "target": "h-game",
+      "type": "flow",
+      "summary": "The game loads in its frame."
+    },
+    {
+      "id": "h-game--state",
+      "source": "h-game",
+      "target": "state",
+      "type": "data",
+      "summary": "A kick saves a place, not yet on a day."
     },
     {
       "id": "t-ways--t-hand",
       "source": "t-ways",
       "target": "t-hand",
       "type": "control",
-      "label": "picks teams",
-      "summary": "From the hand, Find or a sheet."
+      "label": "pick teams",
+      "summary": "Pick one or more teams."
     },
     {
       "id": "t-ways--t-rugby",
@@ -2638,27 +2809,59 @@
       "summary": "Cards redraw for the new picks."
     },
     {
+      "id": "t-deck--t-ready",
+      "source": "t-deck",
+      "target": "t-ready",
+      "type": "control",
+      "label": "carry on",
+      "summary": "Most people carry on without opening a match."
+    },
+    {
       "id": "t-deck--t-match",
       "source": "t-deck",
       "target": "t-match",
+      "type": "control",
+      "label": "open a match",
+      "summary": "Tapping a match opens its sheet (optional)."
+    },
+    {
+      "id": "t-match--t-ready",
+      "source": "t-match",
+      "target": "t-ready",
       "type": "flow",
-      "summary": "Tapping a match opens its sheet."
+      "summary": "Closing the sheet returns to the cards."
+    },
+    {
+      "id": "t-ready--d-show",
+      "source": "t-ready",
+      "target": "d-show",
+      "type": "control",
+      "label": "optional details",
+      "summary": "Your days shows; adding days or details is optional."
+    },
+    {
+      "id": "t-ready--r-redraw",
+      "source": "t-ready",
+      "target": "r-redraw",
+      "type": "control",
+      "label": "skips Your days",
+      "summary": "Results already show for the picks, with no days needed."
     },
     {
       "id": "d-show--d-dates",
       "source": "d-show",
       "target": "d-dates",
       "type": "control",
-      "label": "sets dates",
-      "summary": "The slider, typed dates or days sheet."
+      "label": "dates",
+      "summary": "Set a first and last day."
     },
     {
       "id": "d-show--d-refine",
       "source": "d-show",
       "target": "d-refine",
       "type": "control",
-      "label": "adds details",
-      "summary": "Refine your plan, folded under the days."
+      "label": "details",
+      "summary": "Where they stay and who's coming."
     },
     {
       "id": "d-dates--d-apply",
@@ -2686,82 +2889,88 @@
       "source": "d-trip",
       "target": "d-changed",
       "type": "flow",
-      "summary": "New base or party reorders results."
+      "summary": "A new base or group reorders results."
     },
     {
-      "id": "r-redraw--r-first",
+      "id": "d-changed--r-redraw",
+      "source": "d-changed",
+      "target": "r-redraw",
+      "type": "flow",
+      "summary": "The results redraw for the new days or details."
+    },
+    {
+      "id": "r-redraw--r-team",
       "source": "r-redraw",
-      "target": "r-first",
+      "target": "r-team",
       "type": "flow",
       "summary": "Where to watch and Around redraw."
     },
     {
-      "id": "r-redraw--r-maps",
-      "source": "r-redraw",
-      "target": "r-maps",
+      "id": "r-team--r-yes",
+      "source": "r-team",
+      "target": "r-yes",
       "type": "control",
-      "label": "maps follow",
-      "summary": "The maps redraw from the same state."
+      "label": "yes",
+      "summary": "A team or Every NSW match is picked."
     },
     {
-      "id": "r-first--r-around",
-      "source": "r-first",
-      "target": "r-around",
+      "id": "r-team--r-no",
+      "source": "r-team",
+      "target": "r-no",
       "type": "control",
-      "label": "day blocks",
-      "summary": "Ideas around each day."
+      "label": "no",
+      "summary": "Nothing picked yet."
     },
     {
-      "id": "r-first--r-watch",
-      "source": "r-first",
-      "target": "r-watch",
-      "type": "control",
-      "label": "evening cards",
-      "summary": "Screening venues per evening."
+      "id": "r-yes--r-sections",
+      "source": "r-yes",
+      "target": "r-sections",
+      "type": "flow",
+      "summary": "The sections cover your matches."
     },
     {
-      "id": "r-around--r-add",
-      "source": "r-around",
+      "id": "r-no--r-sections",
+      "source": "r-no",
+      "target": "r-sections",
+      "type": "flow",
+      "summary": "The sections show a first look."
+    },
+    {
+      "id": "r-sections--r-add",
+      "source": "r-sections",
       "target": "r-add",
       "type": "flow",
-      "summary": "Add a product, idea or trip."
+      "summary": "Add a screening, product, idea or trip."
     },
     {
-      "id": "r-watch--r-add",
-      "source": "r-watch",
-      "target": "r-add",
-      "type": "flow",
-      "summary": "Add a screening venue."
+      "id": "r-add--state",
+      "source": "r-add",
+      "target": "state",
+      "type": "data",
+      "summary": "Adds and tickets are saved, which loops back round."
     },
     {
       "id": "o-slot--o-bar",
       "source": "o-slot",
       "target": "o-bar",
       "type": "control",
-      "label": "placed on a day",
-      "summary": "The bar's count and the plan update."
+      "label": "yes",
+      "summary": "A day fits, so the item joins it."
     },
     {
       "id": "o-slot--o-wait",
       "source": "o-slot",
       "target": "o-wait",
       "type": "control",
-      "label": "no day yet",
-      "summary": "Items still waiting for a day."
-    },
-    {
-      "id": "o-kick--o-wait",
-      "source": "o-kick",
-      "target": "o-wait",
-      "type": "flow",
-      "summary": "A kick is saved without a day."
+      "label": "no",
+      "summary": "No day fits yet, so it waits."
     },
     {
       "id": "o-bar--o-open",
       "source": "o-bar",
       "target": "o-open",
       "type": "flow",
-      "summary": "A tap or drag opens the plan."
+      "summary": "A tap or drag on the bar opens the plan."
     },
     {
       "id": "o-open--o-days",
@@ -2810,6 +3019,13 @@
       "type": "control",
       "label": "keep it",
       "summary": "Save and share the plan."
+    },
+    {
+      "id": "state--o-slot",
+      "source": "state",
+      "target": "o-slot",
+      "type": "data",
+      "summary": "Every saved change places waiting items."
     }
   ]
 }</script>
@@ -3693,7 +3909,8 @@
         }
         return true;
       }
-      return target.x >= source.x - 8;
+      // dnsw change: an edge marked "loop": true may point left, so a loop back to an earlier stage can be drawn.
+      return target.x >= source.x - 8 || edge.loop === true;
     }
 
     function average(values, fallback = 0) {
@@ -3741,7 +3958,16 @@
       const seenIncoming = new Set();
       const seenOutgoing = new Set();
 
+      // dnsw change: a boundary box names the outside block's top-level stage, even when the edge comes from (or goes
+      // to) a step inside another stage, so steps in two expanded groups can link to each other.
+      function topLevelOf(id) {
+        let node = nodesById.get(id);
+        while (node && node.parent && nodesById.has(node.parent)) node = nodesById.get(node.parent);
+        return node ? node.id : id;
+      }
+
       function addIncoming(sourceId, targetId, sourceEdge = {}) {
+        sourceId = topLevelOf(sourceId);
         if (!childIds.has(targetId) || !nodesById.has(sourceId)) return;
         const key = `${sourceId}->${targetId}`;
         if (seenIncoming.has(key)) return;
@@ -3771,6 +3997,7 @@
       }
 
       function addOutgoing(sourceId, targetId, sourceEdge = {}) {
+        targetId = topLevelOf(targetId);
         if (!childIds.has(sourceId) || !nodesById.has(targetId)) return;
         const key = `${sourceId}->${targetId}`;
         if (seenOutgoing.has(key)) return;
@@ -3865,8 +4092,14 @@
       }
 
       const rootIncoming = incomingByNode.get(rootId) || [];
+      // dnsw change: likewise, an entry with its own edge from an outside block keeps only that edge.
+      const explicitEntries = new Set((DATA.edges || [])
+        .filter((edge) => childIds.has(edge.target) && !childIds.has(edge.source) && edge.source !== rootId)
+        .map((edge) => edge.target));
       if (rootIncoming.length) {
-        for (const entryId of entryIds) addCombinedIncoming(rootIncoming.map((edge) => edge.source), entryId, rootIncoming);
+        for (const entryId of entryIds) {
+          if (!explicitEntries.has(entryId)) addCombinedIncoming(rootIncoming.map((edge) => edge.source), entryId, rootIncoming);
+        }
       }
       for (const edge of (DATA.edges || [])) {
         if (childIds.has(edge.target) && !childIds.has(edge.source) && edge.source !== rootId) {
@@ -3875,8 +4108,15 @@
       }
 
       const rootOutgoing = outgoingByNode.get(rootId) || [];
+      // dnsw change: an exit with its own edge to an outside block keeps only that edge, rather than also being
+      // joined to every block the parent leads to (which drew one exit going everywhere).
+      const explicitExits = new Set((DATA.edges || [])
+        .filter((edge) => childIds.has(edge.source) && !childIds.has(edge.target) && edge.target !== rootId)
+        .map((edge) => edge.source));
       if (rootOutgoing.length) {
-        for (const exitId of exitIds) addCombinedOutgoing(exitId, rootOutgoing.map((edge) => edge.target), rootOutgoing);
+        for (const exitId of exitIds) {
+          if (!explicitExits.has(exitId)) addCombinedOutgoing(exitId, rootOutgoing.map((edge) => edge.target), rootOutgoing);
+        }
       }
       for (const edge of (DATA.edges || [])) {
         if (childIds.has(edge.source) && !childIds.has(edge.target) && edge.target !== rootId) {
@@ -5295,6 +5535,35 @@
         return;
       }
     });
+    // dnsw change: collapsible left column, remembered on this device
+    (function railToggle() {
+      const workspace = document.querySelector(".workspace");
+      const button = document.getElementById("rail-toggle");
+      if (!workspace || !button) return;
+      const text = button.querySelector(".rail-toggle-text");
+      const KEY = "flowchart-rail-collapsed";
+      function set(collapsed, save) {
+        const graph = document.getElementById("cy");
+        const before = graph ? graph.clientWidth : 0;
+        workspace.classList.toggle("rail-collapsed", collapsed);
+        button.setAttribute("aria-expanded", String(!collapsed));
+        const label = collapsed ? "Show panel" : "Hide panel";
+        button.title = label;
+        if (text) text.textContent = label;
+        if (save) { try { localStorage.setItem(KEY, collapsed ? "1" : "0"); } catch (error) {} }
+        window.requestAnimationFrame(() => {
+          window.dispatchEvent(new Event("resize"));
+          // keep the chart centred in the wider or narrower space, at the zoom the person chose
+          const after = graph ? graph.clientWidth : 0;
+          if (save && typeof cy !== "undefined" && cy && after !== before) cy.panBy({ x: (after - before) / 2, y: 0 });
+        });
+      }
+      let saved = false;
+      try { saved = localStorage.getItem(KEY) === "1"; } catch (error) {}
+      if (saved) set(true, false);
+      button.addEventListener("click", () => set(!workspace.classList.contains("rail-collapsed"), true));
+    })();
+
     window.addEventListener("resize", () => {
       if (cy.elements().length) cy.resize();
       if (subgraphCy && subgraphCy.elements().length) subgraphCy.resize();
