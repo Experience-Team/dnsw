@@ -1,11 +1,11 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-24 November 2026 (Sydney), updated after #616. Repo `Experience-Team/dnsw`, main at `96ed839` (the merge of #616). **Open: [#619](https://github.com/Experience-Team/dnsw/pull/619)** (Just added badge, plus this handover). #610, #612, #613, #614 and #616 are merged. Pull main before starting: `git fetch origin main`, and always compare against `origin/main`. Branch used: `claude/relaxed-euler-lahepn` (once its PR merges it only holds merged history, so it can be moved forward with `git merge --ff-only origin/main`; a force-push was refused by the permission check).
+24 November 2026 (Sydney), updated after #619. Repo `Experience-Team/dnsw`, main at `1b82261` (the merge of #619, after another session's #618, which touched the visual regression tests). This handover is its own small PR (it missed #619's merge). #610, #612, #613, #614, #616 and #619 are merged. Pull main before starting: `git fetch origin main`, and always compare against `origin/main`. Branch used: `claude/relaxed-euler-lahepn` (once its PR merges it only holds merged history, so it can be moved forward with `git merge --ff-only origin/main`; a force-push was refused by the permission check).
 
 **The next session starts with three things the user said yes to on 24 Nov** (see "Next session: start here" below):
 1. **Knockout tickets:** scoped and waiting for the user's answer to three decisions. Don't build until answered.
 2. **Regenerate the flow chart** (`flow-chart-planner.html`) once knockout tickets are built. It still shows Option C's old four steps and I'm a local.
-3. **Just added badge:** done, in #619 (waiting to merge).
+3. **Just added badge:** done and merged (#619).
 
 ## Next session: start here (24 Nov)
 
@@ -41,7 +41,7 @@ Regenerate with the flowchart skill (`.claude/skills/flowchart`; its linter need
 - **Settings on phones (#610):** in phone view and the desktop layout, the header's top-left icon opens a menu: Switch prototype (Option A, B, C, Flow chart) and Reset prototype.
 - **Fix: picked cards show their state again (#612):** removing the single fan (53f24f1) had dropped it. `renderChosen` now marks every card.
 - **I'm a local removed (#613):** from Where are you staying, in every option. A saved local answer is dropped (`normTrip`). Drop goal's Local route is a different control.
-- **Just added badge (#619, open):** it hangs from the card's colour band.
+- **Just added badge (#619):** it hangs from the card's colour band.
 
 ## Ways of working
 
@@ -411,7 +411,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 
 ## Recommended next steps
 
-0. **24 Nov:** start with "Next session: start here" at the top. Check whether #619 merged. Then knockout tickets (once the user answers), then the flow chart.
+0. **24 Nov:** start with "Next session: start here" at the top. Check this handover's PR merged. Then knockout tickets (once the user answers), then the flow chart.
 1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether the other session has merged anything since.
 2. Read CLAUDE.md (checks 7, 10, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
 3. **Prototype options (the next session's work):** read "Prototype options: how they work" above. Ask the user what kind of options they mean (flags on this page compared side by side, new screens or flows, or a new prototype tab), which part of the page each covers, and how many versions. Then do the scope check (checks 7 and 12) before building, and stop and show where the brief says so.
