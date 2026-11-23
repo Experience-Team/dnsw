@@ -43,8 +43,9 @@
   window.tpFlowC = {
     step: step,
     inCard: function () { return !step(); }, // finished: Your days and Where you're staying sit in the card
-    // Home's Plan around your matches: the step showing, or the card opened once the questions are done
-    focusStep: function () { requestAnimationFrame(function () { if (!step() && !cardOpen) setCard(true, false); toTop(); focusHead(); }); }
+    inLevel: function () { return cardOpen; }, // the Your answers level is open in the plan: its Save bar says what changed
+    // Home's Plan around your matches: the step showing, or, once the questions are done, the plan with the card
+    focusStep: function () { requestAnimationFrame(function () { if (step()) { toTop(); focusHead(); } else if (tp.openTimeline) tp.openTimeline('#tp-fc-h'); }); }
   };
 
   var reduce = tp.reduce;
@@ -85,9 +86,26 @@
   cardBody.setAttribute('role', 'region'); cardBody.setAttribute('aria-label', 'Your answers');
   cardBody.innerHTML = '<h4 class="tp-fc-bh">Your teams</h4><div class="tp-fc-slot" id="tp-fc-slot-teams"></div>' +
     '<h4 class="tp-fc-bh">Tickets</h4><div class="tp-fc-slot" id="tp-fc-slot-tix"></div>' +
-    '<div class="tp-fc-slot" id="tp-fc-slot-ask"></div>' +
-    '<p class="tp-fc-bdone"><button type="button" class="tp-home-cta tp-home-cta--line" data-fc-card="close">Done</button></p>';
-  head.appendChild(headTop); head.appendChild(cardBody);
+    '<div class="tp-fc-slot" id="tp-fc-slot-ask"></div>';
+  head.appendChild(headTop);
+  /* Since 24 Nov the card lives in the open plan (the timeline sheet), at its top under the title, and Change drills
+     down inside the plan to a Your answers level (CLAUDE.md check 10): it slides in from the right over the plan's
+     content, holding the sheet's height, with a back arrow top left. Back, Escape and the grabber's one step go back;
+     the plan's close closes it all. Its changes apply at once, so the first one pins a bar to the level's foot naming
+     the latest change, with Save (which closes the plan, as the close does). */
+  var tlPanel = document.getElementById('tp-tl-panel');
+  var level = document.createElement('div');
+  level.className = 'tp-fc-level'; level.id = 'tp-fc-level'; level.hidden = true;
+  level.setAttribute('role', 'region'); level.setAttribute('aria-labelledby', 'tp-fc-lh');
+  level.innerHTML = '<div class="tp-fc-lhead"><button type="button" class="tp-fc-backbtn tp-fc-lback" data-fc-card="back" aria-label="Back to Your plan">' +
+    '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4L3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
+    '<h3 class="tp-fc-lh" id="tp-fc-lh" tabindex="-1">Your answers</h3></div>';
+  level.appendChild(cardBody);
+  var saveBar = document.createElement('div');
+  saveBar.className = 'tp-fc-save'; saveBar.hidden = true;
+  saveBar.innerHTML = '<p class="tp-fc-save-t" role="status"></p><button type="button" class="tp-home-cta" data-fc-card="save">Save</button>';
+  level.appendChild(saveBar);
+  if (tlPanel) tlPanel.appendChild(level);
   var slotTeams = cardBody.querySelector('#tp-fc-slot-teams'), slotTix = cardBody.querySelector('#tp-fc-slot-tix'), slotAsk = cardBody.querySelector('#tp-fc-slot-ask');
   var cardOpen = false;
   // The planner's own controls the card holds, in order. The hand's place marker (a comment the tab script leaves so
@@ -104,6 +122,10 @@
   }
   function place() {
     var inCard = !step(), mark = pickMark(), tabs = document.getElementById('tp-tabs');
+    // The card: in the open plan once finished (under its title row), at the top of the planner while a step shows
+    var tlHead = tlPanel && tlPanel.querySelector('.tp-tl-head');
+    if (inCard && tlHead) { if (head.previousElementSibling !== tlHead) tlHead.parentNode.insertBefore(head, tlHead.nextSibling); }
+    else if (head.parentNode !== pick || pick.firstChild !== head) pick.insertBefore(head, pick.firstChild);
     var teamBits = [borrowed('tp-util'), mark, borrowed('tp-picker'), borrowed('tp-fc-rugby')];
     var ask = borrowed('tp-ask');
     if (inCard) {
@@ -154,6 +176,7 @@
       }).join('') + '</div>' +
       (on ? '<p class="tp-fc-clear"><button type="button" class="tp-link" data-fc-clear>Clear all</button></p>' : '');
   }
+  var NEXTI = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var CHEV = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // The condensed card: the teams on one line, then tickets, days and where you're staying, each only once answered
   function answersHtml() {
@@ -161,8 +184,8 @@
     bits.push(n ? n + (n === 1 ? ' ticket' : ' tickets') : fc.none ? 'No tickets yet' : '');
     bits.push(t.from && t.to ? tp.isoRange(t.from, t.to) : 'No days set');
     if (t.base) bits.push(t.base === 'outside' ? 'From outside NSW' : 'Staying in ' + t.base);
-    return '<h3 class="tp-fc-ah"><button type="button" class="tp-fc-cardbtn" id="tp-fc-h" data-fc-card="toggle" aria-expanded="' + cardOpen + '" aria-controls="tp-fc-body">' +
-      '<span class="tp-fc-cardt">Your answers</span><span class="tp-fc-cardact">' + (cardOpen ? 'Done' : 'Change') + CHEV + '</span></button></h3>' +
+    return '<h3 class="tp-fc-ah"><button type="button" class="tp-fc-cardbtn" id="tp-fc-h" data-fc-card="open">' +
+      '<span class="tp-fc-cardt">Your answers</span><span class="tp-fc-cardact">Change' + NEXTI + '</span></button></h3>' +
       '<p class="tp-fc-sum1">' + esc(state.picked.length ? tp.list(state.picked.slice()) : 'No team picked') + '</p>' +
       '<p class="tp-fc-sum2">' + esc(bits.filter(Boolean).join(' · ')) + '</p>';
   }
@@ -207,7 +230,7 @@
   }
   var lastH = '', lastF = '', lastX = '';
   function draw() {
-    var s = step(), a = document.activeElement, k = ((headTop.contains(a) || slotTix.contains(a)) || foot.contains(a)) ? focusKey(a) : null;
+    var s = step(), a = document.activeElement, k = ((headTop.contains(a) || slotTix.contains(a)) || foot.contains(a) || saveBar.contains(a)) ? focusKey(a) : null;
     if (s) phone.setAttribute('data-fc', s); else phone.removeAttribute('data-fc');
     if (s) phone.removeAttribute('data-fc-card'); else phone.setAttribute('data-fc-card', cardOpen ? 'open' : 'closed');
     place();
@@ -218,6 +241,12 @@
     if (k) { var el = phone.querySelector(k); if (el && el !== document.activeElement) el.focus({ preventScroll: true }); else if (!el) focusHead(); }
   }
   function focusHead() { var h = document.getElementById('tp-fc-h'); if (h) h.focus({ preventScroll: true }); }
+  function toTopOf(el) {
+    var nav = phone.querySelector('.tp-cap-wrap'), room = nav ? nav.offsetHeight + 16 : 16;
+    body.scrollTop = Math.max(0, body.scrollTop + el.getBoundingClientRect().top - body.getBoundingClientRect().top - room);
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
+  }
   // A new step starts at its top, just under the floating capsule
   function toTop() {
     var nav = phone.querySelector('.tp-cap-wrap'), room = nav ? nav.offsetHeight + 16 : 16;
@@ -253,24 +282,62 @@
     if (focus) { toTop(); focusHead(); }
     slideIn(dir);
   }
-  function setCard(on, focusBtn) {
-    cardOpen = on; draw();
+  // What the answers are now, to name the latest change on the Save bar
+  function snap() { var t = state.trip || {}; return { picked: state.picked.slice(), tix: myTickets().length, from: t.from || '', to: t.to || '', base: t.base || '' }; }
+  var lastSnap = null;
+  function changeLine(a, b) {
+    var added = b.picked.filter(function (n) { return a.picked.indexOf(n) < 0; }), gone = a.picked.filter(function (n) { return b.picked.indexOf(n) < 0; });
+    if (added.length) return added[added.length - 1] + ' added to your teams';
+    if (gone.length) return gone[gone.length - 1] + ' removed from your teams';
+    if (b.tix !== a.tix) return b.tix > a.tix ? 'Ticket marked' : 'Ticket removed';
+    if (b.from !== a.from || b.to !== a.to) return b.from && b.to ? 'Your days are now ' + tp.isoRange(b.from, b.to) : 'Your days are cleared';
+    if (b.base !== a.base) return b.base ? (b.base === 'outside' ? 'Staying outside NSW' : 'Staying in ' + b.base) : 'Where you’re staying is cleared';
+    return '';
+  }
+  function followChange() {
+    if (!cardOpen) return;
+    var now = snap(), line = lastSnap ? changeLine(lastSnap, now) : '';
+    lastSnap = now;
+    if (!line) return;
+    saveBar.querySelector('.tp-fc-save-t').textContent = line;
+    if (saveBar.hidden) {
+      saveBar.hidden = false;
+      if (!reduce.matches && saveBar.animate) saveBar.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 240, easing: 'cubic-bezier(.25, .1, .25, 1)' });
+    }
+  }
+  function openLevel() {
+    if (cardOpen || !tlPanel) return;
+    cardOpen = true; lastSnap = snap(); saveBar.hidden = true;
+    draw();
     if (tp.askRender) tp.askRender();
+    // Over the plan's content where the plan is scrolled to, filling the sheet's height (check 10: it never resizes)
+    level.style.top = tlPanel.scrollTop + 'px'; level.style.height = tlPanel.clientHeight + 'px';
+    tlPanel.classList.add('is-drilled'); level.hidden = false; level.scrollTop = 0;
     window.dispatchEvent(new Event('resize')); // the hand measures again, now that it shows
-    if (on && !reduce.matches && cardBody.animate) cardBody.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.25, .1, .25, 1)' });
-    if (!on) toTop(); // closing from the foot of a long card: the card's top comes back into view
-    if (focusBtn) { var b = document.getElementById('tp-fc-h'); if (b) b.focus({ preventScroll: true }); }
-    tp.say(on ? 'Your answers, opened.' : 'Your answers, closed.');
+    if (!reduce.matches && level.animate) level.animate([{ transform: 'translateX(100%)' }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.25, .1, .25, 1)' });
+    document.getElementById('tp-fc-lh').focus({ preventScroll: true });
+    tp.say('Your answers, details opened.');
+  }
+  function closeLevel(focusBack, instant) {
+    if (!cardOpen) return;
+    cardOpen = false;
+    function done() { level.hidden = true; tlPanel.classList.remove('is-drilled'); level.style.top = ''; level.style.height = ''; }
+    if (!instant && !reduce.matches && level.animate) level.animate([{ transform: 'none' }, { transform: 'translateX(100%)' }], { duration: 260, easing: 'cubic-bezier(.4, 0, .6, 1)' }).onfinish = done;
+    else done();
+    draw();
+    if (focusBack) { var b = document.getElementById('tp-fc-h'); if (b) b.focus({ preventScroll: true }); tp.say('Back to Your plan.'); }
   }
   function go(to, dir) {
-    if (to === 'done') cardOpen = false;
-    fc.step = to; keep(); show(dir, true);
+    if (to === 'done') closeLevel(false, true);
+    fc.step = to; keep(); show(dir, to !== 'done');
+    // Finished: the card goes into the plan, so the page starts with Your matches
+    if (to === 'done') { var y = document.getElementById('tp-yours-title'), r = document.getElementById('tp-results'); toTopOf(y && !r.hidden ? y : pick); }
     tp.say(to === 'done' ? 'Your plan, with your answers.' : '');
   }
 
   /* ---------- Controls ---------- */
   phone.addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b))) return;
+    var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b) || level.contains(b))) return;
     var s = step(), i = STEPS.indexOf(s);
     // Next on step 1 with nothing picked: it says why (the line is also its description) and stays where it is
     if (b.getAttribute('aria-disabled') === 'true') { tp.say('Pick a team to carry on, or show every NSW match.'); return; }
@@ -282,7 +349,9 @@
       if (s === 'days' && t && pre && t.from === pre.from && t.to === pre.to) tp.setTrip({ base: t.base, party: t.party });
       go(i + 1 >= STEPS.length ? 'done' : STEPS[i + 1], 1); return;
     }
-    if (b.dataset.fcCard) { setCard(b.dataset.fcCard === 'toggle' ? !cardOpen : false, true); return; }
+    if (b.dataset.fcCard === 'open') { openLevel(); return; }
+    if (b.dataset.fcCard === 'back') { closeLevel(true); return; }
+    if (b.dataset.fcCard === 'save') { closeLevel(false, true); if (tp.closeTimeline) tp.closeTimeline(); return; } // Save is the plan's close
     if (b.dataset.fcNone !== undefined) {
       // No tickets yet replaces any marked; pressing it again takes the answer back
       var had = myTickets();
@@ -308,13 +377,22 @@
       var first = head.querySelector('[data-fc-none]'); if (first) first.focus({ preventScroll: true });
     }
   });
-  // Escape inside the open card closes it, back to its Change (not while Find is open: Escape closes Find first)
-  phone.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape' || !cardOpen || step() || !head.contains(e.target) || e.defaultPrevented || document.querySelector('#tp-fc .tp-find:not([hidden])')) return;
-    setCard(false, true);
-  });
-  phone.addEventListener('tp:state', function () { draw(); });
+  // Escape on the Your answers level goes back one step, to the plan, before the plan's own Escape closes it (not while
+  // a sheet is stacked over the plan, or Find is open: those close first)
+  if (tlEl) tlEl.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !cardOpen || (tp.stackOn && tp.stackOn()) || document.querySelector('#tp-fc-level .tp-find:not([hidden])')) return;
+    e.preventDefault(); e.stopPropagation(); closeLevel(true);
+  }, true);
+  // A tap on the plan's grabber bar goes back one step too (check 10), rather than closing the plan from the level
+  var tlToggle = document.getElementById('tp-tl-toggle');
+  if (tlToggle) tlToggle.addEventListener('click', function (e) {
+    if (!cardOpen || (tp.stackOn && tp.stackOn())) return;
+    e.preventDefault(); e.stopImmediatePropagation(); closeLevel(true);
+  }, true);
+  // The plan closing (its close, Save, a tap outside) closes the level with it, so the plan opens on itself next time
+  phone.addEventListener('tp:tlclose', function () { closeLevel(false, true); });
+  phone.addEventListener('tp:state', function () { draw(); followChange(); });
   var reset = document.getElementById('tp-reset');
-  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', none: false, filled: false, v: 2 }; edit = ''; cardOpen = false; keep(); show(0, false); });
+  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', none: false, filled: false, v: 2 }; edit = ''; closeLevel(false, true); keep(); show(0, false); });
   show(0, false);
 })();
