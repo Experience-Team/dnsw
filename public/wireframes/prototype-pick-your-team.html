@@ -16,8 +16,9 @@
       gone.forEach(function (k) { st.removeItem(k); });
     } catch (e) {}
   });
-  if (!/[?&]flow=a\b/.test(location.search)) return;
-  var P = 'flow-a:', own = function (k) { return !/^(pv-|flow-a:)/.test(k) && k !== 'tp-annotations'; };
+  // Option C (?flow=c, 23 Nov) does the same under flow-c:
+  var fm = /[?&]flow=(a|c)\b/.exec(location.search); if (!fm) return;
+  var P = 'flow-' + fm[1] + ':', own = function (k) { return !/^(pv-|flow-[ac]:)/.test(k) && k !== 'tp-annotations'; };
   ['getItem', 'setItem', 'removeItem'].forEach(function (fn) {
     var o = Storage.prototype[fn];
     Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); if (own(String(k))) a[0] = P + k; return o.apply(this, a); };
@@ -37,6 +38,7 @@
   if (t !== 'wireframe') d.setAttribute('data-theme', 'hifi'); // high fidelity unless wireframe was asked for or chosen
   if (/[?&]slogan=b\b/.test(q)) d.setAttribute('data-slogan', 'b'); // the alternative slogan, for testing
   if (/[?&]flow=a\b/.test(q)) d.setAttribute('data-flow', 'a'); // Option B: a pick scrolls to its match card, with Add more teams and Your days under the cards
+  else if (/[?&]flow=c\b/.test(q)) d.setAttribute('data-flow', 'c'); // Option C: the questions up front, step by step (concepts-flow-c.js)
 })();</script>
 <title>Pick your team · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
@@ -52,7 +54,7 @@
     <h1 class="pv-title">RWC prototypes</h1>
     <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
   </header>
-  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-flow-tab="">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-flow-tab="a">Option B</a><a class="pv-tab" href="flow-chart.html">Flow chart</a></nav>
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-flow-tab="">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-flow-tab="a">Option B</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=c" data-flow-tab="c">Option C</a><a class="pv-tab" href="flow-chart.html">Flow chart</a></nav>
   <!-- Option A (the main prototype) and Option B (23 Nov, ?flow=a; the tabs were renamed from Pick your team and Option A on 23 Nov) are this one page: the tab for the flow showing is marked current.
        Flow chart (flow-chart.html) is a page of its own, with the same title and tabs and no left panel. -->
   <script>(function () {
@@ -64,9 +66,10 @@
   })();</script>
   <div class="pv-concept">
     <div class="pv-concept-head">
-      <h2 class="pv-h2">Pick your team: <span class="pv-flow-main">Option A</span><span class="pv-flow-a">Option B</span></h2>
+      <h2 class="pv-h2">Pick your team: <span class="pv-flow-main">Option A</span><span class="pv-flow-a">Option B</span><span class="pv-flow-c">Option C</span></h2>
     </div>
     <p class="pv-p pv-flow-a">Option B: picking a team scrolls you to its card. Everything else matches Option A, with its own saved picks. Turn on Annotations for the details.</p>
+    <p class="pv-p pv-flow-c">Option C: the Plan tab asks the questions up front, one step at a time: your teams, tickets, your days and where you’re staying. Each step can be skipped. A test from team feedback, with its own saved picks.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
@@ -668,6 +671,7 @@
 <script src="concepts-plan.js"></script>
 <script src="concepts-articles.js"></script>
 <script src="concepts-home.js"></script>
+<script src="concepts-flow-c.js"></script>
 <script>
 /* Pick your team: annotation layer. Same switch, numbered badges and list as the itinerary prototype. Switch it on to
    see a badge on each part with complex behaviour and the matching numbered list on the left; standard controls are
@@ -864,6 +868,17 @@
     ] },
 
     // Once teams are picked: Your matches
+    { sel: "#tp-fc", title: "Option C test: the questions up front", points: [
+      "Test from team feedback: a version of the page opened from its own tab in the viewer (?flow=c), with its own saved picks. Only the Plan tab changes.",
+      "The Plan tab asks four things in turn: your teams, the tickets you have, your days in NSW and where you’re staying. Who’s coming is left out until it changes anything.",
+      "Each step borrows the planner’s own control (the hand of cards, the days slider, Refine’s staying answers), so an answer is the same as in Options A and B. A team picked on Home shows as picked in step 1.",
+      "Tickets: your teams’ NSW matches. No tickets yet replaces any marked, marking one replaces it, and Clear all shows once one is marked.",
+      "Your days start from your first to last NSW match, the first time the step opens with none set.",
+      "Every step can be skipped: Next moves on with nothing answered, and Skip to your plan finishes from any step. Back goes back one step. The foot says what is on your plan so far.",
+      "The plan bar stays in view and fills as you answer, but does not open until the flow is finished. No toasts while a step shows, as the sections they point to are hidden.",
+      "Finished: the planner as in Option A, under Your answers. Change opens that step in place; Done or Escape comes back to the answer.",
+      "A reload comes back to the step you were on; Reset prototype and ?reset start again. Breaks principle 1 (reward early) on purpose, to test asking first."
+    ] },
     { sel: "#tp-more", only: "results", title: "Option B test: scroll to your card", points: [
       "Test: a second version of the page, opened from its own tab in the viewer (?flow=a), with its own saved picks. Only the planner changes.",
       "A team picked from the hand or Find glides the page down to Your matches once the card has landed, with the new card in view and focus on it. A touch, wheel or key on the way stops the glide.",
@@ -1743,7 +1758,8 @@
   function measure() { D = Math.max(0, picker.offsetTop - (heroCopy ? heroCopy.offsetTop + heroCopy.offsetHeight + PEEK : intro[0].offsetTop)); }
   function apply() {
     raf = 0;
-    var p = reduce.matches || !D || pick.offsetParent === null ? 1 : Math.max(0, Math.min(1, body.scrollTop / D));
+    // Option C's steps (data-fc on the phone) have no peek: the step's question sits above the cards
+    var p = reduce.matches || !D || pick.offsetParent === null || phone.hasAttribute('data-fc') ? 1 : Math.max(0, Math.min(1, body.scrollTop / D));
     picker.style.transform = p < 1 ? 'translateY(' + (-(1 - p) * D).toFixed(1) + 'px)' : '';
     intro.forEach(function (el) {
       el.style.opacity = p < 1 ? p.toFixed(3) : '';
@@ -1757,10 +1773,11 @@
   body.addEventListener('scroll', soon, { passive: true });
   reduce.addEventListener('change', apply);
   if (window.ResizeObserver) new ResizeObserver(function () { measure(); soon(); }).observe(pick);
+  if (window.MutationObserver) new MutationObserver(function () { measure(); soon(); }).observe(phone, { attributes: true, attributeFilter: ['data-fc'] });
   // Focus in the intro while it is still behind the cards: bring it fully out
   intro.forEach(function (el) { el.addEventListener('focusin', function () { measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
   // The peek glides up into view once, on arrival at the top of the page
-  if (!reduce.matches && body.scrollTop < 4 && picker.animate) picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
+  if (!reduce.matches && body.scrollTop < 4 && picker.animate && !phone.hasAttribute('data-fc')) picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
 })();
 </script>
 <script src="vendor/qrcode.js"></script>
