@@ -18,6 +18,10 @@
   var WHY = (window.TP_WORDS || {}).setDaysWhy || 'Set dates and the ideas below fit around your matches.'; // B2 (21 Nov)
   // Option B (?flow=a, 23 Nov): Your days shows under the hand before any team is picked, worded for no team
   var FLOW_B = document.documentElement.getAttribute('data-flow') === 'a';
+  // Option C (?flow=c, 23 Nov): the questions are asked up front, one step at a time (concepts-flow-c.js). While a step
+  // shows, Your days and Where you're staying are borrowed into it: fc() says which step, and toasts stay away, as the
+  // sections they would point to are hidden until the flow is finished
+  function fc() { return window.tpFlowC ? window.tpFlowC.step() : ''; }
   var WHY_NONE = (window.TP_WORDS || {}).setDaysWhyNoTeam || 'Set your days to see ideas for your time in NSW.';
   var PLAY = (window.TP_WORDS || {}).dropGoal || 'Drop goal', IMG = (window.TP_WORDS || {}).imageOf || function (x) { return 'Placeholder image of ' + x; }; // A2 follow-up (21 Nov)
   var GM = (window.TP_WORDS || {}).groupMatches || 'pool matches', GM1 = (window.TP_WORDS || {}).groupMatch || 'pool match', LR = (window.TP_WORDS || {}).laterRounds || 'the knockouts', LR_C = LR.charAt(0).toUpperCase() + LR.slice(1); // A2 (21 Nov): visitor-facing stage names
@@ -2217,6 +2221,7 @@
      first of them. verb(one, many) agrees with how many sections changed; with none, the line is `none` (or left out). */
   var lastChanged = [];
   function changeToast(title, verb, none) {
+    if (fc()) return;
     var ch = lastChanged.filter(function (c) { return c[1]; });
     if (!ch.length) { tp.toast(title, none || ''); return; }
     var names = ch.map(function (c) { return c[0]; });
@@ -2231,6 +2236,7 @@
   // Compact (18 Nov): it repeats as the days are adjusted, so it is the title only, with a link to the first section
   // that changed, and a new one updates the one showing in place rather than popping up again
   function daysToast(had, from, to) {
+    if (fc()) return;
     var ch = lastChanged.filter(function (c) { return c[1]; });
     tp.toast('Your days are now ' + tp.isoRange(from, to), '', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null, 'days');
   }
@@ -2388,12 +2394,12 @@
     b.setAttribute('aria-expanded', typeOpen[key] + ''); box.hidden = !typeOpen[key];
   });
   function renderAsk() {
-    var t = trip() || {}, own = tp.own(), show = own || FLOW_B;
+    var t = trip() || {}, own = tp.own(), step = fc(), show = own || FLOW_B || step === 'days' || step === 'stay';
     ask.hidden = !show;
     if (!show) { ask.innerHTML = ''; return; }
     if (askError && rRoot === ask) typeOpen.ask = true;
     var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW' + (has && !askEditing ? '' : ' (optional)') + '</h3>';
-    if (has && !askEditing) {
+    if (has && !askEditing && step !== 'days') {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
@@ -2417,7 +2423,7 @@
     var bits = [t.base ? baseLabel(t.base) : '', t.party ? partyLabel(t.party) : ''].filter(Boolean);
     h += '<div class="tp-refine"><button type="button" class="tp-refine-btn" data-act="refine" aria-expanded="' + refineOpen + '" aria-controls="tp-refine-panel">Refine your plan by adding more details<svg class="tp-refine-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
       (bits.length && !refineOpen ? '<p class="tp-refine-sum">' + esc(bits.join(' · ')) + '</p>' : '');
-    if (refineOpen) {
+    if (refineOpen || step === 'stay') {
       var cur = t.base || '', fromList = basePlace() && !BASE_Q.some(function (x) { return x[0] === cur; });
       h += '<div class="tp-refine-panel" id="tp-refine-panel">' +
         '<h4 class="tp-refine-q" id="tp-q-base">Do you know where you’re staying?</h4>' +
@@ -3102,6 +3108,7 @@
     notesRefresh();
   }
   phone.addEventListener('tp:state', function () { render(false); });
+  tp.askRender = function () { render(true); }; // Option C: a step that borrows Your days or Where you're staying
   // Reset prototype (a reviewer tool): this section's own choices go back to a first visit too
   var resetBtn = document.getElementById('tp-reset');
   if (resetBtn) resetBtn.addEventListener('click', function () { closePm(); refineOpen = false; placeQ = ''; openSet = null; blkSig = ''; moreBlk = {}; moveOpen = null; openCard = null; askEditing = false; askDraft = null; askManual = false; askError = ''; seen = {}; whys = {}; render(true); });

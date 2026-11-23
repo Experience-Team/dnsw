@@ -5724,13 +5724,26 @@ span.tp-map-arrow { display: block; }
 .pv-frame-btn:active { transform: scale(.96); }
 .pv-frame-btn:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
 .pv-device .pv-frame-tools { display: none; }
-/* Reset in phone view and the desktop layout: in the header's top left corner, 24px to tap (AA), a 12px icon, faint
-   until hovered or focused. A reviewer tool, not part of the design */
+/* Settings in phone view and the desktop layout (23 Nov; was Reset alone): in the header's top left corner, 24px to tap
+   (AA), a 14px icon, faint until hovered, focused or open. Its small menu drops from it: Switch prototype, then Reset
+   prototype. A reviewer tool, not part of the design */
 .pv-device #tp-phone .tp-top { position: relative; }
-.tp-dev-reset { position: absolute; top: 2px; left: 2px; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink-2); opacity: .35; cursor: pointer; transition: opacity var(--dur-micro) var(--ease-out); }
-.tp-dev-reset svg { width: 12px; height: auto; }
-.tp-dev-reset:focus-visible { opacity: 1; outline: 2px solid var(--c-focus); outline-offset: 0; }
-@media (hover: hover) { .tp-dev-reset:hover { opacity: .8; } }
+.pv-device #tp-phone .tp-top:has(.tp-dev-menu:not([hidden])) { z-index: 45; } /* the open menu sits over the capsule */
+.tp-dev-set { position: absolute; top: 2px; left: 2px; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink-2); opacity: .35; cursor: pointer; transition: opacity var(--dur-micro) var(--ease-out); }
+.tp-dev-set svg { width: 14px; height: 14px; }
+.tp-dev-set[aria-expanded="true"] { opacity: 1; }
+.tp-dev-set:focus-visible { opacity: 1; outline: 2px solid var(--c-focus); outline-offset: 0; }
+@media (hover: hover) { .tp-dev-set:hover { opacity: .8; } }
+.tp-dev-menu { position: absolute; top: 30px; left: 2px; z-index: 30; min-width: 200px; padding: var(--space-2); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md); background: var(--c-surface); color: var(--c-ink); box-shadow: 0 8px 24px rgba(0, 0, 0, .14); }
+.tp-dev-menu[hidden] { display: none; }
+.tp-dev-h { margin: var(--space-1) var(--space-2) var(--space-1); font-size: var(--fs-xs); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-dev-list { margin: 0; padding: 0; list-style: none; }
+.tp-dev-item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: 36px; padding: 0 var(--space-2); border: 0; border-radius: var(--radius-sm); background: none; color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-semi); text-align: left; text-decoration: none; cursor: pointer; }
+.tp-dev-item[aria-current="page"] { font-weight: var(--fw-bold); }
+.tp-dev-tick { flex: none; }
+.tp-dev-item:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
+@media (hover: hover) { .tp-dev-item:hover { background: var(--c-surface-2); } }
+.tp-dev-sep { height: 1px; margin: var(--space-2) 0; background: var(--c-line-soft); }
 @media (max-height: 600px), (max-width: 800px) { .pv-frame-tools { right: auto; left: calc(100% + var(--space-2)); } }
 
 /* Pick your team: toasts (concepts-teams.js toast()). A dark card near the foot of the screen, 16px in from the
@@ -5901,7 +5914,69 @@ span.tp-map-arrow { display: block; }
 .tp-tl-value.no-teams .tp-tl-vteams { position: absolute; width: 1px; height: 1px; overflow: hidden; min-height: 0; clip-path: inset(50%); white-space: nowrap; } /* still read out */
 /* Option B (?flow=a, 23 Nov; was named Option A): its own tab in the viewer. The panel's heading and line say so only there */
 :root:not([data-flow="a"]) .pv-flow-a { display: none; }
-:root[data-flow="a"] .pv-flow-main { display: none; }
+:root:not([data-flow="c"]) .pv-flow-c { display: none; }
+:root[data-flow] .pv-flow-main { display: none; }
+/* Option C (?flow=c, 23 Nov): the questions up front, one step at a time (concepts-flow-c.js). While a step shows
+   (data-fc on the phone), the Plan tab is only that step: its head (count, progress, question, note), the planner's
+   own control it borrows, and its foot (what is on the plan so far, Back, Next, Skip to your plan). The hero and every
+   section below the picker wait until the flow is finished. The plan bar stays in view but does not open yet */
+.tp-fc { display: none; }
+:root[data-flow="c"] .tp-fc { display: block; }
+.tp-fc-foot { display: none; }
+#tp-phone[data-fc] .tp-fc-foot { display: block; margin-top: var(--space-5); padding-bottom: var(--space-5); }
+#tp-phone[data-fc] .tp-hero, #tp-phone[data-fc] #tp-all, #tp-phone[data-fc] #tp-ov, #tp-phone[data-fc] #tp-watch,
+#tp-phone[data-fc] #tp-third, #tp-phone[data-fc] #tp-plan, #tp-phone[data-fc] #tp-pick > #tp-tabs,
+#tp-phone[data-fc] #tp-pick > #tp-results, #tp-phone[data-fc] #tp-pick > #tp-more,
+#tp-phone[data-fc] #tp-pick > #tp-pick-title { display: none !important; }
+#tp-phone[data-fc]:not([data-fc="teams"]) #tp-pick > #tp-util, #tp-phone[data-fc]:not([data-fc="teams"]) #tp-pick > #tp-picker { display: none !important; }
+#tp-phone[data-fc]:not([data-fc="days"]):not([data-fc="stay"]) #tp-pick > #tp-ask { display: none !important; }
+#tp-phone[data-fc] #tp-pick { padding-top: 0; }
+/* Your days, borrowed: the step's own question and note replace the section's title and line, and Refine waits */
+#tp-phone[data-fc="days"] #tp-ask .tp-ask-title, #tp-phone[data-fc="days"] #tp-ask > .tp-sec-note,
+#tp-phone[data-fc="days"] #tp-ask .tp-refine { display: none; }
+#tp-phone[data-fc] #tp-ask { margin-top: var(--space-5); padding-top: 0; border-top: 0; }
+/* Where you're staying, borrowed from Refine your plan: only the quick answers and the place search */
+#tp-phone[data-fc="stay"] #tp-ask > :not(.tp-refine), #tp-phone[data-fc="stay"] #tp-ask .tp-refine-btn,
+#tp-phone[data-fc="stay"] #tp-ask .tp-refine-sum, #tp-phone[data-fc="stay"] #tp-ask #tp-q-base,
+#tp-phone[data-fc="stay"] #tp-ask #tp-q-party, #tp-phone[data-fc="stay"] #tp-ask #tp-q-party + .tp-quick { display: none; }
+#tp-phone[data-fc="stay"] #tp-ask .tp-refine, #tp-phone[data-fc="stay"] #tp-ask .tp-refine-panel { margin: 0; padding: 0; border: 0; }
+.tp-tl.is-locked .tp-tl-bar { cursor: default; }
+.tp-tl.is-locked .tp-tl-exp { opacity: .55; }
+.tp-fc-count { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.tp-fc-prog { display: flex; gap: var(--space-1); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.tp-fc-prog li { flex: 1; height: 4px; border-radius: var(--radius-pill); background: var(--c-fill-soft); transition: background-color var(--dur-small) var(--ease-out); }
+.tp-fc-prog li.is-done, .tp-fc-prog li.is-on { background: var(--c-btn); }
+.tp-fc-h, .tp-fc-ah { margin: var(--space-4) 0 0; font-size: var(--fs-xl); font-weight: var(--fw-heavy); line-height: 1.25; }
+.tp-fc-ah { margin-top: 0; }
+.tp-fc-h:focus, .tp-fc-ah:focus { outline: none; }
+.tp-fc-h:focus-visible, .tp-fc-ah:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-fc-note { margin: var(--space-2) 0 0; font-size: var(--fs-base); color: var(--c-ink-2); }
+#tp-phone[data-fc="teams"] #tp-util { margin-top: var(--space-5); }
+/* Tickets: one option per match, the tick showing once pressed; No tickets yet first, as the "none" answer */
+.tp-fc-tix { display: grid; gap: var(--space-2); margin-top: var(--space-5); }
+.tp-fc-opt { display: grid; grid-template-columns: 20px 1fr; column-gap: var(--space-3); align-items: center; width: 100%; min-height: 36px; padding: var(--space-2) var(--space-3); border: var(--bw-1) solid var(--c-line-strong); border-radius: var(--radius-md); background: var(--c-surface); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out); }
+.tp-fc-opt .tp-fc-tick { grid-row: 1 / span 2; width: 20px; height: 20px; padding: 3px; box-sizing: border-box; border: var(--bw-1) solid var(--c-line-strong); border-radius: var(--radius-sm); color: transparent; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+.tp-fc-opt[aria-pressed="true"] { border-color: var(--c-line-ink); background: var(--c-surface-2); }
+.tp-fc-opt[aria-pressed="true"] .tp-fc-tick { border-color: var(--c-btn); background: var(--c-btn); color: var(--c-on-dark); }
+.tp-fc-opt-t { font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.tp-fc-opt-m { grid-column: 2; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-fc-none { margin-bottom: var(--space-2); }
+.tp-fc-opt:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (hover: hover) { .tp-fc-opt:hover { border-color: var(--c-line-ink); } }
+.tp-fc-clear { margin: var(--space-3) 0 0; }
+/* The foot: what is on the plan so far, then Back and Next side by side, Skip under them */
+.tp-fc-so { margin: 0 0 var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-fc-nav { display: flex; gap: var(--space-3); }
+.tp-fc-nav .tp-home-cta { width: auto; flex: 1 1 auto; min-height: 36px; white-space: nowrap; }
+.tp-fc-nav .tp-fc-back { flex: 0 0 auto; }
+.tp-fc-skip { margin: var(--space-4) 0 0; text-align: center; }
+/* Your answers, once the flow is finished: one row per answer, each with Change */
+.tp-fc-ans { margin: var(--space-3) 0 0; padding: 0; }
+.tp-fc-row { display: grid; grid-template-columns: 1fr; padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.tp-fc-row:last-child { border-bottom: var(--bw-1) solid var(--c-line-soft); }
+.tp-fc-row dt { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.tp-fc-row dd { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin: var(--space-1) 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); }
+#tp-phone:not([data-fc]) .tp-fc { margin-bottom: var(--space-7); }
 /* Under the match cards: Add more teams, full width and prominent (the card-fan icon, as on every Pick your teams
    prompt), then Your days in NSW. 24px from the cards (one family), 48px to Your days */
 .tp-more { margin-top: var(--space-3); } /* the deck already has 12px under the cards: 24px in all */

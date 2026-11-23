@@ -1964,11 +1964,15 @@
     var on = barIntro || tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
     // Home (19 Nov): the bar stays away until a team is picked (or every NSW match), then floats at the foot, closed
     if (phoneEl.classList.contains('is-home') && !tlOpen && !state.picked.length) on = false;
-    if (skipEl) skipEl.hidden = !on; // the skip link only points somewhere while the bar is up
-    if (on === tlOn) return;
+    // Option C (concepts-flow-c.js): while the questions are being asked the bar shows the plan building up, but it does
+    // not open yet (the user's call, 23 Nov)
+    var fcLock = !!(window.tpFlowC && window.tpFlowC.step()), lockMoved = fcLock !== tl.classList.contains('is-locked');
+    tl.classList.toggle('is-locked', fcLock);
+    if (skipEl) skipEl.hidden = !on || fcLock; // the skip link only points somewhere while the bar is up
+    if (on === tlOn) { if (lockMoved) tl.inert = !on || stackSolo || fcLock; return; }
     tlOn = on;
     tl.classList.toggle('is-on', on);
-    tl.inert = !on || stackSolo; // behind the team list opened from the page, it waits
+    tl.inert = !on || stackSolo || fcLock; // behind the team list opened from the page, it waits
     notesOnly();
   }
   var barIntro = false, barRaf = 0;
@@ -2531,6 +2535,7 @@
   window.tpPicker.toast = toast;
   window.tpPicker.toastHide = toastHide;
   window.tpPicker.goTo = goTo;
+  window.tpPicker.syncBar = syncBar;
   window.tpPicker.openPlan = function () { if (!tlOpen) tlSetOpen(true); };
   /* The plan, opened on one day by something on the page (20 Nov): a team card's See your match day, and Where to
      watch's See your match day. The day's card comes to the top and its heading takes focus; closing the plan puts

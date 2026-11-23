@@ -37,6 +37,7 @@
       e.preventDefault();
       // To the planner, at Your days (or the picker's tabs before Your days shows)
       window.tpView.go('plan');
+      if (window.tpFlowC && window.tpFlowC.step()) { window.tpFlowC.focusStep(); return; } // Option C: the step it was on
       var ask = document.getElementById('tp-ask');
       requestAnimationFrame(function () { tp.goTo(ask && !ask.hidden ? ask : document.getElementById('tp-pick')); });
     }
