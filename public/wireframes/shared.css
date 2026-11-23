@@ -3101,9 +3101,13 @@ body.cp-page code { font: inherit; }
 .cn-notes[hidden] { display: none; }
 .cn-notes-title { font-size: .875rem; font-weight: 700; margin-bottom: var(--space-3); }
 .cn-notes-list { list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
-.cn-notes-list li { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start; padding: var(--space-2); margin: calc(var(--space-2) * -1); border-radius: var(--radius-md); font-size: .875rem; line-height: 1.45; color: #333; transition: background-color var(--dur-micro) var(--ease-out); }
+.cn-notes-list > li { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start; padding: var(--space-2); margin: calc(var(--space-2) * -1); border-radius: var(--radius-md); font-size: .875rem; line-height: 1.45; color: #333; transition: background-color var(--dur-micro) var(--ease-out); }
 .cn-notes-list li strong { color: #111; }
-.cn-notes-list li.is-active { background: #fff6d1; }
+/* Each note is a title and a short bulleted list of how the part works */
+.cn-note-points { list-style: disc; margin: var(--space-1) 0 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: var(--space-1); }
+.cn-note-points li { padding-left: 2px; }
+.cn-note-points li::marker { color: #777; }
+.cn-notes-list > li.is-active { background: #fff6d1; }
 .cn-notes-todo { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid #e0e0e0; font-size: .8125rem; color: #555; }
 .cn-notes-todo[hidden] { display: none; }
 .cn-badge, .cn-num { display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1.5px solid #1f1f1f; border-radius: 50%; background: #ffd43b; color: #1f1f1f; font-size: .6875rem; font-weight: 700; line-height: 1; }
