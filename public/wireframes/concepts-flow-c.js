@@ -67,7 +67,7 @@
   if (window.ResizeObserver) new ResizeObserver(footRoom).observe(foot);
 
   function stepNote(s) {
-    if (s === 'teams') return 'Pick one or more. No team? Pick Every NSW match.';
+    if (s === 'teams') return 'Pick one or more teams. No team? Add every NSW match under the cards.';
     if (s === 'tickets') {
       if (!tp.own()) return 'Pick a team first, and its matches in NSW show here.';
       return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'Your teams’ pool matches are all outside NSW, so there are no tickets to mark here.';

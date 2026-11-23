@@ -5921,6 +5921,8 @@ span.tp-map-arrow { display: block; }
    own control it borrows, and its foot (what is on the plan so far, Back, Next, Skip to your plan). The hero and every
    section below the picker wait until the flow is finished. The plan bar stays in view but does not open yet */
 .tp-fc { display: none; }
+.tp-fc-rugby { display: none; }
+#tp-phone[data-fc="teams"] .tp-fc-rugby:not([hidden]) { display: block; margin-top: var(--space-4); text-align: center; }
 :root[data-flow="c"] .tp-fc { display: block; }
 /* The foot floats at the bottom of the screen (24 Nov), with a faint top rule (check 6). It sits on the plan bar's
    collapsed 88px when the bar is up and glides up and down with it, on the bar's own curves, so the two move as one.

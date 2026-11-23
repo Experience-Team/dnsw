@@ -838,6 +838,10 @@
   }
   function renderChosen() {
     chosenEl.textContent = chosenText();
+    // Every card shows whether it is picked, whichever way the pick came (the hand, Find, a sheet, Home, a match page).
+    // The old single fan used to do this on every pick; it went with it on 23 Nov (53f24f1), so cards stopped showing
+    // their picked state (fixed 24 Nov)
+    if (cards2) cards2.forEach(function (bt, i) { var on = isPicked(CARDS[i]); bt.classList.toggle('is-picked', on); bt.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     tsSync();
     clearBtn.hidden = !state.picked.length; // anything picked, Every NSW match included, can be cleared from the picker (check 3)
     var cSep = caption.querySelector('.tp-clear-sep'); if (cSep) cSep.hidden = clearBtn.hidden;
