@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+<!-- Version 2 (23 Nov): a fresh start, separate from Options A, B and C (prototype-pick-your-team.html). It shares their
+     styles (shared.css, themes/hifi.css), their components (copy markup and classes across) and their data files, but
+     none of their behaviour scripts, and it keeps its own saved state: every key it reads or writes in this browser's
+     storage is filed under v2:, so testing it never changes the other options' picks, nor theirs this one. Viewer
+     settings (pv-theme, the annotations switch) stay shared, so every tab looks the same. First, before anything reads
+     storage. -->
+<script>(function () {
+  var P = 'v2:', own = function (k) { return !/^(pv-|v2:)/.test(k) && k !== 'tp-annotations'; };
+  ['getItem', 'setItem', 'removeItem'].forEach(function (fn) {
+    var o = Storage.prototype[fn];
+    Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); if (own(String(k))) a[0] = P + k; return o.apply(this, a); };
+  });
+})();</script>
+<!-- Theme and phone view, as on the other options: ?theme=hifi or ?theme=wireframe, else the last choice in this browser
+     (pv-theme), else high fidelity. ?phone, or a touch screen under 500px wide, shows only the phone screen. Set before
+     the first paint; see pv-device.js. ?reset starts this version as a first visit. -->
+<script>(function () {
+  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
+  if (/[?&]phone\b/.test(q) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) d.classList.add('pv-device');
+  d.classList.add('pv-tools');
+  d.setAttribute('data-flow', 'v2');
+  try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
+  if (t !== 'wireframe') d.setAttribute('data-theme', 'hifi');
+})();</script>
+<title>Pick your team, version 2 · RWC prototypes</title>
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="themes/hifi.css" />
+<style>
+  /* Version 2's own styles go here until they are worth moving into shared.css. Prefix new classes v2- so nothing
+     here can change Options A to C. */
+  #v2-body { display: flex; flex-direction: column; }
+  .v2-empty { flex: 1; display: grid; place-content: center; gap: var(--space-2); padding: var(--space-6); text-align: center; color: var(--c-ink-2); }
+  .v2-empty-t { margin: 0; font-size: 1rem; font-weight: 600; color: var(--c-ink); }
+  .v2-empty-p { margin: 0; font-size: .875rem; }
+  .v2-top { position: relative; min-height: 0; }
+</style>
+</head>
+<body class="pv-page">
+<!-- Prototype viewer, as on the other options: the left panel (title, tabs, the concept, its controls and annotations)
+     and the stage (the phone) are fixed to the window. -->
+<aside class="pv-side">
+  <header class="pv-header">
+    <h1 class="pv-title">RWC prototypes</h1>
+    <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
+  </header>
+  <!-- Version 2 is a page of its own. Its tab is only on this page for now: Options A to C and the flow chart do not
+       link here yet. -->
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a">Option B</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=c">Option C</a><a class="pv-tab is-active" href="prototype-pick-your-team-v2.html" aria-current="page">Version 2</a><a class="pv-tab" href="flow-chart.html">Flow chart</a></nav>
+  <!-- Five tabs run past the panel's width: the row scrolls sideways, so start it with this page's tab in view -->
+  <script>(function () {
+    var row = document.querySelector('.pv-tabs'), a = row && row.querySelector('.is-active');
+    if (a && a.offsetLeft + a.offsetWidth > row.clientWidth) row.scrollLeft = a.offsetLeft + a.offsetWidth - row.clientWidth + 32;
+  })();</script>
+  <div class="pv-concept">
+    <div class="pv-concept-head">
+      <h2 class="pv-h2">Pick your team: Version 2</h2>
+    </div>
+    <p class="pv-p">A fresh start, separate from Options A, B and C, with its own saved picks. It uses the same styles, components and data.</p>
+    <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
+    <div class="pv-switches">
+      <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+      <button type="button" class="cn-switch pv-switch" id="pv-theme-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>High fidelity</button>
+    </div>
+    <div class="pv-switches pv-switches--test">
+      <!-- No design tests at the moment: the group hides itself while it is empty -->
+    </div>
+    <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
+      <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
+      <ol class="cn-notes-list" id="cn-notes-list"></ol>
+      <p class="cn-notes-todo" id="cn-notes-todo"></p>
+    </section>
+  </div>
+  <section class="pv-qr" id="pv-qr" aria-labelledby="pv-qr-title">
+    <!-- On short windows the code and its line open as a popover from the QR code button, so the annotations keep room -->
+    <div class="pv-qr-pop" id="pv-qr-pop">
+      <div class="pv-qr-code" id="pv-qr-code" role="img" aria-label="QR code that opens the phone view of this prototype"></div>
+      <p class="pv-qr-p" id="pv-qr-p">Scan to open just the phone screen. Your phone&rsquo;s keyboard and controls work there.</p>
+    </div>
+    <h3 class="pv-qr-title" id="pv-qr-title">View on your phone</h3>
+    <div class="pv-qr-acts">
+      <button type="button" class="pv-qr-btn pv-qr-show" id="pv-qr-show" aria-expanded="false" aria-controls="pv-qr-pop">QR code</button>
+      <button type="button" class="pv-qr-btn pv-qr-copy" id="pv-qr-copy"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>Copy link</span></button>
+    </div>
+    <p class="pv-qr-url" id="pv-qr-url" hidden></p>
+    <span class="visually-hidden" id="pv-qr-status" role="status"></span>
+  </section>
+</aside>
+<main class="pv-stage" id="tp-stage">
+  <div class="pv-phone">
+    <!-- The phone keeps the id tp-phone, so components copied from Options A to C pick up their styles unchanged -->
+    <div class="cn-phone" id="tp-phone" role="group" aria-label="Pick your team, version 2, phone screen">
+      <div class="cn-body tp-body" id="v2-body">
+        <!-- Phone view only: the Settings icon (Switch prototype, Reset prototype) hangs here, as on the other options -->
+        <div class="v2-top" id="v2-top"></div>
+        <!-- Empty state: shown until the first part is built. Remove it then. -->
+        <div class="v2-empty" id="v2-empty">
+          <p class="v2-empty-t">Version 2</p>
+          <p class="v2-empty-p">Nothing built yet.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Viewer tools, not part of the design: Reset puts this version back as a first visit (only its own v2: keys);
+         Open in desktop opens the page on its own in a new tab (pv-device.js sets the address) -->
+    <div class="pv-frame-tools" role="group" aria-label="Prototype tools">
+      <button type="button" class="pv-frame-btn" id="tp-reset" aria-label="Reset prototype" title="Reset prototype"><svg width="16" height="15" viewBox="0 0 16 15" fill="none" aria-hidden="true"><path d="M13.7188 8.53125C14.125 8.65625 14.3438 9.0625 14.2188 9.46875C13.3438 12.4375 10.5938 14.5 7.5 14.5C5.03125 14.5 2.75 13.1562 1.5 11.0625V14.25C1.5 14.6875 1.1875 15 0.75 15C0.34375 15 0 14.6875 0 14.25V9.25C0 8.84375 0.34375 8.5 0.75 8.5H5.75C6.1875 8.5 6.5 8.84375 6.5 9.25C6.5 9.6875 6.15625 10 5.75 10H2.59375C3.53125 11.8125 5.40625 13 7.5 13C9.9375 13 12.125 11.375 12.7812 9.03125C12.9062 8.625 13.3125 8.40625 13.7188 8.53125ZM14.2812 0C14.6875 0 15.0312 0.34375 15.0312 0.75V5.75C15.0312 6.1875 14.6875 6.5 14.2812 6.5H9.28125C8.84375 6.5 8.53125 6.1875 8.53125 5.75C8.53125 5.34375 8.84375 5 9.28125 5H12.4062C11.4688 3.21875 9.59375 2 7.53125 2C5.09375 2 2.90625 3.65625 2.21875 5.96875C2.125 6.375 1.71875 6.59375 1.3125 6.46875C0.90625 6.375 0.6875 5.9375 0.78125 5.5625C1.65625 2.59375 4.4375 0.5 7.53125 0.5C10 0.5 12.2812 1.875 13.5312 3.96875V0.75C13.5312 0.34375 13.8438 0 14.2812 0Z" fill="currentColor"/></svg></button>
+      <a class="pv-frame-btn" id="pv-desktop" target="_blank" rel="noopener" aria-label="Open in desktop, in a new tab" title="Open in desktop"><svg width="18" height="16" viewBox="0 0 18 16" fill="none" aria-hidden="true"><path d="M16 0C17.0938 0 18 0.90625 18 2V11C18 12.125 17.0938 13 16 13H11.3438L11.6562 14.5H13.25C13.6562 14.5 14 14.8438 14 15.25C14 15.6875 13.6562 16 13.25 16H4.75C4.3125 16 4 15.6875 4 15.25C4 14.8438 4.3125 14.5 4.75 14.5H6.3125L6.625 13H2C0.875 13 0 12.125 0 11V2C0 0.90625 0.875 0 2 0H16ZM10.125 14.5L9.8125 13H8.15625L7.84375 14.5H10.125ZM16.5 11V9.5H1.5V11C1.5 11.2812 1.71875 11.5 2 11.5H16C16.25 11.5 16.5 11.2812 16.5 11ZM16.5 8V2C16.5 1.75 16.25 1.5 16 1.5H2C1.71875 1.5 1.5 1.75 1.5 2V8H16.5Z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+</main>
+
+<!-- Shared data, the same files as Options A to C (read only: nothing here changes them). cnFixtures and the rest
+     (concepts-fixtures.js), cnDestinations, cnGeo and cnMapPoi, TP_WORDS (it also renames Pool to Group on the phone),
+     TP_ARTICLES. -->
+<script src="concepts-destinations.js"></script>
+<script src="concepts-fixtures.js"></script>
+<script src="concepts-geo.js"></script>
+<script src="concepts-words.js"></script>
+<script src="concepts-articles.js"></script>
+
+<script>
+/* Reset prototype and ?reset: clear every key this version saved (v2:, in both stores), leaving the viewer's own
+   settings and Options A to C alone, then reload as a first visit. */
+(function () {
+  function wipe() {
+    [localStorage, sessionStorage].forEach(function (st) {
+      try {
+        var gone = [];
+        for (var i = 0; i < st.length; i++) { var k = Storage.prototype.key.call(st, i); if (/^v2:/.test(k)) gone.push(k); }
+        // Called through the prototype's own key, as getItem and the rest add the v2: prefix themselves
+        gone.forEach(function (k) { st.removeItem(k.slice(3)); });
+      } catch (e) {}
+    });
+  }
+  if (/[?&]reset\b/.test(location.search)) {
+    wipe();
+    history.replaceState(null, '', location.pathname + location.search.replace(/([?&])reset\b&?/, '$1').replace(/[?&]$/, '') + location.hash);
+  }
+  var btn = document.getElementById('tp-reset');
+  if (btn) btn.addEventListener('click', function () { wipe(); location.reload(); });
+})();
+</script>
+
+<script>
+/* Annotations. Add one entry to NOTES per part built: sel finds it on the phone, title and points are the note. A
+   numbered badge hangs on each part that is on screen, and the list in the left panel matches. Call v2Notes() after
+   anything changes what is on screen. */
+(function () {
+  var NOTES = [
+    { sel: '.v2-empty-t', title: 'Empty state', points: ['Nothing built yet. Remove this note with the empty state.'] }
+  ];
+  var phone = document.getElementById('tp-phone'), stage = document.getElementById('tp-stage');
+  var box = document.getElementById('cn-notes'), list = document.getElementById('cn-notes-list'), toggle = document.getElementById('cn-notes-toggle');
+  var todo = document.getElementById('cn-notes-todo');
+  var on = false;
+  try { on = localStorage.getItem('tp-annotations') === 'on'; } catch (e) {}
+  var LEADS = /^(Data|Not built yet|Open question|Test|Try it|Design|Keyboard|Screen readers|Reduced motion|Empty state|Edge case|Phones|Desktop|Wording|Prototype only): /;
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function render() {
+    phone.querySelectorAll('.cn-badge').forEach(function (b) { b.remove(); });
+    phone.querySelectorAll('.cn-badge-host').forEach(function (h) { h.classList.remove('cn-badge-host'); });
+    toggle.setAttribute('aria-checked', on ? 'true' : 'false');
+    box.hidden = !on; stage.classList.toggle('has-notes', on);
+    if (!on) return;
+    var n = 0, html = '';
+    NOTES.forEach(function (it) {
+      var el = phone.querySelector(it.sel);
+      if (!el || el.offsetParent === null) return;
+      n++;
+      if (getComputedStyle(el).position === 'static') el.classList.add('cn-badge-host');
+      var b = document.createElement('span');
+      b.className = 'cn-badge'; b.setAttribute('aria-hidden', 'true'); b.dataset.n = n; b.textContent = n;
+      el.appendChild(b);
+      var pts = it.points.map(function (p) { var m = LEADS.exec(p); return '<li>' + (m ? '<strong>' + esc(m[1]) + ':</strong> ' + esc(p.slice(m[0].length)) : esc(p)) + '</li>'; }).join('');
+      html += '<li data-n="' + n + '"><span class="cn-num" aria-hidden="true">' + n + '</span><div><button type="button" class="cn-note-go" title="Show on the phone">' + esc(it.title) + '</button><ul class="cn-note-points">' + pts + '</ul></div></li>';
+    });
+    list.innerHTML = html;
+    todo.hidden = true;
+  }
+  toggle.addEventListener('click', function () {
+    on = !on;
+    try { localStorage.setItem('tp-annotations', on ? 'on' : 'off'); } catch (e) {}
+    render();
+  });
+  // A note's title scrolls the phone to its part
+  list.addEventListener('click', function (e) {
+    var go = e.target.closest('.cn-note-go'); if (!go) return;
+    var b = phone.querySelector('.cn-badge[data-n="' + go.closest('li').dataset.n + '"]'); if (!b) return;
+    b.parentElement.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+  window.v2Notes = render;
+  setTimeout(render, 0);
+})();
+</script>
+
+<!-- Phone view only: a faint Settings icon at the top left, opening Switch prototype (the viewer's tabs, the one showing
+     ticked; links keep ?phone) and Reset prototype. A tap outside, Escape or picking anything closes it, and focus goes
+     back to the icon. As on Options A to C. -->
+<script>(function () {
+  if (!document.documentElement.classList.contains('pv-device')) return;
+  var reset = document.getElementById('tp-reset'), top = document.getElementById('v2-top');
+  if (!reset || !top) return;
+  var phoneQ = /[?&]phone\b/.test(location.search);
+  var TICK = '<svg class="tp-dev-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+  var btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'tp-dev-set'; btn.id = 'tp-dev-set';
+  btn.setAttribute('aria-label', 'Settings'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'tp-dev-menu');
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+  var menu = document.createElement('div');
+  menu.className = 'tp-dev-menu'; menu.id = 'tp-dev-menu'; menu.hidden = true;
+  menu.setAttribute('role', 'group'); menu.setAttribute('aria-label', 'Settings');
+  var links = [].map.call(document.querySelectorAll('.pv-side .pv-tabs .pv-tab'), function (a) {
+    var href = a.getAttribute('href'), cur = a.classList.contains('is-active');
+    if (phoneQ) href += (href.indexOf('?') > -1 ? '&' : '?') + 'phone';
+    return '<li><a class="tp-dev-item" href="' + href + '"' + (cur ? ' aria-current="page"' : '') + '>' + a.textContent + (cur ? TICK : '') + '</a></li>';
+  }).join('');
+  menu.innerHTML = '<p class="tp-dev-h" id="tp-dev-h">Switch prototype</p><ul class="tp-dev-list" aria-labelledby="tp-dev-h">' + links + '</ul><div class="tp-dev-sep" aria-hidden="true"></div>';
+  reset.className = 'tp-dev-item'; reset.removeAttribute('title'); reset.removeAttribute('aria-label');
+  reset.innerHTML = 'Reset prototype';
+  menu.appendChild(reset);
+  top.appendChild(btn); top.appendChild(menu);
+  var still = matchMedia('(prefers-reduced-motion: reduce)');
+  function open() {
+    menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
+    if (menu.animate) menu.animate(still.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: 'ease-out' });
+    (menu.querySelector('[aria-current="page"]') || menu.querySelector('.tp-dev-item')).focus({ preventScroll: true });
+  }
+  function close(back) {
+    if (menu.hidden) return;
+    menu.hidden = true; btn.setAttribute('aria-expanded', 'false');
+    if (back) btn.focus({ preventScroll: true });
+  }
+  btn.addEventListener('click', function () { if (menu.hidden) open(); else close(true); });
+  document.addEventListener('pointerdown', function (e) { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false); }, true);
+  menu.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); return; }
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    var its = [].slice.call(menu.querySelectorAll('.tp-dev-item')), i = its.indexOf(document.activeElement);
+    e.preventDefault(); its[(i + (e.key === 'ArrowDown' ? 1 : its.length - 1)) % its.length].focus();
+  });
+  menu.addEventListener('focusout', function (e) { if (!menu.hidden && e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== btn) close(false); });
+})();</script>
+<script src="vendor/qrcode.js"></script>
+<script src="pv-device.js"></script>
+<!-- Desktop website only, low fidelity theme only: a tab in the window's top left corner saying what this is -->
+<div class="pv-fidelity-tab" aria-hidden="true">Low fidelity prototype</div>
+</body>
+</html>
