@@ -351,7 +351,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 
 ## Drop goal: where it stands (22 Nov)
 
-- **Name:** Drop goal; Play is only the phone label (capsule and the two headings). Words in `concepts-words.js` (`play`, `playDesktop`, `dropGoal`, `dropGoalTitle`).
+- **Name:** Drop goal; Play is only the phone label (the capsule and Home's section heading; since 23 Nov the Play tab's own heading reads Play Drop Goal on phones, `playTitle`). Words in `concepts-words.js` (`play`, `playDesktop`, `dropGoal`, `dropGoalTitle`).
 - **The visit:** `drop-goal/js/visit.js` loads before `main.js`, which calls `visitBoot()`. sessionStorage key `thk-visit-1` holds the start and the seen lists per route. Re-routing never touches `simulate()`, the zones, routes, terrain or `PLAYER_MODEL`; it bends the drawn path after the posts (upright, only for a kick that clears the bar) or late in the flight (gust). `checkDistribution()` prints single kicks and whole visits; on 22 Nov visits ran 8.7 to 10.6% per stop.
 - **Messages:** `thk:ready`, `thk:save`, `thk:unsave`, `thk:saved`, `thk:theme`, `thk:teams`, `thk:card`, `thk:open-plan`, `thk:close`, `thk:reset` (drop-goal/README.md).
 - **Testing it:** in the console, set `visit.seen[routeKey]` and `wind` before a kick to force each re-route case; `?tools` shows the estimate. The test scripts used this session were in the scratchpad, not the repo.

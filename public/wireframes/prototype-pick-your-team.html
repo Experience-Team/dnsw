@@ -436,7 +436,7 @@
         <section class="tp-kick" id="tp-kick" aria-labelledby="tp-kick-title" hidden>
           <!-- Stage 3: the page's own section title and intro (Home's words), in place of the game's heading -->
           <div class="tp-kick-head">
-            <h2 class="tp-sec-title" id="tp-kick-title"><span class="tp-on-phone">Play</span><span class="tp-on-desk">Drop Goal</span></h2>
+            <h2 class="tp-sec-title" id="tp-kick-title"><span class="tp-on-phone">Play Drop Goal</span><span class="tp-on-desk">Drop Goal</span></h2>
             <p class="tp-kick-intro">Where it lands is your next idea.<span class="tp-kick-more"> Line up your kick, go for goal, and keep kicking to find more places in Sydney and NSW.</span></p>
           </div>
           <iframe class="tp-kick-frame" id="tp-kick-frame" src="drop-goal/index.html" title="Drop goal: kick the ball and see where in NSW it lands"></iframe>
@@ -714,7 +714,7 @@
       "Once the header scrolls away the capsule floats 8px from the top with a shadow. It shrinks to 80% while scrolling down and comes back to full size on scrolling up, a tap or keyboard focus.",
       "Labels always stay on one line. On narrow phones the space either side shrinks first, then the text, never below 13px. If even that will not fit, the capsule scrolls sideways.",
       "It sits under the plan bar and every sheet, and steps aside while the day-by-day map is open. Links that jump down the page land below it.",
-      "Phones: the third tab says Play. Desktop: Play Drop Goal, in the header bar between the logo and the host city lockup.",
+      "Phones: the third tab says Play (its heading says Play Drop Goal). Desktop: Play Drop Goal, in the header bar between the logo and the host city lockup.",
       "Remembered: a reload stays on the tab that was showing (for that browser tab only). A fresh visit or a shared link opens on Home.",
       "Try it: ?view=plan opens the planner and ?view=kick opens Play.",
       "Screen readers: the current tab is announced as the current page, and the browser’s page title names the tab showing.",
@@ -1019,7 +1019,7 @@
       "When picks or days change, the card in view stays if it still exists; otherwise the row opens by the same rule.",
       "Each card: picture, name (opens its details), type, a time only where the data has one, and Add. Add puts it on that day of your plan, never in Saved, not placed yet.",
       "Swipe the row or use Previous and Next: the map glides to the card’s place and highlights its pin. Tapping a pin brings up its card. Added pins carry a tick.",
-      "Skip the map moves the page to the next section, and its label says so. Phones: always shown. Desktop: shown only when a keyboard reaches it.",
+      "Skip the map moves the page to the next section, and its label says so. It is hidden until a keyboard reaches it, then shows over the map’s top left corner; a finger or mouse scrolls past the map.",
       "Reduced motion: the map jumps instead of gliding."
     ] },
     { sel: "#tp-map", title: "Day-by-day map (Follow day by day)", points: [
@@ -1263,7 +1263,7 @@
 
     // Play
     { sel: "#tp-kick-title", at: "r", title: "Play: the tab and its name", points: [
-      "The game is called Drop goal. Phones show Play (in the tab and the heading); desktop shows Play Drop Goal in the tab and Drop Goal as the heading.",
+      "The game is called Drop goal. Phones: the tab says Play and the heading Play Drop Goal. Desktop: the tab says Play Drop Goal and the heading Drop Goal. Home’s section heading says Play on phones.",
       "Screen readers hear the section and game named Drop goal, and the tab and heading as shown, so a spoken name always contains the visible words.",
       "The address stays ?view=kick.",
       "The plan bar steps aside on this tab."
