@@ -1493,13 +1493,15 @@
 /* One line each: the slogan's two sentences and the event line's two lines never wrap. Each starts at its own size
    (slogan 31px, event line 14px, the B2 brief) and steps down just enough when its widest line would not fit the copy
    column, so it holds at 360px, at 320px, and with whatever system font the wireframe falls back to. This breaks the
-   type scale on purpose. Runs again when the width changes, once the fonts have loaded, and when the countdown's
+   type scale on purpose. Runs again when the width changes, whenever a font finishes loading, and when the countdown's
    text changes (Under way, final Sat 13 Nov is longer than 319 days to go). */
 // The planner's hero and Home's event line (19 Nov) each fit their own column
 [].forEach.call(document.querySelectorAll('#tp-phone .tp-hero-copy, #tp-phone .tp-home-hero-copy'), function (col) {
   var SETS = [['#tp-hero-title', '.tp-slogan-1, .tp-slogan-2'], ['.tp-event', '.tp-event-l']];
+  var stale = false; // a fit was asked for while the column was hidden: do it when the column shows again
   function fit() {
-    if (!col.clientWidth) return; // the planner is hidden (another section is showing)
+    if (!col.clientWidth) { stale = true; return; } // the planner is hidden (another section is showing)
+    stale = false;
     var cs = getComputedStyle(col), room = col.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     SETS.forEach(function (set) {
       var t = col.querySelector(set[0]); if (!t) return;
@@ -1518,8 +1520,13 @@
   fit();
   // Only a change of width can make a line wrap; refitting on height changes (its own) would loop and nudge the page
   var lastW = col.clientWidth;
-  if (window.ResizeObserver) new ResizeObserver(function () { var w = col.clientWidth; if (w && w !== lastW) { lastW = w; fit(); } }).observe(col); // 0 while the planner is hidden: nothing to fit, and refitting then would shift the page on return
+  // 0 while the planner is hidden: nothing to fit then. On return it refits only if a fit was skipped while it was
+  // hidden (the fonts loaded meanwhile), so it does not shift the page on every return
+  if (window.ResizeObserver) new ResizeObserver(function () { var w = col.clientWidth; if (w && (w !== lastW || stale)) { lastW = w; fit(); } }).observe(col);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  // A font used only on a hidden tab starts loading when that tab first shows, after fonts.ready has settled, so the
+  // line could stay fitted to the fallback font: refit whenever a font finishes loading too
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fit);
   var count = col.querySelector('.tp-count');
   if (count && window.MutationObserver) new MutationObserver(fit).observe(count, { childList: true, characterData: true, subtree: true });
 });

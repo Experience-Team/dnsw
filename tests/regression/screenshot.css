@@ -1,0 +1,11 @@
+/* Applied only while a screenshot is taken (playwright.config.js, stylePath). Layers kept apart for smooth motion
+   (will-change) are rasterised at whatever scale and offset they had when they were made, which differs by a pixel
+   between runs. Painting them with the rest of the page makes every run render the same. */
+*, *::before, *::after { will-change: auto !important; }
+/* Transitions have ended by the time the shot is taken; dropping them stops the browser keeping a finished fade or
+   scale (the map's overlapping photo pins) on a layer of its own */
+*, *::before, *::after { transition: none !important; }
+/* The map's photo pins draw a large photo at 28px. Smoothed, Chromium scales it from whichever copy it decoded earlier,
+   so its pixels changed from run to run with nothing on the page changing. Drawn without smoothing it comes from the
+   full-size photo every time; the pins look a little grainy in the screenshots, and are still compared. */
+.tp-ov-pimg { image-rendering: pixelated !important; }
