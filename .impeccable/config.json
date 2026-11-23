@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "public/wireframes/wireflow/index.html"
+        ],
+        "createdAt": "2026-11-23T06:03:57.613Z",
+        "reason": "Chalk #faf7f0 is the Third Half guidelines' page colour (themes/hifi.css); the user asked the wire flow to use the high fidelity look"
+      }
+    ]
+  }
+}
