@@ -1,14 +1,47 @@
 # Session handover: Pick your team prototype, Home tab and planner
 
-22 November 2026 (Sydney), evening, updated after #591. Repo `Experience-Team/dnsw`, main at `cd143a9` (the merge of #590, after #591). **No PR is open** apart from this update's own. #579 to #591 are merged. Pull main before starting: `git fetch origin main`. A local `main` can be days behind `origin/main`, so always compare against `origin/main`.
+24 November 2026 (Sydney), updated after #616. Repo `Experience-Team/dnsw`, main at `96ed839` (the merge of #616). **Open: [#619](https://github.com/Experience-Team/dnsw/pull/619)** (Just added badge, plus this handover). #610, #612, #613, #614 and #616 are merged. Pull main before starting: `git fetch origin main`, and always compare against `origin/main`. Branch used: `claude/relaxed-euler-lahepn` (once its PR merges it only holds merged history, so it can be moved forward with `git merge --ff-only origin/main`; a force-push was refused by the permission check).
 
-**The next session creates more prototype options.** Read "Prototype options: how they work" below first: each option is its own tab in the viewer, the same page with a flag (Option B is `?flow=a`, #593; the main prototype is Option A). Compare options (#587) was removed on 23 Nov at the user's request, so each tab shows one phone.
+**The next session starts with three things the user said yes to on 24 Nov** (see "Next session: start here" below):
+1. **Knockout tickets:** scoped and waiting for the user's answer to three decisions. Don't build until answered.
+2. **Regenerate the flow chart** (`flow-chart-planner.html`) once knockout tickets are built. It still shows Option C's old four steps and I'm a local.
+3. **Just added badge:** done, in #619 (waiting to merge).
 
-This replaces the 22 November morning handover (#578). Since then, two sessions worked in parallel:
-- **This session** (`claude/gallant-cori-aajo32`): real destination data from the user's spreadsheet for Drop goal and the free-day ideas (#582), business names trimmed from every summary (#583), article pages for Read before you go with a Quick answers block for SEO and AEO (#583), the Leave the car at home card's line and link (#585, #588), and pictures between paragraphs in the articles (#589).
-- **The other session** (`claude/adoring-allen-rxwblh`): a Reset icon in the header (#579), a reload stays on its tab (#580), Skip the map on phones only (#581), a new slogan and Save & share ordered by device (#584), the In NSW pill on every NSW match (#586), marker tooltips plus **Compare options** in the tools viewer (#587), and Save & share rebuilt as a list (#591, which replaces #584's device ordering).
+## Next session: start here (24 Nov)
 
-See "Done on 22 November, afternoon" below. The earlier sections are kept for reference.
+### Knockout tickets: scoped, waiting on the user
+- **Data:** 8 knockouts, all in NSW (Round of 16 ×2, quarter-finals ×2, semi-finals ×2, Bronze Final, Final). Only Round of 16 (1) names teams, and only as placeholders ("2nd Pool C v 2nd Pool F"). A ticket is stored as `tkey` = `date|teams` (`concepts-teams.js` line ~1442: `tkey: f.t ? f.d + '|' + f.t : null`), so knockouts can't take one.
+- **Proposed:** `tkey` = the match `key` (`date|teams`, else `date|round`). Pool keys are unchanged, so saved tickets keep working. Revisit once real teams are known.
+- **Proposed places:** each knockout's match sheet ("I have a ticket"; `concepts-third-half.js` ~1225 shows it only `if (f.t)`), the plan's day cards (`concepts-plan.js` ~96 `tix = !!m.tkey`), the Every NSW match card's rows, and Option C's Tickets step (a "Knockouts in NSW" group after the team matches: "Quarter-final 1 · Sat 30 Oct · Stadium Australia, teams to be decided").
+- **Knock-ons:**
+  - A knockout ticket adds its match to the plan (as a match-sheet ticket does today, via `ticketToggle` in `concepts-third-half.js`). Unticking removes it if the ticket was its only reason (`tlClearGone`).
+  - Ticket counts include knockouts: Your answers summary (`myTickets` in `concepts-flow-c.js`), the Save bar, Save & share, and the ticket toast.
+  - The plan's key shows the ticket mark, not "teams to be decided".
+- **Decisions asked, with recommendations:**
+  1. All three options at all four places.
+  2. A knockout ticket adds its match to the plan.
+  3. Option C lists all 8 knockouts whatever the teams.
+
+  The user often answers "as you choose", which means take the recommendations.
+
+### Flow chart
+Regenerate with the flowchart skill (`.claude/skills/flowchart`; its linter needs `scripts/package.json`, CommonJS). Don't hand-edit the HTML. Cover Option C as it now stands (below), the Settings menu on phones, I'm a local removed, and knockout tickets.
+
+## Done on 23 and 24 November (#610 to #619)
+
+- **Option C (`?flow=c`, #610, #612, #613, #614, #616):** a test from team feedback: the questions up front, step by step. `concepts-flow-c.js` holds all of it; hooks are `window.tpFlowC` (`step()`, `inCard()`, `inLevel()`, `focusStep()`), read by `syncBar`, `renderAsk`, the third-half toasts and Home's Plan around your matches.
+  - **Steps:** three of them: Your teams (required), Tickets, Your days.
+  - **Step 1:** Next is `aria-disabled` until a team or Every NSW match is picked. The left button reads Show every NSW match (`tpPicker.addRugby`), then Skip.
+  - **Other steps:** Skip moves to the next screen. On Your days, Next reads See your plan, and Skip there takes back untouched days started for them.
+  - **Layout:** the step foot floats at the bottom and rises with the plan bar. Back is an arrow beside "Step N of 3". The plan bar is hidden on step 1 until a pick, and can't open during the flow.
+  - **Tickets step:** your teams' matches, NSW first, then Interstate (kick-offs in Sydney time). No tickets yet replaces any marked, and Clear all clears them.
+  - **After the flow:** the page starts at Your matches (48px under the hero). As in Option B, there are no tabs, and All matches is on Home (`NO_TABS` in `concepts-teams.js`).
+  - **Your answers:** a condensed card at the top of the open plan, replacing the plan's Your teams button and days line in C. Change drills down inside the plan (`#tp-fc-level`) to the hand of cards, tickets, Your days and Where you're staying (optional). There's a Save bar naming the latest change, and Save closes the plan. Back, Escape and a grabber tap go back one step.
+  - **Saved state:** saved under `flow-c:` (the `<head>` storage script handles `a` and `c`); the step is kept in `tp-fc-v1` with `v: 2`.
+- **Settings on phones (#610):** in phone view and the desktop layout, the header's top-left icon opens a menu: Switch prototype (Option A, B, C, Flow chart) and Reset prototype.
+- **Fix: picked cards show their state again (#612):** removing the single fan (53f24f1) had dropped it. `renderChosen` now marks every card.
+- **I'm a local removed (#613):** from Where are you staying, in every option. A saved local answer is dropped (`normTrip`). Drop goal's Local route is a different control.
+- **Just added badge (#619, open):** it hangs from the card's colour band.
 
 ## Ways of working
 
@@ -324,6 +357,8 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 13. **New, destination data:** most Newcastle ideas have no travel time from Newcastle (the pages give times from Sydney). The spreadsheet's Current notices column is not shown anywhere (for example the Great Western Highway closure for Lithgow and Bathurst). Venue names change: recheck against the live pages before launch.
 14. **Answered, Home FAQs:** the user supplied the six answers (22 Nov); they show with Annotations off again, and the site footer is built from the user's sydney.com copy.
 15. **Answered:** the itinerary prototype's Save & share no longer matters: the whole Share/edit itinerary prototype was removed (22 Nov).
+17. **New, 24 Nov, knockout tickets:** three decisions waiting (see "Next session: start here").
+18. **New, 24 Nov, the open Your answers level is long** (the hand of cards alone is about 1,000px). If it feels too long, the hand could drill one level further.
 16. **New, pictures:** the library has 13 photos that show no named business, so pictures repeat across articles and ideas. Real pictures still needed.
 
 ## The homepage (built 19 November, second session)
@@ -376,6 +411,7 @@ From round 5 testing. The user's rules: don't touch Not going to the match? or t
 
 ## Recommended next steps
 
+0. **24 Nov:** start with "Next session: start here" at the top. Check whether #619 merged. Then knockout tickets (once the user answers), then the flow chart.
 1. Pull main (`origin/main`). Check whether this handover's PR has merged, and whether the other session has merged anything since.
 2. Read CLAUDE.md (checks 7, 10, 11 and 12 especially), this file and `.claude/skills/wireframe/SKILL.md`.
 3. **Prototype options (the next session's work):** read "Prototype options: how they work" above. Ask the user what kind of options they mean (flags on this page compared side by side, new screens or flows, or a new prototype tab), which part of the page each covers, and how many versions. Then do the scope check (checks 7 and 12) before building, and stop and show where the brief says so.
