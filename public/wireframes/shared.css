@@ -4103,7 +4103,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    page never scrolls; only the annotations and the phone scroll, each inside its own window. The phone keeps its
    390px width and fills the window height up to 844px. Short or narrow windows fall back to an ordinary page. */
 .pv-page { --topbar-h: 0px; height: 100vh; height: 100dvh; display: grid; grid-template-columns: 460px minmax(0, 1fr); overflow: hidden; background: #fff; color: #1a1a1a; }
-.pv-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #d1d1d1; }
+.pv-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #d1d1d1; overflow-y: auto; overscroll-behavior: contain; } /* the panel scrolls as a whole */
 .pv-header { padding: var(--space-5) var(--space-6) 0; }
 .pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.02em; }
 .pv-desc { margin-top: var(--space-1); max-width: 21rem; font-size: 1rem; line-height: 1.5; color: #333; }
@@ -4118,7 +4118,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-tab--next { border-style: dashed; cursor: default; }
 @media (hover: hover) { a.pv-tab:not(.is-active):hover { background: #f2f6fd; } }
 .pv-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
-.pv-concept { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); border-top: 1px solid #d1d1d1; } /* the rule under the tabs, here so their fade leaves it whole */
+.pv-concept { flex: 1 0 auto; display: flex; flex-direction: column; padding: var(--space-6) var(--space-6) var(--space-6); border-top: 1px solid #d1d1d1; } /* the rule under the tabs, here so their fade leaves it whole */
 .pv-concept-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
 .pv-h2 { font-size: 1.25rem; font-weight: 400; line-height: 1.5; }
 .pv-reset { flex: none; padding: 2px 0; border: 0; background: none; color: #444; font: inherit; font-size: .8125rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -4134,7 +4134,9 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .pv-switches--test { margin-top: var(--space-5); }
 .pv-switches--test:not(:has(.pv-switch)) { display: none; }
 .pv-switch { align-self: flex-start; }
-.pv-notes.cn-notes { flex: 1; min-height: 0; max-width: none; margin-top: var(--space-3); overflow-y: auto; overscroll-behavior: contain; }
+/* The annotations get a tall window of their own, nearly the window's height, and scroll inside it; scrolling the panel
+   brings the whole window into view */
+.pv-notes.cn-notes { flex: none; height: max(360px, calc(100dvh - var(--space-6) * 2)); max-width: none; margin-top: var(--space-3); overflow-y: auto; overscroll-behavior: contain; }
 .pv-stage { min-height: 0; display: flex; justify-content: center; align-items: center; gap: var(--space-7); padding: var(--space-6); }
 /* The phone sits in the middle of the stage: on a window taller than the 844px phone the spare room is shared above and
    below instead of all falling under it */
@@ -4145,8 +4147,8 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Too short or too narrow for a fixed screen: an ordinary page, panel above, phone at full size */
 @media (max-height: 600px), (max-width: 800px) {
   .pv-page { display: block; height: auto; overflow: visible; }
-  .pv-side { border-right: 0; }
-  .pv-notes.cn-notes { max-height: 60vh; }
+  .pv-side { border-right: 0; overflow: visible; }
+  .pv-notes.cn-notes { height: auto; max-height: 80vh; }
   .pv-stage { justify-content: flex-start; padding: var(--space-4); }
   .pv-page .pv-phone > .cn-phone { height: 844px; }
 }

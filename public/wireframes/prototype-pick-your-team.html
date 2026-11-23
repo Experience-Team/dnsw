@@ -50,8 +50,8 @@
 <body class="pv-page">
 <!-- Prototype viewer (Figma: Rugby World Cup, node 204:12914). One prototype per page, each with its own address. It
      behaves as a single static screen: the left panel (title, tabs, the concept, its controls and annotations) and the
-     stage (the phone and a spare frame for another prototype) are fixed to the window, and only the annotations and
-     the phone scroll, each inside its own window. -->
+     stage (the phone and a spare frame for another prototype) are fixed to the window. The left panel scrolls as a
+     whole, the annotations scroll inside their own tall window, and the phone scrolls inside its frame. -->
 <aside class="pv-side">
   <header class="pv-header">
     <h1 class="pv-title">RWC prototypes</h1>
@@ -1432,6 +1432,12 @@
     var b = e.target.closest && e.target.closest('.cn-badge'); if (!b) return;
     e.preventDefault(); e.stopPropagation(); // the badge is a note marker, not the part it sits on
     var li = notesList.querySelector('li[data-n="' + b.dataset.n + '"]'); if (!li) return;
+    // The panel scrolls as a whole: bring the annotations window into view first if any of it is out of sight
+    var side = notesBox.closest('.pv-side');
+    if (side && side.scrollHeight > side.clientHeight) {
+      var sr = side.getBoundingClientRect(), nr = notesBox.getBoundingClientRect();
+      if (nr.top < sr.top || nr.bottom > sr.bottom) scrollWithin(side, notesBox, 12);
+    }
     scrollWithin(notesBox, li, 12);
     flash(b.dataset.n);
   }, true);
