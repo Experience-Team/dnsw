@@ -8,6 +8,10 @@ theme or state. Two suites, run on every PR by `.github/workflows/regression.yml
   picked, one team card picked, two cards picked, Option C's Tickets and Your days steps, its page once done and its Your answers level (Change in the open plan), the open plan, a match
   sheet and the Settings menu. Page states are captured at their full height; sheets and menus at the screen's size.
   Files are named `<option>-<theme>-<width>-<state>.png`.
+- **Version 2** (`v2.visual.spec.js`, `v2.behaviour.spec.js`): `prototype-pick-your-team-v2.html`, a separate
+  prototype. Screenshots of each state built so far (`v2-<theme>-<width>-<state>.png`), and smoke tests that it keeps
+  apart from Options A to C: only its own tabs, none of their behaviour scripts, its own saved state, and no links
+  between the two. See `public/wireframes/v2/README.md`.
 - **Behaviour** (`behaviour.spec.js`): pick, unpick, Clear all, Every NSW match, reload, Reset prototype and `?reset` in
   each option, and `?flow=a`, `?flow=c`, `?phone` and `?theme` doing their jobs.
 

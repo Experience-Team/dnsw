@@ -1,0 +1,17 @@
+/* Version 2's own styles (prototype-pick-your-team-v2.html), loaded after shared.css and themes/hifi.css.
+   Every class here starts v2- (or is scoped under html[data-flow="v2"]), so nothing in this file can change Options A
+   to C. Never edit shared.css, themes/hifi.css or a concepts-*.js file for Version 2: copy what you need into this
+   folder and change the copy. See README.md. */
+
+/* The phone's page: a column, so the empty state can fill what is left under the top row */
+#v2-body { display: flex; flex-direction: column; }
+.v2-top { position: relative; min-height: 0; }
+
+/* Empty state, shown until the first part is built. Remove it then */
+.v2-empty { flex: 1; display: grid; place-content: center; gap: var(--space-2); padding: var(--space-6); text-align: center; color: var(--c-ink-2); }
+.v2-empty-t { margin: 0; font-size: 1rem; font-weight: 600; color: var(--c-ink); }
+.v2-empty-p { margin: 0; font-size: .875rem; }
+
+/* Viewer tabs: Iterations is a placeholder, not a link, so it reads as not there yet: a dashed outline, muted text,
+   no hover */
+.pv-tab.v2-tab-soon { border-style: dashed; border-color: #9aa5b5; color: #5c6675; background: transparent; cursor: default; }
