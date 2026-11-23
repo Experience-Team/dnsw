@@ -6003,8 +6003,24 @@ span.tp-map-arrow { display: block; }
 .tp-fc-sum1 { margin: var(--space-1) 0 0; font-size: var(--fs-base); font-weight: var(--fw-semi); }
 .tp-fc-sum2 { margin: var(--space-1) 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-fc-sum2:empty { display: none; }
-.tp-fc-body { display: none; }
-#tp-phone[data-fc-card="open"] .tp-fc-body { display: block; margin-top: var(--space-5); padding-top: var(--space-5); border-top: var(--bw-1) solid var(--c-line-soft); }
+/* In the open plan (24 Nov): the card sits under the plan's title row, and in Option C it replaces the plan's own
+   Your teams button and days line, so each answer has one place */
+.tp-tl-panel > .tp-fc { flex: none; margin: var(--space-3) 0 var(--space-5); }
+#tp-phone[data-fc-card] #tp-tl-teams, #tp-phone[data-fc-card] #tp-tl-daysline { display: none !important; }
+/* Change drills down inside the plan: the Your answers level covers the plan's content at the sheet's own height and
+   scrolls inside itself, with a back arrow top left and, after the first change, a Save bar pinned to its foot */
+.tp-tl-panel.is-drilled { overflow: hidden; }
+.tp-fc-level { position: absolute; left: 0; right: 0; z-index: 30; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-3) var(--space-4) 0; background: var(--c-surface); }
+.tp-fc-level[hidden] { display: none; }
+.tp-fc-lhead { display: flex; align-items: center; gap: var(--space-2); }
+.tp-fc-lh { margin: 0; font-size: var(--fs-xl); font-weight: var(--fw-heavy); }
+.tp-fc-lh:focus { outline: none; }
+.tp-fc-lh:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tp-fc-level .tp-fc-body { display: block; flex: 1 0 auto; margin-top: var(--space-4); padding-bottom: var(--space-6); }
+.tp-fc-save { position: sticky; bottom: 0; display: flex; align-items: center; gap: var(--space-3); margin: 0 calc(-1 * var(--space-4)); padding: var(--space-3) var(--space-4); border-top: var(--bw-1) solid var(--c-line-soft); background: var(--c-surface); }
+.tp-fc-save[hidden] { display: none; }
+.tp-fc-save-t { flex: 1; margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.tp-fc-save .tp-home-cta { width: auto; flex: none; min-height: 36px; padding-inline: var(--space-5); }
 .tp-fc-bh { margin: var(--space-5) 0 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); }
 .tp-fc-bh:first-child { margin-top: 0; }
 .tp-fc-slot #tp-util { margin-top: var(--space-3); margin-inline: 0; }

@@ -24,6 +24,8 @@
   function fc() { return window.tpFlowC ? window.tpFlowC.step() : ''; }
   // Finished (24 Nov): Your days and Where you're staying sit open in the Your answers card, slider and all
   function fcCard() { return !!(window.tpFlowC && window.tpFlowC.inCard && window.tpFlowC.inCard()); }
+  // The Your answers level in the open plan names each change on its Save bar, so no toast as well (check 11)
+  function fcLevel() { return !!(window.tpFlowC && window.tpFlowC.inLevel && window.tpFlowC.inLevel()); }
   var WHY_NONE = (window.TP_WORDS || {}).setDaysWhyNoTeam || 'Set your days to see ideas for your time in NSW.';
   var PLAY = (window.TP_WORDS || {}).dropGoal || 'Drop goal', IMG = (window.TP_WORDS || {}).imageOf || function (x) { return 'Placeholder image of ' + x; }; // A2 follow-up (21 Nov)
   var GM = (window.TP_WORDS || {}).groupMatches || 'pool matches', GM1 = (window.TP_WORDS || {}).groupMatch || 'pool match', LR = (window.TP_WORDS || {}).laterRounds || 'the knockouts', LR_C = LR.charAt(0).toUpperCase() + LR.slice(1); // A2 (21 Nov): visitor-facing stage names
@@ -2223,7 +2225,7 @@
      first of them. verb(one, many) agrees with how many sections changed; with none, the line is `none` (or left out). */
   var lastChanged = [];
   function changeToast(title, verb, none) {
-    if (fc()) return;
+    if (fc() || fcLevel()) return;
     var ch = lastChanged.filter(function (c) { return c[1]; });
     if (!ch.length) { tp.toast(title, none || ''); return; }
     var names = ch.map(function (c) { return c[0]; });
@@ -2238,7 +2240,7 @@
   // Compact (18 Nov): it repeats as the days are adjusted, so it is the title only, with a link to the first section
   // that changed, and a new one updates the one showing in place rather than popping up again
   function daysToast(had, from, to) {
-    if (fc()) return;
+    if (fc() || fcLevel()) return;
     var ch = lastChanged.filter(function (c) { return c[1]; });
     tp.toast('Your days are now ' + tp.isoRange(from, to), '', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null, 'days');
   }
