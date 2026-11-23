@@ -968,6 +968,21 @@
     /* dnsw change: a close cross on each dialog, top right */
     .modal-close { flex: none; }
 
+    /* dnsw change: a placeholder view hides the chart and shows one line in its place */
+    .view-placeholder { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 24px; background: var(--canvas); color: var(--muted); font-size: 16px; text-align: center; }
+    .view-placeholder[hidden] { display: none; }
+    .graph-shell.is-placeholder .graph-hint,
+    .graph-shell.is-placeholder .focus-pill { display: none; }
+    /* dnsw change: a view with a "frame" shows that page across the whole workspace, side panels hidden */
+    .view-placeholder.is-frame { display: block; padding: 0; }
+    .view-placeholder iframe { display: block; width: 100%; height: 100%; border: 0; }
+    .workspace.is-frame-view, .workspace.is-frame-view.rail-collapsed { grid-template-columns: 0 minmax(0, 1fr) 0; }
+    .workspace.is-frame-view .rail, .workspace.is-frame-view .inspector { visibility: hidden; overflow: hidden; border: 0; }
+    @media (max-width: 880px) {
+      .workspace.is-frame-view, .workspace.is-frame-view.rail-collapsed { grid-template-columns: 1fr; grid-template-rows: 0 auto 0; }
+      .workspace.is-frame-view .graph-shell { height: 80vh; }
+    }
+
     /* dnsw change: collapsible left column */
     .rail-head { display: flex; justify-content: flex-end; padding: 8px 10px 0; }
     .rail-toggle { width: auto; min-width: 32px; padding: 0 8px; gap: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); }
@@ -1106,6 +1121,8 @@
           <strong id="focus-label"></strong>
           <button id="clear-focus-button" type="button">Clear</button>
         </div>
+        <!-- dnsw change: a view can stand in for content still to come (its "placeholder" text shows here) -->
+        <div class="view-placeholder" id="view-placeholder" hidden></div>
         <div class="graph-hint">Select a box to read what it does. Its corner icon shows its steps or opens its document. Drag to move; scroll to zoom.</div>
       </section>
 
@@ -1231,7 +1248,7 @@
     let subgraphCy = null;
     const syntheticNodesById = new Map();
 
-    const MIN_NODE_FONT_PIXELS = 13.5;
+    const MIN_NODE_FONT_PIXELS = 12; // dnsw change: a touch smaller, so labels sit inside their boxes with room
     const MIN_EDGE_FONT_PIXELS = 10.5;
     const NODE_COLLISION_MARGIN = 42;
     const ACTION_NODE_COLLISION_MARGIN = 78;
@@ -1252,7 +1269,7 @@
     const NODE_SIZE_DEFAULT = {
       width: 280,
       height: 140,
-      textWidth: 216,
+      textWidth: 240, // dnsw change: more of the box for the label, 20 units of padding each side
       maxChars: 18
     };
     const NODE_SIZE_BY_TYPE = {
@@ -1349,6 +1366,7 @@
             "color": "data(labelColor)",
             "font-size": "data(fontSize)",
             "font-weight": 400,
+            "font-family": '"IBM Plex Sans Condensed", system-ui, sans-serif', // dnsw change: box labels in the chart's own font
             "label": "data(displayLabel)",
             "line-height": 1.18,
             "padding": 12,
@@ -2814,6 +2832,7 @@
         button.type = "button";
         button.textContent = view.label || view.id;
         button.className = view.id === state.activeView ? "active" : "";
+        button.setAttribute("aria-pressed", String(view.id === state.activeView));
         button.addEventListener("click", () => {
           state.activeView = view.id;
           renderViews();
@@ -2822,6 +2841,35 @@
         });
         tabs.appendChild(button);
       }
+      applyViewPlaceholder();
+    }
+
+    // dnsw change: show a placeholder view's text over the chart area
+    function applyViewPlaceholder() {
+      const box = document.getElementById("view-placeholder");
+      if (!box) return;
+      const view = activeView() || {};
+      const frame = view.frame || "";
+      const text = view.placeholder || "";
+      box.classList.toggle("is-frame", Boolean(frame));
+      if (frame) {
+        const current = box.querySelector("iframe");
+        if (!current || current.getAttribute("src") !== frame) {
+          box.textContent = "";
+          const iframe = document.createElement("iframe");
+          iframe.src = frame;
+          iframe.title = view.label || "View";
+          box.appendChild(iframe);
+        }
+      } else {
+        box.textContent = text;
+      }
+      box.hidden = !(frame || text);
+      const shell = box.closest(".graph-shell");
+      if (shell) shell.classList.toggle("is-placeholder", Boolean(frame || text));
+      const workspace = document.querySelector(".workspace");
+      if (workspace) workspace.classList.toggle("is-frame-view", Boolean(frame));
+      window.requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
     }
 
     function renderViewDescription() {
@@ -3752,6 +3800,16 @@
       });
       for (const modal of modals) observer.observe(modal, { attributes: true, attributeFilter: ["class"] });
     })();
+    // dnsw change: the canvas draws labels before the web font has loaded; redraw them once it has, so they are measured
+    // and wrapped in the right font
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.load('16px "IBM Plex Sans Condensed"').then(() => document.fonts.ready).then(() => {
+        if (cy) cy.style().update();
+        if (typeof subgraphCy !== "undefined" && subgraphCy) subgraphCy.style().update();
+        window.dispatchEvent(new Event("resize"));
+      }).catch(() => {});
+    }
+
     // dnsw change: collapsible left column, remembered on this device
     (function railToggle() {
       const workspace = document.querySelector(".workspace");
