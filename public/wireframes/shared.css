@@ -3131,7 +3131,8 @@ body.cp-page code { font: inherit; }
 .tp-count, .tp-fan-caption, .tp-clear, .tp-link, .tp-results-sum, .tp-ticket, .tp-tag, .tp-m-also, .tp-ko, .tp-deck-hint, .tp-ask { position: relative; }
 
 /* The fan's badge sits in the empty corner inside its frame (the frame clips its sides, and above it is the intro text) */
-.tp-fan2-wrap > .cn-badge { top: 24px; right: 16px; } /* the stacked hand's frame clips its sides too; clear of the picker's own badge */
+.tp-fan2-wrap > .cn-badge { top: -2px; left: 16px; right: auto; z-index: 60; } /* above the cards (each card has a z-index of up to 40), in the hand's top left corner where no card reaches */
+#tp-tl > .cn-badge--tl { top: 8px; left: 8px; z-index: 5; } /* the open plan's note: the sheet's top left corner, inside it, and it stays there as the plan scrolls */
 
 /* Pick your team: all matches, a minimal list below the picker */
 .tp-all { margin: var(--space-4) var(--space-4) 0; padding: var(--space-5) 0 var(--space-6); border-top: var(--bw-1) solid var(--c-line-soft); }
@@ -5859,8 +5860,10 @@ span.tp-map-arrow { display: block; }
 
 /* Placeholders with Annotations off (21 Nov, F-052): a visitor sees no "Placeholder", "Not linked yet", bracketed
    copy or dead link. Where there is no real wording the item or tag is hidden; with Annotations on (the stage's
-   has-notes) everything shows as before, pink gap marks included, so the gaps stay visible to the team */
-#tp-stage:not(.has-notes) .tp-ph,
+   has-notes) everything shows as before, pink gap marks included, so the gaps stay visible to the team. The marker is
+   .tp-placeholder, not .tp-ph, which is the photo details panel (23 Nov: sharing the name drew the newsletter consent
+   line as a panel over the page, and hid the photo panel with Annotations off) */
+#tp-stage:not(.has-notes) .tp-placeholder,
 #tp-stage:not(.has-notes) .tp-home-ph,
 #tp-stage:not(.has-notes) .tp-go-tag,
 #tp-stage:not(.has-notes) .tp-go-ph,

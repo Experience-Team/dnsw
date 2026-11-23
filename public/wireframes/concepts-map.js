@@ -1141,7 +1141,7 @@
       popAt = 'v' + k;
       var list = ms.slice(0, 5).map(function (m) { return esc(m.f.t) + ', ' + esc(m.f.d) + (m.f.k ? ', ' + esc(m.f.k) : '') + (m.f.a ? ' (in ' + esc(m.f.a) + ')' : ''); });
       opop.innerHTML = '<div class="tp-ov-pop-top"><h4 class="tp-map-pop-t" id="tp-ov-pop-h" tabindex="-1">' + esc(x.v.name) + '</h4><button type="button" class="tp-link" data-oclose>Close</button></div>' +
-        '<p class="tp-map-pop-m">' + esc(VTYPE[x.v.type] || 'Screening') + ' \u00b7 ' + esc(x.v.place) + '<span class="tp-ph"> \u00b7 placeholder venue</span></p>' +
+        '<p class="tp-map-pop-m">' + esc(VTYPE[x.v.type] || 'Screening') + ' \u00b7 ' + esc(x.v.place) + '<span class="tp-placeholder"> \u00b7 placeholder venue</span></p>' +
         '<p class="tp-ov-pop-k">' + (picked ? 'Your matches it shows' : 'Screenings') + '</p>' +
         (picked ? (list.length ? '<p class="tp-ov-pop-ms">' + list.join('<br>') + (ms.length > 5 ? '<br>and ' + (ms.length - 5) + ' more' : '') + '</p>' : '<p class="tp-map-pop-m">None of your matches is listed here yet.</p>')
           : '<p class="tp-map-pop-m">' + (fz ? 'Every match of the tournament, on big screens.' : x.v.shows.length + ' matches across the tournament.') + ' Pick a team to see which of theirs.</p>') +

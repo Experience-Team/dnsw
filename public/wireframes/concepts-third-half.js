@@ -743,10 +743,10 @@
     h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
       '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + esc(howLine(i)) + '</span>' + (i.dest && i.dest.getting ? '<span class="provenance-gap tp-idea-get">' + esc(i.dest.getting) + '</span>' : '') + (i.car ? '<br><span class="provenance-gap">No car? Ridgeline Tours runs a guided day from ' + esc(i.how.from) + '.</span>' : '') + '</dd></div>' +
       // A town or suburb has no opening hours or price: the rows are left out (§19 empty state); other ideas keep them
-      (i.dest ? '' : '<div class="tp-ph"><dt>Opening hours</dt><dd><span class="provenance-gap">[Opening hours to come]</span></dd></div>' +
-      '<div class="tp-ph"><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div>') + '</dl>';
+      (i.dest ? '' : '<div class="tp-placeholder"><dt>Opening hours</dt><dd><span class="provenance-gap">[Opening hours to come]</span></dd></div>' +
+      '<div class="tp-placeholder"><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div>') + '</dl>';
     h += i.dest ? '<p class="cn-pp-text provenance-gap tp-idea-desc">' + esc(i.dest.summary) + '</p>'
-      : '<p class="cn-pp-text provenance-gap tp-idea-desc tp-ph">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
+      : '<p class="cn-pp-text provenance-gap tp-idea-desc tp-placeholder">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
     return h + pmActions(key, i.title + ' on ' + dl);
   }
   function freeBody(b) {
