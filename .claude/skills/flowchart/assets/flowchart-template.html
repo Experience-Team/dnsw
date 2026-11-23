@@ -968,6 +968,12 @@
     /* dnsw change: a close cross on each dialog, top right */
     .modal-close { flex: none; }
 
+    /* dnsw change: a placeholder view hides the chart and shows one line in its place */
+    .view-placeholder { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 24px; background: var(--canvas); color: var(--muted); font-size: 16px; text-align: center; }
+    .view-placeholder[hidden] { display: none; }
+    .graph-shell.is-placeholder .graph-hint,
+    .graph-shell.is-placeholder .focus-pill { display: none; }
+
     /* dnsw change: collapsible left column */
     .rail-head { display: flex; justify-content: flex-end; padding: 8px 10px 0; }
     .rail-toggle { width: auto; min-width: 32px; padding: 0 8px; gap: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); }
@@ -1106,6 +1112,8 @@
           <strong id="focus-label"></strong>
           <button id="clear-focus-button" type="button">Clear</button>
         </div>
+        <!-- dnsw change: a view can stand in for content still to come (its "placeholder" text shows here) -->
+        <div class="view-placeholder" id="view-placeholder" hidden></div>
         <div class="graph-hint">Select a box to read what it does. Its corner icon shows its steps or opens its document. Drag to move; scroll to zoom.</div>
       </section>
 
@@ -2814,6 +2822,7 @@
         button.type = "button";
         button.textContent = view.label || view.id;
         button.className = view.id === state.activeView ? "active" : "";
+        button.setAttribute("aria-pressed", String(view.id === state.activeView));
         button.addEventListener("click", () => {
           state.activeView = view.id;
           renderViews();
@@ -2822,6 +2831,18 @@
         });
         tabs.appendChild(button);
       }
+      applyViewPlaceholder();
+    }
+
+    // dnsw change: show a placeholder view's text over the chart area
+    function applyViewPlaceholder() {
+      const box = document.getElementById("view-placeholder");
+      if (!box) return;
+      const text = activeView()?.placeholder || "";
+      box.textContent = text;
+      box.hidden = !text;
+      const shell = box.closest(".graph-shell");
+      if (shell) shell.classList.toggle("is-placeholder", Boolean(text));
     }
 
     function renderViewDescription() {
