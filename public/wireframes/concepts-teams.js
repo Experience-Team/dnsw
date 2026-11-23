@@ -114,6 +114,7 @@
     if (rec && Array.isArray(rec.added)) state.added = rec.added.filter(function (x) { return x && typeof x.id === 'string' && typeof x.day === 'string'; });
     // The trip: your days (from, to), where you are staying (base) and who is coming (party), each optional. Saved before
     // as a Visiting / local / not sure answer: a local becomes base local; not sure is dropped; days are kept
+    // I'm a local is no longer offered (24 Nov): a saved local answer is dropped, as normTrip does with base 'local'
     if (rec && rec.trip && typeof rec.trip === 'object') state.trip = normTrip({ from: rec.trip.from, to: rec.trip.to, base: rec.trip.base || (rec.trip.mode === 'local' ? 'local' : undefined), party: rec.trip.party });
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
   // mode follows from the answers: local if staying is I'm a local, visiting once days are set; nothing else is assumed
@@ -121,6 +122,7 @@
     if (!t) return null;
     var o = {};
     ['from', 'to', 'base', 'party'].forEach(function (k) { if (typeof t[k] === 'string' && t[k]) o[k] = t[k]; });
+    if (o.base === 'local') delete o.base; // I'm a local is no longer an answer (24 Nov)
     if (!o.from || !o.to) { delete o.from; delete o.to; }
     o.mode = o.base === 'local' ? 'local' : o.from ? 'visiting' : undefined;
     return Object.keys(o).some(function (k) { return o[k]; }) ? o : null;

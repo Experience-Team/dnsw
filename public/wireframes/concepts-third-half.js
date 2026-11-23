@@ -2327,7 +2327,9 @@
     if (kind === 'week') a = ds[0] - 1;
     return { from: isoOf(Math.max(RMIN, a)), to: isoOf(Math.min(RMAX, z)) };
   }
-  var BASE_Q = [['local', 'I’m a local'], ['Sydney CBD', 'Sydney CBD'], ['Newcastle', 'Newcastle'], ['Bondi', 'Bondi'], ['outside', 'Outside NSW']];
+  // I'm a local was removed on 24 Nov (the user's call): with matches in both Sydney and Newcastle, local to where is
+  // not clear. The local paths below (nearest first, Make a day of it) no longer run; a saved local answer is dropped
+  var BASE_Q = [['Sydney CBD', 'Sydney CBD'], ['Newcastle', 'Newcastle'], ['Bondi', 'Bondi'], ['outside', 'Outside NSW']];
   var PARTY_Q = [['solo', 'Solo'], ['couple', 'Couple'], ['friends', 'Friends'], ['family', 'Family']];
   function baseLabel(b) { return b === 'local' ? 'I’m a local' : b === 'outside' ? 'Staying outside NSW' : 'Staying in ' + b; }
   function partyLabel(p) { return { solo: 'Solo', couple: 'A couple', friends: 'Friends', family: 'Family' }[p] || ''; }

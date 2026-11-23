@@ -52,7 +52,7 @@
     return ms.filter(function (m) { return !m.f.a; }).concat(ms.filter(function (m) { return m.f.a; }));
   }
   function myTickets() { return tixMatches().filter(function (m) { return state.tickets.indexOf(m.tkey) > -1; }); }
-  function baseLabel(b) { return b === 'local' ? 'I’m a local' : b === 'outside' ? 'Outside NSW' : b; }
+  function baseLabel(b) { return b === 'outside' ? 'Outside NSW' : b; }
   function teamsText() { return state.picked.length ? tp.list(state.picked.slice()) : 'None picked'; }
   function ticketsText() { var n = myTickets().length; return n ? n + (n === 1 ? ' match' : ' matches') : fc.none ? 'None yet' : 'Not answered'; }
   function daysText() { var t = state.trip; return t && t.from && t.to ? tp.isoRange(t.from, t.to) : 'Not set'; }
