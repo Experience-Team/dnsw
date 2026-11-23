@@ -6069,3 +6069,8 @@ span.tp-map-arrow { display: block; }
   .pv-device #tp-phone[data-fc]:has(.tp-tl.is-on) .tp-fc-foot { transform: none; }
   .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) .tp-fc-foot { right: calc(var(--rail-w, 0px) + 2 * var(--wide-pad, 0px)); padding-inline: var(--wide-pad, var(--space-4)); }
 }
+/* Option C after the flow (24 Nov): Your matches is the first thing under the hero (the hand and the answers live in the
+   open plan), so its section gap stacked on the picker's own 24px top padding read as 92px. 48px in all, the gap
+   between families: 24px padding + 20px + the results' 4px */
+#tp-phone[data-fc-card] .tp-pick .tp-yours-title { margin-top: calc(var(--space-7) - var(--space-5) - var(--space-1)); }
+@media (min-width: 1024px) { .pv-device #tp-phone[data-fc-card] .tp-pick .tp-yours-title { margin-top: calc(var(--space-7) - var(--space-5) - var(--space-1)); } }
