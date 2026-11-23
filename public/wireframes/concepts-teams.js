@@ -460,10 +460,8 @@
   var cards2 = null, f2Dealt = false, f2Focus = 0, viewLabel = function () {}, syncNswMark = function () {};
   function fanVariant() {
     var m = /[?&]fan=(classic|stacked)\b/.exec(location.search), v = m && m[1];
-    // The remembered choice belongs to the switch, which only the tools version shows: the plain address (the one DNSW
-    // reviewers get) always opens on the stacked hand unless ?fan= asks otherwise
-    var tools = document.documentElement.classList.contains('pv-tools');
-    try { if (v) localStorage.setItem('tp-fan-variant', v); else if (tools) v = localStorage.getItem('tp-fan-variant'); } catch (e) {}
+    // ?fan= wins, else the switch's remembered choice, else the stacked hand
+    try { if (v) localStorage.setItem('tp-fan-variant', v); else v = localStorage.getItem('tp-fan-variant'); } catch (e) {}
     return v === 'classic' ? 'classic' : 'stacked';
   }
   var variant = fan2 ? fanVariant() : 'classic';

@@ -5,8 +5,7 @@
    only shrinks the visual viewport, so its height is copied into --pv-vh and the page is held at the top.
    In the desktop viewer, #pv-qr draws a QR code for this page with ?phone&theme=hifi when the page has the High
    fidelity switch, so a scan opens the high fidelity version whichever theme the viewer shows (the wireframe on a
-   phone: ?phone&theme=wireframe); a page without the switch (Pick your team's low fidelity address) gives ?phone
-   only, and ?tools is kept, so the code opens the address the person is on. Copy link copies the same address. The High fidelity switch (#pv-theme-toggle) sets data-theme="hifi" on <html> (the <head> script
+   phone: ?phone&theme=wireframe); a page without the switch gives ?phone only. Copy link copies the same address. The High fidelity switch (#pv-theme-toggle) sets data-theme="hifi" on <html> (the <head> script
    sets it first, from ?theme= or the last choice) and remembers it in this browser.
    In the high fidelity theme, each placeholder with data-img shows assets/images/<name>.webp (or .jpg).
    QR encoding: vendor/qrcode.js (qrcode-generator, Kazuhiko Arase, MIT). */
@@ -154,13 +153,11 @@
   var box = document.getElementById('pv-qr');
   var code, text, copy, status, shown, url = '';
   var local = location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0$|\[::1\]$)/.test(location.hostname);
-  // The same address the person is on, as the phone view: a page with the High fidelity switch (a tools version) opens
-  // in high fidelity, as that is what someone scanning the code should see; a page without it (the low fidelity
-  // address of Pick your team) opens as it is. ?tools carries over, so a scan of the tools version opens the tools version
+  // The same address the person is on, as the phone view: a page with the High fidelity switch opens in high fidelity,
+  // as that is what someone scanning the code should see; a page without it opens as it is
   function phoneUrl() {
-    var tools = /[?&]tools\b/.test(location.search);
     var flow = /[?&]flow=a\b/.test(location.search) ? '&flow=a' : ''; // Option B keeps its flow on the phone
-    return location.origin + location.pathname + '?' + (tools ? 'tools&' : '') + 'phone' + (themeBtn ? '&theme=hifi' : '') + flow;
+    return location.origin + location.pathname + '?phone' + (themeBtn ? '&theme=hifi' : '') + flow;
   }
   function drawQr() {
     if (!box) return;
@@ -169,9 +166,9 @@
     var open = document.getElementById('pv-qr-open');
     if (open) open.href = url;
     // Open in desktop (beside the phone): the page on its own in the theme on show, so a wide window gets the desktop
-    // layout as the reviewer sees it now; ?tools carries over
+    // layout as the reviewer sees it now
     var desk = document.getElementById('pv-desktop');
-    if (desk) desk.href = location.origin + location.pathname + '?' + (/[?&]tools\b/.test(location.search) ? 'tools&' : '') + 'phone' + (themeBtn ? '&theme=' + (hifi() ? 'hifi' : 'wireframe') : '');
+    if (desk) desk.href = location.origin + location.pathname + '?phone' + (themeBtn ? '&theme=' + (hifi() ? 'hifi' : 'wireframe') : '');
     if (local || typeof qrcode !== 'function') {
       code.hidden = true;
       document.getElementById('pv-qr-show').textContent = 'Why no QR code';
@@ -228,21 +225,5 @@
       else fallback();
     });
   }
-  /* ---------- Prototype tabs keep the tools version ----------
-     A tab marked data-tools points at a prototype with a tools version (?tools). Once you are on a tools version, those
-     tabs keep ?tools for the rest of this browser tab's visit, so moving to another prototype and back never drops you
-     on the plain address (the theme travels already: it is remembered in this browser). Opening a prototype's plain
-     address again ends it. */
-  try {
-    var tools = root.classList.contains('pv-tools'), own = document.querySelector('.pv-tabs [aria-current="page"][data-tools]');
-    if (tools) sessionStorage.setItem('pv-tools', '1');
-    else if (own) sessionStorage.removeItem('pv-tools');
-    if (tools || sessionStorage.getItem('pv-tools') === '1') {
-      document.querySelectorAll('.pv-tabs a[data-tools]').forEach(function (a) {
-        var h = a.getAttribute('href'); // keeps any other flag, such as Option B's flow=a
-        if (!/[?&]tools\b/.test(h)) a.setAttribute('href', h + (h.indexOf('?') > -1 ? '&' : '?') + 'tools');
-      });
-    }
-  } catch (e) {}
   setTheme(hifi(), false);
 })();

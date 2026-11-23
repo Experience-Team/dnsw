@@ -4104,6 +4104,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
    390px width and fills the window height up to 844px. Short or narrow windows fall back to an ordinary page. */
 .pv-page { --topbar-h: 0px; height: 100vh; height: 100dvh; display: grid; grid-template-columns: 460px minmax(0, 1fr); overflow: hidden; background: #fff; color: #1a1a1a; }
 .pv-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #d1d1d1; overflow-y: auto; overscroll-behavior: contain; } /* the panel scrolls as a whole */
+.pv-side > * { flex-shrink: 0; } /* in a scrolling panel nothing is squeezed to fit: the tabs row kept its height */
 .pv-header { padding: var(--space-5) var(--space-6) 0; }
 .pv-title { font-size: 2rem; font-weight: 400; line-height: 1.2; letter-spacing: -.02em; }
 .pv-desc { margin-top: var(--space-1); max-width: 21rem; font-size: 1rem; line-height: 1.5; color: #333; }

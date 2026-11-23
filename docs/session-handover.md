@@ -19,7 +19,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
   - The Vercel bot posts several comment edits per push (two projects, building then ready). Only the mopo123 project's link is shareable; nothing in those comments needs action.
   - The user marks the PR ready and merges it, often within minutes.
 - **Previews:** only share links from the Vercel project `mopo123-gmailcoms-projects`, in chat and in PR descriptions, pointing at the page that changed.
-  - The URL is `https://dnsw-git-<branch-slug>-mopo123-gmailcoms-projects.vercel.app/wireframes/prototype-pick-your-team.html?tools` (add `&theme=hifi` for high fidelity). The plain address opens **Home**; add `view=plan` for the planner (`?view=plan&tools&theme=hifi`) or `view=kick` for Play (once Drop goal), and point each link at the tab that changed. **Long branch names are shortened**: copy the slug from the Vercel bot's comment on the PR rather than building it. For `claude/charming-carson-1bjb9u` it was `claude-charming-cars-cf7f46`.
+  - The URL is `https://dnsw-git-<branch-slug>-mopo123-gmailcoms-projects.vercel.app/wireframes/prototype-pick-your-team.html`. It opens **Home** in high fidelity with every side control (since 23 Nov there is no separate low fidelity address; `?tools` is still accepted but changes nothing, and `?theme=wireframe` gives low fidelity). Add `?view=plan` for the planner or `?view=kick` for Play (once Drop goal), and point each link at the tab that changed. **Long branch names are shortened**: copy the slug from the Vercel bot's comment on the PR rather than building it. For `claude/charming-carson-1bjb9u` it was `claude-charming-cars-cf7f46`.
   - The second project, `moniquepompe-2020s-projects`, also deploys every push; its bot comments arrive as PR notifications. Its previews ask for sign-in, so never share them.
 - **Stop hook:** a hook asks to commit and push whenever the tree has changes. During a stop and show, don't: say why (CLAUDE.md, "A stop means stop") and wait for the user's answers.
 - **"As you choose":** the user often answers open questions this way. Take it as approval of your stated recommendations, including any CLAUDE.md wording you showed, and say back what you took it to cover.
@@ -42,14 +42,14 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 
 - **Where options live.** The prototype is one page, `prototype-pick-your-team.html`. An option is a flag that changes part of it, so every option stays the real, working prototype rather than a copy.
 - **Flags in the address.** A script in the page's `<head>` reads the address before anything draws and sets an attribute on `<html>`. For example `?slogan=b` sets `data-slogan="b"` (line 35), and `?flow=a` sets `data-flow` (Option B). CSS and scripts then show one version or the other, for example `:root:not([data-slogan="b"]) .tp-slogan--b { display: none; }` in `shared.css`. Theme works the same way (`?theme=hifi`, only with `?tools`).
-- **Switches in the tools panel.** The test switches (Stacked hand (test)) sit in the viewer's left panel and show only with `?tools`. Each changes the same attribute as its address flag. Label a test switch "(test)".
+- **Switches in the tools panel.** The test switches (Stacked hand (test)) sit in the viewer's left panel. Each changes the same attribute as its address flag. Label a test switch "(test)".
 - **Options are tabs (23 Nov).** Compare options (#587, framed phones beside the main one) and the empty dashed spare frame were removed at the user's request, so each tab shows one phone. The page's `<head>` clears what Compare options saved in a browser (`pv-compare`, `opt-a:` to `opt-c:`).
 - **To add an option:**
   1. Agree the scope first (CLAUDE.md checks 7 and 12): which part of the page the option changes, and everywhere that part appears.
   2. Pick a short flag name and values, for example `hero=a|b`. Read it in the `<head>` script beside `slogan`, and set `data-hero` on `<html>`.
   3. Build the alternative beside the current one, switched by the attribute. Keep the default as it is today, so existing links don't change (CLAUDE.md "Previews": say which links behave differently, if any).
   4. Give it a tab: add it to `.pv-tabs` with `data-flow-tab` (as Option B), and to the `<head>` storage script if it should keep its own saved state. If it needs a switch too, add one to the tools panel like the existing tests.
-  5. Add an annotation for the option ("TEST: …"), a build log row, and say in the PR how to see each version (for example `?tools&theme=hifi&hero=b`).
+  5. Add an annotation for the option ("TEST: …"), a build log row, and say in the PR how to see each version (for example `?hero=b`).
   6. Check every option in both themes at 390 and 320.
 - **Option B (23 Nov, `?flow=a`, #593; first named Option A):** its own tab in the viewer (the user's call). Same page; `data-flow="a"` on `<html>`; its own saved state under `flow-a:` (the `<head>` storage script), viewer settings (theme, Annotations) shared. In the planner a pick from the hand glides to Your matches with the new card (`flowScroll`), and `#tp-more` (Add more teams, which opens `#tp-at`, then `#tp-ask`) sits under the cards. The main prototype's tab is named Option A (renamed from Pick your team on 23 Nov, user's call); the address stays `?tools`, and Option B stays `?flow=a`. A later Option C would follow the same pattern: a new `flow=` value and a tab.
 - **Option B, no tabs (23 Nov):** All matches (`#tp-all`) moves to Home after Where the matches are (`tp-home-sec is-home`, done in concepts-teams.js once `allSec` is found), the planner's tabs stay hidden and Your matches is an h3 heading (`#tp-yours-title`, the counts in the line under it), and the map follows `#tp-pick` (concepts-map.js). With no team, the planner shows the hand, then Your days on its own with a no-team line (`setDaysWhyNoTeam`; `renderAsk` shows it in Option B whatever `tp.own()` says), then the map; Add more teams appears only after a pick (user's calls).
@@ -59,7 +59,7 @@ See "Done on 22 November, afternoon" below. The earlier sections are kept for re
 
 ## Running and testing
 
-- **Serve:** `cd public && python3 -m http.server 8123`, then open `/wireframes/prototype-pick-your-team.html?phone&tools&theme=hifi` (or `theme=wireframe`).
+- **Serve:** `cd public && python3 -m http.server 8123`, then open `/wireframes/prototype-pick-your-team.html?phone` (high fidelity; add `&theme=wireframe` for low fidelity).
   - Without `?phone`, the phone frame stays 358px wide at any window size.
 - **Test:** Playwright via `NODE_PATH=$(npm root -g) node script.js`.
   - Check by eye from screenshots in both themes at 390 and 320 wide (CLAUDE.md "Look, don't only measure").
