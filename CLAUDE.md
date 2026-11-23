@@ -15,6 +15,8 @@
   say which links already shared now behave differently, and give the new form. For example, links ending
   `?theme=hifi` on the plain prototype address opened in low fidelity after the two addresses were split; high
   fidelity now needs `?tools&theme=hifi`.
+- Since 23 Nov the prototype has one address: high fidelity with every control. `?tools` is no longer needed, and
+  `?theme=wireframe` gives low fidelity.
 
 # Adding standing flags
 
@@ -173,8 +175,8 @@ Implementation lessons that testing caught; they are about the code, not the exp
   there) by its id, never by the section it usually sits in. For example, Reset broke on Home because it looked for
   the team picker inside the planner while Home had borrowed it.
 9. **Look, don't only measure.** Check every change by eye from screenshots in both themes (low and high fidelity) at
-   390 and 320 wide, in each state the change touches. Use `?phone&tools&theme=wireframe` or `&theme=hifi`: without
-   `?phone` the phone frame stays 358 wide at any window size, and without `?tools` the theme switch is ignored.
+   390 and 320 wide, in each state the change touches. Use `?phone&theme=wireframe` or `?phone&theme=hifi`: without
+   `?phone` the phone frame stays 358 wide at any window size.
    Measurements back up the look but don't replace it. Optical alignment (centring, padding, indents, even gaps) is
    judged from the rendered pixels, because fonts and their metrics differ between themes and devices. For example,
    the Add buttons measured as centred but read low in one font, and the card text measured fine but sat 4px in from
