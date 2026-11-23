@@ -2430,7 +2430,9 @@
     if (refineOpen || step === 'stay' || card) {
       var cur = t.base || '', fromList = basePlace() && !BASE_Q.some(function (x) { return x[0] === cur; });
       h += '<div class="tp-refine-panel" id="tp-refine-panel">' +
-        '<h4 class="tp-refine-q" id="tp-q-base">Do you know where you’re staying?</h4>' +
+        // In Option C's Your answers card it is an optional extra, not a question left unanswered (24 Nov)
+        (card ? '<h4 class="tp-refine-q" id="tp-q-base">Where you’re staying <span class="tp-opt">(optional)</span></h4><p class="tp-sec-note tp-q-base-note">Add it to see ideas near you first.</p>'
+          : '<h4 class="tp-refine-q" id="tp-q-base">Do you know where you’re staying?</h4>') +
         '<div class="tp-quick" role="group" aria-labelledby="tp-q-base">' + BASE_Q.map(function (x) { return chip('base', x[0], x[1], cur === x[0]); }).join('') + '</div>' +
         '<label class="tp-place"><span>Or find a place in NSW</span><input type="search" id="tp-place" autocomplete="off" placeholder="For example Parramatta" value="' + esc(placeQ) + '" aria-controls="tp-place-list" aria-expanded="' + !!placeQ + '"></label>' +
         '<ul class="tp-place-list" id="tp-place-list" aria-label="NSW places"' + (placeQ ? '' : ' hidden') + '>' + placeList() + '</ul>' +

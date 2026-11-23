@@ -6014,6 +6014,8 @@ span.tp-map-arrow { display: block; }
 #tp-fc-slot-ask .tp-refine-btn, #tp-fc-slot-ask .tp-refine-sum, #tp-fc-slot-ask #tp-q-party, #tp-fc-slot-ask #tp-q-party + .tp-quick { display: none; }
 #tp-fc-slot-ask .tp-refine, #tp-fc-slot-ask .tp-refine-panel { margin: 0; padding: 0; border: 0; }
 .tp-fc-bdone { margin: var(--space-5) 0 0; }
+.tp-opt { font-weight: var(--fw-regular, 400); color: var(--c-ink-2); }
+#tp-fc-slot-ask .tp-q-base-note { margin-top: var(--space-1); }
 .tp-fc-bdone .tp-home-cta { min-height: 36px; }
 #tp-phone:not([data-fc]) .tp-fc { margin-bottom: 0; } /* Your matches' own section gap sits under the card (it was 48px more, 116px in all) */
 /* Under the match cards: Add more teams, full width and prominent (the card-fan icon, as on every Pick your teams

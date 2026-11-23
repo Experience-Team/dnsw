@@ -21,13 +21,17 @@
   var pick = document.getElementById('tp-pick'), ask = document.getElementById('tp-ask');
   if (!phone || !pick || !ask) return;
 
-  var STEPS = ['teams', 'tickets', 'days', 'stay'];
+  // Three steps since 24 Nov: Where you're staying left the up-front questions and stays an optional refinement in
+  // the Your answers card (the user's call)
+  var STEPS = ['teams', 'tickets', 'days'];
   var NAME = { teams: 'Your teams', tickets: 'Tickets', days: 'Your days', stay: 'Where you’re staying' };
-  var NEXT = { teams: 'Next: tickets', tickets: 'Next: your days', days: 'Next: your stay', stay: 'See your plan' };
+  var NEXT = { teams: 'Next: tickets', tickets: 'Next: your days', days: 'See your plan' };
   var KEY = 'tp-fc-v1';
   var fc = { step: 'teams', none: false, filled: false };
   try { if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY); } catch (e) {} // ?reset starts the flow again too
-  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null'); if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
+  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (rec && rec.step === 'stay') rec.step = 'done'; // saved on the old stay step: the flow is finished, the answer kept
+    if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
   // Step 1 is the one required answer since 24 Nov. A place saved before then that got past it with nothing picked
   // goes back to step 1; saves since carry v: 2, so a card left with no team after the flow stays as it is
   if (fc.v !== 2 && fc.step !== 'teams' && !state.picked.length) fc.step = 'teams';
