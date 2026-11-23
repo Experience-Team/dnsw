@@ -973,6 +973,15 @@
     .view-placeholder[hidden] { display: none; }
     .graph-shell.is-placeholder .graph-hint,
     .graph-shell.is-placeholder .focus-pill { display: none; }
+    /* dnsw change: a view with a "frame" shows that page across the whole workspace, side panels hidden */
+    .view-placeholder.is-frame { display: block; padding: 0; }
+    .view-placeholder iframe { display: block; width: 100%; height: 100%; border: 0; }
+    .workspace.is-frame-view, .workspace.is-frame-view.rail-collapsed { grid-template-columns: 0 minmax(0, 1fr) 0; }
+    .workspace.is-frame-view .rail, .workspace.is-frame-view .inspector { visibility: hidden; overflow: hidden; border: 0; }
+    @media (max-width: 880px) {
+      .workspace.is-frame-view, .workspace.is-frame-view.rail-collapsed { grid-template-columns: 1fr; grid-template-rows: 0 auto 0; }
+      .workspace.is-frame-view .graph-shell { height: 80vh; }
+    }
 
     /* dnsw change: collapsible left column */
     .rail-head { display: flex; justify-content: flex-end; padding: 8px 10px 0; }
@@ -1214,8 +1223,8 @@
     {
       "id": "wireflow",
       "label": "Wire flow",
-      "description": "The planner's screens, linked by the steps that move between them. Not built yet.",
-      "placeholder": "The wire flow will go here: the planner's screens, linked by the steps that move between them."
+      "description": "The happy path for someone with no plan yet, as screens from the prototype.",
+      "frame": "wireflow/index.html"
     }
   ],
   "nodes": [
@@ -4678,11 +4687,28 @@
     function applyViewPlaceholder() {
       const box = document.getElementById("view-placeholder");
       if (!box) return;
-      const text = activeView()?.placeholder || "";
-      box.textContent = text;
-      box.hidden = !text;
+      const view = activeView() || {};
+      const frame = view.frame || "";
+      const text = view.placeholder || "";
+      box.classList.toggle("is-frame", Boolean(frame));
+      if (frame) {
+        const current = box.querySelector("iframe");
+        if (!current || current.getAttribute("src") !== frame) {
+          box.textContent = "";
+          const iframe = document.createElement("iframe");
+          iframe.src = frame;
+          iframe.title = view.label || "View";
+          box.appendChild(iframe);
+        }
+      } else {
+        box.textContent = text;
+      }
+      box.hidden = !(frame || text);
       const shell = box.closest(".graph-shell");
-      if (shell) shell.classList.toggle("is-placeholder", Boolean(text));
+      if (shell) shell.classList.toggle("is-placeholder", Boolean(frame || text));
+      const workspace = document.querySelector(".workspace");
+      if (workspace) workspace.classList.toggle("is-frame-view", Boolean(frame));
+      window.requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
     }
 
     function renderViewDescription() {
