@@ -1101,7 +1101,7 @@
       tabsOn = false; lastN = 0;
       tabsEl.hidden = true; results.hidden = true; deck.innerHTML = '';
       morePlace();
-      if (allSec && !FLOW_A) { allSec.hidden = false; allSec.classList.remove('is-tabbed'); allSec.removeAttribute('role'); allSec.setAttribute('aria-labelledby', 'tp-all-title'); }
+      if (allSec && !NO_TABS) { allSec.hidden = false; allSec.classList.remove('is-tabbed'); allSec.removeAttribute('role'); allSec.setAttribute('aria-labelledby', 'tp-all-title'); }
       return;
     }
     if (!tabsOn) { tabsOn = true; if (!restoring) { state.tab = keepTab ? 'all' : 'yours'; save(); } tabsEl.hidden = false; if (!restoring && !reduce.matches && tabsEl.animate) tabsEl.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.2, .8, .2, 1)' }); }
@@ -1120,14 +1120,14 @@
     setTab(state.tab);
   }
   function setTab(t, focus) {
-    if (FLOW_A) t = 'yours'; // Option B: no tabs; All matches lives on Home
+    if (NO_TABS) t = 'yours'; // Options B and C: no tabs; All matches lives on Home
     state.tab = t; save();
     var y = t === 'yours';
     tabYours.setAttribute('aria-selected', y ? 'true' : 'false'); tabAll.setAttribute('aria-selected', y ? 'false' : 'true');
     tabYours.tabIndex = y ? 0 : -1; tabAll.tabIndex = y ? -1 : 0;
     results.hidden = !y;
-    if (allSec && !FLOW_A) { allSec.hidden = y; allSec.classList.add('is-tabbed'); allSec.setAttribute('role', 'tabpanel'); allSec.setAttribute('aria-labelledby', 'tp-tab-all'); }
-    if (FLOW_A) tabsEl.hidden = true;
+    if (allSec && !NO_TABS) { allSec.hidden = y; allSec.classList.add('is-tabbed'); allSec.setAttribute('role', 'tabpanel'); allSec.setAttribute('aria-labelledby', 'tp-tab-all'); }
+    if (NO_TABS) tabsEl.hidden = true;
     if (focus) (y ? tabYours : tabAll).focus({ preventScroll: true });
     morePlace();
     if (tlReady) syncBar();
@@ -1139,8 +1139,11 @@
      scrolls down to its match card (flowScroll, called from toggle). #tp-more holds both. No tabs: Your matches is a
      heading, and All matches is on Home (moved below, once allSec is found). */
   var FLOW_A = document.documentElement.getAttribute('data-flow') === 'a';
+  // Option C (?flow=c, 24 Nov) shares Option B's no tabs only: Your matches as a heading, All matches on Home. Not the
+  // glide to the new card or Add more teams, which stay Option B's (the user's call)
+  var NO_TABS = FLOW_A || document.documentElement.getAttribute('data-flow') === 'c';
   // Option B: Your matches is a heading over the cards in place of the tabs (no count: the line under it gives it)
-  var yoursTitle = FLOW_A ? document.getElementById('tp-yours-title') : null;
+  var yoursTitle = NO_TABS ? document.getElementById('tp-yours-title') : null;
   if (yoursTitle) { yoursTitle.hidden = false; results.removeAttribute('role'); results.setAttribute('aria-labelledby', 'tp-yours-title'); tabsEl.hidden = true; }
   var moreEl = document.getElementById('tp-more');
   if (FLOW_A && moreEl) {
@@ -1207,7 +1210,7 @@
   var allSec = document.getElementById('tp-all');
   // Option B: All matches moves to Home, after Where the matches are, as a Home section of its own; the planner keeps
   // only the picked teams' cards. Found by id (it is not lent back), so every handler on it works as before
-  if (FLOW_A && allSec) {
+  if (NO_TABS && allSec) {
     var where = document.getElementById('tp-home-where');
     if (where) {
       where.parentNode.insertBefore(allSec, where.nextSibling);
