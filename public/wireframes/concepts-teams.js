@@ -1964,6 +1964,8 @@
     var on = barIntro || tlOpen || state.picked.length > 0 || seen || (state.added.length > 0 && belowFan);
     // Home (19 Nov): the bar stays away until a team is picked (or every NSW match), then floats at the foot, closed
     if (phoneEl.classList.contains('is-home') && !tlOpen && !state.picked.length) on = false;
+    // Option C's first step (24 Nov): no plan bar until a team is picked, so the step's question comes first
+    if (window.tpFlowC && window.tpFlowC.step() === 'teams' && !tlOpen && !state.picked.length) on = false;
     // Option C (concepts-flow-c.js): while the questions are being asked the bar shows the plan building up, but it does
     // not open yet (the user's call, 23 Nov)
     var fcLock = !!(window.tpFlowC && window.tpFlowC.step()), lockMoved = fcLock !== tl.classList.contains('is-locked');

@@ -27,7 +27,7 @@
   var KEY = 'tp-fc-v1';
   var fc = { step: 'teams', none: false, filled: false };
   try { if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY); } catch (e) {} // ?reset starts the flow again too
-  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null'); if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled }; } catch (e) {}
+  try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null'); if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null }; } catch (e) {}
   var edit = ''; // the step reopened from Your answers (not kept: a reload comes back to the answers)
   function keep() { try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
   // The step showing, or '' once the flow is finished and nothing is reopened
@@ -37,7 +37,7 @@
   var reduce = tp.reduce;
   var TICK = '<svg class="tp-fc-tick" width="14" height="12" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
   var ARR = '<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
-  var BACK = '<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4L3 8l4 4"/></svg>';
+  var BACK = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4L3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* ---------- What has been answered ---------- */
   function city(f) { return (window.cnVenueCity || {})[f.v] || f.p; }
@@ -50,24 +50,21 @@
   function ticketsText() { var n = myTickets().length; return n ? n + (n === 1 ? ' match' : ' matches') : fc.none ? 'None yet' : 'Not answered'; }
   function daysText() { var t = state.trip; return t && t.from && t.to ? tp.isoRange(t.from, t.to) : 'Not set'; }
   function stayText() { var t = state.trip; return t && t.base ? baseLabel(t.base) : 'Not set'; }
-  // The line in the step's foot: what is on the plan so far, from the answers given
-  function soFar() {
-    var ms = tp.own() ? tp.userMatches() : [], nsw = ms.filter(function (m) { return !m.f.a; }).length, bits = [];
-    bits.push(ms.length ? ms.length + (ms.length === 1 ? ' match' : ' matches') + (!nsw ? ', all interstate' : nsw < ms.length ? ', ' + nsw + ' in NSW' : '') : 'No matches yet');
-    var n = myTickets().length; if (n) bits.push(n + (n === 1 ? ' ticket' : ' tickets'));
-    if (state.trip && state.trip.from) bits.push(daysText());
-    if (state.trip && state.trip.base) bits.push(state.trip.base === 'local' ? 'Local' : state.trip.base === 'outside' ? 'From outside NSW' : 'Staying in ' + state.trip.base);
-    return bits.join(' · ');
-  }
-
   /* ---------- The step's head and foot, around the borrowed controls ---------- */
   var head = document.createElement('section');
   head.className = 'tp-fc'; head.id = 'tp-fc';
   head.setAttribute('aria-labelledby', 'tp-fc-h');
   pick.insertBefore(head, pick.firstChild);
+  // The foot floats at the bottom of the screen, out of the scrolling page (24 Nov): it sits just before the plan bar,
+  // so when the bar rises into view the foot rises with it, on the same curve (shared.css, "Option C")
   var foot = document.createElement('div');
   foot.className = 'tp-fc-foot'; foot.id = 'tp-fc-foot';
-  ask.parentNode.insertBefore(foot, ask.nextSibling);
+  foot.setAttribute('role', 'group'); foot.setAttribute('aria-label', 'Steps');
+  var tlEl = document.getElementById('tp-tl');
+  phone.insertBefore(foot, document.getElementById('tp-tl-scrim') || tlEl);
+  // The page keeps room under the step for the floating foot
+  function footRoom() { if (foot.offsetHeight) phone.style.setProperty('--fc-foot-h', foot.offsetHeight + 'px'); }
+  if (window.ResizeObserver) new ResizeObserver(footRoom).observe(foot);
 
   function stepNote(s) {
     if (s === 'teams') return 'Pick one or more. No team? Pick Every NSW match.';
@@ -108,7 +105,9 @@
   function headHtml(s) {
     if (!s) return answersHtml();
     var i = STEPS.indexOf(s);
-    return (edit ? '<p class="tp-fc-count">Change your answer</p>' : '<p class="tp-fc-count" id="tp-fc-count">Step ' + (i + 1) + ' of ' + STEPS.length + '<span class="visually-hidden">: ' + NAME[s] + '</span></p>' +
+    // From step 2, a back arrow beside the count goes back one step (the foot's left button is Skip now, 24 Nov)
+    var back = i > 0 ? '<button type="button" class="tp-fc-backbtn" data-fc-go="-1" aria-label="Back to ' + esc(NAME[STEPS[i - 1]].toLowerCase()) + '">' + BACK + '</button>' : '';
+    return (edit ? '<p class="tp-fc-count">Change your answer</p>' : '<div class="tp-fc-top">' + back + '<p class="tp-fc-count" id="tp-fc-count">Step ' + (i + 1) + ' of ' + STEPS.length + '<span class="visually-hidden">: ' + NAME[s] + '</span></p></div>' +
       '<ol class="tp-fc-prog" aria-hidden="true">' + STEPS.map(function (x, j) { return '<li class="' + (j < i ? 'is-done' : j === i ? 'is-on' : '') + '"></li>'; }).join('') + '</ol>') +
       '<h3 class="tp-fc-h" id="tp-fc-h" tabindex="-1"' + (edit ? '' : ' aria-describedby="tp-fc-count"') + '>' + stepTitle(s) + '</h3>' +
       '<p class="tp-fc-note">' + esc(edit ? stepNote(s).replace(/,? or skip[^.]*\./, '.').replace(/ Skip[^.]*\./, '') : stepNote(s)) + '</p>' + // no Skip while changing one answer
@@ -116,12 +115,11 @@
   }
   function footHtml(s) {
     if (!s) return '';
-    if (edit) return '<p class="tp-fc-so">' + esc(soFar()) + '</p><div class="tp-fc-nav"><button type="button" class="tp-home-cta" data-fc-done>Done</button></div>';
-    var i = STEPS.indexOf(s);
-    return '<p class="tp-fc-so">' + esc(soFar()) + '</p>' +
-      '<div class="tp-fc-nav">' + (i > 0 ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-back" data-fc-go="-1">' + BACK + 'Back</button>' : '') +
-      '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1">' + NEXT[s] + ARR + '</button></div>' +
-      (i < STEPS.length - 1 ? '<p class="tp-fc-skip"><button type="button" class="tp-link" data-fc-skip>Skip to your plan</button></p>' : '');
+    if (edit) return '<div class="tp-fc-nav"><button type="button" class="tp-home-cta" data-fc-done>Done</button></div>';
+    // Skip on the left moves on to the next screen without this answer; Next on the right (24 Nov). The plan bar under
+    // the foot already says what is on the plan, so the foot carries the buttons only
+    return '<div class="tp-fc-nav"><button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>' +
+      '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1">' + NEXT[s] + ARR + '</button></div>';
   }
 
   /* ---------- Drawing ---------- */
@@ -156,7 +154,7 @@
   // change reads as moving through the steps. Reduced motion swaps in place
   function slideIn(dir) {
     if (reduce.matches || !document.body.animate || !dir) return;
-    [head].concat([].slice.call(pick.querySelectorAll(':scope > #tp-util, :scope > #tp-picker, :scope > #tp-ask')), [foot]).forEach(function (el) {
+    [head].concat([].slice.call(pick.querySelectorAll(':scope > #tp-util, :scope > #tp-picker, :scope > #tp-ask'))).forEach(function (el) {
       if (!el.getClientRects().length) return;
       el.animate([{ transform: 'translateX(' + (dir > 0 ? 32 : -32) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 280, easing: 'cubic-bezier(.25, .1, .25, 1)' });
     });
@@ -166,7 +164,7 @@
     if (fc.filled || (state.trip && state.trip.from)) return;
     var r = tp.inferTrip(); if (!r) return;
     var t = state.trip || {};
-    fc.filled = true; keep();
+    fc.filled = true; fc.pre = r; keep();
     tp.setTrip({ from: r.from, to: r.to, base: t.base, party: t.party });
   }
   function show(dir, focus) {
@@ -190,7 +188,12 @@
     var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b))) return;
     var s = step(), i = STEPS.indexOf(s);
     if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
-    if (b.dataset.fcSkip !== undefined) { go('done', 1); return; }
+    if (b.dataset.fcSkip !== undefined) {
+      // Skipping Your days takes back the days started for them, if they were left as they were: a skip is not a yes
+      var t = state.trip, pre = fc.pre;
+      if (s === 'days' && t && pre && t.from === pre.from && t.to === pre.to) tp.setTrip({ base: t.base, party: t.party });
+      go(i + 1 >= STEPS.length ? 'done' : STEPS[i + 1], 1); return;
+    }
     if (b.dataset.fcChange) { edit = b.dataset.fcChange; show(1, true); return; }
     if (b.dataset.fcDone !== undefined) {
       var was = edit; edit = ''; show(-1, false); toTop();

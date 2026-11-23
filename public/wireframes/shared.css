@@ -5922,8 +5922,15 @@ span.tp-map-arrow { display: block; }
    section below the picker wait until the flow is finished. The plan bar stays in view but does not open yet */
 .tp-fc { display: none; }
 :root[data-flow="c"] .tp-fc { display: block; }
+/* The foot floats at the bottom of the screen (24 Nov), with a faint top rule (check 6). It sits on the plan bar's
+   collapsed 88px when the bar is up and glides up and down with it, on the bar's own curves, so the two move as one.
+   The page keeps room for it under the step (--fc-foot-h, measured) */
 .tp-fc-foot { display: none; }
-#tp-phone[data-fc] .tp-fc-foot { display: block; margin-top: var(--space-5); padding-bottom: var(--space-5); }
+#tp-phone[data-fc]:not(.is-home):not(.is-kick) .tp-fc-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 99; display: block; padding: var(--space-3) var(--space-4); border-top: var(--bw-1) solid var(--c-line-soft); background: var(--c-surface); transform: none; transition: transform .2s cubic-bezier(.4, 0, 1, 1); }
+#tp-phone[data-fc]:has(.tp-tl.is-on) .tp-fc-foot { transform: translateY(-88px); transition: transform .36s cubic-bezier(.2, .8, .2, 1); }
+#tp-phone[data-fc] .tp-tl.is-on .tp-tl-bar { border-radius: 0; } /* under the foot, the bar's top corners would show a notch */
+#tp-phone[data-fc] #tp-pick { padding-bottom: calc(var(--fc-foot-h, 64px) + var(--space-5)); }
+@media (prefers-reduced-motion: reduce) { #tp-phone[data-fc] .tp-fc-foot { transition: none !important; } }
 #tp-phone[data-fc] .tp-hero, #tp-phone[data-fc] #tp-all, #tp-phone[data-fc] #tp-ov, #tp-phone[data-fc] #tp-watch,
 #tp-phone[data-fc] #tp-third, #tp-phone[data-fc] #tp-plan, #tp-phone[data-fc] #tp-pick > #tp-tabs,
 #tp-phone[data-fc] #tp-pick > #tp-results, #tp-phone[data-fc] #tp-pick > #tp-more,
@@ -5942,6 +5949,7 @@ span.tp-map-arrow { display: block; }
 #tp-phone[data-fc="stay"] #tp-ask .tp-refine, #tp-phone[data-fc="stay"] #tp-ask .tp-refine-panel { margin: 0; padding: 0; border: 0; }
 .tp-tl.is-locked .tp-tl-bar { cursor: default; }
 .tp-tl.is-locked .tp-tl-exp { opacity: .55; }
+.tp-tl.is-locked .tp-tl-grab { visibility: hidden; } /* the bar does not open yet, so no grabber (check 10) */
 .tp-fc-count { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink-2); }
 .tp-fc-prog { display: flex; gap: var(--space-1); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
 .tp-fc-prog li { flex: 1; height: 4px; border-radius: var(--radius-pill); background: var(--c-fill-soft); transition: background-color var(--dur-small) var(--ease-out); }
@@ -5965,11 +5973,14 @@ span.tp-map-arrow { display: block; }
 @media (hover: hover) { .tp-fc-opt:hover { border-color: var(--c-line-ink); } }
 .tp-fc-clear { margin: var(--space-3) 0 0; }
 /* The foot: what is on the plan so far, then Back and Next side by side, Skip under them */
-.tp-fc-so { margin: 0 0 var(--space-3); font-size: var(--fs-sm); color: var(--c-ink-2); }
 .tp-fc-nav { display: flex; gap: var(--space-3); }
 .tp-fc-nav .tp-home-cta { width: auto; flex: 1 1 auto; min-height: 36px; white-space: nowrap; }
-.tp-fc-nav .tp-fc-back { flex: 0 0 auto; }
-.tp-fc-skip { margin: var(--space-4) 0 0; text-align: center; }
+.tp-fc-nav .tp-fc-skipbtn { flex: 0 0 auto; min-width: 88px; }
+/* Back, from step 2: an arrow beside the count, 24px to tap (AA) */
+.tp-fc-top { display: flex; align-items: center; gap: var(--space-2); min-height: 24px; }
+.tp-fc-backbtn { display: grid; place-items: center; width: 24px; height: 24px; margin-left: -4px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink); cursor: pointer; }
+.tp-fc-backbtn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 0; }
+@media (hover: hover) { .tp-fc-backbtn:hover { background: var(--c-surface-2); } }
 /* Your answers, once the flow is finished: one row per answer, each with Change */
 .tp-fc-ans { margin: var(--space-3) 0 0; padding: 0; }
 .tp-fc-row { display: grid; grid-template-columns: 1fr; padding: var(--space-3) 0; border-top: var(--bw-1) solid var(--c-line-soft); }
@@ -6006,3 +6017,9 @@ span.tp-map-arrow { display: block; }
 .tp-more.no-btn { margin-top: 0; }
 .cn-phone > .cn-body .tp-more.no-btn > #tp-ask:not([hidden]), .tp-more.no-btn > #tp-ask:not([hidden]) { margin-top: var(--space-5); }
 .tp-more-btn[hidden] { display: none; }
+/* Option C's floating foot on the desktop layout (24 Nov): the plan is a rail beside the page there, not a bar under
+   the foot, so the foot stays at the bottom, as wide as the page column */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone[data-fc]:has(.tp-tl.is-on) .tp-fc-foot { transform: none; }
+  .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) .tp-fc-foot { right: calc(var(--rail-w, 0px) + 2 * var(--wide-pad, 0px)); padding-inline: var(--wide-pad, var(--space-4)); }
+}
