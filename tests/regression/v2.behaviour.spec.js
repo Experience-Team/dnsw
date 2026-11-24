@@ -118,11 +118,13 @@ test.describe('Version 2', () => {
     k(); setTimeout(k, ms);
   }, Math.round(sec * 1000));
 
-  test('Drop goal: the kicker wears the picked team, and no team gives the default kit', async ({ page }) => {
-    let f = await openGame(page);
-    expect(await f.evaluate(() => window.__dg2.team())).toBe('');
-    await expect(page.frameLocator('#v2-game').locator('#dg-rows .is-mine')).toHaveCount(0);
-    f = await openGame(page, 'Wales');
+  test('Drop goal: the kicker wears the picked team, and with no team the game is not loaded', async ({ page }) => {
+    // every kicker has a team (January brief): with none, the game waits behind the team screen
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi', 'view=kick'));
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
+    expect(await page.locator('#v2-game').getAttribute('src')).toBeNull();
+    const f = await openGame(page, 'Wales');
     expect(await f.evaluate(() => window.__dg2.team())).toBe('Wales');
     await expect(page.frameLocator('#v2-game').locator('#dg-rows .is-mine')).toContainText('Wales');
   });
@@ -162,8 +164,9 @@ test.describe('Version 2', () => {
     await page.locator('#tp-dev-set').click();
     await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
     await expect(page.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(0);
+    // no team again: Play now asks for one
     await page.locator('#tp-home-kick button.tp-home-cta').click();
-    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('');
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
   });
 
   // Result screen, See the places and Save (docs/drop-goal-brief.md, Result screen and Places)
@@ -243,12 +246,12 @@ test.describe('Version 2', () => {
     expect(new Set(seen).size).toBe(5);
   });
 
-  // Places by where the picked teams play (docs/drop-goal-brief.md, Places): the four cases, ten goals each
+  // Places by where the picked teams play (docs/drop-goal-brief.md, Places): the three cases, ten goals each (the fourth,
+  // no team, went with the January brief: every kicker has a team)
   for (const [who, team, cities, fitsLine, listHead] of [
     ['a Newcastle team (Japan)', 'Japan', ['newcastle'], /Japan v Samoa/, /Japan’s matches in Newcastle/],
     ['a Sydney team (Wales)', 'Wales', ['sydney'], /England v Wales/, /Wales’s matches in Sydney/],
     ['a team in both cities (Portugal)', 'Portugal', ['sydney', 'newcastle'], /Portugal/, /Portugal’s matches in Sydney and Newcastle/],
-    ['no team', '', ['sydney', 'newcastle'], /A free day around/, /Around Sydney and Newcastle/],
   ]) {
     test(`Drop goal places: ${who}`, async ({ page }) => {
       test.setTimeout(90_000);
@@ -322,7 +325,7 @@ test.describe('Version 2', () => {
     test(`Drop goal: a real click ${gap}ms after the first, reacting to the bounce, scores`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(`${V2}?theme=hifi&reset`);
-      await page.evaluate(() => localStorage.setItem('v2ob-seen', '1'));
+      await page.evaluate(() => { localStorage.setItem('v2ob-seen', '1'); localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })); });
       await page.goto(`${V2}?theme=hifi&view=kick`);   // the game, opened over the whole screen
       await expect(page.locator('#v2-play')).toBeVisible();
       const f = page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ }) || (await (await page.waitForSelector('#v2-game')).contentFrame());
@@ -456,7 +459,8 @@ test.describe('Version 2', () => {
       await page.evaluate(() => Promise.all(document.getElementById('v2-play').getAnimations().map((x) => x.finished.catch(() => {}))));
       expect(await layer.boundingBox()).toEqual(await page.locator('#tp-phone').boundingBox());
       expect(await body.evaluate((e) => e.inert)).toBe(true);
-      await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
+      // no team is picked, so it opens on the team screen, with Home's cards lent to it
+      await expect(page.locator('#v2-ob .tp-card2')).toHaveCount(24);
       await leave();
       await expect(layer).toBeHidden();
       await expect(play).toBeFocused();
@@ -485,7 +489,7 @@ test.describe('Version 2', () => {
   });
 
   // How to play: the game playing itself in Home's Play section (24 Nov)
-  const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo/ });
+  const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo&/ });   // Home's snippet (?demo&team=), not the onboarding's (?demo=taps)
   test('How to play: the snippet plays once when it comes into view, then rests with Replay, and it changes nothing', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
@@ -531,41 +535,64 @@ test.describe('Version 2', () => {
     expect(await demoOf(page).evaluate(() => window.__dg2.phase())).toBe('hold');
   });
 
-  // Onboarding: how to play, the first time the game is opened (24 Nov)
+  // Onboarding: how to play, the first time the game is opened (24 Nov). One rule screen (it was two), with a team
+  // screen first when no team is picked. These run with a mouse, so the words say Click; the touch test is below
   const playNow = (page) => page.locator('#tp-home-kick button.tp-home-cta');
-  test('Onboarding: first time with no team, the team cards come first, then two rule screens, then the game', async ({ page }) => {
+  test('Onboarding: first time with no team, the team cards come first, then one rule screen, then the game', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await playNow(page).click();
     const ob = page.locator('#v2-ob'), next = page.locator('#v2-ob-next'), count = page.locator('#v2-ob-count');
     await expect(ob).toBeVisible();
-    await expect(count).toHaveText('Step 1 of 3');
+    await expect(count).toHaveText('Step 1 of 2');
     await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Who are you kicking for?');
     await expect(ob.locator('.v2-ob-h:visible')).toBeFocused();
     // the team cards are Home's own, lent here; the screen can be passed without a pick
     await expect(ob.locator('.tp-card2')).toHaveCount(24);
-    await expect(next).toHaveText('Continue without a team');
-    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    // a team is compulsory: the button is off and says why, and Skip is not offered here
     await expect(next).toHaveText('Continue');
+    await expect(next).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('#v2-ob-why')).toHaveText('Pick a team to continue.');
+    await expect(ob.locator('.v2-ob-p:visible')).toContainText('No team? Pick the one you\u2019d like to follow.');
+    await expect(page.locator('#v2-ob-skip')).toBeHidden();
+    await next.click({ force: true });
+    await expect(count).toHaveText('Step 1 of 2');
+    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    await expect(next).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('#v2-ob-why')).toBeHidden();
+    // Clear all takes the team away, and the button waits again
+    await page.locator('#tp-clear').click();
+    await expect(next).toHaveAttribute('aria-disabled', 'true');
+    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    await expect(next).not.toHaveAttribute('aria-disabled', 'true');
+    // the team screen sits on the pitch, as the game does, and its small text is on dark chips so it can be read
+    await expect(ob).toHaveClass(/is-pitch/);
+    expect(await ob.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(85, 148, 74)');
+    const cap = await page.locator('#tp-fan-caption').evaluate((e) => { const b = e.querySelector('b, strong, span') || e; return [getComputedStyle(e).backgroundColor, getComputedStyle(e).color, getComputedStyle(b).color]; });
+    expect(cap).toEqual(['rgba(0, 32, 16, 0.78)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)']);
     await next.click();
-    await expect(count).toHaveText('Step 2 of 3');
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(count).toHaveText('Step 2 of 2');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
     await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Wales.');
+    await expect(ob).not.toHaveClass(/is-pitch/);   // the rules are on the page's own background
+    await expect(page.locator('#v2-ob-skip')).toBeVisible();   // the rules can be skipped
+    await expect(next).toHaveText('Let’s play');
+    // three short tips: the two presses, then what a goal gets you
+    await expect(ob.locator('.v2-ob-tips li')).toHaveText([/^Click anywhere, or press Space, to drop the ball\.$/, /^Click again as it bounces/, /^Score and the ball lands on somewhere to go/]);
     // the cards have gone back to Home
     expect(await page.evaluate(() => document.getElementById('tp-picker').parentNode.id)).toBe('tp-home-hand');
-    // the picture is the game playing itself once, in the picked kit, then Replay shows
+    // the picture is the game playing itself once, in the picked kit, each press named, then Replay shows
     const taps = page.frame({ url: /demo=taps/ });
-    await taps.waitForFunction(() => window.__dg2 && window.__dg2.team() === 'Wales' && window.__dg2.phase() === 'goal', null, { timeout: 10000 });
-    await expect(ob.locator('.v2-ob-panel[data-step="taps"] .v2-ob-replay')).toBeVisible({ timeout: 8000 });
-    await next.click();
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Score to find a place');
-    await expect(next).toHaveText('Let\u2019s play');
-    // the second picture goes on to the result card, with Save shown pressed and nothing saved
-    const place = page.frame({ url: /demo=place/ });
-    await place.waitForFunction(() => window.__dg2.phase() === 'result' && document.getElementById('dg-r-save').getAttribute('aria-pressed') === 'true', null, { timeout: 12000 });
+    const seen = await taps.evaluate(() => new Promise((res) => {
+      const out = new Set(), l = document.getElementById('dg-tap-l'), el = document.getElementById('dg-tap'), t0 = performance.now();
+      (function look() { if (el.getAnimations().length && l.textContent) out.add(l.textContent); if (window.__dg2.phase() === 'goal' || performance.now() - t0 > 9000) res([...out]); else requestAnimationFrame(look); })();
+    }));
+    expect(seen).toEqual(['Click 1', 'Click 2']);
+    expect(await taps.evaluate(() => [window.__dg2.team(), getComputedStyle(document.querySelector('.dg-tap-cur')).display])).toEqual(['Wales', 'block']);
+    await expect(ob.locator('.v2-ob-replay')).toBeVisible({ timeout: 8000 });
     expect(await page.evaluate(() => (JSON.parse(localStorage.getItem('tp-pick-v1')).added || []).length)).toBe(0);
     await page.locator('#v2-ob-back').click();
-    await expect(count).toHaveText('Step 2 of 3');
+    await expect(count).toHaveText('Step 1 of 2');
     await next.click(); await next.click();
     // the game, with the team picked here, and the focus
     await expect(ob).toBeHidden();
@@ -578,63 +605,272 @@ test.describe('Version 2', () => {
     await expect(ob).toBeHidden();
   });
 
-  test('Onboarding: with a team picked it is two screens, Skip starts the game, and How to play brings it back', async ({ page }) => {
+  test('Onboarding: with a team picked it is one screen with no count, Skip starts the game, and How to play brings it back', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await page.locator('.tp-card2[aria-label="Japan"]').click();
     await playNow(page).click();
     const ob = page.locator('#v2-ob');
-    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 2');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
+    await expect(page.locator('#v2-ob-count')).toBeHidden();
+    await expect(page.locator('#v2-ob-back')).toBeHidden();
+    await expect(page.locator('#v2-ob-next')).toHaveText('Let’s play');
     await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Japan.');
     await expect(page.locator('#v2-play-how')).toBeHidden();
     // Change goes to the team cards, and comes back
     await page.locator('#v2-ob-change').click();
-    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 3');
+    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 2');
     await expect(ob.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(1);
     await page.locator('#v2-ob-next').click();
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
     await page.locator('#v2-ob-skip').click();
     await expect(ob).toBeHidden();
     await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
-    // How to play, beside the cross, opens the two rule screens again
+    // How to play, beside the cross, opens the rule screen again
     await page.locator('#v2-play-how').click();
     await expect(ob).toBeVisible();
-    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 2');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
     // the cross closes the whole game from here too
     await page.locator('#v2-play-close').click();
     await expect(page.locator('#v2-play')).toBeHidden();
     await expect(playNow(page)).toBeFocused();
   });
 
-  test('Onboarding: closing with the cross leaves it unseen, and Reset shows it again', async ({ page }) => {
+  test('Onboarding on a touch phone: the words and the picture say Tap, with no pointer', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: SIZES[390] }, hasTouch: true, isMobile: true });
+    const page = await ctx.newPage();
+    await page.goto(v2url('hifi'));
+    await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })));
+    await page.reload();
+    await playNow(page).tap();
+    const ob = page.locator('#v2-ob');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(ob.locator('.v2-ob-tips li')).toHaveText([/^Tap anywhere to drop the ball\.$/, /^Tap again as it bounces/, /^Score and/]);
+    const taps = page.frame({ url: /demo=taps/ });
+    await taps.waitForFunction(() => window.__dg2 && window.__dg2.phase() === 'drop', null, { timeout: 9000 });
+    expect(await taps.evaluate(() => [document.getElementById('dg-tap-l').textContent, getComputedStyle(document.querySelector('.dg-tap-cur')).display])).toEqual(['Tap 1', 'none']);
+    await ctx.close();
+  });
+
+  test('Onboarding: closing with the cross leaves the rules unseen, and Reset starts over', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
+    const ob = page.locator('#v2-ob'), h = ob.locator('.v2-ob-h:visible');
     await playNow(page).click();
-    await expect(page.locator('#v2-ob')).toBeVisible();
+    await expect(h).toHaveText('Who are you kicking for?');
     await page.locator('#v2-play-close').click();
     await playNow(page).click();
-    await expect(page.locator('#v2-ob')).toBeVisible();
+    await expect(h).toHaveText('Who are you kicking for?');
+    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    await page.locator('#v2-ob-next').click();
+    await expect(h).toHaveText('Two clicks to kick');
+    // the cross leaves the game: the team is kept, the rules are still to see
+    await page.locator('#v2-play-close').click();
+    await playNow(page).click();
+    await expect(h).toHaveText('Two clicks to kick');
     await page.locator('#v2-ob-skip').click();
+    await expect(ob).toBeHidden();
+    await page.locator('#v2-play-close').click();
+    await playNow(page).click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect(ob).toBeHidden();
     await page.locator('#v2-play-close').click();
     await page.locator('#tp-dev-set').click();
     await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
     await playNow(page).click();
-    await expect(page.locator('#v2-ob')).toBeVisible();
+    await expect(h).toHaveText('Who are you kicking for?');
   });
 
-  test('Onboarding: with reduced motion the pictures stay still', async ({ page }) => {
+  // A team is compulsory before playing (January brief, 24 Nov)
+  test('A team is compulsory: every way into the game leads to the team screen, even once the rules are seen', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await page.evaluate(() => localStorage.setItem('v2ob-seen', '1'));
+    const ob = page.locator('#v2-ob'), next = page.locator('#v2-ob-next');
+    const routes = {
+      'Play now': () => playNow(page).click(),
+      'the menu': async () => { await page.locator('#v2-menu-btn').click(); await page.locator('[data-v2-go="play"]').click(); },
+      'the how-to-play picture': () => page.locator('#v2-demo-hit').click(),
+      '?view=kick': () => page.goto(v2url('hifi', 'view=kick')),
+    };
+    for (const [name, go] of Object.entries(routes)) {
+      await go();
+      await expect(ob.locator('.v2-ob-h:visible'), name).toHaveText('Who are you kicking for?');
+      // the rules are seen, so this is the only screen: no count, no Skip, and the button waits for a team
+      await expect(page.locator('#v2-ob-count')).toBeHidden();
+      await expect(page.locator('#v2-ob-skip')).toBeHidden();
+      await expect(next).toHaveText('Let\u2019s play');
+      await expect(next).toHaveAttribute('aria-disabled', 'true');
+      expect(await page.locator('#v2-game').getAttribute('src'), name).toBeNull();
+      if (name !== '?view=kick') await page.locator('#v2-play-close').click();
+    }
+    // with a team, straight into the game
+    await ob.locator('.tp-card2[aria-label="Scotland"]').click();
+    await next.click();
+    await expect(ob).toBeHidden();
+    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Scotland');
+  });
+
+  test('Every NSW match is not a choice: it is offered nowhere, and saved from before it counts as no team', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    for (const old of ['Every NSW match', 'Here for the rugby', 'All matches']) {
+      await page.evaluate((n) => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: [n] })), old);
+      await page.reload();
+      expect(await page.evaluate(() => window.v2Picker.state.picked), old).toEqual([]);
+    }
+    await expect(page.locator('#tp-home [data-rugby]:visible, #tp-home .tp-rugby-line:visible')).toHaveCount(0);
+    await expect(page.locator('#tp-fan2 .tp-card2')).toHaveCount(24);
+    await playNow(page).click();
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
+    await expect(page.locator('#v2-ob [data-rugby]:visible')).toHaveCount(0);
+  });
+
+  test('Onboarding: with reduced motion the picture stays still', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 320, height: SIZES[320] });
     await page.goto(v2url('wireframe'));
     await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })));
     await page.reload();
     await playNow(page).click();
-    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Two clicks to kick');
     const taps = page.frame({ url: /demo=taps/ });
     await taps.waitForFunction(() => window.__dg2);
     await page.waitForTimeout(2500);
     expect(await taps.evaluate(() => window.__dg2.phase())).toBe('hold');
-    // nothing runs off the side at 320 wide in the wider system font
+    // nothing runs off the side at 320 wide in the wider system font, and the picture keeps a readable size
     expect(await page.evaluate(() => { const f = document.querySelector('.v2-ob-foot'); return f.scrollWidth <= f.clientWidth; })).toBe(true);
+    expect((await page.locator('#v2-ob .v2-ob-phone:visible').boundingBox()).width).toBeGreaterThan(110);
+  });
+
+  // The result on phones (24 Nov): the card pushes the field up, and the top is Kick again alone
+  test('Drop goal result on a phone: the field is pushed up by the card, and only Kick again is left at the top', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await kickAt(f, 0.76);
+    await f.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+    // on its way: the field is still there, moving up, as the card comes up from the bottom
+    const mid = await f.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r({
+      fieldShown: getComputedStyle(document.getElementById('dg-scene')).visibility === 'visible',
+      fieldY: document.getElementById('dg').getBoundingClientRect().top, cardY: document.getElementById('dg-result').getBoundingClientRect().top, h: innerHeight })))));
+    expect(mid.fieldShown).toBe(true);
+    expect(mid.fieldY).toBeLessThan(0);
+    expect(mid.cardY).toBeGreaterThan(0);
+    expect(Math.abs(mid.cardY - mid.fieldY - mid.h)).toBeLessThan(2);   // one movement: the card sits right under the field
+    await f.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+    const g = inGame(page);
+    await expect(g.locator('#dg-r-again')).toBeVisible();
+    await expect(g.locator('#dg-r-frame')).toBeHidden();
+    const top = await g.locator('.dg-r-pitch').boundingBox(), again = await g.locator('#dg-r-again').boundingBox();
+    expect(top.height).toBeLessThanOrEqual(72);
+    // Kick again holds one line and stops short of How to play and the close cross, top right
+    expect(again.x + again.width).toBeLessThan((await page.locator('#v2-play-how').boundingBox()).x - (await page.locator('#v2-game').boundingBox()).x);
+    await g.locator('#dg-r-again').click();
+    await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 4000 });
+    await expect(g.locator('#dg-result')).toBeHidden();
+    await expect(g.locator('#dg-scene')).toBeVisible();
+  });
+
+  test('Drop goal result on a wide screen keeps the posts and the framed place beside the card', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi&team=Wales');
+    await expect(page.locator('#dg-head')).toHaveText(/tap to drop/i);
+    await page.evaluate(() => { const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
+    await page.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+    await expect(page.locator('#dg-r-frame')).toBeVisible();
+    await expect(page.locator('#dg-r-again')).toBeVisible();
+  });
+
+  // January brief, steps 2 to 4: what a goal lands on follows the kicker's team
+  test('A team that plays in NSW: a goal lands on a place, with the team\'s next NSW match beside it', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await score(page, f);
+    const g = inGame(page);
+    await expect(g.locator('#dg-r-match')).toHaveText('England v Wales · Sat 16 Oct, 7:45pm · Stadium Australia');
+    await expect(g.locator('#dg-r-fits')).toContainText('before or after England v Wales');
+    await expect(g.locator('#dg-r-travel')).toContainText('(estimate)');
+    await expect(g.locator('#dg-r-later')).toBeHidden();
+    expect(await f.evaluate(() => !!window.DG2Places.find((p) => p.id === window.__dg2.place()))).toBe(true);
+  });
+
+  test('A team with no NSW match: a goal lands on its watch parties, each once before a repeat, on the same card', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const f = await openGame(page, 'Scotland');
+    const g = inGame(page), got = [];
+    for (let i = 0; i < 4; i++) {
+      await score(page, f);
+      got.push(await f.evaluate(() => ({ id: window.__dg2.place(), name: document.getElementById('dg-r-name').textContent, fits: document.getElementById('dg-r-fits').textContent,
+        travel: document.getElementById('dg-r-travel').textContent, matchRow: !document.getElementById('dg-r-match-row').hidden, later: document.getElementById('dg-r-later').textContent })));
+      if (i < 3) { await g.locator('#dg-r-again').click(); await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 4000 }); }
+    }
+    // both of Scotland's watch parties in each pair of goals, never the same one twice running
+    expect(new Set(got.slice(0, 2).map((x) => x.id)).size).toBe(2);
+    expect(new Set(got.slice(2).map((x) => x.id)).size).toBe(2);
+    for (let i = 1; i < 4; i++) expect(got[i].id).not.toBe(got[i - 1].id);
+    for (const x of got) {
+      expect(x.id).toMatch(/^wp-scotland-/);
+      expect(x.fits).toMatch(/^(Sat 9 Oct: Ireland v Scotland|Sun 17 Oct: Scotland v Portugal)$/);   // the match being screened
+      expect(x.travel).toMatch(/, (Sydney|Newcastle)$/);                                           // where it is
+      expect(x.matchRow).toBe(false);
+      expect(x.later).toBe('If Scotland get through, the later rounds are in NSW.');
+    }
+    // the same card: photo, The ball landed in, name, Save, tags, description
+    await expect(g.locator('.dg-r-kicker')).toHaveText(/The ball landed in/);
+    await expect(g.locator('#dg-r-photo [role="img"]')).toBeVisible();
+    await expect(g.locator('#dg-r-tags li').first()).toHaveText('Watch party');
+    await expect(g.locator('#dg-r-desc')).toContainText('Watch ');
+    await g.locator('#dg-r-save').click();
+    await expect(g.locator('#dg-r-save')).toHaveText('Saved');
+    // See the places lists that team's watch parties, and nothing else
+    await g.locator('#dg-r-see').click();
+    await expect(g.locator('#dg-pl-mine')).toHaveText('Where to watch Scotland in NSW');
+    await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(2);
+    await expect(g.locator('#dg-pl-all')).toHaveCount(0);
+    await expect(g.locator('#dg-pl-body .dg-pl-meta').first()).toContainText('Scotland');
+    await expect(g.locator('#dg-pl-body .dg-save[aria-pressed="true"]')).toHaveCount(1);
+    await expect(g.locator('#dg-pl-count')).toHaveText('1 saved to your plan');
+  });
+
+  test('With several teams picked, the first one decides between places and watch parties', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    let f = await openGame(page, 'Scotland,Wales');
+    await score(page, f);
+    expect(await f.evaluate(() => window.__dg2.place())).toMatch(/^wp-scotland-/);
+    f = await openGame(page, 'Wales,Scotland');
+    await score(page, f);
+    expect(await f.evaluate(() => !!window.DG2Places.find((p) => p.id === window.__dg2.place()))).toBe(true);
+    await expect(inGame(page).locator('#dg-r-match')).toContainText('England v Wales');
+  });
+
+  test('Watch party data: every team with no NSW match has one in Sydney and one in Newcastle, tied to a real fixture, all sample', async ({ page }) => {
+    await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi&team=Scotland');
+    const got = await page.evaluate(() => {
+      const F = window.cnFixtures, P = window.DG2Parties, teams = window.DG2Kit.TEAMS;
+      const plays = (t, nsw) => F.some((f) => f.t && f.t.split(' v ').indexOf(t) > -1 && (nsw ? !f.a : true));
+      const none = teams.filter((t) => !plays(t, true));
+      return {
+        none,
+        cover: none.map((t) => ['sydney', 'newcastle'].map((c) => P.filter((p) => p.team === t && p.host_city === c).length)),
+        forNswTeams: P.filter((p) => none.indexOf(p.team) < 0).length,
+        badMatch: P.filter((p) => !F.some((f) => f.d === p.match.d && f.t === p.match.t && f.t.split(' v ').indexOf(p.team) > -1)).map((p) => p.id),
+        notSample: P.filter((p) => !p.sample).length,
+        ids: new Set(P.map((p) => p.id)).size === P.length,
+      };
+    });
+    expect(got.none).toEqual(['Argentina', 'Canada', 'Chile', 'Hong Kong China', 'Scotland', 'South Africa', 'Tonga', 'USA', 'Zimbabwe']);
+    for (const c of got.cover) { expect(c[0]).toBeGreaterThanOrEqual(1); expect(c[1]).toBeGreaterThanOrEqual(1); }
+    expect([got.forNswTeams, got.badMatch, got.notSample, got.ids]).toEqual([0, [], 0, true]);
+    // with Annotations on, the watch party's own fields show as sample
+    await page.evaluate(() => { document.documentElement.classList.add('has-notes'); const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
+    await page.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+    expect(await page.evaluate(() => ['dg-r-name', 'dg-r-desc', 'dg-r-fits', 'dg-r-travel'].map((id) => document.getElementById(id).classList.contains('dg-sample')))).toEqual([true, true, true, true]);
+  });
+
+  test('Home\'s how-to-play animation wears a team: the picked one, or Australia before anyone has picked', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await expect(page.locator('#v2-demo-frame')).toHaveAttribute('src', /\?demo&team=Australia$/);
+    await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Japan', 'Wales'] })));
+    await page.reload();
+    await expect(page.locator('#v2-demo-frame')).toHaveAttribute('src', /\?demo&team=Japan$/);
   });
 });

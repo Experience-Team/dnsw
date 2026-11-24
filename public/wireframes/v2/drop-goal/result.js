@@ -12,6 +12,11 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const PLACES = window.DG2Places || [];
+  /* Watch parties (24 Nov, the January brief; watch-parties.js, sample data, contract §20). The first picked team, the
+     kicker, decides what a goal lands on: places near where they play if they have a match in NSW, and their watch
+     parties in NSW if they have none. A watch party goes on the same card as a place. */
+  const PARTIES = window.DG2Parties || [];
+  const byId = id => PLACES.concat(PARTIES).find(p => p.id === id);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const CITY = { sydney: 'Sydney', newcastle: 'Newcastle' };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -24,6 +29,18 @@
   const cityOf = f => (f.v === 'Newcastle Stadium' ? 'newcastle' : 'sydney');
   const matchesOf = teams => FIX.filter(f => f.t.split(' v ').some(t => teams.indexOf(t) > -1)).sort((a, b) => dateOf(a) - dateOf(b));
   function nextOf(ms) { const today = Date.now(); return ms.find(m => dateOf(m) + 864e5 > today) || ms[0] || null; }
+
+  /* The kicker's watch parties, when the kicker's team has no match in NSW; otherwise none, and a goal lands on places */
+  function partiesFor(teams) {
+    const t = teams[0];
+    return t && !matchesOf([t]).length ? PARTIES.filter(p => p.team === t) : [];
+  }
+  /* The kicker's next NSW match, beside a place: "England v Wales · Sat 16 Oct, 7:45pm · Stadium Australia".
+     Contract §17: with no kick-off the time is left out */
+  function matchLine(teams) {
+    const m = teams[0] && nextOf(matchesOf([teams[0]]));
+    return m ? `${m.t} \u00b7 ${m.d}${m.k ? ', ' + m.k : ''} \u00b7 ${m.v}` : '';
+  }
 
   /* The set a goal draws from: which cities, and which one comes first in each round */
   function setFor(teams) {
@@ -39,6 +56,17 @@
   function rot() { try { return JSON.parse(sessionStorage.getItem(ROT)) || {}; } catch (e) { return {}; } }
   function keep(r) { try { sessionStorage.setItem(ROT, JSON.stringify(r)); } catch (e) {} }
   function next(teams) {
+    /* A team with no NSW match: its watch parties, each once before any repeat, never the same twice running */
+    const wp = partiesFor(teams);
+    if (wp.length) {
+      const r = rot(), key = 'wp-' + teams[0], st = r[key] || { seen: [] };
+      let seen = st.seen.filter(id => wp.some(p => p.id === id)), last = null;
+      if (seen.length >= wp.length) { last = seen[seen.length - 1]; seen = []; }
+      const left = wp.filter(p => seen.indexOf(p.id) < 0 && !(p.id === last && wp.length > 1));
+      const pick = left[Math.floor(Math.random() * left.length)];
+      seen.push(pick.id); r[key] = { seen }; keep(r);
+      return pick;
+    }
     const S = setFor(teams), all = PLACES.filter(p => S.cities.indexOf(p.host_city) > -1), r = rot();
     const st = r[S.key] || { seen: [], k: 0 };
     let seen = st.seen.filter(id => all.some(p => p.id === id));
@@ -58,6 +86,7 @@
 
   /* FITS: the match day it fits around, from the person's team; otherwise a general line */
   function fits(p, teams) {
+    if (p.kind === 'watch') return p.match ? `${p.match.d}: ${p.match.t}` : '';   /* the match being screened */
     const ms = matchesOf(teams).filter(m => cityOf(m) === p.host_city), m = nextOf(ms);
     return m ? `${m.d}: before or after ${m.t}` : `A free day around ${CITY[p.host_city]}`;
   }
@@ -78,8 +107,8 @@
   }
 
   const BOOKMARK = on => `<svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M1.5 1.5h9v11L6 9.6 1.5 12.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
-  function saveBtn(b, p, as) {
-    const on = as === undefined ? isSaved(p) : as;   /* as: the look only, for the onboarding's picture (nothing is saved) */
+  function saveBtn(b, p) {
+    const on = isSaved(p);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.setAttribute('aria-label', on ? `Saved ${p.name} to your plan. Press to remove it` : `Save ${p.name} to your plan`);
     b.innerHTML = `<span class="dg-save-in">${BOOKMARK(on)}<span>${on ? 'Saved' : 'Save'}</span></span>`;
@@ -108,21 +137,38 @@
 
   /* ---------- the result screen ---------- */
   const res = $('dg-result'), stage = $('dg');
-  let shown = null, onAgain = null, openerR = null;
+  let shown = null, onAgain = null, openerR = null, push = null;
+  const PHONE = matchMedia('(max-width: 699px)');   /* stacked below 700px, side by side from there (game.css) */
   function open(p, teams, again) {
     shown = p; onAgain = again;
     $('dg-r-frame').innerHTML = api.frameSVG(p);
     $('dg-r-photo').innerHTML = photo(p, 'dg-r-img');
-    $('dg-r-name').textContent = p.name;
+    const watch = p.kind === 'watch';
+    $('dg-r-name').textContent = p.name; $('dg-r-name').classList.toggle('dg-sample', watch);
     $('dg-r-tags').innerHTML = tagsHTML(p);
     const d = $('dg-r-desc'); d.textContent = p.summary || ''; d.classList.toggle('dg-sample', !!p.sample); d.hidden = !p.summary;
-    $('dg-r-fits').textContent = fits(p, teams);
-    $('dg-r-travel').textContent = p.travel ? p.travel + ' (estimate)' : 'Travel time to be confirmed';
+    /* A place: the kicker's next NSW match beside it, then FITS and TRAVEL as before. A watch party: FITS is the match
+       being screened and TRAVEL is where it is, with one line under them on the later rounds */
+    const ml = watch ? '' : matchLine(teams);
+    $('dg-r-match-row').hidden = !ml; $('dg-r-match').textContent = ml;
+    $('dg-r-fits').textContent = fits(p, teams); $('dg-r-fits').classList.toggle('dg-sample', watch);
+    $('dg-r-travel').textContent = watch ? (p.location || 'Location to be confirmed') : p.travel ? p.travel + ' (estimate)' : 'Travel time to be confirmed';
+    const later = $('dg-r-later');
+    later.hidden = !watch; later.textContent = watch ? `If ${p.team} get through, the later rounds are in NSW.` : '';
     const b = $('dg-r-save'); b.dataset.id = p.id; saveBtn(b, p);
     res.scrollTop = 0;
     res.hidden = false; stage.inert = true;
-    document.documentElement.classList.add('is-result');
-    if (!reduce.matches && res.animate) {
+    const root = document.documentElement;
+    if (PHONE.matches && !reduce.matches && res.animate) {
+      /* Phones (24 Nov): the card comes up from the bottom and pushes the field up and off the top as it does, one
+         movement, so the screen ends as Kick again at the top and the card under it. The field stays in view until it
+         has gone (is-result hides it after) */
+      const go = { duration: 460, easing: 'cubic-bezier(.3,.7,.2,1)' };
+      stage.animate([{ transform: 'none' }, { transform: 'translateY(-100%)' }], go);
+      push = res.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], go);
+      push.onfinish = () => { push = null; if (!res.hidden) root.classList.add('is-result'); };
+    } else root.classList.add('is-result');
+    if (!PHONE.matches && !reduce.matches && res.animate) {
       res.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' });
       $('dg-r-card').animate([{ transform: 'translateY(48px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, delay: 80, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
     }
@@ -130,9 +176,16 @@
   }
   function close() {
     if (res.hidden) return;
-    const done = () => { res.hidden = true; document.documentElement.classList.remove('is-result'); };
+    const root = document.documentElement, done = () => { res.hidden = true; root.classList.remove('is-result'); };
     stage.inert = false;
-    if (!reduce.matches && res.animate) res.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in' }).onfinish = done; else done();
+    if (push) { push.onfinish = null; push = null; }
+    if (PHONE.matches && !reduce.matches && res.animate) {
+      /* Phones: back the way it came, a little faster: the card goes down and the field comes back down with it */
+      const go = { duration: 320, easing: 'cubic-bezier(.4,0,.6,1)' };
+      root.classList.remove('is-result');
+      stage.animate([{ transform: 'translateY(-100%)' }, { transform: 'none' }], go);
+      res.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], go).onfinish = done;
+    } else if (!reduce.matches && res.animate) res.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in' }).onfinish = done; else done();
     stage.focus({ preventScroll: true });
     const f = onAgain; onAgain = null; shown = null;
     if (f) f();
@@ -145,7 +198,9 @@
   const placesEl = $('dg-places');
   let openerP = null, teams0 = [], inertWas = [], closingP = null;
   function row(p) {
-    return `<li class="dg-pl-row">${photo(p, 'dg-pl-img')}<div class="dg-pl-t"><b>${esc(p.name)}</b>${tagsHTML(p)}</div>` +
+    /* a watch party's row also says which match and where, as the same site screens different matches for different teams */
+    const meta = p.kind === 'watch' ? `<span class="dg-pl-meta dg-sample">${esc(fits(p, []))} \u00b7 ${esc(p.location || 'Location to be confirmed')}</span>` : '';
+    return `<li class="dg-pl-row">${photo(p, 'dg-pl-img')}<div class="dg-pl-t"><b${p.kind === 'watch' ? ' class="dg-sample"' : ''}>${esc(p.name)}</b>${meta}${tagsHTML(p)}</div>` +
       `<button type="button" class="dg-save" data-id="${p.id}"></button></li>`;
   }
   function countLine() {
@@ -153,6 +208,15 @@
     if (el) { el.textContent = n ? `${n} saved to your plan` : 'Nothing saved yet'; el.classList.toggle('is-none', !n); }
   }
   function renderPlaces(all) {
+    /* A team with no NSW match: that team's watch parties, and nothing else */
+    const wp = partiesFor(teams0);
+    if (wp.length) {
+      $('dg-pl-body').innerHTML = `<h3 class="dg-pl-h" id="dg-pl-mine">Where to watch ${esc(teams0[0])} in NSW</h3><ul class="dg-pl-list">${wp.map(row).join('')}</ul>` +
+        `<p class="dg-r-later">If ${esc(teams0[0])} get through, the later rounds are in NSW.</p>`;
+      $('dg-pl-body').querySelectorAll('.dg-save').forEach(b => saveBtn(b, byId(b.dataset.id)));
+      countLine();
+      return;
+    }
     const S = setFor(teams0), mine = PLACES.filter(p => S.cities.indexOf(p.host_city) > -1), rest = PLACES.filter(p => mine.indexOf(p) < 0);
     const where = S.cities.length === 2 ? 'Sydney and Newcastle' : CITY[S.cities[0]];
     let html = `<h3 class="dg-pl-h" id="dg-pl-mine">${!teams0.length || !matchesOf(teams0).length ? 'Around Sydney and Newcastle' : `Near ${teams0.length === 1 ? esc(teams0[0]) + '’s' : 'your teams’'} matches in ${where}`}</h3><ul class="dg-pl-list">${mine.map(row).join('')}</ul>`;
@@ -161,7 +225,7 @@
         : `<button type="button" class="dg-link" id="dg-pl-all">See all ${PLACES.length} places</button>`;
     }
     $('dg-pl-body').innerHTML = html;
-    $('dg-pl-body').querySelectorAll('.dg-save').forEach(b => saveBtn(b, PLACES.find(p => p.id === b.dataset.id)));
+    $('dg-pl-body').querySelectorAll('.dg-save').forEach(b => saveBtn(b, byId(b.dataset.id)));
     countLine();
   }
   /* Shown full screen in the Version 2 page, the page's own close cross sits top right, where this layer's cross goes
@@ -195,7 +259,7 @@
   placesEl.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePlaces(); } });
   placesEl.addEventListener('click', e => {
     const b = e.target.closest('.dg-save');
-    if (b) { onSave(PLACES.find(p => p.id === b.dataset.id), b); return; }
+    if (b) { onSave(byId(b.dataset.id), b); return; }
     if (e.target.closest('#dg-pl-all')) { renderPlaces(true); $('dg-pl-more').focus({ preventScroll: false }); }
   });
   /* Layers are not the pitch: a press on them never kicks */
@@ -203,12 +267,12 @@
 
   const api = {
     next, open, close, openPlaces, fits, isOpen: () => !res.hidden || (!placesEl.hidden && !closingP),
-    frameSVG: () => '', say: () => {}, saved, setFor,
-    /* For the game playing itself (game.js, ?demo): quiet takes no focus; demoSave shows Save pressed without saving;
-       reset puts the result away at once */
+    frameSVG: () => '', say: () => {}, saved, setFor, partiesFor, matchLine,
+    /* something a goal could land on for these teams, without using up the rotation (the demo's picture) */
+    sample: teams => partiesFor(teams)[0] || PLACES.find(p => p.image && !p.stand_in) || PLACES[0],
+    /* For the game playing itself (game.js, ?demo): quiet takes no focus; reset puts the result away at once */
     quiet: false,
-    demoSave(on) { if (!shown) return; const b = $('dg-r-save'); saveBtn(b, shown, on); if (on) pop(b); },
-    reset() { res.getAnimations().forEach(a => a.cancel()); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
+    reset() { push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
   };
   window.DG2Result = api;
 })();

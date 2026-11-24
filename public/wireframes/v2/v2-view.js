@@ -20,6 +20,9 @@
   var layer = document.getElementById('v2-play'), frame = document.getElementById('v2-game'), closeBtn = document.getElementById('v2-play-close');
   var tp = window.v2Picker;
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  // Back closes the game (below): the browser must not also put the page's scroll back to where it remembers it, which
+  // moved Home under the person. The page keeps its own place
+  try { history.scrollRestoration = 'manual'; } catch (e) {}
 
   /* ---------- Home: the hand of cards, lent for good ---------- */
   var picker = document.getElementById('tp-picker'), homeHand = document.getElementById('tp-home-hand');
@@ -40,6 +43,7 @@
     if (focusEl) focusEl.focus({ preventScroll: true });
   }
   function go(v, from) {
+    if (v !== 'kick' && v !== 'play' && window.v2Onboard) window.v2Onboard.release();   // a jump on Home is where they want to be
     if (v === 'kick' || v === 'play') openGame(from);
     else if (v === 'plan') { if (window.v2Article && window.v2Article.get()) window.v2Article.close(); jump(document.getElementById('tp-home-plan'), document.getElementById('tp-home-plan-title')); }
     else { if (window.v2Article && window.v2Article.get()) window.v2Article.close(); body.scrollTo({ top: 0, behavior: still() ? 'auto' : 'smooth' }); }
@@ -79,11 +83,13 @@
 
   /* ---------- Play: Drop goal over the whole screen ---------- */
   var GAME = 'v2/drop-goal/index.html';
-  function teams() { return tp && tp.state && Array.isArray(tp.state.picked) ? tp.state.picked.join(',') : ''; }
+  // The picked teams: the first kicks. Every kicker has a team (January brief): with none, the game is not loaded, and
+  // opening it leads to the team screen first (v2-onboard.js)
+  function teams() { return tp && tp.state && Array.isArray(tp.state.picked) ? tp.state.picked.filter(function (n) { return n !== 'Every NSW match'; }).join(',') : ''; }
   function gameUrl(t) { return GAME + (t ? '?team=' + encodeURIComponent(t) : ''); }
   var loaded = null;
   function loadGame() {
-    var t = teams(); if (t === loaded) return;
+    var t = teams(); if (!t || t === loaded) return;
     // The first load sets the frame's address; later ones replace it, so the back button never steps through old games
     if (loaded === null) frame.src = gameUrl(t);
     else try { frame.contentWindow.location.replace(gameUrl(t)); } catch (e) { frame.src = gameUrl(t); }
@@ -175,6 +181,8 @@
     }
     rb.addEventListener('click', function () { done = false; rb.hidden = true; sync(); box.focus({ preventScroll: true }); });
     fr.addEventListener('load', sync);
+    // Every kicker has a team (January brief): the picked one, or Australia, the host, before anyone has picked
+    fr.src = GAME + '?demo&team=' + encodeURIComponent(teams().split(',')[0] || 'Australia');
     if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.6 }).observe(box);
     else seen = true;
     window.v2DemoSync = sync;

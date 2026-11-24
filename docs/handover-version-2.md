@@ -30,6 +30,29 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
 - **Flow chart:** paused (above).
 - Everything else in `docs/drop-goal-brief.md` is built.
 
+## The January brief (24 Nov): team first, then what we show for that team
+
+Decided by the user, don't reopen: a team is compulsory before playing (an agreed exception to experience principle 2,
+recorded in CLAUDE.md); Every NSW match and the Third Half kit are gone from Version 2; a team with no NSW match gets
+watch parties on the same card as a place; watch party data is invented sample data.
+
+- **Team compulsory:** `v2/v2-onboard.js`. With no team, every route into the game (Play now, the menu, the picture,
+  `?view=kick`) leads to the team screen; its button is off with "Pick a team to continue" until a card is picked. Skip
+  skips the rules only. The game is not loaded until there is a team (`v2/v2-view.js`).
+- **Every NSW match:** hidden in `v2/v2.css` wherever the copied scripts draw it, and dropped from saved state on load
+  (`v2/v2-teams.js`). The copied planner code still contains it.
+- **The kicker decides:** the first picked team. Plays in NSW: places near its stadium (as before) plus a MATCH row with
+  its next NSW match, from the fixtures. No NSW match (nine teams): its watch parties, each once before a repeat.
+- **Watch parties:** `v2/drop-goal/watch-parties.js`, 18 invented records, one in Sydney and one in Newcastle per team,
+  public precincts and fan sites only. Contract §20 (new): `match` and `location` are the new fields; the rest mirror §19.
+- **Home's animation** wears the picked team's kit, or Australia's before a pick.
+- **Known gap for the team, not solved:** a watch party is tied to one match, so its card goes stale once that match has
+  passed.
+- **Out of scope for January:** other NSW matches around theirs, places between Sydney and Newcastle, community and food
+  by nation, the planner, the flow chart, screenshot baselines.
+- **Still in the code but unreachable from the page:** the game's no-team path (default kit, places from both cities),
+  when `v2/drop-goal/index.html` is opened on its own without `?team=`.
+
 ## Home, the menu and the full-screen game (24 Nov, after #627)
 
 - **Home** is brought in from Options A to C unchanged. Version 2 has its own copies of the scripts it needs
@@ -43,10 +66,16 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
   Escape, the phone's back button. Focus and the page's scroll come back as they were. `?view=kick` opens it directly.
 - **How to play:** Home's Play section shows the game playing itself (`v2/drop-goal/index.html?demo`) in place of the
   still: a ring at each of the two taps, on a loop, only while on screen, with Pause; still under reduced motion.
-- **Onboarding** (`v2/v2-onboard.js`): the first time the game is opened, two rule screens (Two taps to kick, Score to
-  find a place), each with the game playing itself once, and a team screen first when no team is picked (skippable).
-  Skip on every screen; first time only (`v2:v2ob-seen`), then the ? beside the game's cross. The user chose two rule
-  screens, first time only, and to keep Home's animation as well.
+- **Onboarding** (`v2/v2-onboard.js`): the first time the game is opened, one rule screen, Two taps to kick, with the
+  game playing itself once and each press marked and named, and a team screen first when no team is picked
+  (skippable). On a touch screen the words and marker say Tap; with a mouse, Click, with a pointer. Skip on every
+  screen; first time only (`v2:v2ob-seen`), then the ? beside the game's cross. The user first chose two rule screens,
+  then asked for Score to find a place to be folded into the first (24 Nov). The game's own words still say Tap on
+  desktop: raised, not decided.
+- **Team screen on the pitch:** the onboarding's team cards sit on the game's field (green and lines; greys in low
+  fidelity), with small text on dark chips.
+- **Result on phones:** the card slides up and pushes the field off the top in one movement; the top is Kick again
+  alone, in a row clear of the page's ? and cross. From 700px wide it is unchanged (posts and place beside the card).
 - **Teams:** Home's picks go to the game (`?team=`); the review-only Kicker's team list in the left panel is gone.
 - **Saves:** the game and the team cards share `v2:tp-pick-v1`; the page merges the game's saves as they happen.
 
@@ -157,7 +186,7 @@ worked out from the fixtures, not held. Approved by the user on 24 Nov.
 
 ## Tests
 
-`tests/regression/v2.behaviour.spec.js` (46 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
+`tests/regression/v2.behaviour.spec.js` (55 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
 places; both themes at 390 and 320). Run `npx playwright test --project=behaviour tests/regression/v2.behaviour.spec.js`.
 
 - **Human pace:** three tests use real mouse clicks at 0.76, 0.9 and 0.98s and must score. Since #624, CLAUDE.md

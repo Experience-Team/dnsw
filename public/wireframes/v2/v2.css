@@ -11,6 +11,9 @@
    The planner is not in Version 2 yet: the plan bar, its scrim and skip link, and Home's button to the planner are out
    of reach until it is. The copied scripts still build them, so nothing they lean on is missing. */
 html[data-flow="v2"] #tp-tl, html[data-flow="v2"] #tp-tl-scrim, html[data-flow="v2"] #tp-skip, html[data-flow="v2"] #tp-home-go { display: none !important; }
+/* Every NSW match is not a choice in Version 2 (January brief: every kicker has a team). Its links are out of reach
+   wherever the copied scripts draw them: Home's I'm just here for the rugby, and its row in the team list */
+html[data-flow="v2"] .tp-rugby-line, html[data-flow="v2"] [data-rugby], html[data-flow="v2"] #tp-ts [data-team="Every NSW match"] { display: none !important; }
 /* A match opened from a host city sheet: Add to my plan and I have a ticket (and its line) wait for the planner too.
    Adding a team stays, as that is the same pick as its card */
 html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-pm .tp-pm-ticket, html[data-flow="v2"] #tp-pm .tp-ticket-why { display: none !important; }
@@ -64,12 +67,14 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-ob-count { margin: 0; font-size: .8125rem; color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
 .v2-ob-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--space-5) var(--space-4); }
 .v2-ob-panel[hidden] { display: none; }
-.v2-ob-panel--team { overflow-y: auto; overscroll-behavior: contain; }
+.v2-ob-panel { overflow-y: auto; overscroll-behavior: contain; }
 .v2-ob-h { margin: 0; font-family: var(--font-display, inherit); font-size: 1.5rem; line-height: 1.15; font-weight: 700; text-wrap: balance; outline: none; }
 .v2-ob-p { margin: var(--space-2) 0 0; font-size: .9375rem; line-height: 1.45; }
 .v2-ob-teams { margin: var(--space-4) calc(var(--space-5) * -1) 0; }
 /* The picture: the game at 360 by 640, scaled to the room it has (--s, set by the script) */
-.v2-ob-shot { position: relative; flex: 1 1 0; min-height: 120px; display: grid; place-items: center; margin-top: var(--space-4); }
+/* The picture never drops below a size that can be read: on a short phone the screen scrolls under the pinned button
+   instead (the tips follow the picture) */
+.v2-ob-shot { position: relative; flex: 1 0 248px; min-height: 248px; display: grid; place-items: center; margin-top: var(--space-4); }
 .v2-ob-phone { --s: .5; width: calc(360px * var(--s)); height: calc(640px * var(--s)); overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 2px var(--c-ink), 0 8px 20px rgba(17, 17, 17, .18); background: #e2e2e2; }
 :root[data-theme="hifi"] .v2-ob-phone { background: #55944a; }
 .v2-ob-phone iframe { display: block; width: 360px; height: 640px; border: 0; transform: scale(var(--s)); transform-origin: 0 0; pointer-events: none; }
@@ -77,13 +82,20 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-ob-tips { flex: none; display: grid; gap: var(--space-2); margin: var(--space-4) 0 0; padding: 0; list-style: none; counter-reset: v2ob; font-size: .9375rem; line-height: 1.4; }
 .v2-ob-tips li { display: grid; grid-template-columns: 24px 1fr; gap: var(--space-2); align-items: start; }
 .v2-ob-tips li::before { counter-increment: v2ob; content: counter(v2ob); display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c-btn); color: var(--c-on-dark, #fff); font-size: .75rem; font-weight: 700; }
-.v2-ob-tips--plain li::before { content: ''; width: 8px; height: 8px; margin: 7px 8px 0; background: var(--c-ink); }
+/* What a goal gets you: not a third press, so a tick in place of a number */
+.v2-ob-tips .v2-ob-win::before { counter-increment: none; content: '\2713'; background: none; color: var(--c-ink); box-shadow: inset 0 0 0 2px var(--c-ink); font-size: .8125rem; }
+.v2-ob-count[hidden] { display: none; }
 /* Pinned to the bottom, with the faint rule that says the screen scrolls under it (check 6) */
 .v2-ob-foot { flex: none; display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-5) var(--space-4); border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .12)); background: var(--c-surface); }
 .v2-ob-foot .tp-home-cta { margin: 0; white-space: nowrap; }
+/* Why the button is waiting, on its own line above it; the button looks and says it is off until a team is picked */
+.v2-ob-foot { flex-wrap: wrap; }
+.v2-ob-why { flex: 0 0 100%; margin: 0; font-size: .875rem; line-height: 1.4; text-align: center; }
+.v2-ob-why[hidden], .v2-ob-skip[hidden] { display: none; }
+.v2-ob-next[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
 .v2-ob-back { flex: none; width: auto; }
 .v2-ob-back[hidden] { display: none; }
-.v2-ob-next { flex: 1 1 auto; }
+.v2-ob-next { flex: 1 1 0; width: auto; min-width: 0; } /* beside Back on one row, now the footer can wrap for the reason line */
 
 /* The way back to Version 1 (Options A to C), above View on your phone: the same block they show for Version 2 */
 .v2-v1link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }
@@ -93,3 +105,19 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 @media (hover: hover) { .v2-v1link-go:hover { background: #f2f6fd; } }
 @media (max-width: 960px) { .v2-v1link { padding-inline: var(--space-4); } }
 @media (max-height: 860px) and (min-width: 801px) { .v2-v1link { padding-block: var(--space-3); } .v2-v1link-p { display: none; } }
+
+/* The team screen sits on the pitch, as the game does (24 Nov): the same green and lines in high fidelity, greys in low.
+   Small text on the pitch sits on dark chips, as in the game, so it keeps 4.5:1; the heading is large and cream */
+.v2-ob.is-pitch { background: #e2e2e2 url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 390 760%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22390%22 height=%22760%22 fill=%22%23e2e2e2%22/%3E%3Cline x1=%22-545%22 y1=%22-105%22 x2=%22939%22 y2=%22913%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-494%22 y1=%22-179%22 x2=%22990%22 y2=%22839%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-467%22 y1=%22-219%22 x2=%221017%22 y2=%22799%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22 stroke-dasharray=%2228 44%22/%3E%3Cline x1=%22-307%22 y1=%22-451%22 x2=%221177%22 y2=%22567%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22629%22 y1=%22-514%22 x2=%22-389%22 y2=%22970%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") center / cover no-repeat; }
+:root[data-theme="hifi"] .v2-ob.is-pitch { background: #55944a url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 390 760%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22390%22 height=%22760%22 fill=%22%2355944a%22/%3E%3Cline x1=%22-545%22 y1=%22-105%22 x2=%22939%22 y2=%22913%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-494%22 y1=%22-179%22 x2=%22990%22 y2=%22839%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-467%22 y1=%22-219%22 x2=%221017%22 y2=%22799%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22 stroke-dasharray=%2228 44%22/%3E%3Cline x1=%22-307%22 y1=%22-451%22 x2=%221177%22 y2=%22567%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22629%22 y1=%22-514%22 x2=%22-389%22 y2=%22970%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") center / cover no-repeat; }
+.v2-ob.is-pitch .v2-ob-h { color: #1d1d1d; }
+:root[data-theme="hifi"] .v2-ob.is-pitch .v2-ob-h { color: #f1efe0; }
+.v2-ob.is-pitch :is(.v2-ob-p, .v2-ob-count, .v2-ob-skip, .tp-fan-caption) { background: #1d1d1d; color: #fff; }
+:root[data-theme="hifi"] .v2-ob.is-pitch :is(.v2-ob-p, .v2-ob-count, .v2-ob-skip, .tp-fan-caption) { background: rgba(0, 32, 16, .78); }
+.v2-ob.is-pitch .v2-ob-p { align-self: flex-start; padding: var(--space-2) var(--space-3); border-radius: 12px; }
+.v2-ob.is-pitch .v2-ob-count { padding: 4px var(--space-2); border-radius: 999px; }
+.v2-ob.is-pitch .v2-ob-skip { padding: 0 var(--space-3); border-radius: 999px; }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption { display: table; margin-inline: auto; padding: var(--space-2) var(--space-3); border-radius: 12px; max-width: calc(100% - 2 * var(--space-5)); }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption:empty { display: none; }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption * { color: inherit; }
+#tp-phone .v2-ob.is-pitch :is(.v2-ob-skip, .tp-link):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

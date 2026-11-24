@@ -50,7 +50,7 @@
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team: Version 2</h2>
     </div>
-    <p class="pv-p">Separate from Options A, B and C, with its own saved picks. Home is brought in from them unchanged, with a menu in place of the tabs. Play now opens Drop goal over the whole screen; the cross, Escape or the phone&rsquo;s back button closes it. The planner is not in Version 2 yet, so the plan bar and the buttons that lead to it are hidden.</p>
+    <p class="pv-p">Separate from Options A, B and C, with its own saved picks. Built to the January brief: a team comes first, then what a goal shows for that team. A team that plays in NSW gets places near its stadium and its next NSW match; a team that doesn&rsquo;t gets its watch parties in NSW. The planner is not in Version 2 yet, so the plan bar and the buttons that lead to it are hidden.</p>
     <p class="pv-p">Iterations will show as tabs beside Version 2 once they are saved.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
@@ -213,7 +213,7 @@
                  reduced motion it stays still. The line under it says the same in words; a tap on the picture opens the
                  game, as Play now does. Script: v2/v2-view.js. -->
             <div class="tp-home-kick-img v2-demo" id="v2-demo" tabindex="-1">
-              <iframe class="v2-demo-frame" id="v2-demo-frame" src="v2/drop-goal/index.html?demo" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
+              <iframe class="v2-demo-frame" id="v2-demo-frame" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
               <span class="v2-demo-hit" id="v2-demo-hit" data-view="kick" aria-hidden="true"></span>
               <button type="button" class="v2-demo-replay" id="v2-demo-replay" aria-label="Replay the how to play animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button>
             </div>
@@ -605,8 +605,9 @@
       <div class="v2-play" id="v2-play" role="dialog" aria-modal="true" aria-label="Drop goal" hidden>
         <iframe class="v2-game" id="v2-game" title="Drop goal: drop the ball, then kick it through the posts"></iframe>
         <!-- Onboarding (24 Nov): over the game the first time it is opened, then from How to play (the ? beside the
-             cross). Two screens of rules, each with the real game playing itself once in a small frame, and a team
-             screen first when no team is picked. Skip is always there. Script: v2/v2-onboard.js. -->
+             cross). One screen of rules, with the real game playing itself once in a small frame and each press marked
+             (Tap 1, Tap 2; Click 1, Click 2 with a mouse), and a team screen first when no team is picked. Skip is always
+             there. Script: v2/v2-onboard.js. -->
         <section class="v2-ob" id="v2-ob" aria-label="How to play Drop goal" hidden>
           <header class="v2-ob-top">
             <button type="button" class="tp-link v2-ob-skip" id="v2-ob-skip">Skip<span class="visually-hidden"> how to play, and start the game</span></button>
@@ -614,28 +615,21 @@
           </header>
           <div class="v2-ob-panel v2-ob-panel--team" data-step="team" hidden>
             <h2 class="v2-ob-h" tabindex="-1">Who are you kicking for?</h2>
-            <p class="v2-ob-p">Your kicker wears their kit, and a goal lands near where they play. Pick one or more, or carry on without.</p>
+            <p class="v2-ob-p">Your kicker wears their kit, and what a goal lands on depends on where they play. <b>No team? Pick the one you&rsquo;d like to follow.</b></p>
             <div class="v2-ob-teams" id="v2-ob-teams"></div>
           </div>
           <div class="v2-ob-panel" data-step="taps" hidden>
-            <h2 class="v2-ob-h" tabindex="-1">Two taps to kick</h2>
+            <h2 class="v2-ob-h" tabindex="-1">Two <span data-ob-word="taps">taps</span> to kick</h2>
             <p class="v2-ob-p v2-ob-team" id="v2-ob-team"></p>
             <div class="v2-ob-shot"><div class="v2-ob-phone"><iframe title="The kick, playing itself" aria-hidden="true" tabindex="-1" inert></iframe></div><button type="button" class="v2-demo-replay v2-ob-replay" aria-label="Replay the animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button></div>
             <ol class="v2-ob-tips">
-              <li><span><b>Tap</b> anywhere to drop the ball.</span></li>
-              <li><span><b>Tap again</b> as it bounces, while the ball on the bar is in the yellow KICK zone.</span></li>
+              <li><span><b><span data-ob-word="Tap">Tap</span></b> anywhere<span data-ob-word="space"></span> to drop the ball.</span></li>
+              <li><span><b><span data-ob-word="Tap">Tap</span> again</b> as it bounces, while the ball on the bar is in the yellow KICK zone.</span></li>
+              <li class="v2-ob-win"><span id="v2-ob-win"><b>Score</b> and the ball lands on somewhere to go in Sydney or NSW. Save the places you like.</span></li>
             </ol>
           </div>
-          <div class="v2-ob-panel" data-step="place" hidden>
-            <h2 class="v2-ob-h" tabindex="-1">Score to find a place</h2>
-            <p class="v2-ob-p">Every goal lands on somewhere to go in Sydney or NSW.</p>
-            <div class="v2-ob-shot"><div class="v2-ob-phone"><iframe title="A goal and its place, playing itself" aria-hidden="true" tabindex="-1" inert></iframe></div><button type="button" class="v2-demo-replay v2-ob-replay" aria-label="Replay the animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button></div>
-            <ul class="v2-ob-tips v2-ob-tips--plain">
-              <li><span><b>Save</b> the places you like, then kick again.</span></li>
-              <li><span><b>Missed?</b> No penalty. The next ball is on its way.</span></li>
-            </ul>
-          </div>
           <footer class="v2-ob-foot">
+            <p class="v2-ob-why" id="v2-ob-why" hidden>Pick a team to continue.</p>
             <button type="button" class="tp-home-cta tp-home-cta--line v2-ob-back" id="v2-ob-back" hidden><span>Back</span></button>
             <button type="button" class="tp-home-cta v2-ob-next" id="v2-ob-next"><span>Next</span><svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
           </footer>
@@ -778,6 +772,7 @@
     { sel: '#tp-home', title: 'Home', points: [
       'Brought in from Options A to C on 24 Nov, unchanged: the hero, Read before you go, Plan your 3rd half (the team cards), At a glance, Where the matches are, Play, the FAQs, updates, Share and the footer. Version 2 has its own copies of the scripts, so a change here never reaches Options A to C.',
       'Not built yet: the planner. The plan bar, Plan around your matches, and Add to my plan and I have a ticket on a match opened from a host city are hidden until Version 2 has one. Picks are still kept.',
+      'Design: Every NSW match is not a choice in Version 2 (January brief): the I\u2019m just here for the rugby link is gone from Home, and a saved one counts as no team.',
       'Open question: the cards\u2019 caption still says a pick adds matches to your plan, which Version 2 does not show yet.'
     ] },
     { sel: '#v2-menu-wrap', title: 'Menu', points: [
@@ -793,20 +788,24 @@
     ] },
     { sel: '#v2-ob', title: 'How to play (onboarding)', points: [
       'Shown over the game the first time it is opened in this browser; after that Play now goes straight to the game, and the ? beside the close cross brings it back. Reset prototype shows it again.',
-      'Design: two screens, Two taps to kick and Score to find a place. Each picture is the real game playing itself once, in a frame scaled like a screenshot, with Replay after it has played. Skip is on every screen.',
-      'Teams: with a team picked on Home, the first screen says who is kicking, with Change. With none, a first screen offers the team cards; it can be passed without picking, as the game works without a team.',
+      'Design: one screen of rules, Two taps to kick (it was two; Score to find a place was folded into it on 24 Nov). The picture is the real game playing itself once, in a frame scaled like a screenshot, with each press marked and named, and Replay after it has played. Three short tips: the two presses, then what a goal gets you. Skip is on every screen.',
+      'Phones and desktop: on a touch screen the words and the marker say Tap; with a mouse they say Click, the marker gains a pointer, and the first tip adds or press Space.',
+      'Teams: a team is compulsory before playing, an agreed exception to asking for as little as possible (CLAUDE.md, experience principle 2), because what a goal lands on depends on the team. With none picked, the team screen comes first by every route (Play now, the menu, the how-to-play picture, ?view=kick): its button is off, with Pick a team to continue, until a card is picked, and it says No team? Pick the one you\u2019d like to follow. Skip skips the rules only. With a team picked on Home, the team screen is not shown and the rules say who is kicking, with Change. The cards sit on the pitch; small text there is on dark chips.',
       'Try it: Next and Back slide each screen in from its side; Let\u2019s play starts the game with the teams picked here. Closing with the cross leaves it unseen, so it shows next time.',
       'Reduced motion: the pictures stay still and the screens swap in place.',
       'Screen readers: each screen\u2019s name and its step are read out; the pictures are hidden from them, as the tips say the same in words.'
     ] },
     { sel: '#v2-play', title: 'Drop goal', points: [
-      'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo, and the result stacks the pitch above the card; side by side from 700px wide.',
+      'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo. After a goal on a phone the card slides up and pushes the field off the top in one movement, leaving Kick again alone at the top; from 700px wide the posts and the framed place sit beside the card.',
       'Try it: tap, click, Space or Enter drops the ball, and again kicks it as it bounces. The call to act follows the taps: Tap to drop, Tap to kick, then Kick now (yellow) while a kick would score, in step with the bar\u2019s KICK zone. Early goes wide, late falls short, and one tap alone says No kick.',
       'Design: the kick window opens as the ball lands and stays open for 0.3s (card 10\u2019s was 0.2s, starting just before the bounce, so a tap reacting to the bounce always came up short).',
-      'Places: a goal frames a place between the posts, then the result card opens. The places come from where the picked teams play: Sydney, Newcastle, or both. No team, or Every NSW match: both, in turn. No place repeats until every place in that set has been shown, and never twice in a row. With both cities, each round starts two from the next match\u2019s city for every one from the other. FITS names the match day from the picked teams\u2019 fixtures.',
+      'Places: the first picked team, the kicker, decides what a goal lands on. A team that plays in NSW: towns and things to do near where it plays (Sydney, Newcastle, or both, two from the next match\u2019s city for every one from the other), with its next NSW match beside the place (teams, date, kick-off, stadium, from the fixtures). No place repeats until every place in the set has been shown.',
+      'Watch parties: a team with no match in NSW (Argentina, Canada, Chile, Hong Kong China, Scotland, South Africa, Tonga, USA, Zimbabwe): a goal lands on one of its watch parties in NSW, on the same card. FITS is the match being screened, TRAVEL is where it is, and one line under them says the later rounds are in NSW if the team gets through. Each watch party once before any repeat. See the places lists that team\u2019s watch parties.',
+      'Data: watch parties are invented for the prototype (v2/drop-goal/watch-parties.js, contract \u00a720, every field gap), one in Sydney and one in Newcastle for each of the nine teams, at public precincts and fan sites only. All of it is sample, in pink.',
+      'Open question: a watch party is tied to one match, so its card goes stale once that match has passed. Not solved; for the team.',
       'Remembered: Save writes Version 2\u2019s own copy of the planner\u2019s saved state (the same shape as Options A to C\u2019s, Saved, not placed yet) under v2:. Version 2 has no Your plan yet to show it. The page keeps the game\u2019s saves when a team is picked afterwards.',
       'Data: places are \u00a719 destinations in v2/drop-goal/places.js, every field gap. Descriptions come from the destination pages where there is one; the rest, the tags, the travel estimates and stand-in pictures are sample, in pink. FITS is worked out from the fixtures.',
-      'Teams: the teams picked on Home go to the game (the first one kicks; all of them choose the places). With no team or Every NSW match, the kicker wears the Third Half kit and the table has no +3.',
+      'Teams: the teams picked on Home go to the game; the first one kicks. Every kicker has a team: the Third Half kit is gone, and Home\u2019s animation wears the picked team\u2019s kit, or Australia\u2019s before anyone has picked.',
       'Keyboard: Space or Enter plays; Tab goes to Share the table, then See the places, so the places can be reached without playing. Escape closes the places and the result.',
       'Screen readers: the pitch\u2019s label explains the two taps. A live region says each goal (the place, the points and where the team now sits on the table), each miss and why, each save and Share the table. The table reads as \u201c5, Portugal (your team), 41 points\u201d.',
       'Design: contrast is WCAG 2.2 AA. The pitch is a shade darker than the reference so the large cream type and the timing bar reach 3:1, the small lines on the pitch sit on dark chips (4.5:1), the bar\u2019s inside is dark so the yellow KICK zone stands out, and GOAL is cream with a yellow underline.',

@@ -144,10 +144,28 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .dg-tags li { padding: 4px 8px; background: var(--tag); font: 600 12px/1 var(--ui); }
 .dg-r-desc { margin: 16px 0 0; font: 400 14px/1.4 var(--ui); text-wrap: pretty; }
 .dg-r-rows { margin: 16px 0 0; }
-.dg-r-rows div { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--card-line); }
+.dg-r-rows div[hidden] { display: none; }
+.dg-r-rows div:not([hidden]) { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--card-line); }
 .dg-r-rows dt { font: 400 11px/1.4 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
 .dg-r-rows dd { margin: 0; font: 400 13px/1.4 var(--ui); }
+/* Under a watch party: one line on the later rounds */
+.dg-r-later { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--card-line); font: 400 13px/1.4 var(--ui); }
+.dg-r-later[hidden] { display: none; }
+.dg-pl-meta { display: block; margin-top: 4px; font: 400 12px/1.35 var(--ui); color: var(--ink-2); }
 .dg-r-body .dg-link { margin-top: 12px; color: var(--ink); }
+
+/* Phones (24 Nov): the top of the result is Kick again and nothing else, in one row, clear of the page's close cross
+   and How to play at the top right. The posts and the framed place are left on the field, which the card pushes up
+   and off the screen as it arrives (result.js) */
+@media (max-width: 699px) {
+  /* It stays at the top as the card scrolls, so the card never runs under the page's ? and close cross, and Kick again
+     is always to hand */
+  .dg-r-pitch { position: sticky; top: 0; z-index: 2; background: var(--pitch); flex-direction: row; justify-content: flex-start; min-height: 68px; padding: 12px 16px; }
+  .dg-r-posts { display: none; }
+  .dg-again { flex-direction: row; gap: 12px; margin-top: 0; padding: 4px 0; -webkit-tap-highlight-color: transparent; }
+  .dg-again span { font-size: clamp(20px, 6.4vw, 26px); }
+  .dg-again-ball { width: 38px; height: 28px; }
+}
 
 /* Wide screens: side by side, the pitch on the left */
 @media (min-width: 700px) {
@@ -201,5 +219,14 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .is-demo :is(.dg-table, .dg-top, .dg-hint, #dg-see) { display: none; }
 .is-demo .dg-foot { padding-bottom: 12px; gap: 8px; }
 .is-demo .dg-head { font-size: clamp(22px, 9vw, 34px); }
-:is(.is-demo, .is-demo-full) .dg-tap { display: block; position: absolute; left: 50%; bottom: calc(var(--foot) + 28px); width: 44px; height: 44px; margin-left: -22px; border-radius: 50%; border: 3px solid var(--on-pitch); background: rgba(255, 255, 255, .25); opacity: 0; pointer-events: none; }
-:root[data-theme="wireframe"]:is(.is-demo, .is-demo-full) .dg-tap { background: rgba(0, 0, 0, .12); }
+:is(.is-demo, .is-demo-full) .dg-tap { display: block; position: absolute; left: 50%; bottom: calc(var(--foot) + 28px); width: 44px; height: 44px; margin-left: -22px; opacity: 0; pointer-events: none; font-style: normal; }
+.dg-tap-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--on-pitch); background: rgba(255, 255, 255, .25); }
+:root[data-theme="wireframe"] .dg-tap-ring { background: rgba(0, 0, 0, .12); }
+/* The press, named: on a dark chip under the ring, large enough to read in the onboarding's scaled-down picture */
+.dg-tap-l { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: 3px 8px; border-radius: var(--r-chip); background: var(--chip); color: #fff; font: 700 13px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.is-demo-full .dg-tap-l { font-size: 22px; padding: 5px 10px; }
+.is-demo-full .dg-tap { width: 64px; height: 64px; margin-left: -32px; bottom: calc(var(--foot) + 64px); }
+/* With a mouse: a pointer, its tip at the centre of the ring */
+.dg-tap-cur { display: none; position: absolute; left: 50%; top: 50%; margin: -2px 0 0 -2px; overflow: visible; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3)); }
+.is-click .dg-tap-cur { display: block; }
+.is-demo-full.is-click .dg-tap-cur { width: 30px; height: 36px; }

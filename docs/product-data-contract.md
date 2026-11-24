@@ -667,3 +667,43 @@ Not held: the card's FITS line (which match day the place fits around). The game
   "travel_from_ground": "string | null"
 }
 ```
+
+---
+
+## 20. Watch parties
+
+Added 24 November 2026 for Version 2's Drop goal (the January brief), confirmed by the user as `gap`. A watch party is a public screening of one match at a precinct, public venue or fan site in NSW, never an individual business. For a team with no match in NSW, a goal in Drop goal lands on one of that team's watch parties, shown on the same card as a destination (§19). No real watch party data exists: the prototype renders every field here from invented fixtures only (`public/wireframes/v2/drop-goal/watch-parties.js`), all marked as sample.
+
+The card's fields mirror a destination's, so the same card can show either:
+
+**`name`** — `gap`, `source: authored`. The card's heading. Empty state: the watch party is not offered.
+
+**`summary`** — `gap`, `source: authored`. One or two sentences on what it is. Empty state: the line is left out.
+
+**`tags`** — `gap`, `source: authored`. Up to three short labels, as for §19. Empty state: the chips are left out.
+
+**`image`** — `gap`, `source: authored`, with usage rights to check. Never a picture of a named business. Empty state: a drawn placeholder with the watch party's name.
+
+**`host_city`** — `gap`, `source: derived` (`sydney` or `newcastle`, the host city it is in or nearer). Groups watch parties in a list. Empty state: listed without a city.
+
+Two fields are new:
+
+**`match`** — `gap`, `referenced`. The match being screened, a match fixture (§17). Shown on the card's FITS row as the fixture's date and teams ("Sat 16 Oct: England v Wales"). Empty state: the watch party is not offered, as it cannot be tied to a team.
+
+**`location`** — `gap`, `source: authored`. Where it is, in plain words ("Darling Harbour, Sydney"). Shown on the card's TRAVEL row. Empty state: "Location to be confirmed".
+
+Not held, and not invented: which team a watch party is for (worked out from the teams in its `match`), opening and closing times, capacity, entry price or booking, and accessibility. The line under the card that the later rounds are in NSW is game copy, not data.
+
+Known gap, not solved: a watch party is tied to one match, so its card goes stale once that match has passed. A real build needs a rule for what a goal lands on after a team's last screened match (the next match's watch party, or a fallback).
+
+```json
+"watch_party": {
+  "name": "string",
+  "summary": "string | null",
+  "tags": ["string"],
+  "image": "image | null",
+  "host_city": "sydney | newcastle | null",
+  "match": "match_ref",
+  "location": "string | null"
+}
+```
