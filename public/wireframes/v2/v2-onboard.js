@@ -97,8 +97,15 @@
   });
 
   /* ---------- who is kicking ---------- */
+  // Whether the kicker's team has a match in NSW (the shared fixtures; a: the city when a match is outside NSW). It decides
+  // what a goal lands on: places near where they play, or their watch parties
+  function playsInNSW(team) { return (window.cnFixtures || []).some(function (f) { return !f.a && f.t && f.t.split(' v ').indexOf(team) > -1; }); }
   function teamText() {
     var k = kickers();
+    var win = document.getElementById('v2-ob-win');
+    if (win) win.innerHTML = k.length && !playsInNSW(k[0])
+      ? '<b>Score</b> and the ball lands on a watch party for ' + esc(k[0]) + ' in NSW. Save the ones you like.'
+      : '<b>Score</b> and the ball lands on somewhere to go near where ' + (k.length ? esc(k[0]) : 'your team') + ' play in NSW. Save the places you like.';
     teamLine.innerHTML = (k.length === 0 ? 'Kicking in the Third Half kit.' : k.length === 1 ? 'Kicking for <b>' + esc(k[0]) + '</b>.' : 'Kicking for <b>' + esc(k[0]) + '</b>, the first of your ' + k.length + ' teams.') +
       ' <button type="button" class="tp-link v2-ob-change" id="v2-ob-change">' + (k.length ? 'Change' : 'Pick a team') + '</button>';
   }

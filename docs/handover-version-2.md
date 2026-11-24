@@ -30,6 +30,29 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
 - **Flow chart:** paused (above).
 - Everything else in `docs/drop-goal-brief.md` is built.
 
+## The January brief (24 Nov): team first, then what we show for that team
+
+Decided by the user, don't reopen: a team is compulsory before playing (an agreed exception to experience principle 2,
+recorded in CLAUDE.md); Every NSW match and the Third Half kit are gone from Version 2; a team with no NSW match gets
+watch parties on the same card as a place; watch party data is invented sample data.
+
+- **Team compulsory:** `v2/v2-onboard.js`. With no team, every route into the game (Play now, the menu, the picture,
+  `?view=kick`) leads to the team screen; its button is off with "Pick a team to continue" until a card is picked. Skip
+  skips the rules only. The game is not loaded until there is a team (`v2/v2-view.js`).
+- **Every NSW match:** hidden in `v2/v2.css` wherever the copied scripts draw it, and dropped from saved state on load
+  (`v2/v2-teams.js`). The copied planner code still contains it.
+- **The kicker decides:** the first picked team. Plays in NSW: places near its stadium (as before) plus a MATCH row with
+  its next NSW match, from the fixtures. No NSW match (nine teams): its watch parties, each once before a repeat.
+- **Watch parties:** `v2/drop-goal/watch-parties.js`, 18 invented records, one in Sydney and one in Newcastle per team,
+  public precincts and fan sites only. Contract §20 (new): `match` and `location` are the new fields; the rest mirror §19.
+- **Home's animation** wears the picked team's kit, or Australia's before a pick.
+- **Known gap for the team, not solved:** a watch party is tied to one match, so its card goes stale once that match has
+  passed.
+- **Out of scope for January:** other NSW matches around theirs, places between Sydney and Newcastle, community and food
+  by nation, the planner, the flow chart, screenshot baselines.
+- **Still in the code but unreachable from the page:** the game's no-team path (default kit, places from both cities),
+  when `v2/drop-goal/index.html` is opened on its own without `?team=`.
+
 ## Home, the menu and the full-screen game (24 Nov, after #627)
 
 - **Home** is brought in from Options A to C unchanged. Version 2 has its own copies of the scripts it needs
@@ -163,7 +186,7 @@ worked out from the fixtures, not held. Approved by the user on 24 Nov.
 
 ## Tests
 
-`tests/regression/v2.behaviour.spec.js` (49 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
+`tests/regression/v2.behaviour.spec.js` (55 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
 places; both themes at 390 and 320). Run `npx playwright test --project=behaviour tests/regression/v2.behaviour.spec.js`.
 
 - **Human pace:** three tests use real mouse clicks at 0.76, 0.9 and 0.98s and must score. Since #624, CLAUDE.md

@@ -489,7 +489,7 @@ test.describe('Version 2', () => {
   });
 
   // How to play: the game playing itself in Home's Play section (24 Nov)
-  const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo/ });
+  const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo&/ });   // Home's snippet (?demo&team=), not the onboarding's (?demo=taps)
   test('How to play: the snippet plays once when it comes into view, then rests with Replay, and it changes nothing', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
@@ -778,5 +778,99 @@ test.describe('Version 2', () => {
     await page.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
     await expect(page.locator('#dg-r-frame')).toBeVisible();
     await expect(page.locator('#dg-r-again')).toBeVisible();
+  });
+
+  // January brief, steps 2 to 4: what a goal lands on follows the kicker's team
+  test('A team that plays in NSW: a goal lands on a place, with the team\'s next NSW match beside it', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await score(page, f);
+    const g = inGame(page);
+    await expect(g.locator('#dg-r-match')).toHaveText('England v Wales · Sat 16 Oct, 7:45pm · Stadium Australia');
+    await expect(g.locator('#dg-r-fits')).toContainText('before or after England v Wales');
+    await expect(g.locator('#dg-r-travel')).toContainText('(estimate)');
+    await expect(g.locator('#dg-r-later')).toBeHidden();
+    expect(await f.evaluate(() => !!window.DG2Places.find((p) => p.id === window.__dg2.place()))).toBe(true);
+  });
+
+  test('A team with no NSW match: a goal lands on its watch parties, each once before a repeat, on the same card', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const f = await openGame(page, 'Scotland');
+    const g = inGame(page), got = [];
+    for (let i = 0; i < 4; i++) {
+      await score(page, f);
+      got.push(await f.evaluate(() => ({ id: window.__dg2.place(), name: document.getElementById('dg-r-name').textContent, fits: document.getElementById('dg-r-fits').textContent,
+        travel: document.getElementById('dg-r-travel').textContent, matchRow: !document.getElementById('dg-r-match-row').hidden, later: document.getElementById('dg-r-later').textContent })));
+      if (i < 3) { await g.locator('#dg-r-again').click(); await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 4000 }); }
+    }
+    // both of Scotland's watch parties in each pair of goals, never the same one twice running
+    expect(new Set(got.slice(0, 2).map((x) => x.id)).size).toBe(2);
+    expect(new Set(got.slice(2).map((x) => x.id)).size).toBe(2);
+    for (let i = 1; i < 4; i++) expect(got[i].id).not.toBe(got[i - 1].id);
+    for (const x of got) {
+      expect(x.id).toMatch(/^wp-scotland-/);
+      expect(x.fits).toMatch(/^(Sat 9 Oct: Ireland v Scotland|Sun 17 Oct: Scotland v Portugal)$/);   // the match being screened
+      expect(x.travel).toMatch(/, (Sydney|Newcastle)$/);                                           // where it is
+      expect(x.matchRow).toBe(false);
+      expect(x.later).toBe('If Scotland get through, the later rounds are in NSW.');
+    }
+    // the same card: photo, The ball landed in, name, Save, tags, description
+    await expect(g.locator('.dg-r-kicker')).toHaveText(/The ball landed in/);
+    await expect(g.locator('#dg-r-photo [role="img"]')).toBeVisible();
+    await expect(g.locator('#dg-r-tags li').first()).toHaveText('Watch party');
+    await expect(g.locator('#dg-r-desc')).toContainText('Watch ');
+    await g.locator('#dg-r-save').click();
+    await expect(g.locator('#dg-r-save')).toHaveText('Saved');
+    // See the places lists that team's watch parties, and nothing else
+    await g.locator('#dg-r-see').click();
+    await expect(g.locator('#dg-pl-mine')).toHaveText('Where to watch Scotland in NSW');
+    await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(2);
+    await expect(g.locator('#dg-pl-all')).toHaveCount(0);
+    await expect(g.locator('#dg-pl-body .dg-pl-meta').first()).toContainText('Scotland');
+    await expect(g.locator('#dg-pl-body .dg-save[aria-pressed="true"]')).toHaveCount(1);
+    await expect(g.locator('#dg-pl-count')).toHaveText('1 saved to your plan');
+  });
+
+  test('With several teams picked, the first one decides between places and watch parties', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    let f = await openGame(page, 'Scotland,Wales');
+    await score(page, f);
+    expect(await f.evaluate(() => window.__dg2.place())).toMatch(/^wp-scotland-/);
+    f = await openGame(page, 'Wales,Scotland');
+    await score(page, f);
+    expect(await f.evaluate(() => !!window.DG2Places.find((p) => p.id === window.__dg2.place()))).toBe(true);
+    await expect(inGame(page).locator('#dg-r-match')).toContainText('England v Wales');
+  });
+
+  test('Watch party data: every team with no NSW match has one in Sydney and one in Newcastle, tied to a real fixture, all sample', async ({ page }) => {
+    await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi&team=Scotland');
+    const got = await page.evaluate(() => {
+      const F = window.cnFixtures, P = window.DG2Parties, teams = window.DG2Kit.TEAMS;
+      const plays = (t, nsw) => F.some((f) => f.t && f.t.split(' v ').indexOf(t) > -1 && (nsw ? !f.a : true));
+      const none = teams.filter((t) => !plays(t, true));
+      return {
+        none,
+        cover: none.map((t) => ['sydney', 'newcastle'].map((c) => P.filter((p) => p.team === t && p.host_city === c).length)),
+        forNswTeams: P.filter((p) => none.indexOf(p.team) < 0).length,
+        badMatch: P.filter((p) => !F.some((f) => f.d === p.match.d && f.t === p.match.t && f.t.split(' v ').indexOf(p.team) > -1)).map((p) => p.id),
+        notSample: P.filter((p) => !p.sample).length,
+        ids: new Set(P.map((p) => p.id)).size === P.length,
+      };
+    });
+    expect(got.none).toEqual(['Argentina', 'Canada', 'Chile', 'Hong Kong China', 'Scotland', 'South Africa', 'Tonga', 'USA', 'Zimbabwe']);
+    for (const c of got.cover) { expect(c[0]).toBeGreaterThanOrEqual(1); expect(c[1]).toBeGreaterThanOrEqual(1); }
+    expect([got.forNswTeams, got.badMatch, got.notSample, got.ids]).toEqual([0, [], 0, true]);
+    // with Annotations on, the watch party's own fields show as sample
+    await page.evaluate(() => { document.documentElement.classList.add('has-notes'); const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
+    await page.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+    expect(await page.evaluate(() => ['dg-r-name', 'dg-r-desc', 'dg-r-fits', 'dg-r-travel'].map((id) => document.getElementById(id).classList.contains('dg-sample')))).toEqual([true, true, true, true]);
+  });
+
+  test('Home\'s how-to-play animation wears a team: the picked one, or Australia before anyone has picked', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await expect(page.locator('#v2-demo-frame')).toHaveAttribute('src', /\?demo&team=Australia$/);
+    await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Japan', 'Wales'] })));
+    await page.reload();
+    await expect(page.locator('#v2-demo-frame')).toHaveAttribute('src', /\?demo&team=Japan$/);
   });
 });

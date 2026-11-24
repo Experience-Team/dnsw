@@ -181,6 +181,8 @@
     }
     rb.addEventListener('click', function () { done = false; rb.hidden = true; sync(); box.focus({ preventScroll: true }); });
     fr.addEventListener('load', sync);
+    // Every kicker has a team (January brief): the picked one, or Australia, the host, before anyone has picked
+    fr.src = GAME + '?demo&team=' + encodeURIComponent(teams().split(',')[0] || 'Australia');
     if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.6 }).observe(box);
     else seen = true;
     window.v2DemoSync = sync;

@@ -144,16 +144,23 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .dg-tags li { padding: 4px 8px; background: var(--tag); font: 600 12px/1 var(--ui); }
 .dg-r-desc { margin: 16px 0 0; font: 400 14px/1.4 var(--ui); text-wrap: pretty; }
 .dg-r-rows { margin: 16px 0 0; }
-.dg-r-rows div { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--card-line); }
+.dg-r-rows div[hidden] { display: none; }
+.dg-r-rows div:not([hidden]) { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--card-line); }
 .dg-r-rows dt { font: 400 11px/1.4 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
 .dg-r-rows dd { margin: 0; font: 400 13px/1.4 var(--ui); }
+/* Under a watch party: one line on the later rounds */
+.dg-r-later { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--card-line); font: 400 13px/1.4 var(--ui); }
+.dg-r-later[hidden] { display: none; }
+.dg-pl-meta { display: block; margin-top: 4px; font: 400 12px/1.35 var(--ui); color: var(--ink-2); }
 .dg-r-body .dg-link { margin-top: 12px; color: var(--ink); }
 
 /* Phones (24 Nov): the top of the result is Kick again and nothing else, in one row, clear of the page's close cross
    and How to play at the top right. The posts and the framed place are left on the field, which the card pushes up
    and off the screen as it arrives (result.js) */
 @media (max-width: 699px) {
-  .dg-r-pitch { flex-direction: row; justify-content: flex-start; min-height: 68px; padding: 12px 16px; }
+  /* It stays at the top as the card scrolls, so the card never runs under the page's ? and close cross, and Kick again
+     is always to hand */
+  .dg-r-pitch { position: sticky; top: 0; z-index: 2; background: var(--pitch); flex-direction: row; justify-content: flex-start; min-height: 68px; padding: 12px 16px; }
   .dg-r-posts { display: none; }
   .dg-again { flex-direction: row; gap: 12px; margin-top: 0; padding: 4px 0; -webkit-tap-highlight-color: transparent; }
   .dg-again span { font-size: clamp(20px, 6.4vw, 26px); }

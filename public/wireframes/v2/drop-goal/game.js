@@ -357,7 +357,7 @@
   function goal() {
     setPhase('goal');
     if (DEMO) {   /* the win, shown and no more: a place between the posts, then the next ball */
-      const dp = (window.DG2Places || []).find(p => p.image && !p.stand_in) || window.DG2Places[0];
+      const dp = R.sample(teams);
       setHead(true); showFrame(dp);
       after(1.7, () => { if (phase === 'goal') { hideFrame(); D.note = null; pass(); } });
       return;

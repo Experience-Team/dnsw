@@ -74,9 +74,14 @@
         <div id="dg-r-tags"></div>
         <p class="dg-r-desc" id="dg-r-desc"></p>
         <dl class="dg-r-rows">
+          <!-- The team's next NSW match, beside the place (January brief): from the fixtures. Not shown for a watch party,
+               whose FITS row is the match itself -->
+          <div id="dg-r-match-row"><dt>Match</dt><dd id="dg-r-match"></dd></div>
           <div><dt>Fits</dt><dd id="dg-r-fits"></dd></div>
           <div><dt>Travel</dt><dd class="dg-sample" id="dg-r-travel"></dd></div>
         </dl>
+        <!-- A watch party only: the later rounds are in NSW if the team gets through -->
+        <p class="dg-r-later" id="dg-r-later" hidden></p>
         <button type="button" class="dg-link" id="dg-r-see">See the places</button>
       </div>
     </article>
@@ -93,6 +98,7 @@
 <p class="dg-sr" id="dg-say" aria-live="polite"></p>
 <script src="../../concepts-fixtures.js"></script>
 <script src="places.js"></script>
+<script src="watch-parties.js"></script>
 <script src="kit.js"></script>
 <script src="kicker.js"></script>
 <script src="result.js"></script>
