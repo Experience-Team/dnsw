@@ -31,10 +31,13 @@
   T.end = T.bounce + T.late;
   const MISS = { wide: 'Wide, a touch early. Tap to go again.', short: 'Short, a touch late. Tap to go again.' };
 
-  /* ---------- the team (?team=, from the page) ---------- */
+  /* ---------- the picked teams (?team=, from the page) ----------
+     A comma list of the planner's picks: the first kicks (kit, ball, the table's +3), and all of them choose the places
+     and the FITS line. "Every NSW match" picks no team: the default kit, and places from both cities. */
   const q = /[?&]team=([^&]+)/.exec(location.search);
-  const wanted = q ? decodeURIComponent(q[1].replace(/\+/g, ' ')) : '';
-  const team = window.DG2Kit.TEAMS.indexOf(wanted) > -1 ? wanted : '';
+  const asked = q ? decodeURIComponent(q[1].replace(/\+/g, ' ')).split(',').map(x => x.trim()) : [];
+  const teams = asked.filter((x, i) => window.DG2Kit.TEAMS.indexOf(x) > -1 && asked.indexOf(x) === i);
+  const team = teams[0] || '';
   const C = window.DG2Kit.kitFor(team);
   const PARTS = window.DG2Kicker.parts(C);
 
@@ -305,14 +308,14 @@
     goals++;
     renderTable();
     setHead(true);
-    const p = R.next(team); D.place = p;
+    const p = R.next(teams); D.place = p;
     setHint(team ? `Through the posts. +3 for ${team}.` : 'Through the posts.');
     if (team) { plus.classList.remove('is-on'); void plus.offsetWidth; plus.classList.add('is-on'); }
     showFrame(p);
     say(`Goal. The ball landed in ${p.name}.` + (team ? ` 3 points for ${team}.` : ''));
     after(reduce.matches ? 0 : 1.2, result);
   }
-  function result() { if (phase !== 'goal') return; setPhase('result'); R.open(D.place, team, kickAgain); }
+  function result() { if (phase !== 'goal') return; setPhase('result'); R.open(D.place, teams, kickAgain); }
   /* Kick again: back to the pitch, and the next ball comes */
   function kickAgain() { hideFrame(); D.note = null; pass(); }
 
@@ -366,8 +369,8 @@
   /* See the places: from the kick screen and from the result, never a kick */
   const see = $('dg-see');
   see.addEventListener('pointerdown', e => e.stopPropagation());
-  see.addEventListener('click', () => R.openPlaces(see, team));
-  $('dg-r-see').addEventListener('click', e => R.openPlaces(e.currentTarget, team));
+  see.addEventListener('click', () => R.openPlaces(see, teams));
+  $('dg-r-see').addEventListener('click', e => R.openPlaces(e.currentTarget, teams));
 
   /* ---------- the page around it: theme and annotations, when shown in the Version 2 phone ---------- */
   (function () {
@@ -389,5 +392,5 @@
   drawPitch(); drawPosts(); renderTable();
   setPose('ready'); markAt(T.release);
   hold();
-  window.__dg2 = { phase: () => phase, team: () => team, goals: () => goals, place: () => (D.place ? D.place.id : null), T };   /* read-only, for the regression checks */
+  window.__dg2 = { phase: () => phase, team: () => team, teams: () => teams.slice(), goals: () => goals, place: () => (D.place ? D.place.id : null), T };   /* read-only, for the regression checks */
 })();

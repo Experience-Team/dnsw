@@ -1,8 +1,9 @@
 /* Drop goal, Version 2: which place a goal lands in, the result screen, See the places, and Save.
    docs/drop-goal-brief.md (Result screen, Places). Style: docs/drop-goal-style.png (left).
-   - The person's places come from where their team plays in NSW (the match fixtures, ../../concepts-fixtures.js):
-     Sydney, Newcastle, or both, two from the city of their next match for every one from the other. No team: both,
-     taking turns. Within each city no place repeats until every one has been shown (kept for this visit).
+   - The person's places come from where their picked teams play in NSW (the match fixtures, ../../concepts-fixtures.js):
+     Sydney, Newcastle, or both. No team, or Every NSW match: both. No place repeats until every place in the set has
+     been shown once (kept for this visit). Within each round of the set, places in the city of their next match come
+     two for every one from the other city, so the weight changes the order, never how often a place is shown.
    - Save writes Version 2's own copy of the planner's saved state (the same shape as Options A to C's tp-pick-v1, in
      concepts-teams.js), filed under v2:, so Version 2's plan can read it once it has one. Nothing else is changed.
    - The result screen is a full-screen layer over the kick screen; See the places is a full-screen layer too, open
@@ -21,41 +22,43 @@
   const MON = { Oct: 9, Nov: 10 };
   const dateOf = f => { const m = /(\d+) (\w+)/.exec(f.d); return Date.UTC(2027, MON[m[2]], +m[1]); };
   const cityOf = f => (f.v === 'Newcastle Stadium' ? 'newcastle' : 'sydney');
-  const matchesOf = team => (team ? FIX.filter(f => f.t.split(' v ').indexOf(team) > -1).sort((a, b) => dateOf(a) - dateOf(b)) : []);
+  const matchesOf = teams => FIX.filter(f => f.t.split(' v ').some(t => teams.indexOf(t) > -1)).sort((a, b) => dateOf(a) - dateOf(b));
   function nextOf(ms) { const today = Date.now(); return ms.find(m => dateOf(m) + 864e5 > today) || ms[0] || null; }
 
-  /* The set a goal draws from: which cities, and which one gets more weight */
-  function setFor(team) {
-    const ms = matchesOf(team), cities = [...new Set(ms.map(cityOf))];
-    if (!cities.length) return { cities: ['sydney', 'newcastle'], weight: null };
-    if (cities.length === 1) return { cities, weight: null };
+  /* The set a goal draws from: which cities, and which one comes first in each round */
+  function setFor(teams) {
+    const ms = matchesOf(teams), cities = [...new Set(ms.map(cityOf))];
+    if (!cities.length) return { key: 'mix', cities: ['sydney', 'newcastle'], weight: null };
+    if (cities.length === 1) return { key: cities[0], cities, weight: null };
     const first = cityOf(nextOf(ms));
-    return { cities: [first, first === 'sydney' ? 'newcastle' : 'sydney'], weight: first };
+    return { key: 'both-' + first, cities: [first, first === 'sydney' ? 'newcastle' : 'sydney'], weight: first };
   }
 
-  /* ---------- rotation: no repeats within a city until all of it has been shown, kept for this visit ---------- */
+  /* ---------- rotation: every place in the set once before any repeats, kept for this visit ---------- */
   const ROT = 'v2:dg-rotation';   /* under v2:, so Version 2's Reset clears it */
-  function rot() { try { return JSON.parse(sessionStorage.getItem(ROT)) || { seen: {}, k: 0 }; } catch (e) { return { seen: {}, k: 0 }; } }
+  function rot() { try { return JSON.parse(sessionStorage.getItem(ROT)) || {}; } catch (e) { return {}; } }
   function keep(r) { try { sessionStorage.setItem(ROT, JSON.stringify(r)); } catch (e) {} }
-  function next(team) {
-    const S = setFor(team), r = rot();
-    let city;
-    if (S.cities.length === 1) city = S.cities[0];
-    else if (S.weight) city = r.k % 3 < 2 ? S.cities[0] : S.cities[1];   /* two from the next match's city, then one */
-    else city = S.cities[r.k % 2];                                        /* no team: take turns */
-    r.k++;
-    const all = PLACES.filter(p => p.host_city === city);
-    let seen = (r.seen[city] || []).filter(id => all.some(p => p.id === id));
-    if (seen.length >= all.length) seen = [];
-    const fresh = all.filter(p => seen.indexOf(p.id) < 0);
-    const pick = fresh[Math.floor(Math.random() * fresh.length)];
-    seen.push(pick.id); r.seen[city] = seen; keep(r);
+  function next(teams) {
+    const S = setFor(teams), all = PLACES.filter(p => S.cities.indexOf(p.host_city) > -1), r = rot();
+    const st = r[S.key] || { seen: [], k: 0 };
+    let seen = st.seen.filter(id => all.some(p => p.id === id));
+    let last = null;
+    if (seen.length >= all.length) { last = seen[seen.length - 1]; seen = []; st.k = 0; }   /* the round is done: start again */
+    /* a new round never opens with the place just shown, so it never comes twice in a row */
+    const left = c => all.filter(p => p.host_city === c && seen.indexOf(p.id) < 0 && !(p.id === last && all.length > 1));
+    let city = S.cities.length === 1 ? S.cities[0]
+      : S.weight ? (st.k % 3 < 2 ? S.cities[0] : S.cities[1])            /* two from the next match's city, then one */
+      : S.cities[st.k % 2];                                               /* no team: take turns */
+    if (!left(city).length) city = S.cities.find(c => left(c).length);  /* that city is done for this round */
+    st.k++;
+    const fresh = left(city), pick = fresh[Math.floor(Math.random() * fresh.length)];
+    seen.push(pick.id); st.seen = seen; r[S.key] = st; keep(r);
     return pick;
   }
 
   /* FITS: the match day it fits around, from the person's team; otherwise a general line */
-  function fits(p, team) {
-    const ms = matchesOf(team).filter(m => cityOf(m) === p.host_city), m = nextOf(ms);
+  function fits(p, teams) {
+    const ms = matchesOf(teams).filter(m => cityOf(m) === p.host_city), m = nextOf(ms);
     return m ? `${m.d}: before or after ${m.t}` : `A free day around ${CITY[p.host_city]}`;
   }
 
@@ -100,14 +103,14 @@
   /* ---------- the result screen ---------- */
   const res = $('dg-result'), stage = $('dg');
   let shown = null, onAgain = null, openerR = null;
-  function open(p, team, again) {
+  function open(p, teams, again) {
     shown = p; onAgain = again;
     $('dg-r-frame').innerHTML = api.frameSVG(p);
     $('dg-r-photo').innerHTML = photo(p, 'dg-r-img');
     $('dg-r-name').textContent = p.name;
     $('dg-r-tags').innerHTML = tagsHTML(p);
     const d = $('dg-r-desc'); d.textContent = p.summary || ''; d.classList.toggle('dg-sample', !!p.sample); d.hidden = !p.summary;
-    $('dg-r-fits').textContent = fits(p, team);
+    $('dg-r-fits').textContent = fits(p, teams);
     $('dg-r-travel').textContent = p.travel ? p.travel + ' (estimate)' : 'Travel time to be confirmed';
     const b = $('dg-r-save'); b.dataset.id = p.id; saveBtn(b, p);
     res.scrollTop = 0;
@@ -134,7 +137,7 @@
 
   /* ---------- See the places ---------- */
   const placesEl = $('dg-places');
-  let openerP = null, team0 = '', inertWas = [];
+  let openerP = null, teams0 = [], inertWas = [];
   function row(p) {
     return `<li class="dg-pl-row">${photo(p, 'dg-pl-img')}<div class="dg-pl-t"><b>${esc(p.name)}</b>${tagsHTML(p)}</div>` +
       `<button type="button" class="dg-save" data-id="${p.id}"></button></li>`;
@@ -144,9 +147,9 @@
     if (el) el.textContent = n ? `${n} saved to your plan` : '';
   }
   function renderPlaces(all) {
-    const S = setFor(team0), mine = PLACES.filter(p => S.cities.indexOf(p.host_city) > -1), rest = PLACES.filter(p => mine.indexOf(p) < 0);
+    const S = setFor(teams0), mine = PLACES.filter(p => S.cities.indexOf(p.host_city) > -1), rest = PLACES.filter(p => mine.indexOf(p) < 0);
     const where = S.cities.length === 2 ? 'Sydney and Newcastle' : CITY[S.cities[0]];
-    let html = `<h3 class="dg-pl-h" id="dg-pl-mine">${team0 ? `Near ${esc(team0)}’s matches in ${where}` : 'Around Sydney and Newcastle'}</h3><ul class="dg-pl-list">${mine.map(row).join('')}</ul>`;
+    let html = `<h3 class="dg-pl-h" id="dg-pl-mine">${!teams0.length || !matchesOf(teams0).length ? 'Around Sydney and Newcastle' : `Near ${teams0.length === 1 ? esc(teams0[0]) + '’s' : 'your teams’'} matches in ${where}`}</h3><ul class="dg-pl-list">${mine.map(row).join('')}</ul>`;
     if (rest.length) {
       html += all ? `<h3 class="dg-pl-h" id="dg-pl-more" tabindex="-1">More places</h3><ul class="dg-pl-list">${rest.map(row).join('')}</ul>`
         : `<button type="button" class="dg-link" id="dg-pl-all">See all ${PLACES.length} places</button>`;
@@ -158,9 +161,9 @@
   /* In the Version 2 phone view the page's Settings icon sits top right, where this layer's close cross goes (check 7):
      it steps aside while the places are open */
   function pageSettings(show) { try { const t = parent !== window && parent.document.getElementById('v2-top'); if (t) t.style.visibility = show ? '' : 'hidden'; } catch (e) {} }
-  function openPlaces(from, team) {
+  function openPlaces(from, teams) {
     pageSettings(false);
-    openerP = from; team0 = team;
+    openerP = from; teams0 = teams;
     renderPlaces(false);
     inertWas = [stage, res].map(el => [el, el.inert]); stage.inert = true; res.inert = true;
     placesEl.hidden = false; placesEl.scrollTop = 0;
@@ -186,7 +189,7 @@
   [res, placesEl].forEach(el => el.addEventListener('pointerdown', e => e.stopPropagation()));
 
   const api = {
-    next, open, close, openPlaces, isOpen: () => !res.hidden || !placesEl.hidden,
+    next, open, close, openPlaces, fits, isOpen: () => !res.hidden || !placesEl.hidden,
     frameSVG: () => '', say: () => {}, saved, setFor
   };
   window.DG2Result = api;

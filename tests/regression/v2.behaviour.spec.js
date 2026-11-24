@@ -216,4 +216,41 @@ test.describe('Version 2', () => {
     }
     expect(new Set(seen).size).toBe(5);
   });
+
+  // Places by where the picked teams play (docs/drop-goal-brief.md, Places): the four cases, ten goals each
+  for (const [who, team, cities, fitsLine, listHead] of [
+    ['a Newcastle team (Japan)', 'Japan', ['newcastle'], /Japan v Samoa/, /Japan’s matches in Newcastle/],
+    ['a Sydney team (Wales)', 'Wales', ['sydney'], /England v Wales/, /Wales’s matches in Sydney/],
+    ['a team in both cities (Portugal)', 'Portugal', ['sydney', 'newcastle'], /Portugal/, /Portugal’s matches in Sydney and Newcastle/],
+    ['no team', '', ['sydney', 'newcastle'], /A free day around/, /Around Sydney and Newcastle/],
+  ]) {
+    test(`Drop goal places: ${who}`, async ({ page }) => {
+      test.setTimeout(90_000);
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const f = await openGame(page, team);
+      const got = [];
+      for (let i = 0; i < 10; i++) {
+        await score(page, f);
+        got.push(await f.evaluate(() => {
+          const id = window.__dg2.place(), p = window.DG2Places.find((x) => x.id === id);
+          return { id, city: p.host_city, fits: document.getElementById('dg-r-fits').textContent };
+        }));
+        await inGame(page).locator('#dg-r-again').click();
+        await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 4000 });
+      }
+      const inSet = await f.evaluate((c) => window.DG2Places.filter((p) => c.indexOf(p.host_city) > -1).length, cities);
+      for (const g of got) { expect(cities).toContain(g.city); expect(g.fits).toMatch(fitsLine); }
+      // every place in the set once before any repeat, and never the same place twice in a row
+      expect(new Set(got.slice(0, inSet).map((g) => g.id)).size).toBe(Math.min(inSet, got.length));
+      for (let i = 1; i < got.length; i++) expect(got[i].id).not.toBe(got[i - 1].id);
+      if (cities.length === 2 && team) {
+        // the next match's city (Sydney, Mon 4 Oct) comes two for every one at the start of a round
+        expect(got.slice(0, 3).map((g) => g.city)).toEqual(['sydney', 'sydney', 'newcastle']);
+      }
+      await inGame(page).locator('#dg-see').click();
+      await expect(inGame(page).locator('#dg-pl-mine')).toHaveText(listHead);
+      await expect(inGame(page).locator('#dg-pl-body .dg-pl-row')).toHaveCount(inSet);
+      await expect(inGame(page).locator('#dg-pl-all')).toHaveCount(inSet < 10 ? 1 : 0);
+    });
+  }
 });
