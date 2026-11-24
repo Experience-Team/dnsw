@@ -251,3 +251,10 @@ html.is-result .dg-who { visibility: hidden; }
 .is-practice #dg-see { display: none; }
 .is-practice .dg-head.is-now { font-size: clamp(22px, 6.6vw, 36px); }
 
+
+/* ---------- In the Version 2 page (html.in-page): room for the page's Back button, top left ---------- */
+.in-page .dg-top { left: 108px; }
+.in-page .dg-who { top: 64px; left: var(--pad-x); max-width: calc(100% - 2 * var(--pad-x)); }
+.in-page .dg-table { top: 108px; }
+@media (max-width: 699px) { .in-page .dg-r-pitch { padding-left: 108px; } }
+@media (min-width: 700px) { .in-page .dg-who { top: 20px; left: 180px; max-width: calc(100% - 180px - 64px); } .in-page .dg-table { top: 84px; } }

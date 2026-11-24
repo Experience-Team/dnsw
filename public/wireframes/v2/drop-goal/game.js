@@ -265,6 +265,16 @@
     say(`Practice skipped. ${Wd} to drop the ball.`); stage.focus({ preventScroll: true });
   });
   window.__dgPractice = { start: startPractice, active: () => !!prac };
+  /* The page closed the game (v2-view.js): a result card, or a goal on its way to one, is put away, so the game
+     opens again on the pitch, ready to kick. The goal still counts and a saved place stays saved */
+  window.__dgAway = () => {
+    if (DEMO) return;
+    R.away();
+    if (phase !== 'goal' && phase !== 'result') return;
+    timers = []; D.passing = false; D.note = null; R.reset(); hideFrame(); setPose('ready'); markAt(T.release);
+    plus.classList.remove('is-on');
+    hold();
+  };
 
   /* ---------- who is kicking, with Change (the page's team screen) ---------- */
   (function () {
@@ -526,6 +536,7 @@
   const see = $('dg-see');
   see.addEventListener('pointerdown', e => e.stopPropagation());
   see.addEventListener('click', () => R.openPlaces(see, teams));
+  if (/[?&]places(?:&|$)/.test(location.search)) R.openPlaces(null, teams);
   $('dg-r-see').addEventListener('click', e => R.openPlaces(e.currentTarget, teams));
 
   /* ---------- the page around it: theme and annotations, when shown in the Version 2 phone ---------- */

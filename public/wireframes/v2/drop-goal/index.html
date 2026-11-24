@@ -16,6 +16,8 @@
   // ?demo: Home's snippet, the game playing itself and taking no input. With a mouse the words say Click, not Tap
   // (is-click), here and in the game itself
   if (/[?&]demo(?:&|$)/.test(q)) d.classList.add('is-demo');
+  // In the Version 2 page's layer, its Back button sits top left: the logo, the kicker's line and Kick again make room
+  else try { if (parent !== window && parent.v2Play) d.classList.add('in-page'); } catch (e) {}
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) d.classList.add('is-click');
 })();</script>
 <title>Drop goal · Version 2</title>

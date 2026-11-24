@@ -119,11 +119,20 @@
     focusGame();
   }
   function focusGame() { try { frame.focus(); var d = frame.contentDocument && frame.contentDocument.getElementById('dg'); if (d) d.focus({ preventScroll: true }); } catch (e) {} }
+  /* The places without the game (Home's Or see all the places, 24 Nov): the same layer, with the game's own list
+     opened in the frame (?places) and no pitch, team screen or practice kick. No team is needed. Its cross closes the
+     layer; the game is loaded again afterwards, ready for Play now */
+  var placesOnly = false;
+  function openPlaces(from) { placesOnly = true; openGame(from); }
   function openGame(from, quick) {
     if (isOpen || !layer) return;
     if (leaving) { leaving.onfinish = null; leaving.cancel(); leaving = null; }
     isOpen = true; opener = from || document.activeElement;
-    loadGame();
+    if (placesOnly) {
+      var t = teams(), u = GAME + '?places' + (t ? '&team=' + encodeURIComponent(t) : '');
+      if (loaded === null) frame.src = u; else try { frame.contentWindow.location.replace(u); } catch (e) { frame.src = u; }
+      loaded = ''; window.v2Play.cross(false);
+    } else loadGame();
     // Everything else on the phone steps back: what was already inert stays so when the game closes
     inertWas = [].filter.call(phone.children, function (el) { return el !== layer; }).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     layer.hidden = false; layer.style.pointerEvents = '';
@@ -132,9 +141,10 @@
     if (!quick && layer.animate) layer.animate(still() ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
     // No team: the team screen first, by every route (v2-onboard.js). Otherwise the pitch, with the practice kick the
     // first time
-    if (!teams() && window.v2Onboard) window.v2Onboard.start(); else enter();
+    if (placesOnly) { try { frame.focus(); } catch (e) {} }
+    else if (!teams() && window.v2Onboard) window.v2Onboard.start(); else enter();
     try { history.pushState({ v2play: true }, ''); } catch (e) {}
-    if (tp && tp.say) tp.say('Drop goal opened. Close the game is at the top right.');
+    if (tp && tp.say) tp.say(placesOnly ? 'The places opened. Close is at the top right.' : 'Drop goal opened. Back to Home is at the top left.');
   }
   function shut() {
     if (!isOpen) return;
@@ -143,7 +153,8 @@
     inertWas.forEach(function (p) { p[0].inert = p[1]; }); inertWas = [];
     phone.classList.remove('v2-playing');
     if (window.v2DemoSync) window.v2DemoSync();
-    var done = function () { leaving = null; layer.hidden = true; layer.style.pointerEvents = ''; };
+    // Once it has gone, a result card or the places are put away, so the game opens again on the pitch
+    var done = function () { leaving = null; layer.hidden = true; layer.style.pointerEvents = ''; try { if (frame.contentWindow.__dgAway) frame.contentWindow.__dgAway(); } catch (e) {} };
     if (!still() && layer.animate) {
       layer.style.pointerEvents = 'none';   // while it leaves, a press goes to the page under it
       leaving = layer.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(32px)' }], { duration: 220, easing: 'ease-in' });
@@ -151,7 +162,8 @@
     } else done();
     if (opener && opener.isConnected && opener.focus) opener.focus({ preventScroll: true });
     opener = null;
-    if (tp && tp.say) tp.say('Drop goal closed. Back to Home.');
+    if (tp && tp.say) tp.say(placesOnly ? 'The places closed. Back to Home.' : 'Drop goal closed. Back to Home.');
+    if (placesOnly) { placesOnly = false; window.v2Play.cross(true); setTimeout(loadGame, 260); }
   }
   // The cross and Escape go back through the history entry Play made, so the phone's back button and they do the same
   function closeGame() {
@@ -170,7 +182,9 @@
   // For the game (v2/drop-goal/): Escape on its kick screen closes it, and its own full-screen list hides the cross
   var howB = document.getElementById('v2-play-how');
   if (howB) howB.addEventListener('click', practise);
-  window.v2Play = { open: openGame, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame, enter: enter,
+  var seeB = document.getElementById('v2-kick-places');
+  if (seeB) seeB.addEventListener('click', function () { openPlaces(seeB); });
+  window.v2Play = { open: openGame, places: openPlaces, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame, enter: enter,
     practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} },
     changeTeam: function () { if (window.v2Onboard) window.v2Onboard.start(); },
     cross: function (show) { if (closeBtn) closeBtn.hidden = !show; var h = document.getElementById('v2-play-how'); if (h) h.hidden = !show; } };
@@ -192,12 +206,13 @@
   });
 
   /* ---------- How to play: the game playing itself on Home ----------
-     It plays once, when the Play section comes into view (24 Nov: on a loop it was repetitive), then rests. If it is
-     scrolled away or the game is opened before it finishes, it goes back to rest and plays when next in view. Once it
-     has played, Replay shows, for anyone who missed it. With reduced motion it never plays (game.js). */
+     It plays once each time the Play section comes into view (24 Nov: on a loop it was repetitive), then rests. If it
+     is scrolled away or the game is opened before it finishes, it goes back to rest. With a mouse, moving onto it
+     plays it again. There is no Replay button: after a game it read as "replay the game". With reduced motion it
+     never plays (game.js). */
   (function () {
-    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), rb = document.getElementById('v2-demo-replay');
-    if (!box || !fr || !rb) return;
+    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame');
+    if (!box || !fr) return;
     var seen = false, done = false;
     // With a mouse the line says click, as the onboarding does
     var how = document.getElementById('v2-demo-how');
@@ -205,15 +220,15 @@
     function api() { try { return fr.contentWindow && fr.contentWindow.__dgDemo; } catch (e) { return null; } }
     function sync() {
       var a = api(); if (!a) return;
-      a.onDone = function () { done = true; rb.hidden = false; };
+      a.onDone = function () { done = true; };
       if (done) return;
       if (seen && !isOpen) { if (!a.playing()) a.play(); } else if (a.playing()) a.stop();
     }
-    rb.addEventListener('click', function () { done = false; rb.hidden = true; sync(); box.focus({ preventScroll: true }); });
+    box.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && done) { done = false; sync(); } });
     fr.addEventListener('load', sync);
     // Every kicker has a team (January brief): the picked one, or Australia, the host, before anyone has picked
     fr.src = GAME + '?demo&team=' + encodeURIComponent(teams().split(',')[0] || 'Australia');
-    if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.6 }).observe(box);
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { var was = seen; seen = es[es.length - 1].isIntersecting; if (seen && !was) done = false; sync(); }, { root: body, threshold: 0.6 }).observe(box);
     else seen = true;
     window.v2DemoSync = sync;
   })();
