@@ -149,8 +149,11 @@
   const res = $('dg-result'), stage = $('dg');
   let shown = null, onAgain = null, openerR = null, push = null;
   const PHONE = matchMedia('(max-width: 699px)');   /* stacked below 700px, side by side from there (game.css) */
+  /* On phones the page's Back button steps aside while the card is up (the card has its own close cross) */
+  function pageBack(show) { try { if (parent !== window && parent.v2Play && parent.v2Play.back) parent.v2Play.back(show); } catch (e) {} }
   function open(p, teams, again) {
     shown = p; onAgain = again;
+    if (PHONE.matches) pageBack(false);
     $('dg-r-frame').innerHTML = api.frameSVG(p);
     $('dg-r-photo').innerHTML = photo(p, 'dg-r-img');
     const watch = p.kind === 'watch';
@@ -186,6 +189,7 @@
   }
   function close() {
     if (res.hidden) return;
+    pageBack(true);
     const root = document.documentElement, done = () => { res.hidden = true; root.classList.remove('is-result'); };
     stage.inert = false;
     if (push) { push.onfinish = null; push = null; }
@@ -201,6 +205,7 @@
     if (f) f();
   }
   $('dg-r-again').addEventListener('click', close);
+  $('dg-r-close').addEventListener('click', close);
   $('dg-r-save').addEventListener('click', e => { if (shown) onSave(shown, e.currentTarget); });
   res.addEventListener('keydown', e => { if (e.key === 'Escape' && placesEl.hidden) { e.preventDefault(); close(); } });
 
@@ -304,7 +309,7 @@
       placesEl.hidden = true; placesEl.style.pointerEvents = ''; pageSettings(true);
       inertWas.forEach(([el, was]) => { el.inert = was; }); inertWas = []; openerP = null;
     },
-    reset() { push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
+    reset() { pageBack(true); push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
   };
   window.DG2Result = api;
 })();

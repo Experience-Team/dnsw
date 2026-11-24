@@ -256,7 +256,10 @@ html.is-result .dg-who { visibility: hidden; }
 .in-page .dg-top { left: 108px; }
 .in-page .dg-who { top: 64px; left: var(--pad-x); max-width: calc(100% - 2 * var(--pad-x)); }
 .in-page .dg-table { top: 108px; }
-@media (max-width: 699px) { .in-page .dg-r-pitch { padding-left: 108px; } }
+/* Phones: the card's own close cross, 16px in from the card's top right corner; Back is away while the card is up, so
+   Kick again starts at the edge again */
+.dg-r-close { display: none; }
+@media (max-width: 699px) { .dg-r-card { position: relative; } .dg-r-close { display: grid; top: 12px; right: 12px; width: 36px; height: 36px; z-index: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); } }
 @media (min-width: 700px) { .in-page .dg-who { top: 20px; left: 180px; max-width: calc(100% - 180px - 64px); } .in-page .dg-table { top: 84px; } }
 
 /* The result card's links: See the places, and after a save in the Version 2 page, the count and the way to Your plan */
@@ -267,3 +270,9 @@ html.is-result .dg-who { visibility: hidden; }
 #dg-pl-count:empty { display: none; }
 .dg-pl-p .dg-plan { display: block; width: fit-content; min-height: 0; margin-top: 4px; font: 700 14px/1.4 var(--ui); color: var(--ink); }
 .dg-pl-p .dg-plan[hidden] { display: none; }
+
+/* The practice kick is the pitch and the kick alone: the table and the kicker's line wait until the game is ready,
+   then fade in */
+.dg-table, .dg-who { transition: opacity .32s ease-out; }
+.is-practice .dg-table, .is-practice .dg-who { opacity: 0; visibility: hidden; transition: none; }
+@media (prefers-reduced-motion: reduce) { .dg-table, .dg-who { transition: none; } }
