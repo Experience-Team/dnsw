@@ -71,6 +71,8 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-ob-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--space-5) var(--space-4); }
 .v2-ob-panel[hidden] { display: none; }
 .v2-ob-panel { overflow-y: auto; overscroll-behavior: contain; }
+/* The fan's turned cards reach a little past the screen's sides: they are cut there, never scrolled to (24 Nov) */
+.v2-ob-panel { overflow-x: hidden; overflow-x: clip; }
 .v2-ob-h { margin: 0; font-family: var(--font-display, inherit); font-size: 1.5rem; line-height: 1.15; font-weight: 700; text-wrap: balance; outline: none; }
 .v2-ob-p { margin: var(--space-2) 0 0; font-size: .9375rem; line-height: 1.45; }
 .v2-ob-teams { margin: var(--space-4) calc(var(--space-5) * -1) 0; }

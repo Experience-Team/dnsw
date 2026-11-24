@@ -267,5 +267,10 @@
   })();
 
   // A reset link that had the game open, or a shared link to it
-  if (/[?&]view=kick\b/.test(location.search)) openGame(document.querySelector('#tp-home-kick button.tp-home-cta'), true);
+  /* ?view=kick opens the game once. It is taken off the address first, so refreshing the page shows Home, not the game
+     again (24 Nov) */
+  if (/[?&]view=kick\b/.test(location.search)) {
+    try { var u = new URL(location.href); u.searchParams.delete('view'); history.replaceState(history.state, '', u.pathname + u.search.replace(/=(?=&|$)/g, '') + u.hash); } catch (e) {}
+    openGame(document.querySelector('#tp-home-kick button.tp-home-cta'), true);
+  }
 })();
