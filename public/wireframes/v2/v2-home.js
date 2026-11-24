@@ -154,7 +154,9 @@
     return '<li class="tp-read"><a class="tp-read-a" href="?a=' + esc(a.slug) + '" data-read="' + esc(a.slug) + '">' +
       '<span class="ph-img tp-read-img" data-img="' + esc(a.img) + '" style="aspect-ratio:' + a.r + '" aria-hidden="true"></span>' +
       '<span class="tp-read-cat">' + esc(a.cat) + '</span><span class="tp-read-t">' + esc(a.title) + '</span>' +
-      '<span class="tp-read-m">' + a.mins + ' min read</span></a></li>';
+      '<span class="tp-read-m">' + a.mins + ' min read</span></a>' +
+      // Add to Your plan (24 Nov, v2-saved.js draws and runs it): beside the link, not inside it
+      '<button type="button" class="v2-add" data-v2-add="art:' + esc(a.slug) + '"></button></li>';
   }
   var reads = document.getElementById('tp-reads');
   reads.innerHTML = ARTS.map(tile).join('');
@@ -168,6 +170,7 @@
     h += '<p class="tp-art-cat">' + esc(a.cat) + '</p><h2 class="tp-art-h" id="tp-art-title" tabindex="-1">' + esc(a.title) + '</h2>';
     h += '<p class="tp-art-dek">' + esc(a.dek) + '</p>';
     h += '<p class="tp-art-by">Destination NSW <span aria-hidden="true">·</span> Updated ' + UPDATED + ' <span aria-hidden="true">·</span> ' + a.mins + ' min read</p>';
+    h += '<p class="v2-art-add"><button type="button" class="v2-add" data-v2-add="art:' + esc(a.slug) + '"></button></p>';
     h += '<div class="ph-img tp-art-img" data-img="' + esc(a.img) + '" role="img" aria-label="' + esc(imgOf(a.title)) + '"></div>';
     h += '<div class="tp-art-body">' + a.body.map(function (b) {
       if (b[0] === 'h') return '<h3>' + esc(b[1]) + '</h3>';

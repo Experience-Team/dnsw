@@ -165,7 +165,7 @@
     $('dg-r-travel').textContent = watch ? (p.location || 'Location to be confirmed') : p.travel ? p.travel + ' (estimate)' : 'Travel time to be confirmed';
     const later = $('dg-r-later');
     later.hidden = !watch; later.textContent = watch ? `If ${p.team} get through, the later rounds are in NSW.` : '';
-    const b = $('dg-r-save'); b.dataset.id = p.id; saveBtn(b, p);
+    const b = $('dg-r-save'); b.dataset.id = p.id; saveBtn(b, p); countLine();
     res.scrollTop = 0;
     res.hidden = false; stage.inert = true;
     const root = document.documentElement;
@@ -213,10 +213,19 @@
     return `<li class="dg-pl-row">${photo(p, 'dg-pl-img')}<div class="dg-pl-t"><b${p.kind === 'watch' ? ' class="dg-sample"' : ''}>${esc(p.name)}</b>${meta}${tagsHTML(p)}</div>` +
       `<button type="button" class="dg-save" data-id="${p.id}"></button></li>`;
   }
+  /* In the Version 2 page (24 Nov) the count is the whole of Your plan and it is a link: "[n] saved · Your plan" on
+     the result card and in the list opens the page's sheet over the game. On its own the game keeps the plain line */
+  const planApi = () => { try { return parent !== window && parent.v2Saved ? parent.v2Saved : null; } catch (e) { return null; } };
   function countLine() {
-    const n = saved().length, el = $('dg-pl-count');
-    if (el) { el.textContent = n ? `${n} saved to your plan` : 'Nothing saved yet'; el.classList.toggle('is-none', !n); }
+    const pa = planApi(), a = readState().added;
+    const n = pa ? (Array.isArray(a) ? a.filter(x => x && (x.kind === 'kick' || x.kind === 'v2art')).length : 0) : saved().length, el = $('dg-pl-count');
+    if (el) { el.textContent = pa && n ? '' : n ? `${n} saved to your plan` : 'Nothing saved yet'; el.classList.toggle('is-none', !n); }
+    ['dg-r-plan', 'dg-pl-plan'].forEach(id => { const b = $(id); if (!b) return; b.hidden = !(pa && n); b.textContent = `${n} saved \u00b7 Your plan`; });
   }
+  ['dg-r-plan', 'dg-pl-plan'].forEach(id => $(id).addEventListener('click', e => { const pa = planApi(), b = e.currentTarget; if (pa) pa.open(b, () => { try { b.focus({ preventScroll: true }); } catch (x) {} }); }));
+  /* A remove, Undo or Clear all in Your plan: every Save button and the count follow it */
+  function follow() { document.querySelectorAll('.dg-save[data-id]').forEach(b => { const p = byId(b.dataset.id); if (p) saveBtn(b, p); }); countLine(); }
+  window.addEventListener('storage', e => { if (e.key === KEY) follow(); });
   function renderPlaces(all) {
     /* A team with no NSW match: that team's watch parties, and nothing else */
     const wp = partiesFor(teams0);

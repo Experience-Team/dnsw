@@ -211,9 +211,9 @@
   function pickLine(c, on) {
     if (!on) return c.name + ' removed';
     if (c.rugby) return 'Every NSW match added: ' + countPhrase(nswPool.concat(nswKo));
-    return c.name + ' added: ' + countPhrase(c.matches) + ', ' + nswCount(c);
+    return c.name + ' picked: ' + countPhrase(c.matches) + ', ' + nswCount(c);
   }
-  var CAPTION_REST = 'Tap a card to add its matches to your plan';
+  var CAPTION_REST = 'Tap a card to pick your team';   // Version 2 (24 Nov): a pick adds no matches to Your plan, which is a list of saves
   /* Clear all ends the caption's sentence (18 Nov) instead of taking a row under it: after each rewrite it is moved
      back in, after a full stop where the sentence has none. It stays outside the caption's aria-hidden text, so it is
      still a button for everyone; renderChosen shows or hides it with its full stop. */
@@ -815,7 +815,7 @@
     atBody.appendChild(util); atBody.appendChild(picker);
     atBody.scrollTop = 0;
     var saves = state.added.some(function (it) { return it.kind !== 'match'; });
-    atSheet.querySelector('.tp-at-note').textContent = 'Pick the teams you follow. ' + (saves ? 'What you saved is planned around their matches.' : 'Their matches go on your plan.');
+    atSheet.querySelector('.tp-at-note').textContent = 'Pick the teams you follow. ' + '';
     atOpener = opener || null;
     if (tlOpen) stackOpen(atSheet, opener); else stackOpenSolo(atSheet, opener);
     window.dispatchEvent(new Event('resize')); // the hand lays itself out for its new width
