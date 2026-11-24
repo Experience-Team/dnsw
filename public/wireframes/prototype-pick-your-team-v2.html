@@ -188,7 +188,12 @@
               <span class="v2-demo-hit" id="v2-demo-hit" data-view="kick" aria-hidden="true"></span>
             </div>
             <p class="v2-demo-how" id="v2-demo-how"><strong>How to play:</strong> tap to drop the ball, then tap again as it bounces.</p>
-            <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+            <!-- Two ways in (24 Nov): the game, or straight to its list of places, so nobody has to play to see them.
+                 The list is the game's own See the places, opened over the whole screen without the pitch (v2/v2-view.js) -->
+            <div class="v2-kick-acts">
+              <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+              <button type="button" class="v2-kick-places" id="v2-kick-places">Or see all the places</button>
+            </div>
           </section>
 
           <!-- At a glance: three cards of high-level facts. Version 2 (24 Nov): moved from under the team cards to just

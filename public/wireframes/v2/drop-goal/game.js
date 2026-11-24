@@ -526,6 +526,7 @@
   const see = $('dg-see');
   see.addEventListener('pointerdown', e => e.stopPropagation());
   see.addEventListener('click', () => R.openPlaces(see, teams));
+  if (/[?&]places(?:&|$)/.test(location.search)) R.openPlaces(null, teams);
   $('dg-r-see').addEventListener('click', e => R.openPlaces(e.currentTarget, teams));
 
   /* ---------- the page around it: theme and annotations, when shown in the Version 2 phone ---------- */

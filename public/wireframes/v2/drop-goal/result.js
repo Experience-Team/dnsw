@@ -241,18 +241,24 @@
   /* Shown full screen in the Version 2 page, the page's own close cross sits top right, where this layer's cross goes
      (check 7): it steps aside while the places are open, so the cross here closes the places and the game stays */
   function pageSettings(show) { try { if (parent !== window && parent.v2Play) parent.v2Play.cross(show); } catch (e) {} }
+  /* ?places: the list on its own, opened from Home without the game (v2-view.js). All of it shows, nothing sits
+     behind it, and closing it closes the page's layer */
+  const ONLY = /[?&]places(?:&|$)/.test(location.search);
   function openPlaces(from, teams) {
     if (closingP) { closingP.onfinish = null; closingP.cancel(); closingP = null; placesEl.style.pointerEvents = ''; }   /* reopened while it was leaving */
     pageSettings(false);
     openerP = from; teams0 = teams;
-    renderPlaces(false);
+    renderPlaces(ONLY);
+    /* On its own there has been no kick, so the heading and line leave the posts and the goal out */
+    if (ONLY) { $('dg-pl-title').innerHTML = 'The places &middot; <span class="dg-sample">Sample</span>'; placesEl.querySelector('.dg-pl-p').firstChild.textContent = 'Save any of them to your plan. '; }
     inertWas = [stage, res].map(el => [el, el.inert]); stage.inert = true; res.inert = true;
     placesEl.hidden = false; placesEl.scrollTop = 0;
-    if (!reduce.matches && placesEl.animate) placesEl.animate([{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
+    if (!ONLY && !reduce.matches && placesEl.animate) placesEl.animate([{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
     $('dg-pl-title').focus({ preventScroll: true });
   }
   function closePlaces() {
     if (placesEl.hidden || closingP) return;
+    if (ONLY) { try { if (parent !== window && parent.v2Play) { parent.v2Play.close(); return; } } catch (e) {} }
     /* It leaves the way it came, a little faster; focus and the screens behind come back at once */
     const done = () => { closingP = null; placesEl.hidden = true; placesEl.style.pointerEvents = ''; };
     if (!reduce.matches && placesEl.animate) {

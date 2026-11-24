@@ -52,6 +52,12 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-demo-hit { position: absolute; inset: 0; cursor: pointer; }
 .v2-demo:focus { outline: none; }
 .v2-demo-how { margin: var(--space-3) 0 0; font-size: .9375rem; line-height: 1.45; }
+/* Play now, and the quieter way in beside it: the places without the game. Stacked on phones, side by side on desktop */
+.v2-kick-acts { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); margin-top: var(--space-5); }
+.v2-kick-places { min-height: 36px; padding: 0 var(--space-2); border: 0; background: none; color: var(--c-ink); font: inherit; font-size: .9375rem; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: pointer; white-space: nowrap; }
+.v2-kick-places:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: 2px; }
+@media (hover: hover) { .v2-kick-places:hover { text-decoration-thickness: 2px; } }
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-kick-acts { flex-direction: row; align-items: center; align-self: start; gap: var(--space-5); justify-content: flex-start; } .pv-device #tp-phone .v2-kick-acts .tp-home-cta { align-self: center; } }
 
 /* ---------- Drop goal's onboarding (v2-onboard.js): over the game, inside the full-screen layer ---------- */
 .v2-play-how { right: 60px; } /* How to play, beside the close cross */
