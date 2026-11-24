@@ -1,6 +1,6 @@
 /* Drop goal, Version 2: the kick screen.
-   Mechanic: concept lab card 10 (dnsw-discovery-gallery, concept-lab/cards/5c-dropgoal.html), ported unchanged: the
-   timings (T), how a kick is judged (contact), the two miss lines, the next ball arriving with a pass, and a tap at
+   Mechanic: concept lab card 10 (dnsw-discovery-gallery, concept-lab/cards/5c-dropgoal.html), ported unchanged except
+   the kick window (see T): the timings, how a kick is judged (contact), the two miss lines, the next ball arriving with a pass, and a tap at
    any point after a miss taking the next ball at once. Only the drawing is new: the scene is laid out flat in screen
    space to match docs/drop-goal-style.png (right), so the flight is a curve towards the posts, not card 10's 3D path.
    A goal frames a place between the posts, then the result screen opens (result.js); Kick again comes back here. */
@@ -17,12 +17,16 @@
   };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ---------- timing (seconds, from the first tap): card 10's values ---------- */
+  /* ---------- timing (seconds, from the first tap) ----------
+     Card 10's values, except the window (24 Nov, from play-testing): card 10 scored a kick 0.04s after the bounce,
+     give or take 0.1s, so the second tap had to land between 0.66s and 0.86s, before most people can see the ball
+     touch the ground and react (about 0.2s). Nobody could score. The window now opens as the ball lands and stays
+     open for 0.3s, as it comes up off the ground: early is still wide, late is still short. */
   const T = {
     release: 0.12,   /* the hands open */
     fall: 0.6,       /* hands to ground */
-    perfect: 0.04,   /* after the bounce: kicked as it comes up */
-    tol: 0.1,        /* either side of perfect */
+    perfect: 0.15,   /* after the bounce: kicked as it comes up (card 10: 0.04) */
+    tol: 0.15,       /* either side of perfect (card 10: 0.1) */
     late: 0.42,      /* after the bounce: the boot swings anyway */
     swing: 0.07,     /* tap to contact */
     flight: 0.9      /* boot to the posts */
@@ -210,7 +214,7 @@
   /* the ball in the hands, waiting; after a miss the friendly line stays up until the next drop */
   function hold(note) {
     setPhase('hold');
-    setHint(note || 'Tap to drop. Tap again to kick.');
+    setHint(note || 'Tap to drop. Tap again as it bounces.');
     setHead(false);
     start();
   }

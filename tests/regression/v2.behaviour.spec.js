@@ -114,7 +114,7 @@ test.describe('Version 2', () => {
   for (const [what, sec, phases, line] of [
     ['on the bounce is a goal', 0.76, ['goal'], /3 points for Wales/],
     ['early goes wide', 0.5, ['miss', 'pass', 'hold'], /Wide, a touch early/],
-    ['late falls short', 1.0, ['miss', 'pass', 'hold'], /Short, a touch late/],
+    ['late falls short', 1.1, ['miss', 'pass', 'hold'], /Short, a touch late/],
   ]) {
     test(`Drop goal: a kick ${what}, and it is announced`, async ({ page }) => {
       const f = await openGame(page, 'Wales');
@@ -260,7 +260,7 @@ test.describe('Version 2', () => {
   test('Drop goal accessibility: keyboard order, the label, and the table read as words', async ({ page }) => {
     const f = await openGame(page, 'Portugal');
     const g = inGame(page);
-    await expect(g.locator('#dg')).toHaveAttribute('aria-label', /Space or Enter.*then again to kick/);
+    await expect(g.locator('#dg')).toHaveAttribute('aria-label', /Space or Enter.*then again to kick it as it bounces/);
     await g.locator('#dg').focus();
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-share')).toBeFocused();
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-see')).toBeFocused();
@@ -292,4 +292,20 @@ test.describe('Version 2', () => {
     await expect(inGame(page).locator('#dg-share')).toHaveText('Line copied');
     await expect(inGame(page).locator('#dg-share-line')).toHaveCount(0);
   });
+
+  // Real clicks at a person's pace: a tap that reacts to the bounce (about 0.2s after the ball lands) scores
+  for (const gap of [760, 900, 980]) {
+    test(`Drop goal: a real click ${gap}ms after the first, reacting to the bounce, scores`, async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(`${V2}?theme=hifi&reset`);
+      const f = page.frame({ url: /drop-goal/ }) || (await (await page.waitForSelector('#v2-game')).contentFrame());
+      await f.waitForFunction(() => window.__dg2 && window.__dg2.phase() === 'hold');
+      const box = await page.locator('#v2-game').boundingBox();
+      const x = box.x + box.width / 2, y = box.y + box.height * 0.45;
+      await page.mouse.click(x, y);
+      await page.waitForTimeout(gap);
+      await page.mouse.click(x, y);
+      await expect(inGame(page).locator('#dg-say')).toHaveText(/Goal/, { timeout: 4000 });
+    });
+  }
 });
