@@ -96,7 +96,7 @@ test.describe('Version 2', () => {
 
   // Drop goal (v2/drop-goal/), in a frame, opened over the whole screen from Home. The picked teams are Home's picks
   // (the team cards' saved state, filed under v2:); ?view=kick opens the game straight away
-  const frameOf = (page) => page.frame({ url: /drop-goal/ });
+  const frameOf = (page) => page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ });
   async function openGame(page, team) {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
@@ -149,14 +149,14 @@ test.describe('Version 2', () => {
     await expect(page.locator('.tp-card2[aria-label="Japan"]')).toHaveAttribute('aria-pressed', 'true');
     expect(await page.evaluate(() => Object.keys(localStorage))).toContain('v2:tp-pick-v1');
     expect(await page.evaluate(() => Object.keys(localStorage))).not.toContain('tp-pick-v1');
-    await page.locator('#tp-home-kick [data-view="kick"]').click();
+    await page.locator('#tp-home-kick button.tp-home-cta').click();
     await expect(page.locator('#v2-play')).toBeVisible();
     await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Japan');
     await page.locator('#v2-play-close').click();
     await page.locator('#tp-dev-set').click();
     await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
     await expect(page.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(0);
-    await page.locator('#tp-home-kick [data-view="kick"]').click();
+    await page.locator('#tp-home-kick button.tp-home-cta').click();
     await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('');
   });
 
@@ -318,7 +318,7 @@ test.describe('Version 2', () => {
       await page.goto(`${V2}?theme=hifi&reset`);
       await page.goto(`${V2}?theme=hifi&view=kick`);   // the game, opened over the whole screen
       await expect(page.locator('#v2-play')).toBeVisible();
-      const f = page.frame({ url: /drop-goal/ }) || (await (await page.waitForSelector('#v2-game')).contentFrame());
+      const f = page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ }) || (await (await page.waitForSelector('#v2-game')).contentFrame());
       await f.waitForFunction(() => window.__dg2 && window.__dg2.phase() === 'hold');
       const box = await page.locator('#v2-game').boundingBox();
       const x = box.x + box.width / 2, y = box.y + box.height * 0.45;
@@ -439,7 +439,7 @@ test.describe('Version 2', () => {
   test('Play now opens the game over the whole screen, and the cross, Escape and Back each close it where the person was', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
-    const play = page.locator('#tp-home-kick [data-view="kick"]'), layer = page.locator('#v2-play'), body = page.locator('#tp-phone .cn-body');
+    const play = page.locator('#tp-home-kick button.tp-home-cta'), layer = page.locator('#v2-play'), body = page.locator('#tp-phone .cn-body');
     await play.scrollIntoViewIfNeeded();
     const y = await body.evaluate((e) => e.scrollTop);
     for (const leave of [() => page.locator('#v2-play-close').click(), () => page.keyboard.press('Escape'), () => page.goBack()]) {
@@ -472,5 +472,44 @@ test.describe('Version 2', () => {
     await page.locator('.tp-card2[aria-label="Wales"]').click();
     await expect.poll(() => page.evaluate(() => { const r = JSON.parse(localStorage.getItem('tp-pick-v1')); return [r.picked.join(), r.added.filter((x) => x.kind === 'kick').length]; })).toEqual(['Japan,Wales', 1]);
     expect(f).toBeTruthy();
+  });
+
+  // How to play: the game playing itself in Home's Play section (24 Nov)
+  const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo/ });
+  test('How to play: the snippet plays the two taps to a goal on a loop, Pause stops it, and it changes nothing', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await expect(page.locator('.v2-demo-how')).toHaveText('How to play: tap to drop the ball, then tap again as it bounces.');
+    await page.locator('#v2-demo').scrollIntoViewIfNeeded();
+    const d = demoOf(page);
+    // nothing in it can be pressed or read out: the line under it says it in words
+    await expect(page.locator('#v2-demo-frame')).toHaveAttribute('aria-hidden', 'true');
+    for (const ph of ['drop', 'goal', 'drop']) await d.waitForFunction((x) => window.__dg2.phase() === x, ph, { timeout: 8000 });
+    const pause = page.locator('#v2-demo-pause');
+    await pause.click();
+    await expect(pause).toHaveText('Play'); await expect(pause).toHaveAttribute('aria-pressed', 'true');
+    await page.waitForTimeout(2500);
+    expect(await d.evaluate(() => window.__dg2.phase())).toBe('hold');
+    await pause.click();
+    await d.waitForFunction(() => window.__dg2.phase() === 'drop', null, { timeout: 4000 });
+    // no save, no place used up, nothing said
+    expect(await d.evaluate(() => [window.__dg2.goals(), document.getElementById('dg-say').textContent, sessionStorage.getItem('v2:dg-rotation')])).toEqual([0, '', null]);
+    // a press on the picture opens the game, and the snippet waits while it is open
+    await page.locator('#v2-demo-hit').click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await page.waitForTimeout(2000);
+    expect(await d.evaluate(() => window.__dg2.phase())).toBe('hold');
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#tp-home-kick button.tp-home-cta')).toBeFocused();
+  });
+
+  test('How to play: with reduced motion the snippet stays still and has no Pause', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await page.locator('#v2-demo').scrollIntoViewIfNeeded();
+    await expect(page.locator('#v2-demo-pause')).toBeHidden();
+    await page.waitForTimeout(2500);
+    expect(await demoOf(page).evaluate(() => window.__dg2.phase())).toBe('hold');
   });
 });

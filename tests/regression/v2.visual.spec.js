@@ -9,7 +9,7 @@ const V2 = '/wireframes/prototype-pick-your-team-v2.html';
 async function game(page) {
   const frame = page.frameLocator('#v2-game');
   await expect(frame.locator('#dg-head')).toHaveText(/tap to drop/i);
-  await page.frame({ url: /drop-goal/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
+  await page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
 }
 // The game opens over the whole screen from Home (?view=kick opens it straight away); the picked team is Home's pick
 const play = async (page, team) => {
@@ -28,7 +28,7 @@ const STATES = {
   result: async (page) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await play(page, 'Wales');
-    const f = page.frame({ url: /drop-goal/ });
+    const f = page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ });
     await f.evaluate(() => { const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
     await f.waitForFunction(() => window.__dg2.phase() === 'result');
     await settle(page);

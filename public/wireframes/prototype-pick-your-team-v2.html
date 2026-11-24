@@ -198,7 +198,16 @@
           <section class="tp-home-sec" id="tp-home-kick" aria-labelledby="tp-home-kick-title">
             <h3 class="tp-sec-title" id="tp-home-kick-title"><span class="tp-on-phone">Play</span><span class="tp-on-desk">Drop Goal</span></h3>
             <p class="tp-home-intro">Line up your kick and go for goal. Wherever the ball lands is your next idea for somewhere to go in Sydney or NSW. Keep kicking to find more.</p>
-            <div class="ph-img tp-home-kick-img" data-img="hero-stadium" role="img" aria-label="A still from the Drop goal game"></div>
+            <!-- How to play (24 Nov): the game playing itself in a small frame (v2/drop-goal/index.html?demo), in place of
+                 the still. It runs only while it is on screen, Pause stops it (WCAG 2.2.2), and with reduced motion it
+                 stays still. The line under it says the same in words; a tap on the picture opens the game, as Play now
+                 does. Script: v2/v2-view.js. -->
+            <div class="tp-home-kick-img v2-demo" id="v2-demo">
+              <iframe class="v2-demo-frame" id="v2-demo-frame" src="v2/drop-goal/index.html?demo" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
+              <span class="v2-demo-hit" id="v2-demo-hit" data-view="kick" aria-hidden="true"></span>
+              <button type="button" class="v2-demo-pause" id="v2-demo-pause" aria-pressed="false"><svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true" focusable="false"><path class="v2-demo-i-pause" d="M1 1h3v10H1zM6 1h3v10H6z" fill="currentColor"/><path class="v2-demo-i-play" d="M1.5 1l8 5-8 5z" fill="currentColor"/></svg><span>Pause</span></button>
+            </div>
+            <p class="v2-demo-how"><strong>How to play:</strong> tap to drop the ball, then tap again as it bounces.</p>
             <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
           </section>
 
@@ -729,6 +738,8 @@
       'Try it: a tap outside, Escape or picking anything closes it, and focus goes back to the button. Arrow keys move through it.'
     ] },
     { sel: '#tp-home-kick', title: 'Play now', points: [
+      'How to play: in place of the still, the game plays itself: a ring marks each of the two taps, the words go Tap to drop, Tap to kick, Kick now, Goal, and a place shows between the posts. The line under it says the same in words. A tap on it opens the game.',
+      'Design: it runs only while it is on screen and the game is closed, and Pause stops it (WCAG 2.2.2). Reduced motion: it stays still, with no Pause. It saves nothing and uses up no place.',
       'Play now opens Drop goal over the whole screen, where the person is; the page behind does not move, and it is where it was when the game closes.',
       'Try it: the cross at the top right, Escape or the phone\u2019s back button closes the game, and focus goes back to Play now (or to Menu). While See the places is open its own cross sits there instead, and closes only the places.',
       'Address: ?view=kick opens the game straight away.'

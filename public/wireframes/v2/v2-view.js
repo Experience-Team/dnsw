@@ -100,6 +100,7 @@
     inertWas = [].filter.call(phone.children, function (el) { return el !== layer; }).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     layer.hidden = false; layer.style.pointerEvents = '';
     phone.classList.add('v2-playing');
+    if (window.v2DemoSync) window.v2DemoSync();
     if (!quick && layer.animate) layer.animate(still() ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
     focusGame();
     try { history.pushState({ v2play: true }, ''); } catch (e) {}
@@ -110,6 +111,7 @@
     isOpen = false;
     inertWas.forEach(function (p) { p[0].inert = p[1]; }); inertWas = [];
     phone.classList.remove('v2-playing');
+    if (window.v2DemoSync) window.v2DemoSync();
     var done = function () { leaving = null; layer.hidden = true; layer.style.pointerEvents = ''; };
     if (!still() && layer.animate) {
       layer.style.pointerEvents = 'none';   // while it leaves, a press goes to the page under it
@@ -140,7 +142,8 @@
   // Play now, and anything else that asks for the game or the planner by its old tab name
   phone.addEventListener('click', function (e) {
     var b = e.target.closest('[data-view]'); if (!b || !phone.contains(b)) return;
-    go(b.dataset.view, b);
+    // The how-to-play picture is not a control of its own: focus goes back to Play now when the game closes
+    go(b.dataset.view, b.matches('button, a') ? b : document.querySelector('#tp-home-kick button.tp-home-cta'));
   });
 
   /* ---------- The game's saves, merged into the page's copy of the saved state ---------- */
@@ -152,6 +155,29 @@
     } catch (x) {}
   });
 
+  /* ---------- How to play: the game playing itself on Home ----------
+     It runs only while it is on screen and the real game is closed; Pause is the person's own and is kept until they
+     press Play. With reduced motion the frame never starts (game.js), and the button is hidden. */
+  (function () {
+    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), pb = document.getElementById('v2-demo-pause');
+    if (!box || !fr || !pb) return;
+    var userPaused = false, seen = false;
+    function api() { try { return fr.contentWindow && fr.contentWindow.__dgDemo; } catch (e) { return null; } }
+    function sync() { var a = api(); if (a) a.pause(userPaused || !seen || isOpen); }
+    pb.addEventListener('click', function () {
+      userPaused = !userPaused;
+      pb.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
+      pb.querySelector('span').textContent = userPaused ? 'Play' : 'Pause';
+      pb.setAttribute('aria-label', userPaused ? 'Play the how to play animation' : 'Pause the how to play animation');
+      sync();
+    });
+    pb.setAttribute('aria-label', 'Pause the how to play animation');
+    fr.addEventListener('load', sync);
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.35 }).observe(box);
+    else seen = true;
+    window.v2DemoSync = sync;
+  })();
+
   // A reset link that had the game open, or a shared link to it
-  if (/[?&]view=kick\b/.test(location.search)) openGame(document.querySelector('#tp-home-kick [data-view="kick"]'), true);
+  if (/[?&]view=kick\b/.test(location.search)) openGame(document.querySelector('#tp-home-kick button.tp-home-cta'), true);
 })();
