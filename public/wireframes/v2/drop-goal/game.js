@@ -396,6 +396,8 @@
   });
   document.addEventListener('keydown', e => {
     if (R.isOpen()) return;
+    /* Escape on the kick screen leaves the game, when the Version 2 page shows it full screen */
+    if (e.key === 'Escape') { try { if (parent !== window && parent.v2Play) { e.preventDefault(); parent.v2Play.close(); } } catch (x) {} return; }
     if (e.target && e.target.closest && e.target.closest('button')) return;      /* a button's own Enter and Space */
     if (e.code === 'Space' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); }
   });

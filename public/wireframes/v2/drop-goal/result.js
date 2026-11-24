@@ -164,9 +164,9 @@
     $('dg-pl-body').querySelectorAll('.dg-save').forEach(b => saveBtn(b, PLACES.find(p => p.id === b.dataset.id)));
     countLine();
   }
-  /* In the Version 2 phone view the page's Settings icon sits top right, where this layer's close cross goes (check 7):
-     it steps aside while the places are open */
-  function pageSettings(show) { try { const t = parent !== window && parent.document.getElementById('v2-top'); if (t) t.style.visibility = show ? '' : 'hidden'; } catch (e) {} }
+  /* Shown full screen in the Version 2 page, the page's own close cross sits top right, where this layer's cross goes
+     (check 7): it steps aside while the places are open, so the cross here closes the places and the game stays */
+  function pageSettings(show) { try { if (parent !== window && parent.v2Play) parent.v2Play.cross(show); } catch (e) {} }
   function openPlaces(from, teams) {
     if (closingP) { closingP.onfinish = null; closingP.cancel(); closingP = null; placesEl.style.pointerEvents = ''; }   /* reopened while it was leaving */
     pageSettings(false);

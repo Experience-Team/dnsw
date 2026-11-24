@@ -11,19 +11,23 @@ async function game(page) {
   await expect(frame.locator('#dg-head')).toHaveText(/tap to drop/i);
   await page.frame({ url: /drop-goal/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
 }
+// The game opens over the whole screen from Home (?view=kick opens it straight away); the picked team is Home's pick
+const play = async (page, team) => {
+  if (team) await page.evaluate((t) => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: [t] })), team);
+  await page.goto(page.url() + '&view=kick'); await game(page); await settle(page);
+};
 const STATES = {
-  kick: async (page) => { await game(page); },
+  home: async () => {},
+  menu: async (page) => { await page.locator('#v2-menu-btn').click(); await settle(page); },
+  'home-play': async (page) => { await page.locator('#tp-home-kick').scrollIntoViewIfNeeded(); await settle(page); },
+  kick: async (page) => { await play(page); },
   // A picked team: its kit and ball, and its row on the nation table
-  'kick-team': async (page) => {
-    await page.evaluate(() => localStorage.setItem('dg-team', 'Wales'));
-    await page.reload(); await game(page);
-  },
-  settings: async (page) => { await game(page); await page.locator('#tp-dev-set').click(); await settle(page); },
+  'kick-team': async (page) => { await play(page, 'Wales'); },
+  settings: async (page) => { await page.locator('#tp-dev-set').click(); await settle(page); },
   // A goal for Wales, the result card settled (reduced motion, so it opens at once)
   result: async (page) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.evaluate(() => localStorage.setItem('dg-team', 'Wales'));
-    await page.reload(); await game(page);
+    await play(page, 'Wales');
     const f = page.frame({ url: /drop-goal/ });
     await f.evaluate(() => { const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
     await f.waitForFunction(() => window.__dg2.phase() === 'result');
@@ -31,7 +35,7 @@ const STATES = {
   },
   places: async (page) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await game(page); await page.frameLocator('#v2-game').locator('#dg-see').click(); await settle(page);
+    await play(page); await page.frameLocator('#v2-game').locator('#dg-see').click(); await settle(page);
   },
 };
 
