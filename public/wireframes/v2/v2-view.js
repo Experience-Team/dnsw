@@ -116,6 +116,7 @@
   function enter() {
     var fresh = loadGame();
     if (!seen()) { if (fresh) wantPractice = true; else practise(); }
+    else if (!fresh) try { if (frame.contentWindow.__dgRetype) frame.contentWindow.__dgRetype(); } catch (e) {}   // the caption above the bar is typed again as the game shows
     focusGame();
   }
   function focusGame() { try { frame.focus(); var d = frame.contentDocument && frame.contentDocument.getElementById('dg'); if (d) d.focus({ preventScroll: true }); } catch (e) {} }

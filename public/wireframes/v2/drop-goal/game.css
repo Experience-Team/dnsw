@@ -280,3 +280,7 @@ html.is-result .dg-who { visibility: hidden; }
 /* In the Version 2 page the places have their own way in on Home (Or see all the places), so the game itself does not
    offer See the places, on the pitch or on a result card (24 Nov) */
 .in-page #dg-see, .in-page #dg-r-see { display: none; }
+
+/* The caption being typed: the rest of the line holds its place unseen, and a caret marks where the typing is */
+.dg-hint-rest { opacity: 0; }
+.dg-hint-caret { display: inline-block; width: 2px; height: 1em; margin: 0 1px -2px 1px; background: var(--yellow); }
