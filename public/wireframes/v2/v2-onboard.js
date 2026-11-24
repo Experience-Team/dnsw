@@ -1,15 +1,18 @@
 /* Version 2: Drop goal's onboarding (24 Nov 2026). Shown over the game the first time someone opens it; after that
    Play now goes straight to the game, and How to play (the ? beside the game's close cross) brings it back.
-   - Screens: Two taps to kick, then Score to find a place. Each has a picture of the real game playing itself once
-     (v2/drop-goal/index.html?demo=taps and ?demo=place, in a frame scaled down like a screenshot), a Replay button once
-     it has played, and two short tips. With reduced motion the pictures stay still.
-   - Team: with a team picked on Home, the first screen says who is kicking, with Change. With none, a first screen
-     offers the team cards (Home's own hand of cards, lent here by its id, so a pick is the same pick everywhere). It can
-     be passed without picking: the game works without a team (experience principle 2).
+   - One screen of rules, Two taps to kick: a picture of the real game playing itself once
+     (v2/drop-goal/index.html?demo=taps, in a frame scaled down like a screenshot) with each press marked and named, a
+     Replay button once it has played, and three short tips: the two presses, then what a goal gets you. It was two
+     screens; Score to find a place was folded in. With reduced motion the picture stays still.
+   - Tap or click: on a touch screen the words say Tap; with a mouse (hover and a fine pointer) they say Click, and
+     the first tip adds "or press Space". The picture's own marker does the same (game.js).
+   - Team: with a team picked on Home, the screen says who is kicking, with Change. With none, a first screen offers
+     the team cards (Home's own hand of cards, lent here by its id, so a pick is the same pick everywhere). It can be
+     passed without picking: the game works without a team (experience principle 2).
    - Skip is on every screen. Finishing or skipping marks it seen (v2ob-seen, filed under v2:, so Reset shows it again);
      closing the game with the cross does not.
-   - Previous and next are sideways between equals (check 10): each screen slides in from the side it comes from, the
-     buttons say where they go, and the count is read out. */
+   - Team screen and rules are sideways between equals (check 10): each slides in from the side it comes from, and the
+     step is read out. */
 (function () {
   'use strict';
   var ob = document.getElementById('v2-ob'), phone = document.getElementById('tp-phone');
@@ -21,7 +24,11 @@
   var picker = document.getElementById('tp-picker'), gameFrame = document.getElementById('v2-game'), howBtn = document.getElementById('v2-play-how');
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var esc = function (x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-  var NAMES = { team: 'Your team', taps: 'Two taps to kick', place: 'Score to find a place' };
+  // With a mouse it is clicks, on a touch screen taps: the words follow how this person will play
+  var CLICK = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var WORDS = CLICK ? { taps: 'clicks', Tap: 'Click', space: ', or press Space,' } : { taps: 'taps', Tap: 'Tap', space: '' };
+  [].forEach.call(ob.querySelectorAll('[data-ob-word]'), function (el) { el.textContent = WORDS[el.dataset.obWord]; });
+  var NAMES = { team: 'Your team', taps: 'Two ' + WORDS.taps + ' to kick' };
   var steps = [], at = -1, open = false;
 
   function seen() { try { return localStorage.getItem(SEEN) === '1'; } catch (e) { return false; } }
@@ -80,7 +87,7 @@
     fit(name);
   }
   function stopShot(name) { var s = shot(name), a = s && api(s); if (a) a.stop(); }
-  ['taps', 'place'].forEach(function (name) {
+  ['taps'].forEach(function (name) {
     var s = shot(name); if (!s) return;
     s.replay.addEventListener('click', function () { playShot(name); panel(name).querySelector('.v2-ob-h').focus({ preventScroll: true }); });
     if (window.ResizeObserver) new ResizeObserver(function () { fit(name); }).observe(s.box);
@@ -94,7 +101,7 @@
   }
   function labels() {
     var name = steps[at], last = at === steps.length - 1;
-    countEl.textContent = 'Step ' + (at + 1) + ' of ' + steps.length;
+    countEl.textContent = steps.length > 1 ? 'Step ' + (at + 1) + ' of ' + steps.length : ''; countEl.hidden = steps.length < 2;   // one screen needs no count
     backBtn.hidden = at === 0;
     if (at > 0) backBtn.querySelector('span').textContent = 'Back';
     // Next says where it goes to screen readers; on screen it stays short, so it holds one line at 320 wide in both themes
@@ -105,7 +112,7 @@
   function show(k, dir, quiet) {
     var was = steps[at];
     if (was === 'team') lendBack();
-    if (was === 'taps' || was === 'place') stopShot(was);
+    if (was === 'taps') stopShot(was);
     at = k;
     var name = steps[at];
     [].forEach.call(ob.querySelectorAll('.v2-ob-panel'), function (p) { p.hidden = p.dataset.step !== name; });
@@ -114,17 +121,17 @@
     labels();
     if (name === 'team') lendIn();
     if (name === 'taps') teamText();
-    if (name === 'taps' || name === 'place') playShot(name);
+    if (name === 'taps') playShot(name);
     // Sideways between equals: it comes in from the side it comes from; reduced motion swaps in place
     if (dir && !still() && p.animate) p.animate([{ opacity: 0, transform: 'translateX(' + (dir > 0 ? 28 : -28) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2,.7,.2,1)' });
     p.querySelector('.v2-ob-h').focus({ preventScroll: true });
-    if (!quiet && tp && tp.say) tp.say(NAMES[name] + ', step ' + (at + 1) + ' of ' + steps.length + '.');
+    if (!quiet && tp && tp.say) tp.say(NAMES[name] + (steps.length > 1 ? ', step ' + (at + 1) + ' of ' + steps.length : '') + '.');
   }
   function start(o) {
     o = o || {};
     if (open) return true;
     if (!o.force && seen()) return false;
-    steps = (!o.force && !picked().length ? ['team'] : []).concat(['taps', 'place']);
+    steps = (!o.force && !picked().length ? ['team'] : []).concat(['taps']);
     open = true; at = -1;
     ob.hidden = false; gameFrame.inert = true; if (howBtn) howBtn.hidden = true;
     phone.classList.add('v2-onboarding');
@@ -136,7 +143,7 @@
   function close(play) {
     if (!open) return;
     if (steps[at] === 'team') lendBack();
-    ['taps', 'place'].forEach(stopShot);
+    stopShot('taps');
     open = false; at = -1;
     ob.hidden = true; ob.classList.remove('is-pitch'); gameFrame.inert = false; if (howBtn) howBtn.hidden = false;
     phone.classList.remove('v2-onboarding');

@@ -64,12 +64,14 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-ob-count { margin: 0; font-size: .8125rem; color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
 .v2-ob-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--space-5) var(--space-4); }
 .v2-ob-panel[hidden] { display: none; }
-.v2-ob-panel--team { overflow-y: auto; overscroll-behavior: contain; }
+.v2-ob-panel { overflow-y: auto; overscroll-behavior: contain; }
 .v2-ob-h { margin: 0; font-family: var(--font-display, inherit); font-size: 1.5rem; line-height: 1.15; font-weight: 700; text-wrap: balance; outline: none; }
 .v2-ob-p { margin: var(--space-2) 0 0; font-size: .9375rem; line-height: 1.45; }
 .v2-ob-teams { margin: var(--space-4) calc(var(--space-5) * -1) 0; }
 /* The picture: the game at 360 by 640, scaled to the room it has (--s, set by the script) */
-.v2-ob-shot { position: relative; flex: 1 1 0; min-height: 120px; display: grid; place-items: center; margin-top: var(--space-4); }
+/* The picture never drops below a size that can be read: on a short phone the screen scrolls under the pinned button
+   instead (the tips follow the picture) */
+.v2-ob-shot { position: relative; flex: 1 0 248px; min-height: 248px; display: grid; place-items: center; margin-top: var(--space-4); }
 .v2-ob-phone { --s: .5; width: calc(360px * var(--s)); height: calc(640px * var(--s)); overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 2px var(--c-ink), 0 8px 20px rgba(17, 17, 17, .18); background: #e2e2e2; }
 :root[data-theme="hifi"] .v2-ob-phone { background: #55944a; }
 .v2-ob-phone iframe { display: block; width: 360px; height: 640px; border: 0; transform: scale(var(--s)); transform-origin: 0 0; pointer-events: none; }
@@ -77,7 +79,9 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-ob-tips { flex: none; display: grid; gap: var(--space-2); margin: var(--space-4) 0 0; padding: 0; list-style: none; counter-reset: v2ob; font-size: .9375rem; line-height: 1.4; }
 .v2-ob-tips li { display: grid; grid-template-columns: 24px 1fr; gap: var(--space-2); align-items: start; }
 .v2-ob-tips li::before { counter-increment: v2ob; content: counter(v2ob); display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c-btn); color: var(--c-on-dark, #fff); font-size: .75rem; font-weight: 700; }
-.v2-ob-tips--plain li::before { content: ''; width: 8px; height: 8px; margin: 7px 8px 0; background: var(--c-ink); }
+/* What a goal gets you: not a third press, so a tick in place of a number */
+.v2-ob-tips .v2-ob-win::before { counter-increment: none; content: '\2713'; background: none; color: var(--c-ink); box-shadow: inset 0 0 0 2px var(--c-ink); font-size: .8125rem; }
+.v2-ob-count[hidden] { display: none; }
 /* Pinned to the bottom, with the faint rule that says the screen scrolls under it (check 6) */
 .v2-ob-foot { flex: none; display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-5) var(--space-4); border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .12)); background: var(--c-surface); }
 .v2-ob-foot .tp-home-cta { margin: 0; white-space: nowrap; }

@@ -531,15 +531,16 @@ test.describe('Version 2', () => {
     expect(await demoOf(page).evaluate(() => window.__dg2.phase())).toBe('hold');
   });
 
-  // Onboarding: how to play, the first time the game is opened (24 Nov)
+  // Onboarding: how to play, the first time the game is opened (24 Nov). One rule screen (it was two), with a team
+  // screen first when no team is picked. These run with a mouse, so the words say Click; the touch test is below
   const playNow = (page) => page.locator('#tp-home-kick button.tp-home-cta');
-  test('Onboarding: first time with no team, the team cards come first, then two rule screens, then the game', async ({ page }) => {
+  test('Onboarding: first time with no team, the team cards come first, then one rule screen, then the game', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await playNow(page).click();
     const ob = page.locator('#v2-ob'), next = page.locator('#v2-ob-next'), count = page.locator('#v2-ob-count');
     await expect(ob).toBeVisible();
-    await expect(count).toHaveText('Step 1 of 3');
+    await expect(count).toHaveText('Step 1 of 2');
     await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Who are you kicking for?');
     await expect(ob.locator('.v2-ob-h:visible')).toBeFocused();
     // the team cards are Home's own, lent here; the screen can be passed without a pick
@@ -553,25 +554,27 @@ test.describe('Version 2', () => {
     const cap = await page.locator('#tp-fan-caption').evaluate((e) => { const b = e.querySelector('b, strong, span') || e; return [getComputedStyle(e).backgroundColor, getComputedStyle(e).color, getComputedStyle(b).color]; });
     expect(cap).toEqual(['rgba(0, 32, 16, 0.78)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)']);
     await next.click();
-    await expect(count).toHaveText('Step 2 of 3');
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(count).toHaveText('Step 2 of 2');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
     await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Wales.');
-    await expect(ob).not.toHaveClass(/is-pitch/);   // the rule screens are on the page's own background
+    await expect(ob).not.toHaveClass(/is-pitch/);   // the rules are on the page's own background
+    await expect(next).toHaveText('Let’s play');
+    // three short tips: the two presses, then what a goal gets you
+    await expect(ob.locator('.v2-ob-tips li')).toHaveText([/^Click anywhere, or press Space, to drop the ball\.$/, /^Click again as it bounces/, /^Score and the ball lands on somewhere to go/]);
     // the cards have gone back to Home
     expect(await page.evaluate(() => document.getElementById('tp-picker').parentNode.id)).toBe('tp-home-hand');
-    // the picture is the game playing itself once, in the picked kit, then Replay shows
+    // the picture is the game playing itself once, in the picked kit, each press named, then Replay shows
     const taps = page.frame({ url: /demo=taps/ });
-    await taps.waitForFunction(() => window.__dg2 && window.__dg2.team() === 'Wales' && window.__dg2.phase() === 'goal', null, { timeout: 10000 });
-    await expect(ob.locator('.v2-ob-panel[data-step="taps"] .v2-ob-replay')).toBeVisible({ timeout: 8000 });
-    await next.click();
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Score to find a place');
-    await expect(next).toHaveText('Let\u2019s play');
-    // the second picture goes on to the result card, with Save shown pressed and nothing saved
-    const place = page.frame({ url: /demo=place/ });
-    await place.waitForFunction(() => window.__dg2.phase() === 'result' && document.getElementById('dg-r-save').getAttribute('aria-pressed') === 'true', null, { timeout: 12000 });
+    const seen = await taps.evaluate(() => new Promise((res) => {
+      const out = new Set(), l = document.getElementById('dg-tap-l'), el = document.getElementById('dg-tap'), t0 = performance.now();
+      (function look() { if (el.getAnimations().length && l.textContent) out.add(l.textContent); if (window.__dg2.phase() === 'goal' || performance.now() - t0 > 9000) res([...out]); else requestAnimationFrame(look); })();
+    }));
+    expect(seen).toEqual(['Click 1', 'Click 2']);
+    expect(await taps.evaluate(() => [window.__dg2.team(), getComputedStyle(document.querySelector('.dg-tap-cur')).display])).toEqual(['Wales', 'block']);
+    await expect(ob.locator('.v2-ob-replay')).toBeVisible({ timeout: 8000 });
     expect(await page.evaluate(() => (JSON.parse(localStorage.getItem('tp-pick-v1')).added || []).length)).toBe(0);
     await page.locator('#v2-ob-back').click();
-    await expect(count).toHaveText('Step 2 of 3');
+    await expect(count).toHaveText('Step 1 of 2');
     await next.click(); await next.click();
     // the game, with the team picked here, and the focus
     await expect(ob).toBeHidden();
@@ -584,32 +587,51 @@ test.describe('Version 2', () => {
     await expect(ob).toBeHidden();
   });
 
-  test('Onboarding: with a team picked it is two screens, Skip starts the game, and How to play brings it back', async ({ page }) => {
+  test('Onboarding: with a team picked it is one screen with no count, Skip starts the game, and How to play brings it back', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await page.locator('.tp-card2[aria-label="Japan"]').click();
     await playNow(page).click();
     const ob = page.locator('#v2-ob');
-    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 2');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
+    await expect(page.locator('#v2-ob-count')).toBeHidden();
+    await expect(page.locator('#v2-ob-back')).toBeHidden();
+    await expect(page.locator('#v2-ob-next')).toHaveText('Let’s play');
     await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Japan.');
     await expect(page.locator('#v2-play-how')).toBeHidden();
     // Change goes to the team cards, and comes back
     await page.locator('#v2-ob-change').click();
-    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 3');
+    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 2');
     await expect(ob.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(1);
     await page.locator('#v2-ob-next').click();
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
     await page.locator('#v2-ob-skip').click();
     await expect(ob).toBeHidden();
     await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
-    // How to play, beside the cross, opens the two rule screens again
+    // How to play, beside the cross, opens the rule screen again
     await page.locator('#v2-play-how').click();
     await expect(ob).toBeVisible();
-    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 2');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
     // the cross closes the whole game from here too
     await page.locator('#v2-play-close').click();
     await expect(page.locator('#v2-play')).toBeHidden();
     await expect(playNow(page)).toBeFocused();
+  });
+
+  test('Onboarding on a touch phone: the words and the picture say Tap, with no pointer', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: SIZES[390] }, hasTouch: true, isMobile: true });
+    const page = await ctx.newPage();
+    await page.goto(v2url('hifi'));
+    await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })));
+    await page.reload();
+    await playNow(page).tap();
+    const ob = page.locator('#v2-ob');
+    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(ob.locator('.v2-ob-tips li')).toHaveText([/^Tap anywhere to drop the ball\.$/, /^Tap again as it bounces/, /^Score and/]);
+    const taps = page.frame({ url: /demo=taps/ });
+    await taps.waitForFunction(() => window.__dg2 && window.__dg2.phase() === 'drop', null, { timeout: 9000 });
+    expect(await taps.evaluate(() => [document.getElementById('dg-tap-l').textContent, getComputedStyle(document.querySelector('.dg-tap-cur')).display])).toEqual(['Tap 1', 'none']);
+    await ctx.close();
   });
 
   test('Onboarding: closing with the cross leaves it unseen, and Reset shows it again', async ({ page }) => {
@@ -628,20 +650,21 @@ test.describe('Version 2', () => {
     await expect(page.locator('#v2-ob')).toBeVisible();
   });
 
-  test('Onboarding: with reduced motion the pictures stay still', async ({ page }) => {
+  test('Onboarding: with reduced motion the picture stays still', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 320, height: SIZES[320] });
     await page.goto(v2url('wireframe'));
     await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })));
     await page.reload();
     await playNow(page).click();
-    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Two taps to kick');
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Two clicks to kick');
     const taps = page.frame({ url: /demo=taps/ });
     await taps.waitForFunction(() => window.__dg2);
     await page.waitForTimeout(2500);
     expect(await taps.evaluate(() => window.__dg2.phase())).toBe('hold');
-    // nothing runs off the side at 320 wide in the wider system font
+    // nothing runs off the side at 320 wide in the wider system font, and the picture keeps a readable size
     expect(await page.evaluate(() => { const f = document.querySelector('.v2-ob-foot'); return f.scrollWidth <= f.clientWidth; })).toBe(true);
+    expect((await page.locator('#v2-ob .v2-ob-phone:visible').boundingBox()).width).toBeGreaterThan(110);
   });
 
   // The result on phones (24 Nov): the card pushes the field up, and the top is Kick again alone

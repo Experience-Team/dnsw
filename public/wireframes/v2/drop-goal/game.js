@@ -19,9 +19,8 @@
   /* Demo (?demo): Home's how-to-play snippet. The game plays itself through one goal when the page asks
      (window.__dgDemo.play), then rests with the ball in the hands and tells the page (onDone). It takes no input, says
      nothing to screen readers, saves nothing and never opens the result. */
-  const DEMO_M = /[?&]demo(?:=(taps|place))?(?:&|$)/.exec(location.search), DEMO = !!DEMO_M, DEMO_PLACE = DEMO && DEMO_M[1] === 'place';
-  /* ?demo=taps and ?demo=place are the onboarding's two pictures: the whole screen as it is, playing once. place goes
-     on to the result card and shows Save being pressed (the look only) */
+  const DEMO = /[?&]demo(?:=taps)?(?:&|$)/.test(location.search);
+  /* ?demo=taps is the onboarding's picture: the whole screen as it is, playing once */
   let demoGo = false, demoRan = false;
 
   /* ---------- timing (seconds, from the first tap) ----------
@@ -241,13 +240,17 @@
     start();
     if (DEMO && demoGo && !reduce.matches) {
       if (demoRan) { demoGo = demoRan = false; markAt(T.release); if (window.__dgDemo.onDone) window.__dgDemo.onDone(); }   /* once through: rest here */
-      else after(0.9, () => { if (phase === 'hold' && demoGo) { demoRan = true; demoTap(); drop(); } });
+      else after(0.9, () => { if (phase === 'hold' && demoGo) { demoRan = true; demoTap(1); drop(); } });
     }
   }
-  /* Demo: a ring where a tap would be */
-  function demoTap() {
-    const el = $('dg-tap');
-    if (el && el.animate) el.animate([{ opacity: 1, transform: 'scale(.6)' }, { opacity: .9, transform: 'scale(1)', offset: .3 }, { opacity: 0, transform: 'scale(1.5)' }], { duration: 520, easing: 'ease-out' });
+  /* Demo: where a press lands, and which it is: Tap 1, Tap 2 on touch screens, Click 1, Click 2 with a mouse. The
+     marker holds long enough to read, and the ring pulses out from under it */
+  const CLICK = document.documentElement.classList.contains('is-click');
+  function demoTap(n) {
+    const el = $('dg-tap'), ring = $('dg-tap-ring'); if (!el || !el.animate) return;
+    $('dg-tap-l').textContent = (CLICK ? 'Click ' : 'Tap ') + n;
+    el.animate([{ opacity: 0 }, { opacity: 1, offset: .08 }, { opacity: 1, offset: .75 }, { opacity: 0 }], { duration: n === 1 ? 760 : 900, easing: 'linear' });
+    ring.animate([{ transform: 'scale(.55)' }, { transform: 'scale(1)', offset: .35 }, { transform: 'scale(1.25)' }], { duration: 520, easing: 'ease-out', fill: 'forwards' });
   }
 
   /* first tap: the hands open and the ball drops */
@@ -329,7 +332,7 @@
     if (phase === 'drop') {
       dropBallAt(t); markAt(t);
       setHead(Math.abs(t - (T.bounce + T.perfect)) <= T.tol ? 'now' : 'kick');
-      if (DEMO && !D.kicked && t >= T.bounce + T.perfect) { demoTap(); kick(T.bounce + T.perfect); return; }   /* the second tap, as it comes up */
+      if (DEMO && !D.kicked && t >= T.bounce + T.perfect) { demoTap(2); kick(T.bounce + T.perfect); return; }   /* the second tap, as it comes up */
       if (t >= T.end && !D.kicked) { D.none = true; kick(T.end); }   /* never tapped: the boot swings anyway, late */
     } else if (phase === 'swing') {
       dropBallAt(D.tTap + t);
@@ -356,14 +359,6 @@
     if (DEMO) {   /* the win, shown and no more: a place between the posts, then the next ball */
       const dp = (window.DG2Places || []).find(p => p.image && !p.stand_in) || window.DG2Places[0];
       setHead(true); showFrame(dp);
-      if (DEMO_PLACE) {   /* on to the result card, Save pressed, and it rests there */
-        after(1.1, () => { if (phase !== 'goal' || !demoGo) return; setPhase('result'); R.open(dp, teams, () => {}); R.demoSave(false);
-          /* the card comes up the screen, so the name and Save are in the picture */
-          after(0.7, () => { const rs = $('dg-result'), b = $('dg-r-name'); if (phase === 'result' && demoGo) rs.scrollTo({ top: Math.max(0, b.getBoundingClientRect().top + rs.scrollTop - 150), behavior: 'smooth' }); });
-          after(1.9, () => { if (phase === 'result' && demoGo) R.demoSave(true); });
-          after(2.7, () => { if (phase === 'result' && demoGo) { demoGo = demoRan = false; if (window.__dgDemo.onDone) window.__dgDemo.onDone(); } }); });
-        return;
-      }
       after(1.7, () => { if (phase === 'goal') { hideFrame(); D.note = null; pass(); } });
       return;
     }

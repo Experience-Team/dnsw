@@ -78,8 +78,8 @@
   }
 
   const BOOKMARK = on => `<svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M1.5 1.5h9v11L6 9.6 1.5 12.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
-  function saveBtn(b, p, as) {
-    const on = as === undefined ? isSaved(p) : as;   /* as: the look only, for the onboarding's picture (nothing is saved) */
+  function saveBtn(b, p) {
+    const on = isSaved(p);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.setAttribute('aria-label', on ? `Saved ${p.name} to your plan. Press to remove it` : `Save ${p.name} to your plan`);
     b.innerHTML = `<span class="dg-save-in">${BOOKMARK(on)}<span>${on ? 'Saved' : 'Save'}</span></span>`;
@@ -221,10 +221,8 @@
   const api = {
     next, open, close, openPlaces, fits, isOpen: () => !res.hidden || (!placesEl.hidden && !closingP),
     frameSVG: () => '', say: () => {}, saved, setFor,
-    /* For the game playing itself (game.js, ?demo): quiet takes no focus; demoSave shows Save pressed without saving;
-       reset puts the result away at once */
+    /* For the game playing itself (game.js, ?demo): quiet takes no focus; reset puts the result away at once */
     quiet: false,
-    demoSave(on) { if (!shown) return; const b = $('dg-r-save'); saveBtn(b, shown, on); if (on) pop(b); },
     reset() { push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
   };
   window.DG2Result = api;

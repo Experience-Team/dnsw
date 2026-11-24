@@ -13,9 +13,11 @@
   var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m ? m[1] : 'hifi';
   try { if (parent !== window && parent.document) t = parent.document.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe'; } catch (e) {}
   d.setAttribute('data-theme', t);
-  // The game playing itself, taking no input: ?demo is Home's snippet (trimmed to the kick); ?demo=taps and ?demo=place
-  // are the onboarding's two pictures, the whole screen as it is
-  var dm = /[?&]demo(?:=(taps|place))?(?:&|$)/.exec(q); if (dm) d.classList.add(dm[1] ? 'is-demo-full' : 'is-demo');
+  // The game playing itself, taking no input: ?demo is Home's snippet (trimmed to the kick); ?demo=taps is the
+  // onboarding's picture, the whole screen as it is. Each press is marked and named: Tap on a touch screen, Click with
+  // a mouse (is-click)
+  var dm = /[?&]demo(?:=(taps))?(?:&|$)/.exec(q); if (dm) d.classList.add(dm[1] ? 'is-demo-full' : 'is-demo');
+  if (dm && matchMedia('(hover: hover) and (pointer: fine)').matches) d.classList.add('is-click');
 })();</script>
 <title>Drop goal · Version 2</title>
 <link rel="stylesheet" href="game.css" />
@@ -49,8 +51,9 @@
     <p class="dg-head" id="dg-head" aria-hidden="true">Tap to drop</p>
     <button type="button" class="dg-link dg-link--pitch" id="dg-see">See the places</button>
   </div>
-  <!-- Demo only (?demo): a ring where a tap would be, at each of the two taps -->
-  <i class="dg-tap" id="dg-tap" aria-hidden="true"></i>
+  <!-- Demo only (?demo): where each of the two presses lands, marked and named. A ring and "Tap 1", "Tap 2" on touch
+       screens; with a mouse, a pointer on the ring and "Click 1", "Click 2" -->
+  <i class="dg-tap" id="dg-tap" aria-hidden="true"><span class="dg-tap-ring" id="dg-tap-ring"></span><svg class="dg-tap-cur" width="22" height="26" viewBox="0 0 22 26" focusable="false"><path d="M2 2v19l5-4.6 3.4 7.6 3.2-1.5-3.3-7.4H18z" fill="#fff" stroke="#111" stroke-width="1.8" stroke-linejoin="round"/></svg><b class="dg-tap-l" id="dg-tap-l"></b></i>
 </main>
 <!-- Result screen (docs/drop-goal-style.png, left): the pitch with the place framed in the posts and Kick again, then the
      place card inside the coloured borders. Stacked on phones, side by side from 700px wide. -->

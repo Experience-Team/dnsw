@@ -212,5 +212,14 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .is-demo :is(.dg-table, .dg-top, .dg-hint, #dg-see) { display: none; }
 .is-demo .dg-foot { padding-bottom: 12px; gap: 8px; }
 .is-demo .dg-head { font-size: clamp(22px, 9vw, 34px); }
-:is(.is-demo, .is-demo-full) .dg-tap { display: block; position: absolute; left: 50%; bottom: calc(var(--foot) + 28px); width: 44px; height: 44px; margin-left: -22px; border-radius: 50%; border: 3px solid var(--on-pitch); background: rgba(255, 255, 255, .25); opacity: 0; pointer-events: none; }
-:root[data-theme="wireframe"]:is(.is-demo, .is-demo-full) .dg-tap { background: rgba(0, 0, 0, .12); }
+:is(.is-demo, .is-demo-full) .dg-tap { display: block; position: absolute; left: 50%; bottom: calc(var(--foot) + 28px); width: 44px; height: 44px; margin-left: -22px; opacity: 0; pointer-events: none; font-style: normal; }
+.dg-tap-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--on-pitch); background: rgba(255, 255, 255, .25); }
+:root[data-theme="wireframe"] .dg-tap-ring { background: rgba(0, 0, 0, .12); }
+/* The press, named: on a dark chip under the ring, large enough to read in the onboarding's scaled-down picture */
+.dg-tap-l { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: 3px 8px; border-radius: var(--r-chip); background: var(--chip); color: #fff; font: 700 13px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.is-demo-full .dg-tap-l { font-size: 22px; padding: 5px 10px; }
+.is-demo-full .dg-tap { width: 64px; height: 64px; margin-left: -32px; bottom: calc(var(--foot) + 64px); }
+/* With a mouse: a pointer, its tip at the centre of the ring */
+.dg-tap-cur { display: none; position: absolute; left: 50%; top: 50%; margin: -2px 0 0 -2px; overflow: visible; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3)); }
+.is-click .dg-tap-cur { display: block; }
+.is-demo-full.is-click .dg-tap-cur { width: 30px; height: 36px; }

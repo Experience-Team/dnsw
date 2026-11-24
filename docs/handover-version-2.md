@@ -43,10 +43,12 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
   Escape, the phone's back button. Focus and the page's scroll come back as they were. `?view=kick` opens it directly.
 - **How to play:** Home's Play section shows the game playing itself (`v2/drop-goal/index.html?demo`) in place of the
   still: a ring at each of the two taps, on a loop, only while on screen, with Pause; still under reduced motion.
-- **Onboarding** (`v2/v2-onboard.js`): the first time the game is opened, two rule screens (Two taps to kick, Score to
-  find a place), each with the game playing itself once, and a team screen first when no team is picked (skippable).
-  Skip on every screen; first time only (`v2:v2ob-seen`), then the ? beside the game's cross. The user chose two rule
-  screens, first time only, and to keep Home's animation as well.
+- **Onboarding** (`v2/v2-onboard.js`): the first time the game is opened, one rule screen, Two taps to kick, with the
+  game playing itself once and each press marked and named, and a team screen first when no team is picked
+  (skippable). On a touch screen the words and marker say Tap; with a mouse, Click, with a pointer. Skip on every
+  screen; first time only (`v2:v2ob-seen`), then the ? beside the game's cross. The user first chose two rule screens,
+  then asked for Score to find a place to be folded into the first (24 Nov). The game's own words still say Tap on
+  desktop: raised, not decided.
 - **Team screen on the pitch:** the onboarding's team cards sit on the game's field (green and lines; greys in low
   fidelity), with small text on dark chips.
 - **Result on phones:** the card slides up and pushes the field off the top in one movement; the top is Kick again
@@ -161,7 +163,7 @@ worked out from the fixtures, not held. Approved by the user on 24 Nov.
 
 ## Tests
 
-`tests/regression/v2.behaviour.spec.js` (48 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
+`tests/regression/v2.behaviour.spec.js` (49 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
 places; both themes at 390 and 320). Run `npx playwright test --project=behaviour tests/regression/v2.behaviour.spec.js`.
 
 - **Human pace:** three tests use real mouse clicks at 0.76, 0.9 and 0.98s and must score. Since #624, CLAUDE.md

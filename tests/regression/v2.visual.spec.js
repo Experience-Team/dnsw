@@ -21,7 +21,7 @@ const STATES = {
   home: async () => {},
   menu: async (page) => { await page.locator('#v2-menu-btn').click(); await settle(page); },
   'home-play': async (page) => { await page.locator('#tp-home-kick').scrollIntoViewIfNeeded(); await settle(page); },
-  // Onboarding (reduced motion, so its pictures are still): the team cards, then the first rule screen
+  // Onboarding (reduced motion, so its pictures are still): the team cards, then the rule screen
   'onboard-team': async (page) => { await page.emulateMedia({ reducedMotion: 'reduce' }); await page.locator('#tp-home-kick button.tp-home-cta').click(); await settle(page); },
   'onboard-taps': async (page) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
