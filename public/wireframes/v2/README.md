@@ -13,7 +13,7 @@
 | A behaviour script from Options A to C (`concepts-teams.js`, `concepts-third-half.js`, `concepts-map.js`, `concepts-plan.js`, `concepts-home.js`, `concepts-flow-c.js`) is never loaded by Version 2. Copy it here as `v2-*.js` if needed. | Those scripts change with Options A to C. |
 | Saved state is filed under `v2:` in this browser's storage (the first script in the page's head does it), and Reset clears only `v2:` keys. | Testing one version never changes another's picks. |
 | The phone keeps the id `tp-phone`, so components copied across keep their shared styles. Version 2 sets `data-flow="v2"` on `<html>` for anything that must differ. | Copied components look right without restyling. |
-| Version 2's tabs show only Version 2 and its iterations, with no way back to Options A to C. Options A to C link here once, from their left panel above View on your phone (24 Nov, the user's ask), and nowhere else: not in their tabs or their phone Settings menu. | The two are reviewed separately, and Version 2 stays a fresh start. |
+| Version 2's tabs show only Version 2 and its iterations. The two versions link to each other once each, from the left panel above View on your phone (Open Version 2 there, Open Version 1 here; 24 Nov, the user's ask), and nowhere else: not in either's tabs or phone Settings menu. | The two are reviewed separately, and Version 2 stays a fresh start. |
 
 The regression suite checks both directions on every PR: `tests/regression/v2.behaviour.spec.js` and
 `tests/regression/v2.visual.spec.js` cover Version 2, and the existing specs cover Options A to C. A change meant for

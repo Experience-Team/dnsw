@@ -54,8 +54,10 @@ Kicker's team list or `v2:dg-team`, the above replaces them.
 `public/wireframes/prototype-pick-your-team-v2.html`: a fresh prototype, separate from Options A to C
 (`prototype-pick-your-team.html`). It uses the same styles, components and data, and none of their behaviour.
 
-- **Tabs:** Version 2, and a dashed Iterations placeholder that isn't a link. Version 2 doesn't link to Options A to C.
-  The phone-view Settings menu lists links only.
+- **Tabs:** Version 2, and a dashed Iterations placeholder that isn't a link. The phone-view Settings menu lists links
+  only.
+- **The way back:** Version 2 links to Version 1 (Options A to C) once, from its left panel above View on your phone
+  ("Open Version 1", 24 Nov, at the user's ask), styled in `v2/v2.css`. Not in its tabs or phone Settings menu.
 - **The way in:** Options A to C link to Version 2 once, from their left panel above View on your phone ("Open
   Version 2", added on 24 Nov at the user's ask). Not in their tabs or their phone Settings menu. Its styles sit in
   that page's `<head>`, so `shared.css` is unchanged.
