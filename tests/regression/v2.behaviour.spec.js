@@ -493,7 +493,7 @@ test.describe('Version 2', () => {
   test('How to play: the snippet plays once when it comes into view, then rests with Replay, and it changes nothing', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
-    await expect(page.locator('.v2-demo-how')).toHaveText('How to play: tap to drop the ball, then tap again as it bounces.');
+    await expect(page.locator('.v2-demo-how')).toHaveText('How to play: click to drop the ball, then click again as it bounces.');   // with a mouse; tap on a touch screen
     const d = demoOf(page), replay = page.locator('#v2-demo-replay');
     // out of view: nothing has played
     await page.waitForTimeout(1500);

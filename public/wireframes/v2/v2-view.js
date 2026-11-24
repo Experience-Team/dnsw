@@ -172,6 +172,9 @@
     var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), rb = document.getElementById('v2-demo-replay');
     if (!box || !fr || !rb) return;
     var seen = false, done = false;
+    // With a mouse the line says click, as the onboarding does
+    var how = document.getElementById('v2-demo-how');
+    if (how && matchMedia('(hover: hover) and (pointer: fine)').matches) how.innerHTML = '<strong>How to play:</strong> click to drop the ball, then click again as it bounces.';
     function api() { try { return fr.contentWindow && fr.contentWindow.__dgDemo; } catch (e) { return null; } }
     function sync() {
       var a = api(); if (!a) return;

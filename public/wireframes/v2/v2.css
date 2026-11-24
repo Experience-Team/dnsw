@@ -121,3 +121,22 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 #tp-phone .v2-ob.is-pitch .tp-fan-caption:empty { display: none; }
 #tp-phone .v2-ob.is-pitch .tp-fan-caption * { color: inherit; }
 #tp-phone .v2-ob.is-pitch :is(.v2-ob-skip, .tp-link):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ---------- Desktop website (a wide window, no phone frame): the onboarding in a centred column ----------
+   On a phone it fills the screen edge to edge. On a wide screen the same screens sit in a column, so the team cards keep
+   their shape and the picture, tips and buttons read as one piece */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .v2-ob-top, .pv-device #tp-phone .v2-ob-panel, .pv-device #tp-phone .v2-ob-foot { padding-inline: max(var(--space-5), calc((100% - 600px) / 2)); }
+  .pv-device #tp-phone .v2-ob-panel--team { padding-inline: max(var(--space-5), calc((100% - 760px) / 2)); }
+  .pv-device #tp-phone .v2-ob-top { padding-right: max(68px, calc((100% - 600px) / 2)); min-height: 84px; }
+  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-top { padding-left: max(var(--space-5), calc((100% - 760px) / 2)); } /* in line with the team screen's wider column */
+  .pv-device #tp-phone .v2-ob-h { font-size: 2rem; }
+  .pv-device #tp-phone .v2-ob-p, .pv-device #tp-phone .v2-ob-tips { font-size: 1rem; }
+  .pv-device #tp-phone .v2-ob-teams { margin-inline: 0; }
+  .pv-device #tp-phone .v2-ob-foot { padding-block: var(--space-4) var(--space-5); background: none; border-top: 0; }
+  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-foot { background: none; }
+  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-why { align-self: center; justify-self: center; margin-inline: auto; flex: 0 0 auto; padding: var(--space-2) var(--space-3); border-radius: 12px; background: rgba(0, 32, 16, .78); color: #fff; }
+  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-foot { justify-content: center; }
+  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-next { flex: 0 0 100%; }
+  .pv-device #tp-phone .v2-ob .tp-home-cta { min-width: 0; align-self: auto; }
+}
