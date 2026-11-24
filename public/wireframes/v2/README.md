@@ -24,7 +24,7 @@ one version that moves the other's screenshots or fails its smoke tests is a reg
 | File | What it holds |
 | --- | --- |
 | `v2.css` | Version 2's own page styles. |
-| `drop-goal/` | Drop goal's kick screen (24 Nov 2026, `docs/drop-goal-brief.md`, Kick screen), shown in the phone in a frame. `kit.js` and `kicker.js` are copies of Options A to C's `drop-goal/js/teams.js` and `rig.js`, trimmed; `game.js` ports concept lab card 10's two-tap timing unchanged. `?team=<name>` dresses the kicker; the page sets it from the review-only Kicker's team list in the left panel. |
+| `drop-goal/` | Drop goal's kick screen (24 Nov 2026, `docs/drop-goal-brief.md`, Kick screen), shown in the phone in a frame. `kit.js` and `kicker.js` are copies of Options A to C's `drop-goal/js/teams.js` and `rig.js`, trimmed; `game.js` ports concept lab card 10's two-tap timing unchanged. `places.js` holds the places (§19 destinations, fixtures only); `result.js` picks the place, and draws the result card and See the places. Save writes Version 2's own copy of the planner's saved state (`v2:tp-pick-v1`). `?team=<name>` dresses the kicker; the page sets it from the review-only Kicker's team list in the left panel. |
 
 ## Iterations
 

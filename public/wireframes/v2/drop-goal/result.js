@@ -1,0 +1,193 @@
+/* Drop goal, Version 2: which place a goal lands in, the result screen, See the places, and Save.
+   docs/drop-goal-brief.md (Result screen, Places). Style: docs/drop-goal-style.png (left).
+   - The person's places come from where their team plays in NSW (the match fixtures, ../../concepts-fixtures.js):
+     Sydney, Newcastle, or both, two from the city of their next match for every one from the other. No team: both,
+     taking turns. Within each city no place repeats until every one has been shown (kept for this visit).
+   - Save writes Version 2's own copy of the planner's saved state (the same shape as Options A to C's tp-pick-v1, in
+     concepts-teams.js), filed under v2:, so Version 2's plan can read it once it has one. Nothing else is changed.
+   - The result screen is a full-screen layer over the kick screen; See the places is a full-screen layer too, open
+     from the kick screen and the result, so nobody has to score to see the places. */
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const PLACES = window.DG2Places || [];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const CITY = { sydney: 'Sydney', newcastle: 'Newcastle' };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const IMG = f => '../../assets/images/' + encodeURIComponent(f);
+
+  /* ---------- the person's matches ---------- */
+  const FIX = (window.cnFixtures || []).filter(f => !f.a && f.t);
+  const MON = { Oct: 9, Nov: 10 };
+  const dateOf = f => { const m = /(\d+) (\w+)/.exec(f.d); return Date.UTC(2027, MON[m[2]], +m[1]); };
+  const cityOf = f => (f.v === 'Newcastle Stadium' ? 'newcastle' : 'sydney');
+  const matchesOf = team => (team ? FIX.filter(f => f.t.split(' v ').indexOf(team) > -1).sort((a, b) => dateOf(a) - dateOf(b)) : []);
+  function nextOf(ms) { const today = Date.now(); return ms.find(m => dateOf(m) + 864e5 > today) || ms[0] || null; }
+
+  /* The set a goal draws from: which cities, and which one gets more weight */
+  function setFor(team) {
+    const ms = matchesOf(team), cities = [...new Set(ms.map(cityOf))];
+    if (!cities.length) return { cities: ['sydney', 'newcastle'], weight: null };
+    if (cities.length === 1) return { cities, weight: null };
+    const first = cityOf(nextOf(ms));
+    return { cities: [first, first === 'sydney' ? 'newcastle' : 'sydney'], weight: first };
+  }
+
+  /* ---------- rotation: no repeats within a city until all of it has been shown, kept for this visit ---------- */
+  const ROT = 'v2:dg-rotation';   /* under v2:, so Version 2's Reset clears it */
+  function rot() { try { return JSON.parse(sessionStorage.getItem(ROT)) || { seen: {}, k: 0 }; } catch (e) { return { seen: {}, k: 0 }; } }
+  function keep(r) { try { sessionStorage.setItem(ROT, JSON.stringify(r)); } catch (e) {} }
+  function next(team) {
+    const S = setFor(team), r = rot();
+    let city;
+    if (S.cities.length === 1) city = S.cities[0];
+    else if (S.weight) city = r.k % 3 < 2 ? S.cities[0] : S.cities[1];   /* two from the next match's city, then one */
+    else city = S.cities[r.k % 2];                                        /* no team: take turns */
+    r.k++;
+    const all = PLACES.filter(p => p.host_city === city);
+    let seen = (r.seen[city] || []).filter(id => all.some(p => p.id === id));
+    if (seen.length >= all.length) seen = [];
+    const fresh = all.filter(p => seen.indexOf(p.id) < 0);
+    const pick = fresh[Math.floor(Math.random() * fresh.length)];
+    seen.push(pick.id); r.seen[city] = seen; keep(r);
+    return pick;
+  }
+
+  /* FITS: the match day it fits around, from the person's team; otherwise a general line */
+  function fits(p, team) {
+    const ms = matchesOf(team).filter(m => cityOf(m) === p.host_city), m = nextOf(ms);
+    return m ? `${m.d}: before or after ${m.t}` : `A free day around ${CITY[p.host_city]}`;
+  }
+
+  /* ---------- Save: Version 2's own copy of the planner's saved state ---------- */
+  const KEY = 'v2:tp-pick-v1';
+  function readState() { try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); return s && typeof s === 'object' ? s : {}; } catch (e) { return {}; } }
+  function saved() { const a = readState().added; return Array.isArray(a) ? a.filter(x => x && x.kind === 'kick') : []; }
+  const isSaved = p => saved().some(x => x.id === 'kick:' + p.id);
+  /* The item has the planner's shape for a Drop goal save: Saved, not placed yet, never slotted onto a day */
+  function toggle(p) {
+    const s = readState(), on = !isSaved(p);
+    const added = Array.isArray(s.added) ? s.added.filter(x => !(x && x.id === 'kick:' + p.id)) : [];
+    if (on) added.push({ id: 'kick:' + p.id, kind: 'kick', title: p.name, day: '', unplaced: true, kick: { place: p.id, host_city: p.host_city } });
+    s.added = added;
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    return on;
+  }
+
+  const BOOKMARK = on => `<svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M1.5 1.5h9v11L6 9.6 1.5 12.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+  function saveBtn(b, p) {
+    const on = isSaved(p);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.setAttribute('aria-label', on ? `Saved ${p.name} to your plan. Press to remove it` : `Save ${p.name} to your plan`);
+    b.innerHTML = BOOKMARK(on) + `<span>${on ? 'Saved' : 'Save'}</span>`;
+  }
+  function onSave(p, b) {
+    const on = toggle(p);
+    saveBtn(b, p);
+    document.querySelectorAll(`.dg-save[data-id="${p.id}"]`).forEach(x => { if (x !== b) saveBtn(x, p); });
+    countLine();
+    api.say(on ? `${p.name} saved to your plan.` : `${p.name} removed from your plan.`);
+  }
+
+  /* A picture, or the drawn placeholder with the place's name (no picture yet, or the wireframe) */
+  function photo(p, cls) {
+    const pic = p.image ? `<img src="${IMG(p.image)}" alt="" loading="lazy">` : '';
+    return `<span class="${cls}${p.stand_in ? ' dg-sample' : ''}${p.image ? ' has-img' : ''}" role="img" aria-label="${esc(p.image ? (p.stand_in ? 'Stand-in picture for ' : 'Picture of ') + p.name : 'Picture of ' + p.name + ' to come')}">` +
+      `<span class="dg-ph" aria-hidden="true"><svg width="20" height="16" viewBox="0 0 20 16"><rect x="1" y="1" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 13l4.5-5 3.5 3.5 2.5-2.5L17 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>${esc(p.name)}</span>${pic}</span>`;
+  }
+  const tagsHTML = p => (p.tags && p.tags.length ? `<ul class="dg-tags dg-sample">${p.tags.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '');
+
+  /* ---------- the result screen ---------- */
+  const res = $('dg-result'), stage = $('dg');
+  let shown = null, onAgain = null, openerR = null;
+  function open(p, team, again) {
+    shown = p; onAgain = again;
+    $('dg-r-frame').innerHTML = api.frameSVG(p);
+    $('dg-r-photo').innerHTML = photo(p, 'dg-r-img');
+    $('dg-r-name').textContent = p.name;
+    $('dg-r-tags').innerHTML = tagsHTML(p);
+    const d = $('dg-r-desc'); d.textContent = p.summary || ''; d.classList.toggle('dg-sample', !!p.sample); d.hidden = !p.summary;
+    $('dg-r-fits').textContent = fits(p, team);
+    $('dg-r-travel').textContent = p.travel ? p.travel + ' (estimate)' : 'Travel time to be confirmed';
+    const b = $('dg-r-save'); b.dataset.id = p.id; saveBtn(b, p);
+    res.scrollTop = 0;
+    res.hidden = false; stage.inert = true;
+    document.documentElement.classList.add('is-result');
+    if (!reduce.matches && res.animate) {
+      res.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' });
+      $('dg-r-card').animate([{ transform: 'translateY(48px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, delay: 80, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
+    }
+    $('dg-r-name').focus({ preventScroll: true });
+  }
+  function close() {
+    if (res.hidden) return;
+    const done = () => { res.hidden = true; document.documentElement.classList.remove('is-result'); };
+    stage.inert = false;
+    if (!reduce.matches && res.animate) res.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in' }).onfinish = done; else done();
+    stage.focus({ preventScroll: true });
+    const f = onAgain; onAgain = null; shown = null;
+    if (f) f();
+  }
+  $('dg-r-again').addEventListener('click', close);
+  $('dg-r-save').addEventListener('click', e => { if (shown) onSave(shown, e.currentTarget); });
+  res.addEventListener('keydown', e => { if (e.key === 'Escape' && placesEl.hidden) { e.preventDefault(); close(); } });
+
+  /* ---------- See the places ---------- */
+  const placesEl = $('dg-places');
+  let openerP = null, team0 = '', inertWas = [];
+  function row(p) {
+    return `<li class="dg-pl-row">${photo(p, 'dg-pl-img')}<div class="dg-pl-t"><b>${esc(p.name)}</b>${tagsHTML(p)}</div>` +
+      `<button type="button" class="dg-save" data-id="${p.id}"></button></li>`;
+  }
+  function countLine() {
+    const n = saved().length, el = $('dg-pl-count');
+    if (el) el.textContent = n ? `${n} saved to your plan` : '';
+  }
+  function renderPlaces(all) {
+    const S = setFor(team0), mine = PLACES.filter(p => S.cities.indexOf(p.host_city) > -1), rest = PLACES.filter(p => mine.indexOf(p) < 0);
+    const where = S.cities.length === 2 ? 'Sydney and Newcastle' : CITY[S.cities[0]];
+    let html = `<h3 class="dg-pl-h" id="dg-pl-mine">${team0 ? `Near ${esc(team0)}’s matches in ${where}` : 'Around Sydney and Newcastle'}</h3><ul class="dg-pl-list">${mine.map(row).join('')}</ul>`;
+    if (rest.length) {
+      html += all ? `<h3 class="dg-pl-h" id="dg-pl-more" tabindex="-1">More places</h3><ul class="dg-pl-list">${rest.map(row).join('')}</ul>`
+        : `<button type="button" class="dg-link" id="dg-pl-all">See all ${PLACES.length} places</button>`;
+    }
+    $('dg-pl-body').innerHTML = html;
+    $('dg-pl-body').querySelectorAll('.dg-save').forEach(b => saveBtn(b, PLACES.find(p => p.id === b.dataset.id)));
+    countLine();
+  }
+  /* In the Version 2 phone view the page's Settings icon sits top right, where this layer's close cross goes (check 7):
+     it steps aside while the places are open */
+  function pageSettings(show) { try { const t = parent !== window && parent.document.getElementById('v2-top'); if (t) t.style.visibility = show ? '' : 'hidden'; } catch (e) {} }
+  function openPlaces(from, team) {
+    pageSettings(false);
+    openerP = from; team0 = team;
+    renderPlaces(false);
+    inertWas = [stage, res].map(el => [el, el.inert]); stage.inert = true; res.inert = true;
+    placesEl.hidden = false; placesEl.scrollTop = 0;
+    if (!reduce.matches && placesEl.animate) placesEl.animate([{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
+    $('dg-pl-title').focus({ preventScroll: true });
+  }
+  function closePlaces() {
+    if (placesEl.hidden) return;
+    placesEl.hidden = true;
+    pageSettings(true);
+    inertWas.forEach(([el, was]) => { el.inert = was; }); inertWas = [];
+    if (openerP && openerP.isConnected) openerP.focus({ preventScroll: true });
+    openerP = null;
+  }
+  $('dg-pl-close').addEventListener('click', closePlaces);
+  placesEl.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePlaces(); } });
+  placesEl.addEventListener('click', e => {
+    const b = e.target.closest('.dg-save');
+    if (b) { onSave(PLACES.find(p => p.id === b.dataset.id), b); return; }
+    if (e.target.closest('#dg-pl-all')) { renderPlaces(true); $('dg-pl-more').focus({ preventScroll: false }); }
+  });
+  /* Layers are not the pitch: a press on them never kicks */
+  [res, placesEl].forEach(el => el.addEventListener('pointerdown', e => e.stopPropagation()));
+
+  const api = {
+    next, open, close, openPlaces, isOpen: () => !res.hidden || !placesEl.hidden,
+    frameSVG: () => '', say: () => {}, saved, setFor
+  };
+  window.DG2Result = api;
+})();

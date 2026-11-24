@@ -170,13 +170,14 @@
    anything changes what is on screen. */
 (function () {
   var NOTES = [
-    { sel: '#v2-game-wrap', title: 'Drop goal: kick screen', points: [
-      'Design: styled to docs/drop-goal-style.png (right). On phones the nation table sits under the logo; the reference puts it bottom right on a wide screen.',
+    { sel: '#v2-game-wrap', title: 'Drop goal', points: [
+      'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo, and the result stacks the pitch above the card; side by side from 700px wide.',
       'Try it: tap, click, Space or Enter drops the ball, and again kicks it. Kick in the yellow KICK zone of the bar. Early goes wide of the near upright, late falls short.',
-      'Data: the nation table is sample scores; a goal adds 3 to the kicker\u2019s team. Sample is marked in pink.',
+      'Places: a goal frames a place between the posts, then the result card opens. The places come from where the kicker\u2019s team plays (Sydney, Newcastle or both, two from the next match\u2019s city for every one from the other); with no team, both in turn. No place repeats in a city until all of it has been shown.',
+      'Remembered: Save writes Version 2\u2019s own copy of the planner\u2019s saved state (the same shape as Options A to C\u2019s, Saved, not placed yet) under v2:. Version 2 has no Your plan yet to show it.',
+      'Data: places are \u00a719 destinations in v2/drop-goal/places.js, every field gap. Descriptions come from the destination pages where there is one; the rest, the tags, the travel estimates and stand-in pictures are sample, in pink. FITS is worked out from the fixtures.',
       'Prototype only: the kicker\u2019s team is set in the left panel until Version 2 has a team picker. With no team, the kicker wears the Third Half kit and the table has no +3.',
-      'Not built yet: the place between the posts, the result screen and See the places. Until then a goal says so and the next ball comes.',
-      'Reduced motion: the ball still drops, as the timing needs it, but there is no flight or pass: the result shows straight away.'
+      'Reduced motion: the ball still drops, as the timing needs it, but there is no flight, frame or card transition: the result opens straight away.'
     ] }
   ];
   var phone = document.getElementById('tp-phone'), stage = document.getElementById('tp-stage');

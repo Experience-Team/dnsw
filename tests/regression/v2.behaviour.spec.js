@@ -141,4 +141,79 @@ test.describe('Version 2', () => {
     await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
     await expect(page.locator('#v2-team')).toHaveValue('');
   });
+
+  // Result screen, See the places and Save (docs/drop-goal-brief.md, Result screen and Places)
+  const inGame = (page) => page.frameLocator('#v2-game');
+  async function score(page, f) {
+    await kickAt(f, 0.76);
+    await f.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+  }
+
+  test('Drop goal: a goal opens the result card with a place where the team plays', async ({ page }) => {
+    const f = await openGame(page, 'Wales');                 // Wales play in Sydney only
+    await score(page, f);
+    const g = inGame(page);
+    await expect(g.locator('#dg-result')).toBeVisible();
+    await expect(g.locator('.dg-r-kicker')).toHaveText(/The ball landed in/);
+    const id = await f.evaluate(() => window.__dg2.place());
+    expect(await f.evaluate((i) => window.DG2Places.find((p) => p.id === i).host_city, id)).toBe('sydney');
+    await expect(g.locator('#dg-r-fits')).toContainText('England v Wales');
+    await expect(g.locator('#dg-r-travel')).toContainText('(estimate)');
+    await expect(g.locator('#dg-r-name')).toBeFocused();
+  });
+
+  test('Drop goal: Save writes Version 2\'s own saved state, and pressing again removes it', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await score(page, f);
+    const save = inGame(page).locator('#dg-r-save');
+    await save.click();
+    await expect(save).toHaveAttribute('aria-pressed', 'true');
+    await expect(inGame(page).locator('#dg-say')).toHaveText(/saved to your plan/);
+    const st = await page.evaluate(() => JSON.parse(Storage.prototype.getItem.call(localStorage, 'v2:tp-pick-v1') || 'null'));
+    expect(st.added).toHaveLength(1);
+    expect(st.added[0]).toMatchObject({ kind: 'kick', unplaced: true, day: '' });
+    // Options A to C's saved state is untouched
+    expect(await page.evaluate(() => Object.keys(localStorage))).not.toContain('tp-pick-v1');
+    await save.click();
+    await expect(save).toHaveAttribute('aria-pressed', 'false');
+    expect(await page.evaluate(() => JSON.parse(Storage.prototype.getItem.call(localStorage, 'v2:tp-pick-v1')).added)).toHaveLength(0);
+  });
+
+  test('Drop goal: Kick again goes back to the pitch, and Escape does the same', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await score(page, f);
+    await inGame(page).locator('#dg-r-again').click();
+    await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 4000 });
+    await expect(inGame(page).locator('#dg-result')).toBeHidden();
+    await score(page, f);
+    await page.keyboard.press('Escape');
+    await expect(inGame(page).locator('#dg-result')).toBeHidden();
+  });
+
+  test('Drop goal: See the places opens without playing, the person\'s places first, then all', async ({ page }) => {
+    await openGame(page, 'Japan');                         // Japan play in Newcastle only
+    const g = inGame(page);
+    await g.locator('#dg-see').click();
+    await expect(g.locator('#dg-places')).toBeVisible();
+    await expect(g.locator('#dg-pl-mine')).toContainText('Newcastle');
+    await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(5);
+    await g.locator('#dg-pl-all').click();
+    await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(10);
+    await page.keyboard.press('Escape');
+    await expect(g.locator('#dg-places')).toBeHidden();
+    await expect(g.locator('#dg-see')).toBeFocused();
+  });
+
+  test('Drop goal: no place repeats until every place in the set has been shown', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const f = await openGame(page, 'Japan');
+    const seen = [];
+    for (let i = 0; i < 5; i++) {
+      await score(page, f);
+      seen.push(await f.evaluate(() => window.__dg2.place()));
+      await inGame(page).locator('#dg-r-again').click();
+      await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 4000 });
+    }
+    expect(new Set(seen).size).toBe(5);
+  });
 });

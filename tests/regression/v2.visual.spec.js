@@ -19,6 +19,20 @@ const STATES = {
     await page.reload(); await game(page);
   },
   settings: async (page) => { await game(page); await page.locator('#tp-dev-set').click(); await settle(page); },
+  // A goal for Wales, the result card settled (reduced motion, so it opens at once)
+  result: async (page) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(() => localStorage.setItem('dg-team', 'Wales'));
+    await page.reload(); await game(page);
+    const f = page.frame({ url: /drop-goal/ });
+    await f.evaluate(() => { const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
+    await f.waitForFunction(() => window.__dg2.phase() === 'result');
+    await settle(page);
+  },
+  places: async (page) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await game(page); await page.frameLocator('#v2-game').locator('#dg-see').click(); await settle(page);
+  },
 };
 
 for (const theme of ['hifi', 'wireframe']) {

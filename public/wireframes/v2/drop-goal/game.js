@@ -3,8 +3,7 @@
    timings (T), how a kick is judged (contact), the two miss lines, the next ball arriving with a pass, and a tap at
    any point after a miss taking the next ball at once. Only the drawing is new: the scene is laid out flat in screen
    space to match docs/drop-goal-style.png (right), so the flight is a curve towards the posts, not card 10's 3D path.
-   Not built yet (later stages of docs/drop-goal-brief.md): the place framed in the posts, the result screen and See
-   the places. Until then a goal says so on the kick screen and the next ball comes. */
+   A goal frames a place between the posts, then the result screen opens (result.js); Kick again comes back here. */
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -75,6 +74,26 @@
     });
   }
 
+  /* ---------- the place framed between the posts, above the bar ---------- */
+  const R = window.DG2Result;
+  function frameMarkup(p, id) {
+    const pts = [[NEAR.x, NEAR.top], [FAR.x, FAR.top], [FAR.x, barY(FAR)], [NEAR.x, barY(NEAR)]].map(q => q.join(',')).join(' ');
+    const x = NEAR.x, y = NEAR.top, w = FAR.x - NEAR.x, h = barY(FAR) - NEAR.top;
+    const img = p.image && document.documentElement.getAttribute('data-theme') === 'hifi'
+      ? `<image href="../../assets/images/${encodeURIComponent(p.image)}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice"/>` : '';
+    const cx = x + w / 2, cy = y + h * 0.52;
+    return `<clipPath id="${id}"><polygon points="${pts}"/></clipPath><g clip-path="url(#${id})"><rect class="dg-frame-ph" x="${x}" y="${y}" width="${w}" height="${h}"/>` +
+      `<g class="dg-frame-icon" transform="translate(${cx - 10} ${cy - 8})"><rect x="1" y="1" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 13l4.5-5 3.5 3.5 2.5-2.5L17 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></g>${img}</g>`;
+  }
+  const frameG = $('dg-frame');
+  function showFrame(p) {
+    frameG.innerHTML = frameMarkup(p, 'dg-clip-a');
+    if (!reduce.matches && frameG.animate) frameG.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: 'ease-out' });
+  }
+  function hideFrame() { frameG.innerHTML = ''; }
+  /* The result screen's pitch: the same lines and posts, with the place in the frame */
+  R.frameSVG = p => $('dg-lines').outerHTML.replace('id="dg-lines"', '') + frameMarkup(p, 'dg-clip-b') + $('dg-posts').outerHTML.replace('id="dg-posts"', '');
+
   /* ---------- the ball ---------- */
   const B = C.ball;
   const BALL = `<ellipse rx="17" ry="11.5" fill="${B.base}" stroke="${B.line}" stroke-width="1.6"/>` +
@@ -84,6 +103,7 @@
   ballG.innerHTML = `<g id="dg-ball-in">${BALL}</g>`;
   const ballIn = $('dg-ball-in');
   $('dg-mark-ball').innerHTML = BALL;
+  $('dg-r-ball').innerHTML = `<g transform="rotate(-28)">${BALL}</g>`;
   const ball = { x: 0, y: 0, rot: -40, s: 1, o: 1, sq: 1 };
   function drawBall() {
     ballG.setAttribute('opacity', ball.o.toFixed(3));
@@ -155,6 +175,7 @@
   function setHint(txt) { if (txt) hint.textContent = txt; hint.classList.toggle('is-off', !txt); }
   function setHead(goal) { head.textContent = goal ? 'Goal' : 'Tap to kick'; head.classList.toggle('is-goal', !!goal); }
   function say(msg) { sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = msg; }, 30); }
+  R.say = say;
 
   /* ---------- the loop ---------- */
   let phase = 'hold', t0 = 0, now = performance.now(), raf = 0, timers = [];
@@ -168,7 +189,7 @@
     step(); updateKicker();
     if (phase === 'hold' || (phase === 'pass' && !D.passing)) ballInHands();
     drawBall();
-    const moving = phase !== 'hold' || timers.length || (pose.dur && now < pose.t0 + pose.dur * 1000 + 40);
+    const moving = (phase !== 'hold' && phase !== 'result') || timers.length || (pose.dur && now < pose.t0 + pose.dur * 1000 + 40);
     if (moving) raf = requestAnimationFrame(loop);
   }
 
@@ -278,18 +299,22 @@
 
   function resolve() { if (D.out === 'goal') goal(); else miss(D.out); }
 
-  /* Until the place and the result screen are built (later stages), a goal says so here and the next ball comes */
+  /* the win: +3, a place framed between the posts, then the result screen. Reduced motion: straight to it */
   function goal() {
     setPhase('goal');
     goals++;
     renderTable();
     setHead(true);
+    const p = R.next(team); D.place = p;
     setHint(team ? `Through the posts. +3 for ${team}.` : 'Through the posts.');
     if (team) { plus.classList.remove('is-on'); void plus.offsetWidth; plus.classList.add('is-on'); }
-    say(team ? `Goal. Through the posts. 3 points for ${team}.` : 'Goal. Through the posts.');
-    D.note = 'Tap to kick again.';
-    after(1.6, () => { if (phase === 'goal') pass(); });
+    showFrame(p);
+    say(`Goal. The ball landed in ${p.name}.` + (team ? ` 3 points for ${team}.` : ''));
+    after(reduce.matches ? 0 : 1.2, result);
   }
+  function result() { if (phase !== 'goal') return; setPhase('result'); R.open(D.place, team, kickAgain); }
+  /* Kick again: back to the pitch, and the next ball comes */
+  function kickAgain() { hideFrame(); D.note = null; pass(); }
 
   /* a miss is friendly: it says what happened in plain words, the next ball is on its way, and a tap takes it at once */
   function miss(kind) {
@@ -319,10 +344,12 @@
 
   /* ---------- input: tap, click, Space or Enter ---------- */
   function tap() {
+    if (R.isOpen()) return;                                  /* the result and the places are not the pitch */
     now = performance.now();                                 /* one clock: every tap is timed on performance.now() */
+    if (phase === 'goal') { timers = []; result(); return; }
     if (phase === 'hold') drop();
     else if (phase === 'drop') { const td = (now - t0) / 1000; if (td > T.release + 0.05) kick(td); }
-    else if (phase === 'miss' || phase === 'pass' || phase === 'goal') again();
+    else if (phase === 'miss' || phase === 'pass') again();
   }
   const stage = $('dg');
   stage.addEventListener('pointerdown', e => {
@@ -331,9 +358,16 @@
     tap();
   });
   document.addEventListener('keydown', e => {
+    if (R.isOpen()) return;
     if (e.target && e.target.closest && e.target.closest('button')) return;      /* a button's own Enter and Space */
     if (e.code === 'Space' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); }
   });
+
+  /* See the places: from the kick screen and from the result, never a kick */
+  const see = $('dg-see');
+  see.addEventListener('pointerdown', e => e.stopPropagation());
+  see.addEventListener('click', () => R.openPlaces(see, team));
+  $('dg-r-see').addEventListener('click', e => R.openPlaces(e.currentTarget, team));
 
   /* ---------- the page around it: theme and annotations, when shown in the Version 2 phone ---------- */
   (function () {
@@ -355,5 +389,5 @@
   drawPitch(); drawPosts(); renderTable();
   setPose('ready'); markAt(T.release);
   hold();
-  window.__dg2 = { phase: () => phase, team: () => team, goals: () => goals, T };   /* read-only, for the regression checks */
+  window.__dg2 = { phase: () => phase, team: () => team, goals: () => goals, place: () => (D.place ? D.place.id : null), T };   /* read-only, for the regression checks */
 })();
