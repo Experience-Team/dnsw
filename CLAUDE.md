@@ -8,6 +8,9 @@
 - Each prototype version keeps to its own files. Work on one version never edits another's files or a file they share
   (styles, scripts, data); it copies what it needs into its own folder and changes the copy (see
   `public/wireframes/v2/README.md`).
+- The prototypes are for approval, not a development hand-off. Spend the time on what an approver sees: it looks and
+  feels polished on a current phone (390 wide) and on desktop. Don't spend time on hardening a developer would do
+  later. For example, don't check or fix layouts for a 320px device.
 
 # Previews
 
@@ -68,7 +71,7 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    focused), not from a guess, and measure the rendered result. Clip only the sides that are meant to run on (a fan
    or carousel running off the edge); let a brief lift or pull rise out of the box rather than reserving space for it.
    Text meant to sit on one line (a tab label, a slogan line, a button) holds on one line in every theme and font,
-   from 320 to 390px wide, not only in the theme being worked in; the wireframe's system font is wider than the high
+   at 390 wide and on desktop, not only in the theme being worked in; the wireframe's system font is wider than the high
    fidelity one, and a page-wide rule can let text wrap.
    Anything pinned to the bottom of the screen (a bar, a sheet's foot, the Kick bar, the plan bar) has a faint 1px top
    rule in the soft line colour, so it reads as sitting above the content that scrolls under it.
@@ -182,7 +185,7 @@ Implementation lessons that testing caught; they are about the code, not the exp
   there) by its id, never by the section it usually sits in. For example, Reset broke on Home because it looked for
   the team picker inside the planner while Home had borrowed it.
 9. **Look, don't only measure.** Check every change by eye from screenshots in both themes (low and high fidelity) at
-   390 and 320 wide, in each state the change touches. Use `?phone&theme=wireframe` or `?phone&theme=hifi`: without
+   390 wide and on desktop, in each state the change touches. Use `?phone&theme=wireframe` or `?phone&theme=hifi`: without
    `?phone` the phone frame stays 358 wide at any window size.
    Measurements back up the look but don't replace it. Optical alignment (centring, padding, indents, even gaps) is
    judged from the rendered pixels, because fonts and their metrics differ between themes and devices. For example,
