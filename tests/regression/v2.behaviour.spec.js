@@ -109,7 +109,7 @@ test.describe('Version 2', () => {
     await page.evaluate(() => localStorage.setItem('v2ob-seen', '1'));   // past the first-time onboarding (tested on its own below)
     await page.goto(v2url('hifi', 'view=kick'));
     await expect(page.locator('#v2-play')).toBeVisible();
-    await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
+    await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/(tap|click) to drop/i);
     return frameOf(page);
   }
   // Two key presses, the second at the given time after the first (seconds), timed inside the game
@@ -122,7 +122,7 @@ test.describe('Version 2', () => {
     // every kicker has a team (January brief): with none, the game waits behind the team screen
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi', 'view=kick'));
-    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
+    await expect(page.locator('#v2-ob .v2-ob-h')).toHaveText('Who are you kicking for?');
     expect(await page.locator('#v2-game').getAttribute('src')).toBeNull();
     const f = await openGame(page, 'Wales');
     expect(await f.evaluate(() => window.__dg2.team())).toBe('Wales');
@@ -166,7 +166,7 @@ test.describe('Version 2', () => {
     await expect(page.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(0);
     // no team again: Play now asks for one
     await page.locator('#tp-home-kick button.tp-home-cta').click();
-    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
+    await expect(page.locator('#v2-ob .v2-ob-h')).toHaveText('Who are you kicking for?');
   });
 
   // Result screen, See the places and Save (docs/drop-goal-brief.md, Result screen and Places)
@@ -289,6 +289,7 @@ test.describe('Version 2', () => {
     const g = inGame(page);
     await expect(g.locator('#dg')).toHaveAttribute('aria-label', /Space or Enter.*then again to kick it as it bounces/);
     await g.locator('#dg').focus();
+    await page.keyboard.press('Tab'); await expect(g.locator('#dg-change')).toBeFocused();   // Kicking for Wales · Change comes first
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-share')).toBeFocused();
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-see')).toBeFocused();
     const mine = await f.evaluate(() => document.querySelector('#dg-rows .is-mine').textContent);
@@ -340,21 +341,21 @@ test.describe('Version 2', () => {
   }
 
   // Teaching the two taps (24 Nov, from play-testing on a phone: one tap read as the whole game)
-  test('Drop goal: the call to act follows the two taps, and one tap alone says what was missing', async ({ page }) => {
+  test('Drop goal: the call to act follows the two presses, and one alone says what was missing (Click with a mouse)', async ({ page }) => {
     const f = await openGame(page, 'Wales');
     const g = inGame(page);
-    await expect(g.locator('#dg-head')).toHaveText('Tap to drop');
-    await expect(g.locator('#dg-hint')).toHaveText('Then tap again as it bounces.');
-    // one tap: the ball drops, Tap to kick, then Kick now while a kick would score
+    await expect(g.locator('#dg-head')).toHaveText('Click to drop');
+    // at rest, the line above the bar says what a goal lands on
+    await expect(g.locator('#dg-hint')).toHaveText('A goal lands on a place near where Wales play.');
     const seen = await f.evaluate(() => new Promise((res) => {
       const out = new Set(), head = document.getElementById('dg-head');
       document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
       const t0 = performance.now();
       (function look() { out.add(head.textContent); if (performance.now() - t0 < 1100) requestAnimationFrame(look); else res([...out]); })();
     }));
-    expect(seen).toEqual(expect.arrayContaining(['Tap to kick', 'Kick now']));
-    await expect(g.locator('#dg-say')).toHaveText('No kick. Tap once to drop, then again as it bounces.', { timeout: 4000 });
-    await expect(g.locator('#dg-head')).toHaveText('Tap to drop');
+    expect(seen).toEqual(expect.arrayContaining(['Click to kick', 'Kick now']));
+    await expect(g.locator('#dg-say')).toHaveText('No kick. Click once to drop, then again as it bounces.', { timeout: 4000 });
+    await expect(g.locator('#dg-head')).toHaveText('Click to drop');
   });
 
   // Polish pass (24 Nov): the things a person feels, checked with real presses
@@ -400,7 +401,7 @@ test.describe('Version 2', () => {
   test('Drop goal: on a wide screen the result stays hidden until a goal', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi');
-    await expect(page.locator('#dg-head')).toHaveText(/tap to drop/i);
+    await expect(page.locator('#dg-head')).toHaveText(/(tap|click) to drop/i);
     await expect(page.locator('#dg-result')).toBeHidden();
   });
 
@@ -506,7 +507,7 @@ test.describe('Version 2', () => {
     // once: it rests on Tap to drop and does not start again
     await expect(replay).toBeVisible();
     await page.waitForTimeout(3000);
-    expect(await d.evaluate(() => [window.__dg2.phase(), document.getElementById('dg-head').textContent])).toEqual(['hold', 'Tap to drop']);
+    expect(await d.evaluate(() => [window.__dg2.phase(), document.getElementById('dg-head').textContent])).toEqual(['hold', 'Click to drop']);   // with a mouse
     // scrolling away and back does not play it again
     await page.locator('#tp-home-reads').scrollIntoViewIfNeeded(); await page.locator('#v2-demo').scrollIntoViewIfNeeded();
     await page.waitForTimeout(2000);
@@ -535,158 +536,148 @@ test.describe('Version 2', () => {
     expect(await demoOf(page).evaluate(() => window.__dg2.phase())).toBe('hold');
   });
 
-  // Onboarding: how to play, the first time the game is opened (24 Nov). One rule screen (it was two), with a team
-  // screen first when no team is picked. These run with a mouse, so the words say Click; the touch test is below
+  // The team screen and the practice kick (24 Nov, the practice-kick brief). These run with a mouse, so the game says
+  // Click; the touch test is below
   const playNow = (page) => page.locator('#tp-home-kick button.tp-home-cta');
-  test('Onboarding: first time with no team, the team cards come first, then one rule screen, then the game', async ({ page }) => {
+  const game = (page) => frameOf(page);
+  const state = (f) => f.evaluate(() => ({ phase: window.__dg2.phase(), practice: window.__dg2.practice(), head: document.getElementById('dg-head').textContent,
+    hint: document.getElementById('dg-hint').textContent, goals: window.__dg2.goals(), place: window.__dg2.place(), rot: sessionStorage.getItem('v2:dg-rotation') }));
+  const pitchClick = async (page) => { const b = await page.locator('#v2-game').boundingBox(); await page.mouse.click(b.x + b.width / 2, b.y + b.height * 0.55); };
+
+  test('No team: the team screen is one tap, then the pitch opens with a practice kick that waits and does not count', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await playNow(page).click();
-    const ob = page.locator('#v2-ob'), next = page.locator('#v2-ob-next'), count = page.locator('#v2-ob-count');
-    await expect(ob).toBeVisible();
-    await expect(count).toHaveText('Step 1 of 2');
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Who are you kicking for?');
-    await expect(ob.locator('.v2-ob-h:visible')).toBeFocused();
-    // the team cards are Home's own, lent here; the screen can be passed without a pick
-    await expect(ob.locator('.tp-card2')).toHaveCount(24);
-    // a team is compulsory: the button is off and says why, and Skip is not offered here
-    await expect(next).toHaveText('Continue');
-    await expect(next).toHaveAttribute('aria-disabled', 'true');
-    await expect(page.locator('#v2-ob-why')).toHaveText('Pick a team to continue.');
-    await expect(ob.locator('.v2-ob-p:visible')).toContainText('No team? Pick the one you\u2019d like to follow.');
-    await expect(page.locator('#v2-ob-skip')).toBeHidden();
-    await next.click({ force: true });
-    await expect(count).toHaveText('Step 1 of 2');
-    await ob.locator('.tp-card2[aria-label="Wales"]').click();
-    await expect(next).not.toHaveAttribute('aria-disabled', 'true');
-    await expect(page.locator('#v2-ob-why')).toBeHidden();
-    // Clear all takes the team away, and the button waits again
-    await page.locator('#tp-clear').click();
-    await expect(next).toHaveAttribute('aria-disabled', 'true');
-    await ob.locator('.tp-card2[aria-label="Wales"]').click();
-    await expect(next).not.toHaveAttribute('aria-disabled', 'true');
-    // the team screen sits on the pitch, as the game does, and its small text is on dark chips so it can be read
+    const ob = page.locator('#v2-ob');
+    await expect(ob.locator('.v2-ob-h')).toHaveText('Who are you kicking for?');
+    await expect(ob.locator('.v2-ob-p')).toContainText('No team? Pick the one you’d like to follow.');
     await expect(ob).toHaveClass(/is-pitch/);
-    expect(await ob.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(85, 148, 74)');
-    const cap = await page.locator('#tp-fan-caption').evaluate((e) => { const b = e.querySelector('b, strong, span') || e; return [getComputedStyle(e).backgroundColor, getComputedStyle(e).color, getComputedStyle(b).color]; });
-    expect(cap).toEqual(['rgba(0, 32, 16, 0.78)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)']);
-    await next.click();
-    await expect(count).toHaveText('Step 2 of 2');
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
-    await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Wales.');
-    await expect(ob).not.toHaveClass(/is-pitch/);   // the rules are on the page's own background
-    await expect(page.locator('#v2-ob-skip')).toBeVisible();   // the rules can be skipped
-    await expect(next).toHaveText('Let’s play');
-    // three short tips: the two presses, then what a goal gets you
-    await expect(ob.locator('.v2-ob-tips li')).toHaveText([/^Click anywhere, or press Space, to drop the ball\.$/, /^Click again as it bounces/, /^Score and the ball lands on somewhere to go/]);
-    // the cards have gone back to Home
-    expect(await page.evaluate(() => document.getElementById('tp-picker').parentNode.id)).toBe('tp-home-hand');
-    // the picture is the game playing itself once, in the picked kit, each press named, then Replay shows
-    const taps = page.frame({ url: /demo=taps/ });
-    const seen = await taps.evaluate(() => new Promise((res) => {
-      const out = new Set(), l = document.getElementById('dg-tap-l'), el = document.getElementById('dg-tap'), t0 = performance.now();
-      (function look() { if (el.getAnimations().length && l.textContent) out.add(l.textContent); if (window.__dg2.phase() === 'goal' || performance.now() - t0 > 9000) res([...out]); else requestAnimationFrame(look); })();
-    }));
-    expect(seen).toEqual(['Click 1', 'Click 2']);
-    expect(await taps.evaluate(() => [window.__dg2.team(), getComputedStyle(document.querySelector('.dg-tap-cur')).display])).toEqual(['Wales', 'block']);
-    await expect(ob.locator('.v2-ob-replay')).toBeVisible({ timeout: 8000 });
-    expect(await page.evaluate(() => (JSON.parse(localStorage.getItem('tp-pick-v1')).added || []).length)).toBe(0);
-    await page.locator('#v2-ob-back').click();
-    await expect(count).toHaveText('Step 1 of 2');
-    await next.click(); await next.click();
-    // the game, with the team picked here, and the focus
-    await expect(ob).toBeHidden();
-    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Wales');
-    await expect(page.locator('#v2-game')).toBeFocused();
-    // seen: next time Play now goes straight to the game
+    // nothing to press but the cards: no Continue, no Skip
+    await expect(ob.locator('.tp-card2')).toHaveCount(24);
+    await expect(ob.locator('button:not(.tp-card2):visible')).toHaveCount(0);
+    expect(await page.locator('#v2-game').getAttribute('src')).toBeNull();
+    await ob.locator('.tp-card2[aria-label="Scotland"]').click();
+    await expect(page.locator('#v2-ob-now')).toHaveText('Kicking for Scotland');
+    await expect(ob).toBeHidden({ timeout: 3000 });
+    // the cards are back on Home, and the pitch says who is kicking
+    expect(await page.evaluate(() => [document.getElementById('tp-picker').parentNode.id, window.v2Picker.state.picked.join()])).toEqual(['tp-home-hand', 'Scotland']);
+    const g = inGame(page);
+    await expect(g.locator('#dg-who')).toContainText('Kicking for Scotland');
+    await expect.poll(() => game(page).evaluate(() => window.__dg2 && window.__dg2.practice())).toBe('drop');
+    const f = game(page);
+    expect(await state(f)).toMatchObject({ head: 'Click to drop', hint: 'Practice kick. Click to drop the ball.' });
+    await expect(g.locator('#dg-skip')).toBeVisible();
+    await expect(g.locator('#dg-see')).toBeHidden();
+    await expect(g.locator('#dg-say')).toContainText('Practice kick.');
+    // the ball drops and waits at the bounce, in the KICK zone, for as long as it takes
+    await pitchClick(page);
+    await f.waitForFunction(() => window.__dg2.phase() === 'wait', null, { timeout: 4000 });
+    await expect(g.locator('#dg-head')).toHaveText('Click now to kick');
+    await expect(g.locator('#dg-say')).toContainText('Click now to kick.');
+    const zone = await f.evaluate(() => { const z = document.getElementById('dg-zone').getBoundingClientRect(), m = document.getElementById('dg-mark').getBoundingClientRect(), c = m.left + m.width / 2; return c > z.left && c < z.right; });
+    expect(zone).toBe(true);
+    await page.waitForTimeout(2500);
+    expect((await state(f)).phase).toBe('wait');
+    // the kick is a goal, and it does not count
+    await pitchClick(page);
+    await f.waitForFunction(() => window.__dg2.phase() === 'goal', null, { timeout: 4000 });
+    await expect(g.locator('#dg-hint')).toHaveText('You’ve got it. This time it won’t wait: click as it bounces.');
+    await expect(g.locator('#dg-say')).toContainText('You’ve got it.');
+    await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 5000 });
+    expect(await state(f)).toMatchObject({ practice: null, goals: 0, place: null, rot: null, head: 'Click to drop' });
+    await expect(g.locator('#dg-result')).toBeHidden();
+    await expect(g.locator('#dg-skip')).toBeHidden();
+    await expect(g.locator('#dg-see')).toBeVisible();
+    // the game carries on as normal: a real kick that misses gets the game's own line
+    await pitchClick(page);
+    await expect(g.locator('#dg-say')).toHaveText('No kick. Click once to drop, then again as it bounces.', { timeout: 5000 });
+    // first time only
     await page.locator('#v2-play-close').click();
     await playNow(page).click();
     await expect(page.locator('#v2-play')).toBeVisible();
     await expect(ob).toBeHidden();
+    await page.waitForTimeout(400);
+    expect((await state(game(page))).practice).toBeNull();
   });
 
-  test('Onboarding: with a team picked it is one screen with no count, Skip starts the game, and How to play brings it back', async ({ page }) => {
+  test('A team picked on Home: no team screen, the practice kick can be skipped, and ? replays it', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await page.locator('.tp-card2[aria-label="Japan"]').click();
+    await page.locator('.tp-card2[aria-label="Wales"]').click();
     await playNow(page).click();
-    const ob = page.locator('#v2-ob');
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
-    await expect(page.locator('#v2-ob-count')).toBeHidden();
-    await expect(page.locator('#v2-ob-back')).toBeHidden();
-    await expect(page.locator('#v2-ob-next')).toHaveText('Let’s play');
-    await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Japan.');
-    await expect(page.locator('#v2-play-how')).toBeHidden();
-    // Change goes to the team cards, and comes back
-    await page.locator('#v2-ob-change').click();
-    await expect(page.locator('#v2-ob-count')).toHaveText('Step 1 of 2');
-    await expect(ob.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(1);
-    await page.locator('#v2-ob-next').click();
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
-    await page.locator('#v2-ob-skip').click();
-    await expect(ob).toBeHidden();
-    await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
-    // How to play, beside the cross, opens the rule screen again
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect(page.locator('#v2-ob')).toBeHidden();
+    const g = inGame(page);
+    // the first team picked kicks
+    await expect(g.locator('#dg-who')).toContainText('Kicking for Japan');
+    await expect.poll(() => game(page).evaluate(() => window.__dg2 && window.__dg2.practice())).toBe('drop');
+    await g.locator('#dg-skip').click();
+    expect(await state(game(page))).toMatchObject({ practice: null, phase: 'hold', hint: 'A goal lands on a place near where Japan play.' });
+    expect(await page.evaluate(() => localStorage.getItem('v2ob-seen'))).toBe('1');
+    // ? beside the cross plays it again
     await page.locator('#v2-play-how').click();
-    await expect(ob).toBeVisible();
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
-    // the cross closes the whole game from here too
+    await expect.poll(() => game(page).evaluate(() => window.__dg2.practice())).toBe('drop');
+    await g.locator('#dg-skip').click();
+    // closing with the cross during the practice kick leaves it for next time
+    await page.evaluate(() => localStorage.removeItem('v2ob-seen'));
     await page.locator('#v2-play-close').click();
-    await expect(page.locator('#v2-play')).toBeHidden();
-    await expect(playNow(page)).toBeFocused();
+    await playNow(page).click();
+    await expect.poll(() => game(page).evaluate(() => window.__dg2.practice())).toBe('drop');
+    await page.locator('#v2-play-close').click();
+    await playNow(page).click();
+    await expect.poll(() => game(page).evaluate(() => window.__dg2.practice())).toBe('drop');
   });
 
-  test('Onboarding on a touch phone: the words and the picture say Tap, with no pointer', async ({ browser }) => {
+  test('Change on the pitch: a tap makes that team the kicker and keeps the others picked on Home', async ({ page }) => {
+    const f0 = await openGame(page, 'Japan,Wales');
+    expect(f0).toBeTruthy();
+    const g = inGame(page), ob = page.locator('#v2-ob');
+    await g.locator('#dg-change').click();
+    await expect(ob.locator('.v2-ob-h')).toHaveText('Who are you kicking for?');
+    await expect(page.locator('#v2-play-how')).toBeHidden();
+    // a card already picked: it is chosen, never unpicked
+    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    await expect(page.locator('#v2-ob-now')).toHaveText('Kicking for Wales');
+    await expect(ob).toBeHidden({ timeout: 3000 });
+    expect(await page.evaluate(() => window.v2Picker.state.picked.join())).toBe('Wales,Japan');
+    await expect(g.locator('#dg-who')).toContainText('Kicking for Wales');
+    await expect.poll(() => game(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Wales');
+    // a new team: it kicks, and the two from Home are kept
+    await g.locator('#dg-change').click();
+    await ob.locator('.tp-card2[aria-label="Scotland"]').click();
+    await expect(ob).toBeHidden({ timeout: 3000 });
+    expect(await page.evaluate(() => window.v2Picker.state.picked.join())).toBe('Scotland,Wales,Japan');
+    await expect.poll(() => game(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Scotland');
+    await expect(g.locator('#dg-hint')).toHaveText('A goal lands on a Scotland watch party in NSW.');
+    // Home shows all three picked
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#tp-home .tp-card2[aria-pressed="true"]')).toHaveCount(3);
+  });
+
+  test('On a touch phone the game and the practice kick say Tap', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: SIZES[390] }, hasTouch: true, isMobile: true });
     const page = await ctx.newPage();
     await page.goto(v2url('hifi'));
     await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })));
     await page.reload();
     await playNow(page).tap();
-    const ob = page.locator('#v2-ob');
-    await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
-    await expect(ob.locator('.v2-ob-tips li')).toHaveText([/^Tap anywhere to drop the ball\.$/, /^Tap again as it bounces/, /^Score and/]);
-    const taps = page.frame({ url: /demo=taps/ });
-    await taps.waitForFunction(() => window.__dg2 && window.__dg2.phase() === 'drop', null, { timeout: 9000 });
-    expect(await taps.evaluate(() => [document.getElementById('dg-tap-l').textContent, getComputedStyle(document.querySelector('.dg-tap-cur')).display])).toEqual(['Tap 1', 'none']);
+    await expect.poll(() => frameOf(page) && frameOf(page).evaluate(() => window.__dg2 && window.__dg2.practice())).toBe('drop');
+    const g = inGame(page);
+    await expect(g.locator('#dg-head')).toHaveText('Tap to drop');
+    await expect(g.locator('#dg-hint')).toHaveText('Practice kick. Tap to drop the ball.');
+    await page.touchscreen.tap(195, 460);
+    await frameOf(page).waitForFunction(() => window.__dg2.phase() === 'wait', null, { timeout: 4000 });
+    await expect(g.locator('#dg-head')).toHaveText('Tap now to kick');
     await ctx.close();
   });
 
-  test('Onboarding: closing with the cross leaves the rules unseen, and Reset starts over', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: SIZES[390] });
-    await page.goto(v2url('hifi'));
-    const ob = page.locator('#v2-ob'), h = ob.locator('.v2-ob-h:visible');
-    await playNow(page).click();
-    await expect(h).toHaveText('Who are you kicking for?');
-    await page.locator('#v2-play-close').click();
-    await playNow(page).click();
-    await expect(h).toHaveText('Who are you kicking for?');
-    await ob.locator('.tp-card2[aria-label="Wales"]').click();
-    await page.locator('#v2-ob-next').click();
-    await expect(h).toHaveText('Two clicks to kick');
-    // the cross leaves the game: the team is kept, the rules are still to see
-    await page.locator('#v2-play-close').click();
-    await playNow(page).click();
-    await expect(h).toHaveText('Two clicks to kick');
-    await page.locator('#v2-ob-skip').click();
-    await expect(ob).toBeHidden();
-    await page.locator('#v2-play-close').click();
-    await playNow(page).click();
-    await expect(page.locator('#v2-play')).toBeVisible();
-    await expect(ob).toBeHidden();
-    await page.locator('#v2-play-close').click();
-    await page.locator('#tp-dev-set').click();
-    await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
-    await playNow(page).click();
-    await expect(h).toHaveText('Who are you kicking for?');
-  });
-
   // A team is compulsory before playing (January brief, 24 Nov)
-  test('A team is compulsory: every way into the game leads to the team screen, even once the rules are seen', async ({ page }) => {
+  test('A team is compulsory: every way into the game leads to the team screen, even once the practice kick is done', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await page.evaluate(() => localStorage.setItem('v2ob-seen', '1'));
-    const ob = page.locator('#v2-ob'), next = page.locator('#v2-ob-next');
+    const ob = page.locator('#v2-ob');
     const routes = {
       'Play now': () => playNow(page).click(),
       'the menu': async () => { await page.locator('#v2-menu-btn').click(); await page.locator('[data-v2-go="play"]').click(); },
@@ -695,20 +686,15 @@ test.describe('Version 2', () => {
     };
     for (const [name, go] of Object.entries(routes)) {
       await go();
-      await expect(ob.locator('.v2-ob-h:visible'), name).toHaveText('Who are you kicking for?');
-      // the rules are seen, so this is the only screen: no count, no Skip, and the button waits for a team
-      await expect(page.locator('#v2-ob-count')).toBeHidden();
-      await expect(page.locator('#v2-ob-skip')).toBeHidden();
-      await expect(next).toHaveText('Let\u2019s play');
-      await expect(next).toHaveAttribute('aria-disabled', 'true');
+      await expect(ob.locator('.v2-ob-h'), name).toHaveText('Who are you kicking for?');
       expect(await page.locator('#v2-game').getAttribute('src'), name).toBeNull();
       if (name !== '?view=kick') await page.locator('#v2-play-close').click();
     }
-    // with a team, straight into the game
+    // one tap, and straight into the game with no practice kick
     await ob.locator('.tp-card2[aria-label="Scotland"]').click();
-    await next.click();
-    await expect(ob).toBeHidden();
-    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Scotland');
+    await expect(ob).toBeHidden({ timeout: 3000 });
+    await expect.poll(() => frameOf(page) && frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Scotland');
+    expect(await frameOf(page).evaluate(() => window.__dg2.practice())).toBeNull();
   });
 
   test('Every NSW match is not a choice: it is offered nowhere, and saved from before it counts as no team', async ({ page }) => {
@@ -722,25 +708,8 @@ test.describe('Version 2', () => {
     await expect(page.locator('#tp-home [data-rugby]:visible, #tp-home .tp-rugby-line:visible')).toHaveCount(0);
     await expect(page.locator('#tp-fan2 .tp-card2')).toHaveCount(24);
     await playNow(page).click();
-    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
+    await expect(page.locator('#v2-ob .v2-ob-h')).toHaveText('Who are you kicking for?');
     await expect(page.locator('#v2-ob [data-rugby]:visible')).toHaveCount(0);
-  });
-
-  test('Onboarding: with reduced motion the picture stays still', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.setViewportSize({ width: 320, height: SIZES[320] });
-    await page.goto(v2url('wireframe'));
-    await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })));
-    await page.reload();
-    await playNow(page).click();
-    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Two clicks to kick');
-    const taps = page.frame({ url: /demo=taps/ });
-    await taps.waitForFunction(() => window.__dg2);
-    await page.waitForTimeout(2500);
-    expect(await taps.evaluate(() => window.__dg2.phase())).toBe('hold');
-    // nothing runs off the side at 320 wide in the wider system font, and the picture keeps a readable size
-    expect(await page.evaluate(() => { const f = document.querySelector('.v2-ob-foot'); return f.scrollWidth <= f.clientWidth; })).toBe(true);
-    expect((await page.locator('#v2-ob .v2-ob-phone:visible').boundingBox()).width).toBeGreaterThan(110);
   });
 
   // The result on phones (24 Nov): the card pushes the field up, and the top is Kick again alone
@@ -773,7 +742,7 @@ test.describe('Version 2', () => {
   test('Drop goal result on a wide screen keeps the posts and the framed place beside the card', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi&team=Wales');
-    await expect(page.locator('#dg-head')).toHaveText(/tap to drop/i);
+    await expect(page.locator('#dg-head')).toHaveText(/(tap|click) to drop/i);
     await page.evaluate(() => { const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
     await page.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
     await expect(page.locator('#dg-r-frame')).toBeVisible();

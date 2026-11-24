@@ -89,13 +89,27 @@
   function gameUrl(t) { return GAME + (t ? '?team=' + encodeURIComponent(t) : ''); }
   var loaded = null;
   function loadGame() {
-    var t = teams(); if (!t || t === loaded) return;
+    var t = teams(); if (!t || t === loaded) return false;
     // The first load sets the frame's address; later ones replace it, so the back button never steps through old games
     if (loaded === null) frame.src = gameUrl(t);
     else try { frame.contentWindow.location.replace(gameUrl(t)); } catch (e) { frame.src = gameUrl(t); }
     loaded = t;
+    return true;
   }
   var opener = null, inertWas = [], isOpen = false, leaving = null;
+  /* The practice kick (v2/drop-goal/game.js): the first time the pitch is shown, and from the ? beside the cross. Seen
+     is kept under v2: (v2ob-seen), so Reset shows it again; the game says when it is done or skipped */
+  var SEEN = 'v2ob-seen', wantPractice = false;
+  function seen() { try { return localStorage.getItem(SEEN) === '1'; } catch (e) { return false; } }
+  function gameApi() { try { return frame.contentWindow && frame.contentWindow.__dgPractice; } catch (e) { return null; } }
+  function practise() { var a = gameApi(); if (a && isOpen) { wantPractice = false; a.start(); focusGame(); } else wantPractice = true; }
+  // Onto the pitch: the game for the kicker (loaded again if the kicker changed), the focus, and the practice kick if
+  // it has not been seen
+  function enter() {
+    var fresh = loadGame();
+    if (!seen()) { if (fresh) wantPractice = true; else practise(); }
+    focusGame();
+  }
   function focusGame() { try { frame.focus(); var d = frame.contentDocument && frame.contentDocument.getElementById('dg'); if (d) d.focus({ preventScroll: true }); } catch (e) {} }
   function openGame(from, quick) {
     if (isOpen || !layer) return;
@@ -108,8 +122,9 @@
     phone.classList.add('v2-playing');
     if (window.v2DemoSync) window.v2DemoSync();
     if (!quick && layer.animate) layer.animate(still() ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
-    // First time: how to play, over the game (v2-onboard.js); otherwise the game takes the focus
-    if (!(window.v2Onboard && window.v2Onboard.start())) focusGame();
+    // No team: the team screen first, by every route (v2-onboard.js). Otherwise the pitch, with the practice kick the
+    // first time
+    if (!teams() && window.v2Onboard) window.v2Onboard.start(); else enter();
     try { history.pushState({ v2play: true }, ''); } catch (e) {}
     if (tp && tp.say) tp.say('Drop goal opened. Close the game is at the top right.');
   }
@@ -140,12 +155,16 @@
     closeBtn.addEventListener('click', closeGame);
     layer.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); closeGame(); } });
     // The game is ready as the page opens, so Play now shows it at once; a pick while it is closed dresses the kicker
-    frame.addEventListener('load', function () { if (isOpen) focusGame(); });
+    frame.addEventListener('load', function () { if (!isOpen) return; focusGame(); if (wantPractice) practise(); });
     loadGame();
     phone.addEventListener('tp:state', function () { if (!isOpen) loadGame(); });
   }
   // For the game (v2/drop-goal/): Escape on its kick screen closes it, and its own full-screen list hides the cross
-  window.v2Play = { open: openGame, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame,
+  var howB = document.getElementById('v2-play-how');
+  if (howB) howB.addEventListener('click', practise);
+  window.v2Play = { open: openGame, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame, enter: enter,
+    practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} },
+    changeTeam: function () { if (window.v2Onboard) window.v2Onboard.start(); },
     cross: function (show) { if (closeBtn) closeBtn.hidden = !show; var h = document.getElementById('v2-play-how'); if (h) h.hidden = !show; } };
 
   // Play now, and anything else that asks for the game or the planner by its old tab name

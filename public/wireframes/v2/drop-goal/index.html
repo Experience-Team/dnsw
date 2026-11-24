@@ -13,11 +13,10 @@
   var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m ? m[1] : 'hifi';
   try { if (parent !== window && parent.document) t = parent.document.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe'; } catch (e) {}
   d.setAttribute('data-theme', t);
-  // The game playing itself, taking no input: ?demo is Home's snippet (trimmed to the kick); ?demo=taps is the
-  // onboarding's picture, the whole screen as it is. Each press is marked and named: Tap on a touch screen, Click with
-  // a mouse (is-click)
-  var dm = /[?&]demo(?:=(taps))?(?:&|$)/.exec(q); if (dm) d.classList.add(dm[1] ? 'is-demo-full' : 'is-demo');
-  if (dm && matchMedia('(hover: hover) and (pointer: fine)').matches) d.classList.add('is-click');
+  // ?demo: Home's snippet, the game playing itself and taking no input. With a mouse the words say Click, not Tap
+  // (is-click), here and in the game itself
+  if (/[?&]demo(?:&|$)/.test(q)) d.classList.add('is-demo');
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) d.classList.add('is-click');
 })();</script>
 <title>Drop goal · Version 2</title>
 <link rel="stylesheet" href="game.css" />
@@ -32,6 +31,8 @@
     <g id="dg-kicker"></g>
     <g id="dg-ball"></g>
   </svg>
+  <!-- Who is kicking, and the way to change it (the Version 2 page's team screen). Shown when the page shows the game -->
+  <p class="dg-who" id="dg-who" hidden><span id="dg-who-t"></span><span aria-hidden="true"> &middot; </span><button type="button" class="dg-link" id="dg-change">Change<span class="dg-vh"> team</span></button></p>
   <header class="dg-top">
     <img class="dg-logo" src="../../assets/images/tth-logo.webp" alt="The Third Half" width="72" height="54" />
   </header>
@@ -50,6 +51,8 @@
     </div>
     <p class="dg-head" id="dg-head" aria-hidden="true">Tap to drop</p>
     <button type="button" class="dg-link dg-link--pitch" id="dg-see">See the places</button>
+    <!-- The practice kick only: past it, into the game -->
+    <button type="button" class="dg-link dg-link--pitch" id="dg-skip">Skip practice</button>
   </div>
   <!-- Demo only (?demo): where each of the two presses lands, marked and named. A ring and "Tap 1", "Tap 2" on touch
        screens; with a mouse, a pointer on the ring and "Click 1", "Click 2" -->

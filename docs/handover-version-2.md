@@ -30,6 +30,27 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
 - **Flow chart:** paused (above).
 - Everything else in `docs/drop-goal-brief.md` is built.
 
+## The practice kick (24 Nov, after the January brief)
+
+Decided by the user, don't reopen:
+
+- **Home's team cards** stay as they are (several, with Clear all). With any team picked on Home the game's team
+  screen is not shown; the first team picked is the kicker and decides what a goal lands on.
+- **Team screen is one tap** (`v2/v2-onboard.js`): a tap picks the team, "Kicking for [team]" shows for about half a
+  second, the pitch opens. No Continue, no disabled state. "No team? Pick the one you'd like to follow." stays.
+- **On the pitch:** "Kicking for [team] · Change" beside the logo. Change opens the team screen; a tap there makes
+  that team the kicker and keeps the other teams picked on Home.
+- **Practice kick** (`v2/drop-goal/game.js`, `window.__dgPractice`) replaces the rules screen, its picture and
+  Replay: Tap to drop, the ball stops at the bounce in the KICK zone, Tap now to kick, a goal at normal speed that
+  does not count, then "You've got it. This time it won't wait: tap as it bounces." Skip is on it. First time only
+  (`v2:v2ob-seen`); the ? beside the cross replays it. Each prompt is announced; nothing in it is timed.
+- **Click with a mouse:** the game's own words and the practice prompts say Click where they say Tap.
+- **What a goal lands on** is now said on the line above the timing bar, at rest (my recommendation, built).
+- **Polish, not hardening:** the user wants it polished on a phone and on desktop, with no time spent on 320px.
+
+Where the sections below mention the rules screen, Two taps to kick, Continue, or Skip on the onboarding, this replaces
+them.
+
 ## The January brief (24 Nov): team first, then what we show for that team
 
 Decided by the user, don't reopen: a team is compulsory before playing (an agreed exception to experience principle 2,
@@ -186,7 +207,7 @@ worked out from the fixtures, not held. Approved by the user on 24 Nov.
 
 ## Tests
 
-`tests/regression/v2.behaviour.spec.js` (55 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
+`tests/regression/v2.behaviour.spec.js` (54 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
 places; both themes at 390 and 320). Run `npx playwright test --project=behaviour tests/regression/v2.behaviour.spec.js`.
 
 - **Human pace:** three tests use real mouse clicks at 0.76, 0.9 and 0.98s and must score. Since #624, CLAUDE.md

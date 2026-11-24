@@ -1,49 +1,30 @@
-/* Version 2: Drop goal's onboarding (24 Nov 2026). Shown over the game the first time someone opens it; after that
-   Play now goes straight to the game, and How to play (the ? beside the game's close cross) brings it back.
-   - One screen of rules, Two taps to kick: a picture of the real game playing itself once
-     (v2/drop-goal/index.html?demo=taps, in a frame scaled down like a screenshot) with each press marked and named, a
-     Replay button once it has played, and three short tips: the two presses, then what a goal gets you. It was two
-     screens; Score to find a place was folded in. With reduced motion the picture stays still.
-   - Tap or click: on a touch screen the words say Tap; with a mouse (hover and a fine pointer) they say Click, and
-     the first tip adds "or press Space". The picture's own marker does the same (game.js).
-   - Team: a team is compulsory before playing (January brief, 24 Nov: what a goal lands on depends on the team, so this
-     flow is an agreed exception to experience principle 2). With a team picked on Home, the rules screen says who is
-     kicking, with Change. With none, the team screen comes first, every time the game is opened by any route, with
-     Home's own hand of cards (lent here by its id, so a pick is the same pick everywhere). Its button is off, and says
-     why, until a team is picked.
-   - Skip is on the rules screen only: it cannot pass the team screen. Finishing or skipping the rules marks them seen
-     (v2ob-seen, filed under v2:, so Reset shows them again); closing the game with the cross does not.
-   - Team screen and rules are sideways between equals (check 10): each slides in from the side it comes from, and the
-     step is read out. */
+/* Version 2: Drop goal's team screen (24 Nov 2026; one tap since the practice-kick brief). The rules screen that used
+   to follow it is gone: the game teaches itself with a practice kick on the pitch (v2/drop-goal/game.js), started by
+   v2-view.js the first time the game is opened and from the ? beside the close cross.
+   - A team is compulsory before playing (an agreed exception to experience principle 2, CLAUDE.md). With any team
+     picked on Home this screen is not shown: the first one picked is the kicker. With none, it comes first by every
+     route into the game.
+   - One tap: tapping a card picks that team, "Kicking for [team]" shows for about half a second, and the pitch opens.
+     There is no Continue and nothing to confirm.
+   - Change, on the pitch, opens this screen again. A tap makes that team the kicker (first in the picks) and keeps
+     any other teams picked on Home.
+   - The cards are Home's own hand (lent here by its id), so a pick is the same pick everywhere; here a tap never
+     unpicks, and the hand's caption and Clear all are left on Home.
+   - Home holds still while its cards are away (check 8). */
 (function () {
   'use strict';
   var ob = document.getElementById('v2-ob'), phone = document.getElementById('tp-phone');
   if (!ob || !phone) return;
-  var SEEN = 'v2ob-seen', GAME = 'v2/drop-goal/index.html';
   var tp = window.v2Picker;
-  var countEl = document.getElementById('v2-ob-count'), nextBtn = document.getElementById('v2-ob-next'), backBtn = document.getElementById('v2-ob-back');
-  var whyEl = document.getElementById('v2-ob-why');
-  var skipBtn = document.getElementById('v2-ob-skip'), teamsBox = document.getElementById('v2-ob-teams'), teamLine = document.getElementById('v2-ob-team');
+  var teamsBox = document.getElementById('v2-ob-teams'), nowEl = document.getElementById('v2-ob-now');
   var picker = document.getElementById('tp-picker'), gameFrame = document.getElementById('v2-game'), howBtn = document.getElementById('v2-play-how');
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
-  var esc = function (x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-  // With a mouse it is clicks, on a touch screen taps: the words follow how this person will play
-  var CLICK = matchMedia('(hover: hover) and (pointer: fine)').matches;
-  var WORDS = CLICK ? { taps: 'clicks', Tap: 'Click', space: ', or press Space,' } : { taps: 'taps', Tap: 'Tap', space: '' };
-  [].forEach.call(ob.querySelectorAll('[data-ob-word]'), function (el) { el.textContent = WORDS[el.dataset.obWord]; });
-  var NAMES = { team: 'Your team', taps: 'Two ' + WORDS.taps + ' to kick' };
-  var steps = [], at = -1, open = false;
+  var open = false, going = 0;
 
-  function seen() { try { return localStorage.getItem(SEEN) === '1'; } catch (e) { return false; } }
-  function mark() { try { localStorage.setItem(SEEN, '1'); } catch (e) {} }
   function picked() { return tp && tp.state && Array.isArray(tp.state.picked) ? tp.state.picked.slice() : []; }
   function kickers() { return picked().filter(function (n) { return n !== 'Every NSW match'; }); }
-  function panel(name) { return ob.querySelector('.v2-ob-panel[data-step="' + name + '"]'); }
 
-  /* ---------- the team cards, lent while the team screen shows ---------- */
-  /* Home holds still while its cards are away (check 8). Lending them changes Home's height above whatever the person
-     was looking at, and the hand lays itself out again a moment after it is back. So the section that was on screen
-     is remembered with where it sat, and the scroll is corrected to keep it there, at once and as Home settles. */
+  /* ---------- Home holds still while its cards are lent ---------- */
   var body = phone.querySelector('.cn-body'), homeEl = document.getElementById('tp-home'), anchor = null, settle = 0;
   function topOf(el) { return el.getBoundingClientRect().top - body.getBoundingClientRect().top; }
   function hold() { if (anchor && anchor.el.isConnected) { var d = topOf(anchor.el) - anchor.top; if (Math.abs(d) >= 0.5) body.scrollTop += d; } }
@@ -68,127 +49,55 @@
     settle = setTimeout(function () { hold(); anchor = null; }, 900);
   }
 
-  /* ---------- the pictures: the game playing itself, scaled like a screenshot ---------- */
-  var W = 360, H = 640;
-  function shot(name) { var p = panel(name); return p && { box: p.querySelector('.v2-ob-shot'), phone: p.querySelector('.v2-ob-phone'), frame: p.querySelector('iframe'), replay: p.querySelector('.v2-ob-replay') }; }
-  function api(s) { try { return s.frame.contentWindow && s.frame.contentWindow.__dgDemo; } catch (e) { return null; } }
-  // Sized from the room the picture has, skipped while hidden (widths read as zero), and only when that room changes
-  var roomWas = {};
-  function fit(name) {
-    var s = shot(name); if (!s || !s.box.clientHeight || !s.box.clientWidth) return;
-    var key = s.box.clientWidth + 'x' + s.box.clientHeight; if (roomWas[name] === key) return; roomWas[name] = key;
-    var k = Math.min((s.box.clientHeight - 4) / H, (s.box.clientWidth - 4) / W, 0.8);
-    s.phone.style.setProperty('--s', k.toFixed(4));
+  /* ---------- one tap picks the kicker ---------- */
+  function nameOf(card) { var n = card.querySelector('.tp-card2-name'); return n ? n.textContent.trim() : ''; }
+  // The team becomes the kicker: first in the picks, the others kept in their order
+  function makeKicker(name) {
+    var rest = tp.state.picked.filter(function (n) { return n !== name; });
+    tp.state.picked = [name].concat(rest);
+    tp.save();
   }
-  function playShot(name) {
-    var s = shot(name); if (!s) return;
-    var url = GAME + '?demo=' + name + (kickers().length ? '&team=' + encodeURIComponent(kickers().join(',')) : '');
-    s.replay.hidden = true;
-    var go = function () { var a = api(s); if (!a || steps[at] !== name || !open) return; a.onDone = function () { s.replay.hidden = false; }; a.play(); };
-    if (s.frame.dataset.url !== url) { s.frame.dataset.url = url; s.frame.onload = go; s.frame.src = url; }
-    else go();
-    fit(name);
+  function chosen(name) {
+    if (going || !name) return;
+    makeKicker(name);
+    nowEl.textContent = 'Kicking for ' + name; nowEl.hidden = false; ob.classList.add('is-chosen');
+    if (!still() && nowEl.animate) nowEl.animate([{ opacity: 0, transform: 'translate(-50%, -50%) scale(.92)' }, { opacity: 1, transform: 'translate(-50%, -50%)' }], { duration: 180, easing: 'ease-out' });
+    if (tp && tp.say) tp.say('Kicking for ' + name + '.');
+    going = setTimeout(function () { going = 0; close(true); }, 560);
   }
-  function stopShot(name) { var s = shot(name), a = s && api(s); if (a) a.stop(); }
-  ['taps'].forEach(function (name) {
-    var s = shot(name); if (!s) return;
-    s.replay.addEventListener('click', function () { playShot(name); panel(name).querySelector('.v2-ob-h').focus({ preventScroll: true }); });
-    if (window.ResizeObserver) new ResizeObserver(function () { fit(name); }).observe(s.box);
-  });
+  // In the capture phase, before the hand's own handler: a card already picked would be unpicked by it, and here a
+  // tap only ever chooses. A card not yet picked goes through to the hand (so the pick is the hand's own), then is
+  // made the kicker
+  teamsBox.addEventListener('click', function (e) {
+    var card = e.target.closest('.tp-card2'); if (!card || !open) return;
+    if (going) { e.stopPropagation(); e.preventDefault(); return; }
+    var name = nameOf(card);
+    if (kickers().indexOf(name) > -1) { e.stopPropagation(); e.preventDefault(); chosen(name); }
+    else setTimeout(function () { if (open && kickers().indexOf(name) > -1) chosen(name); }, 0);
+  }, true);
 
-  /* ---------- who is kicking ---------- */
-  // Whether the kicker's team has a match in NSW (the shared fixtures; a: the city when a match is outside NSW). It decides
-  // what a goal lands on: places near where they play, or their watch parties
-  function playsInNSW(team) { return (window.cnFixtures || []).some(function (f) { return !f.a && f.t && f.t.split(' v ').indexOf(team) > -1; }); }
-  function teamText() {
-    var k = kickers();
-    var win = document.getElementById('v2-ob-win');
-    if (win) win.innerHTML = k.length && !playsInNSW(k[0])
-      ? '<b>Score</b> and the ball lands on a watch party for ' + esc(k[0]) + ' in NSW. Save the ones you like.'
-      : '<b>Score</b> and the ball lands on somewhere to go near where ' + (k.length ? esc(k[0]) : 'your team') + ' play in NSW. Save the places you like.';
-    teamLine.innerHTML = (k.length === 0 ? 'Kicking in the Third Half kit.' : k.length === 1 ? 'Kicking for <b>' + esc(k[0]) + '</b>.' : 'Kicking for <b>' + esc(k[0]) + '</b>, the first of your ' + k.length + ' teams.') +
-      ' <button type="button" class="tp-link v2-ob-change" id="v2-ob-change">' + (k.length ? 'Change' : 'Pick a team') + '</button>';
-  }
-  function labels() {
-    var name = steps[at], last = at === steps.length - 1;
-    countEl.textContent = steps.length > 1 ? 'Step ' + (at + 1) + ' of ' + steps.length : ''; countEl.hidden = steps.length < 2;   // one screen needs no count
-    backBtn.hidden = at === 0;
-    if (at > 0) backBtn.querySelector('span').textContent = 'Back';
-    // Next says where it goes to screen readers; on screen it stays short, so it holds one line at 320 wide in both themes
-    nextBtn.querySelector('span').innerHTML = last ? 'Let’s play' : name === 'team' ? 'Continue' : 'Next<span class="visually-hidden">: ' + NAMES[steps[at + 1]] + '</span>';
-    // The team screen cannot be passed without a team: its button is off and the line above it says why. It stays
-    // focusable (aria-disabled, not disabled), so the reason is read out with it
-    var wait = name === 'team' && !kickers().length;
-    if (wait) { nextBtn.setAttribute('aria-disabled', 'true'); nextBtn.setAttribute('aria-describedby', 'v2-ob-why'); }
-    else { nextBtn.removeAttribute('aria-disabled'); nextBtn.removeAttribute('aria-describedby'); }
-    whyEl.hidden = !wait;
-    skipBtn.hidden = name === 'team';   // Skip skips the rules, never the team
-  }
-
-  /* ---------- moving between screens ---------- */
-  function show(k, dir, quiet) {
-    var was = steps[at];
-    if (was === 'team') lendBack();
-    if (was === 'taps') stopShot(was);
-    at = k;
-    var name = steps[at];
-    [].forEach.call(ob.querySelectorAll('.v2-ob-panel'), function (p) { p.hidden = p.dataset.step !== name; });
-    var p = panel(name);
-    ob.classList.toggle('is-pitch', name === 'team');   // the team cards sit on the pitch, as the game does
-    labels();
-    if (name === 'team') lendIn();
-    if (name === 'taps') teamText();
-    if (name === 'taps') playShot(name);
-    // Sideways between equals: it comes in from the side it comes from; reduced motion swaps in place
-    if (dir && !still() && p.animate) p.animate([{ opacity: 0, transform: 'translateX(' + (dir > 0 ? 28 : -28) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2,.7,.2,1)' });
-    p.querySelector('.v2-ob-h').focus({ preventScroll: true });
-    if (!quiet && tp && tp.say) tp.say(NAMES[name] + (steps.length > 1 ? ', step ' + (at + 1) + ' of ' + steps.length : '') + '.');
-  }
-  function start(o) {
-    o = o || {};
+  function start() {
     if (open) return true;
-    // No team: the team screen first, by every route, whether or not the rules have been seen. Then the rules, once
-    var need = !kickers().length;
-    if (!o.force && !need && seen()) return false;
-    steps = o.force && !need ? ['taps'] : (need ? ['team'] : []).concat(seen() && !o.force ? [] : ['taps']);
-    open = true; at = -1;
-    ob.hidden = false; gameFrame.inert = true; if (howBtn) howBtn.hidden = true;
+    open = true;
+    nowEl.hidden = true; ob.classList.remove('is-chosen');
+    ob.hidden = false; ob.classList.add('is-pitch'); gameFrame.inert = true; if (howBtn) howBtn.hidden = true;
     phone.classList.add('v2-onboarding');
-    if (!still() && ob.animate && o.force) ob.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' });
-    show(0, 0);
+    lendIn();
+    if (!still() && ob.animate) ob.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' });
+    ob.querySelector('.v2-ob-h').focus({ preventScroll: true });
+    if (tp && tp.say) tp.say('Who are you kicking for? Pick a team.');
     return true;
   }
-  // Puts it away. The game behind is as it was; with play, the game takes the teams picked here and the focus
+  // Puts it away. With play, the pitch takes over: the game loads for the kicker and takes the focus
   function close(play) {
     if (!open) return;
-    if (steps[at] === 'team') lendBack();
-    stopShot('taps');
-    open = false; at = -1;
-    ob.hidden = true; ob.classList.remove('is-pitch'); gameFrame.inert = false; if (howBtn) howBtn.hidden = false;
+    clearTimeout(going); going = 0;
+    lendBack();
+    open = false;
+    ob.hidden = true; gameFrame.inert = false; if (howBtn) howBtn.hidden = false;
     phone.classList.remove('v2-onboarding');
-    if (play && window.v2Play) { window.v2Play.reload(); window.v2Play.focus(); }
-  }
-  function finish() {
-    if (!kickers().length) { if (steps[0] !== 'team') steps.unshift('team'); show(0, -1); return; }   // never into the game without a team
-    if (steps.indexOf('taps') > -1) mark();
-    close(true); if (tp && tp.say) tp.say('Drop goal. Tap to drop the ball.');
+    if (play && window.v2Play) window.v2Play.enter();
   }
 
-  nextBtn.addEventListener('click', function () {
-    if (nextBtn.getAttribute('aria-disabled') === 'true') { if (tp && tp.say) tp.say(whyEl.textContent); return; }
-    if (at === steps.length - 1) finish(); else show(at + 1, 1);
-  });
-  backBtn.addEventListener('click', function () { if (at > 0) show(at - 1, -1); });
-  skipBtn.addEventListener('click', finish);
-  // Change, or Pick a team: the team screen, put first if it was not there
-  ob.addEventListener('click', function (e) {
-    if (!e.target.closest('#v2-ob-change')) return;
-    if (steps[0] !== 'team') { steps.unshift('team'); at++; }
-    show(0, -1);
-  });
-  // A pick on the team screen changes what its button says
-  phone.addEventListener('tp:state', function () { if (open && steps[at] === 'team') labels(); });
-  if (howBtn) howBtn.addEventListener('click', function () { start({ force: true }); });
-
-  window.v2Onboard = { release: release, start: start, close: function () { close(false); }, isOpen: function () { return open; } };
+  window.v2Onboard = { release: release, start: start, close: function () { close(false); }, isOpen: function () { return open; }, hasTeam: function () { return kickers().length > 0; } };
 })();
