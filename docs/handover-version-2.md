@@ -76,6 +76,51 @@ Preview (the user can only open this Vercel project):
 - The caption types on every change, so several times during one kick. The user was asked whether that is too busy
   and has not answered.
 
+### Catch-up done before this handover (24 Nov)
+
+1. Full behaviour suite run once: 111 passed (Version 2 and Options A to C).
+2. Tests added for everything built this session that had none: 25 new tests in
+   `tests/regression/v2.behaviour.spec.js` (79 in that file now). They caught one real bug, now fixed: after a pick
+   the team cards' line read "England addedd:".
+3. Low fidelity and reduced motion checked once across Home, the team screen, the practice kick, the pitch, a result
+   card, the places list and Your plan. One fix: Your plan's posters and pictures are grey blocks in low fidelity.
+4. Annotations and `v2/README.md` updated; this handover rewritten at the top.
+5. Unused styles removed: the old rules screen's rules in `v2.css`, and one unused icon in `result.js`.
+
+### Skipped, and still not done
+
+- **Keyboard-only walk-through** of Your plan, the places from Home and the phone card's close cross. Focus return is
+  tested; arrow keys, tab order and a focus trap in the Your plan sheet are not.
+- **Screenshot baselines:** none on main, so the screenshot check is red on every PR for that reason only (paused by
+  the user, below). The new screens have no visual tests.
+- **Download table and Copy for a spreadsheet** in Save & share are checked as present, not clicked, in tests.
+- **Toasts and the Save bar** (interaction checks 10 and 11) were deliberately not used in Your plan: the count line
+  and Undo confirm changes where the person is. Agreed with the user before building.
+- **Flow chart** for Version 2: paused by the user (below).
+- **`v2-plan.js`** (the day-by-day plan copied from Options A to C) and the hidden planner markup are still in the
+  page, unused. Left in place because the copied scripts lean on them.
+- **The game on its own address** (outside the page) still says See the places and has no Back button; only the page's
+  game was changed.
+
+### Open at hand-over
+
+- **#641** (open): See the places hidden inside the game, the typed caption, and this catch-up (docs, new tests, the
+  caption fix). The user merges PRs themselves, usually within minutes. If it has merged, restart the branch from
+  `origin/main` before the next change.
+- **Waiting on the user:** whether the typed caption is too busy during a kick; whether the phone card's cross should
+  do something different from Kick again; whether See the places should come back on the result card.
+
+### Ways of working agreed this session
+
+- `CLAUDE.md` now has a **How to work** section (what to do on every change, what to leave for the catch-up, and the
+  catch-up steps before a handoff), the Back button exception in interaction check 7, and a sideways-scrolling sweep
+  in check 6. Follow those.
+- One commit and one push per user message; draft PR; subscribe to it; send the phone link once, only when the
+  `mopo123-gmailcoms-projects` build is Ready. Never share the other Vercel project's links.
+- The preview host is not reachable from the cloud session, so readiness comes from the Vercel bot's PR comment.
+- Links ending `&view=kick` open the game once and then drop the flag; give the plain `?phone` link unless the game
+  itself is what changed.
+
 ## Paused by the user (24 Nov): don't start these unless asked
 
 1. **Screenshot baselines.** Main has no `tests/regression/__screenshots__/`, so on every PR the screenshot check

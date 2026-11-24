@@ -199,7 +199,7 @@
     renderMatches(on ? c.name : null, on ? null : c.name, keepTab);
     if (flowGo) flowScroll(c.name, 560);
     var msg = pickLine(c, on);
-    showCaption(c.name + (on ? ' added' : ' removed'), msg.slice((c.name + (on ? ' added' : ' removed')).length), note);
+    showCaption(c.name + (on ? ' picked' : ' removed'), msg.slice((c.name + (on ? ' picked' : ' removed')).length), note);   // picked, not added: the lead must match pickLine's word, or a letter is left behind
     say(msg + '.' + note);
     pickFlights(from, before, oldValue, barWasOn, c.rugby, 0);
     notesOnly(); // after the caption is rewritten, which would otherwise wipe its annotation badge
