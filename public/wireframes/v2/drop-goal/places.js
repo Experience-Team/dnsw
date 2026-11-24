@@ -16,7 +16,7 @@ window.DG2Places = [
   { id: 'blue-mountains', name: 'Blue Mountains lookout', host_city: 'sydney', ground: 'Stadium Australia',
     tags: ['Nature', 'Lookouts', 'Day trip'],
     summary: 'Katoomba is the main town of the World Heritage-listed Blue Mountains, a 90-minute drive or two-hour train ride from Sydney. It is the base for Echo Point and the Three Sisters, a steep scenic railway and skyway, and bushwalks into the Jamison Valley, with Art Deco streets, bars and breweries.',
-    travel: 'About 1 h 30 min by car from Stadium Australia', image: null },
+    travel: 'About 1 h 30 min by car from Stadium Australia', image: 'Bush.jpg', stand_in: true },
   { id: 'bondi-coogee', name: 'Bondi to Coogee walk', host_city: 'sydney', ground: 'Sydney Football Stadium',
     tags: ['Coast', 'Walks', 'Eastern Sydney'],
     summary: 'Bondi is Sydney’s world-famous beach suburb, about 30 minutes by public transport from Town Hall. It is home to the Bondi Icebergs ocean pool, the world’s oldest surf lifesaving club (1907), year-round surf and the start of the 6km Bondi to Coogee Coastal Walk.',
@@ -48,5 +48,5 @@ window.DG2Places = [
   { id: 'lake-macquarie', name: 'Lake Macquarie', host_city: 'newcastle', ground: 'Newcastle Stadium',
     tags: ['Lake', 'Walks', 'Cycling'],
     summary: 'Warners Bay is a lakeside suburb on Lake Macquarie, just under two hours’ drive from Sydney and 30 minutes from Newcastle. Its 9km waterfront path and Red Bluff Boardwalk suit walking and cycling, the Creative Lake Sculpture Trail features Australian artists, and Speers Point Park has a giant spiral slide.',
-    travel: 'About 25 min by car from Newcastle Stadium', image: null }
+    travel: 'About 25 min by car from Newcastle Stadium', image: 'river-national-park.webp', stand_in: true }
 ];

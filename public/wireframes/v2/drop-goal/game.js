@@ -93,14 +93,34 @@
   /* ---------- the place framed between the posts, above the bar ---------- */
   const R = window.DG2Result;
   R.quiet = DEMO;
+  /* The team's colour for a place with no picture: its strongest colour, ink or white on it by how light it is */
+  const lum = c => { const v = [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16) / 255).map(u => u <= .03928 ? u / 12.92 : Math.pow((u + .055) / 1.055, 2.4)); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; };
+  const TEAMC = { bg: C.ball.stripe, band: C.ball.stripe2, ink: lum(C.ball.stripe) > .2 ? '#111111' : '#ffffff' };
+  R.teamColour = TEAMC;
   function frameMarkup(p, id) {
     const pts = [[NEAR.x, NEAR.top], [FAR.x, FAR.top], [FAR.x, barY(FAR)], [NEAR.x, barY(NEAR)]].map(q => q.join(',')).join(' ');
     const x = NEAR.x, y = NEAR.top, w = FAR.x - NEAR.x, h = barY(FAR) - NEAR.top;
-    const img = p.image && document.documentElement.getAttribute('data-theme') === 'hifi'
+    const hifi = document.documentElement.getAttribute('data-theme') === 'hifi';
+    const img = p.image && hifi
       ? `<image href="../../assets/images/${encodeURIComponent(p.image)}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice"/>` : '';
-    const cx = x + w / 2, cy = y + h * 0.52;
-    return `<clipPath id="${id}"><polygon points="${pts}"/></clipPath><g clip-path="url(#${id})"><rect class="dg-frame-ph" x="${x}" y="${y}" width="${w}" height="${h}"/>` +
-      `<g class="dg-frame-icon" transform="translate(${cx - 10} ${cy - 8})"><rect x="1" y="1" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 13l4.5-5 3.5 3.5 2.5-2.5L17 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></g>${img}</g>`;
+    if (img || !hifi) {
+      const cx = x + w / 2, cy = y + h * 0.52;
+      return `<clipPath id="${id}"><polygon points="${pts}"/></clipPath><g clip-path="url(#${id})"><rect class="dg-frame-ph" x="${x}" y="${y}" width="${w}" height="${h}"/>` +
+        `<g class="dg-frame-icon" transform="translate(${cx - 10} ${cy - 8})"><rect x="1" y="1" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 13l4.5-5 3.5 3.5 2.5-2.5L17 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></g>${img}</g>`;
+    }
+    /* No picture (critique, 24 Nov): the place's name set large on the team's colour, so the goal still lands on
+       something. Words stack, sized to fill the frame and leaning with it; a band in the team's second colour runs along the bar, on the
+       same slope as the posts' tops */
+    const words = p.name.toUpperCase().split(/\s+/), band = 12, slope = (barY(FAR) - barY(NEAR)) / w;
+    const pack = cap => { const o = []; words.forEach(s => { const l = o.length - 1; if (l >= 0 && (o[l] + ' ' + s).length <= cap) o[l] += ' ' + s; else o.push(s); }); return o; };
+    const lines = pack(Math.max(8, ...words.map(s => s.length)));
+    const fs = Math.min((w - 14) / (Math.max(...lines.map(s => s.length)) * 0.62), (h - band - 30) / (lines.length * 1.0), 40);
+    const cx = x + w / 2, midY = y + (h - band) / 2 + 4;
+    const txt = lines.map((s, i) => `<text x="${cx}" y="${(midY + (i - (lines.length - 1) / 2) * fs).toFixed(1)}" font-size="${fs.toFixed(1)}" dominant-baseline="central">${s.replace(/&/g, '&amp;')}</text>`).join('');
+    const turn = `skewY(${(Math.atan(slope) * 180 / Math.PI).toFixed(2)})`;
+    return `<clipPath id="${id}"><polygon points="${pts}"/></clipPath><g clip-path="url(#${id})"><rect x="${x}" y="${y}" width="${w}" height="${h + 20}" fill="${TEAMC.bg}"/>` +
+      `<polygon points="${x},${barY(NEAR) - band} ${x + w},${barY(FAR) - band} ${x + w},${barY(FAR) + 2} ${x},${barY(NEAR) + 2}" fill="${TEAMC.band}"/>` +
+      `<g class="dg-frame-name" fill="${TEAMC.ink}" transform="translate(${cx} ${midY}) ${turn} translate(${-cx} ${-midY})">${txt}</g></g>`;
   }
   const frameG = $('dg-frame');
   function showFrame(p) {

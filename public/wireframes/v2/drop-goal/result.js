@@ -127,8 +127,18 @@
     api.say(on ? `${p.name} saved to your plan.` : `${p.name} removed from your plan.`);
   }
 
-  /* A picture, or the drawn placeholder with the place's name (no picture yet, or the wireframe) */
+  /* A picture. Without one, high fidelity shows a poster in the same space: the place's name on the team's colour, as
+     it was framed in the posts (game.js sets api.teamColour). The wireframe keeps the drawn placeholder */
+  function poster(p, cls) {
+    const c = api.teamColour || { bg: '#256a3e', band: '#fdce01', ink: '#ffffff' };
+    const words = p.name.toUpperCase().split(/\s+/), cap = Math.max(9, ...words.map(s => s.length)), lines = [];
+    words.forEach(s => { const l = lines.length - 1; if (l >= 0 && (lines[l] + ' ' + s).length <= cap) lines[l] += ' ' + s; else lines.push(s); });
+    const fs = Math.min(84 / (Math.max(...lines.map(s => s.length)) * 0.6), 44 / (lines.length * 0.92), 24);
+    return `<span class="${cls} dg-poster" style="background:${c.bg};color:${c.ink}" role="img" aria-label="${esc(p.name)}, picture to come">` +
+      `<b aria-hidden="true" style="font-size:${fs.toFixed(1)}cqw">${lines.map(esc).join('<br>')}</b><i style="background:${c.band}"></i></span>`;
+  }
   function photo(p, cls) {
+    if (!p.image && document.documentElement.getAttribute('data-theme') === 'hifi') return poster(p, cls);
     const pic = p.image ? `<img src="${IMG(p.image)}" alt="" loading="lazy">` : '';
     return `<span class="${cls}${p.stand_in ? ' dg-sample' : ''}${p.image ? ' has-img' : ''}" role="img" aria-label="${esc(p.image ? (p.stand_in ? 'Stand-in picture for ' : 'Picture of ') + p.name : 'Picture of ' + p.name + ' to come')}">` +
       `<span class="dg-ph" aria-hidden="true"><svg width="20" height="16" viewBox="0 0 20 16"><rect x="1" y="1" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 13l4.5-5 3.5 3.5 2.5-2.5L17 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>${esc(p.name)}</span>${pic}</span>`;
