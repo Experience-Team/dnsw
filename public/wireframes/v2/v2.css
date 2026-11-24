@@ -140,3 +140,14 @@ html:not(.pv-device) #tp-phone .tp-gl-body { flex: 1 1 auto; }
 /* The FAQs are the next section now, so the link to them goes */
 html[data-flow="v2"] #tp-home-glance .tp-home-more { display: none; }
 @media (prefers-reduced-motion: reduce) { .v2-gl-dot::before { transition: none; } }
+
+/* Reset prototype in the menu: for reviewers, so it looks like a tool and not like the menu's own items. A dashed
+   box, a label saying who it is for, smaller and quieter type */
+.v2-menu-review { margin-top: var(--space-2); padding: var(--space-3); border: 1px dashed rgba(255, 255, 255, .5); border-radius: 10px; }
+.v2-menu-review-l { margin: 0 0 var(--space-2); font-family: var(--font-label, ui-monospace, monospace); font-size: .6875rem; line-height: 1.3; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .72); }
+.v2-menu-r { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0 var(--space-3); border: 1px solid rgba(255, 255, 255, .6); border-radius: 999px; background: none; color: inherit; font: inherit; font-size: .875rem; font-weight: 500; cursor: pointer; }
+.v2-menu-r:active { background: rgba(255, 255, 255, .16); }
+.v2-menu-r:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (hover: hover) { .v2-menu-r:hover { background: rgba(255, 255, 255, .12); } }
+/* Desktop website: the Menu button sits in the middle of the header, so its menu opens under it, not at the far right */
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-menu { right: auto; left: 50%; width: 312px; margin-left: -156px; transform-origin: 50% 0; } }

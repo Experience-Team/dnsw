@@ -65,6 +65,8 @@
   if (btn && menu) {
     btn.addEventListener('click', function () { if (menu.hidden) menuOpen(); else menuClose(true); });
     menu.addEventListener('click', function (e) {
+      // Reset prototype, for reviewers: the same reset as the viewer's own button
+      if (e.target.closest('#v2-menu-reset')) { menuClose(false); var r = document.getElementById('tp-reset'); if (r) r.click(); return; }
       var i = e.target.closest('[data-v2-go]'); if (!i) return;
       menuClose(true);
       go(i.dataset.v2Go, btn);
@@ -75,7 +77,7 @@
       if (menu.hidden) return;
       if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); menuClose(true); return; }
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-      var its = [].slice.call(menu.querySelectorAll('.v2-menu-i')), i = its.indexOf(document.activeElement);
+      var its = [].slice.call(menu.querySelectorAll('.v2-menu-i, .v2-menu-r')), i = its.indexOf(document.activeElement);
       e.preventDefault(); its[(i + (e.key === 'ArrowDown' ? 1 : its.length - 1)) % its.length].focus();
     });
     menu.addEventListener('focusout', function (e) { if (!menu.hidden && e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== btn) menuClose(false); });
