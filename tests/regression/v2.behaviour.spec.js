@@ -784,7 +784,8 @@ test.describe('Version 2', () => {
     }
     // the same card: photo, The ball landed in, name, Save, tags, description
     await expect(g.locator('.dg-r-kicker')).toHaveText(/The ball landed in/);
-    await expect(g.locator('#dg-r-photo [role="img"]')).toBeVisible();
+    // a picture where there is one; without, the card leads with the name and what it fits around
+    await expect(g.locator('#dg-r-photo [role="img"]:visible, #dg-r-lead:visible')).toHaveCount(1);
     await expect(g.locator('#dg-r-tags li').first()).toHaveText('Watch party');
     await expect(g.locator('#dg-r-desc')).toContainText('Watch ');
     await g.locator('#dg-r-save').click();

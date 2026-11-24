@@ -142,7 +142,10 @@
   function open(p, teams, again) {
     shown = p; onAgain = again;
     $('dg-r-frame').innerHTML = api.frameSVG(p);
-    $('dg-r-photo').innerHTML = photo(p, 'dg-r-img');
+    /* No picture in high fidelity: no grey box. The card leads with the name, larger, and what it fits around */
+    const bare = !p.image && document.documentElement.getAttribute('data-theme') === 'hifi';
+    $('dg-r-photo').innerHTML = bare ? '' : photo(p, 'dg-r-img'); $('dg-r-photo').hidden = bare;
+    $('dg-r-card').classList.toggle('is-bare', bare);
     const watch = p.kind === 'watch';
     $('dg-r-name').textContent = p.name; $('dg-r-name').classList.toggle('dg-sample', watch);
     $('dg-r-tags').innerHTML = tagsHTML(p);
@@ -151,7 +154,9 @@
        being screened and TRAVEL is where it is, with one line under them on the later rounds */
     const ml = watch ? '' : matchLine(teams);
     $('dg-r-match-row').hidden = !ml; $('dg-r-match').textContent = ml;
-    $('dg-r-fits').textContent = fits(p, teams); $('dg-r-fits').classList.toggle('dg-sample', watch);
+    const ft = fits(p, teams), lead = $('dg-r-lead');
+    $('dg-r-fits').textContent = ft; $('dg-r-fits').classList.toggle('dg-sample', watch);
+    lead.textContent = ft; lead.hidden = !bare; lead.classList.toggle('dg-sample', watch); $('dg-r-fits-row').hidden = bare;
     $('dg-r-travel').textContent = watch ? (p.location || 'Location to be confirmed') : p.travel ? p.travel + ' (estimate)' : 'Travel time to be confirmed';
     const later = $('dg-r-later');
     later.hidden = !watch; later.textContent = watch ? `If ${p.team} get through, the later rounds are in NSW.` : '';
