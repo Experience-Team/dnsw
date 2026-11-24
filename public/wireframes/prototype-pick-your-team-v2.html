@@ -172,7 +172,8 @@
   var NOTES = [
     { sel: '#v2-game-wrap', title: 'Drop goal', points: [
       'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo, and the result stacks the pitch above the card; side by side from 700px wide.',
-      'Try it: tap, click, Space or Enter drops the ball, and again kicks it. Kick in the yellow KICK zone of the bar. Early goes wide of the near upright, late falls short.',
+      'Try it: tap, click, Space or Enter drops the ball, and again kicks it as it bounces. The call to act follows the taps: Tap to drop, Tap to kick, then Kick now (yellow) while a kick would score, in step with the bar\u2019s KICK zone. Early goes wide, late falls short, and one tap alone says No kick.',
+      'Design: the kick window opens as the ball lands and stays open for 0.3s (card 10\u2019s was 0.2s, starting just before the bounce, so a tap reacting to the bounce always came up short).',
       'Places: a goal frames a place between the posts, then the result card opens. The places come from where the picked teams play: Sydney, Newcastle, or both. No team, or Every NSW match: both, in turn. No place repeats until every place in that set has been shown, and never twice in a row. With both cities, each round starts two from the next match\u2019s city for every one from the other. FITS names the match day from the picked teams\u2019 fixtures.',
       'Remembered: Save writes Version 2\u2019s own copy of the planner\u2019s saved state (the same shape as Options A to C\u2019s, Saved, not placed yet) under v2:. Version 2 has no Your plan yet to show it.',
       'Data: places are \u00a719 destinations in v2/drop-goal/places.js, every field gap. Descriptions come from the destination pages where there is one; the rest, the tags, the travel estimates and stand-in pictures are sample, in pink. FITS is worked out from the fixtures.',

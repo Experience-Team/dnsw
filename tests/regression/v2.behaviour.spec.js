@@ -93,7 +93,7 @@ test.describe('Version 2', () => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     if (team !== undefined) { await page.evaluate((t) => localStorage.setItem('dg-team', t), team); await page.reload(); }
-    await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to kick/i);
+    await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
     return frameOf(page);
   }
   // Two key presses, the second at the given time after the first (seconds), timed inside the game
@@ -308,4 +308,22 @@ test.describe('Version 2', () => {
       await expect(inGame(page).locator('#dg-say')).toHaveText(/Goal/, { timeout: 4000 });
     });
   }
+
+  // Teaching the two taps (24 Nov, from play-testing on a phone: one tap read as the whole game)
+  test('Drop goal: the call to act follows the two taps, and one tap alone says what was missing', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    const g = inGame(page);
+    await expect(g.locator('#dg-head')).toHaveText('Tap to drop');
+    await expect(g.locator('#dg-hint')).toHaveText('Then tap again as it bounces.');
+    // one tap: the ball drops, Tap to kick, then Kick now while a kick would score
+    const seen = await f.evaluate(() => new Promise((res) => {
+      const out = new Set(), head = document.getElementById('dg-head');
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+      const t0 = performance.now();
+      (function look() { out.add(head.textContent); if (performance.now() - t0 < 1100) requestAnimationFrame(look); else res([...out]); })();
+    }));
+    expect(seen).toEqual(expect.arrayContaining(['Tap to kick', 'Kick now']));
+    await expect(g.locator('#dg-say')).toHaveText('No kick. Tap once to drop, then again as it bounces.', { timeout: 4000 });
+    await expect(g.locator('#dg-head')).toHaveText('Tap to drop');
+  });
 });

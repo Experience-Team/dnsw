@@ -8,7 +8,7 @@ const V2 = '/wireframes/prototype-pick-your-team-v2.html';
 // The Drop goal kick screen is in a frame: wait for it to load, its fonts and its first drawing
 async function game(page) {
   const frame = page.frameLocator('#v2-game');
-  await expect(frame.locator('#dg-head')).toHaveText(/tap to kick/i);
+  await expect(frame.locator('#dg-head')).toHaveText(/tap to drop/i);
   await page.frame({ url: /drop-goal/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
 }
 const STATES = {

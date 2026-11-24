@@ -33,7 +33,9 @@
   };
   T.bounce = T.release + T.fall;
   T.end = T.bounce + T.late;
-  const MISS = { wide: 'Wide, a touch early. Tap to go again.', short: 'Short, a touch late. Tap to go again.' };
+  const MISS = { wide: 'Wide, a touch early. Tap to go again.', short: 'Short, a touch late. Tap to go again.',
+    /* one tap and no second: the boot swings anyway, so say what was missing, not "late" (24 Nov, from play-testing) */
+    none: 'No kick. Tap once to drop, then again as it bounces.' };
 
   /* ---------- the picked teams (?team=, from the page) ----------
      A comma list of the planner's picks: the first kicks (kit, ball, the table's +3), and all of them choose the places
@@ -191,7 +193,16 @@
   /* ---------- words ---------- */
   const hint = $('dg-hint'), head = $('dg-head'), sayEl = $('dg-say');
   function setHint(txt) { if (txt) hint.textContent = txt; hint.classList.toggle('is-off', !txt); }
-  function setHead(goal) { head.textContent = goal ? 'Goal' : 'Tap to kick'; head.classList.toggle('is-goal', !!goal); }
+  /* The call to act follows the two taps (24 Nov, from play-testing: one tap read as the whole game): Tap to drop, then
+     Tap to kick while the ball falls, then Kick now while a kick would score, in step with the bar's KICK zone */
+  const HEAD = { drop: 'Tap to drop', kick: 'Tap to kick', now: 'Kick now', goal: 'Goal' };
+  let headIs = '';
+  function setHead(state) {
+    if (state === true) state = 'goal'; else if (!state) state = 'drop';
+    if (state === headIs) return;
+    headIs = state; head.textContent = HEAD[state];
+    head.classList.toggle('is-goal', state === 'goal'); head.classList.toggle('is-now', state === 'now');
+  }
   function say(msg) { sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = msg; }, 30); }
   R.say = say;
 
@@ -214,8 +225,8 @@
   /* the ball in the hands, waiting; after a miss the friendly line stays up until the next drop */
   function hold(note) {
     setPhase('hold');
-    setHint(note || 'Tap to drop. Tap again as it bounces.');
-    setHead(false);
+    setHint(note || 'Then tap again as it bounces.');
+    setHead('drop');
     start();
   }
 
@@ -227,10 +238,10 @@
     D.y0 = h[1]; D.yg = -11.5;                               /* from the hands to resting on its point */
     D.g = 2 * (D.yg - D.y0) / (T.fall * T.fall);
     D.vb = 0.42 * D.g * T.fall;
-    D.kicked = false; D.out = null; D.resolved = false; D.F = null;
+    D.kicked = false; D.out = null; D.resolved = false; D.F = null; D.none = false;
     poseTo('drop', T.release + 0.3, E.out);
     markAt(T.release);
-    setHint(''); setHead(false);
+    setHint('Now tap again as it bounces.'); setHead('kick');
     start();
   }
   function dropBallAt(t) {
@@ -297,7 +308,8 @@
     const t = (now - t0) / 1000;
     if (phase === 'drop') {
       dropBallAt(t); markAt(t);
-      if (t >= T.end && !D.kicked) kick(T.end);            /* never tapped: the boot swings anyway, late */
+      setHead(Math.abs(t - (T.bounce + T.perfect)) <= T.tol ? 'now' : 'kick');
+      if (t >= T.end && !D.kicked) { D.none = true; kick(T.end); }   /* never tapped: the boot swings anyway, late */
     } else if (phase === 'swing') {
       dropBallAt(D.tTap + t);
       if (t >= T.swing) contact();
@@ -338,8 +350,8 @@
   /* a miss is friendly: it says what happened in plain words, the next ball is on its way, and a tap takes it at once */
   function miss(kind) {
     setPhase('miss');
-    D.note = MISS[kind];
-    setHint(D.note); setHead(false);
+    D.note = MISS[D.none ? 'none' : kind];
+    setHint(D.note); setHead('drop');
     say(D.note);
     after(0.45, () => { if (phase === 'miss') pass(); });
   }
