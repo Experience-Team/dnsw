@@ -13,6 +13,7 @@
   var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m ? m[1] : 'hifi';
   try { if (parent !== window && parent.document) t = parent.document.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe'; } catch (e) {}
   d.setAttribute('data-theme', t);
+  if (/[?&]demo\b/.test(q)) d.classList.add('is-demo'); // Home's how-to-play snippet: the game plays itself, and takes no input
 })();</script>
 <title>Drop goal · Version 2</title>
 <link rel="stylesheet" href="game.css" />
@@ -46,6 +47,8 @@
     <p class="dg-head" id="dg-head" aria-hidden="true">Tap to drop</p>
     <button type="button" class="dg-link dg-link--pitch" id="dg-see">See the places</button>
   </div>
+  <!-- Demo only (?demo): a ring where a tap would be, at each of the two taps -->
+  <i class="dg-tap" id="dg-tap" aria-hidden="true"></i>
 </main>
 <!-- Result screen (docs/drop-goal-style.png, left): the pitch with the place framed in the posts and Kick again, then the
      place card inside the coloured borders. Stacked on phones, side by side from 700px wide. -->

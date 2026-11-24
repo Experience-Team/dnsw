@@ -16,6 +16,10 @@
     p2: t => 1 - (1 - t) * (1 - t)
   };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  /* Demo (?demo): Home's how-to-play snippet. The game plays itself, a goal every time, in a loop: it takes no input,
+     says nothing to screen readers, saves nothing and never opens the result. The page pauses it (window.__dgDemo) */
+  const DEMO = /[?&]demo\b/.test(location.search);
+  let demoPaused = false;
 
   /* ---------- timing (seconds, from the first tap) ----------
      Card 10's values, except the window (24 Nov, from play-testing): card 10 scored a kick 0.04s after the bounce,
@@ -206,7 +210,7 @@
     /* GOAL lands with a small pop; the other words change at once, as the taps are timed against them */
     if (state === 'goal' && head.animate && !reduce.matches) head.animate([{ transform: 'scale(.8)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 360, easing: 'cubic-bezier(.2,.7,.2,1)' });
   }
-  function say(msg) { sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = msg; }, 30); }
+  function say(msg) { if (DEMO) return; sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = msg; }, 30); }
   R.say = say;
 
   /* ---------- the loop ---------- */
@@ -231,6 +235,12 @@
     setHint(note || 'Then tap again as it bounces.');
     setHead('drop');
     start();
+    if (DEMO && !demoPaused && !reduce.matches) after(1.3, () => { if (phase === 'hold' && !demoPaused) { demoTap(); drop(); } });
+  }
+  /* Demo: a ring where a tap would be */
+  function demoTap() {
+    const el = $('dg-tap');
+    if (el && el.animate) el.animate([{ opacity: 1, transform: 'scale(.6)' }, { opacity: .9, transform: 'scale(1)', offset: .3 }, { opacity: 0, transform: 'scale(1.5)' }], { duration: 520, easing: 'ease-out' });
   }
 
   /* first tap: the hands open and the ball drops */
@@ -312,6 +322,7 @@
     if (phase === 'drop') {
       dropBallAt(t); markAt(t);
       setHead(Math.abs(t - (T.bounce + T.perfect)) <= T.tol ? 'now' : 'kick');
+      if (DEMO && !D.kicked && t >= T.bounce + T.perfect) { demoTap(); kick(T.bounce + T.perfect); return; }   /* the second tap, as it comes up */
       if (t >= T.end && !D.kicked) { D.none = true; kick(T.end); }   /* never tapped: the boot swings anyway, late */
     } else if (phase === 'swing') {
       dropBallAt(D.tTap + t);
@@ -335,6 +346,11 @@
   /* the win: +3, a place framed between the posts, then the result screen. Reduced motion: straight to it */
   function goal() {
     setPhase('goal');
+    if (DEMO) {   /* the win, shown and no more: a place between the posts, then the next ball */
+      setHead(true); showFrame((window.DG2Places || []).find(p => p.image && !p.stand_in) || window.DG2Places[0]);
+      after(1.7, () => { if (phase === 'goal') { hideFrame(); D.note = null; pass(); } });
+      return;
+    }
     goals++;
     renderTable();
     setHead(true);
@@ -386,16 +402,28 @@
     else if (phase === 'miss' || phase === 'pass') again();
   }
   const stage = $('dg');
+  if (DEMO) {
+    stage.removeAttribute('tabindex'); stage.removeAttribute('role'); stage.setAttribute('aria-hidden', 'true');
+    window.__dgDemo = {
+      /* Pause stops at once and puts the ball back in the hands; play starts a new round */
+      pause(on) {
+        if (on === demoPaused) return;
+        demoPaused = on; timers = []; D.passing = false; hideFrame(); setPose('ready'); hold();
+      }
+    };
+  }
   /* The focus ring is for the keyboard: any key shows it, any press hides it (game.css, .is-keys) */
   document.addEventListener('keydown', () => document.documentElement.classList.add('is-keys'), true);
   document.addEventListener('pointerdown', () => document.documentElement.classList.remove('is-keys'), true);
-  stage.addEventListener('pointerdown', e => {
+  if (!DEMO) stage.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     try { stage.focus({ preventScroll: true }); } catch (x) {}
     tap();
   });
-  document.addEventListener('keydown', e => {
+  if (!DEMO) document.addEventListener('keydown', e => {
     if (R.isOpen()) return;
+    /* Escape on the kick screen leaves the game, when the Version 2 page shows it full screen */
+    if (e.key === 'Escape') { try { if (parent !== window && parent.v2Play) { e.preventDefault(); parent.v2Play.close(); } } catch (x) {} return; }
     if (e.target && e.target.closest && e.target.closest('button')) return;      /* a button's own Enter and Space */
     if (e.code === 'Space' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); }
   });

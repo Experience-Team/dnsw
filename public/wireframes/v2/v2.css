@@ -3,24 +3,55 @@
    to C. Never edit shared.css, themes/hifi.css or a concepts-*.js file for Version 2: copy what you need into this
    folder and change the copy. See README.md. */
 
-/* The phone's page: a column, so the game fills what is left */
-#v2-body { display: flex; flex-direction: column; }
-
 /* Viewer tabs: Iterations is a placeholder, not a link, so it reads as not there yet: a dashed outline, muted text,
    no hover */
 .pv-tab.v2-tab-soon { border-style: dashed; border-color: #9aa5b5; color: #5c6675; background: transparent; cursor: default; }
 
-/* Drop goal's kick screen fills the phone edge to edge (it draws its own margins) */
-#v2-body { padding: 0; overflow: hidden; }
-.v2-game-wrap { position: relative; flex: 1; min-height: 0; }
-.v2-game { display: block; width: 100%; height: 100%; border: 0; }
-/* Phone view: the Settings icon sits over the game, top right, clear of the game's logo */
-.v2-top { position: absolute; top: 0; left: 0; right: 0; z-index: 5; }
-.v2-top .tp-dev-set { left: auto; right: 4px; top: 4px; }
-:root[data-theme="hifi"] .v2-top .tp-dev-set { color: #fff; opacity: .6; }
-.v2-top .tp-dev-menu { left: auto; right: 4px; }
+/* ---------- Home, brought in from Options A to C (24 Nov) ----------
+   The planner is not in Version 2 yet: the plan bar, its scrim and skip link, and Home's button to the planner are out
+   of reach until it is. The copied scripts still build them, so nothing they lean on is missing. */
+html[data-flow="v2"] #tp-tl, html[data-flow="v2"] #tp-tl-scrim, html[data-flow="v2"] #tp-skip, html[data-flow="v2"] #tp-home-go { display: none !important; }
+/* A match opened from a host city sheet: Add to my plan and I have a ticket (and its line) wait for the planner too.
+   Adding a team stays, as that is the same pick as its card */
+html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-pm .tp-pm-ticket, html[data-flow="v2"] #tp-pm .tp-ticket-why { display: none !important; }
 
-/* Review only: the kicker's team, in the left panel */
-.v2-review { display: grid; gap: var(--space-2); margin-top: var(--space-5); font-size: .875rem; }
-.v2-review-l span { color: #5c6675; }
-.v2-review-s { min-height: 36px; max-width: 280px; padding: 0 var(--space-3); border: 1px solid #9aa5b5; border-radius: 6px; background: #fff; font: inherit; }
+/* Menu, in the capsule's place (to be refined). The wrapper keeps the capsule's height and margins (.tp-cap-wrap), so
+   the page lays out as it did; the button sits at its right */
+.v2-menu-wrap { display: flex; justify-content: flex-end; min-height: 44px; pointer-events: none; }
+.v2-menu-btn { pointer-events: auto; display: inline-flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 var(--space-4) 0 14px; border: 0; border-radius: 22px; background: var(--c-btn); color: var(--c-on-dark, #fff); font: inherit; font-weight: 600; font-size: 1rem; cursor: pointer; box-shadow: 0 0 0 1px rgba(250, 247, 240, .35); transition: transform .12s ease-out; }
+.v2-menu-btn:active { transform: scale(.97); }
+.v2-menu-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v2-menu { pointer-events: auto; position: absolute; top: calc(100% + var(--space-2)); right: 0; min-width: 220px; padding: var(--space-2); border-radius: 16px; background: var(--c-btn); color: var(--c-on-dark, #fff); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); transform-origin: 100% 0; }
+.v2-menu-list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.v2-menu-i { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 var(--space-3); border: 0; border-radius: 10px; background: none; color: inherit; font: inherit; font-size: 1rem; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
+.v2-menu-i:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
+.v2-menu-i:active { background: rgba(255, 255, 255, .16); }
+@media (hover: hover) { .v2-menu-i:hover { background: rgba(255, 255, 255, .12); } }
+@media (prefers-reduced-motion: reduce) { .v2-menu-btn { transition: none; } .v2-menu-btn:active { transform: none; } }
+
+/* Drop goal over the whole screen: above the page, its sheets and its toasts. The game draws its own margins */
+.v2-play { position: absolute; inset: 0; z-index: 400; background: #e2e2e2; }
+:root[data-theme="hifi"] .v2-play { background: #55944a; } /* the pitch's colour in each theme, for the moment before the game draws */
+.v2-play[hidden] { display: none; }
+.v2-game { display: block; width: 100%; height: 100%; border: 0; }
+/* The way out: a cross, top right, 16px from the edge, as on every sheet and layer (check 7) */
+.v2-play-close { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid rgba(17, 17, 17, .14); border-radius: 50%; background: #fff; color: #111; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); transition: transform .12s ease-out; }
+.v2-play-close[hidden] { display: none; }
+.v2-play-close:active { transform: scale(.94); }
+.v2-play-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #111; }
+@media (prefers-reduced-motion: reduce) { .v2-play-close { transition: none; } .v2-play-close:active { transform: none; } }
+
+/* How to play, in Home's Play section: the game playing itself, in the still's place */
+/* It keeps the still's class (.tp-home-kick-img), so it takes the same place and size on phones and on the desktop website */
+.v2-demo { position: relative; overflow: hidden; background: #e2e2e2; }
+:root[data-theme="hifi"] .v2-demo { background: #55944a; }
+.v2-demo-frame { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.v2-demo-hit { position: absolute; inset: 0; cursor: pointer; }
+.v2-demo-pause { position: absolute; top: var(--space-3); right: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-2); min-height: 28px; padding: 0 var(--space-3) 0 10px; border: 0; border-radius: 999px; background: rgba(17, 17, 17, .78); color: #fff; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: transform .12s ease-out; }
+.v2-demo-pause:active { transform: scale(.96); }
+.v2-demo-pause:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #111; }
+.v2-demo-pause span { min-width: 3.1em; text-align: left; } /* Pause and Play are one width */
+.v2-demo-i-play, .v2-demo-pause[aria-pressed="true"] .v2-demo-i-pause { display: none; }
+.v2-demo-pause[aria-pressed="true"] .v2-demo-i-play { display: inline; }
+.v2-demo-how { margin: var(--space-3) 0 0; font-size: .9375rem; line-height: 1.45; }
+@media (prefers-reduced-motion: reduce) { .v2-demo-pause { display: none; } }

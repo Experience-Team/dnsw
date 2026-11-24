@@ -94,12 +94,15 @@ test.describe('Version 2', () => {
     await expect(page).toHaveURL(/prototype-pick-your-team-v2\.html$/);
   });
 
-  // Drop goal's kick screen (v2/drop-goal/), in the phone's frame
-  const frameOf = (page) => page.frame({ url: /drop-goal/ });
+  // Drop goal (v2/drop-goal/), in a frame, opened over the whole screen from Home. The picked teams are Home's picks
+  // (the team cards' saved state, filed under v2:); ?view=kick opens the game straight away
+  const frameOf = (page) => page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ });
   async function openGame(page, team) {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
-    if (team !== undefined) { await page.evaluate((t) => localStorage.setItem('dg-team', t), team); await page.reload(); }
+    await page.evaluate((t) => { if (t) localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: t.split(',') })); else localStorage.removeItem('tp-pick-v1'); }, team || '');
+    await page.goto(v2url('hifi', 'view=kick'));
+    await expect(page.locator('#v2-play')).toBeVisible();
     await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
     return frameOf(page);
   }
@@ -139,14 +142,22 @@ test.describe('Version 2', () => {
     await expect(page.frameLocator('#v2-game').locator('#dg-say')).toHaveText(/Goal/, { timeout: 1500 });
   });
 
-  test('Drop goal: the team choice is Version 2\'s own, and Reset clears it', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(`${V2}?theme=hifi`);
-    await page.selectOption('#v2-team', 'Japan');
-    expect(await page.evaluate(() => Object.keys(localStorage))).toContain('v2:dg-team');
-    await expect(page.locator('#v2-game')).toHaveAttribute('src', /team=Japan/);
+  test('Drop goal: the kicker is the team picked on Home, kept as Version 2\'s own, and Reset clears it', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await page.locator('.tp-card2[aria-label="Japan"]').click();
+    await expect(page.locator('.tp-card2[aria-label="Japan"]')).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => Object.keys(localStorage))).toContain('v2:tp-pick-v1');
+    expect(await page.evaluate(() => Object.keys(localStorage))).not.toContain('tp-pick-v1');
+    await page.locator('#tp-home-kick button.tp-home-cta').click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Japan');
+    await page.locator('#v2-play-close').click();
+    await page.locator('#tp-dev-set').click();
     await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
-    await expect(page.locator('#v2-team')).toHaveValue('');
+    await expect(page.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(0);
+    await page.locator('#tp-home-kick button.tp-home-cta').click();
+    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('');
   });
 
   // Result screen, See the places and Save (docs/drop-goal-brief.md, Result screen and Places)
@@ -305,7 +316,9 @@ test.describe('Version 2', () => {
     test(`Drop goal: a real click ${gap}ms after the first, reacting to the bounce, scores`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(`${V2}?theme=hifi&reset`);
-      const f = page.frame({ url: /drop-goal/ }) || (await (await page.waitForSelector('#v2-game')).contentFrame());
+      await page.goto(`${V2}?theme=hifi&view=kick`);   // the game, opened over the whole screen
+      await expect(page.locator('#v2-play')).toBeVisible();
+      const f = page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ }) || (await (await page.waitForSelector('#v2-game')).contentFrame());
       await f.waitForFunction(() => window.__dg2 && window.__dg2.phase() === 'hold');
       const box = await page.locator('#v2-game').boundingBox();
       const x = box.x + box.width / 2, y = box.y + box.height * 0.45;
@@ -379,5 +392,124 @@ test.describe('Version 2', () => {
     await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi');
     await expect(page.locator('#dg-head')).toHaveText(/tap to drop/i);
     await expect(page.locator('#dg-result')).toBeHidden();
+  });
+
+  // Home, the menu and the full-screen game (24 Nov)
+  test('Home is brought in: its sections show, and the planner\'s parts stay out of reach', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    for (const id of ['tp-home-reads', 'tp-home-plan', 'tp-home-glance', 'tp-home-where', 'tp-home-kick', 'tp-home-faq', 'tp-home-news', 'tp-home-share']) await expect(page.locator('#' + id)).toBeVisible();
+    await expect(page.locator('#tp-fan2 .tp-card2')).toHaveCount(24);
+    await expect(page.locator('#v2-play')).toBeHidden();
+    await page.locator('.tp-card2[aria-label="Wales"]').click();
+    await expect(page.locator('#tp-fan-caption')).toContainText(/Wales added/);
+    // no planner yet: the plan bar and the button to the planner never show
+    await page.waitForTimeout(1500);
+    await expect(page.locator('#tp-tl')).toBeHidden();
+    await expect(page.locator('#tp-home-go')).toBeHidden();
+    // a host city opens its sheet; a match in it offers the teams, not the plan
+    await page.locator('#tp-home-cities li').first().locator('a, button').first().click();
+    await expect(page.locator('#tp-pm')).toBeVisible();
+    await page.locator('#tp-pm button', { hasText: 'Ireland v Portugal' }).first().click();
+    await expect(page.locator('#tp-pm button', { hasText: 'Add Ireland to my teams' })).toBeVisible();
+    await expect(page.locator('#tp-pm .tp-pm-add[data-pm-match]')).toBeHidden();
+    await expect(page.locator('#tp-pm .tp-pm-ticket')).toBeHidden();
+  });
+
+  test('Menu: opens from its button, closes on Escape and a press outside, and each item goes where it says', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    const btn = page.locator('#v2-menu-btn'), menu = page.locator('#v2-menu');
+    await btn.click();
+    await expect(menu.locator('.v2-menu-i')).toHaveText(['Home', 'Plan your 3rd half', 'Play Drop Goal']);
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden(); await expect(btn).toBeFocused();
+    await btn.click(); await page.mouse.click(60, 600);
+    await expect(menu).toBeHidden();
+    await btn.click(); await menu.locator('[data-v2-go="plan"]').click();
+    await expect(page.locator('#tp-home-plan-title')).toBeInViewport();
+    await btn.click(); await menu.locator('[data-v2-go="play"]').click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#v2-play')).toBeHidden(); await expect(btn).toBeFocused();
+    await btn.click(); await menu.locator('[data-v2-go="home"]').click();
+    await expect.poll(() => page.evaluate(() => document.querySelector('#tp-phone .cn-body').scrollTop)).toBe(0);
+  });
+
+  test('Play now opens the game over the whole screen, and the cross, Escape and Back each close it where the person was', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    const play = page.locator('#tp-home-kick button.tp-home-cta'), layer = page.locator('#v2-play'), body = page.locator('#tp-phone .cn-body');
+    await play.scrollIntoViewIfNeeded();
+    const y = await body.evaluate((e) => e.scrollTop);
+    for (const leave of [() => page.locator('#v2-play-close').click(), () => page.keyboard.press('Escape'), () => page.goBack()]) {
+      await play.click();
+      await expect(layer).toBeVisible();
+      // it covers the phone edge to edge, and the page behind steps back
+      await page.evaluate(() => Promise.all(document.getElementById('v2-play').getAnimations().map((x) => x.finished.catch(() => {}))));
+      expect(await layer.boundingBox()).toEqual(await page.locator('#tp-phone').boundingBox());
+      expect(await body.evaluate((e) => e.inert)).toBe(true);
+      await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
+      await leave();
+      await expect(layer).toBeHidden();
+      await expect(play).toBeFocused();
+      expect(await body.evaluate((e) => e.inert)).toBe(false);
+      expect(await body.evaluate((e) => e.scrollTop)).toBe(y);
+      expect(page.url()).toContain('prototype-pick-your-team-v2.html');
+    }
+  });
+
+  test('In the game, See the places takes the cross\'s corner, and a save survives a pick made afterwards', async ({ page }) => {
+    const f = await openGame(page, 'Japan');
+    const g = inGame(page);
+    await g.locator('#dg-see').click();
+    await expect(page.locator('#v2-play-close')).toBeHidden();
+    await g.locator('.dg-pl-row .dg-save').first().click();
+    await g.locator('#dg-pl-close').click();
+    await expect(page.locator('#v2-play-close')).toBeVisible();
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#v2-play')).toBeHidden();
+    await page.locator('.tp-card2[aria-label="Wales"]').click();
+    await expect.poll(() => page.evaluate(() => { const r = JSON.parse(localStorage.getItem('tp-pick-v1')); return [r.picked.join(), r.added.filter((x) => x.kind === 'kick').length]; })).toEqual(['Japan,Wales', 1]);
+    expect(f).toBeTruthy();
+  });
+
+  // How to play: the game playing itself in Home's Play section (24 Nov)
+  const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo/ });
+  test('How to play: the snippet plays the two taps to a goal on a loop, Pause stops it, and it changes nothing', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await expect(page.locator('.v2-demo-how')).toHaveText('How to play: tap to drop the ball, then tap again as it bounces.');
+    await page.locator('#v2-demo').scrollIntoViewIfNeeded();
+    const d = demoOf(page);
+    // nothing in it can be pressed or read out: the line under it says it in words
+    await expect(page.locator('#v2-demo-frame')).toHaveAttribute('aria-hidden', 'true');
+    for (const ph of ['drop', 'goal', 'drop']) await d.waitForFunction((x) => window.__dg2.phase() === x, ph, { timeout: 8000 });
+    const pause = page.locator('#v2-demo-pause');
+    await pause.click();
+    await expect(pause).toHaveText('Play'); await expect(pause).toHaveAttribute('aria-pressed', 'true');
+    await page.waitForTimeout(2500);
+    expect(await d.evaluate(() => window.__dg2.phase())).toBe('hold');
+    await pause.click();
+    await d.waitForFunction(() => window.__dg2.phase() === 'drop', null, { timeout: 4000 });
+    // no save, no place used up, nothing said
+    expect(await d.evaluate(() => [window.__dg2.goals(), document.getElementById('dg-say').textContent, sessionStorage.getItem('v2:dg-rotation')])).toEqual([0, '', null]);
+    // a press on the picture opens the game, and the snippet waits while it is open
+    await page.locator('#v2-demo-hit').click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await page.waitForTimeout(2000);
+    expect(await d.evaluate(() => window.__dg2.phase())).toBe('hold');
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#tp-home-kick button.tp-home-cta')).toBeFocused();
+  });
+
+  test('How to play: with reduced motion the snippet stays still and has no Pause', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await page.locator('#v2-demo').scrollIntoViewIfNeeded();
+    await expect(page.locator('#v2-demo-pause')).toBeHidden();
+    await page.waitForTimeout(2500);
+    expect(await demoOf(page).evaluate(() => window.__dg2.phase())).toBe('hold');
   });
 });
