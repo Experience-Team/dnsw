@@ -45,8 +45,14 @@
   function go(v, from) {
     if (v !== 'kick' && v !== 'play' && window.v2Onboard) window.v2Onboard.release();   // a jump on Home is where they want to be
     if (v === 'kick' || v === 'play') openGame(from);
-    else if (v === 'plan') { if (window.v2Article && window.v2Article.get()) window.v2Article.close(); jump(document.getElementById('tp-home-plan'), document.getElementById('tp-home-plan-title')); }
-    else { if (window.v2Article && window.v2Article.get()) window.v2Article.close(); body.scrollTo({ top: 0, behavior: still() ? 'auto' : 'smooth' }); }
+    else {
+      // From an open article: Home comes back first (it goes back through the article's history entry, which puts
+      // Home's scroll where it was), and the jump follows once that has settled
+      var then = v === 'plan'
+        ? function () { jump(document.getElementById('tp-home-plan'), document.getElementById('tp-home-plan-title')); }
+        : function () { body.scrollTo({ top: 0, behavior: still() ? 'auto' : 'smooth' }); };
+      if (window.v2Article && window.v2Article.get()) { window.v2Article.close(); setTimeout(then, 120); } else then();
+    }
   }
   window.v2View = { get: function () { return 'event'; }, go: function (v) { go(v); }, reveal: function () {}, lend: lend };
   window.v2CapRoom = function () { return wrap ? wrap.offsetHeight + 16 : 16; };
