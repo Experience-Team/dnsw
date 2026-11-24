@@ -5,9 +5,20 @@ import { test, expect, SIZES, settle } from './helpers.js';
 
 const V2 = '/wireframes/prototype-pick-your-team-v2.html';
 
+// The Drop goal kick screen is in a frame: wait for it to load, its fonts and its first drawing
+async function game(page) {
+  const frame = page.frameLocator('#v2-game');
+  await expect(frame.locator('#dg-head')).toHaveText(/tap to kick/i);
+  await page.frame({ url: /drop-goal/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
+}
 const STATES = {
-  empty: async () => {},
-  settings: async (page) => { await page.locator('#tp-dev-set').click(); await settle(page); },
+  kick: async (page) => { await game(page); },
+  // A picked team: its kit and ball, and its row on the nation table
+  'kick-team': async (page) => {
+    await page.evaluate(() => localStorage.setItem('dg-team', 'Wales'));
+    await page.reload(); await game(page);
+  },
+  settings: async (page) => { await game(page); await page.locator('#tp-dev-set').click(); await settle(page); },
 };
 
 for (const theme of ['hifi', 'wireframe']) {

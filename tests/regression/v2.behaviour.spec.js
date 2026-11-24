@@ -86,4 +86,59 @@ test.describe('Version 2', () => {
       expect(await page.locator('a[href*="prototype-pick-your-team-v2"]').count()).toBe(0);
     }
   });
+
+  // Drop goal's kick screen (v2/drop-goal/), in the phone's frame
+  const frameOf = (page) => page.frame({ url: /drop-goal/ });
+  async function openGame(page, team) {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    if (team !== undefined) { await page.evaluate((t) => localStorage.setItem('dg-team', t), team); await page.reload(); }
+    await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to kick/i);
+    return frameOf(page);
+  }
+  // Two key presses, the second at the given time after the first (seconds), timed inside the game
+  const kickAt = (frame, sec) => frame.evaluate((ms) => {
+    const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+    k(); setTimeout(k, ms);
+  }, Math.round(sec * 1000));
+
+  test('Drop goal: the kicker wears the picked team, and no team gives the default kit', async ({ page }) => {
+    let f = await openGame(page);
+    expect(await f.evaluate(() => window.__dg2.team())).toBe('');
+    await expect(page.frameLocator('#v2-game').locator('#dg-rows .is-mine')).toHaveCount(0);
+    f = await openGame(page, 'Wales');
+    expect(await f.evaluate(() => window.__dg2.team())).toBe('Wales');
+    await expect(page.frameLocator('#v2-game').locator('#dg-rows .is-mine')).toContainText('Wales');
+  });
+
+  for (const [what, sec, phases, line] of [
+    ['on the bounce is a goal', 0.76, ['goal'], /3 points for Wales/],
+    ['early goes wide', 0.5, ['miss', 'pass', 'hold'], /Wide, a touch early/],
+    ['late falls short', 1.0, ['miss', 'pass', 'hold'], /Short, a touch late/],
+  ]) {
+    test(`Drop goal: a kick ${what}, and it is announced`, async ({ page }) => {
+      const f = await openGame(page, 'Wales');
+      await kickAt(f, sec);
+      await expect(page.frameLocator('#v2-game').locator('#dg-say')).toHaveText(line, { timeout: 4000 });
+      expect(phases).toContain(await f.evaluate(() => window.__dg2.phase()));
+      expect(await f.evaluate(() => window.__dg2.goals())).toBe(what.includes('goal') ? 1 : 0);
+    });
+  }
+
+  test('Drop goal: with reduced motion the result shows straight away', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const f = await openGame(page, 'Wales');
+    await kickAt(f, 0.76);
+    await expect(page.frameLocator('#v2-game').locator('#dg-say')).toHaveText(/Goal/, { timeout: 1500 });
+  });
+
+  test('Drop goal: the team choice is Version 2\'s own, and Reset clears it', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`${V2}?theme=hifi`);
+    await page.selectOption('#v2-team', 'Japan');
+    expect(await page.evaluate(() => Object.keys(localStorage))).toContain('v2:dg-team');
+    await expect(page.locator('#v2-game')).toHaveAttribute('src', /team=Japan/);
+    await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
+    await expect(page.locator('#v2-team')).toHaveValue('');
+  });
 });

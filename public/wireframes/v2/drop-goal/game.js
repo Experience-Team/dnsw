@@ -1,0 +1,359 @@
+/* Drop goal, Version 2: the kick screen.
+   Mechanic: concept lab card 10 (dnsw-discovery-gallery, concept-lab/cards/5c-dropgoal.html), ported unchanged: the
+   timings (T), how a kick is judged (contact), the two miss lines, the next ball arriving with a pass, and a tap at
+   any point after a miss taking the next ball at once. Only the drawing is new: the scene is laid out flat in screen
+   space to match docs/drop-goal-style.png (right), so the flight is a curve towards the posts, not card 10's 3D path.
+   Not built yet (later stages of docs/drop-goal-brief.md): the place framed in the posts, the result screen and See
+   the places. Until then a goal says so on the kick screen and the next ball comes. */
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const E = {
+    out: t => 1 - Math.pow(1 - t, 3),
+    inOut: t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+    p2: t => 1 - (1 - t) * (1 - t)
+  };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ---------- timing (seconds, from the first tap): card 10's values ---------- */
+  const T = {
+    release: 0.12,   /* the hands open */
+    fall: 0.6,       /* hands to ground */
+    perfect: 0.04,   /* after the bounce: kicked as it comes up */
+    tol: 0.1,        /* either side of perfect */
+    late: 0.42,      /* after the bounce: the boot swings anyway */
+    swing: 0.07,     /* tap to contact */
+    flight: 0.9      /* boot to the posts */
+  };
+  T.bounce = T.release + T.fall;
+  T.end = T.bounce + T.late;
+  const MISS = { wide: 'Wide, a touch early. Tap to go again.', short: 'Short, a touch late. Tap to go again.' };
+
+  /* ---------- the team (?team=, from the page) ---------- */
+  const q = /[?&]team=([^&]+)/.exec(location.search);
+  const wanted = q ? decodeURIComponent(q[1].replace(/\+/g, ' ')) : '';
+  const team = window.DG2Kit.TEAMS.indexOf(wanted) > -1 ? wanted : '';
+  const C = window.DG2Kit.kitFor(team);
+  const PARTS = window.DG2Kicker.parts(C);
+
+  /* ---------- the scene, in the picture's own units (390 x 520) ---------- */
+  const K = { x: 96, y: 488, s: 0.72 };                      /* the kicker's feet, and the figure's scale */
+  const NEAR = { x: 248, top: 36, base: 252, w: 7 };        /* the near (left) upright */
+  const FAR = { x: 318, top: 80, base: 300, w: 6 };         /* the far one: further down the try line */
+  const BAR_AT = 0.46;                                       /* the crossbar, down from the top of each upright */
+  const barY = u => lerp(u.top, u.base, BAR_AT);
+  const el = (n, a, p) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+
+  function drawPitch() {
+    const g = $('dg-lines');
+    /* lines parallel to the try line (through the post bases), and one across */
+    const dx = FAR.x - NEAR.x, dy = FAR.base - NEAR.base, len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+    const line = (off, from, to, dash) => {
+      const cx = NEAR.x - nx * off, cy = NEAR.base - ny * off;
+      el('line', { class: 'dg-line', x1: cx + ux * from, y1: cy + uy * from, x2: cx + ux * to, y2: cy + uy * to, 'stroke-dasharray': dash || 'none' }, g);
+    };
+    line(-90, -900, 900);                 /* dead-ball line */
+    line(0, -900, 900);                   /* try line */
+    line(48, -900, 900, '28 44');         /* 5 m, dashed */
+    line(330, -900, 900);                 /* 22 */
+    const ax = 120, ay = 150;             /* one line across, towards the near touchline */
+    el('line', { class: 'dg-line', x1: ax - nx * 900, y1: ay - ny * 900, x2: ax + nx * 900, y2: ay + ny * 900 }, g);
+  }
+  function drawPosts() {
+    const g = $('dg-posts');
+    [FAR, NEAR].forEach(u => {
+      el('rect', { class: 'dg-upright', x: u.x - u.w / 2, y: u.top, width: u.w, height: u.base - u.top - 8, rx: u.w / 2 }, g);
+    });
+    el('line', { class: 'dg-bar-x', x1: NEAR.x, y1: barY(NEAR), x2: FAR.x, y2: barY(FAR) }, g);
+    [NEAR, FAR].forEach(u => {
+      const w = u === NEAR ? 17 : 15, h = u === NEAR ? 46 : 42;
+      el('rect', { class: 'dg-pad', x: u.x - w / 2, y: u.base - h, width: w, height: h, rx: 3 }, g);
+      el('ellipse', { class: 'dg-pad-top', cx: u.x, cy: u.base - h, rx: w / 2, ry: 3 }, g);
+    });
+  }
+
+  /* ---------- the ball ---------- */
+  const B = C.ball;
+  const BALL = `<ellipse rx="17" ry="11.5" fill="${B.base}" stroke="${B.line}" stroke-width="1.6"/>` +
+    `<path d="M-12,8 Q0,-2 15,-5 Q12,1 -6,10 Z" fill="${B.stripe2}"/>` +
+    `<path d="M-14,4 Q2,-6 16,-3" stroke="${B.stripe}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  const ballG = $('dg-ball');
+  ballG.innerHTML = `<g id="dg-ball-in">${BALL}</g>`;
+  const ballIn = $('dg-ball-in');
+  $('dg-mark-ball').innerHTML = BALL;
+  const ball = { x: 0, y: 0, rot: -40, s: 1, o: 1, sq: 1 };
+  function drawBall() {
+    ballG.setAttribute('opacity', ball.o.toFixed(3));
+    ballIn.setAttribute('transform', `translate(${ball.x.toFixed(2)} ${ball.y.toFixed(2)}) rotate(${ball.rot.toFixed(1)}) scale(${(K.s * ball.s).toFixed(3)} ${(K.s * ball.s * ball.sq).toFixed(3)})`);
+  }
+  const toScene = p => ({ x: K.x + p[0] * K.s, y: K.y + p[1] * K.s });
+
+  /* ---------- the kicker: four poses, tweened ---------- */
+  const kickerG = $('dg-kicker');
+  kickerG.setAttribute('transform', `translate(${K.x} ${K.y}) scale(${K.s})`);
+  const KP = window.DG2Kicker;
+  const pose = { from: 'ready', to: 'ready', t0: 0, dur: 0, ease: E.out, now: 'ready' };
+  function poseTo(to, dur, ease) { pose.from = pose.now; pose.to = to; pose.t0 = now; pose.dur = reduce.matches ? 0 : dur; pose.ease = ease || E.out; }
+  function setPose(p) { pose.from = pose.to = pose.now = p; pose.dur = 0; }
+  function updateKicker() {
+    const t = pose.dur ? clamp((now - pose.t0) / (pose.dur * 1000), 0, 1) : 1;
+    pose.now = t >= 1 ? pose.to : KP.lerpPose(pose.from, pose.to, pose.ease(t));
+    kickerG.innerHTML = KP.markup(PARTS, pose.now);
+  }
+  function ballInHands() { const p = toScene(KP.hands(pose.now)); ball.x = p.x; ball.y = p.y; ball.rot = -40; ball.s = 1; ball.o = 1; ball.sq = 1; }
+
+  /* ---------- timing bar ---------- */
+  const span = T.end - T.release, at = t => clamp((t - T.release) / span, 0, 1) * 100;
+  const zone = $('dg-zone'), zoneL = $('dg-zone-l'), mark = $('dg-mark');
+  zone.style.left = at(T.bounce + T.perfect - T.tol).toFixed(2) + '%';
+  zone.style.width = (2 * T.tol / span * 100).toFixed(2) + '%';
+  zoneL.style.left = at(T.bounce + T.perfect).toFixed(2) + '%';
+  function markAt(t) { mark.style.left = at(t).toFixed(2) + '%'; }
+
+  /* ---------- the nation table (sample) ---------- */
+  const SEEDS = [['Ireland', 63], ['France', 54], ['Fiji', 48], ['Japan', 45], ['Samoa', 39], ['South Africa', 36]];
+  const MINE0 = 41;                                          /* your nation's sample score before your kicks */
+  let goals = 0;
+  const plus = document.createElement('span'); plus.className = 'dg-plus'; plus.textContent = '+3'; plus.setAttribute('aria-hidden', 'true');
+  function rows() {
+    if (!team) return SEEDS.slice(0, 5).map(([n, p]) => ({ n, p, me: false }));
+    const r = SEEDS.filter(([n]) => n !== team).slice(0, 4).map(([n, p]) => ({ n, p, me: false })).concat([{ n: team, p: MINE0 + goals * 3, me: true }]);
+    return r.sort((a, b) => b.p - a.p || (a.me ? 1 : b.me ? -1 : 0));
+  }
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function renderTable() {
+    $('dg-rows').innerHTML = rows().map((r, i) => `<li class="${r.me ? 'is-mine' : ''}"><span>${i + 1}</span><span>${esc(r.n)}</span><span>${r.p}</span></li>`).join('');
+    const mine = $('dg-rows').querySelector('.is-mine'); if (mine) mine.appendChild(plus);
+  }
+  const ord = n => n + (n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th');
+  function shareLine() {
+    const r = rows();
+    if (!team) return `${r[0].n} lead the Third Half drop goal table on ${r[0].p}. Sample scores.`;
+    const i = r.findIndex(x => x.me);
+    return `${team} ${ord(i + 1)} of ${r.length} on the Third Half drop goal table. I kicked ${goals} ${goals === 1 ? 'goal' : 'goals'}. Sample scores.`;
+  }
+  const shareBtn = $('dg-share');
+  let shareT = 0;
+  shareBtn.addEventListener('click', () => {
+    const done = ok => {
+      clearTimeout(shareT);
+      shareBtn.textContent = ok ? 'Line copied' : 'Couldn’t copy';
+      say(ok ? 'The table’s line is copied: ' + shareLine() : 'Copying was blocked.');
+      shareT = setTimeout(() => { shareBtn.textContent = 'Share the table'; }, 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(shareLine()).then(() => done(true), () => done(false));
+    else done(false);
+  });
+  /* The table is not the pitch: a press on it never kicks */
+  $('dg-table').addEventListener('pointerdown', e => e.stopPropagation());
+
+  /* ---------- words ---------- */
+  const hint = $('dg-hint'), head = $('dg-head'), sayEl = $('dg-say');
+  function setHint(txt) { if (txt) hint.textContent = txt; hint.classList.toggle('is-off', !txt); }
+  function setHead(goal) { head.textContent = goal ? 'Goal' : 'Tap to kick'; head.classList.toggle('is-goal', !!goal); }
+  function say(msg) { sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = msg; }, 30); }
+
+  /* ---------- the loop ---------- */
+  let phase = 'hold', t0 = 0, now = performance.now(), raf = 0, timers = [];
+  const D = {};
+  function after(sec, fn) { timers.push({ at: now + sec * 1000, fn }); start(); }
+  function start() { if (!raf) raf = requestAnimationFrame(loop); }
+  function setPhase(p) { phase = p; t0 = now; document.documentElement.dataset.phase = p; }
+  function loop(ts) {
+    now = ts || performance.now(); raf = 0;
+    const due = timers.filter(x => x.at <= now); timers = timers.filter(x => x.at > now); due.forEach(x => x.fn());
+    step(); updateKicker();
+    if (phase === 'hold' || (phase === 'pass' && !D.passing)) ballInHands();
+    drawBall();
+    const moving = phase !== 'hold' || timers.length || (pose.dur && now < pose.t0 + pose.dur * 1000 + 40);
+    if (moving) raf = requestAnimationFrame(loop);
+  }
+
+  /* the ball in the hands, waiting; after a miss the friendly line stays up until the next drop */
+  function hold(note) {
+    setPhase('hold');
+    setHint(note || 'Tap to drop. Tap again to kick.');
+    setHead(false);
+    start();
+  }
+
+  /* first tap: the hands open and the ball drops */
+  function drop() {
+    setPhase('drop');
+    const h = KP.hands('drop'), k = KP.boot('kick');
+    D.lx = (h[0] + k[0]) / 2 + 2;                            /* where it falls, in the figure's units: under the hands, in reach of the boot */
+    D.y0 = h[1]; D.yg = -11.5;                               /* from the hands to resting on its point */
+    D.g = 2 * (D.yg - D.y0) / (T.fall * T.fall);
+    D.vb = 0.42 * D.g * T.fall;
+    D.kicked = false; D.out = null; D.resolved = false; D.F = null;
+    poseTo('drop', T.release + 0.3, E.out);
+    markAt(T.release);
+    setHint(''); setHead(false);
+    start();
+  }
+  function dropBallAt(t) {
+    if (t < T.release) { ballInHands(); return; }
+    const tf = t - T.release;
+    let ly, rot, sq = 1;
+    if (tf <= T.fall) { ly = D.y0 + 0.5 * D.g * tf * tf; rot = lerp(-40, 78, E.out(clamp(tf / 0.35, 0, 1))); }
+    else {
+      const tb = tf - T.fall;
+      ly = D.yg - D.vb * tb + 0.5 * D.g * tb * tb; rot = lerp(78, 64, clamp(tb / 0.3, 0, 1));
+      sq = tb < 0.05 ? lerp(0.78, 1, tb / 0.05) : 1;           /* the instant of the bounce */
+    }
+    const p = toScene([D.lx, Math.min(ly, D.yg)]);
+    ball.x = p.x; ball.y = p.y; ball.rot = rot; ball.s = 1; ball.o = 1; ball.sq = sq;
+  }
+
+  /* second tap: the boot swings through to the ball */
+  function kick(tTap) {
+    if (phase !== 'drop' || D.kicked) return;
+    D.kicked = true; D.tTap = tTap;
+    markAt(tTap);
+    setPhase('swing');
+    poseTo('kick', T.swing, E.out);
+  }
+
+  /* the boot meets the ball: early hooks it wide of the near upright, late is a weak kick that dies short */
+  function contact() {
+    const err = D.tTap - (T.bounce + T.perfect);
+    const out = Math.abs(err) <= T.tol ? 'goal' : err < 0 ? 'wide' : 'short';
+    D.out = out; D.err = err;
+    const sev = clamp((Math.abs(err) - T.tol) / 0.3, 0, 1);
+    const from = { x: ball.x, y: ball.y };
+    const mid = { x: (NEAR.x + FAR.x) / 2, y: (barY(NEAR) + barY(FAR)) / 2 };
+    let to, peak, fade;
+    if (out === 'goal') {
+      const o = clamp(err * 8, -1, 1) * 0.3;                 /* a touch either side of perfect drifts along the bar */
+      to = { x: mid.x + (FAR.x - NEAR.x) * o, y: mid.y - 54 + (barY(FAR) - barY(NEAR)) * o };
+      peak = 120; fade = 0.12;
+    } else if (out === 'wide') {
+      to = { x: NEAR.x - 30 - sev * 40, y: mid.y - 46 }; peak = 110; fade = 0.3;
+    } else {
+      to = { x: lerp(from.x, NEAR.x, 0.75 - sev * 0.25), y: NEAR.base - 10 }; peak = 120 - sev * 50; fade = 0;
+    }
+    D.F = { from, to, peak, fade, t0: now, dur: out === 'short' ? T.flight * 0.95 : T.flight, spin: out === 'short' ? 520 : 760 };
+    poseTo('follow', 0.38, E.p2);
+    setPhase('flight');
+    if (reduce.matches) { D.resolved = true; ball.o = 0; resolve(); }
+  }
+  /* time along the path: it leaves the boot fast and arrives without hanging */
+  const flightU = tau => (tau <= 1 ? 1 - Math.pow(1 - tau, 1.8) : 1);
+  function flightAt(t) {
+    const F = D.F, tau = t / F.dur, u = flightU(tau);
+    const cx = (F.from.x + F.to.x) / 2, cy = Math.min(F.from.y, F.to.y) - F.peak;
+    ball.x = (1 - u) * (1 - u) * F.from.x + 2 * (1 - u) * u * cx + u * u * F.to.x;
+    ball.y = (1 - u) * (1 - u) * F.from.y + 2 * (1 - u) * u * cy + u * u * F.to.y;
+    ball.s = lerp(1, D.out === 'short' ? 0.7 : 0.42, u); ball.sq = 1;
+    ball.rot = 78 + F.spin * t;
+    if (D.out === 'short') ball.o = 1 - clamp((u - 0.6) / 0.26, 0, 1);              /* gone before it lands */
+    else ball.o = tau <= 1 ? 1 : 1 - clamp((t - F.dur) / F.fade, 0, 1);
+    return u;
+  }
+
+  function step() {
+    const t = (now - t0) / 1000;
+    if (phase === 'drop') {
+      dropBallAt(t); markAt(t);
+      if (t >= T.end && !D.kicked) kick(T.end);            /* never tapped: the boot swings anyway, late */
+    } else if (phase === 'swing') {
+      dropBallAt(D.tTap + t);
+      if (t >= T.swing) contact();
+    } else if (phase === 'flight' && D.F && !reduce.matches) {
+      const tf = (now - D.F.t0) / 1000, u = flightAt(tf);
+      if (!D.resolved && (D.out === 'short' ? u >= 0.84 : tf >= D.F.dur)) { D.resolved = true; resolve(); }
+    } else if ((phase === 'goal' || phase === 'miss') && D.F && !reduce.matches) {
+      flightAt((now - D.F.t0) / 1000);                     /* the ball finishes fading out */
+    } else if (phase === 'pass' && D.passing) {
+      const r = clamp(t / D.passDur, 0, 1), e = E.out(r), h = toScene(KP.hands(pose.now));
+      /* the next ball comes the way a pass must: backwards, from a teammate ahead, low, rising late into the hands */
+      ball.x = lerp(D.px, h.x, e); ball.y = lerp(D.py, h.y, Math.pow(e, 2.2));
+      ball.s = lerp(0.6, 1, e); ball.o = 1; ball.sq = 1; ball.rot = lerp(-40, -40, e) + (1 - e) * 360;
+      if (r >= 1) { D.passing = false; hold(D.note); }
+    }
+  }
+
+  function resolve() { if (D.out === 'goal') goal(); else miss(D.out); }
+
+  /* Until the place and the result screen are built (later stages), a goal says so here and the next ball comes */
+  function goal() {
+    setPhase('goal');
+    goals++;
+    renderTable();
+    setHead(true);
+    setHint(team ? `Through the posts. +3 for ${team}.` : 'Through the posts.');
+    if (team) { plus.classList.remove('is-on'); void plus.offsetWidth; plus.classList.add('is-on'); }
+    say(team ? `Goal. Through the posts. 3 points for ${team}.` : 'Goal. Through the posts.');
+    D.note = 'Tap to kick again.';
+    after(1.6, () => { if (phase === 'goal') pass(); });
+  }
+
+  /* a miss is friendly: it says what happened in plain words, the next ball is on its way, and a tap takes it at once */
+  function miss(kind) {
+    setPhase('miss');
+    D.note = MISS[kind];
+    setHint(D.note); setHead(false);
+    say(D.note);
+    after(0.45, () => { if (phase === 'miss') pass(); });
+  }
+
+  function pass() {
+    setPhase('pass');
+    plus.classList.remove('is-on');
+    setHead(false);
+    poseTo('ready', 0.3, E.out);
+    if (reduce.matches) { D.passing = false; hold(D.note); return; }
+    D.passing = true; D.px = 430; D.py = K.y - 60; D.passDur = 0.6;
+    start();
+  }
+
+  /* a tap while the next ball is on its way: it is in the hands now, and the hands open */
+  function again() {
+    timers = []; D.passing = false; plus.classList.remove('is-on');
+    setPose('ready');
+    drop();
+  }
+
+  /* ---------- input: tap, click, Space or Enter ---------- */
+  function tap() {
+    now = performance.now();                                 /* one clock: every tap is timed on performance.now() */
+    if (phase === 'hold') drop();
+    else if (phase === 'drop') { const td = (now - t0) / 1000; if (td > T.release + 0.05) kick(td); }
+    else if (phase === 'miss' || phase === 'pass' || phase === 'goal') again();
+  }
+  const stage = $('dg');
+  stage.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    try { stage.focus({ preventScroll: true }); } catch (x) {}
+    tap();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.target && e.target.closest && e.target.closest('button')) return;      /* a button's own Enter and Space */
+    if (e.code === 'Space' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); }
+  });
+
+  /* ---------- the page around it: theme and annotations, when shown in the Version 2 phone ---------- */
+  (function () {
+    let pdoc = null;
+    try { if (parent !== window) pdoc = parent.document; } catch (x) {}
+    if (!pdoc) return;
+    const root = document.documentElement, stageEl = pdoc.getElementById('tp-stage');
+    const sync = () => {
+      root.setAttribute('data-theme', pdoc.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe');
+      root.classList.toggle('has-notes', !!(stageEl && stageEl.classList.contains('has-notes')));
+    };
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(pdoc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    if (stageEl) mo.observe(stageEl, { attributes: true, attributeFilter: ['class'] });
+  })();
+
+  /* ---------- start ---------- */
+  drawPitch(); drawPosts(); renderTable();
+  setPose('ready'); markAt(T.release);
+  hold();
+  window.__dg2 = { phase: () => phase, team: () => team, goals: () => goals, T };   /* read-only, for the regression checks */
+})();

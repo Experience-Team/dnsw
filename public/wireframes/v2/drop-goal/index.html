@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Drop goal, Version 2: the kick screen (24 Nov 2026). Shown in the Version 2 phone (../../prototype-pick-your-team-v2.html)
+     in a frame, and it works opened on its own. Style: docs/drop-goal-style.png (right). Mechanic: concept lab card 10,
+     ported unchanged (game.js). ?team=<name> dresses the kicker and the ball in that team's colours (default kit
+     without); ?theme=wireframe or hifi when opened on its own (in the frame it follows the page). Nothing here is
+     shared with Options A to C's game (../../drop-goal/): kit.js and kicker.js are copies. -->
+<script>(function () {
+  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m ? m[1] : 'hifi';
+  try { if (parent !== window && parent.document) t = parent.document.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe'; } catch (e) {}
+  d.setAttribute('data-theme', t);
+})();</script>
+<title>Drop goal · Version 2</title>
+<link rel="stylesheet" href="game.css" />
+</head>
+<body>
+<main class="dg" id="dg" tabindex="0" role="button"
+  aria-label="Drop goal. Press Space or Enter, or tap, to drop the ball, then again to kick it as it comes up off the ground. Kick in the KICK zone of the timing bar to put it through the posts.">
+  <svg class="dg-scene" id="dg-scene" viewBox="0 0 390 520" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+    <g id="dg-lines"></g>
+    <g id="dg-posts"></g>
+    <g id="dg-kicker"></g>
+    <g id="dg-ball"></g>
+  </svg>
+  <header class="dg-top">
+    <img class="dg-logo" src="../../assets/images/tth-logo.webp" alt="The Third Half" width="72" height="54" />
+  </header>
+  <!-- Nation table (sample scores, out of scope to make real). A goal adds 3 to the kicker's nation. -->
+  <aside class="dg-table" id="dg-table" aria-labelledby="dg-table-h">
+    <h2 class="dg-table-h" id="dg-table-h">Nation table · <span class="dg-sample">Sample</span></h2>
+    <ol class="dg-rows" id="dg-rows"></ol>
+    <button type="button" class="dg-share" id="dg-share">Share the table</button>
+  </aside>
+  <div class="dg-foot">
+    <p class="dg-hint" id="dg-hint">Tap to drop. Tap again to kick.</p>
+    <div class="dg-bar" id="dg-bar" aria-hidden="true">
+      <i class="dg-zone" id="dg-zone"></i>
+      <span class="dg-zone-l" id="dg-zone-l">Kick</span>
+      <svg class="dg-mark" id="dg-mark" viewBox="-19 -14 38 28" width="34" height="25" focusable="false"><g id="dg-mark-ball" transform="rotate(-28)"></g></svg>
+    </div>
+    <p class="dg-head" id="dg-head" aria-hidden="true">Tap to kick</p>
+  </div>
+</main>
+<p class="dg-sr" id="dg-say" aria-live="polite"></p>
+<script src="kit.js"></script>
+<script src="kicker.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

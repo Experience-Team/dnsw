@@ -19,6 +19,13 @@ The regression suite checks both directions on every PR: `tests/regression/v2.be
 `tests/regression/v2.visual.spec.js` cover Version 2, and the existing specs cover Options A to C. A change meant for
 one version that moves the other's screenshots or fails its smoke tests is a regression.
 
+## What's in this folder
+
+| File | What it holds |
+| --- | --- |
+| `v2.css` | Version 2's own page styles. |
+| `drop-goal/` | Drop goal's kick screen (24 Nov 2026, `docs/drop-goal-brief.md`, Kick screen), shown in the phone in a frame. `kit.js` and `kicker.js` are copies of Options A to C's `drop-goal/js/teams.js` and `rig.js`, trimmed; `game.js` ports concept lab card 10's two-tap timing unchanged. `?team=<name>` dresses the kicker; the page sets it from the review-only Kicker's team list in the left panel. |
+
 ## Iterations
 
 The Iterations tab is a placeholder until the first iteration is saved. To save one:
