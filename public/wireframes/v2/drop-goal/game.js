@@ -237,7 +237,7 @@
     setHead('drop');
     start();
     if (DEMO && demoGo && !reduce.matches) {
-      if (demoRan) { demoGo = demoRan = false; if (window.__dgDemo.onDone) window.__dgDemo.onDone(); }   /* once through: rest here */
+      if (demoRan) { demoGo = demoRan = false; markAt(T.release); if (window.__dgDemo.onDone) window.__dgDemo.onDone(); }   /* once through: rest here */
       else after(0.9, () => { if (phase === 'hold' && demoGo) { demoRan = true; demoTap(); drop(); } });
     }
   }
@@ -408,7 +408,7 @@
   const stage = $('dg');
   if (DEMO) {
     stage.removeAttribute('tabindex'); stage.removeAttribute('role'); stage.setAttribute('aria-hidden', 'true');
-    const rest = () => { timers = []; D.passing = false; hideFrame(); setPose('ready'); };
+    const rest = () => { timers = []; D.passing = false; hideFrame(); setPose('ready'); markAt(T.release); };
     window.__dgDemo = {
       onDone: null,
       /* play: once through, from the ball in the hands. stop: back to rest at once, nothing played */
