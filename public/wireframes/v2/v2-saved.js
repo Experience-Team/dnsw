@@ -85,7 +85,7 @@
     [btn, top].forEach(function (b) {
       var was = b.hidden; b.hidden = !n;
       b.querySelector('.v2-pb-n').textContent = n || '';
-      b.setAttribute('aria-label', 'Your plan, ' + n + ' saved');
+      b.setAttribute('aria-label', 'Your plan, ' + n + ' added');
       if (was && n && !still() && b.animate && b.offsetParent) b.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2,.7,.2,1)' });
     });
     if (menuLi) { menuLi.hidden = !n; menuN.textContent = n ? '(' + n + ')' : ''; }
@@ -157,12 +157,12 @@
     var rs = rows(), h = '';
     if (undo) h += '<p class="v2-sv-undo" role="status"><span>' + esc(undo.msg) + '</span><button type="button" class="v2-sv-link" id="v2-sv-undo">Undo</button></p>';
     if (!rs.length) {
-      h += '<div class="v2-sv-empty"><p>Nothing saved yet. Score a goal in Drop goal and save where the ball lands, or add an article from Read before you go.</p>' +
+      h += '<div class="v2-sv-empty"><p>Nothing added yet. Score a goal in Drop goal and add where the ball lands, or add an article from Read before you go.</p>' +
         (overGame ? '<p class="v2-sv-acts"><button type="button" class="tp-home-cta" data-sv-go="close">Back to the game</button></p>'
           : '<p class="v2-sv-acts"><button type="button" class="tp-home-cta" data-sv-go="play">Play now' + ICON.go + '</button><button type="button" class="v2-kick-places" data-sv-go="places">Or see all the places</button></p>') + '</div>';
       return h;
     }
-    h += '<p class="v2-sv-count"><span>' + rs.length + ' saved</span><button type="button" class="v2-sv-link" id="v2-sv-clear">Clear all</button></p>';
+    h += '<p class="v2-sv-count"><span>' + rs.length + ' added</span><button type="button" class="v2-sv-link" id="v2-sv-clear">Clear all</button></p>';
     h += '<ul class="v2-sv-list">' + rs.map(function (r) {
       return '<li class="v2-sv-row" data-id="' + esc(r.id) + '">' + r.pic + '<div class="v2-sv-t"><span class="v2-sv-kind">' + r.type + '</span><b>' + esc(r.name) + '</b><span class="v2-sv-line">' + esc(r.line) + '</span></div>' +
         '<button type="button" class="v2-sv-rm" data-sv-rm="' + esc(r.id) + '" aria-label="Remove ' + esc(r.name) + ' from your plan">Remove</button></li>';
@@ -209,7 +209,7 @@
       scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
       sheet.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 340, easing: 'cubic-bezier(.2,.7,.2,1)' });
     } else if (sheet.animate) sheet.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160 });
-    tp.say('Your plan opened. ' + count() + ' saved.');
+    tp.say('Your plan opened. ' + count() + ' added.');
   }
   function close() {
     if (!isOpen) return;

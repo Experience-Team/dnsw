@@ -107,11 +107,13 @@
   }
 
   const BOOKMARK = on => `<svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M1.5 1.5h9v11L6 9.6 1.5 12.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+  /* a plus, and a tick once added: the same marks as the page's Add buttons */
+  const MARK = on => on ? '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 1.5v9M1.5 6h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   function saveBtn(b, p) {
     const on = isSaved(p);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
-    b.setAttribute('aria-label', on ? `Saved ${p.name} to your plan. Press to remove it` : `Save ${p.name} to your plan`);
-    b.innerHTML = `<span class="dg-save-in">${BOOKMARK(on)}<span>${on ? 'Saved' : 'Save'}</span></span>`;
+    b.setAttribute('aria-label', on ? `Added ${p.name} to your plan. Press to remove it` : `Add ${p.name} to your plan`);
+    b.innerHTML = `<span class="dg-save-in">${MARK(on)}<span>${on ? 'Added' : 'Add'}</span></span>`;   /* Add and Added, the page's word (24 Nov): one word everywhere */
   }
   /* The bookmark pops as it fills, so the save is felt where the finger is */
   function pop(b) {
@@ -124,7 +126,7 @@
     if (on) pop(b);
     document.querySelectorAll(`.dg-save[data-id="${p.id}"]`).forEach(x => { if (x !== b) saveBtn(x, p); });
     countLine();
-    api.say(on ? `${p.name} saved to your plan.` : `${p.name} removed from your plan.`);
+    api.say(on ? `${p.name} added to your plan.` : `${p.name} removed from your plan.`);
   }
 
   /* A picture. Without one, high fidelity shows a poster in the same space: the place's name on the team's colour, as
@@ -224,8 +226,8 @@
   function countLine() {
     const pa = planApi(), a = readState().added;
     const n = pa ? (Array.isArray(a) ? a.filter(x => x && (x.kind === 'kick' || x.kind === 'v2art')).length : 0) : saved().length, el = $('dg-pl-count');
-    if (el) { el.textContent = pa && n ? '' : n ? `${n} saved to your plan` : 'Nothing saved yet'; el.classList.toggle('is-none', !n); }
-    ['dg-r-plan', 'dg-pl-plan'].forEach(id => { const b = $(id); if (!b) return; b.hidden = !(pa && n); b.textContent = `${n} saved \u00b7 Your plan`; });
+    if (el) { el.textContent = pa && n ? '' : n ? `${n} added to your plan` : 'Nothing added yet'; el.classList.toggle('is-none', !n); }
+    ['dg-r-plan', 'dg-pl-plan'].forEach(id => { const b = $(id); if (!b) return; b.hidden = !(pa && n); b.textContent = `${n} added \u00b7 Your plan`; });
   }
   ['dg-r-plan', 'dg-pl-plan'].forEach(id => $(id).addEventListener('click', e => { const pa = planApi(), b = e.currentTarget; if (pa) pa.open(b, () => { try { b.focus({ preventScroll: true }); } catch (x) {} }); }));
   /* A remove, Undo or Clear all in Your plan: every Save button and the count follow it */
@@ -264,7 +266,7 @@
     openerP = from; teams0 = teams;
     renderPlaces(ONLY);
     /* On its own there has been no kick, so the heading and line leave the posts and the goal out */
-    if (ONLY) { $('dg-pl-title').innerHTML = 'The places &middot; <span class="dg-sample">Sample</span>'; placesEl.querySelector('.dg-pl-p').firstChild.textContent = 'Save any of them to your plan. '; }
+    if (ONLY) { $('dg-pl-title').innerHTML = 'The places &middot; <span class="dg-sample">Sample</span>'; placesEl.querySelector('.dg-pl-p').firstChild.textContent = 'Add any of them to your plan. '; }
     inertWas = [stage, res].map(el => [el, el.inert]); stage.inert = true; res.inert = true;
     placesEl.hidden = false; placesEl.scrollTop = 0;
     if (!ONLY && !reduce.matches && placesEl.animate) placesEl.animate([{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
