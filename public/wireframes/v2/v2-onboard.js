@@ -36,18 +36,15 @@
      is remembered with where it sat, and the scroll is corrected to keep it there, at once and as Home settles. */
   var body = phone.querySelector('.cn-body'), homeEl = document.getElementById('tp-home'), anchor = null, settle = 0;
   function topOf(el) { return el.getBoundingClientRect().top - body.getBoundingClientRect().top; }
-  var yHeld = null;
-  function hold() {
-    if (!anchor || !anchor.el.isConnected) return;
-    // The person, or a control (the menu's Home), has scrolled since: that is where they want to be, so let go
-    if (yHeld !== null && Math.abs(body.scrollTop - yHeld) > 1) { anchor = null; yHeld = null; return; }
-    var d = topOf(anchor.el) - anchor.top; if (Math.abs(d) >= 0.5) body.scrollTop += d;
-    yHeld = body.scrollTop;
-  }
+  function hold() { if (anchor && anchor.el.isConnected) { var d = topOf(anchor.el) - anchor.top; if (Math.abs(d) >= 0.5) body.scrollTop += d; } }
+  // The person scrolls, or a control takes them somewhere (the menu's Home): that is where they want to be, so let go
+  function release() { anchor = null; clearTimeout(settle); }
+  ['wheel', 'touchmove'].forEach(function (ev) { body.addEventListener(ev, release, { passive: true }); });
+  body.addEventListener('keydown', function (e) { if (/^(Arrow(Up|Down)|Page(Up|Down)|Home|End| )$/.test(e.key)) release(); });
   if (window.ResizeObserver && homeEl) new ResizeObserver(function () { if (anchor && picker.parentNode !== teamsBox) hold(); }).observe(homeEl);
   function lendIn() {
     if (!picker || picker.parentNode === teamsBox || picker.closest('#tp-at')) return;
-    clearTimeout(settle); yHeld = null;
+    clearTimeout(settle);
     if (!anchor) {
       var secs = [].slice.call(document.querySelectorAll('#tp-home .tp-home-sec')), el = secs.filter(function (x) { return x.offsetParent && topOf(x) + x.offsetHeight > 0; })[0];
       anchor = el ? { el: el, top: topOf(el) } : null;
@@ -58,7 +55,7 @@
     if (!picker || picker.parentNode !== teamsBox || !window.v2View) return;
     window.v2View.lend(); window.dispatchEvent(new Event('resize'));
     hold();
-    settle = setTimeout(function () { hold(); anchor = null; yHeld = null; }, 900);
+    settle = setTimeout(function () { hold(); anchor = null; }, 900);
   }
 
   /* ---------- the pictures: the game playing itself, scaled like a screenshot ---------- */
@@ -113,6 +110,7 @@
     var name = steps[at];
     [].forEach.call(ob.querySelectorAll('.v2-ob-panel'), function (p) { p.hidden = p.dataset.step !== name; });
     var p = panel(name);
+    ob.classList.toggle('is-pitch', name === 'team');   // the team cards sit on the pitch, as the game does
     labels();
     if (name === 'team') lendIn();
     if (name === 'taps') teamText();
@@ -140,7 +138,7 @@
     if (steps[at] === 'team') lendBack();
     ['taps', 'place'].forEach(stopShot);
     open = false; at = -1;
-    ob.hidden = true; gameFrame.inert = false; if (howBtn) howBtn.hidden = false;
+    ob.hidden = true; ob.classList.remove('is-pitch'); gameFrame.inert = false; if (howBtn) howBtn.hidden = false;
     phone.classList.remove('v2-onboarding');
     if (play && window.v2Play) { window.v2Play.reload(); window.v2Play.focus(); }
   }
@@ -159,5 +157,5 @@
   phone.addEventListener('tp:state', function () { if (open && steps[at] === 'team') labels(); });
   if (howBtn) howBtn.addEventListener('click', function () { start({ force: true }); });
 
-  window.v2Onboard = { start: start, close: function () { close(false); }, isOpen: function () { return open; } };
+  window.v2Onboard = { release: release, start: start, close: function () { close(false); }, isOpen: function () { return open; } };
 })();

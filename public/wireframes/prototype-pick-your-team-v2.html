@@ -794,13 +794,13 @@
     { sel: '#v2-ob', title: 'How to play (onboarding)', points: [
       'Shown over the game the first time it is opened in this browser; after that Play now goes straight to the game, and the ? beside the close cross brings it back. Reset prototype shows it again.',
       'Design: two screens, Two taps to kick and Score to find a place. Each picture is the real game playing itself once, in a frame scaled like a screenshot, with Replay after it has played. Skip is on every screen.',
-      'Teams: with a team picked on Home, the first screen says who is kicking, with Change. With none, a first screen offers the team cards; it can be passed without picking, as the game works without a team.',
+      'Teams: with a team picked on Home, the first screen says who is kicking, with Change. With none, a first screen offers the team cards; it can be passed without picking, as the game works without a team. The team cards sit on the pitch, as the game does; small text there is on dark chips.',
       'Try it: Next and Back slide each screen in from its side; Let\u2019s play starts the game with the teams picked here. Closing with the cross leaves it unseen, so it shows next time.',
       'Reduced motion: the pictures stay still and the screens swap in place.',
       'Screen readers: each screen\u2019s name and its step are read out; the pictures are hidden from them, as the tips say the same in words.'
     ] },
     { sel: '#v2-play', title: 'Drop goal', points: [
-      'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo, and the result stacks the pitch above the card; side by side from 700px wide.',
+      'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo. After a goal on a phone the card slides up and pushes the field off the top in one movement, leaving Kick again alone at the top; from 700px wide the posts and the framed place sit beside the card.',
       'Try it: tap, click, Space or Enter drops the ball, and again kicks it as it bounces. The call to act follows the taps: Tap to drop, Tap to kick, then Kick now (yellow) while a kick would score, in step with the bar\u2019s KICK zone. Early goes wide, late falls short, and one tap alone says No kick.',
       'Design: the kick window opens as the ball lands and stays open for 0.3s (card 10\u2019s was 0.2s, starting just before the bounce, so a tap reacting to the bounce always came up short).',
       'Places: a goal frames a place between the posts, then the result card opens. The places come from where the picked teams play: Sydney, Newcastle, or both. No team, or Every NSW match: both, in turn. No place repeats until every place in that set has been shown, and never twice in a row. With both cities, each round starts two from the next match\u2019s city for every one from the other. FITS names the match day from the picked teams\u2019 fixtures.',

@@ -547,10 +547,16 @@ test.describe('Version 2', () => {
     await expect(next).toHaveText('Continue without a team');
     await ob.locator('.tp-card2[aria-label="Wales"]').click();
     await expect(next).toHaveText('Continue');
+    // the team screen sits on the pitch, as the game does, and its small text is on dark chips so it can be read
+    await expect(ob).toHaveClass(/is-pitch/);
+    expect(await ob.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(85, 148, 74)');
+    const cap = await page.locator('#tp-fan-caption').evaluate((e) => { const b = e.querySelector('b, strong, span') || e; return [getComputedStyle(e).backgroundColor, getComputedStyle(e).color, getComputedStyle(b).color]; });
+    expect(cap).toEqual(['rgba(0, 32, 16, 0.78)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)']);
     await next.click();
     await expect(count).toHaveText('Step 2 of 3');
     await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two taps to kick');
     await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Wales.');
+    await expect(ob).not.toHaveClass(/is-pitch/);   // the rule screens are on the page's own background
     // the cards have gone back to Home
     expect(await page.evaluate(() => document.getElementById('tp-picker').parentNode.id)).toBe('tp-home-hand');
     // the picture is the game playing itself once, in the picked kit, then Replay shows
@@ -636,5 +642,42 @@ test.describe('Version 2', () => {
     expect(await taps.evaluate(() => window.__dg2.phase())).toBe('hold');
     // nothing runs off the side at 320 wide in the wider system font
     expect(await page.evaluate(() => { const f = document.querySelector('.v2-ob-foot'); return f.scrollWidth <= f.clientWidth; })).toBe(true);
+  });
+
+  // The result on phones (24 Nov): the card pushes the field up, and the top is Kick again alone
+  test('Drop goal result on a phone: the field is pushed up by the card, and only Kick again is left at the top', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await kickAt(f, 0.76);
+    await f.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+    // on its way: the field is still there, moving up, as the card comes up from the bottom
+    const mid = await f.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r({
+      fieldShown: getComputedStyle(document.getElementById('dg-scene')).visibility === 'visible',
+      fieldY: document.getElementById('dg').getBoundingClientRect().top, cardY: document.getElementById('dg-result').getBoundingClientRect().top, h: innerHeight })))));
+    expect(mid.fieldShown).toBe(true);
+    expect(mid.fieldY).toBeLessThan(0);
+    expect(mid.cardY).toBeGreaterThan(0);
+    expect(Math.abs(mid.cardY - mid.fieldY - mid.h)).toBeLessThan(2);   // one movement: the card sits right under the field
+    await f.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+    const g = inGame(page);
+    await expect(g.locator('#dg-r-again')).toBeVisible();
+    await expect(g.locator('#dg-r-frame')).toBeHidden();
+    const top = await g.locator('.dg-r-pitch').boundingBox(), again = await g.locator('#dg-r-again').boundingBox();
+    expect(top.height).toBeLessThanOrEqual(72);
+    // Kick again holds one line and stops short of How to play and the close cross, top right
+    expect(again.x + again.width).toBeLessThan((await page.locator('#v2-play-how').boundingBox()).x - (await page.locator('#v2-game').boundingBox()).x);
+    await g.locator('#dg-r-again').click();
+    await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 4000 });
+    await expect(g.locator('#dg-result')).toBeHidden();
+    await expect(g.locator('#dg-scene')).toBeVisible();
+  });
+
+  test('Drop goal result on a wide screen keeps the posts and the framed place beside the card', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi&team=Wales');
+    await expect(page.locator('#dg-head')).toHaveText(/tap to drop/i);
+    await page.evaluate(() => { const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); k(); setTimeout(k, 760); });
+    await page.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+    await expect(page.locator('#dg-r-frame')).toBeVisible();
+    await expect(page.locator('#dg-r-again')).toBeVisible();
   });
 });

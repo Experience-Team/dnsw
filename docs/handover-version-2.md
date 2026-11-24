@@ -47,6 +47,10 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
   find a place), each with the game playing itself once, and a team screen first when no team is picked (skippable).
   Skip on every screen; first time only (`v2:v2ob-seen`), then the ? beside the game's cross. The user chose two rule
   screens, first time only, and to keep Home's animation as well.
+- **Team screen on the pitch:** the onboarding's team cards sit on the game's field (green and lines; greys in low
+  fidelity), with small text on dark chips.
+- **Result on phones:** the card slides up and pushes the field off the top in one movement; the top is Kick again
+  alone, in a row clear of the page's ? and cross. From 700px wide it is unchanged (posts and place beside the card).
 - **Teams:** Home's picks go to the game (`?team=`); the review-only Kicker's team list in the left panel is gone.
 - **Saves:** the game and the team cards share `v2:tp-pick-v1`; the page merges the game's saves as they happen.
 
@@ -157,7 +161,7 @@ worked out from the fixtures, not held. Approved by the user on 24 Nov.
 
 ## Tests
 
-`tests/regression/v2.behaviour.spec.js` (46 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
+`tests/regression/v2.behaviour.spec.js` (48 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
 places; both themes at 390 and 320). Run `npx playwright test --project=behaviour tests/regression/v2.behaviour.spec.js`.
 
 - **Human pace:** three tests use real mouse clicks at 0.76, 0.9 and 0.98s and must score. Since #624, CLAUDE.md

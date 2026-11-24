@@ -20,6 +20,9 @@
   var layer = document.getElementById('v2-play'), frame = document.getElementById('v2-game'), closeBtn = document.getElementById('v2-play-close');
   var tp = window.v2Picker;
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  // Back closes the game (below): the browser must not also put the page's scroll back to where it remembers it, which
+  // moved Home under the person. The page keeps its own place
+  try { history.scrollRestoration = 'manual'; } catch (e) {}
 
   /* ---------- Home: the hand of cards, lent for good ---------- */
   var picker = document.getElementById('tp-picker'), homeHand = document.getElementById('tp-home-hand');
@@ -40,6 +43,7 @@
     if (focusEl) focusEl.focus({ preventScroll: true });
   }
   function go(v, from) {
+    if (v !== 'kick' && v !== 'play' && window.v2Onboard) window.v2Onboard.release();   // a jump on Home is where they want to be
     if (v === 'kick' || v === 'play') openGame(from);
     else if (v === 'plan') { if (window.v2Article && window.v2Article.get()) window.v2Article.close(); jump(document.getElementById('tp-home-plan'), document.getElementById('tp-home-plan-title')); }
     else { if (window.v2Article && window.v2Article.get()) window.v2Article.close(); body.scrollTo({ top: 0, behavior: still() ? 'auto' : 'smooth' }); }

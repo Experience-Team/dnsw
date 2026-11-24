@@ -149,6 +149,17 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .dg-r-rows dd { margin: 0; font: 400 13px/1.4 var(--ui); }
 .dg-r-body .dg-link { margin-top: 12px; color: var(--ink); }
 
+/* Phones (24 Nov): the top of the result is Kick again and nothing else, in one row, clear of the page's close cross
+   and How to play at the top right. The posts and the framed place are left on the field, which the card pushes up
+   and off the screen as it arrives (result.js) */
+@media (max-width: 699px) {
+  .dg-r-pitch { flex-direction: row; justify-content: flex-start; min-height: 68px; padding: 12px 16px; }
+  .dg-r-posts { display: none; }
+  .dg-again { flex-direction: row; gap: 12px; margin-top: 0; padding: 4px 0; -webkit-tap-highlight-color: transparent; }
+  .dg-again span { font-size: clamp(20px, 6.4vw, 26px); }
+  .dg-again-ball { width: 38px; height: 28px; }
+}
+
 /* Wide screens: side by side, the pitch on the left */
 @media (min-width: 700px) {
   /* not while hidden: display here would otherwise beat the hidden attribute and show the empty card over the game */

@@ -93,3 +93,19 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 @media (hover: hover) { .v2-v1link-go:hover { background: #f2f6fd; } }
 @media (max-width: 960px) { .v2-v1link { padding-inline: var(--space-4); } }
 @media (max-height: 860px) and (min-width: 801px) { .v2-v1link { padding-block: var(--space-3); } .v2-v1link-p { display: none; } }
+
+/* The team screen sits on the pitch, as the game does (24 Nov): the same green and lines in high fidelity, greys in low.
+   Small text on the pitch sits on dark chips, as in the game, so it keeps 4.5:1; the heading is large and cream */
+.v2-ob.is-pitch { background: #e2e2e2 url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 390 760%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22390%22 height=%22760%22 fill=%22%23e2e2e2%22/%3E%3Cline x1=%22-545%22 y1=%22-105%22 x2=%22939%22 y2=%22913%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-494%22 y1=%22-179%22 x2=%22990%22 y2=%22839%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-467%22 y1=%22-219%22 x2=%221017%22 y2=%22799%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22 stroke-dasharray=%2228 44%22/%3E%3Cline x1=%22-307%22 y1=%22-451%22 x2=%221177%22 y2=%22567%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22629%22 y1=%22-514%22 x2=%22-389%22 y2=%22970%22 stroke=%22%23f4f4f4%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") center / cover no-repeat; }
+:root[data-theme="hifi"] .v2-ob.is-pitch { background: #55944a url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 390 760%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22390%22 height=%22760%22 fill=%22%2355944a%22/%3E%3Cline x1=%22-545%22 y1=%22-105%22 x2=%22939%22 y2=%22913%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-494%22 y1=%22-179%22 x2=%22990%22 y2=%22839%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22-467%22 y1=%22-219%22 x2=%221017%22 y2=%22799%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22 stroke-dasharray=%2228 44%22/%3E%3Cline x1=%22-307%22 y1=%22-451%22 x2=%221177%22 y2=%22567%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cline x1=%22629%22 y1=%22-514%22 x2=%22-389%22 y2=%22970%22 stroke=%22%23649f58%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") center / cover no-repeat; }
+.v2-ob.is-pitch .v2-ob-h { color: #1d1d1d; }
+:root[data-theme="hifi"] .v2-ob.is-pitch .v2-ob-h { color: #f1efe0; }
+.v2-ob.is-pitch :is(.v2-ob-p, .v2-ob-count, .v2-ob-skip, .tp-fan-caption) { background: #1d1d1d; color: #fff; }
+:root[data-theme="hifi"] .v2-ob.is-pitch :is(.v2-ob-p, .v2-ob-count, .v2-ob-skip, .tp-fan-caption) { background: rgba(0, 32, 16, .78); }
+.v2-ob.is-pitch .v2-ob-p { align-self: flex-start; padding: var(--space-2) var(--space-3); border-radius: 12px; }
+.v2-ob.is-pitch .v2-ob-count { padding: 4px var(--space-2); border-radius: 999px; }
+.v2-ob.is-pitch .v2-ob-skip { padding: 0 var(--space-3); border-radius: 999px; }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption { display: table; margin-inline: auto; padding: var(--space-2) var(--space-3); border-radius: 12px; max-width: calc(100% - 2 * var(--space-5)); }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption:empty { display: none; }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption * { color: inherit; }
+#tp-phone .v2-ob.is-pitch :is(.v2-ob-skip, .tp-link):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

@@ -108,7 +108,8 @@
 
   /* ---------- the result screen ---------- */
   const res = $('dg-result'), stage = $('dg');
-  let shown = null, onAgain = null, openerR = null;
+  let shown = null, onAgain = null, openerR = null, push = null;
+  const PHONE = matchMedia('(max-width: 699px)');   /* stacked below 700px, side by side from there (game.css) */
   function open(p, teams, again) {
     shown = p; onAgain = again;
     $('dg-r-frame').innerHTML = api.frameSVG(p);
@@ -121,8 +122,17 @@
     const b = $('dg-r-save'); b.dataset.id = p.id; saveBtn(b, p);
     res.scrollTop = 0;
     res.hidden = false; stage.inert = true;
-    document.documentElement.classList.add('is-result');
-    if (!reduce.matches && res.animate) {
+    const root = document.documentElement;
+    if (PHONE.matches && !reduce.matches && res.animate) {
+      /* Phones (24 Nov): the card comes up from the bottom and pushes the field up and off the top as it does, one
+         movement, so the screen ends as Kick again at the top and the card under it. The field stays in view until it
+         has gone (is-result hides it after) */
+      const go = { duration: 460, easing: 'cubic-bezier(.3,.7,.2,1)' };
+      stage.animate([{ transform: 'none' }, { transform: 'translateY(-100%)' }], go);
+      push = res.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], go);
+      push.onfinish = () => { push = null; if (!res.hidden) root.classList.add('is-result'); };
+    } else root.classList.add('is-result');
+    if (!PHONE.matches && !reduce.matches && res.animate) {
       res.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' });
       $('dg-r-card').animate([{ transform: 'translateY(48px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, delay: 80, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
     }
@@ -130,9 +140,16 @@
   }
   function close() {
     if (res.hidden) return;
-    const done = () => { res.hidden = true; document.documentElement.classList.remove('is-result'); };
+    const root = document.documentElement, done = () => { res.hidden = true; root.classList.remove('is-result'); };
     stage.inert = false;
-    if (!reduce.matches && res.animate) res.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in' }).onfinish = done; else done();
+    if (push) { push.onfinish = null; push = null; }
+    if (PHONE.matches && !reduce.matches && res.animate) {
+      /* Phones: back the way it came, a little faster: the card goes down and the field comes back down with it */
+      const go = { duration: 320, easing: 'cubic-bezier(.4,0,.6,1)' };
+      root.classList.remove('is-result');
+      stage.animate([{ transform: 'translateY(-100%)' }, { transform: 'none' }], go);
+      res.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], go).onfinish = done;
+    } else if (!reduce.matches && res.animate) res.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-in' }).onfinish = done; else done();
     stage.focus({ preventScroll: true });
     const f = onAgain; onAgain = null; shown = null;
     if (f) f();
@@ -208,7 +225,7 @@
        reset puts the result away at once */
     quiet: false,
     demoSave(on) { if (!shown) return; const b = $('dg-r-save'); saveBtn(b, shown, on); if (on) pop(b); },
-    reset() { res.getAnimations().forEach(a => a.cancel()); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
+    reset() { push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
   };
   window.DG2Result = api;
 })();
