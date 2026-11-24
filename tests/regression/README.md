@@ -11,7 +11,8 @@ theme or state. Two suites, run on every PR by `.github/workflows/regression.yml
 - **Version 2** (`v2.visual.spec.js`, `v2.behaviour.spec.js`): `prototype-pick-your-team-v2.html`, a separate
   prototype. Screenshots of each state built so far (`v2-<theme>-<width>-<state>.png`), and smoke tests that it keeps
   apart from Options A to C: only its own tabs, none of their behaviour scripts, its own saved state, and no links
-  between the two. See `public/wireframes/v2/README.md`.
+  between the two. Drop goal's kick screen: the team's kit, a goal, a wide and a short kick and what each announces,
+  reduced motion, and the team choice kept under `v2:`. See `public/wireframes/v2/README.md`.
 - **Behaviour** (`behaviour.spec.js`): pick, unpick, Clear all, Every NSW match, reload, Reset prototype and `?reset` in
   each option, and `?flow=a`, `?flow=c`, `?phone` and `?theme` doing their jobs.
 

@@ -641,6 +641,18 @@ Added 22 November 2026 for the Rugby World Cup planner (Pick your team prototype
 
 Not held, and not invented: opening hours and price (a town has neither, so those rows are left out for a destination; an attraction idea such as Sydney Opera House keeps them as placeholders), and coordinates. The map places each idea at an approximate public town centre (`cnGeo.ideas` in `public/wireframes/concepts-geo.js`), prototype only. Who an idea suits (solo, couple, friends, family), used only to order ideas, is read from the page's Best for list where it names families, couples or groups; where it names none, the idea suits everyone.
 
+Added 24 November 2026 for Version 2's Drop goal result card (`docs/drop-goal-brief.md`), confirmed by the user as `gap`. Drop goal's places are destinations too (precincts, areas and standalone attractions, never a business), held in `public/wireframes/v2/drop-goal/places.js` (fixtures only). The card also uses:
+
+**`tags`** — `gap`, `source: authored`. Up to three short category labels (for example Food, Culture, Western Sydney), shown as chips on the card and in See the places. Empty state: the chips are left out.
+
+**`host_city`** — `gap`, `source: derived` (the host city nearer the place: `sydney` or `newcastle`). Used to choose which places a person sees after a goal, from where their team plays. Empty state: the place is shown only in the mixed set (no team picked).
+
+**`image`** — `gap`, `source: authored`, the destination page's hero image, with usage rights to check. Never a picture of a named business. Empty state: a drawn placeholder with the place's name.
+
+**`travel_from_ground`** — `gap`, `source: derived`. An estimate of the time from the nearest host ground, always shown as an estimate ("About 10 min by car from Newcastle Stadium (estimate)"). Empty state: "Travel time to be confirmed".
+
+Not held: the card's FITS line (which match day the place fits around). The game works it out from the match fixtures (§17) and the person's picked team, so it is game copy, not data. The short description is `summary`; where a place has none yet, the card shows a sample line marked as sample.
+
 ```json
 "destination": {
   "name": "string",
@@ -648,6 +660,10 @@ Not held, and not invented: opening hours and price (a town has neither, so thos
   "summary": "string | null",
   "travel_time": "string | null",
   "getting_there": "string | null",
-  "official_url": "string | null"
+  "official_url": "string | null",
+  "tags": ["string"],
+  "host_city": "sydney | newcastle | null",
+  "image": "image | null",
+  "travel_from_ground": "string | null"
 }
 ```

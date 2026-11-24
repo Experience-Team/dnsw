@@ -60,6 +60,12 @@
     <div class="pv-switches pv-switches--test">
       <!-- No design tests at the moment: the group hides itself while it is empty -->
     </div>
+    <!-- Review only, not part of the design: the kicker's team, until Version 2 has a team picker of its own. Kept in
+         this browser under v2: (Reset clears it). -->
+    <div class="v2-review">
+      <label class="v2-review-l" for="v2-team">Kicker&rsquo;s team <span>(for review until Version 2 has a team picker)</span></label>
+      <select class="v2-review-s" id="v2-team"><option value="">No team: the Third Half kit</option><option value="Every NSW match">Every NSW match</option></select>
+    </div>
     <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
       <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
       <ol class="cn-notes-list" id="cn-notes-list"></ol>
@@ -88,10 +94,11 @@
       <div class="cn-body tp-body" id="v2-body">
         <!-- Phone view only: the Settings icon (Switch prototype, Reset prototype) hangs here, as on the other options -->
         <div class="v2-top" id="v2-top"></div>
-        <!-- Empty state: shown until the first part is built. Remove it then. -->
-        <div class="v2-empty" id="v2-empty">
-          <p class="v2-empty-t">Version 2</p>
-          <p class="v2-empty-p">Nothing built yet.</p>
+        <!-- Drop goal: the kick screen (24 Nov, docs/drop-goal-brief.md, Kick screen), in its own folder (v2/drop-goal/)
+             and shown here in a frame, so its scripts never load in this page. The frame's address carries the kicker's
+             team (?team=), set below. -->
+        <div class="v2-game-wrap" id="v2-game-wrap">
+          <iframe class="v2-game" id="v2-game" title="Drop goal: drop the ball, then kick it through the posts"></iframe>
         </div>
       </div>
     </div>
@@ -112,6 +119,27 @@
 <script src="concepts-geo.js"></script>
 <script src="concepts-words.js"></script>
 <script src="concepts-articles.js"></script>
+
+<script>
+/* The kicker's team (review only): the list from the game's own kit file, the choice kept under v2:, and the game's
+   frame loaded with it. Changing it reloads the game. */
+(function () {
+  var sel = document.getElementById('v2-team'), frame = document.getElementById('v2-game');
+  if (!sel || !frame) return;
+  var TEAMS = ['Argentina', 'Australia', 'Canada', 'Chile', 'England', 'Fiji', 'France', 'Georgia', 'Hong Kong China', 'Ireland', 'Italy', 'Japan', 'New Zealand', 'Portugal', 'Romania', 'Samoa', 'Scotland', 'South Africa', 'Spain', 'Tonga', 'USA', 'Uruguay', 'Wales', 'Zimbabwe'];
+  TEAMS.forEach(function (t) { var o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+  var team = '';
+  try { team = localStorage.getItem('dg-team') || ''; } catch (e) {}
+  if (TEAMS.indexOf(team) < 0 && team !== 'Every NSW match') team = '';
+  sel.value = team;
+  function load() { frame.src = 'v2/drop-goal/index.html' + (sel.value ? '?team=' + encodeURIComponent(sel.value) : ''); }
+  sel.addEventListener('change', function () {
+    try { if (sel.value) localStorage.setItem('dg-team', sel.value); else localStorage.removeItem('dg-team'); } catch (e) {}
+    load();
+  });
+  load();
+})();
+</script>
 
 <script>
 /* Reset prototype and ?reset: clear every key this version saved (v2:, in both stores), leaving the viewer's own
@@ -142,7 +170,19 @@
    anything changes what is on screen. */
 (function () {
   var NOTES = [
-    { sel: '.v2-empty-t', title: 'Empty state', points: ['Nothing built yet. Remove this note with the empty state.'] }
+    { sel: '#v2-game-wrap', title: 'Drop goal', points: [
+      'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo, and the result stacks the pitch above the card; side by side from 700px wide.',
+      'Try it: tap, click, Space or Enter drops the ball, and again kicks it as it bounces. The call to act follows the taps: Tap to drop, Tap to kick, then Kick now (yellow) while a kick would score, in step with the bar\u2019s KICK zone. Early goes wide, late falls short, and one tap alone says No kick.',
+      'Design: the kick window opens as the ball lands and stays open for 0.3s (card 10\u2019s was 0.2s, starting just before the bounce, so a tap reacting to the bounce always came up short).',
+      'Places: a goal frames a place between the posts, then the result card opens. The places come from where the picked teams play: Sydney, Newcastle, or both. No team, or Every NSW match: both, in turn. No place repeats until every place in that set has been shown, and never twice in a row. With both cities, each round starts two from the next match\u2019s city for every one from the other. FITS names the match day from the picked teams\u2019 fixtures.',
+      'Remembered: Save writes Version 2\u2019s own copy of the planner\u2019s saved state (the same shape as Options A to C\u2019s, Saved, not placed yet) under v2:. Version 2 has no Your plan yet to show it.',
+      'Data: places are \u00a719 destinations in v2/drop-goal/places.js, every field gap. Descriptions come from the destination pages where there is one; the rest, the tags, the travel estimates and stand-in pictures are sample, in pink. FITS is worked out from the fixtures.',
+      'Prototype only: the picked team is set in the left panel until Version 2 has a team picker (one team here; the game takes several as ?team=Wales,Japan, the first one kicking). With no team or Every NSW match, the kicker wears the Third Half kit and the table has no +3.',
+      'Keyboard: Space or Enter plays; Tab goes to Share the table, then See the places, so the places can be reached without playing. Escape closes the places and the result.',
+      'Screen readers: the pitch\u2019s label explains the two taps. A live region says each goal (the place, the points and where the team now sits on the table), each miss and why, each save and Share the table. The table reads as \u201c5, Portugal (your team), 41 points\u201d.',
+      'Design: contrast is WCAG 2.2 AA. The pitch is a shade darker than the reference so the large cream type and the timing bar reach 3:1, the small lines on the pitch sit on dark chips (4.5:1), the bar\u2019s inside is dark so the yellow KICK zone stands out, and GOAL is cream with a yellow underline.',
+      'Reduced motion: the ball still drops, as the timing needs it, but there is no flight, frame, +3 pop or card transition: the result opens straight away.'
+    ] }
   ];
   var phone = document.getElementById('tp-phone'), stage = document.getElementById('tp-stage');
   var box = document.getElementById('cn-notes'), list = document.getElementById('cn-notes-list'), toggle = document.getElementById('cn-notes-toggle');
