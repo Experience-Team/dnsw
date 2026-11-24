@@ -209,13 +209,13 @@
             <h3 class="tp-sec-title" id="tp-home-kick-title"><span class="tp-on-phone">Play</span><span class="tp-on-desk">Drop Goal</span></h3>
             <p class="tp-home-intro">Line up your kick and go for goal. Wherever the ball lands is your next idea for somewhere to go in Sydney or NSW. Keep kicking to find more.</p>
             <!-- How to play (24 Nov): the game playing itself in a small frame (v2/drop-goal/index.html?demo), in place of
-                 the still. It runs only while it is on screen, Pause stops it (WCAG 2.2.2), and with reduced motion it
-                 stays still. The line under it says the same in words; a tap on the picture opens the game, as Play now
-                 does. Script: v2/v2-view.js. -->
-            <div class="tp-home-kick-img v2-demo" id="v2-demo">
+                 the still. It plays once when the section comes into view, then rests; Replay shows after that. With
+                 reduced motion it stays still. The line under it says the same in words; a tap on the picture opens the
+                 game, as Play now does. Script: v2/v2-view.js. -->
+            <div class="tp-home-kick-img v2-demo" id="v2-demo" tabindex="-1">
               <iframe class="v2-demo-frame" id="v2-demo-frame" src="v2/drop-goal/index.html?demo" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
               <span class="v2-demo-hit" id="v2-demo-hit" data-view="kick" aria-hidden="true"></span>
-              <button type="button" class="v2-demo-pause" id="v2-demo-pause" aria-pressed="false"><svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true" focusable="false"><path class="v2-demo-i-pause" d="M1 1h3v10H1zM6 1h3v10H6z" fill="currentColor"/><path class="v2-demo-i-play" d="M1.5 1l8 5-8 5z" fill="currentColor"/></svg><span>Pause</span></button>
+              <button type="button" class="v2-demo-replay" id="v2-demo-replay" aria-label="Replay the how to play animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button>
             </div>
             <p class="v2-demo-how"><strong>How to play:</strong> tap to drop the ball, then tap again as it bounces.</p>
             <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
@@ -604,6 +604,43 @@
            phone's back button close it too, and focus goes back to what opened it. Script: v2/v2-view.js. -->
       <div class="v2-play" id="v2-play" role="dialog" aria-modal="true" aria-label="Drop goal" hidden>
         <iframe class="v2-game" id="v2-game" title="Drop goal: drop the ball, then kick it through the posts"></iframe>
+        <!-- Onboarding (24 Nov): over the game the first time it is opened, then from How to play (the ? beside the
+             cross). Two screens of rules, each with the real game playing itself once in a small frame, and a team
+             screen first when no team is picked. Skip is always there. Script: v2/v2-onboard.js. -->
+        <section class="v2-ob" id="v2-ob" aria-label="How to play Drop goal" hidden>
+          <header class="v2-ob-top">
+            <button type="button" class="tp-link v2-ob-skip" id="v2-ob-skip">Skip<span class="visually-hidden"> how to play, and start the game</span></button>
+            <p class="v2-ob-count" id="v2-ob-count"></p>
+          </header>
+          <div class="v2-ob-panel v2-ob-panel--team" data-step="team" hidden>
+            <h2 class="v2-ob-h" tabindex="-1">Who are you kicking for?</h2>
+            <p class="v2-ob-p">Your kicker wears their kit, and a goal lands near where they play. Pick one or more, or carry on without.</p>
+            <div class="v2-ob-teams" id="v2-ob-teams"></div>
+          </div>
+          <div class="v2-ob-panel" data-step="taps" hidden>
+            <h2 class="v2-ob-h" tabindex="-1">Two taps to kick</h2>
+            <p class="v2-ob-p v2-ob-team" id="v2-ob-team"></p>
+            <div class="v2-ob-shot"><div class="v2-ob-phone"><iframe title="The kick, playing itself" aria-hidden="true" tabindex="-1" inert></iframe></div><button type="button" class="v2-demo-replay v2-ob-replay" aria-label="Replay the animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button></div>
+            <ol class="v2-ob-tips">
+              <li><span><b>Tap</b> anywhere to drop the ball.</span></li>
+              <li><span><b>Tap again</b> as it bounces, while the ball on the bar is in the yellow KICK zone.</span></li>
+            </ol>
+          </div>
+          <div class="v2-ob-panel" data-step="place" hidden>
+            <h2 class="v2-ob-h" tabindex="-1">Score to find a place</h2>
+            <p class="v2-ob-p">Every goal lands on somewhere to go in Sydney or NSW.</p>
+            <div class="v2-ob-shot"><div class="v2-ob-phone"><iframe title="A goal and its place, playing itself" aria-hidden="true" tabindex="-1" inert></iframe></div><button type="button" class="v2-demo-replay v2-ob-replay" aria-label="Replay the animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button></div>
+            <ul class="v2-ob-tips v2-ob-tips--plain">
+              <li><span><b>Save</b> the places you like, then kick again.</span></li>
+              <li><span><b>Missed?</b> No penalty. The next ball is on its way.</span></li>
+            </ul>
+          </div>
+          <footer class="v2-ob-foot">
+            <button type="button" class="tp-home-cta tp-home-cta--line v2-ob-back" id="v2-ob-back" hidden><span>Back</span></button>
+            <button type="button" class="tp-home-cta v2-ob-next" id="v2-ob-next"><span>Next</span><svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+          </footer>
+        </section>
+        <button type="button" class="v2-play-close v2-play-how" id="v2-play-how" aria-label="How to play"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M4.6 5.2a2.4 2.4 0 1 1 3.5 2.1c-.7.4-1.1.9-1.1 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="11.6" r="1.1" fill="currentColor"/></svg></button>
         <button type="button" class="v2-play-close" id="v2-play-close" aria-label="Close the game"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
     </div>
@@ -707,7 +744,7 @@
 <script src="v2/v2-third-half.js"></script>
 <script src="v2/v2-map.js"></script>
 <script src="v2/v2-plan.js"></script>
-<script src="v2/v2-home.js"></script>
+<script src="v2/v2-home.js"></script><script src="v2/v2-onboard.js"></script>
 <script src="v2/v2-view.js"></script>
 <script>
 /* Reset prototype and ?reset: clear every key this version saved (v2:, in both stores), leaving the viewer's own
@@ -748,11 +785,19 @@
       'Try it: a tap outside, Escape or picking anything closes it, and focus goes back to the button. Arrow keys move through it.'
     ] },
     { sel: '#tp-home-kick', title: 'Play now', points: [
-      'How to play: in place of the still, the game plays itself: a ring marks each of the two taps, the words go Tap to drop, Tap to kick, Kick now, Goal, and a place shows between the posts. The line under it says the same in words. A tap on it opens the game.',
-      'Design: it runs only while it is on screen and the game is closed, and Pause stops it (WCAG 2.2.2). Reduced motion: it stays still, with no Pause. It saves nothing and uses up no place.',
+      'How to play: in place of the still, the game plays itself once: a ring marks each of the two taps, the words go Tap to drop, Tap to kick, Kick now, Goal, and a place shows between the posts. The line under it says the same in words. A tap on it opens the game.',
+      'Design: it plays once, when the section comes into view, then rests on Tap to drop; Replay shows after that. If it is scrolled away before it finishes, it plays when next in view. Reduced motion: it stays still. It saves nothing and uses up no place.',
       'Play now opens Drop goal over the whole screen, where the person is; the page behind does not move, and it is where it was when the game closes.',
       'Try it: the cross at the top right, Escape or the phone\u2019s back button closes the game, and focus goes back to Play now (or to Menu). While See the places is open its own cross sits there instead, and closes only the places.',
       'Address: ?view=kick opens the game straight away.'
+    ] },
+    { sel: '#v2-ob', title: 'How to play (onboarding)', points: [
+      'Shown over the game the first time it is opened in this browser; after that Play now goes straight to the game, and the ? beside the close cross brings it back. Reset prototype shows it again.',
+      'Design: two screens, Two taps to kick and Score to find a place. Each picture is the real game playing itself once, in a frame scaled like a screenshot, with Replay after it has played. Skip is on every screen.',
+      'Teams: with a team picked on Home, the first screen says who is kicking, with Change. With none, a first screen offers the team cards; it can be passed without picking, as the game works without a team.',
+      'Try it: Next and Back slide each screen in from its side; Let\u2019s play starts the game with the teams picked here. Closing with the cross leaves it unseen, so it shows next time.',
+      'Reduced motion: the pictures stay still and the screens swap in place.',
+      'Screen readers: each screen\u2019s name and its step are read out; the pictures are hidden from them, as the tips say the same in words.'
     ] },
     { sel: '#v2-play', title: 'Drop goal', points: [
       'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo, and the result stacks the pitch above the card; side by side from 700px wide.',

@@ -16,10 +16,13 @@
     p2: t => 1 - (1 - t) * (1 - t)
   };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  /* Demo (?demo): Home's how-to-play snippet. The game plays itself, a goal every time, in a loop: it takes no input,
-     says nothing to screen readers, saves nothing and never opens the result. The page pauses it (window.__dgDemo) */
-  const DEMO = /[?&]demo\b/.test(location.search);
-  let demoPaused = false;
+  /* Demo (?demo): Home's how-to-play snippet. The game plays itself through one goal when the page asks
+     (window.__dgDemo.play), then rests with the ball in the hands and tells the page (onDone). It takes no input, says
+     nothing to screen readers, saves nothing and never opens the result. */
+  const DEMO_M = /[?&]demo(?:=(taps|place))?(?:&|$)/.exec(location.search), DEMO = !!DEMO_M, DEMO_PLACE = DEMO && DEMO_M[1] === 'place';
+  /* ?demo=taps and ?demo=place are the onboarding's two pictures: the whole screen as it is, playing once. place goes
+     on to the result card and shows Save being pressed (the look only) */
+  let demoGo = false, demoRan = false;
 
   /* ---------- timing (seconds, from the first tap) ----------
      Card 10's values, except the window (24 Nov, from play-testing): card 10 scored a kick 0.04s after the bounce,
@@ -89,6 +92,7 @@
 
   /* ---------- the place framed between the posts, above the bar ---------- */
   const R = window.DG2Result;
+  R.quiet = DEMO;
   function frameMarkup(p, id) {
     const pts = [[NEAR.x, NEAR.top], [FAR.x, FAR.top], [FAR.x, barY(FAR)], [NEAR.x, barY(NEAR)]].map(q => q.join(',')).join(' ');
     const x = NEAR.x, y = NEAR.top, w = FAR.x - NEAR.x, h = barY(FAR) - NEAR.top;
@@ -235,7 +239,10 @@
     setHint(note || 'Then tap again as it bounces.');
     setHead('drop');
     start();
-    if (DEMO && !demoPaused && !reduce.matches) after(1.3, () => { if (phase === 'hold' && !demoPaused) { demoTap(); drop(); } });
+    if (DEMO && demoGo && !reduce.matches) {
+      if (demoRan) { demoGo = demoRan = false; markAt(T.release); if (window.__dgDemo.onDone) window.__dgDemo.onDone(); }   /* once through: rest here */
+      else after(0.9, () => { if (phase === 'hold' && demoGo) { demoRan = true; demoTap(); drop(); } });
+    }
   }
   /* Demo: a ring where a tap would be */
   function demoTap() {
@@ -347,7 +354,16 @@
   function goal() {
     setPhase('goal');
     if (DEMO) {   /* the win, shown and no more: a place between the posts, then the next ball */
-      setHead(true); showFrame((window.DG2Places || []).find(p => p.image && !p.stand_in) || window.DG2Places[0]);
+      const dp = (window.DG2Places || []).find(p => p.image && !p.stand_in) || window.DG2Places[0];
+      setHead(true); showFrame(dp);
+      if (DEMO_PLACE) {   /* on to the result card, Save pressed, and it rests there */
+        after(1.1, () => { if (phase !== 'goal' || !demoGo) return; setPhase('result'); R.open(dp, teams, () => {}); R.demoSave(false);
+          /* the card comes up the screen, so the name and Save are in the picture */
+          after(0.7, () => { const rs = $('dg-result'), b = $('dg-r-name'); if (phase === 'result' && demoGo) rs.scrollTo({ top: Math.max(0, b.getBoundingClientRect().top + rs.scrollTop - 150), behavior: 'smooth' }); });
+          after(1.9, () => { if (phase === 'result' && demoGo) R.demoSave(true); });
+          after(2.7, () => { if (phase === 'result' && demoGo) { demoGo = demoRan = false; if (window.__dgDemo.onDone) window.__dgDemo.onDone(); } }); });
+        return;
+      }
       after(1.7, () => { if (phase === 'goal') { hideFrame(); D.note = null; pass(); } });
       return;
     }
@@ -404,12 +420,13 @@
   const stage = $('dg');
   if (DEMO) {
     stage.removeAttribute('tabindex'); stage.removeAttribute('role'); stage.setAttribute('aria-hidden', 'true');
+    const rest = () => { timers = []; D.passing = false; R.reset(); hideFrame(); setPose('ready'); markAt(T.release); };
     window.__dgDemo = {
-      /* Pause stops at once and puts the ball back in the hands; play starts a new round */
-      pause(on) {
-        if (on === demoPaused) return;
-        demoPaused = on; timers = []; D.passing = false; hideFrame(); setPose('ready'); hold();
-      }
+      onDone: null,
+      /* play: once through, from the ball in the hands. stop: back to rest at once, nothing played */
+      play() { if (reduce.matches) return; rest(); demoRan = false; demoGo = true; hold(); },
+      stop() { demoGo = demoRan = false; rest(); hold(); },
+      playing: () => demoGo
     };
   }
   /* The focus ring is for the keyboard: any key shows it, any press hides it (game.css, .is-keys) */

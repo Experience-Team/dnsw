@@ -13,7 +13,9 @@
   var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m ? m[1] : 'hifi';
   try { if (parent !== window && parent.document) t = parent.document.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe'; } catch (e) {}
   d.setAttribute('data-theme', t);
-  if (/[?&]demo\b/.test(q)) d.classList.add('is-demo'); // Home's how-to-play snippet: the game plays itself, and takes no input
+  // The game playing itself, taking no input: ?demo is Home's snippet (trimmed to the kick); ?demo=taps and ?demo=place
+  // are the onboarding's two pictures, the whole screen as it is
+  var dm = /[?&]demo(?:=(taps|place))?(?:&|$)/.exec(q); if (dm) d.classList.add(dm[1] ? 'is-demo-full' : 'is-demo');
 })();</script>
 <title>Drop goal · Version 2</title>
 <link rel="stylesheet" href="game.css" />

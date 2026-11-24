@@ -47,14 +47,43 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 :root[data-theme="hifi"] .v2-demo { background: #55944a; }
 .v2-demo-frame { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
 .v2-demo-hit { position: absolute; inset: 0; cursor: pointer; }
-.v2-demo-pause { position: absolute; top: var(--space-3); right: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-2); min-height: 28px; padding: 0 var(--space-3) 0 10px; border: 0; border-radius: 999px; background: rgba(17, 17, 17, .78); color: #fff; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: transform .12s ease-out; }
-.v2-demo-pause:active { transform: scale(.96); }
-.v2-demo-pause:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #111; }
-.v2-demo-pause span { min-width: 3.1em; text-align: left; } /* Pause and Play are one width */
-.v2-demo-i-play, .v2-demo-pause[aria-pressed="true"] .v2-demo-i-pause { display: none; }
-.v2-demo-pause[aria-pressed="true"] .v2-demo-i-play { display: inline; }
+.v2-demo-replay { position: absolute; top: var(--space-3); right: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-2); min-height: 28px; padding: 0 var(--space-3) 0 10px; border: 0; border-radius: 999px; background: rgba(17, 17, 17, .78); color: #fff; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: transform .12s ease-out; }
+.v2-demo-replay:active { transform: scale(.96); }
+.v2-demo-replay:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #111; }
+.v2-demo-replay[hidden] { display: none; }
+.v2-demo:focus { outline: none; }
 .v2-demo-how { margin: var(--space-3) 0 0; font-size: .9375rem; line-height: 1.45; }
-@media (prefers-reduced-motion: reduce) { .v2-demo-pause { display: none; } }
+@media (prefers-reduced-motion: reduce) { .v2-demo-replay { display: none; } }
+
+/* ---------- Drop goal's onboarding (v2-onboard.js): over the game, inside the full-screen layer ---------- */
+.v2-play-how { right: 60px; } /* How to play, beside the close cross */
+.v2-ob { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--c-surface); color: var(--c-ink); }
+.v2-ob[hidden] { display: none; }
+.v2-ob-top { flex: none; display: flex; align-items: center; gap: var(--space-4); min-height: 68px; padding: 0 68px 0 var(--space-5); } /* room at the right for the layer's close cross */
+.v2-ob-skip { min-height: 36px; font-weight: 600; }
+.v2-ob-count { margin: 0; font-size: .8125rem; color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
+.v2-ob-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--space-5) var(--space-4); }
+.v2-ob-panel[hidden] { display: none; }
+.v2-ob-panel--team { overflow-y: auto; overscroll-behavior: contain; }
+.v2-ob-h { margin: 0; font-family: var(--font-display, inherit); font-size: 1.5rem; line-height: 1.15; font-weight: 700; text-wrap: balance; outline: none; }
+.v2-ob-p { margin: var(--space-2) 0 0; font-size: .9375rem; line-height: 1.45; }
+.v2-ob-teams { margin: var(--space-4) calc(var(--space-5) * -1) 0; }
+/* The picture: the game at 360 by 640, scaled to the room it has (--s, set by the script) */
+.v2-ob-shot { position: relative; flex: 1 1 0; min-height: 120px; display: grid; place-items: center; margin-top: var(--space-4); }
+.v2-ob-phone { --s: .5; width: calc(360px * var(--s)); height: calc(640px * var(--s)); overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 2px var(--c-ink), 0 8px 20px rgba(17, 17, 17, .18); background: #e2e2e2; }
+:root[data-theme="hifi"] .v2-ob-phone { background: #55944a; }
+.v2-ob-phone iframe { display: block; width: 360px; height: 640px; border: 0; transform: scale(var(--s)); transform-origin: 0 0; pointer-events: none; }
+.v2-ob-replay { top: 0; right: 0; } /* beside the picture, top right of its space, never over it */
+.v2-ob-tips { flex: none; display: grid; gap: var(--space-2); margin: var(--space-4) 0 0; padding: 0; list-style: none; counter-reset: v2ob; font-size: .9375rem; line-height: 1.4; }
+.v2-ob-tips li { display: grid; grid-template-columns: 24px 1fr; gap: var(--space-2); align-items: start; }
+.v2-ob-tips li::before { counter-increment: v2ob; content: counter(v2ob); display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c-btn); color: var(--c-on-dark, #fff); font-size: .75rem; font-weight: 700; }
+.v2-ob-tips--plain li::before { content: ''; width: 8px; height: 8px; margin: 7px 8px 0; background: var(--c-ink); }
+/* Pinned to the bottom, with the faint rule that says the screen scrolls under it (check 6) */
+.v2-ob-foot { flex: none; display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-5) var(--space-4); border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .12)); background: var(--c-surface); }
+.v2-ob-foot .tp-home-cta { margin: 0; white-space: nowrap; }
+.v2-ob-back { flex: none; width: auto; }
+.v2-ob-back[hidden] { display: none; }
+.v2-ob-next { flex: 1 1 auto; }
 
 /* The way back to Version 1 (Options A to C), above View on your phone: the same block they show for Version 2 */
 .v2-v1link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }

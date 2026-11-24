@@ -102,13 +102,15 @@
     phone.classList.add('v2-playing');
     if (window.v2DemoSync) window.v2DemoSync();
     if (!quick && layer.animate) layer.animate(still() ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
-    focusGame();
+    // First time: how to play, over the game (v2-onboard.js); otherwise the game takes the focus
+    if (!(window.v2Onboard && window.v2Onboard.start())) focusGame();
     try { history.pushState({ v2play: true }, ''); } catch (e) {}
     if (tp && tp.say) tp.say('Drop goal opened. Close the game is at the top right.');
   }
   function shut() {
     if (!isOpen) return;
     isOpen = false;
+    if (window.v2Onboard) window.v2Onboard.close();
     inertWas.forEach(function (p) { p[0].inert = p[1]; }); inertWas = [];
     phone.classList.remove('v2-playing');
     if (window.v2DemoSync) window.v2DemoSync();
@@ -137,7 +139,8 @@
     phone.addEventListener('tp:state', function () { if (!isOpen) loadGame(); });
   }
   // For the game (v2/drop-goal/): Escape on its kick screen closes it, and its own full-screen list hides the cross
-  window.v2Play = { open: openGame, close: closeGame, isOpen: function () { return isOpen; }, cross: function (show) { if (closeBtn) closeBtn.hidden = !show; } };
+  window.v2Play = { open: openGame, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame,
+    cross: function (show) { if (closeBtn) closeBtn.hidden = !show; var h = document.getElementById('v2-play-how'); if (h) h.hidden = !show; } };
 
   // Play now, and anything else that asks for the game or the planner by its old tab name
   phone.addEventListener('click', function (e) {
@@ -156,24 +159,23 @@
   });
 
   /* ---------- How to play: the game playing itself on Home ----------
-     It runs only while it is on screen and the real game is closed; Pause is the person's own and is kept until they
-     press Play. With reduced motion the frame never starts (game.js), and the button is hidden. */
+     It plays once, when the Play section comes into view (24 Nov: on a loop it was repetitive), then rests. If it is
+     scrolled away or the game is opened before it finishes, it goes back to rest and plays when next in view. Once it
+     has played, Replay shows, for anyone who missed it. With reduced motion it never plays (game.js). */
   (function () {
-    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), pb = document.getElementById('v2-demo-pause');
-    if (!box || !fr || !pb) return;
-    var userPaused = false, seen = false;
+    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), rb = document.getElementById('v2-demo-replay');
+    if (!box || !fr || !rb) return;
+    var seen = false, done = false;
     function api() { try { return fr.contentWindow && fr.contentWindow.__dgDemo; } catch (e) { return null; } }
-    function sync() { var a = api(); if (a) a.pause(userPaused || !seen || isOpen); }
-    pb.addEventListener('click', function () {
-      userPaused = !userPaused;
-      pb.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
-      pb.querySelector('span').textContent = userPaused ? 'Play' : 'Pause';
-      pb.setAttribute('aria-label', userPaused ? 'Play the how to play animation' : 'Pause the how to play animation');
-      sync();
-    });
-    pb.setAttribute('aria-label', 'Pause the how to play animation');
+    function sync() {
+      var a = api(); if (!a) return;
+      a.onDone = function () { done = true; rb.hidden = false; };
+      if (done) return;
+      if (seen && !isOpen) { if (!a.playing()) a.play(); } else if (a.playing()) a.stop();
+    }
+    rb.addEventListener('click', function () { done = false; rb.hidden = true; sync(); box.focus({ preventScroll: true }); });
     fr.addEventListener('load', sync);
-    if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.35 }).observe(box);
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.6 }).observe(box);
     else seen = true;
     window.v2DemoSync = sync;
   })();
