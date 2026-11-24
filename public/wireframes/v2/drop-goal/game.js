@@ -19,8 +19,9 @@
   /* Demo (?demo): Home's how-to-play snippet. The game plays itself through one goal when the page asks
      (window.__dgDemo.play), then rests with the ball in the hands and tells the page (onDone). It takes no input, says
      nothing to screen readers, saves nothing and never opens the result. */
-  const DEMO = /[?&]demo(?:=taps)?(?:&|$)/.test(location.search);
-  /* ?demo=taps is the onboarding's picture: the whole screen as it is, playing once */
+  const DEMO = /[?&]demo(?:&|$)/.test(location.search);
+  /* With a mouse the game says Click where it says Tap on a touch screen: the calls to act, the hints and the miss lines */
+  const CLICK = document.documentElement.classList.contains('is-click'), Wd = CLICK ? 'Click' : 'Tap', wd = CLICK ? 'click' : 'tap';
   let demoGo = false, demoRan = false;
 
   /* ---------- timing (seconds, from the first tap) ----------
@@ -39,9 +40,9 @@
   };
   T.bounce = T.release + T.fall;
   T.end = T.bounce + T.late;
-  const MISS = { wide: 'Wide, a touch early. Tap to go again.', short: 'Short, a touch late. Tap to go again.',
+  const MISS = { wide: `Wide, a touch early. ${Wd} to go again.`, short: `Short, a touch late. ${Wd} to go again.`,
     /* one tap and no second: the boot swings anyway, so say what was missing, not "late" (24 Nov, from play-testing) */
-    none: 'No kick. Tap once to drop, then again as it bounces.' };
+    none: `No kick. ${Wd} once to drop, then again as it bounces.` };
 
   /* ---------- the picked teams (?team=, from the page) ----------
      A comma list of the planner's picks: the first kicks (kit, ball, the table's +3), and all of them choose the places
@@ -203,18 +204,59 @@
   function setHint(txt) { if (txt) hint.textContent = txt; hint.classList.toggle('is-off', !txt); }
   /* The call to act follows the two taps (24 Nov, from play-testing: one tap read as the whole game): Tap to drop, then
      Tap to kick while the ball falls, then Kick now while a kick would score, in step with the bar's KICK zone */
-  const HEAD = { drop: 'Tap to drop', kick: 'Tap to kick', now: 'Kick now', goal: 'Goal' };
+  const HEAD = { drop: `${Wd} to drop`, kick: `${Wd} to kick`, now: 'Kick now', goal: 'Goal', wait: `${Wd} now to kick` };
   let headIs = '';
   function setHead(state) {
     if (state === true) state = 'goal'; else if (!state) state = 'drop';
     if (state === headIs) return;
     headIs = state; head.textContent = HEAD[state];
-    head.classList.toggle('is-goal', state === 'goal'); head.classList.toggle('is-now', state === 'now');
+    head.classList.toggle('is-goal', state === 'goal'); head.classList.toggle('is-now', state === 'now' || state === 'wait');
     /* GOAL lands with a small pop; the other words change at once, as the taps are timed against them */
     if (state === 'goal' && head.animate && !reduce.matches) head.animate([{ transform: 'scale(.8)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 360, easing: 'cubic-bezier(.2,.7,.2,1)' });
   }
   function say(msg) { if (DEMO) return; sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = msg; }, 30); }
   R.say = say;
+
+  /* What a goal lands on, said where people look before each kick: the line above the bar, at rest (it was the rules
+     screen's third tip until the practice kick replaced that screen) */
+  const LANDS = !team ? 'A goal lands on somewhere to go in Sydney or NSW.'
+    : R.partiesFor(teams).length ? `A goal lands on a ${team} watch party in NSW.` : `A goal lands on a place near where ${team} play.`;
+
+  /* ---------- the practice kick (first time, and from the page's ? button) ----------
+     One kick with nothing timed: Tap to drop, the ball drops and stops at the bounce with the bar in the KICK zone,
+     Tap now to kick, and it goes through at normal speed. It doesn't count. Then the game carries on as normal, and a
+     miss on the first real kick is the game's own miss line. Each prompt is announced. The page starts it and is told
+     when it is done or skipped (parent.v2Play). */
+  let prac = null;
+  const page = fn => { try { if (parent !== window && parent.v2Play && parent.v2Play[fn]) return parent.v2Play[fn](); } catch (x) {} };
+  function startPractice() {
+    if (DEMO) return;
+    timers = []; D.passing = false; D.prac = false; R.reset(); hideFrame(); setPose('ready'); markAt(T.release);
+    plus.classList.remove('is-on');
+    prac = 'drop'; document.documentElement.classList.add('is-practice');
+    const m = `Practice kick. ${Wd} to drop the ball.`;
+    hold(m); say(m + ' It will wait for you at the bounce.');
+  }
+  function endPractice() { prac = null; document.documentElement.classList.remove('is-practice'); page('practiceDone'); }
+  $('dg-skip').addEventListener('pointerdown', e => e.stopPropagation());
+  $('dg-skip').addEventListener('click', () => {
+    if (!prac) return;
+    endPractice(); timers = []; D.passing = false; D.prac = false; setPose('ready'); markAt(T.release); hold();
+    say(`Practice skipped. ${Wd} to drop the ball.`); stage.focus({ preventScroll: true });
+  });
+  window.__dgPractice = { start: startPractice, active: () => !!prac };
+
+  /* ---------- who is kicking, with Change (the page's team screen) ---------- */
+  (function () {
+    const who = $('dg-who'); let inPage = false;
+    try { inPage = parent !== window && !!parent.v2Play; } catch (x) {}
+    if (DEMO || !team || !inPage) return;
+    $('dg-who-t').textContent = 'Kicking for ' + team; who.hidden = false;
+    who.addEventListener('pointerdown', e => e.stopPropagation());
+    $('dg-change').addEventListener('click', () => page('changeTeam'));
+  })();
+
+  const stage = $('dg');
 
   /* ---------- the loop ---------- */
   let phase = 'hold', t0 = 0, now = performance.now(), raf = 0, timers = [];
@@ -228,14 +270,14 @@
     step(); updateKicker();
     if (phase === 'hold' || (phase === 'pass' && !D.passing)) ballInHands();
     drawBall();
-    const moving = (phase !== 'hold' && phase !== 'result') || timers.length || (pose.dur && now < pose.t0 + pose.dur * 1000 + 40);
+    const moving = (phase !== 'hold' && phase !== 'result' && phase !== 'wait') || timers.length || (pose.dur && now < pose.t0 + pose.dur * 1000 + 40);
     if (moving) raf = requestAnimationFrame(loop);
   }
 
   /* the ball in the hands, waiting; after a miss the friendly line stays up until the next drop */
   function hold(note) {
     setPhase('hold');
-    setHint(note || 'Then tap again as it bounces.');
+    setHint(note || LANDS);
     setHead('drop');
     start();
     if (DEMO && demoGo && !reduce.matches) {
@@ -245,7 +287,6 @@
   }
   /* Demo: where a press lands, and which it is: Tap 1, Tap 2 on touch screens, Click 1, Click 2 with a mouse. The
      marker holds long enough to read, and the ring pulses out from under it */
-  const CLICK = document.documentElement.classList.contains('is-click');
   function demoTap(n) {
     const el = $('dg-tap'), ring = $('dg-tap-ring'); if (!el || !el.animate) return;
     $('dg-tap-l').textContent = (CLICK ? 'Click ' : 'Tap ') + n;
@@ -264,7 +305,8 @@
     D.kicked = false; D.out = null; D.resolved = false; D.F = null; D.none = false;
     poseTo('drop', T.release + 0.3, E.out);
     markAt(T.release);
-    setHint('Now tap again as it bounces.'); setHead('kick');
+    setHint(prac ? 'Practice: the ball will wait for you at the bounce.' : `Now ${wd} again as it bounces.`); setHead('kick');
+    D.prac = false; if (prac === 'drop') prac = 'falling';
     start();
   }
   function dropBallAt(t) {
@@ -331,6 +373,14 @@
     const t = (now - t0) / 1000;
     if (phase === 'drop') {
       dropBallAt(t); markAt(t);
+      /* The practice kick: the ball stops at the bounce, in the middle of the KICK zone, and waits. Nothing is timed */
+      if (prac === 'falling' && t >= T.bounce + T.perfect) {
+        dropBallAt(T.bounce + T.perfect); markAt(T.bounce + T.perfect);
+        prac = 'wait'; setPhase('wait'); setHead('wait');
+        const m = `The ball is at the bounce, and the bar is in the yellow KICK zone. ${Wd} now to kick.`;
+        setHint('It\u2019s waiting for you: the bar is in the yellow KICK zone.'); say(m);
+        return;
+      }
       setHead(Math.abs(t - (T.bounce + T.perfect)) <= T.tol ? 'now' : 'kick');
       if (DEMO && !D.kicked && t >= T.bounce + T.perfect) { demoTap(2); kick(T.bounce + T.perfect); return; }   /* the second tap, as it comes up */
       if (t >= T.end && !D.kicked) { D.none = true; kick(T.end); }   /* never tapped: the boot swings anyway, late */
@@ -360,6 +410,13 @@
       const dp = R.sample(teams);
       setHead(true); showFrame(dp);
       after(1.7, () => { if (phase === 'goal') { hideFrame(); D.note = null; pass(); } });
+      return;
+    }
+    if (D.prac) {   /* the practice goal doesn't count: no points, no place, nothing used from the rotation */
+      const msg = `You\u2019ve got it. This time it won\u2019t wait: ${wd} as it bounces.`;
+      setHead(true); setHint(msg); say('Goal. ' + msg);
+      endPractice();
+      after(reduce.matches ? 0.6 : 1.3, () => { if (phase === 'goal') { D.prac = false; D.note = msg; pass(); } });
       return;
     }
     goals++;
@@ -407,12 +464,17 @@
   function tap() {
     if (R.isOpen()) return;                                  /* the result and the places are not the pitch */
     now = performance.now();                                 /* one clock: every tap is timed on performance.now() */
-    if (phase === 'goal') { timers = []; result(); return; }
+    if (phase === 'goal') { timers = []; if (D.prac) { D.prac = false; D.note = hint.textContent; pass(); } else result(); return; }
+    if (prac === 'falling') return;                          /* practice: wait for the ball to stop */
+    if (phase === 'wait') {                                  /* practice: the kick, from the middle of the zone, at normal speed */
+      const tt = T.bounce + T.perfect;
+      prac = 'kicked'; setPhase('drop'); t0 = now - tt * 1000; kick(tt); D.prac = true; start();
+      return;
+    }
     if (phase === 'hold') drop();
     else if (phase === 'drop') { const td = (now - t0) / 1000; if (td > T.release + 0.05) kick(td); }
     else if (phase === 'miss' || phase === 'pass') again();
   }
-  const stage = $('dg');
   if (DEMO) {
     stage.removeAttribute('tabindex'); stage.removeAttribute('role'); stage.setAttribute('aria-hidden', 'true');
     const rest = () => { timers = []; D.passing = false; R.reset(); hideFrame(); setPose('ready'); markAt(T.release); };
@@ -466,5 +528,5 @@
   drawPitch(); drawPosts(); renderTable();
   setPose('ready'); markAt(T.release);
   hold();
-  window.__dg2 = { phase: () => phase, team: () => team, teams: () => teams.slice(), goals: () => goals, place: () => (D.place ? D.place.id : null), T };   /* read-only, for the regression checks */
+  window.__dg2 = { phase: () => phase, team: () => team, teams: () => teams.slice(), goals: () => goals, practice: () => prac, place: () => (D.place ? D.place.id : null), T };   /* read-only, for the regression checks */
 })();

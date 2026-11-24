@@ -8,7 +8,7 @@ const V2 = '/wireframes/prototype-pick-your-team-v2.html';
 // The Drop goal kick screen is in a frame: wait for it to load, its fonts and its first drawing
 async function game(page) {
   const frame = page.frameLocator('#v2-game');
-  await expect(frame.locator('#dg-head')).toHaveText(/tap to drop/i);
+  await expect(frame.locator('#dg-head')).toHaveText(/(tap|click) to drop/i);
   await page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
 }
 // The game opens over the whole screen from Home (?view=kick opens it straight away); the picked team is Home's pick
@@ -21,14 +21,8 @@ const STATES = {
   home: async () => {},
   menu: async (page) => { await page.locator('#v2-menu-btn').click(); await settle(page); },
   'home-play': async (page) => { await page.locator('#tp-home-kick').scrollIntoViewIfNeeded(); await settle(page); },
-  // Onboarding (reduced motion, so its pictures are still): the team cards, then the rule screen
-  'onboard-team': async (page) => { await page.emulateMedia({ reducedMotion: 'reduce' }); await page.locator('#tp-home-kick button.tp-home-cta').click(); await settle(page); },
-  'onboard-taps': async (page) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.locator('#tp-home-kick button.tp-home-cta').click(); await page.locator('#v2-ob-next').click();
-    await page.frame({ url: /demo=taps/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
-    await settle(page);
-  },
+  // The team screen, on the pitch (no team is picked on a first visit)
+  'team-screen': async (page) => { await page.emulateMedia({ reducedMotion: 'reduce' }); await page.locator('#tp-home-kick button.tp-home-cta').click(); await settle(page); },
   kick: async (page) => { await play(page); },
   // A picked team: its kit and ball, and its row on the nation table
   'kick-team': async (page) => { await play(page, 'Wales'); },

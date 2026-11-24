@@ -89,13 +89,27 @@
   function gameUrl(t) { return GAME + (t ? '?team=' + encodeURIComponent(t) : ''); }
   var loaded = null;
   function loadGame() {
-    var t = teams(); if (!t || t === loaded) return;
+    var t = teams(); if (!t || t === loaded) return false;
     // The first load sets the frame's address; later ones replace it, so the back button never steps through old games
     if (loaded === null) frame.src = gameUrl(t);
     else try { frame.contentWindow.location.replace(gameUrl(t)); } catch (e) { frame.src = gameUrl(t); }
     loaded = t;
+    return true;
   }
   var opener = null, inertWas = [], isOpen = false, leaving = null;
+  /* The practice kick (v2/drop-goal/game.js): the first time the pitch is shown, and from the ? beside the cross. Seen
+     is kept under v2: (v2ob-seen), so Reset shows it again; the game says when it is done or skipped */
+  var SEEN = 'v2ob-seen', wantPractice = false;
+  function seen() { try { return localStorage.getItem(SEEN) === '1'; } catch (e) { return false; } }
+  function gameApi() { try { return frame.contentWindow && frame.contentWindow.__dgPractice; } catch (e) { return null; } }
+  function practise() { var a = gameApi(); if (a && isOpen) { wantPractice = false; a.start(); focusGame(); } else wantPractice = true; }
+  // Onto the pitch: the game for the kicker (loaded again if the kicker changed), the focus, and the practice kick if
+  // it has not been seen
+  function enter() {
+    var fresh = loadGame();
+    if (!seen()) { if (fresh) wantPractice = true; else practise(); }
+    focusGame();
+  }
   function focusGame() { try { frame.focus(); var d = frame.contentDocument && frame.contentDocument.getElementById('dg'); if (d) d.focus({ preventScroll: true }); } catch (e) {} }
   function openGame(from, quick) {
     if (isOpen || !layer) return;
@@ -108,8 +122,9 @@
     phone.classList.add('v2-playing');
     if (window.v2DemoSync) window.v2DemoSync();
     if (!quick && layer.animate) layer.animate(still() ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
-    // First time: how to play, over the game (v2-onboard.js); otherwise the game takes the focus
-    if (!(window.v2Onboard && window.v2Onboard.start())) focusGame();
+    // No team: the team screen first, by every route (v2-onboard.js). Otherwise the pitch, with the practice kick the
+    // first time
+    if (!teams() && window.v2Onboard) window.v2Onboard.start(); else enter();
     try { history.pushState({ v2play: true }, ''); } catch (e) {}
     if (tp && tp.say) tp.say('Drop goal opened. Close the game is at the top right.');
   }
@@ -140,12 +155,16 @@
     closeBtn.addEventListener('click', closeGame);
     layer.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); closeGame(); } });
     // The game is ready as the page opens, so Play now shows it at once; a pick while it is closed dresses the kicker
-    frame.addEventListener('load', function () { if (isOpen) focusGame(); });
+    frame.addEventListener('load', function () { if (!isOpen) return; focusGame(); if (wantPractice) practise(); });
     loadGame();
     phone.addEventListener('tp:state', function () { if (!isOpen) loadGame(); });
   }
   // For the game (v2/drop-goal/): Escape on its kick screen closes it, and its own full-screen list hides the cross
-  window.v2Play = { open: openGame, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame,
+  var howB = document.getElementById('v2-play-how');
+  if (howB) howB.addEventListener('click', practise);
+  window.v2Play = { open: openGame, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame, enter: enter,
+    practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} },
+    changeTeam: function () { if (window.v2Onboard) window.v2Onboard.start(); },
     cross: function (show) { if (closeBtn) closeBtn.hidden = !show; var h = document.getElementById('v2-play-how'); if (h) h.hidden = !show; } };
 
   // Play now, and anything else that asks for the game or the planner by its old tab name
@@ -172,6 +191,9 @@
     var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), rb = document.getElementById('v2-demo-replay');
     if (!box || !fr || !rb) return;
     var seen = false, done = false;
+    // With a mouse the line says click, as the onboarding does
+    var how = document.getElementById('v2-demo-how');
+    if (how && matchMedia('(hover: hover) and (pointer: fine)').matches) how.innerHTML = '<strong>How to play:</strong> click to drop the ball, then click again as it bounces.';
     function api() { try { return fr.contentWindow && fr.contentWindow.__dgDemo; } catch (e) { return null; } }
     function sync() {
       var a = api(); if (!a) return;
@@ -186,6 +208,32 @@
     if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.6 }).observe(box);
     else seen = true;
     window.v2DemoSync = sync;
+  })();
+
+  /* ---------- At a glance: the cards' dots (the carousel on phones) ----------
+     One dot per card. The dot for the card in view is marked as it is swiped, and a dot takes the row to its card */
+  (function () {
+    var row = document.querySelector('#tp-home-glance .tp-gl'), dots = document.getElementById('v2-gl-dots');
+    if (!row || !dots) return;
+    var cards = [].slice.call(row.querySelectorAll('.tp-gl-card'));
+    dots.innerHTML = cards.map(function (c, i) { var h = c.querySelector('.tp-gl-h'); return '<button type="button" class="v2-gl-dot" data-i="' + i + '" aria-label="Card ' + (i + 1) + ' of ' + cards.length + ': ' + (h ? h.textContent.trim() : '') + '"></button>'; }).join('');
+    var btns = [].slice.call(dots.children), at = -1, raf = 0;
+    function mark() {
+      raf = 0;
+      var x = row.getBoundingClientRect().left, best = 0, d = Infinity;
+      cards.forEach(function (c, i) { var k = Math.abs(c.getBoundingClientRect().left - x - parseFloat(getComputedStyle(row).paddingLeft || 0)); if (k < d) { d = k; best = i; } });
+      // at the far end the last card cannot reach the left edge, so it counts once the row can scroll no further
+      if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 2) best = cards.length - 1;
+      if (best === at) return; at = best;
+      btns.forEach(function (b, i) { if (i === at) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    }
+    row.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(mark); }, { passive: true });
+    dots.addEventListener('click', function (e) {
+      var b = e.target.closest('.v2-gl-dot'); if (!b) return;
+      var c = cards[+b.dataset.i];
+      row.scrollTo({ left: c.offsetLeft - row.offsetLeft - parseFloat(getComputedStyle(row).paddingLeft || 0), behavior: still() ? 'auto' : 'smooth' });
+    });
+    mark();
   })();
 
   // A reset link that had the game open, or a shared link to it
