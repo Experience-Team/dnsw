@@ -197,7 +197,7 @@ test.describe('Version 2', () => {
     const save = inGame(page).locator('#dg-r-save');
     await save.click();
     await expect(save).toHaveAttribute('aria-pressed', 'true');
-    await expect(inGame(page).locator('#dg-say')).toHaveText(/saved to your plan/);
+    await expect(inGame(page).locator('#dg-say')).toHaveText(/added to your plan/);
     const st = await page.evaluate(() => JSON.parse(Storage.prototype.getItem.call(localStorage, 'v2:tp-pick-v1') || 'null'));
     expect(st.added).toHaveLength(1);
     expect(st.added[0]).toMatchObject({ kind: 'kick', unplaced: true, day: '' });
@@ -374,14 +374,14 @@ test.describe('Version 2', () => {
     const f = await openGame(page, 'Wales');
     const g = inGame(page);
     await g.locator('#dg-see').click();
-    await expect(g.locator('#dg-pl-count')).toHaveText('Nothing saved yet');
+    await expect(g.locator('#dg-pl-count')).toHaveText('Nothing added yet');
     // the layer has finished sliding up, so what is measured is at rest
     await f.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
     const save = g.locator('.dg-pl-row .dg-save').first(), row = g.locator('.dg-pl-row').first();
     const before = [await save.boundingBox(), await row.boundingBox()];
     await save.click();
-    await expect(save).toHaveText('Saved');
-    await expect(g.locator('#dg-pl-plan')).toHaveText('1 saved \u00b7 Your plan');   // in the page the count is the way to Your plan
+    await expect(save).toHaveText('Added');
+    await expect(g.locator('#dg-pl-plan')).toHaveText('1 added \u00b7 Your plan');   // in the page the count is the way to Your plan
     expect([await save.boundingBox(), await row.boundingBox()]).toEqual(before);
   });
 
@@ -786,7 +786,7 @@ test.describe('Version 2', () => {
     await expect(g.locator('#dg-r-tags li').first()).toHaveText('Watch party');
     await expect(g.locator('#dg-r-desc')).toContainText('Watch ');
     await g.locator('#dg-r-save').click();
-    await expect(g.locator('#dg-r-save')).toHaveText('Saved');
+    await expect(g.locator('#dg-r-save')).toHaveText('Added');
     // See the places lists that team's watch parties, and nothing else
     await g.locator('#dg-r-see').click();
     await expect(g.locator('#dg-pl-mine')).toHaveText('Where to watch Scotland in NSW');
@@ -794,7 +794,7 @@ test.describe('Version 2', () => {
     await expect(g.locator('#dg-pl-all')).toHaveCount(0);
     await expect(g.locator('#dg-pl-body .dg-pl-meta').first()).toContainText('Scotland');
     await expect(g.locator('#dg-pl-body .dg-save[aria-pressed="true"]')).toHaveCount(1);
-    await expect(g.locator('#dg-pl-plan')).toHaveText('1 saved \u00b7 Your plan');   // in the page the count is the way to Your plan
+    await expect(g.locator('#dg-pl-plan')).toHaveText('1 added \u00b7 Your plan');   // in the page the count is the way to Your plan
   });
 
   test('With several teams picked, the first one decides between places and watch parties', async ({ page }) => {

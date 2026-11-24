@@ -141,7 +141,7 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
    the button moves when it is pressed */
 .dg-save { flex: none; display: inline-grid; place-items: center; min-height: 28px; margin-top: 2px; padding: 0 12px 0 10px; border: 1px solid currentColor; border-radius: var(--r-pill); background: transparent; color: var(--ink); font: 600 13px/1 var(--ui); cursor: pointer; transition: transform var(--t-press) ease-out, background-color var(--t-press) ease-out, color var(--t-press) ease-out; }
 .dg-save-in { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 8px; }
-.dg-save::after { content: 'Saved'; grid-area: 1 / 1; height: 0; padding-left: 20px; visibility: hidden; overflow: hidden; }
+.dg-save::after { content: 'Added'; grid-area: 1 / 1; height: 0; padding-left: 20px; visibility: hidden; overflow: hidden; }
 .dg-save svg { flex: none; }
 .dg-save:active { transform: scale(.96); }
 @media (hover: hover) { .dg-save[aria-pressed="false"]:hover { background: rgba(17, 17, 17, .08); } }

@@ -35,6 +35,42 @@ When the user gives a new standing flag, a correction, or a "you missed X" as a 
 3. **Show before saving.** Present the proposed wording and where it will go (which section, new or amended entry)
    and wait for the user's approval before editing this file. Fixing the issue itself does not need to wait.
 
+# How to work
+
+**During a session**
+
+Keep doing, on every change:
+- Look at it before handing over: screenshots on a phone at 390 wide and on desktop, in high fidelity, in each state
+  the change touches.
+- Use the changed flow once, start to finish, with real taps or clicks at a person's pace.
+- Run only the tests that cover what changed, and fix anything that fails.
+- Say plainly what changed and anything that looks off.
+
+Leave for the catch-up, unless the change is about one of them:
+- The full behaviour suite, and writing new tests.
+- Low fidelity, reduced motion and keyboard-only checks.
+- The annotations, README and handover.
+- Tidying unused styles or code.
+
+Keep it short:
+- One commit and one push per message from the user. Several small changes in one message are built and checked
+  together.
+- Reports say what changed, what to look at, and anything to decide.
+- Don't report preview builds. Send the phone link once, when the build that's needed is ready.
+
+**Catch-up, before a handoff**
+
+When the user asks for a handoff or a handover, or says "wrap up", do this first:
+1. Run the full behaviour suite once and fix what it finds.
+2. Add tests for anything built this session that has none.
+3. Check low fidelity and reduced motion once across what changed.
+4. Update the annotations and README.
+5. Remove unused styles and code left behind.
+
+Then write the handover, and list in it anything skipped that still isn't done, so the next session knows.
+
+If a session looks like ending without a handoff, say once what catch-up is still owed.
+
 # Prototype interaction checks
 
 Lessons from things the user had to point out. Check every prototype change against all of them before committing.
@@ -75,14 +111,22 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    fidelity one, and a page-wide rule can let text wrap.
    Anything pinned to the bottom of the screen (a bar, a sheet's foot, the Kick bar, the plan bar) has a faint 1px top
    rule in the soft line colour, so it reads as sitting above the content that scrolls under it.
+   Nothing scrolls sideways unless it is meant to (a carousel, a fan that is dragged). Anything that reaches past the
+   screen's sides on purpose, such as turned cards or a wide picture, is cut there, not scrolled to. Before handing
+   over, sweep every screen the change touches at 390 wide for anything that can be dragged sideways, inside sheets
+   and full-screen layers as well as on the page. For example, the team screen in the game could be dragged 16px
+   sideways because its fan of cards was wider than the phone.
 7. **Patterns go everywhere they apply, and the scope is agreed first.** When a brief changes one instance of something
    that appears in several places (a component such as a date picker or a match card, or a cue such as an icon, a
    confirm step or a focus rule), first list every place it appears and ask which to update. Then change them all in
    one pass, and say which were left and why. For example, the calendar icon belongs on every button that sets or
    changes dates, not only the prompts; the card-fan icon on every Pick your teams prompt, the hero button included;
    every close cross sits in the same corner (top right, 16px from the edge) on every sheet, stacked sheet and
-   full-screen layer; and the date picker updated to Figma 372:3060 on the page should have been checked against the
-   days sheet and the plan before building.
+   full-screen layer, except a full-screen layer that takes over the page (the game), which uses Back with an arrow,
+   top left, so it isn't read as closing a card or sheet inside it (on phones, a card that fills the screen inside
+   such a layer has its own close cross, top right, and Back steps aside while it is up); and the date picker
+   updated to Figma 372:3060 on the page should have been checked against the days sheet and the plan before
+   building.
 8. **The page only moves when people expect it to.** A control never scrolls or jumps the page to another section
    unless its label says it will take you there (for example "See where to watch in NSW", "Skip the map"). Anything
    that asks for input or shows more detail opens where the person is, in a sheet or an expanding panel, and closing it
@@ -185,7 +229,7 @@ Implementation lessons that testing caught; they are about the code, not the exp
   there) by its id, never by the section it usually sits in. For example, Reset broke on Home because it looked for
   the team picker inside the planner while Home had borrowed it.
 9. **Look, don't only measure.** Check every change by eye from screenshots in both themes (low and high fidelity) at
-   390 wide and on desktop, in each state the change touches. Use `?phone&theme=wireframe` or `?phone&theme=hifi`: without
+   390 wide and on desktop, in each state the change touches (low fidelity is checked at the catch-up, see How to work). Use `?phone&theme=wireframe` or `?phone&theme=hifi`: without
    `?phone` the phone frame stays 358 wide at any window size.
    Measurements back up the look but don't replace it. Optical alignment (centring, padding, indents, even gaps) is
    judged from the rendered pixels, because fonts and their metrics differ between themes and devices. For example,
