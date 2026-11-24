@@ -120,13 +120,12 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .dg-r-frame-wrap { position: relative; padding: 16px 20px 20px; background: var(--orange); border-left: 10px solid var(--violet); border-right: 10px solid var(--green); }
 .dg-r-card { color: var(--ink); }
 .dg-r-photo { margin-bottom: 16px; }
-.dg-r-photo[hidden] { display: none; }
-/* No picture: the name carries the card, and what it fits around sits under it as the lead line */
-.dg-r-card.is-bare .dg-r-body { padding-top: 32px; }
-.dg-r-card.is-bare .dg-r-name { min-width: 0; font-size: clamp(34px, 10vw, 52px); line-height: .96; letter-spacing: -.02em; }
-.dg-r-card.is-bare .dg-save { margin-top: 6px; }
-.dg-r-lead { margin: 12px 0 0; font: 600 17px/1.25 var(--ui); text-wrap: balance; }
-.dg-r-lead[hidden] { display: none; }
+/* No picture yet: a poster in its place, the name on the team's colour with the second colour along the foot */
+.dg-poster { container-type: inline-size; }
+.dg-poster b { padding-bottom: 5cqw; font: 700 12cqw/.92 var(--ui); letter-spacing: -.005em; text-align: center; }
+.dg-poster i { position: absolute; left: 0; right: 0; bottom: 0; height: 5cqw; }
+.dg-pl-img.dg-poster b { display: none; }
+.dg-pl-img.dg-poster i { height: 8px; }
 .dg-r-img, .dg-pl-img { position: relative; display: grid; place-items: center; overflow: hidden; background: #d8d6cc; color: #5f5d52; }
 :root[data-theme="wireframe"] :is(.dg-r-img, .dg-pl-img) { background: #e6e6e6; color: #777; }
 .dg-r-img { aspect-ratio: 16 / 10; }
