@@ -17,7 +17,16 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
 
 ## Still to do from the Drop goal brief
 
-- **prototype-polish pass on the game screens** (the brief's "At the end of the whole build"). Not started.
+- **prototype-polish pass on the game screens** (the brief's "At the end of the whole build"). Done 24 Nov, in
+  `game.css`, `game.js` and `result.js` only:
+  - A tap on the pitch no longer leaves the keyboard's focus frame round the screen (`.is-keys`, set by a key press
+    and cleared by a press).
+  - Save and Saved are one width, and Share the table holds its width, so nothing beside them moves.
+  - See the places always has a count line ("Nothing saved yet", then "1 saved to your plan"), so the first save
+    doesn't push the list down. It slides away when closed, and a tap during that reaches what is under it.
+  - Pressed and hover states on every button; the bookmark pops as it fills; GOAL lands with a small pop.
+  - Spacing snapped to the 4px scale; motion and radius tokens in `game.css`.
+  - Fixed: opened on its own in a window 700px or wider, the empty result card covered the game from the start.
 - **Flow chart:** paused (above).
 - Everything else in `docs/drop-goal-brief.md` is built.
 
@@ -123,7 +132,7 @@ worked out from the fixtures, not held. Approved by the user on 24 Nov.
 
 ## Tests
 
-`tests/regression/v2.behaviour.spec.js` (32 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
+`tests/regression/v2.behaviour.spec.js` (36 tests) and `v2.visual.spec.js` (kick, kick with a team, Settings, result,
 places; both themes at 390 and 320). Run `npx playwright test --project=behaviour tests/regression/v2.behaviour.spec.js`.
 
 - **Human pace:** three tests use real mouse clicks at 0.76, 0.9 and 0.98s and must score. Since #624, CLAUDE.md

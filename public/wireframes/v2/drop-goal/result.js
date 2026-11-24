@@ -82,11 +82,17 @@
     const on = isSaved(p);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.setAttribute('aria-label', on ? `Saved ${p.name} to your plan. Press to remove it` : `Save ${p.name} to your plan`);
-    b.innerHTML = BOOKMARK(on) + `<span>${on ? 'Saved' : 'Save'}</span>`;
+    b.innerHTML = `<span class="dg-save-in">${BOOKMARK(on)}<span>${on ? 'Saved' : 'Save'}</span></span>`;
+  }
+  /* The bookmark pops as it fills, so the save is felt where the finger is */
+  function pop(b) {
+    const i = b.querySelector('svg');
+    if (i && i.animate && !reduce.matches) i.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 320, easing: 'cubic-bezier(.34,1.4,.64,1)' });
   }
   function onSave(p, b) {
     const on = toggle(p);
     saveBtn(b, p);
+    if (on) pop(b);
     document.querySelectorAll(`.dg-save[data-id="${p.id}"]`).forEach(x => { if (x !== b) saveBtn(x, p); });
     countLine();
     api.say(on ? `${p.name} saved to your plan.` : `${p.name} removed from your plan.`);
@@ -137,14 +143,14 @@
 
   /* ---------- See the places ---------- */
   const placesEl = $('dg-places');
-  let openerP = null, teams0 = [], inertWas = [];
+  let openerP = null, teams0 = [], inertWas = [], closingP = null;
   function row(p) {
     return `<li class="dg-pl-row">${photo(p, 'dg-pl-img')}<div class="dg-pl-t"><b>${esc(p.name)}</b>${tagsHTML(p)}</div>` +
       `<button type="button" class="dg-save" data-id="${p.id}"></button></li>`;
   }
   function countLine() {
     const n = saved().length, el = $('dg-pl-count');
-    if (el) el.textContent = n ? `${n} saved to your plan` : '';
+    if (el) { el.textContent = n ? `${n} saved to your plan` : 'Nothing saved yet'; el.classList.toggle('is-none', !n); }
   }
   function renderPlaces(all) {
     const S = setFor(teams0), mine = PLACES.filter(p => S.cities.indexOf(p.host_city) > -1), rest = PLACES.filter(p => mine.indexOf(p) < 0);
@@ -162,6 +168,7 @@
      it steps aside while the places are open */
   function pageSettings(show) { try { const t = parent !== window && parent.document.getElementById('v2-top'); if (t) t.style.visibility = show ? '' : 'hidden'; } catch (e) {} }
   function openPlaces(from, teams) {
+    if (closingP) { closingP.onfinish = null; closingP.cancel(); closingP = null; placesEl.style.pointerEvents = ''; }   /* reopened while it was leaving */
     pageSettings(false);
     openerP = from; teams0 = teams;
     renderPlaces(false);
@@ -171,8 +178,14 @@
     $('dg-pl-title').focus({ preventScroll: true });
   }
   function closePlaces() {
-    if (placesEl.hidden) return;
-    placesEl.hidden = true;
+    if (placesEl.hidden || closingP) return;
+    /* It leaves the way it came, a little faster; focus and the screens behind come back at once */
+    const done = () => { closingP = null; placesEl.hidden = true; placesEl.style.pointerEvents = ''; };
+    if (!reduce.matches && placesEl.animate) {
+      placesEl.style.pointerEvents = 'none';   /* while it leaves, a tap goes to what is under it */
+      closingP = placesEl.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(24px)', opacity: 0 }], { duration: 220, easing: 'ease-in' });
+      closingP.onfinish = done;
+    } else done();
     pageSettings(true);
     inertWas.forEach(([el, was]) => { el.inert = was; }); inertWas = [];
     if (openerP && openerP.isConnected) openerP.focus({ preventScroll: true });
@@ -189,7 +202,7 @@
   [res, placesEl].forEach(el => el.addEventListener('pointerdown', e => e.stopPropagation()));
 
   const api = {
-    next, open, close, openPlaces, fits, isOpen: () => !res.hidden || !placesEl.hidden,
+    next, open, close, openPlaces, fits, isOpen: () => !res.hidden || (!placesEl.hidden && !closingP),
     frameSVG: () => '', say: () => {}, saved, setFor
   };
   window.DG2Result = api;

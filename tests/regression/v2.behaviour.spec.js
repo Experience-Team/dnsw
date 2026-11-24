@@ -333,4 +333,51 @@ test.describe('Version 2', () => {
     await expect(g.locator('#dg-say')).toHaveText('No kick. Tap once to drop, then again as it bounces.', { timeout: 4000 });
     await expect(g.locator('#dg-head')).toHaveText('Tap to drop');
   });
+
+  // Polish pass (24 Nov): the things a person feels, checked with real presses
+  test('Drop goal: a press on the pitch leaves no focus ring, and the keyboard brings it back', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    const ring = () => f.evaluate(() => getComputedStyle(document.getElementById('dg')).boxShadow);
+    const box = await page.locator('#v2-game').boundingBox();
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height * 0.55);
+    expect(await ring()).toBe('none');
+    await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 5000 });
+    await page.keyboard.press('Space');
+    expect(await ring()).not.toBe('none');
+  });
+
+  test('Drop goal: Save and Saved are one width, and the first save moves nothing in See the places', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    const g = inGame(page);
+    await g.locator('#dg-see').click();
+    await expect(g.locator('#dg-pl-count')).toHaveText('Nothing saved yet');
+    // the layer has finished sliding up, so what is measured is at rest
+    await f.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+    const save = g.locator('.dg-pl-row .dg-save').first(), row = g.locator('.dg-pl-row').first();
+    const before = [await save.boundingBox(), await row.boundingBox()];
+    await save.click();
+    await expect(save).toHaveText('Saved');
+    await expect(g.locator('#dg-pl-count')).toHaveText('1 saved to your plan');
+    expect([await save.boundingBox(), await row.boundingBox()]).toEqual(before);
+  });
+
+  test('Drop goal: while See the places slides away, a press reaches what is under it', async ({ page }) => {
+    await openGame(page, 'Wales');
+    const g = inGame(page);
+    await g.locator('#dg-see').click();
+    await expect(g.locator('#dg-places')).toBeVisible();
+    await g.locator('#dg-pl-close').click();
+    // a person's quick second press, on the button the layer was covering: it opens again, whole
+    await g.locator('#dg-see').click({ timeout: 2000 });
+    await expect(g.locator('#dg-places')).toBeVisible();
+    await expect(g.locator('#dg-places')).toHaveCSS('opacity', '1');
+    await expect(g.locator('#dg-pl-title')).toBeFocused();
+  });
+
+  test('Drop goal: on a wide screen the result stays hidden until a goal', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/wireframes/v2/drop-goal/index.html?theme=hifi');
+    await expect(page.locator('#dg-head')).toHaveText(/tap to drop/i);
+    await expect(page.locator('#dg-result')).toBeHidden();
+  });
 });

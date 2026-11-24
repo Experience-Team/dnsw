@@ -180,6 +180,7 @@
         const range = document.createRange(); range.selectNodeContents(shown);
         const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
       }
+      if (!shareBtn.style.minWidth && shareBtn.offsetWidth) shareBtn.style.minWidth = shareBtn.offsetWidth + 'px';   /* Line copied is shorter: hold the width */
       shareBtn.textContent = ok ? 'Line copied' : 'Copy the line below';
       say(ok ? 'The table’s line is copied: ' + line : 'Copying was blocked. The line is shown under the button, selected.');
       shareT = setTimeout(() => { shareBtn.textContent = 'Share the table'; }, ok ? 2000 : 6000);
@@ -202,6 +203,8 @@
     if (state === headIs) return;
     headIs = state; head.textContent = HEAD[state];
     head.classList.toggle('is-goal', state === 'goal'); head.classList.toggle('is-now', state === 'now');
+    /* GOAL lands with a small pop; the other words change at once, as the taps are timed against them */
+    if (state === 'goal' && head.animate && !reduce.matches) head.animate([{ transform: 'scale(.8)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 360, easing: 'cubic-bezier(.2,.7,.2,1)' });
   }
   function say(msg) { sayEl.textContent = ''; setTimeout(() => { sayEl.textContent = msg; }, 30); }
   R.say = say;
@@ -383,6 +386,9 @@
     else if (phase === 'miss' || phase === 'pass') again();
   }
   const stage = $('dg');
+  /* The focus ring is for the keyboard: any key shows it, any press hides it (game.css, .is-keys) */
+  document.addEventListener('keydown', () => document.documentElement.classList.add('is-keys'), true);
+  document.addEventListener('pointerdown', () => document.documentElement.classList.remove('is-keys'), true);
   stage.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     try { stage.focus({ preventScroll: true }); } catch (x) {}
