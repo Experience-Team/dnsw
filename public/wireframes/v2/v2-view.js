@@ -187,7 +187,9 @@
   var seeB = document.getElementById('v2-kick-places');
   if (seeB) seeB.addEventListener('click', function () { openPlaces(seeB); });
   window.v2Play = { open: openGame, places: openPlaces, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame, enter: enter,
-    practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} },
+    // During the practice kick How to play is put away; it comes back, fading in, when the game is ready
+    practiceStart: function () { if (howB) howB.hidden = true; },
+    practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} if (howB && howB.hidden && closeBtn && !closeBtn.hidden) { howB.hidden = false; if (!still() && howB.animate) howB.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } },
     changeTeam: function () { if (window.v2Onboard) window.v2Onboard.start(); },
     cross: function (show) { if (closeBtn) closeBtn.hidden = !show; var h = document.getElementById('v2-play-how'); if (h) h.hidden = !show; } };
 

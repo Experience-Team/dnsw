@@ -267,3 +267,9 @@ html.is-result .dg-who { visibility: hidden; }
 #dg-pl-count:empty { display: none; }
 .dg-pl-p .dg-plan { display: block; width: fit-content; min-height: 0; margin-top: 4px; font: 700 14px/1.4 var(--ui); color: var(--ink); }
 .dg-pl-p .dg-plan[hidden] { display: none; }
+
+/* The practice kick is the pitch and the kick alone: the table and the kicker's line wait until the game is ready,
+   then fade in */
+.dg-table, .dg-who { transition: opacity .32s ease-out; }
+.is-practice .dg-table, .is-practice .dg-who { opacity: 0; visibility: hidden; transition: none; }
+@media (prefers-reduced-motion: reduce) { .dg-table, .dg-who { transition: none; } }

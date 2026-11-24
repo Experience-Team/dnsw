@@ -574,11 +574,13 @@ test.describe('Version 2', () => {
     expect(zone).toBe(true);
     await page.waitForTimeout(2500);
     expect((await state(f)).phase).toBe('wait');
+    await expect(g.locator('#dg-hint')).toHaveText('Too late: in the game it won’t wait. Click now.');
     // the kick is a goal, and it does not count
     await pitchClick(page);
     await f.waitForFunction(() => window.__dg2.phase() === 'goal', null, { timeout: 4000 });
-    await expect(g.locator('#dg-hint')).toHaveText('You’ve got it. This time it won’t wait: click as it bounces.');
-    await expect(g.locator('#dg-say')).toContainText('You’ve got it.');
+    // left waiting that long, the practice says it would be too late in the game, and why
+    await expect(g.locator('#dg-hint')).toHaveText('That was late. This time, click just as it bounces.');
+    await expect(g.locator('#dg-say')).toContainText('That was late.');
     await f.waitForFunction(() => window.__dg2.phase() === 'hold', null, { timeout: 5000 });
     expect(await state(f)).toMatchObject({ practice: null, goals: 0, place: null, rot: null, head: 'Click to drop' });
     await expect(g.locator('#dg-result')).toBeHidden();

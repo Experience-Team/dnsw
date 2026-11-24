@@ -248,12 +248,16 @@
      miss on the first real kick is the game's own miss line. Each prompt is announced. The page starts it and is told
      when it is done or skipped (parent.v2Play). */
   let prac = null;
+  /* The second press, told apart (24 Nov): too soon is a press while the ball is still falling; too late is the ball
+     left waiting past where a real kick would have gone. Both say so and why; the practice still lets the kick through */
+  let pracSoon = false, pracLate = false;
   const page = fn => { try { if (parent !== window && parent.v2Play && parent.v2Play[fn]) return parent.v2Play[fn](); } catch (x) {} };
   function startPractice() {
     if (DEMO) return;
     timers = []; D.passing = false; D.prac = false; R.reset(); hideFrame(); setPose('ready'); markAt(T.release);
     plus.classList.remove('is-on');
     prac = 'drop'; document.documentElement.classList.add('is-practice');
+    pracSoon = false; pracLate = false; page('practiceStart');   // the page puts its How to play button away until the game is ready
     const m = `Practice kick. ${Wd} to drop the ball.`;
     hold(m); say(m + ' It will wait for you at the bounce.');
   }
@@ -408,7 +412,9 @@
         dropBallAt(T.bounce + T.perfect); markAt(T.bounce + T.perfect);
         prac = 'wait'; setPhase('wait'); setHead('wait');
         const m = `The ball is at the bounce, and the bar is in the yellow KICK zone. ${Wd} now to kick.`;
-        setHint('It\u2019s waiting for you: the bar is in the yellow KICK zone.'); say(m);
+        setHint(pracSoon ? `It has bounced now: ${wd} to kick.` : 'It\u2019s waiting for you: the bar is in the yellow KICK zone.'); say(m);
+        /* left waiting: a real kick would be gone by now */
+        after(2, () => { if (prac !== 'wait') return; pracLate = true; const l = `Too late: in the game it won\u2019t wait. ${Wd} now.`; setHint(l); say(l); });
         return;
       }
       setHead(Math.abs(t - (T.bounce + T.perfect)) <= T.tol ? 'now' : 'kick');
@@ -443,7 +449,7 @@
       return;
     }
     if (D.prac) {   /* the practice goal doesn't count: no points, no place, nothing used from the rotation */
-      const msg = `You\u2019ve got it. This time it won\u2019t wait: ${wd} as it bounces.`;
+      const msg = pracLate ? `That was late. This time, ${wd} just as it bounces.` : pracSoon ? `That\u2019s it: just after the bounce. This time it won\u2019t wait.` : `You\u2019ve got it. This time it won\u2019t wait: ${wd} as it bounces.`;
       setHead(true); setHint(msg); say('Goal. ' + msg);
       endPractice();
       after(reduce.matches ? 0.6 : 1.3, () => { if (phase === 'goal') { D.prac = false; D.note = msg; pass(); } });
@@ -495,7 +501,10 @@
     if (R.isOpen()) return;                                  /* the result and the places are not the pitch */
     now = performance.now();                                 /* one clock: every tap is timed on performance.now() */
     if (phase === 'goal') { timers = []; if (D.prac) { D.prac = false; D.note = hint.textContent; pass(); } else result(); return; }
-    if (prac === 'falling') return;                          /* practice: wait for the ball to stop */
+    if (prac === 'falling') {                                /* practice: too soon, the ball has not bounced yet */
+      pracSoon = true; const l = `Too soon. Wait for the bounce, then ${wd}.`; setHint(l); say(l);
+      return;
+    }
     if (phase === 'wait') {                                  /* practice: the kick, from the middle of the zone, at normal speed */
       const tt = T.bounce + T.perfect;
       prac = 'kicked'; setPhase('drop'); t0 = now - tt * 1000; kick(tt); D.prac = true; start();
