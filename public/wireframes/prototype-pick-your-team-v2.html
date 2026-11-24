@@ -120,6 +120,8 @@
               <li><button type="button" class="v2-menu-i" data-v2-go="home">Home</button></li>
               <li><button type="button" class="v2-menu-i" data-v2-go="plan">Plan your 3rd half</button></li>
               <li><button type="button" class="v2-menu-i" data-v2-go="play">Play Drop Goal</button></li>
+              <!-- Your plan (24 Nov): shown once something is saved (v2/v2-saved.js) -->
+              <li id="v2-menu-plan-li" hidden><button type="button" class="v2-menu-i" id="v2-menu-plan">Your plan <span class="v2-menu-n" id="v2-menu-plan-n"></span></button></li>
             </ul>
             <!-- For whoever is reviewing the prototype, not part of the design: set apart and marked, so it does not read as
                  something a visitor would get. It does what Reset prototype does everywhere else -->
@@ -580,7 +582,7 @@
           <button type="button" class="cn-close" data-stack-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         </div>
         <div class="tp-ts-top">
-          <p class="tp-ts-empty" id="tp-ts-empty">Pick the teams you follow. Their matches go on your plan.</p>
+          <p class="tp-ts-empty" id="tp-ts-empty">Pick the teams you follow.</p>
           <ul class="tp-ts-chips" id="tp-ts-chips" aria-label="Your picks"></ul>
           <p class="tp-ts-count" id="tp-ts-count"><span id="tp-ts-count-text"></span> <button type="button" class="tp-link" id="tp-ts-clear" hidden>Clear all</button></p>
           <p class="tp-ts-note" id="tp-ts-note"></p>
@@ -735,6 +737,9 @@
 <script src="v2/v2-plan.js"></script>
 <script src="v2/v2-home.js"></script><script src="v2/v2-onboard.js"></script>
 <script src="v2/v2-view.js"></script>
+<!-- Your plan, the simple saved list (24 Nov): the game's places, watch parties and kit colours are read here too, for the rows -->
+<script src="v2/drop-goal/places.js"></script><script src="v2/drop-goal/watch-parties.js"></script><script src="v2/drop-goal/kit.js"></script>
+<script src="v2/v2-saved.js"></script>
 <script>
 /* Reset prototype and ?reset: clear every key this version saved (v2:, in both stores), leaving the viewer's own
    settings and Options A to C alone, then reload as a first visit. */

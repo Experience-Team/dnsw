@@ -137,6 +137,7 @@
     inertWas = [].filter.call(phone.children, function (el) { return el !== layer; }).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     layer.hidden = false; layer.style.pointerEvents = '';
     phone.classList.add('v2-playing');
+    if (window.v2Saved) window.v2Saved.layer(true);
     if (window.v2DemoSync) window.v2DemoSync();
     if (!quick && layer.animate) layer.animate(still() ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' });
     // No team: the team screen first, by every route (v2-onboard.js). Otherwise the pitch, with the practice kick the
@@ -152,6 +153,7 @@
     if (window.v2Onboard) window.v2Onboard.close();
     inertWas.forEach(function (p) { p[0].inert = p[1]; }); inertWas = [];
     phone.classList.remove('v2-playing');
+    if (window.v2Saved) window.v2Saved.layer(false);
     if (window.v2DemoSync) window.v2DemoSync();
     // Once it has gone, a result card or the places are put away, so the game opens again on the pitch
     var done = function () { leaving = null; layer.hidden = true; layer.style.pointerEvents = ''; try { if (frame.contentWindow.__dgAway) frame.contentWindow.__dgAway(); } catch (e) {} };

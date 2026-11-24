@@ -381,7 +381,7 @@ test.describe('Version 2', () => {
     const before = [await save.boundingBox(), await row.boundingBox()];
     await save.click();
     await expect(save).toHaveText('Saved');
-    await expect(g.locator('#dg-pl-count')).toHaveText('1 saved to your plan');
+    await expect(g.locator('#dg-pl-plan')).toHaveText('1 saved \u00b7 Your plan');   // in the page the count is the way to Your plan
     expect([await save.boundingBox(), await row.boundingBox()]).toEqual(before);
   });
 
@@ -432,7 +432,7 @@ test.describe('Version 2', () => {
     await page.goto(v2url('hifi'));
     const btn = page.locator('#v2-menu-btn'), menu = page.locator('#v2-menu');
     await btn.click();
-    await expect(menu.locator('.v2-menu-i')).toHaveText(['Home', 'Plan your 3rd half', 'Play Drop Goal']);
+    await expect(menu.locator('.v2-menu-i:visible')).toHaveText(['Home', 'Plan your 3rd half', 'Play Drop Goal']);   // Your plan joins them once something is saved
     await page.keyboard.press('Escape');
     await expect(menu).toBeHidden(); await expect(btn).toBeFocused();
     await btn.click(); await page.mouse.click(60, 600);
@@ -792,7 +792,7 @@ test.describe('Version 2', () => {
     await expect(g.locator('#dg-pl-all')).toHaveCount(0);
     await expect(g.locator('#dg-pl-body .dg-pl-meta').first()).toContainText('Scotland');
     await expect(g.locator('#dg-pl-body .dg-save[aria-pressed="true"]')).toHaveCount(1);
-    await expect(g.locator('#dg-pl-count')).toHaveText('1 saved to your plan');
+    await expect(g.locator('#dg-pl-plan')).toHaveText('1 saved \u00b7 Your plan');   // in the page the count is the way to Your plan
   });
 
   test('With several teams picked, the first one decides between places and watch parties', async ({ page }) => {

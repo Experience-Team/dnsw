@@ -258,3 +258,12 @@ html.is-result .dg-who { visibility: hidden; }
 .in-page .dg-table { top: 108px; }
 @media (max-width: 699px) { .in-page .dg-r-pitch { padding-left: 108px; } }
 @media (min-width: 700px) { .in-page .dg-who { top: 20px; left: 180px; max-width: calc(100% - 180px - 64px); } .in-page .dg-table { top: 84px; } }
+
+/* The result card's links: See the places, and after a save in the Version 2 page, the count and the way to Your plan */
+.dg-r-links { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin: 0; }
+.dg-plan { font-weight: 700; }
+.dg-plan[hidden] { display: none; }
+/* in the places list it takes the count line's place exactly, so the first save moves nothing */
+#dg-pl-count:empty { display: none; }
+.dg-pl-p .dg-plan { display: block; width: fit-content; min-height: 0; margin-top: 4px; font: 700 14px/1.4 var(--ui); color: var(--ink); }
+.dg-pl-p .dg-plan[hidden] { display: none; }
