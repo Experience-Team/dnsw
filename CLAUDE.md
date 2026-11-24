@@ -111,6 +111,11 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    fidelity one, and a page-wide rule can let text wrap.
    Anything pinned to the bottom of the screen (a bar, a sheet's foot, the Kick bar, the plan bar) has a faint 1px top
    rule in the soft line colour, so it reads as sitting above the content that scrolls under it.
+   Nothing scrolls sideways unless it is meant to (a carousel, a fan that is dragged). Anything that reaches past the
+   screen's sides on purpose, such as turned cards or a wide picture, is cut there, not scrolled to. Before handing
+   over, sweep every screen the change touches at 390 wide for anything that can be dragged sideways, inside sheets
+   and full-screen layers as well as on the page. For example, the team screen in the game could be dragged 16px
+   sideways because its fan of cards was wider than the phone.
 7. **Patterns go everywhere they apply, and the scope is agreed first.** When a brief changes one instance of something
    that appears in several places (a component such as a date picker or a match card, or a cue such as an icon, a
    confirm step or a focus rule), first list every place it appears and ask which to update. Then change them all in
@@ -119,8 +124,9 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    every close cross sits in the same corner (top right, 16px from the edge) on every sheet, stacked sheet and
    full-screen layer, except a full-screen layer that takes over the page (the game), which uses Back with an arrow,
    top left, so it isn't read as closing a card or sheet inside it (on phones, a card that fills the screen inside
-   such a layer has its own close cross, top right, and Back steps aside while it is up); and the date picker updated to Figma 372:3060 on the page should have been checked against the
-   days sheet and the plan before building.
+   such a layer has its own close cross, top right, and Back steps aside while it is up); and the date picker
+   updated to Figma 372:3060 on the page should have been checked against the days sheet and the plan before
+   building.
 8. **The page only moves when people expect it to.** A control never scrolls or jumps the page to another section
    unless its label says it will take you there (for example "See where to watch in NSW", "Skip the map"). Anything
    that asks for input or shows more detail opens where the person is, in a sheet or an expanding panel, and closing it
