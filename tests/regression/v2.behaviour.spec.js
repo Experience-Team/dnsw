@@ -24,8 +24,13 @@ test.describe('Version 2', () => {
     await expect(tabs).toHaveText(['Version 2', 'Iterations, none saved yet']);
     await expect(page.locator('.pv-side .pv-tabs a.pv-tab')).toHaveCount(1);
     await expect(page.locator('.pv-tabs .v2-tab-soon')).toHaveAttribute('aria-disabled', 'true');
-    // Nothing in the side panel links to Options A to C
-    expect(await page.locator('.pv-side a[href*="prototype-pick-your-team.html"]').count()).toBe(0);
+    // Version 1 (Options A to C) only from the panel's Open Version 1, never from the tabs
+    const back = page.locator('.pv-side a[href*="prototype-pick-your-team.html"]');
+    await expect(back).toHaveCount(1);
+    await expect(back).toHaveText('Open Version 1');
+    expect(await page.locator('.pv-tabs a[href*="prototype-pick-your-team.html"]').count()).toBe(0);
+    await back.click();
+    await expect(page).toHaveURL(/prototype-pick-your-team\.html$/);
   });
 
   test('the Settings menu lists only Version 2', async ({ page }) => {

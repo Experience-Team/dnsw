@@ -36,11 +36,18 @@
      is remembered with where it sat, and the scroll is corrected to keep it there, at once and as Home settles. */
   var body = phone.querySelector('.cn-body'), homeEl = document.getElementById('tp-home'), anchor = null, settle = 0;
   function topOf(el) { return el.getBoundingClientRect().top - body.getBoundingClientRect().top; }
-  function hold() { if (anchor && anchor.el.isConnected) { var d = topOf(anchor.el) - anchor.top; if (Math.abs(d) >= 0.5) body.scrollTop += d; } }
+  var yHeld = null;
+  function hold() {
+    if (!anchor || !anchor.el.isConnected) return;
+    // The person, or a control (the menu's Home), has scrolled since: that is where they want to be, so let go
+    if (yHeld !== null && Math.abs(body.scrollTop - yHeld) > 1) { anchor = null; yHeld = null; return; }
+    var d = topOf(anchor.el) - anchor.top; if (Math.abs(d) >= 0.5) body.scrollTop += d;
+    yHeld = body.scrollTop;
+  }
   if (window.ResizeObserver && homeEl) new ResizeObserver(function () { if (anchor && picker.parentNode !== teamsBox) hold(); }).observe(homeEl);
   function lendIn() {
     if (!picker || picker.parentNode === teamsBox || picker.closest('#tp-at')) return;
-    clearTimeout(settle);
+    clearTimeout(settle); yHeld = null;
     if (!anchor) {
       var secs = [].slice.call(document.querySelectorAll('#tp-home .tp-home-sec')), el = secs.filter(function (x) { return x.offsetParent && topOf(x) + x.offsetHeight > 0; })[0];
       anchor = el ? { el: el, top: topOf(el) } : null;
@@ -51,7 +58,7 @@
     if (!picker || picker.parentNode !== teamsBox || !window.v2View) return;
     window.v2View.lend(); window.dispatchEvent(new Event('resize'));
     hold();
-    settle = setTimeout(function () { hold(); anchor = null; }, 900);
+    settle = setTimeout(function () { hold(); anchor = null; yHeld = null; }, 900);
   }
 
   /* ---------- the pictures: the game playing itself, scaled like a screenshot ---------- */
