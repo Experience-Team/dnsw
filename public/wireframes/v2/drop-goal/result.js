@@ -288,6 +288,13 @@
     sample: teams => partiesFor(teams)[0] || PLACES.find(p => p.image && !p.stand_in) || PLACES[0],
     /* For the game playing itself (game.js, ?demo): quiet takes no focus; reset puts the result away at once */
     quiet: false,
+    /* the page closed the game with the places open: they are put away at once, with no movement */
+    away() {
+      if (placesEl.hidden) return;
+      if (closingP) { closingP.onfinish = null; closingP.cancel(); closingP = null; }
+      placesEl.hidden = true; placesEl.style.pointerEvents = ''; pageSettings(true);
+      inertWas.forEach(([el, was]) => { el.inert = was; }); inertWas = []; openerP = null;
+    },
     reset() { push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
   };
   window.DG2Result = api;

@@ -153,7 +153,8 @@
     inertWas.forEach(function (p) { p[0].inert = p[1]; }); inertWas = [];
     phone.classList.remove('v2-playing');
     if (window.v2DemoSync) window.v2DemoSync();
-    var done = function () { leaving = null; layer.hidden = true; layer.style.pointerEvents = ''; };
+    // Once it has gone, a result card or the places are put away, so the game opens again on the pitch
+    var done = function () { leaving = null; layer.hidden = true; layer.style.pointerEvents = ''; try { if (frame.contentWindow.__dgAway) frame.contentWindow.__dgAway(); } catch (e) {} };
     if (!still() && layer.animate) {
       layer.style.pointerEvents = 'none';   // while it leaves, a press goes to the page under it
       leaving = layer.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(32px)' }], { duration: 220, easing: 'ease-in' });
