@@ -144,7 +144,7 @@
     if (placesOnly) { try { frame.focus(); } catch (e) {} }
     else if (!teams() && window.v2Onboard) window.v2Onboard.start(); else enter();
     try { history.pushState({ v2play: true }, ''); } catch (e) {}
-    if (tp && tp.say) tp.say(placesOnly ? 'The places opened. Close is at the top right.' : 'Drop goal opened. Close the game is at the top right.');
+    if (tp && tp.say) tp.say(placesOnly ? 'The places opened. Close is at the top right.' : 'Drop goal opened. Back to Home is at the top left.');
   }
   function shut() {
     if (!isOpen) return;

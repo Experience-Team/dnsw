@@ -60,7 +60,9 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 @media (min-width: 1024px) { .pv-device #tp-phone .v2-kick-acts { flex-direction: row; align-items: center; align-self: start; gap: var(--space-5); justify-content: flex-start; } .pv-device #tp-phone .v2-kick-acts .tp-home-cta { align-self: center; } }
 
 /* ---------- Drop goal's onboarding (v2-onboard.js): over the game, inside the full-screen layer ---------- */
-.v2-play-how { right: 60px; } /* How to play, beside the close cross */
+/* Back, top left, in place of a close cross top right (24 Nov): beside a result card the cross read as closing the
+   card. A pill with an arrow and the word; How to play keeps the top right corner */
+.v2-play-back { right: auto; left: 16px; display: inline-flex; align-items: center; gap: 6px; width: auto; padding: 0 14px 0 10px; border-radius: 18px; font-family: inherit; font-weight: 600; font-size: .875rem; line-height: 1; }
 .v2-ob { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--c-surface); color: var(--c-ink); }
 .v2-ob[hidden] { display: none; }
 .v2-ob-top { flex: none; display: flex; align-items: center; gap: var(--space-4); min-height: 68px; padding: 0 68px 0 var(--space-5); } /* room at the right for the layer's close cross */
@@ -115,7 +117,7 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 }
 
 /* The team screen has no top row of its own now: room above the heading, and beside it for the layer's close cross */
-.v2-ob-panel--team { padding-top: var(--space-5); }
+.v2-ob-panel--team { padding-top: 68px; } /* under the layer's Back button, top left */
 .v2-ob-panel--team .v2-ob-h { margin-right: 56px; }
 @media (min-width: 1024px) { .pv-device #tp-phone .v2-ob-panel--team { padding-top: 56px; } }
 
