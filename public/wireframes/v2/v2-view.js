@@ -210,6 +210,32 @@
     window.v2DemoSync = sync;
   })();
 
+  /* ---------- At a glance: the cards' dots (the carousel on phones) ----------
+     One dot per card. The dot for the card in view is marked as it is swiped, and a dot takes the row to its card */
+  (function () {
+    var row = document.querySelector('#tp-home-glance .tp-gl'), dots = document.getElementById('v2-gl-dots');
+    if (!row || !dots) return;
+    var cards = [].slice.call(row.querySelectorAll('.tp-gl-card'));
+    dots.innerHTML = cards.map(function (c, i) { var h = c.querySelector('.tp-gl-h'); return '<button type="button" class="v2-gl-dot" data-i="' + i + '" aria-label="Card ' + (i + 1) + ' of ' + cards.length + ': ' + (h ? h.textContent.trim() : '') + '"></button>'; }).join('');
+    var btns = [].slice.call(dots.children), at = -1, raf = 0;
+    function mark() {
+      raf = 0;
+      var x = row.getBoundingClientRect().left, best = 0, d = Infinity;
+      cards.forEach(function (c, i) { var k = Math.abs(c.getBoundingClientRect().left - x - parseFloat(getComputedStyle(row).paddingLeft || 0)); if (k < d) { d = k; best = i; } });
+      // at the far end the last card cannot reach the left edge, so it counts once the row can scroll no further
+      if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 2) best = cards.length - 1;
+      if (best === at) return; at = best;
+      btns.forEach(function (b, i) { if (i === at) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    }
+    row.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(mark); }, { passive: true });
+    dots.addEventListener('click', function (e) {
+      var b = e.target.closest('.v2-gl-dot'); if (!b) return;
+      var c = cards[+b.dataset.i];
+      row.scrollTo({ left: c.offsetLeft - row.offsetLeft - parseFloat(getComputedStyle(row).paddingLeft || 0), behavior: still() ? 'auto' : 'smooth' });
+    });
+    mark();
+  })();
+
   // A reset link that had the game open, or a shared link to it
   if (/[?&]view=kick\b/.test(location.search)) openGame(document.querySelector('#tp-home-kick button.tp-home-cta'), true);
 })();

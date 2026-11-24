@@ -159,7 +159,37 @@
             <p class="tp-rugby-line tp-home-rugby" id="tp-home-rugby"><span class="tp-home-rugby-q">No team, or no tickets yet?</span><button type="button" class="tp-link tp-rugby-link" data-rugby data-rugby-home aria-describedby="tp-rugby-why-h"><span class="tp-u">I&rsquo;m just here for the rugby</span></button><span class="tp-rugby-why" id="tp-rugby-why-h">This adds every match played in NSW.</span></p>
           </section>
 
-          <!-- At a glance: three cards of high-level facts; See all FAQs jumps to the FAQs on this page -->
+          <!-- Where the matches are: a cut-down planner map (stadium pins; a few regions within reach, shown lightly) and
+               one card per NSW stadium. A pin or a card opens that host city sheet over the page. No team picking here -->
+          <section class="tp-home-sec" id="tp-home-where" aria-labelledby="tp-home-where-title">
+            <h3 class="tp-sec-title" id="tp-home-where-title">Where the matches are</h3>
+            <p class="tp-home-intro">Two host cities, and plenty of NSW within reach between matches.</p>
+            <div class="tp-home-map" id="tp-home-map" role="group" aria-label="Map of the NSW host stadiums"></div>
+            <ul class="tp-home-cities" id="tp-home-cities"></ul>
+            <a class="tp-home-cta" href="#tp-home-plan-title" data-home-jump="tp-home-plan">Plan your 3rd half<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          </section>
+
+          <!-- Drop goal (shown as Play on phones; the route is ?view=kick): Play now opens Version 2's own game over the whole screen (#v2-play) -->
+          <section class="tp-home-sec" id="tp-home-kick" aria-labelledby="tp-home-kick-title">
+            <h3 class="tp-sec-title" id="tp-home-kick-title"><span class="tp-on-phone">Play</span><span class="tp-on-desk">Drop Goal</span></h3>
+            <p class="tp-home-intro">Line up your kick and go for goal. Wherever the ball lands is your next idea for somewhere to go in Sydney or NSW. Keep kicking to find more.</p>
+            <!-- How to play (24 Nov): the game playing itself in a small frame (v2/drop-goal/index.html?demo), in place of
+                 the still. It plays once when the section comes into view, then rests; Replay shows after that. With
+                 reduced motion it stays still. The line under it says the same in words; a tap on the picture opens the
+                 game, as Play now does. Script: v2/v2-view.js. -->
+            <div class="tp-home-kick-img v2-demo" id="v2-demo" tabindex="-1">
+              <iframe class="v2-demo-frame" id="v2-demo-frame" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
+              <span class="v2-demo-hit" id="v2-demo-hit" data-view="kick" aria-hidden="true"></span>
+              <button type="button" class="v2-demo-replay" id="v2-demo-replay" aria-label="Replay the how to play animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button>
+            </div>
+            <p class="v2-demo-how" id="v2-demo-how"><strong>How to play:</strong> tap to drop the ball, then tap again as it bounces.</p>
+            <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+          </section>
+
+          <!-- At a glance: three cards of high-level facts. Version 2 (24 Nov): moved from under the team cards to just
+               above the FAQs (the map now follows the team cards), and a carousel on phones: one card at a time with the
+               next one peeking, and dots under it (v2/v2.css, v2/v2-view.js). See all FAQs is hidden here, as the FAQs
+               are the next thing on the page -->
           <section class="tp-home-sec" id="tp-home-glance" aria-labelledby="tp-home-glance-title">
             <h3 class="tp-sec-title" id="tp-home-glance-title">Rugby World Cup 2027 at a glance</h3>
             <!-- At a glance as three cards (Figma 388:6855, 19 Nov), in the prototype's own colours: chalk, the colourway,
@@ -191,34 +221,8 @@
                 </div>
               </li>
             </ul>
+            <div class="v2-gl-dots" id="v2-gl-dots" role="group" aria-label="At a glance cards"></div>
             <a class="tp-link tp-home-more" href="#tp-home-faq-title" data-home-jump="tp-home-faq">See all FAQs<svg class="tp-home-arr tp-home-arr--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a>
-          </section>
-
-          <!-- Where the matches are: a cut-down planner map (stadium pins; a few regions within reach, shown lightly) and
-               one card per NSW stadium. A pin or a card opens that host city sheet over the page. No team picking here -->
-          <section class="tp-home-sec" id="tp-home-where" aria-labelledby="tp-home-where-title">
-            <h3 class="tp-sec-title" id="tp-home-where-title">Where the matches are</h3>
-            <p class="tp-home-intro">Two host cities, and plenty of NSW within reach between matches.</p>
-            <div class="tp-home-map" id="tp-home-map" role="group" aria-label="Map of the NSW host stadiums"></div>
-            <ul class="tp-home-cities" id="tp-home-cities"></ul>
-            <a class="tp-home-cta" href="#tp-home-plan-title" data-home-jump="tp-home-plan">Plan your 3rd half<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
-          </section>
-
-          <!-- Drop goal (shown as Play on phones; the route is ?view=kick): Play now opens Version 2's own game over the whole screen (#v2-play) -->
-          <section class="tp-home-sec" id="tp-home-kick" aria-labelledby="tp-home-kick-title">
-            <h3 class="tp-sec-title" id="tp-home-kick-title"><span class="tp-on-phone">Play</span><span class="tp-on-desk">Drop Goal</span></h3>
-            <p class="tp-home-intro">Line up your kick and go for goal. Wherever the ball lands is your next idea for somewhere to go in Sydney or NSW. Keep kicking to find more.</p>
-            <!-- How to play (24 Nov): the game playing itself in a small frame (v2/drop-goal/index.html?demo), in place of
-                 the still. It plays once when the section comes into view, then rests; Replay shows after that. With
-                 reduced motion it stays still. The line under it says the same in words; a tap on the picture opens the
-                 game, as Play now does. Script: v2/v2-view.js. -->
-            <div class="tp-home-kick-img v2-demo" id="v2-demo" tabindex="-1">
-              <iframe class="v2-demo-frame" id="v2-demo-frame" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
-              <span class="v2-demo-hit" id="v2-demo-hit" data-view="kick" aria-hidden="true"></span>
-              <button type="button" class="v2-demo-replay" id="v2-demo-replay" aria-label="Replay the how to play animation" hidden><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button>
-            </div>
-            <p class="v2-demo-how" id="v2-demo-how"><strong>How to play:</strong> tap to drop the ball, then tap again as it bounces.</p>
-            <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
           </section>
 
           <!-- FAQs: the six questions from Figma, with the answers the user supplied on 22 Nov (concepts-home.js) -->
@@ -751,7 +755,7 @@
 (function () {
   var NOTES = [
     { sel: '#tp-home', title: 'Home', points: [
-      'Brought in from Options A to C on 24 Nov, unchanged: the hero, Read before you go, Plan your 3rd half (the team cards), At a glance, Where the matches are, Play, the FAQs, updates, Share and the footer. Version 2 has its own copies of the scripts, so a change here never reaches Options A to C.',
+      'Brought in from Options A to C on 24 Nov: the hero, Read before you go, Plan your 3rd half (the team cards), Where the matches are, Play, At a glance, the FAQs, updates, Share and the footer. Reordered for Version 2: the map now follows the team cards, and the three At a glance cards sit just above the FAQs, as a carousel on phones (one card with the next peeking, and dots). Version 2 has its own copies of the scripts, so a change here never reaches Options A to C.',
       'Not built yet: the planner. The plan bar, Plan around your matches, and Add to my plan and I have a ticket on a match opened from a host city are hidden until Version 2 has one. Picks are still kept.',
       'Design: Every NSW match is not a choice in Version 2 (January brief): the I\u2019m just here for the rugby link is gone from Home, and a saved one counts as no team.',
       'Open question: the cards\u2019 caption still says a pick adds matches to your plan, which Version 2 does not show yet.'

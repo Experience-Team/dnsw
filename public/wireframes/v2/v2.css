@@ -117,3 +117,26 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-ob-panel--team { padding-top: var(--space-5); }
 .v2-ob-panel--team .v2-ob-h { margin-right: 56px; }
 @media (min-width: 1024px) { .pv-device #tp-phone .v2-ob-panel--team { padding-top: 56px; } }
+
+/* ---------- Home: the three At a glance cards as a carousel on phones (24 Nov) ----------
+   One card at a time with the next one peeking in from the right, so it reads as something to swipe; it snaps to each
+   card, and the dots under it show and set the place. The desktop website keeps its own three-across layout */
+html:not(.pv-device) #tp-phone .tp-gl { display: flex; gap: var(--space-3); margin-inline: calc(var(--space-5) * -1); padding: 0 var(--space-5) var(--space-1); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-5); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+html:not(.pv-device) #tp-phone .tp-gl::-webkit-scrollbar { display: none; }
+html:not(.pv-device) #tp-phone .tp-gl-card { flex: 0 0 84%; scroll-snap-align: start; }
+html:not(.pv-device) #tp-phone .tp-gl-body { flex: 1 1 auto; }
+@media (max-width: 1023px) {
+  .pv-device #tp-phone .tp-gl { display: flex; gap: var(--space-3); margin-inline: calc(var(--space-5) * -1); padding: 0 var(--space-5) var(--space-1); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-5); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .pv-device #tp-phone .tp-gl::-webkit-scrollbar { display: none; }
+  .pv-device #tp-phone .tp-gl-card { flex: 0 0 84%; scroll-snap-align: start; }
+  .pv-device #tp-phone .tp-gl-body { flex: 1 1 auto; }
+}
+.v2-gl-dots { display: flex; justify-content: center; gap: var(--space-1); margin-top: var(--space-3); }
+.v2-gl-dot { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; }
+.v2-gl-dot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c-ink); opacity: .28; transition: opacity .2s ease-out, transform .2s ease-out; }
+.v2-gl-dot[aria-current="true"]::before { opacity: 1; transform: scale(1.25); }
+.v2-gl-dot:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 0; border-radius: 50%; }
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-gl-dots { display: none; } }
+/* The FAQs are the next section now, so the link to them goes */
+html[data-flow="v2"] #tp-home-glance .tp-home-more { display: none; }
+@media (prefers-reduced-motion: reduce) { .v2-gl-dot::before { transition: none; } }
