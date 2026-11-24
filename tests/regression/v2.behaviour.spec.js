@@ -491,30 +491,27 @@ test.describe('Version 2', () => {
 
   // How to play: the game playing itself in Home's Play section (24 Nov)
   const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo&/ });   // Home's snippet (?demo&team=), not the onboarding's (?demo=taps)
-  test('How to play: the snippet plays once when it comes into view, then rests with Replay, and it changes nothing', async ({ page }) => {
+  test('How to play: the snippet plays once each time it comes into view, and on a mouse moving onto it, and it changes nothing', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await expect(page.locator('.v2-demo-how')).toHaveText('How to play: click to drop the ball, then click again as it bounces.');   // with a mouse; tap on a touch screen
-    const d = demoOf(page), replay = page.locator('#v2-demo-replay');
+    const d = demoOf(page);
+    await expect(page.locator('#v2-demo-replay')).toHaveCount(0);   // no Replay button: after a game it read as replay the game
     // out of view: nothing has played
     await page.waitForTimeout(1500);
     expect(await d.evaluate(() => [window.__dg2.phase(), window.__dgDemo.playing()])).toEqual(['hold', false]);
     await page.locator('#v2-demo').scrollIntoViewIfNeeded();
     // nothing in it can be pressed or read out: the line under it says it in words
     await expect(page.locator('#v2-demo-frame')).toHaveAttribute('aria-hidden', 'true');
-    await expect(replay).toBeHidden();
     for (const ph of ['drop', 'goal', 'hold']) await d.waitForFunction((x) => window.__dg2.phase() === x, ph, { timeout: 8000 });
     // once: it rests on Tap to drop and does not start again
-    await expect(replay).toBeVisible();
     await page.waitForTimeout(3000);
     expect(await d.evaluate(() => [window.__dg2.phase(), document.getElementById('dg-head').textContent])).toEqual(['hold', 'Click to drop']);   // with a mouse
-    // scrolling away and back does not play it again
+    // scrolling away and back plays it once more
     await page.locator('#tp-home-reads').scrollIntoViewIfNeeded(); await page.locator('#v2-demo').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(2000);
-    expect(await d.evaluate(() => window.__dg2.phase())).toBe('hold');
-    // Replay plays it once more
-    await replay.click();
-    await expect(replay).toBeHidden();
+    for (const ph of ['goal', 'hold']) await d.waitForFunction((x) => window.__dg2.phase() === x, ph, { timeout: 8000 });
+    // and so does moving the mouse onto it
+    await page.mouse.move(5, 5); await page.locator('#v2-demo').hover();
     await d.waitForFunction(() => window.__dg2.phase() === 'goal', null, { timeout: 8000 });
     // no save, no place used up, nothing said
     expect(await d.evaluate(() => [window.__dg2.goals(), document.getElementById('dg-say').textContent, sessionStorage.getItem('v2:dg-rotation')])).toEqual([0, '', null]);
@@ -531,7 +528,6 @@ test.describe('Version 2', () => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await page.locator('#v2-demo').scrollIntoViewIfNeeded();
-    await expect(page.locator('#v2-demo-replay')).toBeHidden();
     await page.waitForTimeout(2500);
     expect(await demoOf(page).evaluate(() => window.__dg2.phase())).toBe('hold');
   });

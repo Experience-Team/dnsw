@@ -192,12 +192,13 @@
   });
 
   /* ---------- How to play: the game playing itself on Home ----------
-     It plays once, when the Play section comes into view (24 Nov: on a loop it was repetitive), then rests. If it is
-     scrolled away or the game is opened before it finishes, it goes back to rest and plays when next in view. Once it
-     has played, Replay shows, for anyone who missed it. With reduced motion it never plays (game.js). */
+     It plays once each time the Play section comes into view (24 Nov: on a loop it was repetitive), then rests. If it
+     is scrolled away or the game is opened before it finishes, it goes back to rest. With a mouse, moving onto it
+     plays it again. There is no Replay button: after a game it read as "replay the game". With reduced motion it
+     never plays (game.js). */
   (function () {
-    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), rb = document.getElementById('v2-demo-replay');
-    if (!box || !fr || !rb) return;
+    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame');
+    if (!box || !fr) return;
     var seen = false, done = false;
     // With a mouse the line says click, as the onboarding does
     var how = document.getElementById('v2-demo-how');
@@ -205,15 +206,15 @@
     function api() { try { return fr.contentWindow && fr.contentWindow.__dgDemo; } catch (e) { return null; } }
     function sync() {
       var a = api(); if (!a) return;
-      a.onDone = function () { done = true; rb.hidden = false; };
+      a.onDone = function () { done = true; };
       if (done) return;
       if (seen && !isOpen) { if (!a.playing()) a.play(); } else if (a.playing()) a.stop();
     }
-    rb.addEventListener('click', function () { done = false; rb.hidden = true; sync(); box.focus({ preventScroll: true }); });
+    box.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && done) { done = false; sync(); } });
     fr.addEventListener('load', sync);
     // Every kicker has a team (January brief): the picked one, or Australia, the host, before anyone has picked
     fr.src = GAME + '?demo&team=' + encodeURIComponent(teams().split(',')[0] || 'Australia');
-    if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.6 }).observe(box);
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { var was = seen; seen = es[es.length - 1].isIntersecting; if (seen && !was) done = false; sync(); }, { root: body, threshold: 0.6 }).observe(box);
     else seen = true;
     window.v2DemoSync = sync;
   })();
