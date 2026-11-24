@@ -183,15 +183,18 @@
   }
   // For the game (v2/drop-goal/): Escape on its kick screen closes it, and its own full-screen list hides the cross
   var howB = document.getElementById('v2-play-how');
+  var crossOff = false, cardUp = false;
   if (howB) howB.addEventListener('click', practise);
   var seeB = document.getElementById('v2-kick-places');
   if (seeB) seeB.addEventListener('click', function () { openPlaces(seeB); });
   window.v2Play = { open: openGame, places: openPlaces, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame, enter: enter,
     // During the practice kick How to play is put away; it comes back, fading in, when the game is ready
     practiceStart: function () { if (howB) howB.hidden = true; },
-    practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} if (howB && howB.hidden && closeBtn && !closeBtn.hidden) { howB.hidden = false; if (!still() && howB.animate) howB.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } },
+    practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} if (howB && howB.hidden && !crossOff) { howB.hidden = false; if (!still() && howB.animate) howB.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } },
     changeTeam: function () { if (window.v2Onboard) window.v2Onboard.start(); },
-    cross: function (show) { if (closeBtn) closeBtn.hidden = !show; var h = document.getElementById('v2-play-how'); if (h) h.hidden = !show; } };
+    cross: function (show) { crossOff = !show; if (closeBtn) closeBtn.hidden = crossOff || cardUp; var h = document.getElementById('v2-play-how'); if (h) h.hidden = !show; },
+    // A result card on a phone has its own close cross: Back steps aside while the card is up (v2/drop-goal/result.js)
+    back: function (show) { cardUp = !show; if (closeBtn) closeBtn.hidden = crossOff || cardUp; } };
 
   // Play now, and anything else that asks for the game or the planner by its old tab name
   phone.addEventListener('click', function (e) {
