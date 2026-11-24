@@ -83,11 +83,13 @@
 
   /* ---------- Play: Drop goal over the whole screen ---------- */
   var GAME = 'v2/drop-goal/index.html';
-  function teams() { return tp && tp.state && Array.isArray(tp.state.picked) ? tp.state.picked.join(',') : ''; }
+  // The picked teams: the first kicks. Every kicker has a team (January brief): with none, the game is not loaded, and
+  // opening it leads to the team screen first (v2-onboard.js)
+  function teams() { return tp && tp.state && Array.isArray(tp.state.picked) ? tp.state.picked.filter(function (n) { return n !== 'Every NSW match'; }).join(',') : ''; }
   function gameUrl(t) { return GAME + (t ? '?team=' + encodeURIComponent(t) : ''); }
   var loaded = null;
   function loadGame() {
-    var t = teams(); if (t === loaded) return;
+    var t = teams(); if (!t || t === loaded) return;
     // The first load sets the frame's address; later ones replace it, so the back button never steps through old games
     if (loaded === null) frame.src = gameUrl(t);
     else try { frame.contentWindow.location.replace(gameUrl(t)); } catch (e) { frame.src = gameUrl(t); }

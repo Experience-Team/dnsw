@@ -213,6 +213,11 @@ even when not asked.
      for again.
    - Newsletter or enquiry forms ask for the minimum (often just an email) and gather preferences later,
      once there is a reason to.
+   **Exception, agreed 24 Nov 2026.** An input can be required up front when the result can't be worked out
+   without it and there is no sensible default. Keep it to that one input, say why on the screen, and say what to
+   do if the person has none. For example, Version 2's Drop goal asks for a team before playing, because what a
+   goal lands on depends on the team: the button is off with "Pick a team to continue", and the screen says "No
+   team? Pick the one you'd like to follow."
 3. **Accessibility target: WCAG 2.2 AA, not AAA.** Size controls to AA: at least 24px to tap (2.5.8), with
    36px as the usual button height, rather than the 44px AAA size. Don't pad tap areas out to 44px. For example,
    buttons in the Pick your team prototype were moved from 44px to 36px.

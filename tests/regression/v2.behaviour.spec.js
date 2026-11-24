@@ -118,11 +118,13 @@ test.describe('Version 2', () => {
     k(); setTimeout(k, ms);
   }, Math.round(sec * 1000));
 
-  test('Drop goal: the kicker wears the picked team, and no team gives the default kit', async ({ page }) => {
-    let f = await openGame(page);
-    expect(await f.evaluate(() => window.__dg2.team())).toBe('');
-    await expect(page.frameLocator('#v2-game').locator('#dg-rows .is-mine')).toHaveCount(0);
-    f = await openGame(page, 'Wales');
+  test('Drop goal: the kicker wears the picked team, and with no team the game is not loaded', async ({ page }) => {
+    // every kicker has a team (January brief): with none, the game waits behind the team screen
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi', 'view=kick'));
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
+    expect(await page.locator('#v2-game').getAttribute('src')).toBeNull();
+    const f = await openGame(page, 'Wales');
     expect(await f.evaluate(() => window.__dg2.team())).toBe('Wales');
     await expect(page.frameLocator('#v2-game').locator('#dg-rows .is-mine')).toContainText('Wales');
   });
@@ -162,8 +164,9 @@ test.describe('Version 2', () => {
     await page.locator('#tp-dev-set').click();
     await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
     await expect(page.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(0);
+    // no team again: Play now asks for one
     await page.locator('#tp-home-kick button.tp-home-cta').click();
-    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('');
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
   });
 
   // Result screen, See the places and Save (docs/drop-goal-brief.md, Result screen and Places)
@@ -243,12 +246,12 @@ test.describe('Version 2', () => {
     expect(new Set(seen).size).toBe(5);
   });
 
-  // Places by where the picked teams play (docs/drop-goal-brief.md, Places): the four cases, ten goals each
+  // Places by where the picked teams play (docs/drop-goal-brief.md, Places): the three cases, ten goals each (the fourth,
+  // no team, went with the January brief: every kicker has a team)
   for (const [who, team, cities, fitsLine, listHead] of [
     ['a Newcastle team (Japan)', 'Japan', ['newcastle'], /Japan v Samoa/, /Japan’s matches in Newcastle/],
     ['a Sydney team (Wales)', 'Wales', ['sydney'], /England v Wales/, /Wales’s matches in Sydney/],
     ['a team in both cities (Portugal)', 'Portugal', ['sydney', 'newcastle'], /Portugal/, /Portugal’s matches in Sydney and Newcastle/],
-    ['no team', '', ['sydney', 'newcastle'], /A free day around/, /Around Sydney and Newcastle/],
   ]) {
     test(`Drop goal places: ${who}`, async ({ page }) => {
       test.setTimeout(90_000);
@@ -322,7 +325,7 @@ test.describe('Version 2', () => {
     test(`Drop goal: a real click ${gap}ms after the first, reacting to the bounce, scores`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(`${V2}?theme=hifi&reset`);
-      await page.evaluate(() => localStorage.setItem('v2ob-seen', '1'));
+      await page.evaluate(() => { localStorage.setItem('v2ob-seen', '1'); localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })); });
       await page.goto(`${V2}?theme=hifi&view=kick`);   // the game, opened over the whole screen
       await expect(page.locator('#v2-play')).toBeVisible();
       const f = page.frame({ url: /drop-goal\/index\.html(?!\?demo)/ }) || (await (await page.waitForSelector('#v2-game')).contentFrame());
@@ -456,7 +459,8 @@ test.describe('Version 2', () => {
       await page.evaluate(() => Promise.all(document.getElementById('v2-play').getAnimations().map((x) => x.finished.catch(() => {}))));
       expect(await layer.boundingBox()).toEqual(await page.locator('#tp-phone').boundingBox());
       expect(await body.evaluate((e) => e.inert)).toBe(true);
-      await expect(page.frameLocator('#v2-game').locator('#dg-head')).toHaveText(/tap to drop/i);
+      // no team is picked, so it opens on the team screen, with Home's cards lent to it
+      await expect(page.locator('#v2-ob .tp-card2')).toHaveCount(24);
       await leave();
       await expect(layer).toBeHidden();
       await expect(play).toBeFocused();
@@ -545,9 +549,22 @@ test.describe('Version 2', () => {
     await expect(ob.locator('.v2-ob-h:visible')).toBeFocused();
     // the team cards are Home's own, lent here; the screen can be passed without a pick
     await expect(ob.locator('.tp-card2')).toHaveCount(24);
-    await expect(next).toHaveText('Continue without a team');
-    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    // a team is compulsory: the button is off and says why, and Skip is not offered here
     await expect(next).toHaveText('Continue');
+    await expect(next).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('#v2-ob-why')).toHaveText('Pick a team to continue.');
+    await expect(ob.locator('.v2-ob-p:visible')).toContainText('No team? Pick the one you\u2019d like to follow.');
+    await expect(page.locator('#v2-ob-skip')).toBeHidden();
+    await next.click({ force: true });
+    await expect(count).toHaveText('Step 1 of 2');
+    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    await expect(next).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('#v2-ob-why')).toBeHidden();
+    // Clear all takes the team away, and the button waits again
+    await page.locator('#tp-clear').click();
+    await expect(next).toHaveAttribute('aria-disabled', 'true');
+    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    await expect(next).not.toHaveAttribute('aria-disabled', 'true');
     // the team screen sits on the pitch, as the game does, and its small text is on dark chips so it can be read
     await expect(ob).toHaveClass(/is-pitch/);
     expect(await ob.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(85, 148, 74)');
@@ -558,6 +575,7 @@ test.describe('Version 2', () => {
     await expect(ob.locator('.v2-ob-h:visible')).toHaveText('Two clicks to kick');
     await expect(page.locator('#v2-ob-team')).toContainText('Kicking for Wales.');
     await expect(ob).not.toHaveClass(/is-pitch/);   // the rules are on the page's own background
+    await expect(page.locator('#v2-ob-skip')).toBeVisible();   // the rules can be skipped
     await expect(next).toHaveText('Let’s play');
     // three short tips: the two presses, then what a goal gets you
     await expect(ob.locator('.v2-ob-tips li')).toHaveText([/^Click anywhere, or press Space, to drop the ball\.$/, /^Click again as it bounces/, /^Score and the ball lands on somewhere to go/]);
@@ -634,20 +652,78 @@ test.describe('Version 2', () => {
     await ctx.close();
   });
 
-  test('Onboarding: closing with the cross leaves it unseen, and Reset shows it again', async ({ page }) => {
+  test('Onboarding: closing with the cross leaves the rules unseen, and Reset starts over', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
+    const ob = page.locator('#v2-ob'), h = ob.locator('.v2-ob-h:visible');
     await playNow(page).click();
-    await expect(page.locator('#v2-ob')).toBeVisible();
+    await expect(h).toHaveText('Who are you kicking for?');
     await page.locator('#v2-play-close').click();
     await playNow(page).click();
-    await expect(page.locator('#v2-ob')).toBeVisible();
+    await expect(h).toHaveText('Who are you kicking for?');
+    await ob.locator('.tp-card2[aria-label="Wales"]').click();
+    await page.locator('#v2-ob-next').click();
+    await expect(h).toHaveText('Two clicks to kick');
+    // the cross leaves the game: the team is kept, the rules are still to see
+    await page.locator('#v2-play-close').click();
+    await playNow(page).click();
+    await expect(h).toHaveText('Two clicks to kick');
     await page.locator('#v2-ob-skip').click();
+    await expect(ob).toBeHidden();
+    await page.locator('#v2-play-close').click();
+    await playNow(page).click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect(ob).toBeHidden();
     await page.locator('#v2-play-close').click();
     await page.locator('#tp-dev-set').click();
     await Promise.all([page.waitForEvent('load'), page.locator('#tp-reset').click()]);
     await playNow(page).click();
-    await expect(page.locator('#v2-ob')).toBeVisible();
+    await expect(h).toHaveText('Who are you kicking for?');
+  });
+
+  // A team is compulsory before playing (January brief, 24 Nov)
+  test('A team is compulsory: every way into the game leads to the team screen, even once the rules are seen', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    await page.evaluate(() => localStorage.setItem('v2ob-seen', '1'));
+    const ob = page.locator('#v2-ob'), next = page.locator('#v2-ob-next');
+    const routes = {
+      'Play now': () => playNow(page).click(),
+      'the menu': async () => { await page.locator('#v2-menu-btn').click(); await page.locator('[data-v2-go="play"]').click(); },
+      'the how-to-play picture': () => page.locator('#v2-demo-hit').click(),
+      '?view=kick': () => page.goto(v2url('hifi', 'view=kick')),
+    };
+    for (const [name, go] of Object.entries(routes)) {
+      await go();
+      await expect(ob.locator('.v2-ob-h:visible'), name).toHaveText('Who are you kicking for?');
+      // the rules are seen, so this is the only screen: no count, no Skip, and the button waits for a team
+      await expect(page.locator('#v2-ob-count')).toBeHidden();
+      await expect(page.locator('#v2-ob-skip')).toBeHidden();
+      await expect(next).toHaveText('Let\u2019s play');
+      await expect(next).toHaveAttribute('aria-disabled', 'true');
+      expect(await page.locator('#v2-game').getAttribute('src'), name).toBeNull();
+      if (name !== '?view=kick') await page.locator('#v2-play-close').click();
+    }
+    // with a team, straight into the game
+    await ob.locator('.tp-card2[aria-label="Scotland"]').click();
+    await next.click();
+    await expect(ob).toBeHidden();
+    await expect.poll(() => frameOf(page).evaluate(() => window.__dg2 && window.__dg2.team())).toBe('Scotland');
+  });
+
+  test('Every NSW match is not a choice: it is offered nowhere, and saved from before it counts as no team', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: SIZES[390] });
+    await page.goto(v2url('hifi'));
+    for (const old of ['Every NSW match', 'Here for the rugby', 'All matches']) {
+      await page.evaluate((n) => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: [n] })), old);
+      await page.reload();
+      expect(await page.evaluate(() => window.v2Picker.state.picked), old).toEqual([]);
+    }
+    await expect(page.locator('#tp-home [data-rugby]:visible, #tp-home .tp-rugby-line:visible')).toHaveCount(0);
+    await expect(page.locator('#tp-fan2 .tp-card2')).toHaveCount(24);
+    await playNow(page).click();
+    await expect(page.locator('#v2-ob .v2-ob-h:visible')).toHaveText('Who are you kicking for?');
+    await expect(page.locator('#v2-ob [data-rugby]:visible')).toHaveCount(0);
   });
 
   test('Onboarding: with reduced motion the picture stays still', async ({ page }) => {

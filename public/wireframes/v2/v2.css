@@ -11,6 +11,9 @@
    The planner is not in Version 2 yet: the plan bar, its scrim and skip link, and Home's button to the planner are out
    of reach until it is. The copied scripts still build them, so nothing they lean on is missing. */
 html[data-flow="v2"] #tp-tl, html[data-flow="v2"] #tp-tl-scrim, html[data-flow="v2"] #tp-skip, html[data-flow="v2"] #tp-home-go { display: none !important; }
+/* Every NSW match is not a choice in Version 2 (January brief: every kicker has a team). Its links are out of reach
+   wherever the copied scripts draw them: Home's I'm just here for the rugby, and its row in the team list */
+html[data-flow="v2"] .tp-rugby-line, html[data-flow="v2"] [data-rugby], html[data-flow="v2"] #tp-ts [data-team="Every NSW match"] { display: none !important; }
 /* A match opened from a host city sheet: Add to my plan and I have a ticket (and its line) wait for the planner too.
    Adding a team stays, as that is the same pick as its card */
 html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-pm .tp-pm-ticket, html[data-flow="v2"] #tp-pm .tp-ticket-why { display: none !important; }
@@ -85,9 +88,14 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 /* Pinned to the bottom, with the faint rule that says the screen scrolls under it (check 6) */
 .v2-ob-foot { flex: none; display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-5) var(--space-4); border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .12)); background: var(--c-surface); }
 .v2-ob-foot .tp-home-cta { margin: 0; white-space: nowrap; }
+/* Why the button is waiting, on its own line above it; the button looks and says it is off until a team is picked */
+.v2-ob-foot { flex-wrap: wrap; }
+.v2-ob-why { flex: 0 0 100%; margin: 0; font-size: .875rem; line-height: 1.4; text-align: center; }
+.v2-ob-why[hidden], .v2-ob-skip[hidden] { display: none; }
+.v2-ob-next[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
 .v2-ob-back { flex: none; width: auto; }
 .v2-ob-back[hidden] { display: none; }
-.v2-ob-next { flex: 1 1 auto; }
+.v2-ob-next { flex: 1 1 0; width: auto; min-width: 0; } /* beside Back on one row, now the footer can wrap for the reason line */
 
 /* The way back to Version 1 (Options A to C), above View on your phone: the same block they show for Version 2 */
 .v2-v1link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }

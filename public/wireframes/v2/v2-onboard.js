@@ -6,11 +6,13 @@
      screens; Score to find a place was folded in. With reduced motion the picture stays still.
    - Tap or click: on a touch screen the words say Tap; with a mouse (hover and a fine pointer) they say Click, and
      the first tip adds "or press Space". The picture's own marker does the same (game.js).
-   - Team: with a team picked on Home, the screen says who is kicking, with Change. With none, a first screen offers
-     the team cards (Home's own hand of cards, lent here by its id, so a pick is the same pick everywhere). It can be
-     passed without picking: the game works without a team (experience principle 2).
-   - Skip is on every screen. Finishing or skipping marks it seen (v2ob-seen, filed under v2:, so Reset shows it again);
-     closing the game with the cross does not.
+   - Team: a team is compulsory before playing (January brief, 24 Nov: what a goal lands on depends on the team, so this
+     flow is an agreed exception to experience principle 2). With a team picked on Home, the rules screen says who is
+     kicking, with Change. With none, the team screen comes first, every time the game is opened by any route, with
+     Home's own hand of cards (lent here by its id, so a pick is the same pick everywhere). Its button is off, and says
+     why, until a team is picked.
+   - Skip is on the rules screen only: it cannot pass the team screen. Finishing or skipping the rules marks them seen
+     (v2ob-seen, filed under v2:, so Reset shows them again); closing the game with the cross does not.
    - Team screen and rules are sideways between equals (check 10): each slides in from the side it comes from, and the
      step is read out. */
 (function () {
@@ -20,6 +22,7 @@
   var SEEN = 'v2ob-seen', GAME = 'v2/drop-goal/index.html';
   var tp = window.v2Picker;
   var countEl = document.getElementById('v2-ob-count'), nextBtn = document.getElementById('v2-ob-next'), backBtn = document.getElementById('v2-ob-back');
+  var whyEl = document.getElementById('v2-ob-why');
   var skipBtn = document.getElementById('v2-ob-skip'), teamsBox = document.getElementById('v2-ob-teams'), teamLine = document.getElementById('v2-ob-team');
   var picker = document.getElementById('tp-picker'), gameFrame = document.getElementById('v2-game'), howBtn = document.getElementById('v2-play-how');
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
@@ -105,7 +108,14 @@
     backBtn.hidden = at === 0;
     if (at > 0) backBtn.querySelector('span').textContent = 'Back';
     // Next says where it goes to screen readers; on screen it stays short, so it holds one line at 320 wide in both themes
-    nextBtn.querySelector('span').innerHTML = last ? 'Let’s play' : name === 'team' ? (picked().length ? 'Continue' : 'Continue without a team') : 'Next<span class="visually-hidden">: ' + NAMES[steps[at + 1]] + '</span>';
+    nextBtn.querySelector('span').innerHTML = last ? 'Let’s play' : name === 'team' ? 'Continue' : 'Next<span class="visually-hidden">: ' + NAMES[steps[at + 1]] + '</span>';
+    // The team screen cannot be passed without a team: its button is off and the line above it says why. It stays
+    // focusable (aria-disabled, not disabled), so the reason is read out with it
+    var wait = name === 'team' && !kickers().length;
+    if (wait) { nextBtn.setAttribute('aria-disabled', 'true'); nextBtn.setAttribute('aria-describedby', 'v2-ob-why'); }
+    else { nextBtn.removeAttribute('aria-disabled'); nextBtn.removeAttribute('aria-describedby'); }
+    whyEl.hidden = !wait;
+    skipBtn.hidden = name === 'team';   // Skip skips the rules, never the team
   }
 
   /* ---------- moving between screens ---------- */
@@ -130,8 +140,10 @@
   function start(o) {
     o = o || {};
     if (open) return true;
-    if (!o.force && seen()) return false;
-    steps = (!o.force && !picked().length ? ['team'] : []).concat(['taps']);
+    // No team: the team screen first, by every route, whether or not the rules have been seen. Then the rules, once
+    var need = !kickers().length;
+    if (!o.force && !need && seen()) return false;
+    steps = o.force && !need ? ['taps'] : (need ? ['team'] : []).concat(seen() && !o.force ? [] : ['taps']);
     open = true; at = -1;
     ob.hidden = false; gameFrame.inert = true; if (howBtn) howBtn.hidden = true;
     phone.classList.add('v2-onboarding');
@@ -149,9 +161,16 @@
     phone.classList.remove('v2-onboarding');
     if (play && window.v2Play) { window.v2Play.reload(); window.v2Play.focus(); }
   }
-  function finish() { mark(); close(true); if (tp && tp.say) tp.say('Drop goal. Tap to drop the ball.'); }
+  function finish() {
+    if (!kickers().length) { if (steps[0] !== 'team') steps.unshift('team'); show(0, -1); return; }   // never into the game without a team
+    if (steps.indexOf('taps') > -1) mark();
+    close(true); if (tp && tp.say) tp.say('Drop goal. Tap to drop the ball.');
+  }
 
-  nextBtn.addEventListener('click', function () { if (at === steps.length - 1) finish(); else show(at + 1, 1); });
+  nextBtn.addEventListener('click', function () {
+    if (nextBtn.getAttribute('aria-disabled') === 'true') { if (tp && tp.say) tp.say(whyEl.textContent); return; }
+    if (at === steps.length - 1) finish(); else show(at + 1, 1);
+  });
   backBtn.addEventListener('click', function () { if (at > 0) show(at - 1, -1); });
   skipBtn.addEventListener('click', finish);
   // Change, or Pick a team: the team screen, put first if it was not there

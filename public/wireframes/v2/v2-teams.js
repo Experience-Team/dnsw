@@ -101,7 +101,9 @@
     if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY);
     var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (rec && Array.isArray(rec.picked)) {
-      state.picked = rec.picked.map(function (n) { return n === 'Here for the rugby' || n === 'All matches' ? RUGBY.name : n; }).filter(function (n) { return n === RUGBY.name || TEAMS[n]; }); // saved under its old name before
+      // Version 2 (24 Nov, January brief): Every NSW match is no longer a choice. Saved from before, under any of its names,
+      // it is dropped, so that person has no team and is asked for one
+      state.picked = rec.picked.filter(function (n) { return TEAMS[n]; }); // saved under its old name before
       state.tickets = Array.isArray(rec.tickets) ? rec.tickets.filter(function (x) { return typeof x === 'string'; }) : [];
       if (rec.tab === 'all') state.tab = 'all';
     }
