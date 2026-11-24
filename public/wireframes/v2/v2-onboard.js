@@ -20,6 +20,9 @@
   var picker = document.getElementById('tp-picker'), gameFrame = document.getElementById('v2-game'), howBtn = document.getElementById('v2-play-how');
   var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var open = false, going = 0;
+  // With a mouse it is a click, as in the game
+  var tapWord = document.getElementById('v2-ob-tap');
+  if (tapWord && matchMedia('(hover: hover) and (pointer: fine)').matches) tapWord.textContent = 'Click';
 
   function picked() { return tp && tp.state && Array.isArray(tp.state.picked) ? tp.state.picked.slice() : []; }
   function kickers() { return picked().filter(function (n) { return n !== 'Every NSW match'; }); }
