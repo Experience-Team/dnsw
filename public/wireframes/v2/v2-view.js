@@ -156,24 +156,23 @@
   });
 
   /* ---------- How to play: the game playing itself on Home ----------
-     It runs only while it is on screen and the real game is closed; Pause is the person's own and is kept until they
-     press Play. With reduced motion the frame never starts (game.js), and the button is hidden. */
+     It plays once, when the Play section comes into view (24 Nov: on a loop it was repetitive), then rests. If it is
+     scrolled away or the game is opened before it finishes, it goes back to rest and plays when next in view. Once it
+     has played, Replay shows, for anyone who missed it. With reduced motion it never plays (game.js). */
   (function () {
-    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), pb = document.getElementById('v2-demo-pause');
-    if (!box || !fr || !pb) return;
-    var userPaused = false, seen = false;
+    var box = document.getElementById('v2-demo'), fr = document.getElementById('v2-demo-frame'), rb = document.getElementById('v2-demo-replay');
+    if (!box || !fr || !rb) return;
+    var seen = false, done = false;
     function api() { try { return fr.contentWindow && fr.contentWindow.__dgDemo; } catch (e) { return null; } }
-    function sync() { var a = api(); if (a) a.pause(userPaused || !seen || isOpen); }
-    pb.addEventListener('click', function () {
-      userPaused = !userPaused;
-      pb.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
-      pb.querySelector('span').textContent = userPaused ? 'Play' : 'Pause';
-      pb.setAttribute('aria-label', userPaused ? 'Play the how to play animation' : 'Pause the how to play animation');
-      sync();
-    });
-    pb.setAttribute('aria-label', 'Pause the how to play animation');
+    function sync() {
+      var a = api(); if (!a) return;
+      a.onDone = function () { done = true; rb.hidden = false; };
+      if (done) return;
+      if (seen && !isOpen) { if (!a.playing()) a.play(); } else if (a.playing()) a.stop();
+    }
+    rb.addEventListener('click', function () { done = false; rb.hidden = true; sync(); box.focus({ preventScroll: true }); });
     fr.addEventListener('load', sync);
-    if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.35 }).observe(box);
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; sync(); }, { root: body, threshold: 0.6 }).observe(box);
     else seen = true;
     window.v2DemoSync = sync;
   })();

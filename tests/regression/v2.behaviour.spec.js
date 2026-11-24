@@ -476,39 +476,47 @@ test.describe('Version 2', () => {
 
   // How to play: the game playing itself in Home's Play section (24 Nov)
   const demoOf = (page) => page.frame({ url: /drop-goal\/index\.html\?demo/ });
-  test('How to play: the snippet plays the two taps to a goal on a loop, Pause stops it, and it changes nothing', async ({ page }) => {
+  test('How to play: the snippet plays once when it comes into view, then rests with Replay, and it changes nothing', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await expect(page.locator('.v2-demo-how')).toHaveText('How to play: tap to drop the ball, then tap again as it bounces.');
+    const d = demoOf(page), replay = page.locator('#v2-demo-replay');
+    // out of view: nothing has played
+    await page.waitForTimeout(1500);
+    expect(await d.evaluate(() => [window.__dg2.phase(), window.__dgDemo.playing()])).toEqual(['hold', false]);
     await page.locator('#v2-demo').scrollIntoViewIfNeeded();
-    const d = demoOf(page);
     // nothing in it can be pressed or read out: the line under it says it in words
     await expect(page.locator('#v2-demo-frame')).toHaveAttribute('aria-hidden', 'true');
-    for (const ph of ['drop', 'goal', 'drop']) await d.waitForFunction((x) => window.__dg2.phase() === x, ph, { timeout: 8000 });
-    const pause = page.locator('#v2-demo-pause');
-    await pause.click();
-    await expect(pause).toHaveText('Play'); await expect(pause).toHaveAttribute('aria-pressed', 'true');
-    await page.waitForTimeout(2500);
-    expect(await d.evaluate(() => window.__dg2.phase())).toBe('hold');
-    await pause.click();
-    await d.waitForFunction(() => window.__dg2.phase() === 'drop', null, { timeout: 4000 });
-    // no save, no place used up, nothing said
-    expect(await d.evaluate(() => [window.__dg2.goals(), document.getElementById('dg-say').textContent, sessionStorage.getItem('v2:dg-rotation')])).toEqual([0, '', null]);
-    // a press on the picture opens the game, and the snippet waits while it is open
-    await page.locator('#v2-demo-hit').click();
-    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect(replay).toBeHidden();
+    for (const ph of ['drop', 'goal', 'hold']) await d.waitForFunction((x) => window.__dg2.phase() === x, ph, { timeout: 8000 });
+    // once: it rests on Tap to drop and does not start again
+    await expect(replay).toBeVisible();
+    await page.waitForTimeout(3000);
+    expect(await d.evaluate(() => [window.__dg2.phase(), document.getElementById('dg-head').textContent])).toEqual(['hold', 'Tap to drop']);
+    // scrolling away and back does not play it again
+    await page.locator('#tp-home-reads').scrollIntoViewIfNeeded(); await page.locator('#v2-demo').scrollIntoViewIfNeeded();
     await page.waitForTimeout(2000);
     expect(await d.evaluate(() => window.__dg2.phase())).toBe('hold');
+    // Replay plays it once more
+    await replay.click();
+    await expect(replay).toBeHidden();
+    await d.waitForFunction(() => window.__dg2.phase() === 'goal', null, { timeout: 8000 });
+    // no save, no place used up, nothing said
+    expect(await d.evaluate(() => [window.__dg2.goals(), document.getElementById('dg-say').textContent, sessionStorage.getItem('v2:dg-rotation')])).toEqual([0, '', null]);
+    // a press on the picture opens the game, and the snippet goes back to rest
+    await page.locator('#v2-demo-hit').click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect.poll(() => d.evaluate(() => window.__dg2.phase())).toBe('hold');
     await page.locator('#v2-play-close').click();
     await expect(page.locator('#tp-home-kick button.tp-home-cta')).toBeFocused();
   });
 
-  test('How to play: with reduced motion the snippet stays still and has no Pause', async ({ page }) => {
+  test('How to play: with reduced motion the snippet stays still', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 390, height: SIZES[390] });
     await page.goto(v2url('hifi'));
     await page.locator('#v2-demo').scrollIntoViewIfNeeded();
-    await expect(page.locator('#v2-demo-pause')).toBeHidden();
+    await expect(page.locator('#v2-demo-replay')).toBeHidden();
     await page.waitForTimeout(2500);
     expect(await demoOf(page).evaluate(() => window.__dg2.phase())).toBe('hold');
   });

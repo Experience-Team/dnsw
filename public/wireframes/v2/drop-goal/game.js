@@ -16,10 +16,11 @@
     p2: t => 1 - (1 - t) * (1 - t)
   };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  /* Demo (?demo): Home's how-to-play snippet. The game plays itself, a goal every time, in a loop: it takes no input,
-     says nothing to screen readers, saves nothing and never opens the result. The page pauses it (window.__dgDemo) */
+  /* Demo (?demo): Home's how-to-play snippet. The game plays itself through one goal when the page asks
+     (window.__dgDemo.play), then rests with the ball in the hands and tells the page (onDone). It takes no input, says
+     nothing to screen readers, saves nothing and never opens the result. */
   const DEMO = /[?&]demo\b/.test(location.search);
-  let demoPaused = false;
+  let demoGo = false, demoRan = false;
 
   /* ---------- timing (seconds, from the first tap) ----------
      Card 10's values, except the window (24 Nov, from play-testing): card 10 scored a kick 0.04s after the bounce,
@@ -235,7 +236,10 @@
     setHint(note || 'Then tap again as it bounces.');
     setHead('drop');
     start();
-    if (DEMO && !demoPaused && !reduce.matches) after(1.3, () => { if (phase === 'hold' && !demoPaused) { demoTap(); drop(); } });
+    if (DEMO && demoGo && !reduce.matches) {
+      if (demoRan) { demoGo = demoRan = false; if (window.__dgDemo.onDone) window.__dgDemo.onDone(); }   /* once through: rest here */
+      else after(0.9, () => { if (phase === 'hold' && demoGo) { demoRan = true; demoTap(); drop(); } });
+    }
   }
   /* Demo: a ring where a tap would be */
   function demoTap() {
@@ -404,12 +408,13 @@
   const stage = $('dg');
   if (DEMO) {
     stage.removeAttribute('tabindex'); stage.removeAttribute('role'); stage.setAttribute('aria-hidden', 'true');
+    const rest = () => { timers = []; D.passing = false; hideFrame(); setPose('ready'); };
     window.__dgDemo = {
-      /* Pause stops at once and puts the ball back in the hands; play starts a new round */
-      pause(on) {
-        if (on === demoPaused) return;
-        demoPaused = on; timers = []; D.passing = false; hideFrame(); setPose('ready'); hold();
-      }
+      onDone: null,
+      /* play: once through, from the ball in the hands. stop: back to rest at once, nothing played */
+      play() { if (reduce.matches) return; rest(); demoRan = false; demoGo = true; hold(); },
+      stop() { demoGo = demoRan = false; rest(); hold(); },
+      playing: () => demoGo
     };
   }
   /* The focus ring is for the keyboard: any key shows it, any press hides it (game.css, .is-keys) */

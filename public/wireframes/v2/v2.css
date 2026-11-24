@@ -47,11 +47,10 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 :root[data-theme="hifi"] .v2-demo { background: #55944a; }
 .v2-demo-frame { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
 .v2-demo-hit { position: absolute; inset: 0; cursor: pointer; }
-.v2-demo-pause { position: absolute; top: var(--space-3); right: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-2); min-height: 28px; padding: 0 var(--space-3) 0 10px; border: 0; border-radius: 999px; background: rgba(17, 17, 17, .78); color: #fff; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: transform .12s ease-out; }
-.v2-demo-pause:active { transform: scale(.96); }
-.v2-demo-pause:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #111; }
-.v2-demo-pause span { min-width: 3.1em; text-align: left; } /* Pause and Play are one width */
-.v2-demo-i-play, .v2-demo-pause[aria-pressed="true"] .v2-demo-i-pause { display: none; }
-.v2-demo-pause[aria-pressed="true"] .v2-demo-i-play { display: inline; }
+.v2-demo-replay { position: absolute; top: var(--space-3); right: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-2); min-height: 28px; padding: 0 var(--space-3) 0 10px; border: 0; border-radius: 999px; background: rgba(17, 17, 17, .78); color: #fff; font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: transform .12s ease-out; }
+.v2-demo-replay:active { transform: scale(.96); }
+.v2-demo-replay:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #111; }
+.v2-demo-replay[hidden] { display: none; }
+.v2-demo:focus { outline: none; }
 .v2-demo-how { margin: var(--space-3) 0 0; font-size: .9375rem; line-height: 1.45; }
-@media (prefers-reduced-motion: reduce) { .v2-demo-pause { display: none; } }
+@media (prefers-reduced-motion: reduce) { .v2-demo-replay { display: none; } }
