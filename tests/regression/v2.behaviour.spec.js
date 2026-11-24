@@ -171,6 +171,9 @@ test.describe('Version 2', () => {
 
   // Result screen, See the places and Save (docs/drop-goal-brief.md, Result screen and Places)
   const inGame = (page) => page.frameLocator('#v2-game');
+  // In the page the game no longer shows See the places (Home has Or see all the places); the list itself is still
+  // the game's, so these checks open it the way the button did
+  const seePlaces = (page, id) => frameOf(page).evaluate((i) => document.getElementById(i).click(), id || 'dg-see');
   async function score(page, f) {
     await kickAt(f, 0.76);
     await f.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
@@ -222,7 +225,7 @@ test.describe('Version 2', () => {
   test('Drop goal: See the places opens without playing, the person\'s places first, then all', async ({ page }) => {
     await openGame(page, 'Japan');                         // Japan play in Newcastle only
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(g.locator('#dg-places')).toBeVisible();
     await expect(g.locator('#dg-pl-mine')).toContainText('Newcastle');
     await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(5);
@@ -230,7 +233,6 @@ test.describe('Version 2', () => {
     await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(10);
     await page.keyboard.press('Escape');
     await expect(g.locator('#dg-places')).toBeHidden();
-    await expect(g.locator('#dg-see')).toBeFocused();
   });
 
   test('Drop goal: no place repeats until every place in the set has been shown', async ({ page }) => {
@@ -276,7 +278,7 @@ test.describe('Version 2', () => {
         // the next match's city (Sydney, Mon 4 Oct) comes two for every one at the start of a round
         expect(got.slice(0, 3).map((g) => g.city)).toEqual(['sydney', 'sydney', 'newcastle']);
       }
-      await inGame(page).locator('#dg-see').click();
+      await seePlaces(page);
       await expect(inGame(page).locator('#dg-pl-mine')).toHaveText(listHead);
       await expect(inGame(page).locator('#dg-pl-body .dg-pl-row')).toHaveCount(inSet);
       await expect(inGame(page).locator('#dg-pl-all')).toHaveCount(inSet < 10 ? 1 : 0);
@@ -291,7 +293,6 @@ test.describe('Version 2', () => {
     await g.locator('#dg').focus();
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-change')).toBeFocused();   // Kicking for Wales · Change comes first
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-share')).toBeFocused();
-    await page.keyboard.press('Tab'); await expect(g.locator('#dg-see')).toBeFocused();
     const mine = await f.evaluate(() => document.querySelector('#dg-rows .is-mine').textContent);
     expect(mine).toMatch(/Portugal \(your team\),41 points/);
     await kickAt(f, 0.76);
@@ -373,7 +374,7 @@ test.describe('Version 2', () => {
   test('Drop goal: Save and Saved are one width, and the first save moves nothing in See the places', async ({ page }) => {
     const f = await openGame(page, 'Wales');
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(g.locator('#dg-pl-count')).toHaveText('Nothing added yet');
     // the layer has finished sliding up, so what is measured is at rest
     await f.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
@@ -388,11 +389,11 @@ test.describe('Version 2', () => {
   test('Drop goal: while See the places slides away, a press reaches what is under it', async ({ page }) => {
     await openGame(page, 'Wales');
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(g.locator('#dg-places')).toBeVisible();
     await g.locator('#dg-pl-close').click();
     // a person's quick second press, on the button the layer was covering: it opens again, whole
-    await g.locator('#dg-see').click({ timeout: 2000 });
+    await seePlaces(page);
     await expect(g.locator('#dg-places')).toBeVisible();
     await expect(g.locator('#dg-places')).toHaveCSS('opacity', '1');
     await expect(g.locator('#dg-pl-title')).toBeFocused();
@@ -477,7 +478,7 @@ test.describe('Version 2', () => {
   test('In the game, See the places takes the cross\'s corner, and a save survives a pick made afterwards', async ({ page }) => {
     const f = await openGame(page, 'Japan');
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(page.locator('#v2-play-close')).toBeHidden();
     await g.locator('.dg-pl-row .dg-save').first().click();
     await g.locator('#dg-pl-close').click();
@@ -585,7 +586,7 @@ test.describe('Version 2', () => {
     expect(await state(f)).toMatchObject({ practice: null, goals: 0, place: null, rot: null, head: 'Click to drop' });
     await expect(g.locator('#dg-result')).toBeHidden();
     await expect(g.locator('#dg-skip')).toBeHidden();
-    await expect(g.locator('#dg-see')).toBeVisible();
+    await expect(g.locator('#dg-see')).toBeHidden();   // not offered inside the page's game
     // the game carries on as normal: a real kick that misses gets the game's own line
     await pitchClick(page);
     await expect(g.locator('#dg-say')).toHaveText('No kick. Click once to drop, then again as it bounces.', { timeout: 5000 });
@@ -788,7 +789,7 @@ test.describe('Version 2', () => {
     await g.locator('#dg-r-save').click();
     await expect(g.locator('#dg-r-save')).toHaveText('Added');
     // See the places lists that team's watch parties, and nothing else
-    await g.locator('#dg-r-see').click();
+    await seePlaces(page, 'dg-r-see');
     await expect(g.locator('#dg-pl-mine')).toHaveText('Where to watch Scotland in NSW');
     await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(2);
     await expect(g.locator('#dg-pl-all')).toHaveCount(0);

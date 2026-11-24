@@ -276,3 +276,7 @@ html.is-result .dg-who { visibility: hidden; }
 .dg-table, .dg-who { transition: opacity .32s ease-out; }
 .is-practice .dg-table, .is-practice .dg-who { opacity: 0; visibility: hidden; transition: none; }
 @media (prefers-reduced-motion: reduce) { .dg-table, .dg-who { transition: none; } }
+
+/* In the Version 2 page the places have their own way in on Home (Or see all the places), so the game itself does not
+   offer See the places, on the pitch or on a result card (24 Nov) */
+.in-page #dg-see, .in-page #dg-r-see { display: none; }
