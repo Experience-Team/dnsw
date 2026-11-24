@@ -14,12 +14,21 @@ async function game(page) {
 // The game opens over the whole screen from Home (?view=kick opens it straight away); the picked team is Home's pick
 const play = async (page, team) => {
   if (team) await page.evaluate((t) => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: [t] })), team);
+  await page.evaluate(() => localStorage.setItem('v2ob-seen', '1'));   // past the first-time onboarding
   await page.goto(page.url() + '&view=kick'); await game(page); await settle(page);
 };
 const STATES = {
   home: async () => {},
   menu: async (page) => { await page.locator('#v2-menu-btn').click(); await settle(page); },
   'home-play': async (page) => { await page.locator('#tp-home-kick').scrollIntoViewIfNeeded(); await settle(page); },
+  // Onboarding (reduced motion, so its pictures are still): the team cards, then the first rule screen
+  'onboard-team': async (page) => { await page.emulateMedia({ reducedMotion: 'reduce' }); await page.locator('#tp-home-kick button.tp-home-cta').click(); await settle(page); },
+  'onboard-taps': async (page) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.locator('#tp-home-kick button.tp-home-cta').click(); await page.locator('#v2-ob-next').click();
+    await page.frame({ url: /demo=taps/ }).evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
+    await settle(page);
+  },
   kick: async (page) => { await play(page); },
   // A picked team: its kit and ball, and its row on the nation table
   'kick-team': async (page) => { await play(page, 'Wales'); },

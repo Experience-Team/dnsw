@@ -78,8 +78,8 @@
   }
 
   const BOOKMARK = on => `<svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M1.5 1.5h9v11L6 9.6 1.5 12.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
-  function saveBtn(b, p) {
-    const on = isSaved(p);
+  function saveBtn(b, p, as) {
+    const on = as === undefined ? isSaved(p) : as;   /* as: the look only, for the onboarding's picture (nothing is saved) */
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.setAttribute('aria-label', on ? `Saved ${p.name} to your plan. Press to remove it` : `Save ${p.name} to your plan`);
     b.innerHTML = `<span class="dg-save-in">${BOOKMARK(on)}<span>${on ? 'Saved' : 'Save'}</span></span>`;
@@ -126,7 +126,7 @@
       res.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' });
       $('dg-r-card').animate([{ transform: 'translateY(48px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, delay: 80, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
     }
-    $('dg-r-name').focus({ preventScroll: true });
+    if (!api.quiet) $('dg-r-name').focus({ preventScroll: true });
   }
   function close() {
     if (res.hidden) return;
@@ -203,7 +203,12 @@
 
   const api = {
     next, open, close, openPlaces, fits, isOpen: () => !res.hidden || (!placesEl.hidden && !closingP),
-    frameSVG: () => '', say: () => {}, saved, setFor
+    frameSVG: () => '', say: () => {}, saved, setFor,
+    /* For the game playing itself (game.js, ?demo): quiet takes no focus; demoSave shows Save pressed without saving;
+       reset puts the result away at once */
+    quiet: false,
+    demoSave(on) { if (!shown) return; const b = $('dg-r-save'); saveBtn(b, shown, on); if (on) pop(b); },
+    reset() { res.getAnimations().forEach(a => a.cancel()); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
   };
   window.DG2Result = api;
 })();

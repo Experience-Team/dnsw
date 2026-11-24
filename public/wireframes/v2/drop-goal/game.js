@@ -19,7 +19,9 @@
   /* Demo (?demo): Home's how-to-play snippet. The game plays itself through one goal when the page asks
      (window.__dgDemo.play), then rests with the ball in the hands and tells the page (onDone). It takes no input, says
      nothing to screen readers, saves nothing and never opens the result. */
-  const DEMO = /[?&]demo\b/.test(location.search);
+  const DEMO_M = /[?&]demo(?:=(taps|place))?(?:&|$)/.exec(location.search), DEMO = !!DEMO_M, DEMO_PLACE = DEMO && DEMO_M[1] === 'place';
+  /* ?demo=taps and ?demo=place are the onboarding's two pictures: the whole screen as it is, playing once. place goes
+     on to the result card and shows Save being pressed (the look only) */
   let demoGo = false, demoRan = false;
 
   /* ---------- timing (seconds, from the first tap) ----------
@@ -90,6 +92,7 @@
 
   /* ---------- the place framed between the posts, above the bar ---------- */
   const R = window.DG2Result;
+  R.quiet = DEMO;
   function frameMarkup(p, id) {
     const pts = [[NEAR.x, NEAR.top], [FAR.x, FAR.top], [FAR.x, barY(FAR)], [NEAR.x, barY(NEAR)]].map(q => q.join(',')).join(' ');
     const x = NEAR.x, y = NEAR.top, w = FAR.x - NEAR.x, h = barY(FAR) - NEAR.top;
@@ -351,7 +354,16 @@
   function goal() {
     setPhase('goal');
     if (DEMO) {   /* the win, shown and no more: a place between the posts, then the next ball */
-      setHead(true); showFrame((window.DG2Places || []).find(p => p.image && !p.stand_in) || window.DG2Places[0]);
+      const dp = (window.DG2Places || []).find(p => p.image && !p.stand_in) || window.DG2Places[0];
+      setHead(true); showFrame(dp);
+      if (DEMO_PLACE) {   /* on to the result card, Save pressed, and it rests there */
+        after(1.1, () => { if (phase !== 'goal' || !demoGo) return; setPhase('result'); R.open(dp, teams, () => {}); R.demoSave(false);
+          /* the card comes up the screen, so the name and Save are in the picture */
+          after(0.7, () => { const rs = $('dg-result'), b = $('dg-r-name'); if (phase === 'result' && demoGo) rs.scrollTo({ top: Math.max(0, b.getBoundingClientRect().top + rs.scrollTop - 150), behavior: 'smooth' }); });
+          after(1.9, () => { if (phase === 'result' && demoGo) R.demoSave(true); });
+          after(2.7, () => { if (phase === 'result' && demoGo) { demoGo = demoRan = false; if (window.__dgDemo.onDone) window.__dgDemo.onDone(); } }); });
+        return;
+      }
       after(1.7, () => { if (phase === 'goal') { hideFrame(); D.note = null; pass(); } });
       return;
     }
@@ -408,7 +420,7 @@
   const stage = $('dg');
   if (DEMO) {
     stage.removeAttribute('tabindex'); stage.removeAttribute('role'); stage.setAttribute('aria-hidden', 'true');
-    const rest = () => { timers = []; D.passing = false; hideFrame(); setPose('ready'); markAt(T.release); };
+    const rest = () => { timers = []; D.passing = false; R.reset(); hideFrame(); setPose('ready'); markAt(T.release); };
     window.__dgDemo = {
       onDone: null,
       /* play: once through, from the ball in the hands. stop: back to rest at once, nothing played */
