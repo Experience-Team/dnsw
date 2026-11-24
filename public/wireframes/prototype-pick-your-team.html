@@ -43,6 +43,17 @@
 <title>Pick your team · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
 <link rel="stylesheet" href="themes/hifi.css" />
+<style>
+  /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
+  .pv-v2link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }
+  .pv-v2link-title { margin: 0; font-size: 1rem; font-weight: 600; line-height: 1.4; }
+  .pv-v2link-p { margin: 2px 0 0; font-size: .875rem; line-height: 1.45; color: #333; }
+  .pv-v2link-go { flex: none; text-decoration: none; }
+  @media (hover: hover) { .pv-v2link-go:hover { background: #f2f6fd; } }
+  @media (max-width: 960px) { .pv-v2link { padding-inline: var(--space-4); } }
+  /* Short windows: one row, as View on your phone becomes, so the annotations keep their room */
+  @media (max-height: 860px) and (min-width: 801px) { .pv-v2link { padding-block: var(--space-3); } .pv-v2link-p { display: none; } }
+</style>
 </head>
 <body class="pv-page">
 <!-- Prototype viewer (Figma: Rugby World Cup, node 204:12914). One prototype per page, each with its own address. It
@@ -88,6 +99,16 @@
       <p class="cn-notes-todo" id="cn-notes-todo"></p>
     </section>
   </div>
+  <!-- For reviewers (24 Nov): the way to Version 2 (prototype-pick-your-team-v2.html), a separate prototype. One way
+       only: Version 2 does not link back, as it is a fresh start. Pinned above View on your phone, in the same style.
+       Its styles are in this page's <head>, so shared.css (used by Version 2 too) is unchanged. -->
+  <section class="pv-v2link" aria-labelledby="pv-v2link-title">
+    <div>
+      <h3 class="pv-v2link-title" id="pv-v2link-title">Version 2</h3>
+      <p class="pv-v2link-p">A fresh Pick your team prototype, with the new Drop goal.</p>
+    </div>
+    <a class="pv-qr-btn pv-v2link-go" href="prototype-pick-your-team-v2.html">Open Version 2</a>
+  </section>
   <!-- For whoever is reviewing the prototype, not part of the design: a QR code that opens this page in phone view
        (?phone), drawn by pv-device.js. Pinned at the foot of the panel, under the annotations. -->
   <section class="pv-qr" id="pv-qr" aria-labelledby="pv-qr-title">

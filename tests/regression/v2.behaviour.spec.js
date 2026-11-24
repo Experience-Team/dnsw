@@ -80,11 +80,18 @@ test.describe('Version 2', () => {
     expect(new URL(page.url()).search).toBe('?theme=hifi');
   });
 
-  test('Options A to C do not link to Version 2', async ({ page }) => {
+  // Options A to C link to Version 2 once, from the left panel above View on your phone, and not from their tabs
+  test('Options A to C link to Version 2 only from the panel, one way', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
     for (const q of ['', '?flow=a', '?flow=c']) {
       await page.goto(`${PAGE}${q}`);
-      expect(await page.locator('a[href*="prototype-pick-your-team-v2"]').count()).toBe(0);
+      const links = page.locator('a[href*="prototype-pick-your-team-v2"]');
+      await expect(links).toHaveCount(1);
+      await expect(links.first()).toHaveText('Open Version 2');
+      expect(await page.locator('.pv-tabs a[href*="prototype-pick-your-team-v2"]').count()).toBe(0);
     }
+    await page.locator('.pv-v2link-go').click();
+    await expect(page).toHaveURL(/prototype-pick-your-team-v2\.html$/);
   });
 
   // Drop goal's kick screen (v2/drop-goal/), in the phone's frame
