@@ -148,7 +148,8 @@
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   function renderTable() {
-    $('dg-rows').innerHTML = rows().map((r, i) => `<li class="${r.me ? 'is-mine' : ''}"><span>${i + 1}</span><span>${esc(r.n)}</span><span>${r.p}</span></li>`).join('');
+    /* Screen readers hear "1, Ireland, 63 points" and which row is the kicker's team */
+    $('dg-rows').innerHTML = rows().map((r, i) => `<li class="${r.me ? 'is-mine' : ''}"><span>${i + 1}<span class="dg-vh">,</span></span><span>${esc(r.n)}${r.me ? '<span class="dg-vh"> (your team)</span>' : ''}<span class="dg-vh">,</span></span><span>${r.p}<span class="dg-vh"> points</span></span></li>`).join('');
     const mine = $('dg-rows').querySelector('.is-mine'); if (mine) mine.appendChild(plus);
   }
   const ord = n => n + (n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th');
@@ -161,13 +162,23 @@
   const shareBtn = $('dg-share');
   let shareT = 0;
   shareBtn.addEventListener('click', () => {
+    const line = shareLine();
     const done = ok => {
       clearTimeout(shareT);
-      shareBtn.textContent = ok ? 'Line copied' : 'Couldn’t copy';
-      say(ok ? 'The table’s line is copied: ' + shareLine() : 'Copying was blocked.');
-      shareT = setTimeout(() => { shareBtn.textContent = 'Share the table'; }, 2000);
+      let shown = $('dg-share-line');
+      if (ok) { if (shown) shown.remove(); }
+      else {
+        /* copying was blocked: show the line, selected, to copy by hand */
+        if (!shown) { shown = document.createElement('p'); shown.className = 'dg-share-line'; shown.id = 'dg-share-line'; shareBtn.after(shown); }
+        shown.textContent = line;
+        const range = document.createRange(); range.selectNodeContents(shown);
+        const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      }
+      shareBtn.textContent = ok ? 'Line copied' : 'Copy the line below';
+      say(ok ? 'The table’s line is copied: ' + line : 'Copying was blocked. The line is shown under the button, selected.');
+      shareT = setTimeout(() => { shareBtn.textContent = 'Share the table'; }, ok ? 2000 : 6000);
     };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(shareLine()).then(() => done(true), () => done(false));
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(line).then(() => done(true), () => done(false));
     else done(false);
   });
   /* The table is not the pitch: a press on it never kicks */
@@ -312,7 +323,8 @@
     setHint(team ? `Through the posts. +3 for ${team}.` : 'Through the posts.');
     if (team) { plus.classList.remove('is-on'); void plus.offsetWidth; plus.classList.add('is-on'); }
     showFrame(p);
-    say(`Goal. The ball landed in ${p.name}.` + (team ? ` 3 points for ${team}.` : ''));
+    const rank = team ? rows().findIndex(x => x.me) + 1 : 0;
+    say(`Goal. The ball landed in ${p.name}.` + (team ? ` 3 points for ${team}, ${ord(rank)} on the table.` : ''));
     after(reduce.matches ? 0 : 1.2, result);
   }
   function result() { if (phase !== 'goal') return; setPhase('result'); R.open(D.place, teams, kickAgain); }

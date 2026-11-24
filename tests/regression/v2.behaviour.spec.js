@@ -147,6 +147,8 @@ test.describe('Version 2', () => {
   async function score(page, f) {
     await kickAt(f, 0.76);
     await f.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
+    // the card has arrived: it waits invisible for a moment before it rises, and a click then could land as it moves
+    await f.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
   }
 
   test('Drop goal: a goal opens the result card with a place where the team plays', async ({ page }) => {
@@ -253,4 +255,41 @@ test.describe('Version 2', () => {
       await expect(inGame(page).locator('#dg-pl-all')).toHaveCount(inSet < 10 ? 1 : 0);
     });
   }
+
+  // Accessibility (docs/drop-goal-brief.md): keys, what screen readers hear, the table and Share the table
+  test('Drop goal accessibility: keyboard order, the label, and the table read as words', async ({ page }) => {
+    const f = await openGame(page, 'Portugal');
+    const g = inGame(page);
+    await expect(g.locator('#dg')).toHaveAttribute('aria-label', /Space or Enter.*then again to kick/);
+    await g.locator('#dg').focus();
+    await page.keyboard.press('Tab'); await expect(g.locator('#dg-share')).toBeFocused();
+    await page.keyboard.press('Tab'); await expect(g.locator('#dg-see')).toBeFocused();
+    const mine = await f.evaluate(() => document.querySelector('#dg-rows .is-mine').textContent);
+    expect(mine).toMatch(/Portugal \(your team\),41 points/);
+    await kickAt(f, 0.76);
+    await expect(g.locator('#dg-say')).toHaveText(/3 points for Portugal, 5th on the table/, { timeout: 4000 });
+    await expect(g.locator('#dg-rows .is-mine')).toContainText('44');
+  });
+
+  test('Drop goal accessibility: Enter plays too', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await f.evaluate(() => {
+      const k = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true }));
+      k(); setTimeout(k, 760);
+    });
+    await expect(inGame(page).locator('#dg-say')).toHaveText(/Goal/, { timeout: 4000 });
+  });
+
+  test('Drop goal: Share the table copies its line, or shows it selected when copying is blocked', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await f.evaluate(() => { window.__clip = false; Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => (window.__clip ? Promise.resolve() : Promise.reject(new Error('blocked'))) } }); });
+    await inGame(page).locator('#dg-share').click();
+    await expect(inGame(page).locator('#dg-share')).toHaveText('Copy the line below');
+    await expect(inGame(page).locator('#dg-share-line')).toHaveText(/Wales 5th of 5 on the Third Half drop goal table/);
+    await expect(inGame(page).locator('#dg-say')).toHaveText(/Copying was blocked/);
+    await f.evaluate(() => { window.__clip = true; });
+    await inGame(page).locator('#dg-share').click();
+    await expect(inGame(page).locator('#dg-share')).toHaveText('Line copied');
+    await expect(inGame(page).locator('#dg-share-line')).toHaveCount(0);
+  });
 });
