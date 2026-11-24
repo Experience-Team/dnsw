@@ -26,8 +26,11 @@ This covers Version 2 only. Options A to C have their own handover, `docs/sessio
 `public/wireframes/prototype-pick-your-team-v2.html`: a fresh prototype, separate from Options A to C
 (`prototype-pick-your-team.html`). It uses the same styles, components and data, and none of their behaviour.
 
-- **Tabs:** Version 2, and a dashed Iterations placeholder that isn't a link. Options A to C don't link to it, and it
-  doesn't link to them. The phone-view Settings menu lists links only.
+- **Tabs:** Version 2, and a dashed Iterations placeholder that isn't a link. Version 2 doesn't link to Options A to C.
+  The phone-view Settings menu lists links only.
+- **The way in:** Options A to C link to Version 2 once, from their left panel above View on your phone ("Open
+  Version 2", added on 24 Nov at the user's ask). Not in their tabs or their phone Settings menu. Its styles sit in
+  that page's `<head>`, so `shared.css` is unchanged.
 - **Rules:** `public/wireframes/v2/README.md`, and since #624 a standing rule in CLAUDE.md. Work on one version never
   edits another's files or a shared one (`shared.css`, `themes/hifi.css`, `pv-device.js`, `concepts-*.js`). Copy into
   `v2/` and change the copy. Classes and globals start `v2`. Shared data files are read only.
