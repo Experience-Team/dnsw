@@ -5,6 +5,9 @@
 - Fields marked `unverified` must not be built against until confirmed.
 - `public/wireframes/` and `src/` are separate deliverables. `src/` is the CJM and research tool. Do not add product page code to `src/`.
 - When a brief ends with stop-and-show, do not commit, open a PR, or merge until the person has answered any questions raised. A stop means stop.
+- Each prototype version keeps to its own files. Work on one version never edits another's files or a file they share
+  (styles, scripts, data); it copies what it needs into its own folder and changes the copy (see
+  `public/wireframes/v2/README.md`).
 
 # Previews
 
@@ -51,6 +54,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    tab bar, then scroll; it must still shrink). Make several changes in a row and check that every status or summary
    line describes the latest one, not the one before. Fix the gaps you find rather than leaving them for the user to
    spot.
+   Use it at a person's pace, not a script's. Drive it with real taps and clicks, with the delays a person has (reacting
+   takes about 0.2 seconds), not with events fired at the ideal moment. Anything that asks for timing or skill must be
+   winnable by someone reacting to what is on screen. For example, Drop goal's kick window closed before most people
+   could see the ball bounce, so nobody could score, while tests that pressed at the perfect moment passed.
 5. **The movement that matters is obvious, not just present.** A change the user should notice must be clear at real
    size and speed. When a whole group moves together (a fan turning, a list shifting), the item the user acted on
    gets lost, so single it out: lift it, scale it, bring it above its neighbours, then settle it. Judge it from a
