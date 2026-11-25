@@ -283,3 +283,7 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
 /* Inside the prototype viewer (25 Nov 2026) its tabs replace this page's own tabs and the way back to Version 1 */
 .pv-framed .pv-header, .pv-framed .pv-tabs, .pv-framed .v2-v1link { display: none; }
 .pv-framed:not(.pv-device) .pv-side { padding-top: var(--pv-shell-room, 0px); } /* the viewer's tabs sit over the top of this panel */
+/* Stacking (25 Nov 2026): the team cards each carry a z-index of up to 43 (the fan stacks bottom row on top), and were compared with
+   the page itself, so scrolling the hand under the sticky nav (z-index 40: the capsule in Version 1, the menu in Version 2) painted
+   the bottom row over it. The hand now keeps its cards' z-indexes to itself: they are only compared with each other. */
+.tp-fan2-wrap { isolation: isolate; }
