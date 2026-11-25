@@ -3,7 +3,7 @@
 import { test as base, expect } from '@playwright/test';
 
 export const PAGE = '/wireframes/prototype-pick-your-team.html';
-// Version 1 (was Option C) is ?flow=c. Options A and B were archived on 25 Nov (git tag archive/options-a-b)
+// Version 1 (was Option C) is ?flow=c. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md)
 export const OPTIONS = { C: 'flow=c' };
 export const THEMES = ['hifi', 'wireframe'];
 // Phone widths, each with a real phone's height (iPhone 12 to 15, and a first iPhone SE)

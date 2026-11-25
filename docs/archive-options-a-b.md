@@ -4,9 +4,11 @@ Option C is now **Version 1**. Options A and B are out of the live prototype but
 
 ## Where they are
 
-- Git tag `archive/options-a-b`: the last commit with A, B and C working side by side, tests included.
+- Commit `c7f5ce3` on `main` ("Merge pull request #647"): the last commit with A, B and C working side by side, tests
+  included. A tag could not be pushed from the cloud session, so to make it permanent run
+  `git tag archive/options-a-b c7f5ce3 && git push origin archive/options-a-b` on a machine that can.
 - A and B were never separate files. A was `prototype-pick-your-team.html` with no flag, and B was `?flow=a`.
-  Their code is shared with Version 1 (`concepts-*.js`, `shared.css`, the page), so the tag, not a folder, is the archive.
+  Their code is shared with Version 1 (`concepts-*.js`, `shared.css`, the page), so the commit, not a folder, is the archive.
 
 ## What changed
 
@@ -23,8 +25,8 @@ Option C is now **Version 1**. Options A and B are out of the live prototype but
 Do this on a branch, with nothing else in it:
 
 ```bash
-git checkout archive/options-a-b -- public/wireframes/prototype-pick-your-team.html public/wireframes/flow-chart.html public/wireframes/index.html tests/regression
+git checkout c7f5ce3 -- public/wireframes/prototype-pick-your-team.html public/wireframes/flow-chart.html public/wireframes/index.html tests/regression
 ```
 
 That puts back the page, tabs, address handling and tests as they were. Then rename Version 1 where the tab and heading
-say it, if wanted. To look without changing anything: `git worktree add ../dnsw-ab archive/options-a-b`.
+say it, if wanted. To look without changing anything: `git worktree add ../dnsw-ab c7f5ce3`.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-<!-- Version 1 (25 Nov 2026) is what was Option C. Options A and B were archived on 25 Nov (git tag archive/options-a-b):
+<!-- Version 1 (25 Nov 2026) is what was Option C. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md):
      every address of this page, with or without ?flow=a or ?flow=c, opens Version 1 at ?flow=c (the address is rewritten
      in place, before anything else runs, keeping ?phone, ?theme, ?reset and any #hash). Every key it reads or writes in
      this browser's storage is filed under flow-c:, as Option C's always were, so its saved picks carry over. Viewer
@@ -940,7 +940,7 @@
 
     // Once teams are picked: Your matches
     { sel: "#tp-fc", title: "Version 1: the questions up front", points: [
-      "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (git tag archive/options-a-b); their addresses open this page.",
+      "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md); their addresses open this page.",
       "The Plan tab asks three things in turn: your teams, the tickets you have and your days in NSW. Where you’re staying is not asked up front (24 Nov): it is an optional extra in the Your answers card. Who’s coming is left out until it changes anything.",
       "Each step borrows the planner’s own control (the hand of cards, the days slider), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
       "Step 1 is the one required answer: until a team or Every NSW match is picked, Next is unavailable (aria-disabled, with a line saying why) and the left button reads Show every NSW match, which picks it and goes straight to step 2. Once anything is picked the left button is Skip again. A team picked on Home counts; unpicking the last one makes Next unavailable again. A place saved before this rule that got past step 1 with nothing picked starts again at step 1.",
