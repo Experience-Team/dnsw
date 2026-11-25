@@ -50,10 +50,10 @@ const STATES = {
   settings: { full: false, run: async (page) => { await openSettings(page); } },
 };
 
-for (const option of ['A', 'B', 'C']) {
+for (const option of ['C']) {
   for (const theme of ['hifi', 'wireframe']) {
     for (const width of [390, 320]) {
-      test.describe(`Option ${option} · ${theme} · ${width}`, () => {
+      test.describe(`Version 1 · ${theme} · ${width}`, () => {
         for (const [state, def] of Object.entries(STATES)) {
           if (def.only && def.only !== option) continue;
           test(state, async ({ page }) => {

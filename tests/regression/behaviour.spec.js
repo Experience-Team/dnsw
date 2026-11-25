@@ -1,4 +1,4 @@
-// Behaviour smoke tests: picking, clearing, saving and every address flag still doing its job, in each option.
+// Behaviour smoke tests: picking, clearing, saving and every address flag still doing its job, in Version 1.
 // Every test also fails on a console error (helpers.js).
 import {
   test, expect, open, goPlan, goTab, pick, picked, card, settle, fcStep, openSettings, url, phone, TEAMS,
@@ -9,8 +9,8 @@ const bar = (page) => page.locator('#tp-tl-toggle');
 const clearAll = (page) => page.locator('#tp-clear');
 const state = (page) => page.evaluate(() => window.tpPicker.state.picked.slice());
 
-for (const option of ['A', 'B', 'C']) {
-  test.describe(`Option ${option}`, () => {
+for (const option of ['C']) {
+  test.describe(`Version 1`, () => {
     test.beforeEach(async ({ page }) => {
       await open(page, { option, theme: 'hifi', width: 390 });
       await goPlan(page);
@@ -38,11 +38,8 @@ for (const option of ['A', 'B', 'C']) {
       await expect(clearAll(page)).toBeHidden();
     });
 
-    // Every NSW match sits in a different place in each option: the Plan tab's All matches in A, Home's All matches in
-    // B; Home's I'm just here for the rugby does the same in all three. Option C's teams step has its own button (below)
-    const EVERY = { A: ['Plan your 3rd half', '#tp-all .tp-rugby-link'], B: ['Home', '#tp-all .tp-rugby-link'] };
+    // Home's I'm just here for the rugby picks every NSW match; the teams step has its own button (below)
     const places = [['Home', 'Home', '#tp-home-rugby .tp-rugby-link']];
-    if (EVERY[option]) places.unshift(['its own place', ...EVERY[option]]);
     for (const [where, tab, sel] of places) {
       test(`Every NSW match (${where}) and a team replace each other`, async ({ page }) => {
         await goTab(page, tab);
@@ -91,58 +88,39 @@ for (const option of ['A', 'B', 'C']) {
 }
 
 test.describe('Address flags', () => {
-  const tabs = { A: 'Option A', B: 'Option B', C: 'Option C' };
-  for (const option of ['A', 'B', 'C']) {
-    test(`${option === 'A' ? 'no flow' : `?${option === 'B' ? 'flow=a' : 'flow=c'}`} opens Option ${option}, its tab marked current`, async ({ page }) => {
-      await open(page, { option, width: 390 });
-      const flow = { A: null, B: 'a', C: 'c' }[option];
-      expect(await page.evaluate(() => document.documentElement.getAttribute('data-flow'))).toBe(flow);
-      await expect(page.locator('.pv-tabs [aria-current="page"]')).toHaveText(tabs[option]);
+  test('?flow=c opens Version 1, its tab marked current', async ({ page }) => {
+    await open(page, { option: 'C', width: 390 });
+    expect(await page.evaluate(() => document.documentElement.getAttribute('data-flow'))).toBe('c');
+    await expect(page.locator('.pv-tabs [aria-current="page"]')).toHaveText('Version 1');
+    await expect(page.locator('.pv-tabs .pv-tab', { hasText: /Option [AB]/ })).toHaveCount(0);
+  });
+
+  // Options A and B were archived on 25 Nov: their addresses open Version 1, other flags and the #hash kept
+  for (const [from, to] of [
+    ['', '?flow=c'],
+    ['?flow=a', '?flow=c'],
+    ['?flow=a&phone&theme=hifi', '?flow=c&phone&theme=hifi'],
+    ['?theme=hifi&flow=a&reset', '?flow=c&theme=hifi&reset'],
+    ['?flow=c&phone', '?flow=c&phone'],
+  ]) {
+    test(`${from || 'no flow'} opens Version 1 at ${to}`, async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(`/wireframes/prototype-pick-your-team.html${from}#tp-ov`);
+      await settle(page);
+      const u = new URL(page.url());
+      expect(u.search).toBe(to);
+      expect(u.hash).toBe('#tp-ov');
+      expect(await page.evaluate(() => document.documentElement.getAttribute('data-flow'))).toBe('c');
+      await expect(page.locator('.pv-tabs [aria-current="page"]')).toHaveText('Version 1');
     });
   }
 
-  test('each option keeps its own saved picks', async ({ page }) => {
-    await open(page, { option: 'A' });
-    await goPlan(page); await pick(page, ONE);
-    await open(page, { option: 'B' });
-    await goPlan(page);
-    expect(await state(page)).toEqual([]);
-    await pick(page, TWO);
+  test('an old address and ?flow=c share Version 1\'s saved picks', async ({ page }) => {
     await open(page, { option: 'C' });
-    await goPlan(page);
-    expect(await state(page)).toEqual([]);
-    await open(page, { option: 'A' });
+    await goPlan(page); await pick(page, ONE);
+    await page.goto('/wireframes/prototype-pick-your-team.html?phone&theme=hifi&flow=a');
+    await settle(page);
     expect(await state(page)).toEqual([ONE]);
-    await open(page, { option: 'B' });
-    expect(await state(page)).toEqual([TWO]);
-  });
-
-  // Where a pick leaves you: Option B takes you down to the team's match card; Option A keeps the hand in view, with
-  // the match cards still below
-  const after = async (page) => page.evaluate(() => {
-    const top = (el) => (el ? el.getBoundingClientRect().top : null);
-    const match = [...document.querySelectorAll('#tp-phone .tc-open')].find((e) => e.getBoundingClientRect().height);
-    return { card: top(document.querySelector('#tp-phone .tp-card2[aria-pressed="true"]')), match: top(match), h: innerHeight };
-  });
-
-  test('?flow=a: a pick scrolls to its match card', async ({ page }) => {
-    await open(page, { option: 'B' });
-    await goPlan(page);
-    await pick(page, ONE);
-    const a = await after(page);
-    expect(a.match).toBeGreaterThanOrEqual(0);
-    expect(a.match).toBeLessThan(a.h);
-    expect(a.card).toBeLessThan(0);
-  });
-
-  test('Option A: a pick keeps the hand in view, not the match cards', async ({ page }) => {
-    await open(page, { option: 'A' });
-    await goPlan(page);
-    await pick(page, ONE);
-    const a = await after(page);
-    expect(a.card).toBeGreaterThanOrEqual(0);
-    expect(a.card).toBeLessThan(a.h);
-    expect(a.match).toBeGreaterThan(a.h);
   });
 
   test('?flow=c: the Plan tab asks step by step, Next waits for a team, and Next moves on', async ({ page }) => {
@@ -175,7 +153,7 @@ test.describe('Address flags', () => {
   });
 
   test('?phone shows only the phone screen', async ({ page }) => {
-    await open(page, { option: 'A', width: 390 });
+    await open(page, { width: 390 });
     await expect(page.locator('html')).toHaveClass(/\bpv-device\b/);
     await expect(page.locator('.pv-side')).toBeHidden();
     await expect(phone(page)).toBeVisible();
@@ -210,7 +188,7 @@ test.describe('Address flags', () => {
   });
 
   test('with no theme asked for or remembered, the page opens in high fidelity', async ({ page }) => {
-    await open(page, { option: 'A', theme: '' });
+    await open(page, { theme: '' });
     expect(await page.evaluate(() => document.documentElement.getAttribute('data-theme'))).toBe('hifi');
   });
 });

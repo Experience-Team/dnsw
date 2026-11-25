@@ -3,8 +3,8 @@
 import { test as base, expect } from '@playwright/test';
 
 export const PAGE = '/wireframes/prototype-pick-your-team.html';
-// The three options are one page: Option A has no flow, B is ?flow=a, C is ?flow=c
-export const OPTIONS = { A: '', B: 'flow=a', C: 'flow=c' };
+// Version 1 (was Option C) is ?flow=c. Options A and B were archived on 25 Nov (git tag archive/options-a-b)
+export const OPTIONS = { C: 'flow=c' };
 export const THEMES = ['hifi', 'wireframe'];
 // Phone widths, each with a real phone's height (iPhone 12 to 15, and a first iPhone SE)
 export const SIZES = { 390: 844, 320: 568 };
@@ -91,7 +91,7 @@ export async function settle(page) {
   });
 }
 
-export async function open(page, { option = 'A', theme = 'hifi', width = 390, extra = '' } = {}) {
+export async function open(page, { option = 'C', theme = 'hifi', width = 390, extra = '' } = {}) {
   await page.setViewportSize({ width, height: SIZES[width] });
   await page.goto(url(option, theme, extra));
   await expect(phone(page)).toBeVisible();

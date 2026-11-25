@@ -3,12 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-<!-- Option B (23 Nov, ?flow=a, its own tab in the viewer's left panel) keeps its own saved state: every key it reads or
-     writes in this browser's storage is filed under flow-a:, so testing it never changes the main prototype's picks.
-     Viewer settings (the theme, the annotations) stay shared, so both tabs look the same. First, before anything reads
-     storage. Compare options (22 Nov) was removed on 23 Nov, as options are now tabs: what it saved in this browser
+<!-- Version 1 (25 Nov 2026) is what was Option C. Options A and B were archived on 25 Nov (git tag archive/options-a-b):
+     every address of this page, with or without ?flow=a or ?flow=c, opens Version 1 at ?flow=c (the address is rewritten
+     in place, before anything else runs, keeping ?phone, ?theme, ?reset and any #hash). Every key it reads or writes in
+     this browser's storage is filed under flow-c:, as Option C's always were, so its saved picks carry over. Viewer
+     settings (the theme, the annotations) stay shared. First, before anything reads storage. Compare options (22 Nov) was removed on 23 Nov, as options are now tabs: what it saved in this browser
      (its list, pv-compare, and each compared phone's state under opt-a: to opt-c:) is cleared here. -->
 <script>(function () {
+  try {
+    var qs = location.search.slice(1).split('&').filter(function (x) { return x && !/^flow=/.test(x); });
+    if (!/(^|&)flow=c(&|$)/.test(location.search.slice(1))) history.replaceState(history.state, '', location.pathname + '?' + ['flow=c'].concat(qs).join('&') + location.hash);
+  } catch (e) {}
   [window.localStorage, window.sessionStorage].forEach(function (st) {
     try {
       var gone = [];
@@ -16,9 +21,8 @@
       gone.forEach(function (k) { st.removeItem(k); });
     } catch (e) {}
   });
-  // Option C (?flow=c, 23 Nov) does the same under flow-c:
-  var fm = /[?&]flow=(a|c)\b/.exec(location.search); if (!fm) return;
-  var P = 'flow-' + fm[1] + ':', own = function (k) { return !/^(pv-|flow-[ac]:)/.test(k) && k !== 'tp-annotations'; };
+  // Version 1 (Option C until 25 Nov) files its saves under flow-c:
+  var P = 'flow-c:', own = function (k) { return !/^(pv-|flow-[ac]:)/.test(k) && k !== 'tp-annotations'; };
   ['getItem', 'setItem', 'removeItem'].forEach(function (fn) {
     var o = Storage.prototype[fn];
     Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); if (own(String(k))) a[0] = P + k; return o.apply(this, a); };
@@ -37,8 +41,7 @@
   try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
   if (t !== 'wireframe') d.setAttribute('data-theme', 'hifi'); // high fidelity unless wireframe was asked for or chosen
   if (/[?&]slogan=b\b/.test(q)) d.setAttribute('data-slogan', 'b'); // the alternative slogan, for testing
-  if (/[?&]flow=a\b/.test(q)) d.setAttribute('data-flow', 'a'); // Option B: a pick scrolls to its match card, with Add more teams and Your days under the cards
-  else if (/[?&]flow=c\b/.test(q)) d.setAttribute('data-flow', 'c'); // Option C: the questions up front, step by step (concepts-flow-c.js)
+  d.setAttribute('data-flow', 'c'); // Version 1: the questions up front, step by step (concepts-flow-c.js)
 })();</script>
 <title>Pick your team · RWC prototypes</title>
 <link rel="stylesheet" href="shared.css" />
@@ -66,9 +69,8 @@
     <h1 class="pv-title">RWC prototypes</h1>
     <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
   </header>
-  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html" data-flow-tab="">Option A</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=a" data-flow-tab="a">Option B</a><a class="pv-tab" href="prototype-pick-your-team.html?flow=c" data-flow-tab="c">Option C</a><a class="pv-tab" href="flow-chart.html">Flow chart</a></nav>
-  <!-- Option A (the main prototype) and Option B (23 Nov, ?flow=a; the tabs were renamed from Pick your team and Option A on 23 Nov) are this one page: the tab for the flow showing is marked current.
-       Flow chart (flow-chart.html) is a page of its own, with the same title and tabs and no left panel. -->
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab" href="prototype-pick-your-team.html?flow=c" data-flow-tab="c">Version 1</a></nav>
+  <!-- Version 1 (was Option C; Options A and B were archived on 25 Nov) is this page. The Flow chart tab is paused (25 Nov): flow-chart.html and flow-chart-planner.html are kept, with no link to them from the tabs or the launcher. -->
   <script>(function () {
     var d = document.documentElement, flow = d.getAttribute('data-flow') || '';
     [].forEach.call(document.querySelectorAll('.pv-tabs [data-flow-tab]'), function (a) {
@@ -78,10 +80,9 @@
   })();</script>
   <div class="pv-concept">
     <div class="pv-concept-head">
-      <h2 class="pv-h2">Pick your team: <span class="pv-flow-main">Option A</span><span class="pv-flow-a">Option B</span><span class="pv-flow-c">Option C</span></h2>
+      <h2 class="pv-h2">Pick your team: Version 1</h2>
     </div>
-    <p class="pv-p pv-flow-a">Option B: picking a team scrolls you to its card. Everything else matches Option A, with its own saved picks. Turn on Annotations for the details.</p>
-    <p class="pv-p pv-flow-c">Option C: the Plan tab asks the questions up front, one step at a time: your teams, tickets and your days. Your teams is required; the others can be skipped. A test from team feedback, with its own saved picks.</p>
+    <p class="pv-p pv-flow-c">Version 1: the Plan tab asks the questions up front, one step at a time: your teams, tickets and your days. Your teams is required; the others can be skipped. A test from team feedback, with its own saved picks.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
@@ -938,10 +939,10 @@
     ] },
 
     // Once teams are picked: Your matches
-    { sel: "#tp-fc", title: "Option C test: the questions up front", points: [
-      "Test from team feedback: a version of the page opened from its own tab in the viewer (?flow=c), with its own saved picks. Only the Plan tab changes.",
+    { sel: "#tp-fc", title: "Version 1: the questions up front", points: [
+      "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (git tag archive/options-a-b); their addresses open this page.",
       "The Plan tab asks three things in turn: your teams, the tickets you have and your days in NSW. Where you’re staying is not asked up front (24 Nov): it is an optional extra in the Your answers card. Who’s coming is left out until it changes anything.",
-      "Each step borrows the planner’s own control (the hand of cards, the days slider), so an answer is the same as in Options A and B. A team picked on Home shows as picked in step 1.",
+      "Each step borrows the planner’s own control (the hand of cards, the days slider), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
       "Step 1 is the one required answer: until a team or Every NSW match is picked, Next is unavailable (aria-disabled, with a line saying why) and the left button reads Show every NSW match, which picks it and goes straight to step 2. Once anything is picked the left button is Skip again. A team picked on Home counts; unpicking the last one makes Next unavailable again. A place saved before this rule that got past step 1 with nothing picked starts again at step 1.",
       "Tickets: every match of your teams whose teams are known, NSW first, then Interstate (kick-offs in Sydney time). No tickets yet replaces any marked, marking one replaces it, and Clear all shows once one is marked. Knockouts are not listed: with no teams yet, a ticket for one cannot be recorded.",
       "Your days start from your first to last NSW match, the first time the step opens with none set.",
@@ -949,15 +950,6 @@
       "The plan bar is hidden on step 1 until a team is picked; then it rises and the button bar rises with it, on the same curve. It fills as you answer, but does not open (and shows no grabber) until the flow is finished. No toasts while a step shows, as the sections they point to are hidden.",
       "Finished: the page starts with Your matches. Your answers is a condensed card at the top of the open plan, under its title (the teams, then tickets, days and, once answered, where you’re staying), and replaces the plan’s own Your teams button and days line. Change slides across inside the plan to a Your answers level with a back arrow: the hand of cards with Find and Add every NSW match, the tickets list, Your days and Where you’re staying (optional). Back, Escape or a tap on the grabber go back to the plan; closing the plan closes both. The first change pins a Save bar to the level’s foot naming the latest change; Save closes the plan. No toasts while the level is open. Home’s Plan around your matches opens the plan on the card.",
       "A reload comes back to the step you were on; Reset prototype and ?reset start again. Breaks principle 1 (reward early) on purpose, to test asking first."
-    ] },
-    { sel: "#tp-more", only: "results", title: "Option B test: scroll to your card", points: [
-      "Test: a second version of the page, opened from its own tab in the viewer (?flow=a), with its own saved picks. Only the planner changes.",
-      "A team picked from the hand or Find glides the page down to Your matches once the card has landed, with the new card in view and focus on it. A touch, wheel or key on the way stops the glide.",
-      "No scroll for an unpick, or for a pick made on Home, in a teams sheet, from a match page or with Add every NSW match.",
-      "Under the cards: Add more teams (opens the team sheet where you are), then Your days in NSW, moved here from above.",
-      "No tabs: Your matches is a section heading, and All matches moves to Home, after Where the matches are.",
-      "Before a team is picked: the hand, then Your days in NSW on its own (Set your days to see ideas for your time in NSW., wording to approve), then the map.",
-      "Open question: the page moves on a pick, which no label promises. Built as asked, to test it."
     ] },
     { sel: "#tp-tabs", only: "results", title: "Your matches and All matches tabs", points: [
       "Two tabs appear under the picker with the first pick, with Your matches chosen.",
