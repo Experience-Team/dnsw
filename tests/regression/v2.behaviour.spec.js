@@ -362,6 +362,8 @@ test.describe('Version 2', () => {
   // Polish pass (24 Nov): the things a person feels, checked with real presses
   test('Drop goal: a press on the pitch leaves no focus ring, and the keyboard brings it back', async ({ page }) => {
     const f = await openGame(page, 'Wales');
+    // Focus rings are hidden for now (no-focus-ring.css, 25 Nov, for a video): take that sheet out so the ring itself is still tested
+    await f.evaluate(() => document.querySelectorAll('link[href*="no-focus-ring"]').forEach((l) => l.remove()));
     const ring = () => f.evaluate(() => getComputedStyle(document.getElementById('dg')).boxShadow);
     const box = await page.locator('#v2-game').boundingBox();
     await page.mouse.click(box.x + box.width / 2, box.y + box.height * 0.55);
