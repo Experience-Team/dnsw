@@ -1,20 +1,23 @@
 # Prototype regression checks
 
-Checks that a change to the prototype (`public/wireframes/prototype-pick-your-team.html`) has not broken another option,
-theme or state. Two suites, run on every PR by `.github/workflows/regression.yml`:
+Checks that a change to Version 1 (`public/wireframes/prototype-pick-your-team.html`, was Option C; Options A and B are archived, see `docs/archive-options-a-b.md`) has not broken another theme or state. Two suites, run on every PR by `.github/workflows/regression.yml`:
 
-- **Visual** (`visual.spec.js`): 100 screenshots compared pixel for pixel with the baselines in `__screenshots__/`.
-  Options A, B and C, both themes (hifi, wireframe), 390 and 320 wide, in these states: Home, Plan tab with nothing
-  picked, one team card picked, two cards picked, Option C's Tickets and Your days steps, its page once done and its Your answers level (Change in the open plan), the open plan, a match
+- **Visual** (`visual.spec.js`): the screenshots compared pixel for pixel with the baselines in `__screenshots__/`.
+  Version 1 (`C-` in the file names), both themes (hifi, wireframe), 390 and 320 wide, in these states: Home, Plan tab with nothing
+  picked, one team card picked, two cards picked, the Tickets and Your days steps, the page once done and its Your answers level (Change in the open plan), the open plan, a match
   sheet and the Settings menu. Page states are captured at their full height; sheets and menus at the screen's size.
   Files are named `<option>-<theme>-<width>-<state>.png`.
 - **Version 2** (`v2.visual.spec.js`, `v2.behaviour.spec.js`): `prototype-pick-your-team-v2.html`, a separate
   prototype. Screenshots of each state built so far (`v2-<theme>-<width>-<state>.png`), and smoke tests that it keeps
-  apart from Options A to C: only its own tabs, none of their behaviour scripts, its own saved state, and no links
+  apart from Version 1: only its own tabs, none of their behaviour scripts, its own saved state, and no links
   between the two. Drop goal's kick screen: the team's kit, a goal, a wide and a short kick and what each announces,
   reduced motion, and the team choice kept under `v2:`. See `public/wireframes/v2/README.md`.
+- **Viewer** (`shell.behaviour.spec.js`): `prototype-pick-your-team.html` holds Version 1 and Version 2 as tabs, each in a
+  frame (`...-v1-frame.html`, `...-v2-frame.html`, which the other specs open directly). The tabs and the full and
+  reduced tags, the old addresses (`?flow=a`, `prototype-pick-your-team-v2.html`) redirecting with their flags and
+  `#hash`, each version keeping its place when you tab away and back, and nothing scrolling sideways on a phone.
 - **Behaviour** (`behaviour.spec.js`): pick, unpick, Clear all, Every NSW match, reload, Reset prototype and `?reset` in
-  each option, and `?flow=a`, `?flow=c`, `?phone` and `?theme` doing their jobs.
+  Version 1, and `?flow=c`, the old `?flow=a` and no-flag addresses opening Version 1, `?phone` and `?theme` doing their jobs.
 
 Every test fails on a console error or an uncaught error.
 

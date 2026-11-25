@@ -3,7 +3,7 @@
 // caught as well as one to Version 2 itself. Named v2-<theme>-<width>-<state>.png. Add a state here for each part built.
 import { test, expect, SIZES, settle } from './helpers.js';
 
-const V2 = '/wireframes/prototype-pick-your-team-v2.html';
+const V2 = '/wireframes/prototype-pick-your-team-v2-frame.html';
 
 // The Drop goal kick screen is in a frame: wait for it to load, its fonts and its first drawing
 async function game(page) {

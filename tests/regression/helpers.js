@@ -2,9 +2,9 @@
 // accessible names; nothing in the prototype exists only for these tests.
 import { test as base, expect } from '@playwright/test';
 
-export const PAGE = '/wireframes/prototype-pick-your-team.html';
-// The three options are one page: Option A has no flow, B is ?flow=a, C is ?flow=c
-export const OPTIONS = { A: '', B: 'flow=a', C: 'flow=c' };
+export const PAGE = '/wireframes/prototype-pick-your-team-v1-frame.html'; // Version 1's own page, shown in the viewer (prototype-pick-your-team.html)
+// Version 1 (was Option C) is ?flow=c. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md)
+export const OPTIONS = { C: 'flow=c' };
 export const THEMES = ['hifi', 'wireframe'];
 // Phone widths, each with a real phone's height (iPhone 12 to 15, and a first iPhone SE)
 export const SIZES = { 390: 844, 320: 568 };
@@ -91,7 +91,7 @@ export async function settle(page) {
   });
 }
 
-export async function open(page, { option = 'A', theme = 'hifi', width = 390, extra = '' } = {}) {
+export async function open(page, { option = 'C', theme = 'hifi', width = 390, extra = '' } = {}) {
   await page.setViewportSize({ width, height: SIZES[width] });
   await page.goto(url(option, theme, extra));
   await expect(phone(page)).toBeVisible();
