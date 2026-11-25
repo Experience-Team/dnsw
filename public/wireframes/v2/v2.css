@@ -282,3 +282,4 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
 @media (max-height: 860px) and (min-width: 801px) { .v2-v1link { padding-block: var(--space-3); } .v2-v1link-p { display: none; } }
 /* Inside the prototype viewer (25 Nov 2026) its tabs replace this page's own tabs and the way back to Version 1 */
 .pv-framed .pv-header, .pv-framed .pv-tabs, .pv-framed .v2-v1link { display: none; }
+.pv-framed:not(.pv-device) .pv-side { padding-top: var(--pv-shell-room, 0px); } /* the viewer's tabs sit over the top of this panel */

@@ -33,14 +33,19 @@
   .sh-tag--full { background: #dff3e5; color: #0b5d2a; }
   .sh-tag--reduced { background: #ffefc7; color: #6a4200; }
   .sh-note { margin: 0; padding: 0 var(--space-4) var(--space-3); font-size: .8125rem; line-height: 1.4; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  /* On a wide window the bar is one short row: the tabs at their own width, with the line beside them. As two rows (72px)
-     it shortened the phone window under it */
   @media (min-width: 900px) {
-    .sh-bar { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-2) var(--space-6); }
-    .sh-tabs { flex: none; padding: 0; }
-    .sh-tab { flex: none; flex-direction: row; align-items: center; gap: var(--space-2); max-width: none; min-height: 36px; padding: 0 var(--space-4); }
-    .sh-note { flex: 1 1 auto; min-width: 0; padding: 0; }
+    /* A window that shows the viewer (the version's left panel and its phone): the bar sits over the top of the version's
+       own left panel, which leaves room for it (--pv-shell-room, set in the frame), so it takes nothing from the phone's height */
+    body:not(.sh-device) .sh-bar { right: auto; width: 460px; border-right: 1px solid #d1d1d1; }
+    body:not(.sh-device) .sh-frame { top: 0; height: 100%; }
+    body:not(.sh-device) .sh-tabs, body:not(.sh-device) .sh-note { padding-inline: var(--space-6); } /* in line with the panel's text */
+    /* A phone view (?phone) fills its window, so the bar is one short row above it */
+    body.sh-device .sh-bar { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-2) var(--space-6); }
+    body.sh-device .sh-tabs { flex: none; padding: 0; }
+    body.sh-device .sh-tab { flex: none; flex-direction: row; align-items: center; gap: var(--space-2); max-width: none; min-height: 36px; padding: 0 var(--space-4); }
+    body.sh-device .sh-note { flex: 1 1 auto; min-width: 0; padding: 0; }
   }
+  @media (min-width: 900px) and (max-width: 960px) { body:not(.sh-device) .sh-bar { width: 360px; } body:not(.sh-device) .sh-tabs, body:not(.sh-device) .sh-note { padding-inline: var(--space-4); } } /* the panel is narrower here */
   .sh-stage { position: absolute; inset: 0; }
   .sh-frame { position: absolute; top: var(--sh-bar); left: 0; width: 100%; height: calc(100% - var(--sh-bar)); border: 0; background: #fff; } /* an iframe does not stretch between top and bottom, so it has its height */
   /* The version not showing stays loaded, at full size, so it keeps its place and is never re-measured */
@@ -48,6 +53,7 @@
 </style>
 </head>
 <body class="sh-page">
+<script>document.body.classList.toggle('sh-device', /[?&]phone\b/.test(location.search) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches); // as the version decides (pv-device.js)</script>
 <header class="sh-bar">
   <nav class="sh-tabs" aria-label="Prototypes">
     <a class="sh-tab" href="?version=1" data-version="1">Version 1<span class="sh-tag sh-tag--full">Full functionality</span></a>
@@ -77,7 +83,14 @@
   // that follow a change of bar, tab or frame size are ignored for a moment: the frame growing can move the scroll
   // position by itself, and that must not read as the person scrolling back up.
   var page = document.body, bar = document.querySelector('.sh-bar'), barH = 0, hidden = false, current = first, quiet = 0, last = 0;
-  function measure() { barH = bar.offsetHeight; page.style.setProperty('--sh-bar', hidden ? '0px' : barH + 'px'); }
+  // In a window that shows the viewer the bar sits over the top of the version's left panel, and the version leaves room
+  // for it: the frame reads this when it loads (window.pvShellRoom) and it is kept up to date here
+  var wide = matchMedia('(min-width: 900px)');
+  function room() { return !page.classList.contains('sh-device') && wide.matches ? bar.offsetHeight : 0; }
+  window.pvShellRoom = room;
+  function syncRoom() { [1, 2].forEach(function (n) { try { frames[n].contentDocument.documentElement.style.setProperty('--pv-shell-room', room() + 'px'); } catch (e) {} }); }
+  function measure() { barH = bar.offsetHeight; page.style.setProperty('--sh-bar', hidden ? '0px' : barH + 'px'); syncRoom(); }
+  wide.addEventListener('change', syncRoom);
   function setHidden(h) {
     if (h === hidden) return;
     hidden = h; quiet = Date.now() + 400;
@@ -96,7 +109,7 @@
       setHidden(d > 0); last = y;
     }, true);
   }
-  [1, 2].forEach(function (n) { frames[n].addEventListener('load', function () { watch(n); }); });
+  [1, 2].forEach(function (n) { frames[n].addEventListener('load', function () { watch(n); syncRoom(); }); });
   if (window.ResizeObserver) new ResizeObserver(measure).observe(bar);
   measure();
   function show(n) {

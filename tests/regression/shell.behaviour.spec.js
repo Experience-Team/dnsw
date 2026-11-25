@@ -148,4 +148,32 @@ test.describe('Prototype viewer', () => {
     await page.waitForTimeout(600);
     expect(await page.evaluate(() => document.body.classList.contains('is-bar-hidden'))).toBe(false);
   });
+  // The bar must never take height from the phone window: over the top of the version's left panel in a window that
+  // shows the viewer, one short row above a phone view that fills its window
+  test('in a window that shows the viewer the bar sits over the left panel and the phone gets the whole height', async ({ page }) => {
+    for (const [w, h, panel] of [[1518, 832, 460], [1280, 800, 460], [940, 700, 360]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto(`${VIEWER}?theme=hifi`);
+      await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
+      const m = await page.evaluate(() => {
+        const fr = document.getElementById('sh-f1'), f = fr.contentDocument, bar = document.querySelector('.sh-bar').getBoundingClientRect();
+        const ph = f.getElementById('tp-phone').getBoundingClientRect(), c = f.querySelector('.pv-concept').getBoundingClientRect();
+        return { frameTop: fr.getBoundingClientRect().top, frameH: fr.getBoundingClientRect().height, barW: bar.width, barBottom: bar.bottom, conceptTop: c.top, phoneBottomGap: fr.getBoundingClientRect().height - ph.bottom };
+      });
+      expect(m.frameTop).toBe(0);
+      expect(m.frameH).toBe(h);
+      expect(m.barW).toBe(panel);
+      expect(m.conceptTop).toBeGreaterThanOrEqual(m.barBottom - 1); // the panel's text starts below the bar
+      expect(m.phoneBottomGap).toBeLessThanOrEqual(40);              // the phone runs to the foot of the window
+    }
+  });
+
+  test('a phone view that fills a wide window has one short row above it', async ({ page }) => {
+    await page.goto(`${VIEWER}?theme=hifi&phone`);
+    await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
+    const m = await page.evaluate(() => ({ h: document.querySelector('.sh-bar').offsetHeight, w: document.querySelector('.sh-bar').offsetWidth, top: document.getElementById('sh-f1').getBoundingClientRect().top }));
+    expect(m.h).toBeLessThan(70);
+    expect(m.w).toBe(1280);
+    expect(m.top).toBe(m.h);
+  });
 });

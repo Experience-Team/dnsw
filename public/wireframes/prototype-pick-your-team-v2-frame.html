@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 <!-- Shown inside the prototype viewer (prototype-pick-your-team.html, 25 Nov 2026), which has the Version 1 and Version 2 tabs: the
      page marks itself pv-framed so its own tabs and Open Version link step aside, and phone and desktop links go through the viewer. -->
-<script>(function () { try { if (window.top !== window) document.documentElement.classList.add('pv-framed'); } catch (e) { document.documentElement.classList.add('pv-framed'); } window.pvShell = 'prototype-pick-your-team.html?version=2'; })();</script>
+<script>(function () { try { if (window.top !== window) document.documentElement.classList.add('pv-framed'); } catch (e) { document.documentElement.classList.add('pv-framed'); } try { if (parent.pvShellRoom) document.documentElement.style.setProperty('--pv-shell-room', parent.pvShellRoom() + 'px'); } catch (e) {} window.pvShell = 'prototype-pick-your-team.html?version=2'; })();</script>
 <!-- Version 2 (23 Nov): a fresh start. Rules for working on it, and for iterations, are in v2/README.md. A fresh start, separate from Options A, B and C (prototype-pick-your-team.html). It shares their
      styles (shared.css, themes/hifi.css), their components (copy markup and classes across) and their data files, but
      none of their behaviour scripts, and it keeps its own saved state: every key it reads or writes in this browser's
