@@ -44,8 +44,8 @@
 .v2-soc-layer[hidden] { display: none; }
 @keyframes v2-soc-in { from { opacity: 0; } to { opacity: 1; } }
 #v2-soc-view { position: absolute; inset: 0; }
-/* On a wide window the story is a column in the middle, as it is on a phone; the controls stay in the window's corners */
-@media (min-width: 700px) { #v2-soc-view { left: 50%; right: auto; width: 480px; margin-left: -240px; } }
+/* When the phone view fills a wide window the story is a column in the middle, as it is on a phone; the controls stay in the window's corners. Not inside the desktop viewer's phone, which is already phone width */
+@media (min-width: 700px) { :root.pv-device #v2-soc-view { left: 50%; right: auto; width: 480px; margin-left: -240px; } }
 .v2-soc-media { position: absolute; inset: 0; background: #222 center / cover no-repeat; }
 .v2-soc-scrim { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0, 0, 0, .55) 0, rgba(0, 0, 0, 0) 26%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, .78) 100%); pointer-events: none; }
 .v2-soc-head { position: absolute; top: 16px; left: 16px; right: 112px; display: flex; align-items: center; gap: var(--space-3); min-height: 36px; }

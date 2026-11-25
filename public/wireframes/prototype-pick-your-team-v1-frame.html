@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 <!-- Shown inside the prototype viewer (prototype-pick-your-team.html, 25 Nov 2026), which has the Version 1 and Version 2 tabs: the
      page marks itself pv-framed so its own tabs and Open Version links step aside, and phone and desktop links go through the viewer. -->
-<script>(function () { try { if (window.top !== window) document.documentElement.classList.add('pv-framed'); } catch (e) { document.documentElement.classList.add('pv-framed'); } window.pvShell = 'prototype-pick-your-team.html?version=1'; })();</script>
+<script>(function () { try { if (window.top !== window) document.documentElement.classList.add('pv-framed'); } catch (e) { document.documentElement.classList.add('pv-framed'); } try { if (parent.pvShellRoom) document.documentElement.style.setProperty('--pv-shell-room', parent.pvShellRoom() + 'px'); } catch (e) {} window.pvShell = 'prototype-pick-your-team.html?version=1'; })();</script>
 <!-- Version 1 (25 Nov 2026) is what was Option C. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md):
      every address of this page, with or without ?flow=a or ?flow=c, opens Version 1 at ?flow=c (the address is rewritten
      in place, before anything else runs, keeping ?phone, ?theme, ?reset and any #hash). Every key it reads or writes in
@@ -58,6 +58,7 @@
   .pv-v2link-p { margin: 2px 0 0; font-size: .875rem; line-height: 1.45; color: #333; }
   .pv-v2link-go { flex: none; text-decoration: none; }
   .pv-framed .pv-header, .pv-framed .pv-tabs, .pv-framed .pv-v2link { display: none; } /* the viewer's tabs and title replace them */
+  .pv-framed:not(.pv-device) .pv-side { padding-top: var(--pv-shell-room, 0px); } /* the viewer's tabs sit over the top of this panel */
   @media (hover: hover) { .pv-v2link-go:hover { background: #f2f6fd; } }
   @media (max-width: 960px) { .pv-v2link { padding-inline: var(--space-4); } }
   /* Short windows: one row, as View on your phone becomes, so the annotations keep their room */

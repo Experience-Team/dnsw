@@ -153,4 +153,33 @@ for (const V of VERSIONS) {
       expect(l).toBeLessThanOrEqual(0);
     });
   });
+
+  // In the desktop viewer the version is a phone-sized screen inside a wide window: the viewer must stay inside that
+  // phone, with nothing cut off or pushed out (a rule for wide windows once centred a 480px column in a 390px phone)
+  test.describe(`${V.name}: in the desktop viewer`, () => {
+    for (const [w, h] of [[1518, 832], [1280, 800]]) {
+      test(`stories and a post stay inside the phone at ${w} wide`, async ({ page }) => {
+        await page.setViewportSize({ width: w, height: h });
+        await page.goto(`/wireframes/prototype-pick-your-team.html?theme=hifi&version=${V.name.slice(-1)}`);
+        const fr = page.frameLocator(`#sh-f${V.name.slice(-1)}`);
+        await expect(fr.locator('#tp-phone')).toBeVisible();
+        const inside = async (what) => {
+          const m = await page.frame({ url: new RegExp(`v${V.name.slice(-1)}-frame`) }).evaluate((pf) => {
+            const ph = document.getElementById('tp-phone').getBoundingClientRect();
+            return ['head', 'cap', 'x'].map((k) => document.querySelector(`.${pf}-soc-${k}, #${pf}-soc-${k}`)).filter(Boolean).map((e) => { const r = e.getBoundingClientRect(); return { l: r.left - ph.left, r: ph.right - r.right, t: r.top - ph.top, b: ph.bottom - r.bottom }; });
+          }, V.pf);
+          expect(m.length, what).toBeGreaterThan(1);
+          for (const r of m) { expect(r.l, what).toBeGreaterThanOrEqual(0); expect(r.r, what).toBeGreaterThanOrEqual(0); expect(r.t, what).toBeGreaterThanOrEqual(0); expect(r.b, what).toBeGreaterThanOrEqual(0); }
+        };
+        await fr.locator(`#${V.pf}-soc`).scrollIntoViewIfNeeded();
+        await fr.locator(sel('ring')).first().click();
+        await expect(fr.locator(`#${V.pf}-soc-layer`)).toBeVisible();
+        await inside('story');
+        await page.keyboard.press('Escape');
+        await fr.locator(sel('post')).first().click();
+        await expect(fr.locator(`#${V.pf}-soc-layer`)).toBeVisible();
+        await inside('post');
+      });
+    }
+  });
 }
