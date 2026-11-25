@@ -172,7 +172,7 @@
   function footHtml() {
     if (level !== 'list' || !count()) return '';
     if (confirming) return '<div class="v2-sv-confirm" role="alertdialog" aria-labelledby="v2-sv-cq"><p id="v2-sv-cq">Clear all ' + count() + ' from your plan? Your team stays picked.</p><p class="v2-sv-acts v2-sv-acts--row"><button type="button" class="tp-home-cta tp-home-cta--line" id="v2-sv-cno">Cancel</button><button type="button" class="tp-home-cta" id="v2-sv-cyes">Clear all</button></p></div>';
-    return '<p class="v2-sv-note">Saved on this device only. Keep a copy so you do not lose it.</p><button type="button" class="tp-home-cta" id="v2-sv-share">Save &amp; share' + ICON.go + '</button>';
+    return '<button type="button" class="tp-home-cta" id="v2-sv-share">Save &amp; share' + ICON.go + '</button>';
   }
   function draw(keepFocus) {
     titleEl.textContent = level === 'share' ? 'Save & share' : 'Your plan';
@@ -336,7 +336,7 @@
   }
   function shareHtml() {
     var rs = rows(), places = rs.some(function (r) { return r.place; }), parties = rs.some(function (r) { return r.type === 'Watch party'; });
-    return '<p class="v2-sv-note v2-sv-note--top">Saved on this device only. Keep a copy so you do not lose it.</p><ul class="v2-ss-list">' +
+    return '<ul class="v2-ss-list">' +
       srow('copy', 'Copy plan', 'Text for an AI assistant or your notes app.', true) +
       srow('mail', 'Email', 'Your plan comes as a PDF attachment.', true) +
       (places ? srow('maps', 'Add to maps', 'Open each place in Google Maps.', true) : '') +
