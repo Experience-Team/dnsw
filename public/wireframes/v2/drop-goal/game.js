@@ -54,39 +54,65 @@
   const C = window.DG2Kit.kitFor(team);
   const PARTS = window.DG2Kicker.parts(C);
 
-  /* ---------- the scene, in the picture's own units (390 x 520) ---------- */
-  const K = { x: 96, y: 488, s: 0.72 };                      /* the kicker's feet, and the figure's scale */
-  const NEAR = { x: 248, top: 36, base: 252, w: 7 };        /* the near (left) upright */
-  const FAR = { x: 318, top: 80, base: 300, w: 6 };         /* the far one: further down the try line */
-  const BAR_AT = 0.46;                                       /* the crossbar, down from the top of each upright */
+  /* ---------- the scene ----------
+     Isometric, to the reference picture (25 Nov 2026): every line on the ground runs at 30 degrees, one way along the
+     try line (down to the right) and the other way up the pitch, and everything upright is vertical. So the two
+     uprights are the same height, and the crossbar, the tops of the posts and the try line are parallel; nothing is
+     skewed. Two layouts, by the shape of the space: tall for phones, wide for desktops, where the kicker and the posts
+     spread out as they do in the reference. */
+  const SL = Math.tan(Math.PI / 6);
+  const LAY = {
+    tall: { vw: 390, vh: 520, k: [96, 488, 0.72], near: [232, 278], dx: 84, h: 214, cross: 440 },
+    wide: { vw: 1120, vh: 520, k: [196, 436, 0.82], near: [600, 322], dx: 125, h: 280, cross: 641 }
+  };
+  let lay = null;
+  const K = { x: 0, y: 0, s: 1 };                            /* the kicker's feet, and the figure's scale */
+  const NEAR = { x: 0, top: 0, base: 0, w: 0 };              /* the near (left) upright */
+  const FAR = { x: 0, top: 0, base: 0, w: 0 };               /* the far one: further down the try line */
+  const BAR_AT = 0.58;                                       /* the crossbar, down from the top of each upright */
   const barY = u => lerp(u.top, u.base, BAR_AT);
   const el = (n, a, p) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+  const sceneEl = $('dg-scene');
+  function whichLayout() {
+    const r = sceneEl.getBoundingClientRect();
+    return r.height && r.width / r.height >= 1.4 ? 'wide' : 'tall';
+  }
+  function setLayout(name) {
+    const l = LAY[name]; lay = l; lay.name = name;
+    K.x = l.k[0]; K.y = l.k[1]; K.s = l.k[2];
+    NEAR.x = l.near[0]; NEAR.base = l.near[1]; NEAR.top = NEAR.base - l.h;
+    FAR.x = NEAR.x + l.dx; FAR.base = NEAR.base + l.dx * SL; FAR.top = FAR.base - l.h;
+    NEAR.w = FAR.w = l.dx * 0.074;
+    sceneEl.setAttribute('viewBox', `0 0 ${l.vw} ${l.vh}`);
+    /* the result screen's picture of the posts: the same drawing, cropped to them */
+    $('dg-r-frame').setAttribute('viewBox', `${(NEAR.x - l.dx * 0.6).toFixed(0)} ${(NEAR.top - 20).toFixed(0)} ${(l.dx * 2.2).toFixed(0)} ${(FAR.base - NEAR.top + 44).toFixed(0)}`);
+  }
 
   function drawPitch() {
-    const g = $('dg-lines');
-    /* lines parallel to the try line (through the post bases), and one across */
-    const dx = FAR.x - NEAR.x, dy = FAR.base - NEAR.base, len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
-    const line = (off, from, to, dash) => {
-      const cx = NEAR.x - nx * off, cy = NEAR.base - ny * off;
-      el('line', { class: 'dg-line', x1: cx + ux * from, y1: cy + uy * from, x2: cx + ux * to, y2: cy + uy * to, 'stroke-dasharray': dash || 'none' }, g);
-    };
-    line(-90, -900, 900);                 /* dead-ball line */
-    line(0, -900, 900);                   /* try line */
-    line(48, -900, 900, '28 44');         /* 5 m, dashed */
-    line(330, -900, 900);                 /* 22 */
-    const ax = 120, ay = 150;             /* one line across, towards the near touchline */
-    el('line', { class: 'dg-line', x1: ax - nx * 900, y1: ay - ny * 900, x2: ax + nx * 900, y2: ay + ny * 900 }, g);
+    const g = $('dg-lines'); g.innerHTML = '';
+    const f = lay.dx / 224, sw = (lay.dx * 0.07).toFixed(1), far = 3000;
+    /* along the try line: a line through (x0, y0), from x0 + a to x0 + b */
+    const along = (x0, y0, a, b, dash) => el('line', { class: 'dg-line', 'stroke-width': sw, x1: x0 + a, y1: y0 + a * SL, x2: x0 + b, y2: y0 + b * SL, 'stroke-dasharray': dash || 'none' }, g);
+    along(NEAR.x, NEAR.base - 420 * f, -far, far);           /* dead-ball line */
+    along(NEAR.x, NEAR.base, -far, far);                     /* try line, through the foot of each post */
+    along(NEAR.x, NEAR.base + 1110 * f, -far, far);          /* 22 */
+    /* one line up the pitch, meeting the try line; the dashed 5 m line starts from it */
+    const jx = NEAR.x - lay.cross * f, jy = NEAR.base - lay.cross * f * SL;
+    el('line', { class: 'dg-line', 'stroke-width': sw, x1: jx, y1: jy, x2: jx - far, y2: jy + far * SL }, g);
+    const off = 206 * f, d = -off / (2 * SL);
+    along(jx + d, jy + d * SL + off, 0, far, `${(215 * f).toFixed(1)} ${(330 * f).toFixed(1)}`);
   }
   function drawPosts() {
-    const g = $('dg-posts');
-    [FAR, NEAR].forEach(u => {
-      el('rect', { class: 'dg-upright', x: u.x - u.w / 2, y: u.top, width: u.w, height: u.base - u.top - 8, rx: u.w / 2 }, g);
-    });
-    el('line', { class: 'dg-bar-x', x1: NEAR.x, y1: barY(NEAR), x2: FAR.x, y2: barY(FAR) }, g);
+    const g = $('dg-posts'); g.innerHTML = '';
+    const pw = lay.dx * 0.2, ph = lay.dx * 0.6, cap = pw * 0.3;
+    /* pads first, then the bar, then the uprights, which stand in the top of each pad */
     [NEAR, FAR].forEach(u => {
-      const w = u === NEAR ? 17 : 15, h = u === NEAR ? 46 : 42;
-      el('rect', { class: 'dg-pad', x: u.x - w / 2, y: u.base - h, width: w, height: h, rx: 3 }, g);
-      el('ellipse', { class: 'dg-pad-top', cx: u.x, cy: u.base - h, rx: w / 2, ry: 3 }, g);
+      el('rect', { class: 'dg-pad', x: u.x - pw / 2, y: u.base - ph, width: pw, height: ph + cap, rx: pw / 2 }, g);
+      el('ellipse', { class: 'dg-pad-top', cx: u.x, cy: u.base - ph + cap + 1, rx: pw / 2 - 1.5, ry: cap }, g);
+    });
+    el('line', { class: 'dg-bar-x', 'stroke-width': (NEAR.w * 0.9).toFixed(1), x1: NEAR.x, y1: barY(NEAR), x2: FAR.x, y2: barY(FAR) }, g);
+    [NEAR, FAR].forEach(u => {
+      el('rect', { class: 'dg-upright', x: u.x - u.w / 2, y: u.top, width: u.w, height: u.base - ph + cap + 2 - u.top, rx: u.w / 2 }, g);
     });
   }
 
@@ -133,9 +159,12 @@
 
   /* ---------- the ball ---------- */
   const B = C.ball;
-  const BALL = `<ellipse rx="17" ry="11.5" fill="${B.base}" stroke="${B.line}" stroke-width="1.6"/>` +
-    `<path d="M-12,8 Q0,-2 15,-5 Q12,1 -6,10 Z" fill="${B.stripe2}"/>` +
-    `<path d="M-14,4 Q2,-6 16,-3" stroke="${B.stripe}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  /* Cream, with two bands sweeping from one point to the other in the team's colours and a rim along one side */
+  const BALL = `<ellipse rx="17" ry="11.5" fill="${B.base}"/>` +
+    `<path d="M-17,0 A17,11.5 0 0 0 7,10.48 Q-7,10 -17,0 Z" fill="${B.stripe2}"/>` +
+    `<path d="M-17,0 A17,11.5 0 0 0 1,11.48 Q-9,9.6 -17,0 Z" fill="${B.stripe}"/>` +
+    `<path d="M-17,0.6 Q2,0.5 14.9,-5.5 L16.6,-2.5 Q2,4.6 -17,0.6 Z" fill="${B.stripe}"/>` +
+    `<path d="M-17,0.6 Q2,4.6 16.6,-2.5 L16.98,0.5 Q2,7.6 -17,0.6 Z" fill="${B.stripe2}"/>`;
   const ballG = $('dg-ball');
   ballG.innerHTML = `<g id="dg-ball-in">${BALL}</g>`;
   const ballIn = $('dg-ball-in');
@@ -150,7 +179,6 @@
 
   /* ---------- the kicker: four poses, tweened ---------- */
   const kickerG = $('dg-kicker');
-  kickerG.setAttribute('transform', `translate(${K.x} ${K.y}) scale(${K.s})`);
   const KP = window.DG2Kicker;
   const pose = { from: 'ready', to: 'ready', t0: 0, dur: 0, ease: E.out, now: 'ready' };
   function poseTo(to, dur, ease) { pose.from = pose.now; pose.to = to; pose.t0 = now; pose.dur = reduce.matches ? 0 : dur; pose.ease = ease || E.out; }
@@ -158,6 +186,7 @@
   function updateKicker() {
     const t = pose.dur ? clamp((now - pose.t0) / (pose.dur * 1000), 0, 1) : 1;
     pose.now = t >= 1 ? pose.to : KP.lerpPose(pose.from, pose.to, pose.ease(t));
+    kickerG.setAttribute('transform', `translate(${K.x} ${K.y}) scale(${K.s})`);
     kickerG.innerHTML = KP.markup(PARTS, pose.now);
   }
   function ballInHands() { const p = toScene(KP.hands(pose.now)); ball.x = p.x; ball.y = p.y; ball.rot = -40; ball.s = 1; ball.o = 1; ball.sq = 1; }
@@ -229,7 +258,8 @@
   function setHead(state) {
     if (state === true) state = 'goal'; else if (!state) state = 'drop';
     if (state === headIs) return;
-    headIs = state; head.textContent = HEAD[state];
+    /* Set as the reference has it, TAP To Kick: the press in capitals, the rest with a capital each (game.css) */
+    headIs = state; head.innerHTML = HEAD[state].replace(/^(Tap|Click)\b/, '<b>$1</b>');
     head.classList.toggle('is-goal', state === 'goal'); head.classList.toggle('is-now', state === 'now' || state === 'wait');
     /* GOAL lands with a small pop; the other words change at once, as the taps are timed against them */
     if (state === 'goal' && head.animate && !reduce.matches) head.animate([{ transform: 'scale(.8)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 360, easing: 'cubic-bezier(.2,.7,.2,1)' });
@@ -377,10 +407,10 @@
     let to, peak, fade;
     if (out === 'goal') {
       const o = clamp(err * 8, -1, 1) * 0.3;                 /* a touch either side of perfect drifts along the bar */
-      to = { x: mid.x + (FAR.x - NEAR.x) * o, y: mid.y - 54 + (barY(FAR) - barY(NEAR)) * o };
-      peak = 120; fade = 0.12;
+      to = { x: mid.x + (FAR.x - NEAR.x) * o, y: mid.y - lay.h * 0.25 + (barY(FAR) - barY(NEAR)) * o };
+      peak = lay.h * 0.5; fade = 0.12;
     } else if (out === 'wide') {
-      to = { x: NEAR.x - 30 - sev * 40, y: mid.y - 46 }; peak = 110; fade = 0.3;
+      to = { x: NEAR.x - lay.dx * (0.4 + sev * 0.5), y: mid.y - lay.h * 0.22 }; peak = lay.h * 0.46; fade = 0.3;
     } else {
       to = { x: lerp(from.x, NEAR.x, 0.75 - sev * 0.25), y: NEAR.base - 10 }; peak = 120 - sev * 50; fade = 0;
     }
@@ -485,7 +515,7 @@
     setHead(false);
     poseTo('ready', 0.3, E.out);
     if (reduce.matches) { D.passing = false; hold(D.note); return; }
-    D.passing = true; D.px = 430; D.py = K.y - 60; D.passDur = 0.6;
+    D.passing = true; D.px = Math.min(lay.vw + 40, K.x + 340); D.py = K.y - 60; D.passDur = 0.6;
     start();
   }
 
@@ -565,7 +595,14 @@
   })();
 
   /* ---------- start ---------- */
-  drawPitch(); drawPosts(); renderTable();
+  setLayout(whichLayout()); drawPitch(); drawPosts(); renderTable();
+  /* The space changed shape (a window resized, a phone turned): draw the layout that fits it */
+  addEventListener('resize', () => {
+    const n = whichLayout(); if (n === lay.name) return;
+    setLayout(n); drawPitch(); drawPosts();
+    if (frameG.innerHTML && D.place) frameG.innerHTML = frameMarkup(D.place, 'dg-clip-a');
+    start();
+  });
   setPose('ready'); markAt(T.release);
   hold();
   window.__dg2 = { phase: () => phase, team: () => team, teams: () => teams.slice(), goals: () => goals, practice: () => prac, place: () => (D.place ? D.place.id : null), T };   /* read-only, for the regression checks */

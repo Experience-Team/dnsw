@@ -45,37 +45,42 @@
   function hands(p) { p = full(p); const L = links(p), a = chain(J.wrist, L.lFo), b = chain(J.wrist, L.rFo), g = groundOffset(p); return [(a[0] + b[0]) / 2 + 8, (a[1] + b[1]) / 2 + g + 2]; }
   function boot(p) { p = full(p); const L = links(p), q = chain([12, -6], L.rFt); return [q[0], q[1] + groundOffset(p)]; }
 
+  /* Drawn to docs/drop-goal-style.png's player (25 Nov 2026): turned a little towards the viewer, so the far shoulder
+     and hip sit ahead of the near ones (FAR_ARM, FAR_LEG) and the chest shows, with a V collar, cuffs, a wide band on
+     the socks and a plain face. The skeleton and poses are unchanged. */
+  const FAR_ARM = 'translate(8 -2)', FAR_LEG = 'translate(6 -2)';
   function parts(C) {
     function arm(back) {
       const sk = back ? C.skinBack : C.skin, je = back ? C.jerseyBack : C.jersey, tr = back ? C.trimBack : C.trim;
       return {
-        upper: `<line x1="2" y1="-150" x2="2" y2="-137" stroke="${je}" stroke-width="16" stroke-linecap="round"/><rect x="-6" y="-139" width="16" height="4" rx="1" fill="${tr}"/><line x1="2" y1="-133" x2="2" y2="-124" stroke="${sk}" stroke-width="11" stroke-linecap="round"/>`,
-        fore: `<line x1="2" y1="-124" x2="2" y2="-100" stroke="${sk}" stroke-width="10" stroke-linecap="round"/><circle cx="2.5" cy="-96" r="6.2" fill="${sk}"/>`
+        upper: `<line x1="2" y1="-133" x2="2" y2="-124" stroke="${sk}" stroke-width="11" stroke-linecap="round"/><path d="M-6.5,-152 Q-6.5,-158 2,-158 Q10.5,-158 10.5,-152 L11,-134 L-7,-134 Z" fill="${je}"/><path d="M-7,-138 L11,-138 L11,-133 L-7,-133 Z" fill="${tr}"/>`,
+        fore: `<path d="M-3.5,-125 L7.5,-125 L6,-98 L-1.5,-98 Z" fill="${sk}" stroke="${sk}" stroke-width="2" stroke-linejoin="round"/><circle cx="2.5" cy="-95" r="6.4" fill="${sk}"/>`
       };
     }
     function leg(back) {
       const sk = back ? C.skinBack : C.skin, sh = back ? C.shortsBack : C.shorts, so = back ? C.sockBack : C.sock, bd = back ? C.bandBack : C.band, bo = back ? C.bootBack : C.boot;
       return {
-        thigh: `<line x1="0" y1="-82" x2="0" y2="-57" stroke="${sk}" stroke-width="15" stroke-linecap="round"/><path d="M-13,-113 L13,-113 L13,-80 Q0,-76 -13,-80 Z" fill="${sh}" stroke="${sh}" stroke-width="2" stroke-linejoin="round"/>`,
-        shin: `<line x1="0" y1="-56" x2="0" y2="-46" stroke="${sk}" stroke-width="13" stroke-linecap="round"/><path d="M-6.5,-48 L6.5,-48 L5.5,-10 L-5.5,-10 Z" fill="${so}" stroke="${so}" stroke-width="2" stroke-linejoin="round"/><rect x="-7.5" y="-48" width="15" height="5" rx="1.5" fill="${bd}"/>`,
-        foot: `<path d="M-7,-13 L7,-13 Q12,-10 17,-6 Q20,-3 19,1 L-7,1 Q-9,-6 -7,-13 Z" fill="${bo}"/><path d="M-7,-2 L19,-2" stroke="${back ? '#1f1f1f' : '#262626'}" stroke-width="2"/>`
+        thigh: `<path d="M-7.5,-84 L8,-84 L6.5,-56 L-6,-56 Z" fill="${sk}" stroke="${sk}" stroke-width="3" stroke-linejoin="round"/><path d="M-12.5,-106 L12.5,-106 L13.5,-81 Q1,-77 -12.5,-80 Z" fill="${sh}" stroke="${sh}" stroke-width="2" stroke-linejoin="round"/>`,
+        shin: `<line x1="0" y1="-56" x2="0" y2="-46" stroke="${sk}" stroke-width="13" stroke-linecap="round"/><path d="M-7.5,-44 Q-9,-30 -5.5,-10 L5.5,-10 L7,-44 Z" fill="${so}" stroke="${so}" stroke-width="2" stroke-linejoin="round"/><rect x="-9" y="-48" width="17.5" height="9" rx="2" fill="${bd}"/>`,
+        foot: `<path d="M-8,-14 L7,-14 Q13,-11.5 19,-7 Q23.5,-3.5 21.5,1 L-8,1 Q-10.5,-6 -8,-14 Z" fill="${bo}"/>`
       };
     }
     return {
       BA: arm(true), FA: arm(false), BL: leg(true), FL: leg(false),
-      TORSO: `<rect x="-3" y="-170" width="9" height="12" rx="3" fill="${C.skinShade}"/><path d="M-15,-99 L15,-99 L17,-138 Q17,-160 6,-163 L-6,-163 Q-18,-160 -18,-138 Z" fill="${C.jersey}"/>` +
-        (C.hoops ? `<rect x="-16.5" y="-142" width="33" height="7" fill="${C.hoops}"/><rect x="-16" y="-125" width="31.5" height="7" fill="${C.hoops}"/>` : '') +
-        `<path d="M-15,-108 L15,-108" stroke="${C.jerseyLine}" stroke-width="2" opacity=".6"/><path d="M-6,-164 Q3,-158 10,-163 L8.5,-157 Q3,-152 -5,-158 Z" fill="${C.trim}"/>`,
-      PELVIS: `<path d="M-15,-114 L15,-114 L15,-98 L-15,-98 Z" fill="${C.shorts}"/>`,
-      HEAD: `<circle cx="3" cy="-181" r="15" fill="${C.skin}"/><path d="M-12,-182 Q-13,-199 4,-198 Q17,-197 19,-186 Q11,-190 3,-188 Q-3,-185 -5,-177 Q-10,-174 -12,-182 Z" fill="${C.hair}"/><ellipse cx="-2" cy="-178" rx="3" ry="4" fill="${C.skinShade}"/><circle cx="13" cy="-181" r="1.6" fill="${C.eye}"/><path d="M17,-176 Q14,-173 11,-174" stroke="${C.skinShade}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`
+      TORSO: `<path d="M-2,-173 L9,-173 L10,-160 L-3,-160 Z" fill="${C.skinShade}"/><path d="M-15,-99 L19,-100 L21.5,-138 Q21.5,-159 11,-162 L-6,-163 Q-18,-160 -18,-138 Z" fill="${C.jersey}"/>` +
+        `<path d="M-15,-99 L-5,-99.3 L-7,-162.6 Q-18,-160 -18,-138 Z" fill="${C.jerseyBack}"/>` +
+        (C.hoops ? `<path d="M-18,-138 L21.5,-138 L21.2,-131 L-17.7,-131 Z" fill="${C.hoops}"/><path d="M-17,-122 L20.4,-122 L20,-115 L-16.5,-115 Z" fill="${C.hoops}"/>` : '') +
+        `<path d="M-6,-164 L11,-163 L5.5,-146 Z" fill="${C.trim}"/><path d="M-2.5,-164 L8.5,-163.4 L5,-153 Z" fill="${C.skinShade}"/>`,
+      PELVIS: `<path d="M-14,-108 L19,-108 L19,-94 L-14,-94 Z" fill="${C.shorts}"/>`,
+      HEAD: `<ellipse cx="5" cy="-181" rx="12.5" ry="14.5" fill="${C.skin}"/><path d="M-7.6,-180 Q-10,-197 5,-196.5 Q16.5,-196 17.6,-186 Q11,-190.5 4,-188.5 Q-0.5,-187 -1.5,-180 Q-2,-174.5 -5,-172.5 Q-8,-176 -7.6,-180 Z" fill="${C.hair}"/><ellipse cx="1.2" cy="-179" rx="2.6" ry="3.8" fill="${C.skinShade}"/>`
     };
   }
   /* The figure's markup for a pose, standing on its ground line (the caller places and scales it) */
   function markup(Pt, pose) {
     const p = full(pose), L = links(p), g = groundOffset(p);
-    const G = (l, body) => `<g transform="${tf(l)}">${body}</g>`;
+    const G = (l, body, off) => `<g transform="${off ? off + ' ' : ''}${tf(l)}">${body}</g>`;
     return `<g transform="translate(0 ${g.toFixed(2)})">` + [
-      G(L.lUp, Pt.BA.upper), G(L.lFo, Pt.BA.fore), G(L.lTh, Pt.BL.thigh), G(L.lSh, Pt.BL.shin), G(L.lFt, Pt.BL.foot),
+      G(L.lUp, Pt.BA.upper, FAR_ARM), G(L.lFo, Pt.BA.fore, FAR_ARM), G(L.lTh, Pt.BL.thigh, FAR_LEG), G(L.lSh, Pt.BL.shin, FAR_LEG), G(L.lFt, Pt.BL.foot, FAR_LEG),
       Pt.PELVIS, G(L.torso, Pt.TORSO), G(L.head, Pt.HEAD),
       G(L.rTh, Pt.FL.thigh), G(L.rSh, Pt.FL.shin), G(L.rFt, Pt.FL.foot),
       G(L.rUp, Pt.FA.upper), G(L.rFo, Pt.FA.fore)
