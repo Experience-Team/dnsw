@@ -60,6 +60,11 @@
   .pv-v2link-go { flex: none; text-decoration: none; }
   .pv-framed .pv-header, .pv-framed .pv-tabs, .pv-framed .pv-v2link { display: none; } /* the viewer's tabs and title replace them */
   .pv-framed:not(.pv-device) .pv-side { padding-top: var(--pv-shell-room, 0px); } /* the viewer's tabs sit over the top of this panel */
+  /* Stacking (25 Nov 2026): the team cards each carry a z-index of up to 43 (the fan stacks bottom row on top), and were compared with
+     the page itself, so scrolling the hand under the sticky nav (z-index 40: the capsule in Version 1, the menu in Version 2) painted
+     the bottom row over it. The hand now keeps its cards' z-indexes to itself: they are only compared with each other. */
+  .tp-fan2-wrap { isolation: isolate; }
+
   @media (hover: hover) { .pv-v2link-go:hover { background: #f2f6fd; } }
   @media (max-width: 960px) { .pv-v2link { padding-inline: var(--space-4); } }
   /* Short windows: one row, as View on your phone becomes, so the annotations keep their room */
