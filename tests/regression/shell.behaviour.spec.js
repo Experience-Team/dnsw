@@ -101,4 +101,51 @@ test.describe('Prototype viewer', () => {
       expect(m.tags.every(Boolean)).toBe(true);
     }
   });
+  // On a phone (or ?phone) the bar hides on a scroll down and shows on a scroll up, with the frame moving with it
+  test('the bar hides on a scroll down and shows on a scroll up, and a tab switch shows it', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${VIEWER}?theme=hifi&phone`);
+    await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
+    const barH = await page.locator('.sh-bar').evaluate((e) => e.offsetHeight);
+    const state = () => page.evaluate(() => {
+      const f = document.querySelector('.sh-frame:not([inert])');
+      return { hidden: document.body.classList.contains('is-bar-hidden'), top: Math.round(f.getBoundingClientRect().top),
+        y: Math.round(f.contentDocument.querySelector('.tp-body').scrollTop), inert: document.querySelector('.sh-bar').inert };
+    });
+    // Wheel steps with a pause between them, as a hand would, then a rest for the slide to finish
+    const wheel = async (dy) => {
+      for (let i = 0; i < Math.ceil(Math.abs(dy) / 60); i++) { await page.mouse.wheel(0, Math.sign(dy) * 60); await page.waitForTimeout(40); }
+      await page.waitForTimeout(500);
+    };
+    await page.mouse.move(195, 500);
+    expect(await state()).toMatchObject({ hidden: false, top: barH, inert: false });
+    await wheel(60); // still near the top: stays
+    expect((await state()).hidden).toBe(false);
+    await wheel(600);
+    expect(await state()).toMatchObject({ hidden: true, top: 0, inert: true });
+    await wheel(-120);
+    expect(await state()).toMatchObject({ hidden: false, top: barH, inert: false });
+    await wheel(300);
+    expect((await state()).hidden).toBe(true);
+    // Right to the end of the page it stays hidden: the frame growing must not read as a scroll up
+    for (let i = 0; i < 8; i++) await wheel(2500);
+    expect((await state()).hidden).toBe(true);
+    // A scroll up brings the bar back to reach the tabs; switching tab keeps it shown, and the other version starts shown
+    await wheel(-120);
+    expect((await state()).hidden).toBe(false);
+    await tab(page, 2).click();
+    await expect(frame(page, 2).locator('#tp-phone')).toBeVisible();
+    expect((await state()).hidden).toBe(false);
+    await page.mouse.move(195, 500);
+    await wheel(600);
+    expect((await state()).hidden).toBe(true);
+  });
+
+  test('the bar stays put when the version is not filling the screen (a desktop window)', async ({ page }) => {
+    await page.goto(`${VIEWER}?theme=hifi`);
+    await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
+    await page.frame({ url: /v1-frame/ }).evaluate(() => { document.querySelector('.tp-body').scrollTop = 800; });
+    await page.waitForTimeout(600);
+    expect(await page.evaluate(() => document.body.classList.contains('is-bar-hidden'))).toBe(false);
+  });
 });
