@@ -5808,6 +5808,7 @@ span.tp-map-arrow { display: block; }
 .tp-ws-at-i:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 4px; border-radius: 2px; }
 .tp-ws-at-i > svg { flex: none; width: 16px; height: 16px; margin: 2px 0 0; vertical-align: 0; }
 .tp-ws-at-what { font-weight: var(--fw-semi); }
+.tp-ws-at-what .tp-link { min-height: 0; } /* a link inside the sentence: a button's 36px height here pushed the line down, off its ticket icon */
 .tp-ws-at-acts { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
 .tp-ws-at-acts .tp-link { min-height: 32px; }
 .tp-pm-instead { margin-top: var(--space-2); }
