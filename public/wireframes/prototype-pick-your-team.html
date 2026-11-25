@@ -33,7 +33,14 @@
   .sh-tag--full { background: #dff3e5; color: #0b5d2a; }
   .sh-tag--reduced { background: #ffefc7; color: #6a4200; }
   .sh-note { margin: 0; padding: 0 var(--space-4) var(--space-3); font-size: .8125rem; line-height: 1.4; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  @media (min-width: 961px) { .sh-tabs { padding-inline: var(--space-6); } .sh-note { padding-inline: var(--space-6); } }
+  /* On a wide window the bar is one short row: the tabs at their own width, with the line beside them. As two rows (72px)
+     it shortened the phone window under it */
+  @media (min-width: 900px) {
+    .sh-bar { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-2) var(--space-6); }
+    .sh-tabs { flex: none; padding: 0; }
+    .sh-tab { flex: none; flex-direction: row; align-items: center; gap: var(--space-2); max-width: none; min-height: 36px; padding: 0 var(--space-4); }
+    .sh-note { flex: 1 1 auto; min-width: 0; padding: 0; }
+  }
   .sh-stage { position: absolute; inset: 0; }
   .sh-frame { position: absolute; top: var(--sh-bar); left: 0; width: 100%; height: calc(100% - var(--sh-bar)); border: 0; background: #fff; } /* an iframe does not stretch between top and bottom, so it has its height */
   /* The version not showing stays loaded, at full size, so it keeps its place and is never re-measured */
