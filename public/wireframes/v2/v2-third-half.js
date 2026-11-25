@@ -2257,8 +2257,7 @@
     var before = snap();
     apply();
     changedSince(before, '');
-    var ch = lastChanged.filter(function (c) { return c[1]; }), names = ['Your plan'].concat(ch.map(function (c) { return c[0]; }));
-    var line = (names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] + ' are' : names[0] + ' is') + ' updated.';
+    var ch = lastChanged.filter(function (c) { return c[1]; });
     // The link goes to the first changed section other than the one they acted in, and lands on the change itself
     var to = ch.filter(function (c) { return c[1] !== fromSec; })[0];
     var act = pmOpen ? null : to ? { label: 'See ' + to[0], fn: function () { tp.goTo(to[1]); if (to[1] === SECS.watch) watchShow(m.key); else if (to[1] === SECS.third) tp.listShowDay(m.day); } } : { label: 'Open your plan', fn: tp.openPlan };

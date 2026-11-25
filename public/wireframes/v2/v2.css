@@ -213,8 +213,6 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
 .v2-sv-foot { flex: none; display: grid; gap: var(--space-3); padding: var(--space-4) var(--space-5) var(--space-5); border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .14)); background: var(--c-surface); }
 .v2-sv-foot[hidden] { display: none; }
 .v2-sv-foot .tp-home-cta, .v2-sv-empty .tp-home-cta { margin: 0; width: 100%; min-width: 0; }
-.v2-sv-note { margin: 0; font-size: .8125rem; line-height: 1.4; color: var(--c-ink-2); }
-.v2-sv-note--top { margin-bottom: var(--space-3); }
 .v2-sv-count { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); margin: 0; padding-bottom: var(--space-2); font-size: .875rem; color: var(--c-ink-2); }
 .v2-sv-link { padding: 0; min-height: 24px; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: .875rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .v2-sv-undo { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin: 0 0 var(--space-3); padding: 10px var(--space-4); border-radius: 8px; background: var(--c-btn); color: var(--c-on-dark, #fff); font-size: .875rem; }
