@@ -196,21 +196,25 @@ list as set out in "Adding standing flags" above, and add it once the user has a
     naming the change. A toast must never sit over the control someone is still using: if it would, leave it out. For
     example, setting your days on the page's date picker showed a toast that covered the slider before the page was
     scrolled down.
-    - **Content.** A short title saying what they did. One line naming what it changed, listing only the parts that
-      actually changed; if nothing needed to change, say so. A toast that repeats as someone adjusts something (setting
-      days) is title only, with the change in the title, for example "Your days are now 14 Oct to 6 Nov", and updates
-      in place rather than popping up again. At most one link, and its label names where it goes ("See Where to
-      watch", "Open your plan"), so the page only moves when asked (check 8). No link inside a sheet that would open
-      something over that sheet.
-    - **Behaviour.** One at a time, and a new one replaces the old. It stays 6 seconds, longer while hovered or focused,
-      and a cross closes it. Its background is 90% opaque. It rises and fades in; reduced motion fades only. Don't make
-      it a live region when screen readers already hear the change, so nothing is said twice.
+    - **Content.** One short sentence of body text saying what they did and, where it helps, where or when it landed
+      ("Sydney Fish Market added to your plan, Sat 3 Oct."). No title and no second line: a toast is glanced at, not
+      read. At most one link, and its label names where the change shows ("See Where to watch", "Open your plan"), so
+      the sentence doesn't list sections and the page only moves when asked (check 8). A toast that repeats as someone
+      adjusts something (setting days) updates in place rather than popping up again. No link inside a sheet that
+      would open something over that sheet.
+    - **Behaviour.** One at a time, and a new one replaces the old. It is small: it hugs its text, at body size. It
+      stays 4 seconds, longer while hovered or focused, and a tap closes it. Its background is 90% opaque. It rises and
+      fades in; reduced motion fades only. Don't make it a live region when screen readers already hear the change, so
+      nothing is said twice.
+    - **A toast belongs to the screen it appeared on.** When a sheet or layer opens over that screen, the toast goes
+      away instead of sitting over the sheet. A toast raised inside a sheet stays with that sheet. For example, a
+      ticket toast on the page disappears when a match sheet opens.
     - **Position.** Measured from the bottom of the screen: 16px on a phone, 24px on a desktop. It sits 12px above
       whatever is pinned to the bottom and showing on top there (a bar, a sheet's bottom row, a card, a prompt, the
       keyboard), and stacks above them when there are several. Anything covered by a sheet doesn't count. It follows
       these as they appear or go.
-    - For example, setting your days from the days sheet or the plan shows "Your days are now 8 to 14 Oct" with a link,
-      "See Where to watch". The toast sits above the Your plan bar, or above Save & share when the plan is open.
+    - For example, setting your days from the days sheet or the plan shows "Your days are now 8 to 14 Oct." with a
+      link, "See Where to watch". The toast sits above the Your plan bar, or above Save & share when the plan is open.
 12. **Say what else a change will touch, before building.** When a brief changes shared behaviour (a state, a rule, a
     label, or a component used in several places), trace where else it shows up. With the scope check, list anything
     elsewhere on the site, the docs included (CLAUDE.md, annotations, the build log), that it will change, break or
@@ -235,6 +239,11 @@ Implementation lessons that testing caught; they are about the code, not the exp
    judged from the rendered pixels, because fonts and their metrics differ between themes and devices. For example,
    the Add buttons measured as centred but read low in one font, and the card text measured fine but sat 4px in from
    its title.
+   A row is checked in the states where it has content, not only at rest: lines that appear after an action (a
+   ticket marked, a team picked, something saved) are opened and looked at too. In any row that pairs an icon with
+   text, the icon's centre sits on the first line's centre, and a link or button inside a sentence takes the
+   sentence's line height, never a standalone button's minimum height. For example, the ticket lines in Where to
+   watch sat 8px below their icons because the match name, a link inside the sentence, kept a button's 36px height.
 
 # Experience principles
 
