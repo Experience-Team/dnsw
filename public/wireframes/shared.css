@@ -5750,28 +5750,21 @@ span.tp-map-arrow { display: block; }
 .tp-dev-sep { height: 1px; margin: var(--space-2) 0; background: var(--c-line-soft); }
 @media (max-height: 600px), (max-width: 800px) { .pv-frame-tools { right: auto; left: calc(100% + var(--space-2)); } }
 
-/* Pick your team: toasts (concepts-teams.js toast()). A dark card near the foot of the screen, 16px in from the
-   sides: the title and a line on what changed, the cross beside them, the link underneath (beside them on a desktop). Above the Your plan bar on a phone (--toast-b), at
-   the foot of the content column on a desktop. Over everything but the photo layer and the stacked sheets' scrim. */
-.tp-toast { position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--toast-b, 16px); z-index: 150; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 var(--space-2); padding: var(--space-3) var(--space-2) var(--space-2) var(--space-4); border-radius: var(--radius-md); background: color-mix(in srgb, var(--c-btn) 90%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--c-on-dark); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); }
+/* Pick your team: toasts (concepts-teams.js toast()). A small dark pill near the foot of the screen: one line of body
+   text and, at most, a link beside it. It hugs its text, centred on a phone and at the content's left edge on a
+   desktop. Above the Your plan bar on a phone (--toast-b), at the foot of the content column on a desktop. 90% opaque. */
+.tp-toast { position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--toast-b, 16px); z-index: 150; display: flex; align-items: center; gap: var(--space-3); width: fit-content; max-width: calc(100% - 2 * var(--space-4)); margin: 0 auto; min-height: 36px; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: color-mix(in srgb, var(--c-btn) 90%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--c-on-dark); font-size: var(--fs-sm); line-height: 1.4; box-shadow: 0 6px 18px rgba(17, 17, 17, .24); cursor: default; }
 .tp-toast[hidden] { display: none; }
 .tp-toast { transition: bottom .24s cubic-bezier(.2, .8, .2, 1); } /* moves up or down with what is pinned to the bottom */
 .tp-toast.is-placing { transition: none; }
 @media (prefers-reduced-motion: reduce) { .tp-toast { transition: none; } }
-.tp-toast-t { font-size: var(--fs-base); font-weight: var(--fw-bold); line-height: 1.3; }
-.tp-toast-d { margin-top: 2px; font-size: var(--fs-sm); line-height: 1.4; opacity: .86; }
-.tp-toast-d[hidden], .tp-toast-act[hidden] { display: none; }
-.tp-toast-txt { grid-column: 1; grid-row: 1; padding-bottom: var(--space-1); }
-.tp-toast-act { grid-column: 1; grid-row: 2; justify-self: start; margin-left: calc(var(--space-2) * -1); min-height: 36px; padding: 0 var(--space-2); border: 0; background: none; color: inherit; font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-bold); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; cursor: pointer; }
-.tp-toast-x { grid-column: 2; grid-row: 1; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: none; color: inherit; cursor: pointer; }
-@media (hover: hover) { .tp-toast-x:hover { background: rgba(255, 255, 255, .14); } .tp-toast-act:hover { text-decoration-thickness: 2px; } }
-.tp-toast :is(.tp-toast-act, .tp-toast-x):focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.tp-toast-txt { flex: 1 1 auto; min-width: 0; margin: 0; font-size: inherit; line-height: inherit; }
+.tp-toast-act[hidden] { display: none; }
+.tp-toast-act { flex: none; min-height: 24px; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; cursor: pointer; }
+@media (hover: hover) { .tp-toast-act:hover { text-decoration-thickness: 2px; } }
+.tp-toast .tp-toast-act:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 @media (min-width: 1024px) {
-  /* Desktop: one row, the link beside the text */
-  .pv-device #tp-phone .tp-toast { left: var(--wide-pad); right: auto; width: min(520px, calc(100vw - 2 * var(--wide-pad))); grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; padding-bottom: var(--space-3); }
-  .pv-device #tp-phone .tp-toast-txt { padding-bottom: 0; }
-  .pv-device #tp-phone .tp-toast-act { grid-column: 2; grid-row: 1; margin-left: 0; }
-  .pv-device #tp-phone .tp-toast-x { grid-column: 3; }
+  .pv-device #tp-phone .tp-toast { left: var(--wide-pad); right: auto; margin: 0; max-width: min(520px, calc(100vw - 2 * var(--wide-pad))); }
 }
 
 /* Day by day map: the swipe hint (concepts-map.js hintShow). A dark pill centred over the map, 12px above the day's

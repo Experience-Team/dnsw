@@ -2227,14 +2227,13 @@
   function changeToast(title, verb, none) {
     if (fc() || fcLevel()) return;
     var ch = lastChanged.filter(function (c) { return c[1]; });
-    if (!ch.length) { tp.toast(title, none || ''); return; }
-    var names = ch.map(function (c) { return c[0]; });
-    tp.toast(title, names.join(' and ') + ' ' + (names.length > 1 ? verb[1] : verb[0]) + '.', { label: 'See ' + names[0], fn: function () { tp.goTo(ch[0][1]); } });
+    // One line saying what they did; the link names the first section it changed (verb and none are no longer shown)
+    tp.toast(title + '.', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null);
   }
   function baseToast(v) {
-    if (v === 'local') changeToast('Ideas for a local', ['now shows the nearest first', 'now show the nearest first']);
-    else if (v === 'outside') changeToast('Staying outside NSW', ['is updated to suit', 'are updated to suit']);
-    else if (v) changeToast('Staying in ' + v, ['now starts from there', 'now start from there']);
+    if (v === 'local') changeToast('Ideas now suit a local', ['now shows the nearest first', 'now show the nearest first']);
+    else if (v === 'outside') changeToast('Now staying outside NSW', ['is updated to suit', 'are updated to suit']);
+    else if (v) changeToast('Now staying in ' + v, ['now starts from there', 'now start from there']);
     else changeToast('Where you’re staying is cleared', ['is updated to suit', 'are updated to suit']);
   }
   // Compact (18 Nov): it repeats as the days are adjusted, so it is the title only, with a link to the first section
@@ -2242,7 +2241,7 @@
   function daysToast(had, from, to) {
     if (fc() || fcLevel()) return;
     var ch = lastChanged.filter(function (c) { return c[1]; });
-    tp.toast('Your days are now ' + tp.isoRange(from, to), '', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null, 'days');
+    tp.toast('Your days are now ' + tp.isoRange(from, to) + '.', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null, 'days');
   }
   /* A ticket marked or removed (18 Nov, check 11): it changes the match on your plan and can change Where to watch and
      Around your matches, none of them in view from a match card or a sheet, so one toast says so. The title names the
@@ -2259,7 +2258,7 @@
     // The link goes to the first changed section other than the one they acted in, and lands on the change itself
     var to = ch.filter(function (c) { return c[1] !== fromSec; })[0];
     var act = pmOpen ? null : to ? { label: 'See ' + to[0], fn: function () { tp.goTo(to[1]); if (to[1] === SECS.watch) watchShow(m.key); else if (to[1] === SECS.third) tp.listShowDay(m.day); } } : { label: 'Open your plan', fn: tp.openPlan };
-    tp.toast((on ? 'Ticket marked: ' : 'Ticket removed: ') + matchName(m.f), line, act);
+    tp.toast((on ? 'Ticket marked for ' : 'Ticket removed for ') + matchName(m.f) + '.', act);
     // Never over the control they just pressed (check 11): if the toast would cover it, it is left out; the button's
     // own pressed state shows the change, and screen readers hear it. Checked before the toast is painted.
     // The pressed button may have been redrawn, and the same ticket has a button in more than one place, so every
@@ -2289,10 +2288,10 @@
       return;
     }
     var it = addedItem(id), act = pmOpen ? null : { label: 'Open your plan', fn: tp.openPlan };
-    if (!on) { tp.toast('Removed from your plan', title + '.'); return; }
+    if (!on) { tp.toast(title + ' removed from your plan.'); return; }
     if (!it) return;
-    if (it.unplaced) tp.toast('Saved to your plan', it.fixed ? title + ' goes on ' + it.fixed + ' once you set your days.' : title + ' goes into a free day once ' + (stay() ? 'one fits it.' : 'you set your days.'), act);
-    else tp.toast('Added to your plan', title + ', ' + it.day + '.', act);
+    if (it.unplaced) tp.toast(title + ' saved. It goes ' + (it.fixed ? 'on ' + it.fixed + ' once you set your days.' : 'into a free day once ' + (stay() ? 'one fits it.' : 'you set your days.')), act);
+    else tp.toast(title + ' added to your plan, ' + it.day + '.', act);
   }
   function flash(sec) { sec.classList.remove('is-changed'); void sec.offsetWidth; sec.classList.add('is-changed'); }
   var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
