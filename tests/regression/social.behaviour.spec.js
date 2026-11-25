@@ -112,7 +112,7 @@ for (const V of VERSIONS) {
       await post.click();
       await expect(layer(page)).toBeVisible();
       await expect(page.locator(sel('capt'))).toContainText('Newcastle');
-      await expect(page.locator(sel('when'))).toHaveText('21 Nov');
+      await expect(page.locator(sel('when'))).toHaveText('21 Nov · 1 of 6');
       const url = page.url();
       await page.getByRole('link', { name: /View on Instagram/ }).click();
       await expect(page.locator('#' + V.pf + '-soc-lsay')).toContainText('Placeholder link');
@@ -141,6 +141,79 @@ for (const V of VERSIONS) {
       await expect(page.locator(`${sec} ${sel('ring')}`)).toHaveClass(/is-plain/);
       await expect(page.locator(`${sec} ${sel('ring')}`)).not.toHaveAttribute('data-soc-story', /.*/);
       await expect(page.locator(`${sec} ${sel('posts')}`)).toBeHidden();
+    });
+
+    test('the rows that scroll sideways run to the screen edges on a phone, with the first item lined up with the margin', async ({ page }) => {
+      await go(page);
+      await page.locator(sec).scrollIntoViewIfNeeded();
+      const m = await page.evaluate(({ sec, pf }) => {
+        const body = document.querySelector('.tp-body').getBoundingClientRect(), s = document.querySelector(sec).getBoundingClientRect();
+        const row = document.getElementById(pf + '-soc-posts'), r = row.getBoundingClientRect(), c = row.querySelector('li').getBoundingClientRect();
+        return { left: Math.round(r.left - body.left), right: Math.round(body.right - r.right), firstItem: Math.round(c.left - s.left), canScroll: row.scrollWidth > row.clientWidth };
+      }, { sec, pf: V.pf });
+      expect(m.canScroll).toBe(true);
+      expect(m.left).toBe(0);      // not stopped by the margin
+      expect(m.right).toBe(0);
+      expect(m.firstItem).toBe(0); // the first card starts at the page's margin
+    });
+
+    test('swiping goes to the next and previous post, and Previous and Next do too, with the position and the ends respected', async ({ page }) => {
+      await go(page);
+      await page.locator(`${sec} ${sel('post')}`).first().click();
+      await expect(page.locator(sel('when'))).toHaveText('21 Nov · 1 of 6');
+      await expect(page.locator(`#${V.pf}-soc-pprev`)).toBeHidden(); // the first: nothing before it
+      await expect(page.locator(`#${V.pf}-soc-pnext`)).toBeVisible();
+      const swipe = async (dx, steps = 8) => {
+        const b = await layer(page).boundingBox(), y = b.y + b.height * 0.4, x0 = b.x + b.width / 2 + (dx < 0 ? 100 : -100);
+        await page.mouse.move(x0, y); await page.mouse.down();
+        for (let i = 1; i <= steps; i++) { await page.mouse.move(x0 + (dx * i) / steps, y); await page.waitForTimeout(16); }
+        await page.mouse.up(); await page.waitForTimeout(500);
+      };
+      await swipe(-220); // a swipe left: the next post
+      await expect(page.locator(sel('when'))).toHaveText('19 Nov · 2 of 6');
+      await expect(page.locator(sel('capt'))).toContainText('Where Sydney eats');
+      await swipe(220); // right: back
+      await expect(page.locator(sel('when'))).toHaveText('21 Nov · 1 of 6');
+      await swipe(220); // right at the first: it springs back and stays
+      await expect(page.locator(sel('when'))).toHaveText('21 Nov · 1 of 6');
+      await swipe(-30); // a short drag does not count: it springs back
+      await expect(page.locator(sel('when'))).toHaveText('21 Nov · 1 of 6');
+      await page.locator(`#${V.pf}-soc-pnext`).click();
+      await expect(page.locator(sel('when'))).toHaveText('19 Nov · 2 of 6', { timeout: 3000 });
+      await page.waitForTimeout(500); // the slide in finishes
+      await layer(page).focus();
+      await page.keyboard.press('ArrowRight'); await page.waitForTimeout(450);
+      await expect(page.locator(sel('when'))).toHaveText('17 Nov · 3 of 6');
+      // To the last: Next goes
+      for (let i = 0; i < 3; i++) { await page.keyboard.press('ArrowRight'); await page.waitForTimeout(450); }
+      await expect(page.locator(sel('when'))).toHaveText('9 Nov · 6 of 6');
+      await expect(page.locator(`#${V.pf}-soc-pnext`)).toBeHidden();
+      await expect(page.locator(`#${V.pf}-soc-live`)).toContainText('post 6 of 6');
+      // Closing from the sixth puts the row and the focus on the sixth post
+      await page.keyboard.press('Escape');
+      await expect(layer(page)).toBeHidden();
+      await expect(page.locator(`${sec} ${sel('post')}`).nth(5)).toBeFocused();
+    });
+
+    test('swiping between stories goes on to the next story and over to the next account', async ({ page }) => {
+      await go(page);
+      await page.locator(`${sec} ${sel('ring')}`).first().click();
+      await expect(page.locator(sel('capt'))).toContainText('Ocean pools');
+      const swipe = async (dx) => {
+        const b = await layer(page).boundingBox(), y = b.y + b.height * 0.4, x0 = b.x + b.width / 2 + (dx < 0 ? 100 : -100);
+        await page.mouse.move(x0, y); await page.mouse.down();
+        for (let i = 1; i <= 8; i++) { await page.mouse.move(x0 + (dx * i) / 8, y); await page.waitForTimeout(16); }
+        await page.mouse.up(); await page.waitForTimeout(500);
+      };
+      await swipe(-220);
+      await expect(page.locator(sel('capt'))).toContainText('ferry');
+      await swipe(-220); await swipe(-220); await swipe(-220); // to the last Instagram story and over to TikTok's
+      await expect(page.locator(sel('capt'))).toContainText('Rooftop');
+      await swipe(220);                                          // back to Instagram's
+      await expect(page.locator(sel('capt'))).toContainText('Ocean pools');
+      await swipe(220);                                          // before the first of all: springs back
+      await expect(page.locator(sel('capt'))).toContainText('Ocean pools');
+      await expect(layer(page)).toBeVisible();
     });
 
     test('nothing scrolls sideways on a phone, apart from the rows meant to', async ({ page }) => {

@@ -101,44 +101,87 @@ test.describe('Prototype viewer', () => {
       expect(m.tags.every(Boolean)).toBe(true);
     }
   });
-  // On a phone (or ?phone) the bar hides on a scroll down and shows on a scroll up, with the frame moving with it
-  test('the bar hides on a scroll down and shows on a scroll up, and a tab switch shows it', async ({ page }) => {
+  // On a phone (or ?phone) the bar moves with the scrolling: it rises by as much as the page does and comes back as soon
+  // as the page goes down again, with no timed slide. When scrolling stops part way it settles to the nearer end
+  const barState = (page) => page.evaluate(() => {
+    const f = document.querySelector('.sh-frame:not([inert])'), bar = document.querySelector('.sh-bar');
+    return { barTop: Math.round(bar.getBoundingClientRect().top), barH: bar.offsetHeight, frameTop: Math.round(f.getBoundingClientRect().top),
+      y: Math.round(f.contentDocument.querySelector('.tp-body').scrollTop), inert: bar.inert };
+  });
+  const scrollBy = async (page, dy, version = 1) => {
+    await page.frame({ url: new RegExp(`v${version}-frame`) }).evaluate((d) => { document.querySelector('.tp-body').scrollTop += d; }, dy);
+    await page.waitForTimeout(30);
+  };
+
+  test('the bar rises exactly as the page rises and comes back as soon as it goes down again', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${VIEWER}?theme=hifi&phone`);
     await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
-    const barH = await page.locator('.sh-bar').evaluate((e) => e.offsetHeight);
-    const state = () => page.evaluate(() => {
-      const f = document.querySelector('.sh-frame:not([inert])');
-      return { hidden: document.body.classList.contains('is-bar-hidden'), top: Math.round(f.getBoundingClientRect().top),
-        y: Math.round(f.contentDocument.querySelector('.tp-body').scrollTop), inert: document.querySelector('.sh-bar').inert };
+    const h = (await barState(page)).barH;
+    expect(await barState(page)).toMatchObject({ barTop: 0, frameTop: h, inert: false });
+    // Down in small steps, as a thumb moves (one a frame, no pause): at each scroll the bar has gone up by what the page has
+    const steps = await page.frame({ url: /frame\.html/ }).evaluate(async () => {
+      const out = [], body = document.querySelector('.tp-body'), frame = parent.document.querySelector('.sh-frame:not([inert])'), bar = parent.document.querySelector('.sh-bar');
+      // Registered after the viewer's own listener, so it sees the bar as that has just set it
+      document.addEventListener('scroll', (e) => { if (e.target === body) out.push({ y: Math.round(body.scrollTop), barTop: Math.round(bar.getBoundingClientRect().top), frameTop: Math.round(frame.getBoundingClientRect().top) }); }, true);
+      for (let i = 0; i < 5; i++) { body.scrollTop += 20; await new Promise((r) => requestAnimationFrame(r)); }
+      await new Promise((r) => setTimeout(r, 40));
+      return out;
     });
-    // Wheel steps with a pause between them, as a hand would, then a rest for the slide to finish
-    const wheel = async (dy) => {
-      for (let i = 0; i < Math.ceil(Math.abs(dy) / 60); i++) { await page.mouse.wheel(0, Math.sign(dy) * 60); await page.waitForTimeout(40); }
-      await page.waitForTimeout(500);
-    };
-    await page.mouse.move(195, 500);
-    expect(await state()).toMatchObject({ hidden: false, top: barH, inert: false });
-    await wheel(60); // still near the top: stays
-    expect((await state()).hidden).toBe(false);
-    await wheel(600);
-    expect(await state()).toMatchObject({ hidden: true, top: 0, inert: true });
-    await wheel(-120);
-    expect(await state()).toMatchObject({ hidden: false, top: barH, inert: false });
-    await wheel(300);
-    expect((await state()).hidden).toBe(true);
-    // Right to the end of the page it stays hidden: the frame growing must not read as a scroll up
-    for (let i = 0; i < 8; i++) await wheel(2500);
-    expect((await state()).hidden).toBe(true);
-    // A scroll up brings the bar back to reach the tabs; switching tab keeps it shown, and the other version starts shown
-    await wheel(-120);
-    expect((await state()).hidden).toBe(false);
+    expect(steps.length).toBe(5);
+    steps.forEach((s, i) => {
+      const total = (i + 1) * 20;
+      expect(s.y).toBe(total);
+      expect(s.barTop).toBe(-total);
+      expect(s.frameTop).toBe(h - total); // the frame follows the bar up
+    });
+    // On to the end of the bar, and further: fully out, and out of reach
+    await page.frame({ url: /frame\.html/ }).evaluate(async () => { const b = document.querySelector('.tp-body'); for (let i = 0; i < 12; i++) { b.scrollTop += 20; await new Promise((r) => requestAnimationFrame(r)); } });
+    expect(await barState(page)).toMatchObject({ barTop: -h, frameTop: 0, inert: true });
+    // The first step back up brings it back, one to one
+    const up = await page.frame({ url: /frame\.html/ }).evaluate(async () => {
+      const out = [], body = document.querySelector('.tp-body'), frame = parent.document.querySelector('.sh-frame:not([inert])'), bar = parent.document.querySelector('.sh-bar');
+      document.addEventListener('scroll', (e) => { if (e.target === body) out.push({ barTop: Math.round(bar.getBoundingClientRect().top), frameTop: Math.round(frame.getBoundingClientRect().top), inert: parent.document.querySelector('.sh-bar').inert }); }, true);
+      for (let i = 0; i < 3; i++) { body.scrollTop -= 15; await new Promise((r) => requestAnimationFrame(r)); }
+      await new Promise((r) => setTimeout(r, 40));
+      return out;
+    });
+    expect(up.length).toBe(3);
+    up.forEach((s, i) => { expect(s.barTop).toBe(-h + 15 * (i + 1)); expect(s.frameTop).toBe(15 * (i + 1)); expect(s.inert).toBe(false); });
+  });
+
+  test('when scrolling stops part way the bar settles to the nearer end, and the end of the page does not bring it back', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${VIEWER}?theme=hifi&phone`);
+    await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
+    const h = (await barState(page)).barH;
+    await scrollBy(page, 30); // less than half the bar: back to shown
+    await expect.poll(async () => (await barState(page)).barTop, { timeout: 2000 }).toBe(0);
+    await scrollBy(page, 70); // more than half the bar: away
+    await expect.poll(async () => (await barState(page)).barTop, { timeout: 2000 }).toBe(-h);
+    expect((await barState(page)).frameTop).toBe(0);
+    // Right to the foot of the page it stays away: the frame growing must not read as a scroll up
+    await page.frame({ url: /frame\.html/ }).evaluate(() => { const b = document.querySelector('.tp-body'); b.scrollTop = b.scrollHeight; });
+    await page.waitForTimeout(500);
+    expect((await barState(page)).barTop).toBe(-h);
+    // Back to the top: shown
+    await page.frame({ url: /frame\.html/ }).evaluate(() => { document.querySelector('.tp-body').scrollTop = 0; });
+    await expect.poll(async () => (await barState(page)).barTop, { timeout: 2000 }).toBe(0);
+  });
+
+  test('switching tab brings the bar back, and the other version starts with it shown', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${VIEWER}?theme=hifi&phone`);
+    await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
+    const h = (await barState(page)).barH;
+    await scrollBy(page, 300);
+    await expect.poll(async () => (await barState(page)).barTop, { timeout: 2000 }).toBe(-h);
+    await scrollBy(page, -80); // back up by more than half the bar: it settles shown, in reach
     await tab(page, 2).click();
     await expect(frame(page, 2).locator('#tp-phone')).toBeVisible();
-    expect((await state()).hidden).toBe(false);
-    await page.mouse.move(195, 500);
-    await wheel(600);
-    expect((await state()).hidden).toBe(true);
+    await expect.poll(async () => (await barState(page)).barTop, { timeout: 2000 }).toBe(0);
+    await scrollBy(page, 300, 2);
+    await expect.poll(async () => (await barState(page)).barTop, { timeout: 2000 }).toBe(-h);
   });
 
   test('the bar stays put when the version is not filling the screen (a desktop window)', async ({ page }) => {
@@ -146,7 +189,7 @@ test.describe('Prototype viewer', () => {
     await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
     await page.frame({ url: /v1-frame/ }).evaluate(() => { document.querySelector('.tp-body').scrollTop = 800; });
     await page.waitForTimeout(600);
-    expect(await page.evaluate(() => document.body.classList.contains('is-bar-hidden'))).toBe(false);
+    expect((await page.evaluate(() => document.body.style.getPropertyValue('--sh-off'))) || '0px').toBe('0px');
   });
   // The bar must never take height from the phone window: over the top of the version's left panel in a window that
   // shows the viewer, one short row above a phone view that fills its window
