@@ -219,4 +219,30 @@ test.describe('Prototype viewer', () => {
     expect(m.w).toBe(1280);
     expect(m.top).toBe(m.h);
   });
+  // The phone sits in a phone (a 7px grey body, rounded corners, side buttons) in the desktop viewer; the screen inside is as
+  // tall as it was without the phone, so the frame never shortens it; a phone view has none
+  test('the desktop viewer draws the phone in a phone and the screen is not shortened', async ({ page }) => {
+    for (const version of [1, 2]) {
+      for (const [w, h] of [[1518, 832], [1280, 800]]) {
+        await page.setViewportSize({ width: w, height: h });
+        await page.goto(`${VIEWER}?theme=hifi&version=${version}`);
+        await expect(frame(page, version).locator('#tp-phone')).toBeVisible();
+        const m = await page.evaluate(() => {
+          const f = document.querySelector('.sh-frame:not([inert])').contentDocument, body = f.querySelector('.pv-phone'), c = getComputedStyle(body), scr = f.getElementById('tp-phone').getBoundingClientRect(), outer = body.getBoundingClientRect();
+          return { pad: c.paddingLeft, radius: c.borderTopLeftRadius, bg: c.backgroundColor, screenW: Math.round(scr.width), screenH: Math.round(scr.height), inset: Math.round(scr.left - outer.left), buttons: getComputedStyle(body, '::before').content };
+        });
+        expect(m.pad).toBe('7px');
+        expect(m.radius).toBe('55px');
+        expect(m.bg).toBe('rgb(83, 83, 83)');
+        expect(m.buttons).not.toBe('none'); // the side buttons
+        expect(m.screenW).toBe(390);
+        expect(m.inset).toBe(7);
+        expect(m.screenH).toBe(h - 64);     // what it was before the phone: the window less 32px above and below
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(`${VIEWER}?theme=hifi&phone`);
+    await expect(frame(page, 1).locator('#tp-phone')).toBeVisible();
+    expect(await page.evaluate(() => { const f = document.querySelector('.sh-frame:not([inert])').contentDocument, b = f.querySelector('.pv-phone'); return b ? getComputedStyle(b).paddingLeft : '0px'; })).toBe('0px');
+  });
 });

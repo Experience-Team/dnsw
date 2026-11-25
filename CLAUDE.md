@@ -81,6 +81,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    start to end (for example a picked card travelling to the middle of a fan). Check motion frame by frame, not only
    where it ends up; a front-loaded curve such as expo-out that covers most of the distance in the first few frames
    reads as a jump.
+   A header or bar that hides on a scroll down and shows on a scroll up moves with the scroll: it rises by as much as
+   the page rises and comes back as soon as the page goes down again, never a timed slide that starts after a
+   threshold. What sits under it follows it, and when scrolling ends part way it settles fully shown or fully hidden.
+   For example, the Version 1 / Version 2 bar slid out on a 240ms ease after a threshold, which read as a jump.
 2. **Choices behave like what they mean.** An "all", "any" or "none" option replaces specific picks, and picking a
    specific item replaces it, so the two never mix.
 3. **Every multi-select can be cleared.** If people can pick several things, give them one action to clear them all
@@ -106,6 +110,10 @@ list as set out in "Adding standing flags" above, and add it once the user has a
    container from the content's real extremes in every state it can be in (dragged to either end, picked, lifted,
    focused), not from a guess, and measure the rendered result. Clip only the sides that are meant to run on (a fan
    or carousel running off the edge); let a brief lift or pull rise out of the box rather than reserving space for it.
+   A carousel, or any row that scrolls sideways, is never clipped by the page margins or a column: on a phone it runs
+   to the screen's edge, and on desktop to the window's edge, past a fixed-width column if it sits in one (agreed
+   25 Nov 2026). The first item lines up with the margin or the column, and the next one peeks. For example, the
+   Sydney on social posts stopped 24px short of the screen edge on a phone, and at the column's edge on desktop.
    Text meant to sit on one line (a tab label, a slogan line, a button) holds on one line in every theme and font,
    at 390 wide and on desktop, not only in the theme being worked in; the wireframe's system font is wider than the high
    fidelity one, and a page-wide rule can let text wrap.

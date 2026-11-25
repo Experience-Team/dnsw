@@ -40,6 +40,13 @@
   function keep() { try { localStorage.setItem(STORE, JSON.stringify(seen)); } catch (e) {} }
 
   /* ---------- the section ---------- */
+  // The rows that scroll sideways run to the edge of the screen on a phone, and to the edge of the window on desktop, past the
+  // page margins or a fixed-width column: the bleed is the gap between the scrolling page and this section, each side, and
+  // the first item stays lined up with the section
+  var scroller = sec.closest('.tp-body');
+  function bleed() { if (!scroller || !sec.offsetParent) return; var g = Math.max(0, Math.round((scroller.clientWidth - sec.clientWidth) / 2 * 100) / 100); sec.style.setProperty('--v2-soc-bleed', g + 'px'); }
+  if (window.ResizeObserver && scroller) { var ro = new ResizeObserver(bleed); ro.observe(scroller); ro.observe(sec); }
+  bleed();
   var rings = sec.querySelector('#v2-soc-rings'), postsEl = sec.querySelector('#v2-soc-posts'), visit = sec.querySelector('#v2-soc-visit'), say = sec.querySelector('#v2-soc-say');
   rings.innerHTML = accounts.map(function (a) {
     var n = storiesOf(a.id).length, p = LABEL[a.platform] || a.platform, inner = '<span class="v2-soc-av" aria-hidden="true">' + (ICON[a.platform] || '') + '</span><span class="v2-soc-rl">' + esc(a.name) + '</span><span class="v2-soc-rs">' + esc(p) + '</span>';
