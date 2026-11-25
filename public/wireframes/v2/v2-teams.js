@@ -2270,7 +2270,7 @@
     var firstSave = it.kind !== 'match' && !state.added.some(function (x) { return x.kind !== 'match'; }), barWas = tlOn;
     state.added.push(it); save(); changed(); syncBar();
     // The first save made while the plan bar is out of sight is confirmed where they are (check 11)
-    if (firstSave && !barWas && !tlOpen && !quiet) toast('Saved to your plan', it.title + (it.unplaced ? ' waits in your plan until you set your days.' : ', ' + it.day + '.'), { label: 'Open your plan', fn: function () { tlSetOpen(true); } });
+    if (firstSave && !barWas && !tlOpen && !quiet) toast(it.title + (it.unplaced ? ' saved. It waits in your plan until you set your days.' : ' saved to your plan, ' + it.day + '.'), { label: 'Open your plan', fn: function () { tlSetOpen(true); } });
     return true;
   }
   function removeItem(id) {
@@ -2460,16 +2460,15 @@
 
   /* ---------- Toasts: what a change did, said where the person is ----------
      One at a time, near the foot of the screen: above the Your plan bar on a phone, at the foot of the content column
-     on a desktop. A short title saying what happened, a line saying what it changed elsewhere on the page, and at most
-     one link to it (its label names where it goes, so the page only moves when asked). Stays 6 seconds, longer while
-     the pointer or keyboard focus is on it; the cross closes it. Screen readers already hear each change from say(),
-     so the toast is not a live region and says nothing twice. Rises 12px and fades in; reduced motion fades only. */
+     on a desktop. One short line of body text saying what happened, and at most one link to where it shows (its label
+     names where it goes, so the page only moves when asked). Stays 4 seconds, longer while the pointer or keyboard
+     focus is on it; a tap on it closes it. A sheet or layer that opens after it showed puts it away, as it spoke
+     for the screen underneath. Screen readers already hear each change from say(), so the toast is not a live
+     region and says nothing twice. Rises 12px and fades in; reduced motion fades only. */
   var toastEl = document.createElement('div');
   toastEl.className = 'tp-toast';
   toastEl.hidden = true;
-  toastEl.innerHTML = '<div class="tp-toast-txt"><p class="tp-toast-t"></p><p class="tp-toast-d"></p></div>' +
-    '<button type="button" class="tp-toast-act"></button>' +
-    '<button type="button" class="tp-toast-x" aria-label="Close message"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button>';
+  toastEl.innerHTML = '<p class="tp-toast-txt"></p><button type="button" class="tp-toast-act"></button>';
   phoneEl.appendChild(toastEl);
   var toastT = 0, toastHeld = false, toastFn = null;
   /* Where it sits: from the bottom of the screen (16px on a phone, 24px on a desktop), and 12px above whatever is
@@ -2508,32 +2507,47 @@
     if (now || reduce.matches || !toastEl.animate) { toastEl.hidden = true; toastFollow(false); return; }
     toastEl.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(8px)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = function () { toastEl.hidden = true; toastFollow(false); };
   }
+  // The sheets and layers open over the page right now (a stacked sheet, the match sheet, the open plan, a full-screen
+  // layer). A toast remembers which were up when it showed; one that opens afterwards puts the toast away
+  function toastOver() {
+    var pr = phoneEl.getBoundingClientRect();
+    return [].filter.call(phoneEl.querySelectorAll('[role="dialog"], [role="alertdialog"], .tp-tl.is-open'), function (el) {
+      if (el.hidden || el.inert || !el.getClientRects().length || getComputedStyle(el).visibility === 'hidden') return false;
+      var r = el.getBoundingClientRect();
+      return r.height > 1 && r.top < pr.bottom - 1 && r.bottom > pr.top + 1;
+    });
+  }
+  var toastUnder = [];
   function toastFollow(on) {
     clearInterval(toastWatch);
-    if (on) toastWatch = setInterval(function () { if (toastEl.hidden) clearInterval(toastWatch); else toastPlace(); }, 150);
+    if (on) toastWatch = setInterval(function () {
+      if (toastEl.hidden) { clearInterval(toastWatch); return; }
+      if (toastOver().some(function (el) { return toastUnder.indexOf(el) < 0; })) { toastHide(); return; }
+      toastPlace();
+    }, 100);
   }
-  function toastArm() { clearTimeout(toastT); if (!toastHeld) toastT = setTimeout(function () { toastHide(); }, 6000); }
+  function toastArm() { clearTimeout(toastT); if (!toastHeld) toastT = setTimeout(function () { toastHide(); }, 4000); }
   /* key: a toast that repeats as someone adjusts something (setting days) passes one; while a toast with the same key
      is showing, the new one updates it in place, without the flash, and its six seconds start again */
   var toastKey = '';
-  function toast(title, detail, action, key) {
+  function toast(text, action, key) {
     var quiet = !toastEl.hidden && !!key && key === toastKey;
     toastKey = key || '';
-    toastEl.querySelector('.tp-toast-t').textContent = title;
-    var d = toastEl.querySelector('.tp-toast-d'); d.textContent = detail || ''; d.hidden = !detail;
+    toastEl.querySelector('.tp-toast-txt').textContent = text;
     var act = toastEl.querySelector('.tp-toast-act');
     toastFn = action && action.fn || null;
     act.textContent = action ? action.label : ''; act.hidden = !action;
     var was = !toastEl.hidden;
     if (quiet) { toastPlace(); toastArm(); return; }
     toastEl.hidden = false;
+    toastUnder = toastOver();
     toastEl.classList.add('is-placing'); toastPlace(); void toastEl.offsetWidth; toastEl.classList.remove('is-placing'); // first place without a glide
     toastFollow(true);
     if (toastEl.animate && !was) toastEl.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: reduce.matches ? 150 : 260, easing: 'cubic-bezier(.2, .8, .2, 1)' });
     else if (toastEl.animate) toastEl.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 160 }); // a new message replacing one on screen
     toastArm();
   }
-  toastEl.querySelector('.tp-toast-x').addEventListener('click', function () { toastHide(); });
+  toastEl.addEventListener('click', function (e) { if (!e.target.closest('.tp-toast-act')) toastHide(); });
   toastEl.querySelector('.tp-toast-act').addEventListener('click', function () { var fn = toastFn; toastHide(true); if (fn) fn(); });
   toastEl.addEventListener('pointerenter', function () { toastHeld = true; clearTimeout(toastT); });
   toastEl.addEventListener('pointerleave', function () { toastHeld = false; toastArm(); });
