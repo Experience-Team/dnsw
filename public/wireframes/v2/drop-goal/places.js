@@ -16,11 +16,11 @@ window.DG2Places = [
   { id: 'blue-mountains', name: 'Blue Mountains lookout', host_city: 'sydney', ground: 'Stadium Australia',
     tags: ['Nature', 'Lookouts', 'Day trip'],
     summary: 'Katoomba is the main town of the World Heritage-listed Blue Mountains, a 90-minute drive or two-hour train ride from Sydney. It is the base for Echo Point and the Three Sisters, a steep scenic railway and skyway, and bushwalks into the Jamison Valley, with Art Deco streets, bars and breweries.',
-    travel: 'About 1 h 30 min by car from Stadium Australia', image: 'Bush.jpg', stand_in: true },
+    travel: 'About 1 h 30 min by car from Stadium Australia', image: 'sydneycom_tv-and-film-locations-in-sydney-and-nsw_1.jpg', stand_in: true },
   { id: 'bondi-coogee', name: 'Bondi to Coogee walk', host_city: 'sydney', ground: 'Sydney Football Stadium',
     tags: ['Coast', 'Walks', 'Eastern Sydney'],
     summary: 'Bondi is Sydney’s world-famous beach suburb, about 30 minutes by public transport from Town Hall. It is home to the Bondi Icebergs ocean pool, the world’s oldest surf lifesaving club (1907), year-round surf and the start of the 6km Bondi to Coogee Coastal Walk.',
-    travel: 'About 15 min by bus from Sydney Football Stadium', image: 'coast-headland.webp', stand_in: true },
+    travel: 'About 15 min by bus from Sydney Football Stadium', image: 'sydneycom_secret-beaches-in-sydney_3.jpg', stand_in: true },
   { id: 'parramatta', name: 'Parramatta', host_city: 'sydney', ground: 'Stadium Australia',
     tags: ['Heritage', 'Food', 'Western Sydney'],
     summary: 'Parramatta is Sydney’s second CBD and the heart of Western Sydney, about 25 minutes by train from Central. It has UNESCO World Heritage-listed convict sites including Old Government House, the new Powerhouse Parramatta museum, Riverside Theatre, Elizabeth Farm and multicultural eat streets including Harris Park’s ‘Little India’.',
@@ -48,5 +48,5 @@ window.DG2Places = [
   { id: 'lake-macquarie', name: 'Lake Macquarie', host_city: 'newcastle', ground: 'Newcastle Stadium',
     tags: ['Lake', 'Walks', 'Cycling'],
     summary: 'Warners Bay is a lakeside suburb on Lake Macquarie, just under two hours’ drive from Sydney and 30 minutes from Newcastle. Its 9km waterfront path and Red Bluff Boardwalk suit walking and cycling, the Creative Lake Sculpture Trail features Australian artists, and Speers Point Park has a giant spiral slide.',
-    travel: 'About 25 min by car from Newcastle Stadium', image: 'river-national-park.webp', stand_in: true }
+    travel: 'About 25 min by car from Newcastle Stadium', image: 'sydneycom_water-activities-in-sydney_3.jpg', stand_in: true }
 ];
