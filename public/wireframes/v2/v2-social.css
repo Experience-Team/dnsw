@@ -4,7 +4,7 @@
 .v2-soc-sample { margin-top: var(--space-1); font-size: var(--fs-sm, .8125rem); line-height: 1.4; }
 
 /* Stories: one ring per account that has some. A ring with a colour is not seen yet; grey is seen */
-.v2-soc-rings { display: flex; gap: var(--space-5); margin: var(--space-5) calc(-1 * var(--space-5)) 0; padding: var(--space-1) var(--space-5) var(--space-2); list-style: none; overflow-x: auto; scrollbar-width: none; }
+.v2-soc-rings { display: flex; gap: var(--space-5); margin: var(--space-5) calc(-1 * var(--v2-soc-bleed, var(--space-5))) 0; padding: var(--space-1) var(--v2-soc-bleed, var(--space-5)) var(--space-2); list-style: none; overflow-x: auto; scrollbar-width: none; }
 .v2-soc-rings::-webkit-scrollbar { display: none; }
 .v2-soc-ring { flex: none; display: grid; justify-items: center; gap: 2px; width: 84px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: center; text-decoration: none; cursor: pointer; }
 .v2-soc-av { display: grid; place-items: center; width: 68px; height: 68px; border-radius: 50%; background: #111; color: #fff; box-shadow: 0 0 0 3px var(--c-paper, #faf6ee), 0 0 0 6px var(--v2-soc-ring, #e8441e); }
@@ -17,7 +17,7 @@
 .v2-soc-ring:focus-visible, .v2-soc-post:focus-visible, .v2-soc-btn:focus-visible { outline: 2px solid #005EA2; outline-offset: 3px; }
 
 /* Posts: a row of cards that scrolls sideways, the next one peeking */
-.v2-soc-posts { display: flex; gap: var(--space-3); margin: var(--space-5) calc(-1 * var(--space-5)) 0; padding: 0 var(--space-5); list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-5); scrollbar-width: none; }
+.v2-soc-posts { display: flex; gap: var(--space-3); margin: var(--space-5) calc(-1 * var(--v2-soc-bleed, var(--space-5))) 0; padding: 0 var(--v2-soc-bleed, var(--space-5)); list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--v2-soc-bleed, var(--space-5)); scrollbar-width: none; }
 .v2-soc-posts::-webkit-scrollbar { display: none; }
 .v2-soc-posts[hidden] { display: none; }
 .v2-soc-posts > li { flex: 0 0 min(220px, 62%); scroll-snap-align: start; }
@@ -79,10 +79,6 @@
 @media (hover: hover) { .v2-soc-layer .v2-soc-btn:hover { background: rgba(255, 255, 255, .22); } .v2-soc-layer .v2-soc-btn--solid:hover { background: #ececec; } }
 .v2-soc-layer .v2-soc-say { margin: 0; color: #fff; }
 @media (prefers-reduced-motion: reduce) { .v2-soc-layer { animation: none; } }
-
-/* A row that scrolls sideways runs to the screen's edge on a phone, past the page margins; the first item lines up with the margin.
-   Only the wide phone view (1024px and up), where the sections have no margin, drops the bleed */
-@media (min-width: 1024px) { .pv-device #tp-phone .v2-soc-rings, .pv-device #tp-phone .v2-soc-posts { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; } }
 
 /* Swiping between stories and posts, and Previous and Next for posts */
 .v2-soc-layer { touch-action: pan-y; -webkit-user-select: none; user-select: none; }

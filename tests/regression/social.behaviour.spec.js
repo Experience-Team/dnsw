@@ -143,19 +143,32 @@ for (const V of VERSIONS) {
       await expect(page.locator(`${sec} ${sel('posts')}`)).toBeHidden();
     });
 
-    test('the rows that scroll sideways run to the screen edges on a phone, with the first item lined up with the margin', async ({ page }) => {
-      await go(page);
-      await page.locator(sec).scrollIntoViewIfNeeded();
-      const m = await page.evaluate(({ sec, pf }) => {
-        const body = document.querySelector('.tp-body').getBoundingClientRect(), s = document.querySelector(sec).getBoundingClientRect();
-        const row = document.getElementById(pf + '-soc-posts'), r = row.getBoundingClientRect(), c = row.querySelector('li').getBoundingClientRect();
-        return { left: Math.round(r.left - body.left), right: Math.round(body.right - r.right), firstItem: Math.round(c.left - s.left), canScroll: row.scrollWidth > row.clientWidth };
-      }, { sec, pf: V.pf });
-      expect(m.canScroll).toBe(true);
-      expect(m.left).toBe(0);      // not stopped by the margin
-      expect(m.right).toBe(0);
-      expect(m.firstItem).toBe(0); // the first card starts at the page's margin
-    });
+    // A row that scrolls sideways is never clipped by the page margins or a column: it runs to the screen's edge on a phone and to
+    // the window's edge on desktop, past a fixed-width column, with the first item lined up with the section (agreed 25 Nov 2026)
+    for (const [w, h] of [[390, 844], [1280, 800], [1920, 900]]) {
+      test(`the rows that scroll sideways run to the edges at ${w} wide, with the first item lined up with the section`, async ({ page }) => {
+        await page.setViewportSize({ width: w, height: h });
+        await page.goto(`${V.page}?phone&theme=hifi`);
+        await expect(page.locator('#tp-phone')).toBeVisible();
+        await page.locator(sec).scrollIntoViewIfNeeded();
+        await page.waitForTimeout(300);
+        const m = await page.evaluate(({ sec, pf }) => {
+          const body = document.querySelector('.tp-body'), bw = body.getBoundingClientRect(), s = document.querySelector(sec).getBoundingClientRect();
+          return ['posts', 'rings'].map((k) => {
+            const row = document.getElementById(pf + '-soc-' + k), r = row.getBoundingClientRect(), c = row.querySelector('li').getBoundingClientRect();
+            return { k, left: Math.round(r.left - bw.left), right: Math.round(bw.right - body.offsetWidth + body.clientWidth - r.right), firstItem: Math.round(c.left - s.left), canScroll: row.scrollWidth > row.clientWidth + 1, noPageScroll: body.scrollWidth <= body.clientWidth };
+          });
+        }, { sec, pf: V.pf });
+        const posts = m[0];
+        expect(posts.canScroll).toBe(true);
+        for (const r of m) {
+          expect(r.left, r.k).toBe(0);      // not stopped by the margin or the column
+          expect(r.right, r.k).toBe(0);
+          expect(r.firstItem, r.k).toBe(0); // the first one starts where the section does
+          expect(r.noPageScroll, r.k).toBe(true);
+        }
+      });
+    }
 
     test('swiping goes to the next and previous post, and Previous and Next do too, with the position and the ends respected', async ({ page }) => {
       await go(page);
