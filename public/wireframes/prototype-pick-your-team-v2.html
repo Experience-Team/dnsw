@@ -771,20 +771,25 @@
   var NOTES = [
     { sel: '#tp-home', title: 'Home', points: [
       'Brought in from Options A to C on 24 Nov: the hero, Read before you go, Plan your 3rd half (the team cards), Where the matches are, Play, At a glance, the FAQs, updates, Share and the footer. Reordered for Version 2: the map now follows the team cards, and the three At a glance cards sit just above the FAQs, as a carousel on phones (one card with the next peeking, and dots). Version 2 has its own copies of the scripts, so a change here never reaches Options A to C.',
-      'Not built yet: the planner. The plan bar, Plan around your matches, and Add to my plan and I have a ticket on a match opened from a host city are hidden until Version 2 has one. Picks are still kept.',
+      'Your plan (24 Nov): a simple saved list stands in for the planner. The day-by-day plan, Plan around your matches, and Add to my plan and I have a ticket on a match opened from a host city stay hidden. Picks are still kept.',
       'Design: Every NSW match is not a choice in Version 2 (January brief): the I\u2019m just here for the rugby link is gone from Home, and a saved one counts as no team.',
-      'Open question: the cards\u2019 caption still says a pick adds matches to your plan, which Version 2 does not show yet.'
+      'Wording: picking a team adds nothing to Your plan, so the cards say Tap a card to pick your team, then England picked: 3 matches, 2 in NSW.',
+      'Header: the host city lockup is far left, the Third Half logo beside it and the menu far right, on phones and on desktop. Your plan joins the menu in the header on desktop once something is added.',
+      'Add: every article in Read before you go, and the open article, has an Add button. A dot flies to the Your plan button, which bumps as its count goes up. Pressing Added takes it out again.'
     ] },
     { sel: '#v2-menu-wrap', title: 'Menu', points: [
       'In place of the three tabs, to be refined: Home goes to the top, Plan your 3rd half to that section of Home, and Play Drop Goal opens the game over the whole screen.',
-      'Try it: a tap outside, Escape or picking anything closes it, and focus goes back to the button. Arrow keys move through it.'
+      'Try it: a tap outside, Escape or picking anything closes it, and focus goes back to the button. Arrow keys move through it.',
+      'Your plan shows here, with its count, once something is added.',
+      'For reviewers: Reset prototype sits in its own box at the foot of the menu, marked as not part of the design. It clears the team, the plan and the practice kick.'
     ] },
     { sel: '#tp-home-kick', title: 'Play now', points: [
       'How to play: in place of the still, the game plays itself once: a ring marks each of the two taps, the words go Tap to drop, Tap to kick, Kick now, Goal, and a place shows between the posts. The line under it says the same in words. A tap on it opens the game.',
-      'Design: it plays once, when the section comes into view, then rests on Tap to drop; Replay shows after that. If it is scrolled away before it finishes, it plays when next in view. Reduced motion: it stays still. It saves nothing and uses up no place.',
+      'Design: it plays once each time the section comes into view, then rests on Tap to drop. With a mouse, moving onto it plays it again. There is no Replay button: after a game it read as replay the game. Reduced motion: it stays still. It saves nothing and uses up no place.',
       'Play now opens Drop goal over the whole screen, where the person is; the page behind does not move, and it is where it was when the game closes.',
-      'Try it: the cross at the top right, Escape or the phone\u2019s back button closes the game, and focus goes back to Play now (or to Menu). While See the places is open its own cross sits there instead, and closes only the places.',
-      'Address: ?view=kick opens the game straight away.'
+      'Try it: Back at the top left, Escape or the phone\u2019s back button closes the game, and focus goes back to Play now (or to Menu). Closing with a result card open puts the card away, so the game opens again on the pitch.',
+      'Or see all the places: a quieter second action beside Play now opens the list of places over the whole screen, without the pitch, the team screen or the practice kick, so nobody has to play to see them. No team is needed. Its cross, Escape and Back return to Home.',
+      'Address: ?view=kick opens the game once. It is taken off the address, so refreshing shows Home.'
     ] },
     { sel: '#v2-ob', title: 'Team screen', points: [
       'Teams: a team is compulsory before playing, an agreed exception to asking for as little as possible (CLAUDE.md, experience principle 2), because what a goal lands on depends on the team. With any team picked on Home this screen is not shown, and the first one picked is the kicker. With none, it comes first by every route (Play now, the menu, the how-to-play picture, ?view=kick).',
@@ -792,21 +797,35 @@
       'Design: the cards are Home\u2019s own and sit on the pitch. Here a tap only ever chooses, so the caption and Clear all stay on Home.',
       'Change: on the pitch, Kicking for [team] \u00b7 Change opens this screen again. A tap makes that team the kicker and keeps any other teams picked on Home.'
     ] },
+    { sel: '.v2-pb', title: 'Your plan', points: [
+      'A simple saved list (24 Nov): places and watch parties added in Drop goal, and articles added from Read before you go. No days, matches, map or sign-in. Picking a team adds nothing.',
+      'The button appears with the first add and goes when the list is empty. On phones it is pinned bottom right on Home and in articles; on desktop it sits in the header beside Menu. Inside the game it is not shown.',
+      'Try it: each row has a picture or poster, the name, one line (what it fits around; the match and where for a watch party; category and read time for an article) and Remove. Remove takes the row out at once and offers Undo for 8 seconds. Clear all asks first, and can be undone.',
+      'Save & share drills down inside the sheet: Copy plan (plain text, or worded for an AI assistant), Email (the send is pretend), Add to maps, Add to calendar (watch parties only, the one kind with a date), Download table and Copy for a spreadsheet.',
+      'Sheet: the cross closes it, Escape and the grabber go back one step, and a tap outside closes it. On the Clear all step a tap outside only cancels.',
+      'Empty: one line on how to add, with Play now and Or see all the places (Back to the game when it is opened over the game).',
+      'Open question: a place with no team picked, or with no match in its city, says A free day around Sydney, which reads oddly in a plan.'
+    ] },
     { sel: '#v2-play', title: 'Drop goal', points: [
       'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo. After a goal on a phone the card slides up and pushes the field off the top in one movement, leaving Kick again alone at the top; from 700px wide the posts and the framed place sit beside the card.',
       'Practice kick: the first time the pitch is shown, and from the ? beside the close cross. Tap to drop, the ball drops and stops at the bounce with the bar\u2019s marker in the yellow KICK zone, Tap now to kick, and it goes through at normal speed. Then: You\u2019ve got it. This time it won\u2019t wait: tap as it bounces. It replaces the rules screen and its picture. Nothing in it is timed, it can be skipped, and it does not count: no place, no +3, nothing used from the rotation.',
       'Try it: tap, click, Space or Enter drops the ball, and again kicks it as it bounces. The call to act follows the taps: Tap to drop, Tap to kick, then Kick now (yellow) while a kick would score, in step with the bar\u2019s KICK zone. Early goes wide, late falls short, and one tap alone says No kick. A miss on the first real kick is the game\u2019s own miss line.',
       'Wording: with a mouse the game says Click wherever it says Tap: the calls to act, the hints, the miss lines and the practice kick.',
+      'Practice kick, quieter (24 Nov): while it is on, the nation table, Kicking for [team] and How to play are hidden, and fade in when the game is ready. A second press before the bounce says Too soon. Wait for the bounce, then tap. Left waiting two seconds it says Too late: in the game it won\u2019t wait. Tap now. The kick still goes through either way.',
+      'Back, not a cross: the game has Back with an arrow at the top left, and How to play at the top right. On phones, while a result card is up, Back steps aside and the card has its own close cross, which does what Kick again does.',
+      'The reveal: a place with no picture shows its name on the team\u2019s colour between the posts, and as a poster in the card\u2019s picture space. Stand-in pictures are marked as stand-ins.',
+      'The caption above the bar is typed out quickly each time it changes, to draw the eye. Reduced motion shows it at once.',
+      'See the places is not offered inside the game: Home has Or see all the places. The buttons say Add and Added, the same word as the articles.',
       'Design: at rest, the line above the bar says what a goal lands on for this team (a place near where they play, or their watch party). It is the one place everyone sees it, now the rules screen is gone.',
       'Design: the kick window opens as the ball lands and stays open for 0.3s (card 10\u2019s was 0.2s, starting just before the bounce, so a tap reacting to the bounce always came up short).',
       'Places: the first picked team, the kicker, decides what a goal lands on. A team that plays in NSW: towns and things to do near where it plays (Sydney, Newcastle, or both, two from the next match\u2019s city for every one from the other), with its next NSW match beside the place (teams, date, kick-off, stadium, from the fixtures). No place repeats until every place in the set has been shown.',
       'Watch parties: a team with no match in NSW (Argentina, Canada, Chile, Hong Kong China, Scotland, South Africa, Tonga, USA, Zimbabwe): a goal lands on one of its watch parties in NSW, on the same card. FITS is the match being screened, TRAVEL is where it is, and one line under them says the later rounds are in NSW if the team gets through. Each watch party once before any repeat. See the places lists that team\u2019s watch parties.',
       'Data: watch parties are invented for the prototype (v2/drop-goal/watch-parties.js, contract \u00a720, every field gap), one in Sydney and one in Newcastle for each of the nine teams, at public precincts and fan sites only. All of it is sample, in pink.',
       'Open question: a watch party is tied to one match, so its card goes stale once that match has passed. Not solved; for the team.',
-      'Remembered: Save writes Version 2\u2019s own copy of the planner\u2019s saved state (the same shape as Options A to C\u2019s, Saved, not placed yet) under v2:. Version 2 has no Your plan yet to show it. The page keeps the game\u2019s saves when a team is picked afterwards.',
+      'Remembered: Add writes Version 2\u2019s own saved state under v2:, and it shows in Your plan. After an add the card says [n] added \u00b7 Your plan, which opens the plan over the game. Reset prototype clears it.',
       'Data: places are \u00a719 destinations in v2/drop-goal/places.js, every field gap. Descriptions come from the destination pages where there is one; the rest, the tags, the travel estimates and stand-in pictures are sample, in pink. FITS is worked out from the fixtures.',
       'Teams: the teams picked on Home go to the game; the first one kicks. Every kicker has a team: the Third Half kit is gone, and Home\u2019s animation wears the picked team\u2019s kit, or Australia\u2019s before anyone has picked.',
-      'Keyboard: Space or Enter plays; Tab goes to Share the table, then See the places, so the places can be reached without playing. Escape closes the places and the result.',
+      'Keyboard: Space or Enter plays; Tab goes to Kicking for [team] \u00b7 Change, then Share the table. Escape closes the result.',
       'Screen readers: the pitch\u2019s label explains the two taps. A live region says each practice prompt, each goal (the place, the points and where the team now sits on the table), each miss and why, each save and Share the table. The table reads as \u201c5, Portugal (your team), 41 points\u201d.',
       'Design: contrast is WCAG 2.2 AA. The pitch is a shade darker than the reference so the large cream type and the timing bar reach 3:1, the small lines on the pitch sit on dark chips (4.5:1), the bar\u2019s inside is dark so the yellow KICK zone stands out, and GOAL is cream with a yellow underline.',
       'Reduced motion: the ball still drops, as the timing needs it, but there is no flight, frame, +3 pop or card transition: the result opens straight away.'

@@ -250,7 +250,24 @@
 
   /* ---------- words ---------- */
   const hint = $('dg-hint'), head = $('dg-head'), sayEl = $('dg-say');
-  function setHint(txt) { if (txt) hint.textContent = txt; hint.classList.toggle('is-off', !txt); }
+  /* The caption above the bar is typed out quickly each time it changes, to draw the eye to it (24 Nov). The whole
+     line is in place from the start, the part not yet typed unseen, so the chip keeps its size and nothing shifts;
+     its text reads the same to code and to screen readers throughout. Reduced motion shows it at once */
+  let typeT = 0;
+  /* the page shows the game again (v2-view.js): the caption already there is typed afresh */
+  window.__dgRetype = () => { const t = hint.textContent; if (!t || hint.classList.contains('is-off')) return; clearInterval(typeT); hint.textContent = ''; setHint(t); };
+  function setHint(txt) {
+    hint.classList.toggle('is-off', !txt);
+    if (!txt || txt === hint.textContent) return;
+    clearInterval(typeT);
+    if (reduce.matches || DEMO) { hint.textContent = txt; return; }
+    const esc = x => x.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const step = Math.max(1, Math.ceil(txt.length / 28));   /* about half a second, however long the line */
+    let n = 0;
+    const draw = () => { hint.innerHTML = `<span>${esc(txt.slice(0, n))}</span><span class="dg-hint-caret" aria-hidden="true"></span><span class="dg-hint-rest">${esc(txt.slice(n))}</span>`; };
+    draw();
+    typeT = setInterval(() => { n = Math.min(txt.length, n + step); if (n >= txt.length) { clearInterval(typeT); hint.textContent = txt; } else draw(); }, 18);
+  }
   /* The call to act follows the two taps (24 Nov, from play-testing: one tap read as the whole game): Tap to drop, then
      Tap to kick while the ball falls, then Kick now while a kick would score, in step with the bar's KICK zone */
   const HEAD = { drop: `${Wd} to drop`, kick: `${Wd} to kick`, now: 'Kick now', goal: 'Goal', wait: `${Wd} now to kick` };

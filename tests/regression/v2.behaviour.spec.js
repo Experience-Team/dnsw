@@ -171,6 +171,9 @@ test.describe('Version 2', () => {
 
   // Result screen, See the places and Save (docs/drop-goal-brief.md, Result screen and Places)
   const inGame = (page) => page.frameLocator('#v2-game');
+  // In the page the game no longer shows See the places (Home has Or see all the places); the list itself is still
+  // the game's, so these checks open it the way the button did
+  const seePlaces = (page, id) => frameOf(page).evaluate((i) => document.getElementById(i).click(), id || 'dg-see');
   async function score(page, f) {
     await kickAt(f, 0.76);
     await f.waitForFunction(() => window.__dg2.phase() === 'result', null, { timeout: 5000 });
@@ -222,7 +225,7 @@ test.describe('Version 2', () => {
   test('Drop goal: See the places opens without playing, the person\'s places first, then all', async ({ page }) => {
     await openGame(page, 'Japan');                         // Japan play in Newcastle only
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(g.locator('#dg-places')).toBeVisible();
     await expect(g.locator('#dg-pl-mine')).toContainText('Newcastle');
     await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(5);
@@ -230,7 +233,6 @@ test.describe('Version 2', () => {
     await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(10);
     await page.keyboard.press('Escape');
     await expect(g.locator('#dg-places')).toBeHidden();
-    await expect(g.locator('#dg-see')).toBeFocused();
   });
 
   test('Drop goal: no place repeats until every place in the set has been shown', async ({ page }) => {
@@ -276,7 +278,7 @@ test.describe('Version 2', () => {
         // the next match's city (Sydney, Mon 4 Oct) comes two for every one at the start of a round
         expect(got.slice(0, 3).map((g) => g.city)).toEqual(['sydney', 'sydney', 'newcastle']);
       }
-      await inGame(page).locator('#dg-see').click();
+      await seePlaces(page);
       await expect(inGame(page).locator('#dg-pl-mine')).toHaveText(listHead);
       await expect(inGame(page).locator('#dg-pl-body .dg-pl-row')).toHaveCount(inSet);
       await expect(inGame(page).locator('#dg-pl-all')).toHaveCount(inSet < 10 ? 1 : 0);
@@ -291,7 +293,6 @@ test.describe('Version 2', () => {
     await g.locator('#dg').focus();
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-change')).toBeFocused();   // Kicking for Wales · Change comes first
     await page.keyboard.press('Tab'); await expect(g.locator('#dg-share')).toBeFocused();
-    await page.keyboard.press('Tab'); await expect(g.locator('#dg-see')).toBeFocused();
     const mine = await f.evaluate(() => document.querySelector('#dg-rows .is-mine').textContent);
     expect(mine).toMatch(/Portugal \(your team\),41 points/);
     await kickAt(f, 0.76);
@@ -373,7 +374,7 @@ test.describe('Version 2', () => {
   test('Drop goal: Save and Saved are one width, and the first save moves nothing in See the places', async ({ page }) => {
     const f = await openGame(page, 'Wales');
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(g.locator('#dg-pl-count')).toHaveText('Nothing added yet');
     // the layer has finished sliding up, so what is measured is at rest
     await f.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
@@ -388,11 +389,11 @@ test.describe('Version 2', () => {
   test('Drop goal: while See the places slides away, a press reaches what is under it', async ({ page }) => {
     await openGame(page, 'Wales');
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(g.locator('#dg-places')).toBeVisible();
     await g.locator('#dg-pl-close').click();
     // a person's quick second press, on the button the layer was covering: it opens again, whole
-    await g.locator('#dg-see').click({ timeout: 2000 });
+    await seePlaces(page);
     await expect(g.locator('#dg-places')).toBeVisible();
     await expect(g.locator('#dg-places')).toHaveCSS('opacity', '1');
     await expect(g.locator('#dg-pl-title')).toBeFocused();
@@ -413,7 +414,7 @@ test.describe('Version 2', () => {
     await expect(page.locator('#tp-fan2 .tp-card2')).toHaveCount(24);
     await expect(page.locator('#v2-play')).toBeHidden();
     await page.locator('.tp-card2[aria-label="Wales"]').click();
-    await expect(page.locator('#tp-fan-caption')).toContainText(/Wales added/);
+    await expect(page.locator('#tp-fan-caption')).toContainText(/Wales picked/);
     // no planner yet: the plan bar and the button to the planner never show
     await page.waitForTimeout(1500);
     await expect(page.locator('#tp-tl')).toBeHidden();
@@ -477,7 +478,7 @@ test.describe('Version 2', () => {
   test('In the game, See the places takes the cross\'s corner, and a save survives a pick made afterwards', async ({ page }) => {
     const f = await openGame(page, 'Japan');
     const g = inGame(page);
-    await g.locator('#dg-see').click();
+    await seePlaces(page);
     await expect(page.locator('#v2-play-close')).toBeHidden();
     await g.locator('.dg-pl-row .dg-save').first().click();
     await g.locator('#dg-pl-close').click();
@@ -585,7 +586,7 @@ test.describe('Version 2', () => {
     expect(await state(f)).toMatchObject({ practice: null, goals: 0, place: null, rot: null, head: 'Click to drop' });
     await expect(g.locator('#dg-result')).toBeHidden();
     await expect(g.locator('#dg-skip')).toBeHidden();
-    await expect(g.locator('#dg-see')).toBeVisible();
+    await expect(g.locator('#dg-see')).toBeHidden();   // not offered inside the page's game
     // the game carries on as normal: a real kick that misses gets the game's own line
     await pitchClick(page);
     await expect(g.locator('#dg-say')).toHaveText('No kick. Click once to drop, then again as it bounces.', { timeout: 5000 });
@@ -788,7 +789,7 @@ test.describe('Version 2', () => {
     await g.locator('#dg-r-save').click();
     await expect(g.locator('#dg-r-save')).toHaveText('Added');
     // See the places lists that team's watch parties, and nothing else
-    await g.locator('#dg-r-see').click();
+    await seePlaces(page, 'dg-r-see');
     await expect(g.locator('#dg-pl-mine')).toHaveText('Where to watch Scotland in NSW');
     await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(2);
     await expect(g.locator('#dg-pl-all')).toHaveCount(0);
@@ -839,5 +840,508 @@ test.describe('Version 2', () => {
     await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Japan', 'Wales'] })));
     await page.reload();
     await expect(page.locator('#v2-demo-frame')).toHaveAttribute('src', /\?demo&team=Japan$/);
+  });
+
+  // 24 Nov, the afternoon's changes: Home's order, the header, Or see all the places, Back, the practice kick, the
+  // typed caption, the poster, and Your plan (v2/v2-saved.js)
+  const WIDE = { width: 1440, height: 900 };   // the desktop website: the same address on a wide window
+  const PHONE = { width: 390, height: SIZES[390] };
+  // The game open for a team at any window size (openGame above is the phone)
+  async function openGameAt(page, team, size) {
+    await page.setViewportSize(size);
+    await page.goto(v2url('hifi'));
+    await page.evaluate((t) => { localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: t.split(',') })); localStorage.setItem('v2ob-seen', '1'); }, team);
+    await page.goto(v2url('hifi', 'view=kick'));
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect(inGame(page).locator('#dg-head')).toHaveText(/(tap|click) to drop/i);
+    return frameOf(page);
+  }
+  // A card opened without a kick, for the checks that are about the card and not the goal
+  const showCard = (f, id, team) => f.evaluate(([i, t]) => {
+    const p = window.DG2Places.concat(window.DG2Parties).find((x) => x.id === i);
+    window.DG2Result.open(p, [t], () => {});
+    return Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {})));
+  }, [id, team]);
+  const planBtn = (page, wide) => page.locator(wide ? '.v2-pb--top' : '.v2-pb:not(.v2-pb--top)');
+  const sheet = (page) => page.locator('#v2-sv');
+  // Home with things already in Your plan: articles by their place in the list, places and watch parties by id
+  async function homeWithPlan(page, { arts = 0, kicks = [], team = '' } = {}, size = PHONE) {
+    await page.setViewportSize(size);
+    await page.goto(v2url('hifi'));
+    await page.evaluate(([n, ks, t]) => {
+      const added = window.TP_ARTICLES.slice(0, n).map((a) => ({ id: 'v2art:' + a.slug, kind: 'v2art', title: a.title, day: '', unplaced: true, art: a.slug }));
+      ks.forEach((id) => { const p = window.DG2Places.concat(window.DG2Parties).find((x) => x.id === id); added.push({ id: 'kick:' + id, kind: 'kick', title: p.name, day: '', unplaced: true, kick: { place: id, host_city: p.host_city } }); });
+      localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: t ? [t] : [], added }));
+    }, [arts, kicks, team]);
+    await page.reload();
+  }
+
+  test('Home runs hero, reads, team cards, map, Play, At a glance, questions; on a phone At a glance is a carousel with a dot per card', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    const tops = await page.evaluate(() => ['.tp-home-hero', '#tp-home-reads', '#tp-home-plan', '#tp-home-where', '#tp-home-kick', '#tp-home-glance', '#tp-home-faq']
+      .map((s) => Math.round(document.querySelector('#tp-home ' + s).getBoundingClientRect().top)));
+    expect(tops).toEqual([...tops].sort((a, b) => a - b));
+    expect(new Set(tops).size).toBe(tops.length);
+    // the row scrolls sideways, and nothing else does
+    const row = page.locator('#tp-home-glance .tp-gl'), dots = page.locator('#v2-gl-dots .v2-gl-dot');
+    await row.scrollIntoViewIfNeeded();
+    const cards = await row.locator('.tp-gl-card').count();
+    expect(cards).toBeGreaterThan(1);
+    expect(await row.evaluate((e) => [['auto', 'scroll'].includes(getComputedStyle(e).overflowX), e.scrollWidth > e.clientWidth + 1])).toEqual([true, true]);
+    await expect(dots).toHaveCount(cards);
+    await expect(page.locator('#v2-gl-dots [aria-current="true"]')).toHaveCount(1);
+    await expect(dots.first()).toHaveAttribute('aria-current', 'true');
+    // a dot takes the row to its card, and the current dot follows
+    await dots.nth(2).click();
+    await expect(dots.nth(2)).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('#v2-gl-dots [aria-current="true"]')).toHaveCount(1);
+    expect(await row.evaluate((e) => e.scrollLeft)).toBeGreaterThan(0);
+    await dots.last().click();
+    await expect(dots.last()).toHaveAttribute('aria-current', 'true');
+  });
+
+  test('Menu: Reset prototype clears the picked team and Your plan', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    await page.locator('.tp-card2[aria-label="Japan"]').click();
+    await page.locator('#tp-reads [data-v2-add]').first().click();
+    await expect(planBtn(page)).toBeVisible();
+    await expect.poll(() => page.evaluate(() => { const r = JSON.parse(localStorage.getItem('tp-pick-v1')); return [r.picked.join(), r.added.length]; })).toEqual(['Japan', 1]);
+    await page.locator('#v2-menu-btn').click();
+    await expect(page.locator('#v2-menu-reset')).toHaveText('Reset prototype');
+    await Promise.all([page.waitForEvent('load'), page.locator('#v2-menu-reset').click()]);
+    await expect(page.locator('.tp-card2[aria-pressed="true"]')).toHaveCount(0);
+    await expect(page.locator('#tp-reads [data-v2-add][aria-pressed="true"]')).toHaveCount(0);
+    await expect(planBtn(page)).toBeHidden();
+    expect(await page.evaluate(() => [window.v2Picker.state.picked.length, window.v2Saved.count(), localStorage.getItem('tp-pick-v1')])).toEqual([0, 0, null]);
+  });
+
+  for (const [name, size] of [['a phone', PHONE], ['desktop', WIDE]]) {
+    test(`Header on ${name}: the lockup sits left of the logo, and Menu is at the far right of the same row`, async ({ page }) => {
+      await page.setViewportSize(size);
+      await page.goto(v2url('hifi'));
+      const box = (s) => page.locator(s).boundingBox();
+      const top = await box('#tp-phone .tp-top'), lockup = await box('#tp-phone .tp-top .tp-lockup'), logo = await box('#tp-phone .tp-top .tp-logo'), menu = await box('#v2-menu-btn');
+      expect(lockup.x + lockup.width).toBeLessThanOrEqual(logo.x + 1);
+      // the same row: the button's middle is inside the header, and nothing in the row is further right
+      expect(menu.y + menu.height / 2).toBeGreaterThan(top.y);
+      expect(menu.y + menu.height / 2).toBeLessThan(top.y + top.height);
+      expect(menu.x).toBeGreaterThanOrEqual(logo.x + logo.width - 1);
+      // as far from the right edge as the lockup is from the left: the page's own gutter
+      expect(Math.abs(top.x + top.width - (menu.x + menu.width) - (lockup.x - top.x))).toBeLessThanOrEqual(2);
+      if (size === WIDE) await expect(page.locator('#v2-menu-btn span')).toBeVisible();
+      await expect(page.locator('#v2-menu-btn')).toHaveAccessibleName('Menu');
+    });
+  }
+
+  test('Or see all the places opens the list without the game or a team, and its cross and Escape go back to Home', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    const link = page.locator('#v2-kick-places'), layer = page.locator('#v2-play'), g = inGame(page);
+    for (const leave of [() => g.locator('#dg-pl-close').click(), () => page.keyboard.press('Escape')]) {
+      await link.click();
+      await expect(layer).toBeVisible();
+      await expect(g.locator('#dg-places')).toBeVisible();
+      await expect(g.locator('#dg-pl-title')).toHaveText('The places · Sample');
+      await expect(g.locator('#dg-pl-body .dg-pl-row')).toHaveCount(10);   // no team: every place, nothing behind See all
+      await expect(g.locator('#dg-pl-all')).toHaveCount(0);
+      // no team screen, and only the list's own cross
+      await expect(page.locator('#v2-ob')).toBeHidden();
+      await expect(page.locator('#v2-play-close')).toBeHidden();
+      await expect(page.locator('#v2-play-how')).toBeHidden();
+      await expect(g.locator('#dg-pl-title')).toBeFocused();
+      await leave();
+      await expect(layer).toBeHidden();
+      await expect(link).toBeFocused();
+    }
+    // the game still needs a team
+    await playNow(page).click();
+    await expect(page.locator('#v2-ob .v2-ob-h')).toHaveText('Who are you kicking for?');
+    await expect(page.locator('#v2-play-close')).toBeVisible();
+  });
+
+  test('Closing the game with a result card up puts the card away: Play now opens on the pitch', async ({ page }) => {
+    const f = await openGameAt(page, 'Wales', WIDE);
+    await score(page, f);
+    await expect(inGame(page).locator('#dg-result')).toBeVisible();
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#v2-play')).toBeHidden();
+    await playNow(page).click();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect(inGame(page).locator('#dg-result')).toBeHidden();
+    expect(await f.evaluate(() => [window.__dg2.phase(), window.__dg2.goals()])).toEqual(['hold', 1]);   // the goal still counts
+    await expect(inGame(page).locator('#dg-head')).toHaveText('Click to drop');
+  });
+
+  test('The game is left with Back, top left, with How to play top right', async ({ page }) => {
+    await openGame(page, 'Wales');
+    const back = page.locator('#v2-play-close'), how = page.locator('#v2-play-how');
+    await expect(back).toHaveText('Back');
+    await expect(back).toHaveAccessibleName('Back to Home');
+    const layer = await page.locator('#v2-play').boundingBox(), b = await back.boundingBox(), h = await how.boundingBox();
+    expect(b.x - layer.x).toBeLessThan(100);
+    expect(layer.x + layer.width - (h.x + h.width)).toBeLessThan(100);
+    expect(b.x + b.width).toBeLessThan(h.x);
+    await back.click();
+    await expect(page.locator('#v2-play')).toBeHidden();
+    await expect(page.locator('#tp-home')).toBeVisible();
+  });
+
+  test('Result card on a phone has its own close cross, and Back steps aside while it is up', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    await score(page, f);
+    const g = inGame(page), back = page.locator('#v2-play-close');
+    await expect(g.locator('#dg-result')).toBeVisible();
+    await expect(back).toBeHidden();
+    await expect(g.locator('#dg-r-close')).toBeVisible();
+    // top right of the card, as every close cross
+    const card = await g.locator('#dg-r-card').boundingBox(), x = await g.locator('#dg-r-close').boundingBox();
+    expect(card.x + card.width - (x.x + x.width)).toBeLessThanOrEqual(16);
+    expect(x.y - card.y).toBeLessThanOrEqual(16);
+    await g.locator('#dg-r-close').click();
+    await expect(g.locator('#dg-result')).toBeHidden();
+    await expect(back).toBeVisible();
+    expect(await f.evaluate(() => window.__dg2.phase())).not.toBe('result');
+  });
+
+  test('Result card on desktop has no cross of its own, and Back stays', async ({ page }) => {
+    const f = await openGameAt(page, 'Wales', WIDE);
+    await score(page, f);
+    await expect(inGame(page).locator('#dg-result')).toBeVisible();
+    await expect(inGame(page).locator('#dg-r-close')).toBeHidden();
+    await expect(page.locator('#v2-play-close')).toBeVisible();
+  });
+
+  test('Practice kick: the table, the team line and How to play wait until it is over, and a click before the bounce says Too soon', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    await page.evaluate(() => localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })));
+    await page.reload();
+    await playNow(page).click();
+    await expect.poll(() => game(page) && game(page).evaluate(() => window.__dg2 && window.__dg2.practice())).toBe('drop');
+    const g = inGame(page), f = game(page);
+    await expect(g.locator('#dg-skip')).toBeVisible();
+    await expect(g.locator('#dg-table')).toBeHidden();
+    await expect(g.locator('#dg-who')).toBeHidden();
+    await expect(page.locator('#v2-play-how')).toBeHidden();
+    // a second click while the ball is still falling
+    await pitchClick(page);
+    await expect.poll(() => f.evaluate(() => window.__dg2.practice())).toBe('falling');
+    await page.waitForTimeout(200);   // about as fast as a person presses twice
+    expect(await f.evaluate(() => window.__dg2.practice())).toBe('falling');
+    await pitchClick(page);
+    await expect(g.locator('#dg-hint')).toHaveText('Too soon. Wait for the bounce, then click.');
+    await expect(g.locator('#dg-say')).toHaveText('Too soon. Wait for the bounce, then click.');
+    expect(await f.evaluate(() => window.__dg2.practice())).toBe('falling');   // it is not a kick
+    await g.locator('#dg-skip').click();
+    await expect(g.locator('#dg-table')).toBeVisible();
+    await expect(g.locator('#dg-who')).toBeVisible();
+    await expect(page.locator('#v2-play-how')).toBeVisible();
+    await expect(g.locator('#dg-skip')).toBeHidden();
+  });
+
+  test('See the places is not offered in the page\'s game, on the pitch or on a card', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    const g = inGame(page);
+    await expect(g.locator('#dg-see')).toBeHidden();
+    await showCard(f, 'the-rocks', 'Wales');
+    await expect(g.locator('#dg-result')).toBeVisible();
+    await expect(g.locator('#dg-r-see')).toBeHidden();
+  });
+
+  test('A link that opens the game opens it once: refreshing shows Home', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    await page.evaluate(() => { localStorage.setItem('tp-pick-v1', JSON.stringify({ picked: ['Wales'] })); localStorage.setItem('v2ob-seen', '1'); });
+    await page.goto(v2url('hifi', 'view=kick'));
+    await expect(page.locator('#v2-play')).toBeVisible();
+    expect(page.url()).not.toContain('view=kick');
+    expect(new URL(page.url()).search).toBe('?phone&theme=hifi');
+    await page.reload();
+    await expect(page.locator('#tp-home')).toBeVisible();
+    await expect(page.locator('#v2-play')).toBeHidden();
+  });
+
+  test('The team screen cannot be dragged sideways on a phone', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    await playNow(page).click();
+    await expect(page.locator('#v2-ob')).toBeVisible();
+    await expect(page.locator('#v2-ob .tp-card2')).toHaveCount(24);
+    await page.evaluate(() => Promise.all(document.getElementById('v2-play').getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {}))));
+    const wide = await page.evaluate(() => { const ob = document.getElementById('v2-ob');
+      return [ob, ...ob.querySelectorAll('*')].filter((e) => ['auto', 'scroll'].includes(getComputedStyle(e).overflowX) && e.scrollWidth > e.clientWidth + 1)
+        .map((e) => `${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''}.${e.className} ${e.scrollWidth}>${e.clientWidth}`); });
+    expect(wide).toEqual([]);
+    // and the screen itself is no wider than the phone
+    expect(await page.evaluate(() => { const ob = document.getElementById('v2-ob'); ob.scrollLeft = 50; return ob.scrollLeft; })).toBe(0);
+  });
+
+  test('The caption above the bar is typed out, with the whole line there from the start', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    const line = 'Now click again as it bounces.';
+    // the first click to drop changes the line: a moment later it is part typed, and reads in full to code and screen readers
+    const first = await f.evaluate(() => new Promise((r) => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+      setTimeout(() => { const h = document.getElementById('dg-hint'), rest = h.querySelector('.dg-hint-rest'); r({ rest: !!rest, left: rest ? rest.textContent.length : 0, text: h.textContent }); }, 40);
+    }));
+    expect(first.text).toBe(line);
+    expect(first.rest).toBe(true);
+    expect(first.left).toBeGreaterThan(0);
+    // about half a second later it is all typed, and still the same line
+    await f.waitForFunction((l) => { const h = document.getElementById('dg-hint'); return !h.querySelector('.dg-hint-rest') && h.textContent === l; }, line, { timeout: 900, polling: 'raf' });
+  });
+
+  test('The caption above the bar: with reduced motion it is never typed', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const f = await openGame(page, 'Wales');
+    const got = await f.evaluate(() => new Promise((r) => {
+      const h = document.getElementById('dg-hint'); let typed = false;
+      new MutationObserver(() => { if (h.querySelector('.dg-hint-rest, .dg-hint-caret')) typed = true; }).observe(h, { childList: true, subtree: true, characterData: true });
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+      const at0 = h.textContent;
+      setTimeout(() => r({ typed, at0, later: h.textContent }), 500);
+    }));
+    expect(got).toEqual({ typed: false, at0: 'Now click again as it bounces.', later: 'Now click again as it bounces.' });
+  });
+
+  test('Goal reveal: a place with no picture gets a poster with its name in capitals, and one with a picture shows it', async ({ page }) => {
+    const f = await openGame(page, 'Wales');
+    const g = inGame(page);
+    expect(await f.evaluate(() => ['the-rocks', 'newcastle-baths'].map((id) => !!window.DG2Places.find((p) => p.id === id).image))).toEqual([false, true]);
+    await showCard(f, 'the-rocks', 'Wales');
+    await expect(g.locator('#dg-r-name')).toHaveText('The Rocks');
+    await expect(g.locator('#dg-r-photo .dg-poster')).toBeVisible();
+    await expect(g.locator('#dg-r-photo .dg-poster b')).toHaveText('THE ROCKS');
+    await expect(g.locator('#dg-r-photo .dg-poster')).toHaveAttribute('aria-label', 'The Rocks, picture to come');
+    await expect(g.locator('#dg-r-photo img')).toHaveCount(0);
+    await showCard(f, 'newcastle-baths', 'Wales');
+    await expect(g.locator('#dg-r-photo .dg-poster')).toHaveCount(0);
+    await expect(g.locator('#dg-r-photo img')).toBeVisible();
+    expect(await g.locator('#dg-r-photo img').evaluate((i) => i.decode().then(() => i.naturalWidth > 0))).toBe(true);
+  });
+
+  for (const [name, size] of [['a phone', PHONE], ['desktop', WIDE]]) {
+    test(`Your plan on ${name}: adding an article brings in the button with its count, and pressing Added takes it out again`, async ({ page }) => {
+      const wide = size === WIDE;
+      await page.setViewportSize(size);
+      await page.goto(v2url('hifi'));
+      const btn = planBtn(page, wide), other = planBtn(page, !wide), add = page.locator('#tp-reads [data-v2-add]').first();
+      await expect(btn).toBeHidden(); await expect(other).toBeHidden();
+      await expect(add).toHaveText('Add');
+      await expect(add).toHaveAttribute('aria-pressed', 'false');
+      await add.click();
+      await expect(add).toHaveText('Added');
+      await expect(add).toHaveAttribute('aria-pressed', 'true');
+      await expect(btn).toBeVisible();
+      await expect(btn.locator('.v2-pb-n')).toHaveText('1');   // once the dot has flown in
+      await expect(btn).toHaveAccessibleName('Your plan, 1 added');
+      await expect(other).toBeHidden();   // one button: at the bottom of a phone, in the header on desktop
+      await page.waitForTimeout(600);
+      await add.click();
+      await expect(add).toHaveText('Add');
+      await expect(add).toHaveAttribute('aria-pressed', 'false');
+      await expect(btn).toBeHidden(); await expect(other).toBeHidden();
+      expect(await page.evaluate(() => window.v2Saved.count())).toBe(0);
+    });
+  }
+
+  test('Your plan, the sheet: Remove and Clear all can each be undone, Clear all asks first, and Escape goes back to what opened it', async ({ page }) => {
+    await homeWithPlan(page, { arts: 2 });
+    const sv = sheet(page), rows = sv.locator('.v2-sv-row'), btn = planBtn(page);
+    await expect(btn.locator('.v2-pb-n')).toHaveText('2');
+    await btn.click();
+    await expect(sv).toBeVisible();
+    await expect(sv.locator('#v2-sv-title')).toHaveText('Your plan');
+    await expect(rows).toHaveCount(2);
+    await expect(sv.locator('.v2-sv-kind')).toHaveText(['Article', 'Article']);
+    // Escape closes it, back to the button
+    await page.keyboard.press('Escape');
+    await expect(sv).toBeHidden();
+    await expect(btn).toBeFocused();
+    await btn.click();
+    // Remove, then Undo
+    const firstName = await rows.first().locator('b').textContent();
+    await rows.first().locator('.v2-sv-rm').click();
+    await expect(rows).toHaveCount(1);
+    await expect(sv.locator('#v2-sv-undo')).toBeVisible();
+    await expect(sv.locator('.v2-sv-undo')).toContainText(`Removed ${firstName}.`);
+    await sv.locator('#v2-sv-undo').click();
+    await expect(rows).toHaveCount(2);
+    await expect(rows.first().locator('b')).toHaveText(firstName);   // back where it was
+    await expect(sv.locator('#v2-sv-undo')).toHaveCount(0);
+    // Clear all asks first, and Cancel keeps both
+    await sv.locator('#v2-sv-clear').click();
+    await expect(sv.locator('#v2-sv-cno')).toBeVisible();
+    await expect(sv.locator('#v2-sv-cyes')).toBeVisible();
+    await expect(sv.locator('#v2-sv-cq')).toContainText('Clear all 2 from your plan?');
+    await sv.locator('#v2-sv-cno').click();
+    await expect(sv.locator('#v2-sv-cyes')).toHaveCount(0);
+    await expect(rows).toHaveCount(2);
+    await sv.locator('#v2-sv-clear').click();
+    await sv.locator('#v2-sv-cyes').click();
+    await expect(rows).toHaveCount(0);
+    await expect(sv.locator('.v2-sv-empty')).toBeVisible();
+    await expect(sv.locator('.v2-sv-empty button')).toHaveText(['Play now', 'Or see all the places']);
+    await expect(sv.locator('#v2-sv-undo')).toBeVisible();
+    await expect(sv.locator('#v2-sv-share')).toHaveCount(0);
+    // Undo brings both back; cleared again, Escape closes, and with the plan button gone focus goes to Menu
+    await sv.locator('#v2-sv-undo').click();
+    await expect(rows).toHaveCount(2);
+    await sv.locator('#v2-sv-clear').click();
+    await sv.locator('#v2-sv-cyes').click();
+    await expect(sv.locator('.v2-sv-empty')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(sv).toBeHidden();
+    await expect(btn).toBeHidden();
+    await expect(page.locator('#v2-menu-btn')).toBeFocused();
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('tp-pick-v1')).added)).toEqual([]);
+  });
+
+  test('Your plan, Save & share: the options follow what is saved', async ({ page }) => {
+    const ids = () => sheet(page).locator('[data-ss]').evaluateAll((els) => els.map((e) => e.dataset.ss));
+    const toShare = async () => { await planBtn(page).click(); await sheet(page).locator('#v2-sv-share').click(); await expect(sheet(page).locator('#v2-sv-title')).toHaveText('Save & share'); };
+    // an article alone: nothing to map, nothing with a date
+    await homeWithPlan(page, { arts: 1 });
+    await toShare();
+    expect(await ids()).toEqual(['copy', 'mail', 'csv', 'tsv']);
+    // a place: Add to maps joins them
+    await homeWithPlan(page, { arts: 1, kicks: ['the-rocks'], team: 'Wales' });
+    await toShare();
+    expect(await ids()).toEqual(['copy', 'mail', 'maps', 'csv', 'tsv']);
+    // a watch party: Add to maps and Add to calendar
+    await homeWithPlan(page, { kicks: ['wp-scotland-the-rocks'], team: 'Scotland' });
+    await toShare();
+    expect(await ids()).toEqual(['copy', 'mail', 'maps', 'cal', 'csv', 'tsv']);
+    await sheet(page).locator('[data-ss="cal"]').click();
+    await expect(sheet(page).locator('.v2-ss-links a')).toHaveText(/Ireland v Scotland, Sat 9 Oct/);
+    await expect(sheet(page).locator('.v2-ss-links a')).toHaveAttribute('href', /calendar\.google\.com.*dates=20271009/);
+  });
+
+  test('Your plan, Save & share: it drills down with a back arrow, Copy plan shows the text, Email checks the address, and Escape goes back a step', async ({ page }) => {
+    await homeWithPlan(page, { arts: 1, kicks: ['the-rocks'], team: 'Wales' });
+    const sv = sheet(page), btn = planBtn(page);
+    await btn.click();
+    await expect(sv.locator('#v2-sv-back')).toBeHidden();
+    const names = await sv.locator('.v2-sv-row b').allTextContents();
+    expect(names).toHaveLength(2);
+    const h = (await sv.boundingBox()).height;
+    await sv.locator('#v2-sv-share').click();
+    await expect(sv.locator('#v2-sv-title')).toHaveText('Save & share');
+    await expect(sv.locator('#v2-sv-back')).toBeVisible();
+    await expect(sv.locator('.v2-sv-row')).toHaveCount(0);
+    expect(Math.abs((await sv.boundingBox()).height - h)).toBeLessThan(1);   // the sheet holds its height (check 10)
+    // Copy plan: the text names what is saved, and the AI wording is different
+    await sv.locator('[data-ss="copy"]').click();
+    await expect(sv.locator('[data-ss="copy"]')).toHaveAttribute('aria-expanded', 'true');
+    const pre = sv.locator('#v2-ss-pre');
+    for (const n of names) await expect(pre).toContainText(n);
+    await expect(pre).toContainText('Your plan: Rugby World Cup 2027 in NSW (following Wales)');
+    const plain = await pre.textContent();
+    await sv.locator('.tp-chip', { hasText: 'For AI assistant' }).click();
+    await expect(sv.locator('.tp-chip', { hasText: 'For AI assistant' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(pre).toContainText('I am planning a trip to New South Wales');
+    expect(await pre.textContent()).not.toBe(plain);
+    for (const n of names) await expect(pre).toContainText(n);
+    // Email: a bad address is caught, a good one is sent (pretend)
+    await sv.locator('[data-ss="mail"]').click();
+    await expect(sv.locator('#v2-ss-email')).toBeFocused();
+    await expect(sv.locator('#v2-ss-pre')).toHaveCount(0);   // one row open at a time
+    await sv.locator('#v2-ss-email').fill('not an address');
+    await sv.locator('[data-ss-do="send"]').click();
+    await expect(sv.locator('#v2-ss-err')).toBeVisible();
+    await expect(sv.locator('#v2-ss-email')).toHaveAttribute('aria-invalid', 'true');
+    await sv.locator('#v2-ss-email').fill('sam@example.com');
+    await sv.locator('[data-ss-do="send"]').click();
+    await expect(sv.locator('[data-ss-state="mail"]')).toHaveText('Sent to sam@example.com');
+    await expect(sv.locator('#v2-ss-email')).toHaveCount(0);
+    // the back arrow and Escape both go back to the list; a second Escape closes
+    await sv.locator('#v2-sv-back').click();
+    await expect(sv.locator('#v2-sv-title')).toHaveText('Your plan');
+    await expect(sv.locator('.v2-sv-row')).toHaveCount(2);
+    await sv.locator('#v2-sv-share').click();
+    await expect(sv.locator('#v2-sv-title')).toHaveText('Save & share');
+    await page.keyboard.press('Escape');
+    await expect(sv).toBeVisible();
+    await expect(sv.locator('#v2-sv-title')).toHaveText('Your plan');
+    await expect(sv.locator('#v2-sv-back')).toBeHidden();
+    await expect(sv.locator('.v2-sv-row')).toHaveCount(2);
+    await page.keyboard.press('Escape');
+    await expect(sv).toBeHidden();
+    await expect(btn).toBeFocused();
+  });
+
+  test('Your plan from the game: Add on a card counts on the card, the count opens the list over the game, and Remove there flips the card back', async ({ page }) => {
+    const f = await openGame(page, 'Scotland');   // no NSW match: a goal lands on a watch party
+    await score(page, f);
+    const g = inGame(page), sv = sheet(page), save = g.locator('#dg-r-save'), plan = g.locator('#dg-r-plan');
+    await expect(save).toHaveText('Add');
+    await expect(plan).toBeHidden();
+    await save.click();
+    await expect(save).toHaveText('Added');
+    await expect(plan).toHaveText('1 added · Your plan');
+    // the page's own button is not shown inside the game
+    await expect(planBtn(page)).toBeHidden();
+    await plan.click();
+    await expect(sv).toBeVisible();
+    await expect(page.locator('#v2-play')).toBeVisible();
+    await expect(sv.locator('.v2-sv-row')).toHaveCount(1);
+    await expect(sv.locator('.v2-sv-kind')).toHaveText('Watch party');
+    await expect(sv.locator('.v2-sv-row b')).toHaveText(await g.locator('#dg-r-name').textContent());
+    await sv.locator('.v2-sv-rm').click();
+    await expect(sv.locator('.v2-sv-row')).toHaveCount(0);
+    await expect(save).toHaveText('Add');
+    await expect(save).toHaveAttribute('aria-pressed', 'false');
+    await expect(plan).toBeHidden();
+    // over the game the empty list offers the way back, not Play now
+    await expect(sv.locator('.v2-sv-empty button')).toHaveText(['Back to the game']);
+    await sv.locator('#v2-sv-x').click();
+    await expect(sv).toBeHidden();
+    await g.locator('#dg-r-close').click();
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#v2-play')).toBeHidden();
+    await page.waitForTimeout(600);   // Home catches up as the game leaves
+    await expect(planBtn(page)).toBeHidden();
+    await page.locator('#v2-menu-btn').click();
+    await expect(page.locator('#v2-menu-plan')).toBeHidden();
+  });
+
+  test('Your plan from the game: one thing added shows on Home\'s button and in the menu once the game is closed', async ({ page }) => {
+    const f = await openGame(page, 'Scotland');
+    await score(page, f);
+    const g = inGame(page);
+    await g.locator('#dg-r-save').click();
+    await expect(g.locator('#dg-r-plan')).toHaveText('1 added · Your plan');
+    await g.locator('#dg-r-close').click();
+    await page.locator('#v2-play-close').click();
+    await expect(page.locator('#v2-play')).toBeHidden();
+    const btn = planBtn(page);
+    await expect(btn).toBeVisible();
+    await expect(btn.locator('.v2-pb-n')).toHaveText('1');
+    await page.locator('#v2-menu-btn').click();
+    await expect(page.locator('#v2-menu-plan')).toBeVisible();
+    await expect(page.locator('#v2-menu-plan')).toHaveText('Your plan (1)');
+    // the menu's item opens the same list
+    await page.locator('#v2-menu-plan').click();
+    await expect(sheet(page)).toBeVisible();
+    await expect(sheet(page).locator('.v2-sv-kind')).toHaveText('Watch party');
+  });
+
+  test('The team cards\' line reads Tap a card to pick your team before anyone has picked', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    await expect(page.locator('#tp-fan-caption')).toHaveText(/^Tap a card to pick your team/);
+    await expect(page.locator('#tp-fan-caption')).not.toContainText('Clear all', { useInnerText: true });   // nothing to clear yet
+  });
+
+  test('The team cards\' line says who was picked, and nothing about adding', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    const cap = page.locator('#tp-fan-caption');
+    await page.locator('.tp-card2[aria-label="England"]').click();
+    await expect(cap).toHaveText(/^England picked:/);
+    await expect(cap).not.toContainText('added');   // a pick adds nothing to Your plan
+    await expect(planBtn(page)).toBeHidden();
   });
 });

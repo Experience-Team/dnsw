@@ -106,7 +106,6 @@
     return on;
   }
 
-  const BOOKMARK = on => `<svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M1.5 1.5h9v11L6 9.6 1.5 12.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
   /* a plus, and a tick once added: the same marks as the page's Add buttons */
   const MARK = on => on ? '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 1.5v9M1.5 6h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   function saveBtn(b, p) {

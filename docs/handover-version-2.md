@@ -1,10 +1,125 @@
 # Handover: Version 2 and Drop goal
 
-24 November 2026 (Sydney). Repo `Experience-Team/dnsw`, main at `c8a2d2c` (the merge of #624). Everything below is
-merged: #621, #622, #623 and #624. Pull main before starting (`git fetch origin main`) and compare against `origin/main`.
-Branch used: `claude/optimistic-heisenberg-36g8fc`.
+24 November 2026 (Sydney), end of the second session of the day. Repo `Experience-Team/dnsw`. Merged this session:
+#627 to #640. Open at hand-over: #641 (see "Open at hand-over" below). Pull main before starting
+(`git fetch origin main`) and compare against `origin/main`. Branch used: `claude/exciting-feynman-ozw38w`.
 
 This covers Version 2 only. Options A to C have their own handover, `docs/session-handover.md`, from another session.
+
+**Read this first.** The section "This session" below is the newest. Where an older section further down says
+something different (a close cross top right, Save and Saved, See the places on the pitch, Replay on Home, "Version 2
+has no Your plan"), this section wins.
+
+Preview (the user can only open this Vercel project):
+`https://dnsw-git-claude-exciting-feyn-7506a6-mopo123-gmailcoms-projects.vercel.app/wireframes/prototype-pick-your-team-v2.html?phone`
+(`&reset` for a first visit).
+
+## This session (24 Nov, #627 to #641)
+
+### What Version 2 is now
+
+- **Home** (from Options A to C), in this order: hero, Read before you go, the team cards, the map, Play, At a glance
+  (a carousel with dots on phones), FAQs, updates, share. Header: host city lockup far left, logo beside it, menu far
+  right. The menu has Home, Plan your 3rd half, Play Drop Goal, Your plan (once something is added) and a reviewers'
+  Reset prototype.
+- **Play section:** a self-playing teaser (plays once each time it comes into view; hover replays on desktop; no
+  Replay button), Play now, and the quieter Or see all the places, which opens the places list over the whole screen
+  with no pitch, team screen or practice kick, and needs no team.
+- **The game layer** (`#v2-play`): Back with an arrow top left, How to play (?) top right. Escape and the phone's back
+  button close it. Closing it with a result card or the places open puts them away. `?view=kick` opens it once and is
+  then taken off the address, so a refresh shows Home.
+- **Team first:** a team is compulsory. No team: a one-tap team screen on the pitch. Then a practice kick the first
+  time (table, kicker's line and ? hidden until the game is ready; Too soon and Too late lines; it never fails), then
+  the game. "Kicking for [team] · Change" on the pitch.
+- **A goal** lands on a place near where the team plays in NSW, or on one of the team's watch parties if it has no NSW
+  match (sample data, contract §20). The card: picture, or a team-colour poster with the name when there is none;
+  Add; MATCH, FITS, TRAVEL. On phones the card has its own close cross and Back steps aside while it is up.
+- **See the places is not offered inside the page's game** (the user asked). The list opens from Home only. The game
+  on its own address still has it.
+- **The caption above the kick bar** types itself out each time it changes.
+- **Your plan** (`v2/v2-saved.js`): a simple saved list of places, watch parties and articles. Button bottom right on
+  phones, in the header on desktop, shown only when something is added. Sheet: Remove with Undo, Clear all behind a
+  confirm, Save & share as a level inside the sheet (Copy plan, Email, Add to maps, Add to calendar for watch parties
+  only, Download table, Copy for a spreadsheet). In the game, "[n] added · Your plan" on the card and in the places
+  list opens the same sheet over the game. Articles have Add buttons. One word everywhere: Add and Added.
+
+### Decisions the user made this session (don't reopen)
+
+- Prototypes are for approval, not a development hand-off: polished at 390 wide and on desktop, no 320px work.
+- Team compulsory; Every NSW match removed; watch parties for teams with no NSW match (the January brief).
+- Practice kick on the pitch in place of the rules screens; first time only; can be skipped.
+- Home stays as brought in from Options A to C (the critique's "game is hard to find" was declined).
+- No Replay button on the teaser. Back, not a cross, on the game. On phones the card closes with its own cross.
+- Your plan: only added places, watch parties and articles; picking a team adds nothing; desktop button in the header;
+  calendar for watch parties only; "Your plan" in the menu; Add, not Save.
+- See the places hidden inside the game.
+
+### From the design critique (`.impeccable/critique/`, 28/40), still open
+
+- **The kick window has a cliff** (P2): reactions over about 280ms always fall short. The user chose "adapt after two
+  short misses" but it has not been built.
+- **Exits inside the game** (P2): Change has no "keep my team"; Escape on the team screen closes the whole game; ? on a
+  result card drops the card; a card cannot be reopened after Kick again.
+- Smaller: the Rocks card says the match is at Stadium Australia but travel is from Sydney Football Stadium; Blue
+  Mountains (90 minutes) is listed as near the matches; the Nation table resets on reload; the hero picture is a
+  football ground and is used three times; "Plan your 3rd half" under the map only scrolls up to the cards.
+
+### Known rough edges
+
+- A place with no team, or no match in its city, says "A free day around Sydney" in Your plan.
+- Long one-word names (Parramatta, Cabramatta) are small in the posts.
+- On desktop the Your plan sheet rises from the bottom centre like a phone sheet, and the places list rows stretch the
+  full width.
+- A team with no NSW match sees only its two watch parties under Or see all the places.
+- In low fidelity the caption above the kick bar can wrap to two lines for long team names and touch the KICK label.
+- Inside the game there is no way to see every place without scoring; that route is Home's.
+- The caption types on every change, so several times during one kick. The user was asked whether that is too busy
+  and has not answered.
+
+### Catch-up done before this handover (24 Nov)
+
+1. Full behaviour suite run once: 111 passed (Version 2 and Options A to C).
+2. Tests added for everything built this session that had none: 25 new tests in
+   `tests/regression/v2.behaviour.spec.js` (79 in that file now). They caught one real bug, now fixed: after a pick
+   the team cards' line read "England addedd:".
+3. Low fidelity and reduced motion checked once across Home, the team screen, the practice kick, the pitch, a result
+   card, the places list and Your plan. One fix: Your plan's posters and pictures are grey blocks in low fidelity.
+4. Annotations and `v2/README.md` updated; this handover rewritten at the top.
+5. Unused styles removed: the old rules screen's rules in `v2.css`, and one unused icon in `result.js`.
+
+### Skipped, and still not done
+
+- **Keyboard-only walk-through** of Your plan, the places from Home and the phone card's close cross. Focus return is
+  tested; arrow keys, tab order and a focus trap in the Your plan sheet are not.
+- **Screenshot baselines:** none on main, so the screenshot check is red on every PR for that reason only (paused by
+  the user, below). The new screens have no visual tests.
+- **Download table and Copy for a spreadsheet** in Save & share are checked as present, not clicked, in tests.
+- **Toasts and the Save bar** (interaction checks 10 and 11) were deliberately not used in Your plan: the count line
+  and Undo confirm changes where the person is. Agreed with the user before building.
+- **Flow chart** for Version 2: paused by the user (below).
+- **`v2-plan.js`** (the day-by-day plan copied from Options A to C) and the hidden planner markup are still in the
+  page, unused. Left in place because the copied scripts lean on them.
+- **The game on its own address** (outside the page) still says See the places and has no Back button; only the page's
+  game was changed.
+
+### Open at hand-over
+
+- **#641** (open): See the places hidden inside the game, the typed caption, and this catch-up (docs, new tests, the
+  caption fix). The user merges PRs themselves, usually within minutes. If it has merged, restart the branch from
+  `origin/main` before the next change.
+- **Waiting on the user:** whether the typed caption is too busy during a kick; whether the phone card's cross should
+  do something different from Kick again; whether See the places should come back on the result card.
+
+### Ways of working agreed this session
+
+- `CLAUDE.md` now has a **How to work** section (what to do on every change, what to leave for the catch-up, and the
+  catch-up steps before a handoff), the Back button exception in interaction check 7, and a sideways-scrolling sweep
+  in check 6. Follow those.
+- One commit and one push per user message; draft PR; subscribe to it; send the phone link once, only when the
+  `mopo123-gmailcoms-projects` build is Ready. Never share the other Vercel project's links.
+- The preview host is not reachable from the cloud session, so readiness comes from the Vercel bot's PR comment.
+- Links ending `&view=kick` open the game once and then drop the flag; give the plain `?phone` link unless the game
+  itself is what changed.
 
 ## Paused by the user (24 Nov): don't start these unless asked
 

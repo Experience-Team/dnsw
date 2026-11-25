@@ -65,9 +65,6 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 .v2-play-back { right: auto; left: 16px; display: inline-flex; align-items: center; gap: 6px; width: auto; padding: 0 14px 0 10px; border-radius: 18px; font-family: inherit; font-weight: 600; font-size: .875rem; line-height: 1; }
 .v2-ob { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--c-surface); color: var(--c-ink); }
 .v2-ob[hidden] { display: none; }
-.v2-ob-top { flex: none; display: flex; align-items: center; gap: var(--space-4); min-height: 68px; padding: 0 68px 0 var(--space-5); } /* room at the right for the layer's close cross */
-.v2-ob-skip { min-height: 36px; font-weight: 600; }
-.v2-ob-count { margin: 0; font-size: .8125rem; color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
 .v2-ob-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--space-5) var(--space-4); }
 .v2-ob-panel[hidden] { display: none; }
 .v2-ob-panel { overflow-y: auto; overscroll-behavior: contain; }
@@ -89,32 +86,23 @@ html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-
 :root[data-theme="hifi"] .v2-ob.is-pitch { background: #5f9c50 url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 390 760%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22390%22 height=%22760%22 fill=%22%235f9c50%22/%3E%3Cline x1=%22-1268%22 y1=%22-690%22 x2=%221732%22 y2=%221043%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%22-1268%22 y1=%22-532%22 x2=%221732%22 y2=%221200%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%22-1268%22 y1=%22-116%22 x2=%221732%22 y2=%221616%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%2267%22 y1=%22239%22 x2=%22-1433%22 y2=%221105%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%220%22 y1=%22277%22 x2=%221500%22 y2=%221143%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22 stroke-dasharray=%2280.6 123.8%22/%3E%3C/svg%3E") center / cover no-repeat; }
 .v2-ob.is-pitch .v2-ob-h { color: #1d1d1d; }
 :root[data-theme="hifi"] .v2-ob.is-pitch .v2-ob-h { color: #f1efe0; }
-.v2-ob.is-pitch :is(.v2-ob-p, .v2-ob-count, .v2-ob-skip, .tp-fan-caption) { background: #1d1d1d; color: #fff; }
-:root[data-theme="hifi"] .v2-ob.is-pitch :is(.v2-ob-p, .v2-ob-count, .v2-ob-skip, .tp-fan-caption) { background: rgba(0, 32, 16, .78); }
+.v2-ob.is-pitch :is(.v2-ob-p, .tp-fan-caption) { background: #1d1d1d; color: #fff; }
+:root[data-theme="hifi"] .v2-ob.is-pitch :is(.v2-ob-p, .tp-fan-caption) { background: rgba(0, 32, 16, .78); }
 .v2-ob.is-pitch .v2-ob-p { align-self: flex-start; padding: var(--space-2) var(--space-3); border-radius: 12px; }
-.v2-ob.is-pitch .v2-ob-count { padding: 4px var(--space-2); border-radius: 999px; }
-.v2-ob.is-pitch .v2-ob-skip { padding: 0 var(--space-3); border-radius: 999px; }
 #tp-phone .v2-ob.is-pitch .tp-fan-caption { display: table; margin-inline: auto; padding: var(--space-2) var(--space-3); border-radius: 12px; max-width: calc(100% - 2 * var(--space-5)); }
 #tp-phone .v2-ob.is-pitch .tp-fan-caption:empty { display: none; }
 #tp-phone .v2-ob.is-pitch .tp-fan-caption * { color: inherit; }
-#tp-phone .v2-ob.is-pitch :is(.v2-ob-skip, .tp-link):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+#tp-phone .v2-ob.is-pitch .tp-link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* ---------- Desktop website (a wide window, no phone frame): the onboarding in a centred column ----------
    On a phone it fills the screen edge to edge. On a wide screen the same screens sit in a column, so the team cards keep
    their shape and the picture, tips and buttons read as one piece */
 @media (min-width: 1024px) {
-  .pv-device #tp-phone .v2-ob-top, .pv-device #tp-phone .v2-ob-panel, .pv-device #tp-phone .v2-ob-foot { padding-inline: max(var(--space-5), calc((100% - 600px) / 2)); }
+  .pv-device #tp-phone .v2-ob-panel { padding-inline: max(var(--space-5), calc((100% - 600px) / 2)); }
   .pv-device #tp-phone .v2-ob-panel--team { padding-inline: max(var(--space-5), calc((100% - 760px) / 2)); }
-  .pv-device #tp-phone .v2-ob-top { padding-right: max(68px, calc((100% - 600px) / 2)); min-height: 84px; }
-  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-top { padding-left: max(var(--space-5), calc((100% - 760px) / 2)); } /* in line with the team screen's wider column */
   .pv-device #tp-phone .v2-ob-h { font-size: 2rem; }
-  .pv-device #tp-phone .v2-ob-p, .pv-device #tp-phone .v2-ob-tips { font-size: 1rem; }
+  .pv-device #tp-phone .v2-ob-p { font-size: 1rem; }
   .pv-device #tp-phone .v2-ob-teams { margin-inline: 0; }
-  .pv-device #tp-phone .v2-ob-foot { padding-block: var(--space-4) var(--space-5); background: none; border-top: 0; }
-  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-foot { background: none; }
-  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-why { align-self: center; justify-self: center; margin-inline: auto; flex: 0 0 auto; padding: var(--space-2) var(--space-3); border-radius: 12px; background: rgba(0, 32, 16, .78); color: #fff; }
-  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-foot { justify-content: center; }
-  .pv-device #tp-phone .v2-ob.is-pitch .v2-ob-next { flex: 0 0 100%; }
   .pv-device #tp-phone .v2-ob .tp-home-cta { min-width: 0; align-self: auto; }
 }
 
@@ -269,3 +257,6 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
 .v2-ss-links a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 36px; color: var(--c-ink); font-size: .9375rem; text-underline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .v2-pb, .v2-add { transition: none; } .v2-pb:active, .v2-add:active { transform: none; } }
 @media (min-width: 1024px) { .pv-device #tp-phone .v2-sv .tp-home-cta { width: 100%; min-width: 0; justify-self: stretch; align-self: stretch; } }
+/* Low fidelity: Your plan's pictures and posters are grey blocks, as everywhere else in the wireframe */
+:root[data-theme="wireframe"] .v2-sv-pic--poster { background: #d9d9d9 !important; }
+:root[data-theme="wireframe"] .v2-sv-pic--poster i, :root[data-theme="wireframe"] .v2-sv-pic img { display: none; }
