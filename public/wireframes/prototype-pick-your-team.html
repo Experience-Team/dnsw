@@ -15,8 +15,15 @@
 <link rel="stylesheet" href="themes/hifi.css" />
 <style>
   html, body { height: 100%; margin: 0; }
-  .sh-page { padding: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: #fff; color: #1a1a1a; }
-  .sh-bar { flex: none; background: #fff; border-bottom: 1px solid #d1d1d1; }
+  .sh-page { --sh-bar: 0px; position: relative; padding: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #fff; color: #1a1a1a; }
+  /* The bar sits over the stage, and the frames start below it (--sh-bar, set by the script). On a phone it slides away
+     on a scroll down and back on a scroll up, and the frame's top moves with it, on the same curve */
+  .sh-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2; background: #fff; border-bottom: 1px solid #d1d1d1; }
+  .sh-page.is-bar-hidden .sh-bar { transform: translateY(-100%); }
+  @media (prefers-reduced-motion: no-preference) {
+    .sh-bar { transition: transform .24s cubic-bezier(.4, 0, .2, 1); }
+    .sh-frame { transition: top .24s cubic-bezier(.4, 0, .2, 1), height .24s cubic-bezier(.4, 0, .2, 1); }
+  }
   .sh-tabs { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-4) var(--space-2); }
   .sh-tab { flex: 1 1 0; max-width: 240px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-1); min-height: 52px; padding: var(--space-2) var(--space-3); box-sizing: border-box; border: 1px solid #2666d9; border-radius: 12px; background: #fff; color: #2666d9; font-size: .875rem; line-height: 1.2; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
   .sh-tab.is-active { background: #2666d9; color: #fff; }
@@ -27,8 +34,8 @@
   .sh-tag--reduced { background: #ffefc7; color: #6a4200; }
   .sh-note { margin: 0; padding: 0 var(--space-4) var(--space-3); font-size: .8125rem; line-height: 1.4; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (min-width: 961px) { .sh-tabs { padding-inline: var(--space-6); } .sh-note { padding-inline: var(--space-6); } }
-  .sh-stage { position: relative; flex: 1 1 auto; min-height: 0; }
-  .sh-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  .sh-stage { position: absolute; inset: 0; }
+  .sh-frame { position: absolute; top: var(--sh-bar); left: 0; width: 100%; height: calc(100% - var(--sh-bar)); border: 0; background: #fff; } /* an iframe does not stretch between top and bottom, so it has its height */
   /* The version not showing stays loaded, at full size, so it keeps its place and is never re-measured */
   .sh-frame[inert] { visibility: hidden; }
 </style>
@@ -57,7 +64,37 @@
     if (f.getAttribute('src')) return;
     f.setAttribute('src', f.getAttribute('data-src') + (rest().length ? '?' + rest().join('&') : '') + (n === first ? hash : ''));
   }
+  // The bar hides on a scroll down and shows on a scroll up, only where a version fills the screen (a phone, or ?phone:
+  // the frame's html has pv-device). The scrolling is the page's own body (.tp-body) inside the frame, so each frame's
+  // document is watched, again whenever it loads (Reset reloads it). At the top of the page it always shows. Scrolls
+  // that follow a change of bar, tab or frame size are ignored for a moment: the frame growing can move the scroll
+  // position by itself, and that must not read as the person scrolling back up.
+  var page = document.body, bar = document.querySelector('.sh-bar'), barH = 0, hidden = false, current = first, quiet = 0, last = 0;
+  function measure() { barH = bar.offsetHeight; page.style.setProperty('--sh-bar', hidden ? '0px' : barH + 'px'); }
+  function setHidden(h) {
+    if (h === hidden) return;
+    hidden = h; quiet = Date.now() + 400;
+    page.classList.toggle('is-bar-hidden', h); bar.inert = h; measure();
+  }
+  function watch(n) {
+    var doc; try { doc = frames[n].contentDocument; } catch (e) { return; }
+    if (!doc) return;
+    doc.addEventListener('scroll', function (e) {
+      var t = e.target;
+      if (n !== current || !t.classList || !t.classList.contains('tp-body') || !doc.documentElement.classList.contains('pv-device')) return;
+      var y = Math.max(0, t.scrollTop), d = y - last;
+      if (Date.now() < quiet) { last = y; return; }
+      if (y <= barH) { setHidden(false); last = y; return; }
+      if (Math.abs(d) < 4) return; // slow scrolls add up until they pass this
+      setHidden(d > 0); last = y;
+    }, true);
+  }
+  [1, 2].forEach(function (n) { frames[n].addEventListener('load', function () { watch(n); }); });
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(bar);
+  measure();
   function show(n) {
+    current = n; setHidden(false); quiet = Date.now() + 400;
+    try { var b = frames[n].contentDocument.querySelector('.tp-body'); last = b ? b.scrollTop : 0; } catch (e) { last = 0; }
     load(n);
     [1, 2].forEach(function (k) { frames[k].inert = k !== n; frames[k].setAttribute('aria-hidden', k === n ? 'false' : 'true'); });
     tabs.forEach(function (a) {
