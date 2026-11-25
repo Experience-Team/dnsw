@@ -1,8 +1,8 @@
 /* Drop goal, Version 2: the kicker's kit and skin, and the ball's stripes, from a team's palette.
    Copied from ../../drop-goal/js/teams.js (Options A to C's game, 24 Nov 2026) so a change there never moves this
    game: the 24 teams' flag colours (Figma node 395:531) and the skin rule, trimmed to what the kick screen needs.
-   Skin rule (do not relax): skin is only ever a blue or green from the team's own palette, never red, yellow, orange,
-   white, brown or black, and never a realistic skin tone. Teams with no blue or green use a neutral slate. */
+   Skin (25 Nov 2026): brown for every kicker, as the reference picture has it. The earlier rule (a blue or green from
+   the team's palette, never a realistic tone) was lifted by the user. */
 (function () {
   const W = '#f5f5f5', RED = '#ff4b55', NAVY = '#41479b', GRN = '#73af00', LB = '#82afff',
     BLU = '#4173cd', ORG = '#ff9b46', YEL = '#ffe15a', ESR = '#c8414b', ESY = '#ffd250';
@@ -33,7 +33,7 @@
     { name: 'Zimbabwe', jersey: YEL, trim: GRN, shorts: W, socks: YEL, band: RED, skin: GRN }
   ];
   /* No team picked: the Third Half kit from the style reference (docs/drop-goal-style.png), green and gold */
-  const DEFAULT = { name: '', jersey: '#256a3e', trim: '#fdce01', shorts: '#fdce01', socks: '#256a3e', band: '#fdce01', skin: '#256a3e' };
+  const DEFAULT = { name: '', jersey: '#256a3e', trim: '#f4ae1b', shorts: '#f4ae1b', socks: '#256a3e', band: '#f4ae1b', skin: '#256a3e' };
 
   function hexToHsl(h) {
     const r = parseInt(h.slice(1, 3), 16) / 255, g = parseInt(h.slice(3, 5), 16) / 255, b = parseInt(h.slice(5, 7), 16) / 255;
@@ -51,19 +51,15 @@
     return '#' + f(0) + f(8) + f(4);
   }
   function darken(hex, amt) { const [h, s, l] = hexToHsl(hex); return hslToHex(h, s, l - amt); }
-  /* The team's blue or green, at a lightness that stays clear of the pitch; slate where the team has neither */
-  function skinFor(t) {
-    let [h, s] = t.skin ? hexToHsl(t.skin) : [218, 0.16];
-    if (t.skin && h > 70 && h < 100) h = 100;               // the flag lime goes olive when dark: nudge it to green
-    const sat = t.skin ? Math.min(0.7, Math.max(0.42, s)) : s;
-    const green = t.skin && h > 80 && h < 175;
-    const L = green ? 0.7 : 0.62;
-    return { skin: hslToHex(h, sat, L), skinBack: hslToHex(h, sat, L - 0.07), skinShade: hslToHex(h, sat, L - 0.09), eye: '#17211a' };
+  /* Brown for every kicker (25 Nov 2026, the user's call, from the reference picture's player). It replaces the old
+     rule of a blue or green from the team's palette; each team's `skin` entry above is no longer read. */
+  function skinFor() {
+    return { skin: '#d19772', skinBack: '#bd8562', skinShade: '#b87f5d', eye: '#17211a' };
   }
   /* The ball: cream, its stripes in the team's two strongest colours (white is skipped, as it vanishes on cream) */
   function ballFor(t) {
     const cols = [t.jersey, t.trim, t.band, t.socks, t.shorts].filter(c => c && c !== W);
-    const a = cols[0] || '#256a3e', b = cols.find(c => c !== a) || '#fdce01';
+    const a = cols[0] || '#256a3e', b = cols.find(c => c !== a) || '#f4ae1b';
     return { base: '#f4f2ea', line: darken(a, 0.1), stripe: a, stripe2: b };
   }
   function kitFor(name) {
@@ -72,7 +68,7 @@
       hair: '#262022', jersey: t.jersey, jerseyBack: darken(t.jersey, 0.08), jerseyLine: darken(t.jersey, 0.12),
       hoops: t.hoops || null, trim: t.trim, trimBack: darken(t.trim, 0.08), shorts: t.shorts, shortsBack: darken(t.shorts, 0.08),
       sock: t.socks, sockBack: darken(t.socks, 0.08), band: t.band, bandBack: darken(t.band, 0.08),
-      boot: '#3a3a3a', bootBack: '#2c2c2c', ball: ballFor(t)
+      boot: '#454342', bootBack: '#383635', ball: ballFor(t)
     });
   }
   window.DG2Kit = { TEAMS: TEAMS.map(t => t.name), kitFor };
