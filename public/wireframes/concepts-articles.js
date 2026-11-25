@@ -174,7 +174,7 @@ window.TP_ARTICLES = [
       ['p', 'Few fans make a stadium feel like home quite like Pacific supporters. Rugby is part of everyday life in Fiji, Samoa and Tonga, and their supporters, many from communities across Australia and New Zealand, turn a match into a celebration of family, faith and identity.'],
       ['h', 'The challenge before kick-off'],
       ['p', 'Before kick-off, each of the three teams performs a traditional challenge facing their opponents: Fiji the Cibi, Samoa the Siva Tau and Tonga the Sipi Tau. It is a moment of real meaning for players and supporters, and stadiums tend to fall quiet to watch, then roar when it ends.'],
-      ['i', 'hero-stadium', 'a Pacific team facing their opponents before kick-off'],
+      ['i', 'rugby-2', 'a Pacific team facing their opponents before kick-off'],
       ['h', 'Colour, flags and song'],
       ['p', 'Expect stands full of flags and team colours, from Fiji’s white to Samoa’s blue and Tonga’s red. Singing is a big part of the day, in the stands and outside the ground, and it often carries on long after the final whistle, win or lose.'],
       ['i', 'village', 'supporters in team colours'],

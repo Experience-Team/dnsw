@@ -24,7 +24,7 @@
   // the same list while the kind has pictures left (see assets/images/README.md for which still share)
   var IMG_ALIAS = {
     // Home: At a glance
-    'glance-cities': 'sydneycom_secret-beaches-in-sydney_1', 'glance-tickets': 'hero-stadium', 'glance-transport': 'sydneycom_sydney-markets-guide_1',
+    'glance-cities': 'sydneycom_secret-beaches-in-sydney_1', 'glance-tickets': 'rugby-match-1', 'glance-transport': 'sydneycom_sydney-markets-guide_1',
     // Around your matches
     'armory-wharf-cafe': 'sydneycom_guide-to-western-sydney-nightlife_2', 'brickpit-ring-walk': 'sydneycom_things-to-do-in-penrith-with-kids_2',
     'waterview-in-bicentennial-park': 'sydneycom_best-new-restaurants-in-sydney_3',
@@ -59,7 +59,7 @@
     'gloucester-country-pub': 'lord-nelson',
     // Free-day ideas (towns and suburbs)
     'sydney-opera-house': 'sydneycom_water-activities-in-sydney_1', 'the-rocks': 'sydneycom_sydney-markets-guide_1',
-    'manly-ferry': 'sydneycom_secret-beaches-in-sydney_2', 'bondi-to-coogee-walk': 'sydneycom_secret-beaches-in-sydney_3',
+    'manly-ferry': 'manly-ferry', 'bondi-to-coogee-walk': 'sydneycom_secret-beaches-in-sydney_3',
     'merewether': 'Merwether baths', 'kiama': 'Kiama', 'katoomba': 'sydneycom_tv-and-film-locations-in-sydney-and-nsw_1',
     'nelson-bay': 'coast-aerial', 'warners-bay': 'sydneycom_water-activities-in-sydney_3', 'marrickville': 'marickville-tavern',
     'hamilton': 'sydneycom_sydney-beer-gardens_3', 'surry-hills': 'sydneycom_best-new-restaurants-in-sydney_1',
@@ -68,7 +68,7 @@
     'coogee': 'sydneycom_water-activities-in-sydney_2', 'watsons-bay': 'sydneycom_tv-and-film-locations-in-sydney-and-nsw_2',
     'double-bay': 'city-dining', 'sydney-olympic-park': 'Bush', 'mosman': 'Newcastle baths', 'darling-harbour': 'sydneycom_outdoor-cinemas-sydney_1',
     'parramatta': 'sydneycom_best-new-restaurants-in-sydney_2', 'cronulla': 'coast-headland', 'bowral': 'krinklewood-vineyard',
-    'terrigal': 'sydneycom_secret-beaches-in-sydney_1', 'palm-beach': 'Kiama', 'wollongong': 'Merwether baths',
+    'terrigal': 'sydneycom_secret-beaches-in-sydney_1', 'palm-beach': 'Kiama', 'wollongong': 'gallery',
     'honeysuckle': 'sydneycom_guide-to-western-sydney-nightlife_3', 'nobbys-beach': 'coast-aerial',
     'bar-beach': 'sydneycom_secret-beaches-in-sydney_2', 'redhead': 'sydneycom_secret-beaches-in-sydney_3',
     'charlestown': 'sydneycom_sydney-markets-guide_2', 'swansea': 'river-national-park', 'wollombi': 'hunter',
@@ -77,10 +77,10 @@
     'parkside-kitchen': 'sydneycom_best-new-restaurants-in-sydney_2', 'paddington-print-house': 'sydneycom_sydney-markets-guide_3',
     'harbourside-sky-swing': 'sydneycom_things-to-do-in-penrith-with-kids_1', 'wetlands-bird-hide': 'sydneycom_things-to-do-in-penrith-with-kids_3',
     'aquatic-centre-open-swim': 'sydneycom_new-sydney-and-nsw-hotels_2', 'broadmeadow-brew-yard': 'sydneycom_sydney-beer-gardens_2',
-    'wharf-lane-maritime-rooms': 'sydneycom_tv-and-film-locations-in-sydney-and-nsw_2', 'brickpit-lookout-gallery': 'white-rabbit-gallery',
-    'mangrove-boardwalk-loop': 'sydneycom_things-to-do-in-penrith-with-kids_2', 'the-grandstand-deli': 'sydneycom_best-new-restaurants-in-sydney_1',
-    'fig-avenue-walk': 'sydneycom_tv-and-film-locations-in-sydney-and-nsw_1', 'hall-of-rugby-legends': 'white-rabbit-gallery',
-    'steelworks-story-museum': 'sydneycom_sydney-markets-guide_3', 'pier-seven-oyster-bar': 'sydneycom_sydney-markets-guide_1',
+    'wharf-lane-maritime-rooms': 'sydneycom_tv-and-film-locations-in-sydney-and-nsw_2', 'brickpit-lookout-gallery': 'gallery2',
+    'mangrove-boardwalk-loop': 'sydneycom_things-to-do-in-penrith-with-kids_2', 'the-grandstand-deli': 'deli',
+    'fig-avenue-walk': 'sydneycom_tv-and-film-locations-in-sydney-and-nsw_1', 'hall-of-rugby-legends': 'rugby-2',
+    'steelworks-story-museum': 'white-rabbit-gallery', 'pier-seven-oyster-bar': 'sydneycom_sydney-markets-guide_1',
     'fan-village-placeholder': 'sydneycom_outdoor-cinemas-sydney_2',
     // Stadiums: one photo stands in for all of them
     'stadium-australia': 'hero-stadium', 'sydney-football-stadium': 'hero-stadium', 'newcastle-stadium': 'hero-stadium',
@@ -93,7 +93,7 @@
   // The pictures in assets/images, by name and file type, so each placeholder asks for one file that exists (no
   // .webp-then-.jpg pair, no request at all for a name with no picture: it stays a grey block). Add a picture here
   // when one is added to the folder.
-  var IMG_FILES = {"1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW": "webp", "city-dining": "webp", "coast-aerial": "webp", "coast-headland": "webp", "golden-barley": "webp", "hero-coast": "webp", "hero-stadium": "webp", "ivy-rooftop": "jpg", "kathleen-banks-0h2KOlfkGck-unsplash": "jpg", "lord-nelson": "webp", "marickville-tavern": "webp", "river-national-park": "webp", "tth-logo": "webp", "village": "jpg", "white-rabbit-gallery": "jpg", "1004868_Basalt_Luxury_Accomodation_Canobolas": "webp", "172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0": "webp", "Kiama": "webp", "Tanja_Lagoon_Camp_interior_view_tent": "webp", "hunter": "webp", "krinklewood-vineyard": "webp", "Bush": "jpg", "Merwether baths": "jpg", "Newcastle baths": "jpg", "sydneycom_best-new-restaurants-in-sydney_1": "jpg", "sydneycom_best-new-restaurants-in-sydney_2": "jpg", "sydneycom_best-new-restaurants-in-sydney_3": "jpg", "sydneycom_guide-to-western-sydney-nightlife_1": "jpg", "sydneycom_guide-to-western-sydney-nightlife_2": "jpg", "sydneycom_guide-to-western-sydney-nightlife_3": "jpg", "sydneycom_new-sydney-and-nsw-hotels_1": "jpg", "sydneycom_new-sydney-and-nsw-hotels_2": "jpeg", "sydneycom_new-sydney-and-nsw-hotels_3": "jpg", "sydneycom_outdoor-cinemas-sydney_1": "jpeg", "sydneycom_outdoor-cinemas-sydney_2": "jpeg", "sydneycom_outdoor-cinemas-sydney_3": "jpeg", "sydneycom_secret-beaches-in-sydney_1": "jpg", "sydneycom_secret-beaches-in-sydney_2": "jpg", "sydneycom_secret-beaches-in-sydney_3": "jpg", "sydneycom_sydney-beer-gardens_1": "jpg", "sydneycom_sydney-beer-gardens_2": "jpeg", "sydneycom_sydney-beer-gardens_3": "jpg", "sydneycom_sydney-markets-guide_1": "jpg", "sydneycom_sydney-markets-guide_2": "jpg", "sydneycom_sydney-markets-guide_3": "jpg", "sydneycom_things-to-do-in-penrith-with-kids_1": "jpg", "sydneycom_things-to-do-in-penrith-with-kids_2": "jpg", "sydneycom_things-to-do-in-penrith-with-kids_3": "jpeg", "sydneycom_tv-and-film-locations-in-sydney-and-nsw_1": "jpg", "sydneycom_tv-and-film-locations-in-sydney-and-nsw_2": "jpg", "sydneycom_tv-and-film-locations-in-sydney-and-nsw_3": "jpg", "sydneycom_water-activities-in-sydney_1": "jpg", "sydneycom_water-activities-in-sydney_2": "jpg", "sydneycom_water-activities-in-sydney_3": "jpg"};
+  var IMG_FILES = {"1004780_Southern_Cross_Kayaking_Wollemi_National_Park_DNSW": "webp", "city-dining": "webp", "coast-aerial": "webp", "coast-headland": "webp", "golden-barley": "webp", "hero-coast": "webp", "hero-stadium": "webp", "ivy-rooftop": "jpg", "kathleen-banks-0h2KOlfkGck-unsplash": "jpg", "lord-nelson": "webp", "marickville-tavern": "webp", "river-national-park": "webp", "tth-logo": "webp", "village": "jpg", "white-rabbit-gallery": "jpg", "1004868_Basalt_Luxury_Accomodation_Canobolas": "webp", "172783_Audrey_Wilkinson_Pokolbin_DNSW_DT_0": "webp", "Kiama": "webp", "Tanja_Lagoon_Camp_interior_view_tent": "webp", "hunter": "webp", "krinklewood-vineyard": "webp", "Bush": "jpg", "Merwether baths": "jpg", "Newcastle baths": "jpg", "sydneycom_best-new-restaurants-in-sydney_1": "jpg", "sydneycom_best-new-restaurants-in-sydney_2": "jpg", "sydneycom_best-new-restaurants-in-sydney_3": "jpg", "sydneycom_guide-to-western-sydney-nightlife_1": "jpg", "sydneycom_guide-to-western-sydney-nightlife_2": "jpg", "sydneycom_guide-to-western-sydney-nightlife_3": "jpg", "sydneycom_new-sydney-and-nsw-hotels_1": "jpg", "sydneycom_new-sydney-and-nsw-hotels_2": "jpeg", "sydneycom_new-sydney-and-nsw-hotels_3": "jpg", "sydneycom_outdoor-cinemas-sydney_1": "jpeg", "sydneycom_outdoor-cinemas-sydney_2": "jpeg", "sydneycom_outdoor-cinemas-sydney_3": "jpeg", "sydneycom_secret-beaches-in-sydney_1": "jpg", "sydneycom_secret-beaches-in-sydney_2": "jpg", "sydneycom_secret-beaches-in-sydney_3": "jpg", "sydneycom_sydney-beer-gardens_1": "jpg", "sydneycom_sydney-beer-gardens_2": "jpeg", "sydneycom_sydney-beer-gardens_3": "jpg", "sydneycom_sydney-markets-guide_1": "jpg", "sydneycom_sydney-markets-guide_2": "jpg", "sydneycom_sydney-markets-guide_3": "jpg", "sydneycom_things-to-do-in-penrith-with-kids_1": "jpg", "sydneycom_things-to-do-in-penrith-with-kids_2": "jpg", "sydneycom_things-to-do-in-penrith-with-kids_3": "jpeg", "sydneycom_tv-and-film-locations-in-sydney-and-nsw_1": "jpg", "sydneycom_tv-and-film-locations-in-sydney-and-nsw_2": "jpg", "sydneycom_tv-and-film-locations-in-sydney-and-nsw_3": "jpg", "sydneycom_water-activities-in-sydney_1": "jpg", "sydneycom_water-activities-in-sydney_2": "jpg", "sydneycom_water-activities-in-sydney_3": "jpg", "deli": "jpg", "gallery": "webp", "gallery2": "jpeg", "manly-ferry": "jpeg", "rugby-2": "jpeg", "rugby-match-1": "jpeg", "sculpture": "webp"};
   // No grey boxes in high fidelity (agreed 16 Nov): a name with no picture of its own gets the closest one by the words
   // in it, so every placeholder shows a photo. The order matters: the first group that matches wins
   var IMG_GUESS = [
