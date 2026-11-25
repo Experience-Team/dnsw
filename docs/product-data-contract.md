@@ -707,3 +707,56 @@ Known gap, not solved: a watch party is tied to one match, so its card goes stal
   "location": "string | null"
 }
 ```
+
+---
+
+## 21. Sydney on social
+
+Added 25 November 2026 for the Sydney on social module on both homepages (Version 1 and Version 2), confirmed by the user as `gap`. The module shows stories and posts from the destination's own social accounts and lets people visit them. The existing `socials` field (§1) is a platform and URL on a product record; it is not these accounts and holds no content. No real data exists: the prototype renders every field here from invented fixtures only (`public/wireframes/concepts-social.js`), shown with a [Sample] marker. Accounts are Instagram and TikTok in the prototype.
+
+**Account**
+
+**`platform`** — `gap`, `source: authored`. `instagram` or `tiktok` in the prototype; the §1 `socials` list also allows `facebook`, `x` and `youtube`. Drives the icon and the label. Empty state: the account is not offered.
+
+**`name`** — `gap`, `source: authored`. The display name ("Sydney"). Empty state: the platform name is shown on its own.
+
+**`handle`** — `gap`, `source: authored`. For example `@sydney`. Shown in the viewer's header. Empty state: left out.
+
+**`url`** — `gap`, `source: authored`. Where Visit goes. Empty state: the Visit button is not offered. The prototype's links are placeholders until the accounts are confirmed.
+
+**Story** (zero or more per account; a story is shown for a short time, so a real feed would drop expired ones)
+
+**`account`** — `gap`, `referenced`. The account it belongs to. Empty state: the story is not shown.
+
+**`image`** — `gap`, `source: third_party`, with usage rights and the platform's display terms to check. Empty state: the story is not shown.
+
+**`caption`** — `gap`, `source: third_party`. Empty state: no caption line.
+
+**Post** (zero or more per account)
+
+**`account`**, **`image`**, **`caption`** — as for a story.
+
+**`posted`** — `gap`, `source: third_party`. The date it was posted, shown as day and month. Empty state: no date.
+
+**`url`** — `gap`, `source: third_party`. The post on the platform, where View on Instagram or TikTok goes. Empty state: the View button is not offered.
+
+Empty states for the module: no accounts hides the whole section; an account with no stories shows as a plain button with no ring, and Visit still works; no posts hides the row of posts.
+
+Not held, and not invented: story expiry or posting time, like and view counts, comments, video, alt text for pictures (the caption stands in), hashtags and a live feed. Where live data would come from (the platforms' own embeds or an API, and the terms for showing it) is open.
+
+```json
+"social_account": {
+  "platform": "instagram | tiktok | facebook | x | youtube",
+  "name": "string",
+  "handle": "string | null",
+  "url": "string | null"
+},
+"social_story": { "account": "social_account_ref", "image": "image", "caption": "string | null" },
+"social_post": {
+  "account": "social_account_ref",
+  "image": "image",
+  "caption": "string | null",
+  "posted": "date | null",
+  "url": "string | null"
+}
+```

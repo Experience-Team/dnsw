@@ -56,3 +56,10 @@ The Iterations tab is a placeholder until the first iteration is saved. To save 
 4. Add the iteration to `tests/regression/v2.visual.spec.js` and `v2.behaviour.spec.js`, and approve its baselines.
 
 A saved iteration is frozen: later work goes into Version 2, never into a saved iteration.
+
+## Sydney on social (25 Nov 2026)
+
+`v2-social.js` and `v2-social.css` are Version 2's own copy of the Sydney on social module (Home, above the FAQs, and its
+full-screen viewer): classes, ids and globals start `v2-soc` / `v2Social`, and seen rings are kept in `v2:v2-soc-v1`.
+Version 1 has its own copy in `../v1/`. The fixtures, `../concepts-social.js`, are a shared data file, read only here.
+Fields are in `docs/product-data-contract.md` section 21.
