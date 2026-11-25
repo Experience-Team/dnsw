@@ -15,14 +15,15 @@
 <link rel="stylesheet" href="themes/hifi.css" />
 <style>
   html, body { height: 100%; margin: 0; }
-  .sh-page { --sh-bar: 0px; position: relative; padding: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #fff; color: #1a1a1a; }
-  /* The bar sits over the stage, and the frames start below it (--sh-bar, set by the script). On a phone it slides away
-     on a scroll down and back on a scroll up, and the frame's top moves with it, on the same curve */
-  .sh-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2; background: #fff; border-bottom: 1px solid #d1d1d1; }
-  .sh-page.is-bar-hidden .sh-bar { transform: translateY(-100%); }
+  .sh-page { --sh-bar: 0px; --sh-off: 0px; position: relative; padding: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #fff; color: #1a1a1a; }
+  /* The bar sits over the stage, and the frames start below it (--sh-bar, set by the script). On a phone the bar moves
+     with the scrolling: it rises by as much as the page rises (--sh-off, the distance it has gone up, set on every scroll)
+     and comes back as soon as the page is scrolled down again, and the frame's top moves with it. There is no timed slide
+     while scrolling. When scrolling stops part way it settles fully shown or fully hidden (is-settling, a short ease) */
+  .sh-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2; background: #fff; border-bottom: 1px solid #d1d1d1; transform: translateY(calc(-1 * var(--sh-off))); }
   @media (prefers-reduced-motion: no-preference) {
-    .sh-bar { transition: transform .24s cubic-bezier(.4, 0, .2, 1); }
-    .sh-frame { transition: top .24s cubic-bezier(.4, 0, .2, 1), height .24s cubic-bezier(.4, 0, .2, 1); }
+    .sh-page.is-settling .sh-bar { transition: transform .18s cubic-bezier(.4, 0, .2, 1); }
+    .sh-page.is-settling .sh-frame { transition: top .18s cubic-bezier(.4, 0, .2, 1), height .18s cubic-bezier(.4, 0, .2, 1); }
   }
   .sh-tabs { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-4) var(--space-2); }
   .sh-tab { flex: 1 1 0; max-width: 240px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-1); min-height: 52px; padding: var(--space-2) var(--space-3); box-sizing: border-box; border: 1px solid #2666d9; border-radius: 12px; background: #fff; color: #2666d9; font-size: .875rem; line-height: 1.2; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
@@ -47,7 +48,7 @@
   }
   @media (min-width: 900px) and (max-width: 960px) { body:not(.sh-device) .sh-bar { width: 360px; } body:not(.sh-device) .sh-tabs, body:not(.sh-device) .sh-note { padding-inline: var(--space-4); } } /* the panel is narrower here */
   .sh-stage { position: absolute; inset: 0; }
-  .sh-frame { position: absolute; top: var(--sh-bar); left: 0; width: 100%; height: calc(100% - var(--sh-bar)); border: 0; background: #fff; } /* an iframe does not stretch between top and bottom, so it has its height */
+  .sh-frame { position: absolute; top: calc(var(--sh-bar) - var(--sh-off)); left: 0; width: 100%; height: calc(100% - var(--sh-bar) + var(--sh-off)); border: 0; background: #fff; } /* an iframe does not stretch between top and bottom, so it has its height */
   /* The version not showing stays loaded, at full size, so it keeps its place and is never re-measured */
   .sh-frame[inert] { visibility: hidden; }
 </style>
@@ -77,43 +78,57 @@
     if (f.getAttribute('src')) return;
     f.setAttribute('src', f.getAttribute('data-src') + (rest().length ? '?' + rest().join('&') : '') + (n === first ? hash : ''));
   }
-  // The bar hides on a scroll down and shows on a scroll up, only where a version fills the screen (a phone, or ?phone:
-  // the frame's html has pv-device). The scrolling is the page's own body (.tp-body) inside the frame, so each frame's
-  // document is watched, again whenever it loads (Reset reloads it). At the top of the page it always shows. Scrolls
-  // that follow a change of bar, tab or frame size are ignored for a moment: the frame growing can move the scroll
-  // position by itself, and that must not read as the person scrolling back up.
-  var page = document.body, bar = document.querySelector('.sh-bar'), barH = 0, hidden = false, current = first, quiet = 0, last = 0;
+  // The bar moves with the scrolling, only where a version fills the screen (a phone, or ?phone: the frame's html has
+  // pv-device): it rises by as much as the page does and comes back as soon as the page goes down again. The scrolling is
+  // the page's own body (.tp-body) inside the frame, so each frame's document is watched, again whenever it loads (Reset
+  // reloads it). At the top of the page the bar is always fully shown. A scroll that only follows the frame growing (it
+  // can move the page by itself, at the foot) is not the person scrolling back up, so it is ignored.
+  var page = document.body, bar = document.querySelector('.sh-bar'), barH = 0, off = 0, current = first, last = 0, settleT = 0, lastShift = 0, lastShiftDir = 0, lastShiftAt = 0;
   // In a window that shows the viewer the bar sits over the top of the version's left panel, and the version leaves room
   // for it: the frame reads this when it loads (window.pvShellRoom) and it is kept up to date here
   var wide = matchMedia('(min-width: 900px)');
   function room() { return !page.classList.contains('sh-device') && wide.matches ? bar.offsetHeight : 0; }
   window.pvShellRoom = room;
   function syncRoom() { [1, 2].forEach(function (n) { try { frames[n].contentDocument.documentElement.style.setProperty('--pv-shell-room', room() + 'px'); } catch (e) {} }); }
-  function measure() { barH = bar.offsetHeight; page.style.setProperty('--sh-bar', hidden ? '0px' : barH + 'px'); syncRoom(); }
+  function measure() { barH = bar.offsetHeight; page.style.setProperty('--sh-bar', barH + 'px'); if (off > barH) setOff(barH); syncRoom(); }
   wide.addEventListener('change', syncRoom);
-  function setHidden(h) {
-    if (h === hidden) return;
-    hidden = h; quiet = Date.now() + 400;
-    page.classList.toggle('is-bar-hidden', h); bar.inert = h; measure();
+  function setOff(v) {
+    v = Math.max(0, Math.min(barH, v));
+    if (v === off) return;
+    lastShift = Math.abs(v - off); lastShiftDir = v > off ? 1 : -1; lastShiftAt = Date.now();
+    off = v; page.style.setProperty('--sh-off', off + 'px');
+    bar.inert = off >= barH - 1; // out of reach while it is out of sight
   }
-  function watch(n) {
-    var doc; try { doc = frames[n].contentDocument; } catch (e) { return; }
-    if (!doc) return;
-    doc.addEventListener('scroll', function (e) {
-      var t = e.target;
-      if (n !== current || !t.classList || !t.classList.contains('tp-body') || !doc.documentElement.classList.contains('pv-device')) return;
-      var y = Math.max(0, t.scrollTop), d = y - last;
-      if (Date.now() < quiet) { last = y; return; }
-      if (y <= barH) { setHidden(false); last = y; return; }
-      if (Math.abs(d) < 4) return; // slow scrolls add up until they pass this
-      setHidden(d > 0); last = y;
-    }, true);
+  // When scrolling stops with the bar part way, it settles to whichever end is nearer
+  function settle() {
+    if (off <= 0 || off >= barH) return;
+    page.classList.add('is-settling'); setOff(off > barH / 2 ? barH : 0);
+    setTimeout(function () { page.classList.remove('is-settling'); }, 240);
   }
-  [1, 2].forEach(function (n) { frames[n].addEventListener('load', function () { watch(n); syncRoom(); }); });
+  var hasEnd = 'onscrollend' in window; // browsers without scrollend settle after a short pause instead
+  // Each version's page reports its scrolling here from its own head (the frame's pv-framed script), so nothing is missed
+  // while it loads. Only the page's own body (.tp-body) counts, and only in a phone view (pv-device)
+  window.pvShellScroll = function (win, t, type) {
+    var n = frames[1].contentWindow === win ? 1 : frames[2].contentWindow === win ? 2 : 0;
+    if (!n || n !== current || !t || !t.classList || !t.classList.contains('tp-body') || !win.document.documentElement.classList.contains('pv-device')) return;
+    if (type === 'scrollend') { // settle once the scrolling has ended (the finger is off and any glide is over), after a short quiet: a step of a wheel or a key can end and the next begin straight away
+      clearTimeout(settleT); settleT = setTimeout(settle, 120); return;
+    }
+    var y = Math.max(0, t.scrollTop), d = y - last;
+    last = y;
+    if (!d) return;
+    // At the foot of the page the frame growing can pull the page up by exactly what it grew: that is not the person scrolling up
+    if (d < 0 && lastShiftDir > 0 && Date.now() - lastShiftAt < 150 && Math.abs(-d - lastShift) <= 1 && t.scrollTop + t.clientHeight >= t.scrollHeight - 2) return;
+    page.classList.remove('is-settling');
+    if (y === 0) setOff(0); else setOff(off + d); // 1 to 1: down hides, up shows
+    clearTimeout(settleT);
+    if (!hasEnd) settleT = setTimeout(settle, 200);
+  };
+  [1, 2].forEach(function (n) { frames[n].addEventListener('load', syncRoom); });
   if (window.ResizeObserver) new ResizeObserver(measure).observe(bar);
   measure();
   function show(n) {
-    current = n; setHidden(false); quiet = Date.now() + 400;
+    current = n; clearTimeout(settleT); page.classList.remove('is-settling'); setOff(0); lastShiftAt = 0;
     try { var b = frames[n].contentDocument.querySelector('.tp-body'); last = b ? b.scrollTop : 0; } catch (e) { last = 0; }
     load(n);
     [1, 2].forEach(function (k) { frames[k].inert = k !== n; frames[k].setAttribute('aria-hidden', k === n ? 'false' : 'true'); });
