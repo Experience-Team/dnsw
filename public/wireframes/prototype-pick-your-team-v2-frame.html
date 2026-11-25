@@ -35,6 +35,7 @@
 <link rel="stylesheet" href="themes/hifi.css" />
 <!-- Version 2's own styles, after the shared ones: v2-prefixed classes only, never a change to a shared class -->
 <link rel="stylesheet" href="v2/v2.css" />
+<link rel="stylesheet" href="v2/v2-social.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
 </head>
 <body class="pv-page">
@@ -242,6 +243,18 @@
           </section>
 
           <!-- FAQs: the six questions from Figma, with the answers the user supplied on 22 Nov (concepts-home.js) -->
+          <!-- Sydney on social (25 Nov 2026): stories and posts from our Sydney, and a way to visit the accounts. Gap fields, invented
+               sample content (docs/product-data-contract.md §21). Drawn and run by v2/v2-social.js and v2/v2-social.css; the viewer it opens is built there too -->
+          <section class="tp-home-sec v2-soc" id="v2-soc" aria-labelledby="v2-soc-title" hidden>
+            <h3 class="tp-sec-title" id="v2-soc-title">Sydney on social</h3>
+            <p class="tp-home-intro">Stories and posts from our Sydney. Follow along for what&rsquo;s on around the matches.</p>
+            <p class="tp-home-ph v2-soc-sample">[Sample stories and posts until the accounts are connected]</p>
+            <ul class="v2-soc-rings" id="v2-soc-rings" aria-label="Stories"></ul>
+            <ul class="v2-soc-posts" id="v2-soc-posts" aria-label="Recent posts"></ul>
+            <div class="v2-soc-visit" id="v2-soc-visit"></div>
+            <p class="v2-soc-say" id="v2-soc-say" role="status"></p>
+          </section>
+
           <section class="tp-home-sec" id="tp-home-faq" aria-labelledby="tp-home-faq-title">
             <h3 class="tp-sec-title" id="tp-home-faq-title" tabindex="-1">Rugby World Cup 2027 FAQs</h3>
             <div class="tp-faq" id="tp-faq"></div>
@@ -733,6 +746,7 @@
 <script src="concepts-geo.js"></script>
 <script src="concepts-words.js"></script>
 <script src="concepts-articles.js"></script>
+<script src="concepts-social.js"></script>
 
 <!-- Version 2's own copies of the behaviour scripts Home needs (v2/README.md): the team cards, the host city sheets,
      the map, the plan parts they lean on (kept out of reach for now) and Home itself. Never the concepts-*.js originals. -->
@@ -745,6 +759,7 @@
 <!-- Your plan, the simple saved list (24 Nov): the game's places, watch parties and kit colours are read here too, for the rows -->
 <script src="v2/drop-goal/places.js"></script><script src="v2/drop-goal/watch-parties.js"></script><script src="v2/drop-goal/kit.js"></script>
 <script src="v2/v2-saved.js"></script>
+<script src="v2/v2-social.js"></script>
 <script>
 /* Reset prototype and ?reset: clear every key this version saved (v2:, in both stores), leaving the viewer's own
    settings and Options A to C alone, then reload as a first visit. */
@@ -781,6 +796,14 @@
       'Wording: picking a team adds nothing to Your plan, so the cards say Tap a card to pick your team, then England picked: 3 matches, 2 in NSW.',
       'Header: the host city lockup is far left, the Third Half logo beside it and the menu far right, on phones and on desktop. Your plan joins the menu in the header on desktop once something is added.',
       'Add: every article in Read before you go, and the open article, has an Add button. A dot flies to the Your plan button, which bumps as its count goes up. Pressing Added takes it out again.'
+    ] },
+    { sel: '#v2-soc', title: 'Sydney on social', points: [
+      'Sydney on social (25 Nov 2026): a section above the FAQs, after At a glance, with stories and posts from our Sydney and a way to visit the accounts. It follows the practical content, so what helps someone decide comes first.',
+      'Stories: a ring for each account that has some (Instagram and TikTok here). A colour ring is not seen yet, grey is seen. Tapping one opens the stories over the whole phone: tap right for the next, left for the one before, hold to pause, or use Pause. Each lasts 5 seconds and the next account plays after the last. Close is top right; Escape closes; focus goes back to the ring.',
+      'Posts: a row of recent posts that scrolls sideways, the next one peeking. Tapping one opens it over the whole phone with its caption, date, View on Instagram or TikTok, and Visit the account.',
+      'Visit: a button for each account. The links are placeholders until the accounts are confirmed, so they say so and go nowhere.',
+      'Data: accounts, stories and posts are gap fields (contract section 21), invented sample content here. Empty states: no accounts hides the section, an account with no stories is a plain button with no ring, no posts hides the row.',
+      'Reduced motion: a story does not advance by itself and the progress bar is static; tap to move on.'
     ] },
     { sel: '#v2-menu-wrap', title: 'Menu', points: [
       'In place of the three tabs, to be refined: Home goes to the top, Plan your 3rd half to that section of Home, and Play Drop Goal opens the game over the whole screen.',
