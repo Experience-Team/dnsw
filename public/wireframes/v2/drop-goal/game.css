@@ -194,7 +194,7 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 @media (min-width: 700px) {
   /* not while hidden: display here would otherwise beat the hidden attribute and show the empty card over the game */
   .dg-result:not([hidden]) { display: grid; grid-template-columns: 1fr minmax(360px, 44%); align-items: stretch; }
-  .dg-r-pitch { justify-content: center; padding: 48px; }
+  .dg-r-pitch { justify-content: center; padding: 48px; cursor: pointer; }
   /* room at the top for the page's ? and close cross, which sit over this corner when the game is shown full screen */
   .dg-r-frame-wrap { overflow-y: auto; padding-top: 68px; }
 }

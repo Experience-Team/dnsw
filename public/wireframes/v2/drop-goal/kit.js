@@ -1,8 +1,8 @@
 /* Drop goal, Version 2: the kicker's kit and skin, and the ball's stripes, from a team's palette.
    Copied from ../../drop-goal/js/teams.js (Options A to C's game, 24 Nov 2026) so a change there never moves this
    game: the 24 teams' flag colours (Figma node 395:531) and the skin rule, trimmed to what the kick screen needs.
-   Skin rule (do not relax): skin is only ever a blue or green from the team's own palette, never red, yellow, orange,
-   white, brown or black, and never a realistic skin tone. Teams with no blue or green use a neutral slate. */
+   Skin (25 Nov 2026): brown for every kicker, as the reference picture has it. The earlier rule (a blue or green from
+   the team's palette, never a realistic tone) was lifted by the user. */
 (function () {
   const W = '#f5f5f5', RED = '#ff4b55', NAVY = '#41479b', GRN = '#73af00', LB = '#82afff',
     BLU = '#4173cd', ORG = '#ff9b46', YEL = '#ffe15a', ESR = '#c8414b', ESY = '#ffd250';
@@ -51,14 +51,10 @@
     return '#' + f(0) + f(8) + f(4);
   }
   function darken(hex, amt) { const [h, s, l] = hexToHsl(hex); return hslToHex(h, s, l - amt); }
-  /* The team's blue or green, at a lightness that stays clear of the pitch; slate where the team has neither */
-  function skinFor(t) {
-    let [h, s] = t.skin ? hexToHsl(t.skin) : [218, 0.16];
-    if (t.skin && h > 70 && h < 100) h = 100;               // the flag lime goes olive when dark: nudge it to green
-    const sat = t.skin ? Math.min(0.7, Math.max(0.42, s)) : s;
-    const green = t.skin && h > 80 && h < 175;
-    const L = green ? 0.7 : 0.62;
-    return { skin: hslToHex(h, sat, L), skinBack: hslToHex(h, sat, L - 0.07), skinShade: hslToHex(h, sat, L - 0.09), eye: '#17211a' };
+  /* Brown for every kicker (25 Nov 2026, the user's call, from the reference picture's player). It replaces the old
+     rule of a blue or green from the team's palette; each team's `skin` entry above is no longer read. */
+  function skinFor() {
+    return { skin: '#d19772', skinBack: '#bd8562', skinShade: '#b87f5d', eye: '#17211a' };
   }
   /* The ball: cream, its stripes in the team's two strongest colours (white is skipped, as it vanishes on cream) */
   function ballFor(t) {

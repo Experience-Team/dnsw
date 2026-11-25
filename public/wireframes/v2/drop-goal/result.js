@@ -208,6 +208,10 @@
   }
   $('dg-r-again').addEventListener('click', close);
   $('dg-r-close').addEventListener('click', close);
+  /* Wide screens (25 Nov): a click anywhere on the field beside the card does what Kick again does, so the next click
+     is the drop. On phones the field is only the strip that holds Kick again, so the button stays the way back */
+  const pitchR = res.querySelector('.dg-r-pitch'), wideR = matchMedia('(min-width: 700px)');
+  pitchR.addEventListener('click', e => { if (wideR.matches && !e.target.closest('#dg-r-again')) close(); });
   $('dg-r-save').addEventListener('click', e => { if (shown) onSave(shown, e.currentTarget); });
   res.addEventListener('keydown', e => { if (e.key === 'Escape' && placesEl.hidden) { e.preventDefault(); close(); } });
 
