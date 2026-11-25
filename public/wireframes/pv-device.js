@@ -170,8 +170,15 @@
   var local = location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0$|\[::1\]$)/.test(location.hostname);
   // The same address the person is on, as the phone view: a page with the High fidelity switch opens in high fidelity,
   // as that is what someone scanning the code should see; a page without it opens as it is
+  // A page shown inside the prototype viewer sets window.pvShell (the viewer's address, with ?version=), so these links
+  // open the viewer, tabs and all, not the bare page. Without it, the page's own address, as before. Ends with ? or &
+  function base() {
+    if (!window.pvShell) return location.origin + location.pathname + '?';
+    var u = new URL(window.pvShell, location.href).href;
+    return u + (u.indexOf('?') > -1 ? '&' : '?');
+  }
   function phoneUrl() {
-    return location.origin + location.pathname + '?phone' + (themeBtn ? '&theme=hifi' : '') + flowQ();
+    return base() + 'phone' + (themeBtn ? '&theme=hifi' : '') + flowQ();
   }
   // Options B and C are the same page as Option A with ?flow=a or ?flow=c: every link out of the viewer keeps it, so
   // the phone and the desktop view open the option on show, not Option A
@@ -185,7 +192,7 @@
     // Open in desktop (beside the phone): the page on its own in the theme on show, so a wide window gets the desktop
     // layout as the reviewer sees it now
     var desk = document.getElementById('pv-desktop');
-    if (desk) desk.href = location.origin + location.pathname + '?phone' + (themeBtn ? '&theme=' + (hifi() ? 'hifi' : 'wireframe') : '') + flowQ();
+    if (desk) desk.href = base() + 'phone' + (themeBtn ? '&theme=' + (hifi() ? 'hifi' : 'wireframe') : '') + flowQ();
     if (local || typeof qrcode !== 'function') {
       code.hidden = true;
       document.getElementById('pv-qr-show').textContent = 'Why no QR code';

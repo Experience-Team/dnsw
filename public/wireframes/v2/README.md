@@ -1,5 +1,10 @@
 # Version 2
 
+> **Where it lives (25 Nov 2026).** Version 2 is a tab of the prototype viewer, `../prototype-pick-your-team.html?version=2`.
+> Its own page is `../prototype-pick-your-team-v2-frame.html`, which the viewer shows in a frame; `../prototype-pick-your-team-v2.html`
+> redirects to the viewer. Inside the viewer the page hides its own tabs, title and the Open Version 1 block (`.pv-framed`).
+> Version 1 is labelled full functionality and Version 2 reduced. Everything below still applies to the frame page.
+
 `../prototype-pick-your-team-v2.html` is a fresh Pick your team prototype, kept separate from Options A, B and C
 (`../prototype-pick-your-team.html`). It uses the same styles, components and data, and none of their behaviour.
 

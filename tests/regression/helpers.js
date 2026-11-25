@@ -2,7 +2,7 @@
 // accessible names; nothing in the prototype exists only for these tests.
 import { test as base, expect } from '@playwright/test';
 
-export const PAGE = '/wireframes/prototype-pick-your-team.html';
+export const PAGE = '/wireframes/prototype-pick-your-team-v1-frame.html'; // Version 1's own page, shown in the viewer (prototype-pick-your-team.html)
 // Version 1 (was Option C) is ?flow=c. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md)
 export const OPTIONS = { C: 'flow=c' };
 export const THEMES = ['hifi', 'wireframe'];

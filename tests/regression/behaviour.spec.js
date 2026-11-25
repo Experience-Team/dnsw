@@ -105,7 +105,7 @@ test.describe('Address flags', () => {
   ]) {
     test(`${from || 'no flow'} opens Version 1 at ${to}`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await page.goto(`/wireframes/prototype-pick-your-team.html${from}#tp-ov`);
+      await page.goto(`/wireframes/prototype-pick-your-team-v1-frame.html${from}#tp-ov`);
       await settle(page);
       const u = new URL(page.url());
       expect(u.search).toBe(to);
@@ -118,7 +118,7 @@ test.describe('Address flags', () => {
   test('an old address and ?flow=c share Version 1\'s saved picks', async ({ page }) => {
     await open(page, { option: 'C' });
     await goPlan(page); await pick(page, ONE);
-    await page.goto('/wireframes/prototype-pick-your-team.html?phone&theme=hifi&flow=a');
+    await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html?phone&theme=hifi&flow=a');
     await settle(page);
     expect(await state(page)).toEqual([ONE]);
   });
@@ -161,7 +161,7 @@ test.describe('Address flags', () => {
 
   test('without ?phone a desktop window shows the viewer and its side panel', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/wireframes/prototype-pick-your-team.html?theme=hifi');
+    await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html?theme=hifi');
     await settle(page);
     await expect(page.locator('html')).not.toHaveClass(/\bpv-device\b/);
     await expect(page.locator('.pv-side')).toBeVisible();
@@ -171,18 +171,18 @@ test.describe('Address flags', () => {
   test('?theme sets the theme, the switch follows, and the choice is remembered', async ({ page }) => {
     const theme = () => page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/wireframes/prototype-pick-your-team.html?theme=wireframe');
+    await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html?theme=wireframe');
     await settle(page);
     expect(await theme()).toBeNull();
     await expect(page.locator('#pv-theme-toggle')).toHaveAttribute('aria-checked', 'false');
-    await page.goto('/wireframes/prototype-pick-your-team.html');
+    await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html');
     await settle(page);
     expect(await theme()).toBeNull();
-    await page.goto('/wireframes/prototype-pick-your-team.html?theme=hifi');
+    await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html?theme=hifi');
     await settle(page);
     expect(await theme()).toBe('hifi');
     await expect(page.locator('#pv-theme-toggle')).toHaveAttribute('aria-checked', 'true');
-    await page.goto('/wireframes/prototype-pick-your-team.html');
+    await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html');
     await settle(page);
     expect(await theme()).toBe('hifi');
   });

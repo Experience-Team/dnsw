@@ -12,6 +12,10 @@ Checks that a change to Version 1 (`public/wireframes/prototype-pick-your-team.h
   apart from Version 1: only its own tabs, none of their behaviour scripts, its own saved state, and no links
   between the two. Drop goal's kick screen: the team's kit, a goal, a wide and a short kick and what each announces,
   reduced motion, and the team choice kept under `v2:`. See `public/wireframes/v2/README.md`.
+- **Viewer** (`shell.behaviour.spec.js`): `prototype-pick-your-team.html` holds Version 1 and Version 2 as tabs, each in a
+  frame (`...-v1-frame.html`, `...-v2-frame.html`, which the other specs open directly). The tabs and the full and
+  reduced tags, the old addresses (`?flow=a`, `prototype-pick-your-team-v2.html`) redirecting with their flags and
+  `#hash`, each version keeping its place when you tab away and back, and nothing scrolling sideways on a phone.
 - **Behaviour** (`behaviour.spec.js`): pick, unpick, Clear all, Every NSW match, reload, Reset prototype and `?reset` in
   Version 1, and `?flow=c`, the old `?flow=a` and no-flag addresses opening Version 1, `?phone` and `?theme` doing their jobs.
 

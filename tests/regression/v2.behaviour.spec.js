@@ -2,7 +2,7 @@
 // Every test also fails on a console error (helpers.js).
 import { test, expect, SIZES, PAGE } from './helpers.js';
 
-const V2 = '/wireframes/prototype-pick-your-team-v2.html';
+const V2 = '/wireframes/prototype-pick-your-team-v2-frame.html';
 const v2url = (theme, extra = '') => `${V2}?${['phone', theme && `theme=${theme}`, extra].filter(Boolean).join('&')}`;
 
 test.describe('Version 2', () => {
@@ -30,7 +30,7 @@ test.describe('Version 2', () => {
     await expect(back).toHaveText('Open Version 1');
     expect(await page.locator('.pv-tabs a[href*="prototype-pick-your-team.html"]').count()).toBe(0);
     await back.click();
-    await expect(page).toHaveURL(/prototype-pick-your-team\.html$/);
+    await expect(page).toHaveURL(/prototype-pick-your-team\.html\?version=1$/);
   });
 
   test('the Settings menu lists only Version 2', async ({ page }) => {
@@ -58,8 +58,8 @@ test.describe('Version 2', () => {
 
   test('its saved state is its own, and Reset clears only that', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    // Something Option A saved under the same name
-    await page.goto(`${PAGE}?theme=hifi`);
+    // Something a page with no prefix saved under the same name (the old Option A did; Version 1 now files its keys under flow-c:)
+    await page.goto('/wireframes/index.html');
     await page.evaluate(() => { localStorage.setItem('tp-pick-v1', 'option-a'); });
     await page.goto(`${V2}?theme=hifi`);
     // Version 2 sees none of it, and writes under v2:
@@ -96,7 +96,7 @@ test.describe('Version 2', () => {
       expect(await page.locator('.pv-tabs a[href*="prototype-pick-your-team-v2"]').count()).toBe(0);
     }
     await page.locator('.pv-v2link-go').click();
-    await expect(page).toHaveURL(/prototype-pick-your-team-v2\.html$/);
+    await expect(page).toHaveURL(/prototype-pick-your-team\.html\?version=2$/);
   });
 
   // Drop goal (v2/drop-goal/), in a frame, opened over the whole screen from Home. The picked teams are Home's picks
@@ -473,7 +473,7 @@ test.describe('Version 2', () => {
       expect(Math.abs((await play.boundingBox()).y - at)).toBeLessThan(1);
       await expect.poll(() => body.evaluate((e) => e.scrollTop)).toBe(y);
       expect(Math.abs((await play.boundingBox()).y - at)).toBeLessThan(1);
-      expect(page.url()).toContain('prototype-pick-your-team-v2.html');
+      expect(page.url()).toContain('prototype-pick-your-team-v2-frame.html');
     }
   });
 
