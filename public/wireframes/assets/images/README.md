@@ -49,52 +49,25 @@ line in `IMG_ALIAS` shows the real picture instead.
 Where a kind of place has several pictures (vineyards, coast, overnight stays, harbour), `IMG_GUESS` in `pv-device.js`
 picks one by the place's name, the same every time, so neighbouring cards rarely share a picture.
 
-| Placeholder | Shows | |
-|---|---|---|
-| `golden-barley-hotel` | `golden-barley` | the place itself |
-| `lord-nelson-brewery-hotel` | `lord-nelson` | the place itself |
-| `marrickville-tavern` | `marickville-tavern` | the place itself |
-| `rugby-village-foreshore-park` | `village` | the place itself |
-| `darling-harbour-fan-zone` | `village` | stand-in, closest match |
-| `armory-wharf-cafe` | `city-dining` | stand-in, closest match |
-| `bourke-street-bakery` | `city-dining` | stand-in, closest match |
-| `darby-street-cafes` | `city-dining` | stand-in, closest match |
-| `entertainment-quarter` | `city-dining` | stand-in, closest match |
-| `waterview-in-bicentennial-park` | `city-dining` | stand-in, closest match |
-| `white-rabbit-gallery` | `city-dining` | stand-in, closest match |
-| `beaumont-street-bars` | `marickville-tavern` | stand-in, closest match |
-| `bathers-way` | `coast-headland` | stand-in, closest match |
-| `brickpit-ring-walk` | `river-national-park` | stand-in, closest match |
-| `blue-mountains-day-out` | `river-national-park` | stand-in, closest match |
-| `barrington-tops-overnight` | `river-national-park` | stand-in, closest match |
-| `lake-macquarie-by-bike` | `river-national-park` | stand-in, closest match |
-| `royal-national-park-coast-walk` | `coast-headland` | stand-in, closest match |
-| `port-stephens-bay-day` | `coast-aerial` | stand-in, closest match |
-| `south-coast-3-nights` | `coast-headland` | stand-in, closest match |
-| `hunter-valley-2-nights` | `city-dining` | stand-in, closest match |
-| `echo-point-lookout` | `river-national-park` | stand-in, closest match |
-| `prince-henry-cliff-walk` | `river-national-park` | stand-in, closest match |
-| `leura-mall-cafes` | `city-dining` | stand-in, closest match |
-| `the-coast-track` | `coast-headland` | stand-in, closest match |
-| `bundeena-village-cafes` | `city-dining` | stand-in, closest match |
-| `nelson-bay-dolphin-cruise` | `coast-aerial` | stand-in, closest match |
-| `stockton-bight-sand-dunes-tour` | `coast-aerial` | stand-in, closest match |
-| `shoal-bay-beach` | `coast-aerial` | stand-in, closest match |
-| `warners-bay-bike-hire` | `river-national-park` | stand-in, closest match |
-| `speers-point-park` | `river-national-park` | stand-in, closest match |
-| `pokolbin-cellar-doors` | `city-dining` | stand-in, closest match |
-| `hunter-valley-balloon-flight` | `river-national-park` | stand-in, closest match |
-| `hunter-valley-gardens` | `river-national-park` | stand-in, closest match |
-| `kiama-blowhole` | `coast-headland` | stand-in, closest match |
-| `kiama-coast-walk` | `coast-headland` | stand-in, closest match |
-| `jervis-bay-whale-watching-cruise` | `coast-aerial` | stand-in, closest match |
-| `barrington-tops-rainforest-walk` | `river-national-park` | stand-in, closest match |
-| `gloucester-country-pub` | `lord-nelson` | stand-in, closest match |
-| `centennial-parklands` | `river-national-park` | stand-in, closest match |
-| `fan-zone` | `village` | stand-in, closest match |
-| `newcastle-ocean-baths` | `coast-aerial` | stand-in, closest match |
-| `nz-v-australia` | `hero-stadium` | the place itself |
-| `patonga-beach` | `coast-headland` | stand-in, closest match |
+**Which picture each placeholder shows (since 25 Nov 2026):** the list of record is `IMG_ALIAS` in
+`public/wireframes/pv-device.js`, set out by the list each thumbnail shows in (Home, Around your matches, Where to
+watch, trips, stops, free-day ideas, places on the map, stadiums). The rule: a picture belongs to one place, and the
+same place keeps its picture wherever it shows. Where there are not enough pictures, places of the same kind share
+one, and a list repeats a picture only when its kind has run out.
+
+Added on 25 Nov: 30 pictures named `sydneycom_<article>_<n>` (from sydney.com articles), and `deli`, `gallery`,
+`gallery2`, `manly-ferry`, `rugby-2`, `rugby-match-1` and `sculpture`. Each new file is also listed in `IMG_FILES` in
+the same script, with its file type; a file not listed there is never requested.
+
+- **Not used yet:** `sydneycom_new-sydney-and-nsw-hotels_1` and `_3`, `sydneycom_tv-and-film-locations-in-sydney-and-nsw_3`
+  (the Parkes dish), `sculpture` (a desert sculpture), and `23090deb477ebe636f2ddbd27480b6bb` (see above).
+- **Licence to confirm:** `rugby-2` and `rugby-match-1` look like Rugby World Cup 2023 press photos.
+- **Still sharing a picture:** the eight named stadiums (one stadium photo), most pubs and clubs in Where to watch,
+  coast towns among the free-day ideas, and some trip stops and map places. Pictures most wanted: stadiums, pub and
+  club exteriors, beaches, a museum interior, fans on a train or walking to a ground.
+- **Version 2's game** names its pictures in `v2/drop-goal/places.js` (`image:`), not here. A place with `image: null`
+  shows its poster.
+
 
 `ivy-rooftop.jpg` is the same photo as `city-dining.webp`, so cafés have only two real pictures between them (city dining and Marrickville Tavern). A few more café or bakery photos would cut the repeats most.
 
