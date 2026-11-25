@@ -260,3 +260,23 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
 /* Low fidelity: Your plan's pictures and posters are grey blocks, as everywhere else in the wireframe */
 :root[data-theme="wireframe"] .v2-sv-pic--poster { background: #d9d9d9 !important; }
 :root[data-theme="wireframe"] .v2-sv-pic--poster i, :root[data-theme="wireframe"] .v2-sv-pic img { display: none; }
+
+/* ---------- Polish pass (25 Nov): alignment and spacing only ---------- */
+/* The page ends on the footer. The 104px (160px wide) kept under the page for Options A to C's plan bar left a strip
+   of page colour below the dark footer; Version 2 has no bar, and the footer's own bottom padding clears Your plan */
+.cn-phone .tp-body { padding-bottom: 0; }
+.cn-phone .tp-home { padding-bottom: 0; }
+.cn-phone .tp-home-foot { padding-bottom: 80px; } /* the copyright line clears the floating Your plan button by 20px */
+@media (min-width: 1024px) {
+  /* Wide: the footer's text starts on the page's left edge, not 24px in from the window */
+  .pv-device #tp-phone .tp-home-foot { padding-inline: var(--wide-pad); }
+  .pv-device #tp-phone.is-home > .cn-body { padding-bottom: 0; }
+  .pv-device #tp-phone .tp-home-foot { padding-bottom: var(--space-8); } /* wide: Your plan is at the top, so the usual 64px */
+}
+/* Viewer panel: the Version 1 block sits in the panel's gutter, set out like the same block in Options A to C */
+.v2-v1link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }
+.v2-v1link-title { margin: 0; font-size: 1rem; font-weight: 600; line-height: 1.4; }
+.v2-v1link-p { margin: 2px 0 0; font-size: .875rem; line-height: 1.45; color: #333; }
+.v2-v1link-go { flex: none; text-decoration: none; }
+@media (max-width: 960px) { .v2-v1link { padding-inline: var(--space-4); } }
+@media (max-height: 860px) and (min-width: 801px) { .v2-v1link { padding-block: var(--space-3); } .v2-v1link-p { display: none; } }

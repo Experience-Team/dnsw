@@ -300,3 +300,9 @@ html.is-result .dg-who { visibility: hidden; }
 /* The caption being typed: the rest of the line holds its place unseen, and a caret marks where the typing is */
 .dg-hint-rest { opacity: 0; }
 .dg-hint-caret { display: inline-block; width: 2px; height: 1em; margin: 0 1px -2px 1px; background: var(--yellow); }
+
+/* Polish pass (25 Nov): on a wide screen the places list reads as one centred column, not rows stretched across the
+   whole window with Add at the far edge. The close cross stays in the window's corner, where every cross sits */
+@media (min-width: 900px) {
+  .dg-places { padding: 40px max(40px, calc((100% - 760px) / 2)) 56px; }
+}
