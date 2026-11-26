@@ -8,6 +8,7 @@ let trail = [], flying = false, busy = false, landedZone = -1, lastZone = -1, wi
 let saved = new Set();   // place names added to the plan (one save per place, whichever route it was kicked on)
 let teamOrder = null, teamChosen = false;   // inside the prototype: picked teams first; a team chosen here wins
 let cardZone = -1, cardOpener = null;   // the stop the card shows (previous and next change it; js/visit.js) and what opened it
+const ICON_ADD = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg>', ICON_ADDED = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M5 8.2l2 2 4-4.2"/></svg>'; // the page's Add and Added icons, so the card reads as the page does (26 Nov 2026)
 let cardChanged = false; // something was added or removed on the open card: Close reads Save
 
 /* ---------- Helpers ---------- */
@@ -309,7 +310,7 @@ function toggleSave() {
 }
 function updateSave() {
   const on = cardZone >= 0 && saved.has(placeName()), spans = $("btnSave").querySelectorAll("span");
-  $("btnSave").setAttribute("aria-pressed", on); spans[0].textContent = on ? "✓" : "+"; spans[1].textContent = on ? "Added to your plan" : "Add to your plan";
+  $("btnSave").setAttribute("aria-pressed", on); spans[0].innerHTML = on ? ICON_ADDED : ICON_ADD; spans[1].textContent = on ? "Added to your plan" : "Add to your plan";
 }
 function cardImage(i) {
   const R = ROUTES[routeKey], g = R.ground[i];

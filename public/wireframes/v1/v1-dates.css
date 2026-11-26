@@ -1,0 +1,65 @@
+/* Version 1's dates (26 Nov 2026): a read-only strip of the tournament in NSW that scrolls sideways, and the one range
+   calendar under it. Version 1 only; nothing here is in a shared file. Built by v1/v1-third-half.js (stripHtml, calMonth). */
+
+/* The strip runs to the screen's edge on a phone and the first day lines up with the margin (CLAUDE.md check 6) */
+.v1-strip-wrap { margin: var(--space-3) calc(var(--space-4) * -1) var(--space-3); }
+.v1-strip { overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.v1-strip:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
+.v1-strip-in { position: relative; }
+.v1-strip-band { position: absolute; top: 0; background: color-mix(in srgb, var(--c-accent) 14%, transparent); border-inline: 2px solid var(--c-accent); box-sizing: border-box; }
+.v1-strip-axis { position: absolute; height: 2px; background: var(--c-line); }
+.v1-strip-d { position: absolute; display: flex; flex-direction: column; align-items: center; transform: translateX(-50%); font-size: var(--fs-2xs); line-height: 1.2; color: var(--c-ink-2); }
+.v1-strip-d i { display: block; width: 1px; height: 6px; margin-top: -3px; background: var(--c-line-strong, var(--c-line)); }
+.v1-strip-d b { margin-top: 3px; font-weight: var(--fw-semi); font-variant-numeric: tabular-nums; }
+.v1-strip-d.is-we b { color: var(--c-ink); }
+.v1-strip-d em { margin-top: 2px; font-style: normal; font-size: .6875rem; font-weight: var(--fw-bold); letter-spacing: .04em; text-transform: uppercase; color: var(--c-ink); }
+.v1-strip-m { position: absolute; display: block; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; box-sizing: border-box; }
+.v1-strip-m.is-mine { background: var(--c-ink); }
+.v1-strip-m.is-away { background: var(--c-surface); border: 2px solid var(--c-ink); }
+.v1-strip-m.is-other { width: 8px; height: 8px; margin: 2px 0 0 -4px; background: var(--c-ink-3, #8a8a8a); }
+.v1-strip-m.is-ko { border-radius: 0; background: none; }
+.v1-strip-m.is-ko::before { content: ""; position: absolute; left: 1px; top: 1px; width: 10px; height: 10px; background: var(--c-accent); transform: rotate(45deg); }
+.v1-strip-m u { position: absolute; left: 15px; top: -1px; font-size: .6875rem; font-weight: var(--fw-bold); line-height: 14px; text-decoration: none; color: var(--c-ink); white-space: nowrap; }
+.v1-strip-key { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-2) var(--space-4) 0; font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1-k { display: inline-flex; align-items: center; gap: 6px; }
+.v1-k::before { content: ""; flex: none; width: 10px; height: 10px; box-sizing: border-box; }
+.v1-k-mine::before { border-radius: 50%; background: var(--c-ink); }
+.v1-k-away::before { border-radius: 50%; border: 2px solid var(--c-ink); }
+.v1-k-other::before { width: 7px; height: 7px; margin: 1.5px; border-radius: 50%; background: var(--c-ink-3, #8a8a8a); }
+.v1-k-ko::before { width: 8px; height: 8px; margin: 1px; background: var(--c-accent); transform: rotate(45deg); }
+
+/* The calendar: other NSW matches a small grey dot, the later rounds a diamond */
+.tp-cal-d.is-tm::after, .tp-cal-d.is-ko::after { content: ""; position: absolute; bottom: 2px; left: 50%; }
+.tp-cal-d.is-tm::after { width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--c-ink-3, #8a8a8a); }
+.tp-cal-d.is-ko::after { width: 6px; height: 6px; margin-left: -3px; background: var(--c-accent); transform: rotate(45deg); }
+.tp-cal-d.is-start.is-tm::after, .tp-cal-d.is-end.is-tm::after, .tp-cal-d.is-start.is-ko::after, .tp-cal-d.is-end.is-ko::after { background: var(--c-on-dark); }
+.v1-cal { margin-top: var(--space-3); }
+.v1-cal-sum { margin: var(--space-3) 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.4; }
+
+/* The matches they picked, on the step */
+.v1-dm { margin: var(--space-3) 0 var(--space-2); }
+.v1-dm-h { margin: 0 0 var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.v1-dm-l { list-style: none; margin: 0; padding: 0; }
+.v1-dm-l li { display: grid; grid-template-columns: 5.25rem 1fr; column-gap: var(--space-3); padding: 6px 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.35; }
+.v1-dm-d { font-weight: var(--fw-bold); }
+.v1-dm-w { color: var(--c-ink-2); white-space: nowrap; }
+.v1-dm-all { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.v1-dm-more { margin-top: 0; }
+.v1-dm-more summary { min-height: 36px; display: flex; align-items: center; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.v1-dm-more[open] summary { margin-top: var(--space-1); }
+
+/* Also on in NSW: the other matches inside their days, and the Newcastle card */
+.v1-also-card { margin: var(--space-3) 0 var(--space-4); padding: var(--space-4); border: var(--bw-2) solid var(--c-line-ink); background: var(--c-surface); }
+.v1-also-ct { margin: 0; font-size: var(--fs-lg-2); font-weight: var(--fw-heavy); }
+.v1-also-why { margin: var(--space-1) 0 var(--space-3); font-size: var(--fs-md); line-height: 1.4; color: var(--c-ink-2); }
+.v1-also-l { list-style: none; margin: 0; padding: 0; }
+.v1-also-l li { display: grid; grid-template-columns: 5.25rem 1fr auto; align-items: center; column-gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.35; }
+.v1-also-on { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.v1-also-d { font-weight: var(--fw-bold); }
+.v1-also-b { display: flex; flex-direction: column; min-width: 0; }
+.v1-also-w { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1-also-open { align-self: flex-start; min-height: 24px; text-align: left; }
+.v1-also-go { margin-top: var(--space-3); }
+
+/* The planner's map sits above the match cards (26 Nov 2026): 48px of space before them */
+#tp-pick > .tp-ov { margin-top: var(--space-4); margin-bottom: var(--space-12, 48px); }

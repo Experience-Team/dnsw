@@ -53,6 +53,9 @@
 <link rel="stylesheet" href="v1/v1-device.css" />
 <link rel="stylesheet" href="v1/v1-flow-motion.css" />
 <link rel="stylesheet" href="v1/v1-flow-foot.css" />
+<link rel="stylesheet" href="v1/v1-dates.css" />
+<link rel="stylesheet" href="v1/v1-fanzones.css" />
+<link rel="stylesheet" href="v1/v1-plan.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
 <style>
   /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
@@ -451,6 +454,8 @@
              fixtures (cnWatchSpots, cnThirdHalf), following the picks and tickets live. Shown straight away; nothing is
              held back for dates. No venue or product is favoured: spots by type then name, products by distance then
              name. Links go out only; nothing is booked here. -->
+        <!-- Also on in NSW (26 Nov 2026): the other NSW matches inside their days, and a Newcastle card when it fits (v1/v1-third-half.js, renderAlso) -->
+        <section class="tp-sec" id="v1-also" aria-labelledby="v1-also-title" hidden></section>
         <section class="tp-sec" id="tp-watch" aria-labelledby="tp-watch-title">
           <h3 class="tp-sec-title" id="tp-watch-title" tabindex="-1">Where to watch</h3>
           <p class="tp-sec-note" id="tp-watch-note">Screenings for your matches, at pubs, the village and a fan zone.</p>
@@ -771,13 +776,15 @@
 <script src="concepts-fixtures.js"></script>
 <script src="concepts-geo.js"></script>
 <script src="concepts-words.js"></script>
-<script src="concepts-teams.js"></script>
-<script src="concepts-third-half.js"></script>
-<script src="concepts-map.js"></script>
-<script src="concepts-plan.js"></script>
+<script src="v1/v1-fanspots.js"></script>
+<script src="v1/v1-teams.js"></script>
+<script src="v1/v1-third-half.js"></script>
+<script src="v1/v1-map.js"></script>
+<script src="v1/v1-plan.js"></script>
 <script src="concepts-articles.js"></script>
 <script src="concepts-home.js"></script>
-<script src="concepts-flow-c.js"></script>
+<script src="v1/v1-flow-c.js"></script>
+<script src="v1/v1-fanzones.js"></script>
 <script src="concepts-social.js"></script><script src="v1/v1-social.js"></script>
 <script src="v1/v1-flow-motion.js"></script>
 <script src="v1/v1-flow-foot.js"></script>
@@ -963,33 +970,54 @@
     ] },
     { sel: "#tp-ask", title: "Your days in NSW (on the page)", points: [
       "Appears under the team picker once there is something to plan around: a team, every NSW match or a single match. Optional.",
-      "The date slider leads (see its own note). The dates under it open First day and Last day fields, with Undo and Reset under them.",
-      "Days apply as they are set: on letting go of a handle, after a short pause on the arrow keys, or when a date field changes. No confirm button and no toast here, as the dates under the slider already show the change.",
+      "The dates strip and the calendar under it (see their own note). Your matches with their dates sit above them on the step. Undo and Reset follow.",
+      "Days apply as they are set: the second tap on the calendar sets the last day. No confirm button and no toast here, as the line under the calendar already shows the change.",
       "Undo steps back one change at a time. Reset clears the days and can itself be undone. Once set, the line shows your days with Change, and Remove my days clears them.",
       "The panel holds still on screen while the page below it updates.",
-      "Nothing is guessed: the slider and fields start empty.",
+      "Nothing is guessed: the calendar starts with no days picked, unless the step started them from the first to the last NSW match.",
       "Refine your plan (folded away): Where are you staying? (Sydney CBD, Newcastle, Bondi, Outside NSW, or search for a place in NSW; I’m a local was removed on 24 Nov, as matches are in both Sydney and Newcastle) and Who’s coming? (Solo, Couple, Friends, Family). One answer each, applied on tap; tap again to clear.",
       "How the answers change the ideas: where you stay sets the city for free days and sorts ideas by distance. Families get attractions and free things first, and day trips before longer trips. Couples and friends get food and drink first.",
       "Until a place is given, the copy says in Sydney (or the city), never near your base.",
       "Open question: the line above the dates, Set your days to see ideas for the rest of your trip., is wording still to approve."
     ] },
-    { sel: "#tp-range", title: "Date slider", points: [
-      "The first thing in every date picker, on the page and in the days sheet. It runs from 29 Sep to 15 Nov: the tournament plus two days either side.",
-      "Two handles for your first and last day in NSW, with the days between filled. Two short marks show where the tournament starts and ends.",
-      "Handles snap to whole days and never cross. A tap on the track moves the nearer handle. While dragged, a handle lifts and shows its date above it.",
-      "The slider and the date fields update each other. A typed date past either end pins its handle there and says so.",
-      "Your teams’ matches are dotted on the track as you pick: NSW matches solid, interstate ones hollow.",
-      "Days before or after the tournament still count as days in NSW. The plan only shows tournament days.",
-      "Keyboard: arrow keys move a day, Page Up and Page Down a week, Home and End to the limit. Screen readers hear the date.",
-      "Desktop: hovering a dot or a tournament mark shows what it marks in a small label (also on the plan bar’s strip). Touch screens never see it; screen readers already hear it.",
-      "Not built yet: haptics on phones, a light tick for each day crossed and a firmer one at either end."
+    { sel: ".v1-strip-wrap", title: "Dates: the strip and the calendar", points: [
+      "Added 26 Nov 2026. Dates are set in one range calendar, open by default, on the step, in the Your days sheet and in Your answers: the first tap sets the first day, the second the last. The old slider and the typed First day and Last day fields are gone.",
+      "The strip above the calendar is read only and scrolls sideways. It runs from 29 Sep to 15 Nov, the tournament plus two days either side, with the selected days shaded.",
+      "Your matches are solid dots (in NSW) or hollow ones (elsewhere). Every other NSW match is a small grey dot. The later rounds are diamonds with their stage: R16, QF, SF, Bronze and Final. Their teams are not known, so they are named by stage.",
+      "The calendar marks the same: your match days with an orange dot, other NSW matches with a grey dot, the later rounds with a diamond. Days outside 29 Sep to 15 Nov cannot be picked.",
+      "On the step, Your matches lists the matches of the teams picked with their dates, interstate ones too, so there is no need to go back. With Every NSW match it says the first and last day in one line.",
+      "Once days are set, matches outside them are not shown below the team cards: Where to watch, Around your matches, the map and the plan show only matches inside the days. The team cards keep each team's whole list and counts, and a match added by hand stays."
+    ] },
+    { sel: "#tp-dc", title: "Your plan: a vertical timeline (new layout, 26 Nov 2026)", points: [
+      "A layout to try, built as the working version; the earlier plan (a strip of days, then cards) is kept in archive/. Testing said people open their plan and cannot read it, because the useful things sat in secondary sheets.",
+      "One vertical timeline, a day after another, each day a card on a rail with its date. A day with a match or things added has a solid card and a solid rail. An empty day has a dotted border and a dotted rail. Every day in the person's days is shown; runs of free days no longer fold into one card.",
+      "A free day has a dotted outline, a big plus and Suggest ideas (not Add). Suggest ideas opens the ideas on the card, up to three, with Show more for the rest, and the same Add and Added as everywhere. No ideas sheet. A day with something on it keeps a smaller Suggest ideas.",
+      "List or Map at the top. Map shows where each day is, numbered, and Open full screen, day by day opens the full-screen map where the days swipe. With no days set, Map says so and offers Set your days.",
+      "On the cards, from the sheets: getting there on a match day (Train from Central, about 36 min); for something added, how to get there, price and opening hours (a place), the suburb, transport and opening times (a pub, club or fan zone, sample data), and how long an idea takes. Tickets, Move and Remove were already on the card.",
+      "Still in a second sheet: a match's details, an added thing's full details, an idea's details, the full route there and back, Your answers (Change), Save & share and Clear plan.",
+      "Not built yet: the strip's keyboard days (the timeline is read top to bottom), and a map that shows the things added, not only each day's place."
+    ] },
+    { sel: "#v1-fz", title: "Fan zones and fan villages", points: [
+      "Added 26 Nov 2026. Every fan zone and fan village, whichever team the person follows, by city. Each card says how to get there, when it is open and what is there. The details are sample data, marked Sample on every card and in the section note.",
+      "Not filtered by the person's teams, dates or days: it is the whole list. The pubs and clubs that show a team's matches stay in Where to watch."
+    ] },
+    { sel: "#v1-fm", title: "Pubs and fan zones map", points: [
+      "Added 26 Nov 2026. Pubs, clubs, fan zones and fan villages on their own map, apart from the planner's map, which no longer carries their pins. Pins are numbered and named by suburb or venue (Newtown, Circular Quay), never by a region such as North Shore.",
+      "Three views so no two pins sit on top of each other: Sydney centre, Parramatta to Wollongong, and Newcastle. Tap a pin or a row to see its card under the map; the page does not move.",
+      "Filled orange is a fan zone or fan village; an outlined pin is a pub or club. The same card, with transport, opening times and what is there, is also in the venue's sheet from Where to watch.",
+      "Sample data (v1/v1-fanspots.js): the venue names are the invented ones already in Where to watch, the suburbs and pin places are real, and everything else is made up. Real details are still needed."
+    ] },
+    { sel: "#v1-also", title: "Also on in NSW", points: [
+      "Added 26 Nov 2026. Once days are set: the other NSW matches inside them, whoever is playing, each with Add (the same Add and Added as everywhere). The later rounds are listed by stage with teams to be decided, and have no Add.",
+      "A Newcastle card sits above the list when a Newcastle match is on inside the days and none of the person's own is there, even if they are staying in Sydney: Why not visit Newcastle, where there are other matches on, the days, and See Newcastle (the Newcastle sheet). It is not shown if they are staying in Newcastle.",
+      "Not shown with Every NSW match (those matches are already the person's) or before days are set."
     ] },
 
     // Once teams are picked: Your matches
     { sel: "#tp-fc", title: "Version 1: the questions up front", points: [
       "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md); their addresses open this page.",
       "The Plan tab asks three things in turn: your teams, the tickets you have and your days in NSW. Where you’re staying is not asked up front (24 Nov): it is an optional extra in the Your answers card. Who’s coming is left out until it changes anything.",
-      "Each step borrows the planner’s own control (the hand of cards, the days slider), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
+      "Each step borrows the planner’s own control (the hand of cards, the days calendar), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
       "Step 1 is the one required answer: until a team or Every NSW match is picked, Next is unavailable (aria-disabled, with a line saying why) and the left button reads Show every NSW match, which picks it and goes straight to step 2. Once anything is picked the left button is Skip again. A team picked on Home counts; unpicking the last one makes Next unavailable again. A place saved before this rule that got past step 1 with nothing picked starts again at step 1.",
       "Tickets: every match of your teams whose teams are known, NSW first, then Interstate (kick-offs in Sydney time). No tickets yet replaces any marked, marking one replaces it, and Clear all shows once one is marked. Knockouts are not listed: with no teams yet, a ticket for one cannot be recorded.",
       "Your days start from your first to last NSW match, the first time the step opens with none set.",
@@ -1100,7 +1128,7 @@
       "1. Nothing picked: the three NSW stadiums and a fan village, each with a few things nearby as small dots (food and drink, outdoors, culture, attraction), in an order that changes each day so no business is favoured.",
       "2. A team picked: its NSW matches light up on their stadiums and the other stadiums go quiet. Screening venues (fan zones, pubs, clubs) show as TV pins: strong if they show one of your matches, faint if not. A TV pin’s card names the venue and which of your matches it shows, with See screenings.",
       "A team that only plays in Newcastle opens on Newcastle. A chip in the corner points to the other city and glides there when tapped.",
-      "3. Days set: Your trip is ready to follow day by day, with Follow day by day, which opens the day-by-day map. Scrolling never turns into stepping through the map.",
+      "3. Days set: the full-screen day-by-day map opens from the plan's Map view (Open full screen, day by day). The page no longer has a Follow day by day button (26 Nov 2026).",
       "Tapping a place shows its card under the map, with its matches and things nearby, each with Add.",
       "Saved before days are set, a place goes into Saved, not placed yet. Once days are set it moves onto a day by itself: near a stadium, that stadium’s match day if it is in your days; otherwise the first free day with room, on a day it is open. If nothing fits it stays saved and says so.",
       "Full screen (the third map button) fills the phone. There one finger moves the map and place cards open over its foot. Escape or Exit full screen puts it back at the same place and zoom.",
@@ -1121,7 +1149,7 @@
       "Reduced motion: the map jumps instead of gliding."
     ] },
     { sel: "#tp-map", title: "Day-by-day map (Follow day by day)", points: [
-      "Opens only from Follow day by day, full screen with a close cross. The list of days on the page always shows as well.",
+      "Opens only from the plan's Map view, full screen with a close cross (it was Follow day by day on the page until 26 Nov 2026). The days swipe left and right.",
       "Days are stepped on purpose, never by scrolling: swipe the map, Previous and Next day on the card, a dot per day between them (Day n of N when the dots will not fit), the list of days, or the arrow keys.",
       "The map leads and the card follows: the map glides to the new day (pulling back first for a long move), then the new card slides in from the side you asked for.",
       "The card is a bottom sheet. Collapsed: the day, how to get there, a row such as 3 ideas for this day · Show, and the way to the next day. Show, dragging up or tapping a pin opens it to the ideas; Hide, dragging down or Escape closes it. The choice carries from day to day.",
@@ -1157,7 +1185,7 @@
     ] },
     { sel: "#tp-third-trip", title: "Setting your days (days sheet)", points: [
       "Your days, with Change, or Set your days if none are set. Both open the days sheet where you are, so the page never jumps.",
-      "The sheet: the date slider, then a calendar for October and November 2027 (tap your first day, then your last), and the dates under the slider open the First day and Last day fields.",
+      "The sheet: the dates strip, then a calendar for October and November 2027 (tap your first day, then your last). Use these dates keeps them.",
       "Your NSW match days are marked on the calendar with a dot and a ring that stay visible inside the chosen range.",
       "A bar pinned to the foot of the sheet shows what is picked (9 to 20 Oct · 12 days, 1 of your NSW matches) with Use these dates and Remove my days. Nothing changes until Use these dates is tapped.",
       "Days picked but not confirmed are kept: closing the sheet any way keeps them, and reopening shows them with Not saved yet. Use these dates to keep them. Use these dates, Remove my days, or the days changing elsewhere drop the draft. A reload starts from the saved days.",

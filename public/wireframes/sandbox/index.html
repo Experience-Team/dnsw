@@ -468,6 +468,7 @@
         <!-- No team (18 Nov): Add team on the bar, beside No matches yet or the count of saves; opens the team sheet.
              Outside the bar's button, so it is a control of its own -->
         <button type="button" class="tp-link tp-tl-addteam" id="tp-tl-addteam" hidden>Add team</button>
+        <button type="button" class="cn-close tp-tl-x" id="tp-tl-x" data-tl-close aria-label="Close Your plan"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         <div class="tp-tl-panel" id="tp-tl-panel" inert>
           <div class="tp-tl-head">
             <h3 class="tp-tl-title" id="tp-tl-title" tabindex="-1">Your plan</h3>
@@ -976,7 +977,7 @@
     { sel: ".tc-head", only: "results", title: "A team card", points: [
       "Leads with the team: a band in its colours, a large flag, its name and one line of what is ahead (3 matches in 13 days · next: v Argentina, Sat 2 Oct), then a quiet line with its pool and how many matches are in NSW.",
       "One row per match: date, opponent with flag, city and kick-off. The whole row opens the match sheet.",
-      "NSW rows have I have tickets (see Tickets). Interstate rows have Watch in NSW, which opens the match sheet at Where to watch it in NSW.",
+      "NSW rows have I have tickets (see Tickets). Interstate rows have Find the fan zones, which opens the match sheet at Where to watch it in NSW.",
       "No form fields on the card. A chip appears only once something is set: Ticket, or Watching at [venue] once a screening is added.",
       "One knockout line (see Knockouts).",
       "One next step. A team with an NSW match: See your match day, which opens your plan on the team’s first NSW match day inside your days, at the top, with focus on its heading. A team with none: See where to watch all 3 in NSW, a sheet of each match’s screenings with Add.",
@@ -1046,7 +1047,7 @@
     { sel: ".tp-all-btn", only: "pick", title: "Match sheet", points: [
       "Opened from a row in All matches, or from a match on a team card. It slides up over a dimmed page.",
       "Shows the date, Sydney kick-off, venue, city, and In NSW or Interstate.",
-      "Add to my plan adds that one match, even if neither team is picked (for example, a ticket for a match your team is not in).",
+      "Add to your plan adds that one match, even if neither team is picked (for example, a ticket for a match your team is not in).",
       "Add [team] to my teams does exactly what picking its card does. It is a toggle: pressed it reads ✓ Wales added to my teams, and pressing again takes the team off. Tapping the match row itself never adds a team.",
       "I have a ticket shows for any match with known teams, and also adds the match to the plan (see Tickets).",
       "An interstate match leads with Where to watch it in NSW: fan zones, the village and pubs screening it, each with Add. With none listed: No NSW screenings listed for this match yet.",
@@ -1109,7 +1110,7 @@
     // Where to watch, Around your matches, ideas, trips and products
     { sel: "#tp-watch-note", title: "Where to watch", points: [
       "Every match of every picked team, interstate ones included, filtered to your days once they are set.",
-      "One card per evening: the match (or two), up to three venues in NSW each with Add, then Going to [match]? Mark your ticket on the match, which opens that match’s sheet at I have a ticket.",
+      "One card per evening: the match (or two), up to three venues in NSW each with Add, then Going? Mark your ticket on the match, which opens that match’s sheet at I have a ticket.",
       "Two of your matches on one evening share a card (2 of your matches tonight). Venues showing both come first, and the rest say which match they show.",
       "With more than one evening, the cards are a carousel, one at a time with the next peeking in. Adding on a card keeps the carousel where it was.",
       "Once a ticket is marked, that match leaves the carousel and becomes one line above it: You’re at England v Wales, Sat 16 Oct, with See your match day (opens your plan on that day). An interstate ticket reads You’re in Brisbane for Wales v Zimbabwe, with See it on your plan.",
@@ -1131,7 +1132,6 @@
     { sel: "#tp-third-note", title: "Around your matches", points: [
       "Your days in NSW, in order, as blocks with plain headings.",
       "A match day has Before the match, After the final whistle and Near the stadium.",
-      "Every NSW match day also ends with Not going to the match?: up to three places in that city open after 5pm that day, for whoever is not at the game, tagged Evening. With none open, the group does not show.",
       "A free stretch (4 free days · Tue 12 to Fri 15 Oct): one or two free days get day trips; three or more get longer trips first, then day trips.",
       "Your first and last day are half days (Arrival day, Last day): only things near your base, never counted as free days.",
       "An interstate match you have a ticket for is a day away and splits the stretch. A free day when your team plays interstate (no ticket) gets its own card with where to watch it, each venue with Add.",
@@ -1251,7 +1251,6 @@
       "A match day shows the match, its Sydney kick-off, the stadium and I have tickets. A match to watch only, or with teams still to be decided, says so instead.",
       "Then everything added that day, in the order of the day where known (before the match, the match, a screening, after): picture, name (opens its details), type, and a time only where the data has one.",
       "Move lists the days an item can go to; Remove takes it off. Each says what changed. Screenings only have Remove, as a screening is for one match.",
-      "An NSW match day ends with the same Not going to the match? group as Around your matches. Adding from it shows on the card at once, so there is no toast.",
       "A free day with nothing on it has Add ideas, which opens its ideas sheet. Two or more empty days in a row share one card, with Show each day. A longer trip shows on its first day, then night 2 and so on.",
       "Arrival and last days always have their own card and offer half-day ideas only, as arrival and departure times are not known; two fill the day.",
       "A day whose matches are all interstate says Away from NSW: [city]. Plain text, no ideas or buttons.",

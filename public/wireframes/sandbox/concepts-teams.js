@@ -945,7 +945,8 @@
     'Spain': ['#AA151B', '#F1BF00', '#AA151B'], 'Tonga': ['#C10000', '#fff', '#C10000'], 'United States': ['#B22234', '#fff', '#3C3B6E'],
     'Uruguay': ['#0038A8', '#fff', '#FCD116'], 'Wales': ['#fff', '#00AB39', '#D30731'], 'Zimbabwe': ['#006400', '#FFD200', '#D40000']
   };
-  var I_TV = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 4.5h11v7.5h-11zM6 14h4M5.5 2l2.5 2.5L10.5 2"/></svg>';
+  // A map pin: the button finds places, so it does not draw a television (distilled 26 Nov 2026; was I_TV)
+  var I_TV = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 14.5s4.5-4.1 4.5-7.6a4.5 4.5 0 0 0-9 0C3.5 10.4 8 14.5 8 14.5z"/><circle cx="8" cy="6.8" r="1.7"/></svg>';
   // Ticket outline; pressed, a tick inside it
   var I_TIX = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1.6a1.6 1.6 0 0 0 0 2.8V11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9.4a1.6 1.6 0 0 0 0-2.8z"/><path class="tc-tix-tick" d="M5.6 8.1l1.6 1.6 3.2-3.3"/></svg>';
   var I_GO = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 14V2.5M4 3h7.5l-1.8 2.5L11.5 8H4"/></svg>';
@@ -982,7 +983,7 @@
         (f.a || tix ? '' : '<span class="tc-go" aria-hidden="true"><span class="tc-go-dot">' + I_GO + '</span></span>') +
       '</button>' +
       (tix ? '<button type="button" class="tc-act tc-tix" data-ticket="' + esc(id) + '" data-name="' + esc(name) + '" aria-pressed="' + has + '">' + I_TIX + '<span>I have tickets</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
-      (f.a ? '<button type="button" class="tc-act" data-open-watch="' + esc(id) + '" aria-haspopup="dialog">' + I_TV + '<span>Watch in NSW</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
+      (f.a ? '<button type="button" class="tc-act" data-open-watch="' + esc(id) + '" aria-haspopup="dialog">' + I_TV + '<span>Find the fan zones</span><span class="visually-hidden">: ' + esc(name) + ', ' + esc(f.d) + '</span></button>' : '') +
       '</li>';
   }
   // The knockout line: only what matters in NSW, one line; its sheet has the whole path
@@ -1078,6 +1079,9 @@
     hint.textContent = deck.children.length > 1 ? 'Swipe for your other cards.' : 'Swipe sideways for more matches.';
     requestAnimationFrame(function () { hint.hidden = deck.scrollWidth <= deck.clientWidth + 2; });
     sum.textContent = summary();
+    // One card already says its count (Group A · 3 group matches · 1 in NSW): the line above it only repeats it, so it shows for
+    // two or more cards, or when a ticket is counted (distilled in the sandbox, 26 Nov 2026)
+    sum.hidden = deck.children.length === 1 && !state.tickets.length;
     lastDeckSig = deckSig();
     // (The box saying a team plays all its pool matches interstate is gone: each card's meta line says all interstate)
     // The newest card comes in gently and says it is new: it rises into place, the deck slides to it, and its
