@@ -354,6 +354,7 @@
     var W = fan2Wrap.clientWidth || 390, key = W + '|' + document.documentElement.className + '|' + n;
     if (HG && HG_KEY === key) return HG;
     var avail = W - 24 - 20, PAD = 6, OVER = 6, pick = null;
+    if (avail >= 900) return oneRowGeo(n, W, avail, key); // the desktop Home block: one overlapping row (26 Nov 2026)
     wordW(14); // makes the probe
     for (var N = avail >= 700 ? 6 : 5; N >= 3 && !pick; N--) { // six to a row only where the hand is 744px or wider (the desktop Home split, 26 Nov 2026): the cards keep their size and 24 teams make four even rows
       var sp = avail / N, inner = sp - PAD * 2;
@@ -376,6 +377,18 @@
     var rc = R + h / 2, step = pick.sp / rc * 180 / Math.PI;
     var sag = rc * (1 - Math.cos(((pick.N - 1) / 2) * step * Math.PI / 180));
     HG = { N: pick.N, fs: pick.fs, w: w, h: h, R: R, step: step, tops: tops, cx: W / 2, height: Math.ceil(tops[tops.length - 1] + h + sag + 16) };
+    HG_KEY = key;
+    return HG;
+  }
+  /* One overlapping row (26 Nov 2026), where the hand is 944px or wider: the whole hand on one row, a gentle arc, each card
+     over the one before so its left edge (code and flag) shows. The full name shows on the card that is hovered or
+     focused, which rises above the others; a picked card lifts. The size is the card's own, set below. */
+  function oneRowGeo(n, W, avail, key) {
+    var w = 124, h = 112, lift = 18, R = 2400, rc = R + h / 2;
+    var sp = n > 1 ? (avail - w) / (n - 1) : 0, step = sp / rc * 180 / Math.PI;
+    var sag = rc * (1 - Math.cos(((n - 1) / 2) * step * Math.PI / 180)), top0 = lift + 10;
+    fan2.style.setProperty('--hand-fs', '14px');
+    HG = { N: Math.max(1, n), one: true, fs: 14, w: w, h: h, R: R, step: step, tops: [top0], cx: W / 2, height: Math.ceil(top0 + h + sag + 24) };
     HG_KEY = key;
     return HG;
   }
@@ -407,11 +420,13 @@
       b.style.left = sl.left.toFixed(1) + 'px'; b.style.top = sl.top.toFixed(1) + 'px';
       b.style.width = sl.w.toFixed(1) + 'px'; b.style.height = sl.h.toFixed(1) + 'px';
       b.style.transformOrigin = sl.ox.toFixed(1) + 'px ' + sl.oy.toFixed(1) + 'px';
-      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on && !grid() ? -10 : 0) + 'px)';
+      b.style.setProperty('--a', sl.a + 'deg');
+      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on && !grid() ? (HG && HG.one ? -18 : -10) : 0) + 'px)';
       b.style.zIndex = sl.z;
       if (!animate) { void b.offsetWidth; b.style.transition = ''; }
     });
     if (!grid() && HG) fan2Wrap.style.height = HG.height + 'px'; // the box follows the hand's real height
+    fan2Wrap.classList.toggle('is-one', !grid() && !!(HG && HG.one));
   }
   function showVariant(animate) {
     if (!fan2) return;

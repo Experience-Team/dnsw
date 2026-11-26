@@ -141,6 +141,42 @@
     requestAnimationFrame(sync);
   }
 
+  /* ---------- Your team on the map (26 Nov 2026) ----------
+     The stadiums where a picked team plays in NSW stay lit on the map and their cards say how many of your matches are
+     there; the other pins go grey. From the fixtures, group matches only (the later rounds are not drawn yet). No
+     pick, or a team with no NSW match: the map as it was, nothing greyed. Read from the picks on every tp:state */
+  (function () {
+    var fx = window.cnFixtures || [];
+    function lit() {
+      var picked = state.picked || [], out = {}, any = false;
+      fx.forEach(function (f) {
+        if (f.a || !f.t) return;
+        f.t.split(' v ').forEach(function (n) {
+          if (picked.indexOf(n) < 0) return;
+          var o = out[f.v] || (out[f.v] = { n: 0, teams: [] });
+          o.n++; if (o.teams.indexOf(n) < 0) o.teams.push(n); any = true;
+        });
+      });
+      return any ? out : null;
+    }
+    function paint() {
+      var on = lit();
+      [].slice.call(document.querySelectorAll('#tp-home-map .tp-home-pin')).forEach(function (p) {
+        var v = p.dataset.open.slice(5), is = !!(on && on[v]);
+        p.classList.toggle('is-lit', is); p.classList.toggle('is-grey', !!on && !is);
+      });
+      [].slice.call(document.querySelectorAll('#tp-home-cities .tp-city')).forEach(function (c) {
+        var v = c.dataset.open.slice(5), o = on && on[v], y = c.querySelector('.v2-city-yours');
+        c.parentNode.classList.toggle('is-lit', !!o);
+        if (!o) { if (y) y.remove(); return; }
+        if (!y) { y = document.createElement('span'); y.className = 'v2-city-yours'; c.querySelector('.tp-city-m').insertAdjacentElement('afterend', y); }
+        y.textContent = o.teams.join(', ').replace(/, ([^,]*)$/, ' and $1') + ': ' + o.n + (o.n === 1 ? ' match' : ' matches');
+      });
+    }
+    phone.addEventListener('tp:state', paint);
+    paint();
+  })();
+
   /* ---------- Articles: a masonry grid (two columns of cards in their own heights) of dummy articles (22 Nov) ----------
      The articles are in concepts-articles.js. A tile is a link to its article, which opens here, in place of Home's
      sections: the address gains ?a=<slug>, so the browser's back button returns to the tile and a shared link opens the
