@@ -1,0 +1,9 @@
+/* TEMPORARY (25 Nov 2026): keyboard focus rings are hidden while a video of the prototypes is recorded.
+   The rings themselves are untouched in shared.css, v2/v2.css and the games' styles: this file only covers them.
+   TO BRING THEM BACK before production: delete this file and its <link> in prototype-pick-your-team.html,
+   prototype-pick-your-team-v2.html, drop-goal/index.html and v2/drop-goal/index.html. Focus still moves as before
+   and screen readers are unaffected; only the visible ring is gone, so this must not ship (WCAG 2.4.7). */
+*:focus, *:focus-visible { outline: none !important; }
+/* Rings drawn as a shadow, not an outline */
+.tp-cap-i:focus-visible, .v2-menu-i:focus-visible, .v2-play-close:focus-visible, .is-keys .dg:focus,
+.tp-range-h:focus-visible::before { box-shadow: none !important; }

@@ -1,0 +1,6 @@
+/* Version 1: Back sits with Skip and Next (26 Nov 2026), with v1-flow-foot.js. The button in the bar is a 36px square,
+   the height of Skip and Next, beside them; the one at the top of the question is hidden, as the copy replaces it (the
+   copy is the one in the bar, so screen readers meet it once). */
+.tp-fc-top .tp-fc-backbtn[data-fc-go="-1"] { display: none; }
+.tp-fc-nav .tp-fc-foot-back, .pv-device #tp-phone .tp-fc-nav .tp-fc-foot-back { flex: 0 0 36px; width: 36px; min-width: 36px; padding: 0; } /* the wide-screen buttons are 220px at least (shared.css), and this is not one of them */
+.tp-fc-nav .tp-fc-foot-back svg { width: 16px; height: 16px; }

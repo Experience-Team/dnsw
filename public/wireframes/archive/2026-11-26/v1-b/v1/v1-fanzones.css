@@ -1,0 +1,55 @@
+/* Fan zones, fan villages and watch parties (26 Nov 2026), Version 1 only. Built by v1/v1-fanzones.js; the data is sample. */
+#tp-phone[data-fc] #v1-fz, #tp-phone[data-fc] #v1-fm { display: none !important; }
+.v1-fz, .v1-fm { margin-top: var(--space-12, 48px); }
+.v1-fz-city { margin: var(--space-4) 0 var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.v1-fz-list { display: grid; gap: var(--space-3); }
+
+/* The card: the same in the list and under the map */
+.v1-fz-card { padding: var(--space-4); border: var(--bw-1) solid var(--c-line); background: var(--c-surface); }
+.v1-fz-card.is-sel { border: var(--bw-2) solid var(--c-line-ink); }
+.v1-fz-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.v1-fz-name { margin: 0; display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-lg-2); font-weight: var(--fw-heavy); line-height: 1.25; }
+.v1-fz-meta { margin: var(--space-1) 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--fs-sm); color: var(--c-ink-2); }
+.v1-fz-kind { padding: 1px 8px; border: var(--bw-1) solid var(--c-line-ink); font-size: var(--fs-2xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: .04em; color: var(--c-ink); }
+.v1-fz-kind.is-fan_zone, .v1-fz-kind.is-fan_village { background: var(--c-ink); color: var(--c-on-dark); }
+.v1-sample { flex: none; padding: 1px 8px; border: var(--bw-1) dashed currentColor; font-size: var(--fs-2xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: .04em; color: var(--c-ink-2); }
+.v1-fz-dl { margin: var(--space-3) 0 0; display: grid; gap: var(--space-3); }
+.v1-fz-dl > div { display: grid; gap: 2px; }
+.v1-fz-dl dt { font-size: var(--fs-2xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: .04em; color: var(--c-ink-2); }
+.v1-fz-dl dd { margin: 0; font-size: var(--fs-sm); line-height: 1.45; }
+.v1-fz-has { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.v1-fz-has li { padding: 2px 10px; border-radius: 999px; background: var(--c-fill-soft); font-size: var(--fs-xs); font-weight: var(--fw-semi); }
+.v1-fz-n { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c-ink); color: var(--c-on-dark); font-size: var(--fs-xs); font-weight: var(--fw-bold); }
+
+/* The map */
+.v1-fm-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0; }
+.v1-fm-tab { min-height: 36px; padding: 0 var(--space-3); border: var(--bw-2) solid var(--c-line-ink); border-radius: 999px; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-semi); cursor: pointer; white-space: nowrap; }
+.v1-fm-tab[aria-pressed="true"] { background: var(--c-btn); color: var(--c-on-dark); }
+.v1-fm-map { position: relative; overflow: hidden; width: 100%; border-radius: 12px; border: var(--bw-1) solid var(--c-line); background: var(--c-surface-2); }
+.v1-fm-img { position: absolute; max-width: none; user-select: none; -webkit-user-drag: none; }
+.v1-fm-pin { position: absolute; transform: translate(-50%, -50%); width: 28px; height: 28px; padding: 0; border-radius: 50%; display: grid; place-items: center; font: inherit; font-size: var(--fs-xs); font-weight: var(--fw-bold); cursor: pointer; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+.v1-fm-pin::before { content: ""; position: absolute; inset: -6px; }
+.v1-fm-pin.is-fan { background: var(--c-accent); border: 2px solid var(--c-surface); color: var(--c-ink); }
+.v1-fm-pin.is-watch { background: var(--c-surface); border: 2px solid var(--c-ink); color: var(--c-ink); }
+.v1-fm-pin.is-sel { z-index: 2; width: 34px; height: 34px; background: var(--c-ink); border-color: var(--c-surface); color: var(--c-on-dark); }
+.v1-fm-pin:focus-visible, .v1-fm-row:focus-visible, .v1-fm-tab:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1-fm-key { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 var(--space-3); font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1-fm-k { display: inline-flex; align-items: center; gap: 6px; }
+.v1-fm-k::before { content: ""; width: 12px; height: 12px; border-radius: 50%; box-sizing: border-box; }
+.v1-fm-k.is-fan::before { background: var(--c-accent); }
+.v1-fm-k.is-watch::before { border: 2px solid var(--c-ink); }
+.v1-fm-sel { margin-bottom: var(--space-3); }
+.v1-fm-rows { list-style: none; margin: 0; padding: 0; }
+.v1-fm-rows li { border-top: var(--bw-1) solid var(--c-line-soft); }
+.v1-fm-row { width: 100%; min-height: 48px; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border: 0; background: none; color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; }
+.v1-fm-rt { display: flex; flex-direction: column; min-width: 0; font-size: var(--fs-sm); line-height: 1.35; }
+.v1-fm-rt span { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1-fm-row.is-sel .v1-fm-rt b { text-decoration: underline; text-underline-offset: 3px; }
+
+/* The suburb beside each pin, so the map itself says where things are */
+.v1-fm-lb { position: absolute; white-space: nowrap; padding: 0 5px; border-radius: 4px; background: color-mix(in srgb, var(--c-surface) 88%, transparent); font-size: var(--fs-2xs); font-weight: var(--fw-bold); line-height: 16px; color: var(--c-ink); pointer-events: none; }
+.v1-fm-lb.is-r { left: calc(100% + 4px); top: 50%; transform: translateY(-50%); }
+.v1-fm-lb.is-l { right: calc(100% + 4px); top: 50%; transform: translateY(-50%); }
+.v1-fm-lb.is-t { bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%); }
+.v1-fm-lb.is-b { top: calc(100% + 3px); left: 50%; transform: translateX(-50%); }
+.v1-fm-lb.is-bl { top: calc(100% + 3px); right: -6px; }

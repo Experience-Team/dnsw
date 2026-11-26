@@ -1,0 +1,5 @@
+/* Version 1: moving through the questions (26 Nov 2026), with v1-flow-motion.js. The stage (#tp-pick) is the frame:
+   while a step pushes the next one in, whatever is outside its sides is cut (and nothing above or below is), and the
+   ghost, the still of the step that is leaving, sits over it at the same place. Nothing here applies at rest. */
+#tp-pick.v1-fc-pushing { clip-path: inset(-100vh 0); }
+.v1-fc-ghost { position: absolute; margin: 0; pointer-events: none; clip-path: inset(-100vh 0); }

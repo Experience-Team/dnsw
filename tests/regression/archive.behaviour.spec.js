@@ -95,7 +95,7 @@ test.describe('Archive', () => {
     }
   }
 
-  test('2026-11-26 Version 1 keeps its saved picks apart from the working Version 1', async ({ page }) => {
+  for (const copy of ['v1', 'v1-b']) test(`2026-11-26/${copy} keeps its saved picks apart from the working Version 1`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     // A pick in the working prototype
     await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html?phone&flow=c&theme=hifi');
@@ -104,14 +104,14 @@ test.describe('Archive', () => {
     const working = await page.evaluate(() => Object.fromEntries(Object.keys(localStorage).map((k) => [k, Storage.prototype.getItem.call(localStorage, k)])));
     expect(Object.keys(working).length).toBeGreaterThan(0);
     // The archived copy doesn't see it, and its own pick is filed under its prefix only
-    await page.goto('/wireframes/archive/2026-11-26/v1/prototype-pick-your-team-v1-frame.html?phone&flow=c&theme=hifi');
+    await page.goto(`/wireframes/archive/2026-11-26/${copy}/prototype-pick-your-team-v1-frame.html?phone&flow=c&theme=hifi`);
     await settle(page);
     expect(await picked(page)).toEqual([]);
     await pick(page, 'Wales');
     const keys = await page.evaluate(() => Object.keys(localStorage)); // the browser's own keys, not what the page sees
     const added = keys.filter((k) => !(k in working));
     expect(added.length).toBeGreaterThan(0);
-    expect(added.filter((k) => !k.startsWith('arc-2026-11-26-v1:')), 'keys written outside the prefix').toEqual([]);
+    expect(added.filter((k) => !k.startsWith(`arc-2026-11-26-${copy}:`)), 'keys written outside the prefix').toEqual([]);
     // The working prototype's keys are untouched
     await page.goto('/wireframes/prototype-pick-your-team-v1-frame.html?phone&flow=c&theme=hifi');
     await settle(page);

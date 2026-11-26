@@ -1,0 +1,37 @@
+/* Version 1's dates (26 Nov 2026): the one range calendar (the read-only strip above it was removed the same day). Version 1 only; nothing here is in a shared file. Built by v1/v1-third-half.js (calMonth). */
+
+/* The calendar: other NSW matches a small grey dot, the later rounds a diamond */
+.tp-cal-d.is-tm::after, .tp-cal-d.is-ko::after { content: ""; position: absolute; bottom: 2px; left: 50%; }
+.tp-cal-d.is-tm::after { width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--c-ink-3, #8a8a8a); }
+.tp-cal-d.is-ko::after { width: 6px; height: 6px; margin-left: -3px; background: var(--c-accent); transform: rotate(45deg); }
+.tp-cal-d.is-start.is-tm::after, .tp-cal-d.is-end.is-tm::after, .tp-cal-d.is-start.is-ko::after, .tp-cal-d.is-end.is-ko::after { background: var(--c-on-dark); }
+.v1-cal { margin-top: var(--space-3); }
+.v1-cal-sum { margin: var(--space-3) 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.4; }
+
+/* The matches they picked, on the step */
+.v1-dm { margin: var(--space-3) 0 var(--space-2); }
+.v1-dm-h { margin: 0 0 var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.v1-dm-l { list-style: none; margin: 0; padding: 0; }
+.v1-dm-l li { display: grid; grid-template-columns: 5.25rem 1fr; column-gap: var(--space-3); padding: 6px 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.35; }
+.v1-dm-d { font-weight: var(--fw-bold); }
+.v1-dm-w { color: var(--c-ink-2); white-space: nowrap; }
+.v1-dm-all { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.v1-dm-more { margin-top: 0; }
+.v1-dm-more summary { min-height: 36px; display: flex; align-items: center; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.v1-dm-more[open] summary { margin-top: var(--space-1); }
+
+/* Also on in NSW: the other matches inside their days, and the Newcastle card */
+.v1-also-card { margin: var(--space-3) 0 var(--space-4); padding: var(--space-4); border: var(--bw-2) solid var(--c-line-ink); background: var(--c-surface); }
+.v1-also-ct { margin: 0; font-size: var(--fs-lg-2); font-weight: var(--fw-heavy); }
+.v1-also-why { margin: var(--space-1) 0 var(--space-3); font-size: var(--fs-md); line-height: 1.4; color: var(--c-ink-2); }
+.v1-also-l { list-style: none; margin: 0; padding: 0; }
+.v1-also-l li { display: grid; grid-template-columns: 5.25rem 1fr auto; align-items: center; column-gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.35; }
+.v1-also-on { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.v1-also-d { font-weight: var(--fw-bold); }
+.v1-also-b { display: flex; flex-direction: column; min-width: 0; }
+.v1-also-w { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1-also-open { align-self: flex-start; min-height: 24px; text-align: left; }
+.v1-also-go { margin-top: var(--space-3); }
+
+/* The planner's map sits above the match cards (26 Nov 2026): 48px of space before them */
+#tp-pick > .tp-ov { margin-top: var(--space-4); margin-bottom: var(--space-12, 48px); }
