@@ -1883,7 +1883,8 @@
     var ms = tp.userMatchesAll(); if (!ms.length) return '';
     var row = function (m) {
       var f = m.f;
-      return '<li><span class="v1-dm-d">' + esc(dayLabel(m.day)) + '</span><span class="v1-dm-n">' + esc(matchName(f)) + ' <span class="v1-dm-w">\u00b7 ' + esc(f.a ? 'in ' + f.a : CITY[cityOf(f.v)] || cityOf(f.v)) + '</span></span></li>';
+      // A match in NSW (Sydney or Newcastle) is picked out (26 Nov 2026): a tint and an In NSW tag, so the ones that decide the days stand out from the interstate ones
+      return '<li' + (f.a ? '' : ' class="is-nsw"') + '><span class="v1-dm-d">' + esc(dayLabel(m.day)) + '</span><span class="v1-dm-n">' + esc(matchName(f)) + ' <span class="v1-dm-w">\u00b7 ' + esc(f.a ? 'in ' + f.a : CITY[cityOf(f.v)] || cityOf(f.v)) + '</span>' + (f.a ? '' : ' <span class="tp-tag tp-tag--inline v1-dm-tag">In NSW</span>') + '</span></li>';
     };
     var head = ms.slice(0, 6), rest = ms.slice(6);
     return '<section class="v1-dm" aria-labelledby="v1-dm-h"><h4 class="v1-dm-h" id="v1-dm-h">Your matches</h4><ul class="v1-dm-l">' + head.map(row).join('') + '</ul>' +
@@ -1895,6 +1896,18 @@
     var n = sel.z - sel.a + 1, ms = dMatches(), inN = 0;
     Object.keys(ms).forEach(function (d) { if (+d >= sel.a && +d <= sel.z) inN += ms[d].length; });
     return tp.isoRange(isoOf(sel.a), isoOf(sel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+  }
+  /* The key to the calendar's marks (26 Nov 2026; it went with the strip and is back): each entry only when that mark is on
+     the calendar for this person, so the key never names something that is not there. Interstate matches are not marked
+     on the calendar, so they are not keyed. Screen readers hear each day's own label, so the key is hidden from them. */
+  function calKeyHtml(ms) {
+    var tm = tmDays(), other = false, later = false;
+    Object.keys(tm).forEach(function (d) { tm[d].forEach(function (m) { if (isKo(m.f)) later = true; else other = true; }); });
+    var items = [];
+    if (Object.keys(ms || {}).length) items.push('<span class="v1-k v1-k-mine">Your match in NSW</span>');
+    if (other) items.push('<span class="v1-k v1-k-other">Other NSW match</span>');
+    if (later) items.push('<span class="v1-k v1-k-ko">Later rounds</span>');
+    return items.length ? '<p class="v1-cal-key" aria-hidden="true">' + items.join('') + '</p>' : '';
   }
   function calMonth(y, mo, ms, sel, attr) {
     sel = sel === undefined ? dsel : sel; attr = attr || 'dday';
@@ -1937,7 +1950,7 @@
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
-      '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
+      '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' + calKeyHtml(ms) +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
       // dates stay in view and it is clear the plan waits for that tap
       '<div class="tp-days-bar"><p class="tp-days-draft" hidden></p><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
@@ -2301,7 +2314,7 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       h += '<p class="tp-sec-note">' + esc(own ? WHY : WHY_NONE) + '</p>' +
         (step === 'days' ? stepMatchesHtml() : '') +
-        '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
+        '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' + calKeyHtml(dMatches()) +
         '<p class="tp-days-sum v1-cal-sum" aria-live="polite">' + esc(askSum(asel)) + '</p>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
