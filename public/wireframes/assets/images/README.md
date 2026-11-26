@@ -46,6 +46,10 @@ line in `IMG_ALIAS` shows the real picture instead.
 | `1004868_Basalt_Luxury_Accomodation_Canobolas.webp` | upload 16 Nov (DNSW) | Barrington Tops overnight (stand-in: a country stay near Orange) |
 | `23090deb477ebe636f2ddbd27480b6bb.webp` | upload 16 Nov | Not used yet: an Aboriginal cultural experience. Waiting to be told which experience it shows, so it is not used as a stand-in for unrelated places |
 
+Version 2's hero (the full-bleed picture at the top of Home) shows `village.jpg`, not `hero-stadium.webp`, since 26 Nov 2026: the stadium
+picture is 728px wide and was stretched up to 1,905px. `village.jpg` is only 1,024px, so it too is a stand-in; a wide (2.5:1), sharp
+picture of at least 2,000px would replace it with one attribute (`data-img` on `.tp-home-video` in the Version 2 page).
+
 Where a kind of place has several pictures (vineyards, coast, overnight stays, harbour), `IMG_GUESS` in `pv-device.js`
 picks one by the place's name, the same every time, so neighbouring cards rarely share a picture.
 

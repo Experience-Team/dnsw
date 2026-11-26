@@ -110,7 +110,7 @@ test.describe('25 Nov changes', () => {
       const m = await page.evaluate(() => {
         const b = document.querySelector('#tp-phone .tp-body'); b.scrollTo(0, b.scrollHeight);
         const f = document.querySelector('.tp-home-foot').getBoundingClientRect(), br = b.getBoundingClientRect();
-        return { gap: Math.round(br.bottom - f.bottom), text: Math.round(document.querySelector('.tp-home-foot p').getBoundingClientRect().left), content: Math.round(document.querySelector('#tp-home-share').getBoundingClientRect().left) };
+        return { gap: Math.round(br.bottom - f.bottom), text: Math.round(document.querySelector('.tp-home-foot p').getBoundingClientRect().left), content: Math.round(document.querySelector('#tp-home-reads').getBoundingClientRect().left) }; // a full-width section: on a wide screen Going with friends sits beside the FAQ (26 Nov 2026)
       });
       expect(m.gap, `no page colour under the footer at ${size.width}`).toBeLessThanOrEqual(0);
       expect(m.text).toBe(m.content);
