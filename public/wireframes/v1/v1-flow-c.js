@@ -147,7 +147,7 @@
   if (window.ResizeObserver) new ResizeObserver(footRoom).observe(foot);
 
   function stepNote(s) {
-    if (s === 'teams') return 'Pick one or more teams to see their matches. No team? Show every NSW match.';
+    if (s === 'teams') return 'Pick one or more teams to see their matches.';
     if (s === 'tickets') {
       if (!tp.own()) return 'Pick a team first, and its matches show here.';
       return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'There are no matches to mark yet: their teams are still to be decided.';

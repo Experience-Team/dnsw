@@ -349,27 +349,27 @@
     if (HG && HG_KEY === key) return HG;
     var avail = W - 24 - 20, PAD = 6, OVER = 6, pick = null;
     wordW(14); // makes the probe
-    for (var N = 5; N >= 3 && !pick; N--) {
-      var sp = avail / N, inner = sp - PAD * 2;
-      for (var fs = 14; fs >= 12; fs--) if (wordW(fs) <= inner) { pick = { N: N, sp: sp, fs: fs }; break; }
-    }
-    if (!pick) pick = { N: 3, sp: avail / 3, fs: 12 };
-    var w = pick.sp + OVER, R = 900;
+    // Six to a row (26 Nov 2026), so all 24 teams are four rows and none need a scroll down. The name takes the largest
+    // size from 13 to 12px that fits the phone's width; if even 12px does not fit, the cards stay wide enough for it and
+    // the hand runs a little past the phone's sides, to be dragged across (the box scrolls sideways).
+    for (var fs = 13; fs >= 12 && !pick; fs--) if (wordW(fs) + 16 <= avail / 6) pick = { N: 6, sp: avail / 6, fs: fs };
+    if (!pick) pick = { N: 6, sp: Math.max(avail / 6, wordW(12) + 16), fs: 12 };
+    var w = pick.sp + OVER, R = 900, WF = Math.max(W, Math.ceil(pick.sp * pick.N + 44));
     fan2.style.setProperty('--hand-fs', pick.fs + 'px');
     // Each name's height at the card's final width, measured off to the side (the cards may be gliding to a new width),
     // under where the code and flag end; the tallest in each row gives that row its height
     var n0 = fan2.querySelector('.tp-card2-name'), ncs = getComputedStyle(n0), pr = handGeo.probe;
     var top0 = n0.offsetTop, rows = [], rowsN = Math.ceil(n / pick.N);
-    pr.style.whiteSpace = 'normal'; pr.style.width = (w - PAD * 2 - 4).toFixed(1) + 'px'; pr.style.fontSize = pick.fs + 'px';
+    pr.style.whiteSpace = 'normal'; pr.style.width = (w - PAD - 10 - 4).toFixed(1) + 'px'; pr.style.fontSize = pick.fs + 'px';
     pr.style.lineHeight = '1.2'; pr.style.textWrap = 'balance'; pr.style.display = 'block';
     for (var r = 0; r < rowsN; r++) rows.push(0);
     seq.forEach(function (i, k) { if (k >= n) return; pr.textContent = CARDS[i].name; rows[Math.floor(k / pick.N)] = Math.max(rows[Math.floor(k / pick.N)], top0 + pr.offsetHeight); });
     pr.style.whiteSpace = 'nowrap'; pr.style.width = ''; pr.style.display = '';
-    var strips = rows.map(function (end) { return end + 10 + 10; }), /* 10 more: a picked card sits 10px up, and must not cover the name above it */ h = Math.max.apply(null, strips) + 26, tops = [], t = 18;
+    var strips = rows.map(function (end) { return end + 10 + 1; }), /* 10 more: a picked card sits 10px up, and must not cover the name above it */ h = Math.max.apply(null, strips) + 8, tops = [], t = 8; // six to a row: tighter rows, so the four of them fit one screen (26 Nov 2026)
     strips.forEach(function (st) { tops.push(t); t += st; });
     var rc = R + h / 2, step = pick.sp / rc * 180 / Math.PI;
     var sag = rc * (1 - Math.cos(((pick.N - 1) / 2) * step * Math.PI / 180));
-    HG = { N: pick.N, fs: pick.fs, w: w, h: h, R: R, step: step, tops: tops, cx: W / 2, height: Math.ceil(tops[tops.length - 1] + h + sag + 16) };
+    HG = { N: pick.N, fs: pick.fs, w: w, h: h, R: R, step: step, tops: tops, W: WF, cx: WF / 2, height: Math.ceil(tops[tops.length - 1] + h + sag + 6) };
     HG_KEY = key;
     return HG;
   }
@@ -420,10 +420,14 @@
   function fitHand() {
     if (!fan2) return;
     fan2.style.transform = '';
-    if (grid()) return;
+    if (grid()) { fan2.style.width = ''; fan2.style.right = ''; return; }
     HG_KEY = ''; // a new width or font: measure again
     var n = seq.length; handGeo(n);
     fan2Wrap.style.height = HG.height + 'px';
+    // A hand wider than the phone starts at the left margin, with the rest to drag across (the next card peeks at the edge)
+    var wide = HG.W > fan2Wrap.clientWidth + 1;
+    fan2.style.width = wide ? HG.W + 'px' : ''; fan2.style.right = wide ? 'auto' : '';
+    fan2Wrap.scrollLeft = 0;
   }
   window.addEventListener('resize', function () { fitHand(); if (!grid()) sync2(false); });
   // The hand is measured in its own font: once the web font has loaded (high fidelity), measure again
@@ -483,11 +487,11 @@
     /* Grid / Fan: the same 24 cards, laid out as a grid (upright, four to a row, full names) or as the hand. Picks stay.
        The cards glide from one layout to the other, a few milliseconds apart in reading order, so the eye can follow
        them; the box grows or shrinks with them. Reduced motion: the new layout appears at once. */
-    var viewBtn = document.getElementById('tp-view'), GRID_ICO = viewBtn ? viewBtn.querySelector('svg').outerHTML : '';
+    var viewBtn = document.getElementById('tp-view');
     var VIEW_EASE = 'cubic-bezier(.45, .05, .25, 1)', viewTimer = 0;
     viewLabel = function () {
       if (!viewBtn) return;
-      viewBtn.innerHTML = (grid() ? window.tpIcons.fan : GRID_ICO) + '<span class="tp-view-l">' + (grid() ? 'Fan' : 'Grid') + '</span><span class="visually-hidden"> view of the teams</span>';
+      viewBtn.innerHTML = '<span class="tp-view-l">' + (grid() ? 'Fan' : 'Grid') + '</span><span class="visually-hidden"> view of the teams</span>';
     };
     if (viewBtn) viewBtn.addEventListener('click', function () {
       state.view = grid() ? 'fan' : 'grid';

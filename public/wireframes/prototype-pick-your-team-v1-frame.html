@@ -56,6 +56,7 @@
 <link rel="stylesheet" href="v1/v1-dates.css" />
 <link rel="stylesheet" href="v1/v1-fanzones.css" />
 <link rel="stylesheet" href="v1/v1-plan.css" />
+<link rel="stylesheet" href="v1/v1-picker.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
 <style>
   /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
@@ -362,8 +363,8 @@
                controls, so nothing below moves), Grid / Fan (the same cards as a grid, or back to the hand) and Plays in NSW
                (marks the cards of teams with a match in NSW; nothing is hidden). Built by concepts-teams.js. -->
           <div class="tp-util" id="tp-util">
-            <button type="button" class="tp-util-btn" id="tp-find-open" aria-expanded="false" aria-controls="tp-find"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 10.5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Find<span class="visually-hidden"> your team</span></button>
-            <button type="button" class="tp-util-btn" id="tp-view"><svg class="tp-ico tp-ico-grid" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg><span class="tp-view-l">Grid</span><span class="visually-hidden"> view of the teams</span></button>
+            <button type="button" class="tp-util-btn" id="tp-find-open" aria-expanded="false" aria-controls="tp-find">Find<span class="visually-hidden"> your team</span></button>
+            <button type="button" class="tp-util-btn" id="tp-view"><span class="tp-view-l">Grid</span><span class="visually-hidden"> view of the teams</span></button>
             <button type="button" class="cn-switch tp-switch tp-nsw-sw" id="tp-nswmark" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plays in NSW</button>
             <div class="tp-find" id="tp-find" hidden>
               <div class="tp-find-row">
@@ -910,7 +911,7 @@
       "A pick rises out of its row, larger and above its neighbours, then settles slightly lifted, in the picked colours with a tick.",
       "The first time it comes into view, the rows rise into place one after another.",
       "Keyboard: left and right move along the hand, up and down between rows, Home and End to either end, and a letter jumps to the next team starting with it.",
-      "Grid shows the same cards upright, four to a row with full names; the button beside Find switches between Grid and the hand (Fan). Picks stay, and the cards glide between the two layouts.",
+      "The hand has six cards to a row, so all 24 teams show without scrolling down; on a phone it runs a little past the sides and is dragged across. Find and Grid are text buttons. Grid shows the same cards upright, four to a row with full names; the button beside Find switches between Grid and the hand (Fan). Picks stay, and the cards glide between the two layouts.",
       "Reduced motion: nothing moves; the colour and tick still change.",
       "Design: Figma 282:26254."
     ] },
@@ -1903,7 +1904,7 @@
   if (window.ResizeObserver) new ResizeObserver(function () { measure(); soon(); }).observe(pick);
   if (window.MutationObserver) new MutationObserver(function () { measure(); soon(); }).observe(phone, { attributes: true, attributeFilter: ['data-fc'] });
   // Focus in the intro while it is still behind the cards: bring it fully out
-  intro.forEach(function (el) { el.addEventListener('focusin', function () { measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
+  intro.forEach(function (el) { el.addEventListener('focusin', function () { if (document.documentElement.getAttribute('data-flow') === 'c') return; /* Option C has no peek, so focus never needs to bring the row out: tapping Find or Grid must not scroll the page */ measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
   // The peek glides up into view once, on arrival at the top of the page
   if (!reduce.matches && body.scrollTop < 4 && picker.animate && document.documentElement.getAttribute('data-flow') !== 'c') picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
 })();
