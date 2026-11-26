@@ -16,6 +16,10 @@ Checks that a change to Version 1 (`public/wireframes/prototype-pick-your-team.h
   frame (`...-v1-frame.html`, `...-v2-frame.html`, which the other specs open directly). The tabs and the full and
   reduced tags, the old addresses (`?flow=a`, `prototype-pick-your-team-v2.html`) redirecting with their flags and
   `#hash`, each version keeping its place when you tab away and back, and nothing scrolling sideways on a phone.
+- **Archive** (`archive.behaviour.spec.js`): each frozen copy under `public/wireframes/archive/<date>/<version>/`
+  references and loads nothing outside its own folder, every file is unchanged since it was archived (checksums in its
+  `archive.json`), its saved state stays under its own prefix (and its Reset clears only that), and the viewer's left
+  panel links to `archive/index.html` once, below View on your phone.
 - **Behaviour** (`behaviour.spec.js`): pick, unpick, Clear all, Every NSW match, reload, Reset prototype and `?reset` in
   Version 1, and `?flow=c`, the old `?flow=a` and no-flag addresses opening Version 1, `?phone` and `?theme` doing their jobs.
 

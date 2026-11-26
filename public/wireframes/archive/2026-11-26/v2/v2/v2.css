@@ -1,0 +1,368 @@
+/* Version 2's own styles (prototype-pick-your-team-v2.html), loaded after shared.css and themes/hifi.css.
+   Every class here starts v2- (or is scoped under html[data-flow="v2"]), so nothing in this file can change Options A
+   to C. Never edit shared.css, themes/hifi.css or a concepts-*.js file for Version 2: copy what you need into this
+   folder and change the copy. See README.md. */
+
+/* Viewer tabs: Iterations is a placeholder, not a link, so it reads as not there yet: a dashed outline, muted text,
+   no hover */
+.pv-tab.v2-tab-soon { border-style: dashed; border-color: #9aa5b5; color: #5c6675; background: transparent; cursor: default; }
+
+/* ---------- Home, brought in from Options A to C (24 Nov) ----------
+   The planner is not in Version 2 yet: the plan bar, its scrim and skip link, and Home's button to the planner are out
+   of reach until it is. The copied scripts still build them, so nothing they lean on is missing. */
+html[data-flow="v2"] #tp-tl, html[data-flow="v2"] #tp-tl-scrim, html[data-flow="v2"] #tp-skip, html[data-flow="v2"] #tp-home-go { display: none !important; }
+/* Every NSW match is not a choice in Version 2 (January brief: every kicker has a team). Its links are out of reach
+   wherever the copied scripts draw them: Home's I'm just here for the rugby, and its row in the team list */
+html[data-flow="v2"] .tp-rugby-line, html[data-flow="v2"] [data-rugby], html[data-flow="v2"] #tp-ts [data-team="Every NSW match"] { display: none !important; }
+/* A match opened from a host city sheet: Add to my plan and I have a ticket (and its line) wait for the planner too.
+   Adding a team stays, as that is the same pick as its card */
+html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-pm .tp-pm-ticket, html[data-flow="v2"] #tp-pm .tp-ticket-why { display: none !important; }
+
+/* Menu, in the capsule's place (to be refined). The wrapper keeps the capsule's height and margins (.tp-cap-wrap), so
+   the page lays out as it did; the button sits at its right */
+.v2-menu-wrap { display: flex; justify-content: flex-end; min-height: 44px; pointer-events: none; }
+.v2-menu-btn { pointer-events: auto; display: inline-flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 var(--space-4) 0 14px; border: 0; border-radius: 22px; background: var(--c-btn); color: var(--c-on-dark, #fff); font: inherit; font-weight: 600; font-size: 1rem; cursor: pointer; box-shadow: 0 0 0 1px rgba(250, 247, 240, .35); transition: transform .12s ease-out; }
+.v2-menu-btn:active { transform: scale(.97); }
+.v2-menu-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v2-menu { pointer-events: auto; position: absolute; top: calc(100% + var(--space-2)); right: 0; min-width: 220px; padding: var(--space-2); border-radius: 16px; background: var(--c-btn); color: var(--c-on-dark, #fff); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); transform-origin: 100% 0; }
+.v2-menu-list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.v2-menu-i { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 var(--space-3); border: 0; border-radius: 10px; background: none; color: inherit; font: inherit; font-size: 1rem; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
+.v2-menu-i:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
+.v2-menu-i:active { background: rgba(255, 255, 255, .16); }
+@media (hover: hover) { .v2-menu-i:hover { background: rgba(255, 255, 255, .12); } }
+@media (prefers-reduced-motion: reduce) { .v2-menu-btn { transition: none; } .v2-menu-btn:active { transform: none; } }
+
+/* Drop goal over the whole screen: above the page, its sheets and its toasts. The game draws its own margins */
+.v2-play { position: absolute; inset: 0; z-index: 400; background: #e2e2e2; }
+:root[data-theme="hifi"] .v2-play { background: #5f9c50; } /* the pitch's colour in each theme, for the moment before the game draws */
+.v2-play[hidden] { display: none; }
+.v2-game { display: block; width: 100%; height: 100%; border: 0; }
+/* The way out: a cross, top right, 16px from the edge, as on every sheet and layer (check 7) */
+.v2-play-close { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid rgba(17, 17, 17, .14); border-radius: 50%; background: #fff; color: #111; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); transition: transform .12s ease-out; }
+.v2-play-close[hidden] { display: none; }
+.v2-play-close:active { transform: scale(.94); }
+.v2-play-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #111; }
+@media (prefers-reduced-motion: reduce) { .v2-play-close { transition: none; } .v2-play-close:active { transform: none; } }
+
+/* How to play, in Home's Play section: the game playing itself, in the still's place */
+/* It keeps the still's class (.tp-home-kick-img), so it takes the same place and size on phones and on the desktop website */
+.v2-demo { position: relative; overflow: hidden; background: #e2e2e2; }
+:root[data-theme="hifi"] .v2-demo { background: #5f9c50; }
+.v2-demo-frame { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.v2-demo-hit { position: absolute; inset: 0; cursor: pointer; }
+.v2-demo:focus { outline: none; }
+.v2-demo-how { margin: var(--space-3) 0 0; font-size: .9375rem; line-height: 1.45; }
+/* Play now, and the quieter way in beside it: the places without the game. Stacked on phones, side by side on desktop */
+.v2-kick-acts { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); margin-top: var(--space-5); }
+.v2-kick-places { min-height: 36px; padding: 0 var(--space-2); border: 0; background: none; color: var(--c-ink); font: inherit; font-size: .9375rem; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: pointer; white-space: nowrap; }
+.v2-kick-places:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: 2px; }
+@media (hover: hover) { .v2-kick-places:hover { text-decoration-thickness: 2px; } }
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-kick-acts { flex-direction: row; align-items: center; align-self: start; gap: var(--space-5); justify-content: flex-start; } .pv-device #tp-phone .v2-kick-acts .tp-home-cta { align-self: center; } }
+
+/* ---------- Drop goal's onboarding (v2-onboard.js): over the game, inside the full-screen layer ---------- */
+/* Back, top left, in place of a close cross top right (24 Nov): beside a result card the cross read as closing the
+   card. A pill with an arrow and the word; How to play keeps the top right corner */
+.v2-play-back { right: auto; left: 16px; display: inline-flex; align-items: center; gap: 6px; width: auto; padding: 0 14px 0 10px; border-radius: 18px; font-family: inherit; font-weight: 600; font-size: .875rem; line-height: 1; }
+.v2-ob { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--c-surface); color: var(--c-ink); }
+.v2-ob[hidden] { display: none; }
+.v2-ob-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--space-5) var(--space-4); }
+.v2-ob-panel[hidden] { display: none; }
+.v2-ob-panel { overflow-y: auto; overscroll-behavior: contain; }
+/* The fan's turned cards reach a little past the screen's sides: they are cut there, never scrolled to (24 Nov) */
+.v2-ob-panel { overflow-x: hidden; overflow-x: clip; }
+.v2-ob-h { margin: 0; font-family: var(--font-display, inherit); font-size: 1.5rem; line-height: 1.15; font-weight: 700; text-wrap: balance; outline: none; }
+.v2-ob-p { margin: var(--space-2) 0 0; font-size: .9375rem; line-height: 1.45; }
+.v2-ob-teams { margin: var(--space-4) calc(var(--space-5) * -1) 0; }
+/* "Kicking for [team]", for half a second after a tap, over the cards */
+.v2-ob-now { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 200; /* above the cards, which stack up to 24 and more when lifted */ margin: 0; padding: var(--space-4) var(--space-5); border-radius: 16px; background: rgba(0, 32, 16, .92); color: #fff; font-family: var(--font-display, inherit); font-size: 1.5rem; font-weight: 700; line-height: 1.15; text-align: center; white-space: nowrap; box-shadow: 0 8px 24px rgba(0, 0, 0, .3); }
+.v2-ob-now[hidden] { display: none; }
+.v2-ob.is-chosen .v2-ob-teams { pointer-events: none; }
+/* The hand's own caption and Clear all stay on Home: here a tap only ever chooses */
+#tp-phone .v2-ob .tp-under { display: none; }
+
+/* The team screen sits on the pitch, as the game does (24 Nov): the same green and lines in high fidelity, greys in low.
+   Small text on the pitch sits on dark chips, as in the game, so it keeps 4.5:1; the heading is large and cream */
+.v2-ob.is-pitch { background: #e2e2e2 url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 390 760%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22390%22 height=%22760%22 fill=%22%23e2e2e2%22/%3E%3Cline x1=%22-1268%22 y1=%22-690%22 x2=%221732%22 y2=%221043%22 stroke=%22%23f4f4f4%22 stroke-width=%225.9%22/%3E%3Cline x1=%22-1268%22 y1=%22-532%22 x2=%221732%22 y2=%221200%22 stroke=%22%23f4f4f4%22 stroke-width=%225.9%22/%3E%3Cline x1=%22-1268%22 y1=%22-116%22 x2=%221732%22 y2=%221616%22 stroke=%22%23f4f4f4%22 stroke-width=%225.9%22/%3E%3Cline x1=%2267%22 y1=%22239%22 x2=%22-1433%22 y2=%221105%22 stroke=%22%23f4f4f4%22 stroke-width=%225.9%22/%3E%3Cline x1=%220%22 y1=%22277%22 x2=%221500%22 y2=%221143%22 stroke=%22%23f4f4f4%22 stroke-width=%225.9%22 stroke-dasharray=%2280.6 123.8%22/%3E%3C/svg%3E") center / cover no-repeat; }
+:root[data-theme="hifi"] .v2-ob.is-pitch { background: #5f9c50 url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 390 760%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22390%22 height=%22760%22 fill=%22%235f9c50%22/%3E%3Cline x1=%22-1268%22 y1=%22-690%22 x2=%221732%22 y2=%221043%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%22-1268%22 y1=%22-532%22 x2=%221732%22 y2=%221200%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%22-1268%22 y1=%22-116%22 x2=%221732%22 y2=%221616%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%2267%22 y1=%22239%22 x2=%22-1433%22 y2=%221105%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22/%3E%3Cline x1=%220%22 y1=%22277%22 x2=%221500%22 y2=%221143%22 stroke=%22%2378ad69%22 stroke-width=%225.9%22 stroke-dasharray=%2280.6 123.8%22/%3E%3C/svg%3E") center / cover no-repeat; }
+.v2-ob.is-pitch .v2-ob-h { color: #1d1d1d; }
+:root[data-theme="hifi"] .v2-ob.is-pitch .v2-ob-h { color: #f1efe0; }
+.v2-ob.is-pitch :is(.v2-ob-p, .tp-fan-caption) { background: #1d1d1d; color: #fff; }
+:root[data-theme="hifi"] .v2-ob.is-pitch :is(.v2-ob-p, .tp-fan-caption) { background: rgba(0, 32, 16, .78); }
+.v2-ob.is-pitch .v2-ob-p { align-self: flex-start; padding: var(--space-2) var(--space-3); border-radius: 12px; }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption { display: table; margin-inline: auto; padding: var(--space-2) var(--space-3); border-radius: 12px; max-width: calc(100% - 2 * var(--space-5)); }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption:empty { display: none; }
+#tp-phone .v2-ob.is-pitch .tp-fan-caption * { color: inherit; }
+#tp-phone .v2-ob.is-pitch .tp-link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* ---------- Desktop website (a wide window, no phone frame): the onboarding in a centred column ----------
+   On a phone it fills the screen edge to edge. On a wide screen the same screens sit in a column, so the team cards keep
+   their shape and the picture, tips and buttons read as one piece */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .v2-ob-panel { padding-inline: max(var(--space-5), calc((100% - 600px) / 2)); }
+  .pv-device #tp-phone .v2-ob-panel--team { padding-inline: max(var(--space-5), calc((100% - 760px) / 2)); }
+  .pv-device #tp-phone .v2-ob-h { font-size: 2rem; }
+  .pv-device #tp-phone .v2-ob-p { font-size: 1rem; }
+  .pv-device #tp-phone .v2-ob-teams { margin-inline: 0; }
+  .pv-device #tp-phone .v2-ob .tp-home-cta { min-width: 0; align-self: auto; }
+}
+
+/* The team screen has no top row of its own now: room above the heading, and beside it for the layer's close cross */
+.v2-ob-panel--team { padding-top: 68px; } /* under the layer's Back button, top left */
+.v2-ob-panel--team .v2-ob-h { margin-right: 56px; }
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-ob-panel--team { padding-top: 56px; } }
+
+/* ---------- Home: the three At a glance cards as a carousel on phones (24 Nov) ----------
+   One card at a time with the next one peeking in from the right, so it reads as something to swipe; it snaps to each
+   card, and the dots under it show and set the place. The desktop website keeps its own three-across layout */
+html:not(.pv-device) #tp-phone .tp-gl { display: flex; gap: var(--space-3); margin-inline: calc(var(--space-5) * -1); padding: 0 var(--space-5) var(--space-1); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-5); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+html:not(.pv-device) #tp-phone .tp-gl::-webkit-scrollbar { display: none; }
+html:not(.pv-device) #tp-phone .tp-gl-card { flex: 0 0 84%; scroll-snap-align: start; }
+html:not(.pv-device) #tp-phone .tp-gl-body { flex: 1 1 auto; }
+@media (max-width: 1023px) {
+  .pv-device #tp-phone .tp-gl { display: flex; gap: var(--space-3); margin-inline: calc(var(--space-5) * -1); padding: 0 var(--space-5) var(--space-1); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--space-5); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .pv-device #tp-phone .tp-gl::-webkit-scrollbar { display: none; }
+  .pv-device #tp-phone .tp-gl-card { flex: 0 0 84%; scroll-snap-align: start; }
+  .pv-device #tp-phone .tp-gl-body { flex: 1 1 auto; }
+}
+.v2-gl-dots { display: flex; justify-content: center; gap: var(--space-1); margin-top: var(--space-3); }
+.v2-gl-dot { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; }
+.v2-gl-dot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c-ink); opacity: .28; transition: opacity .2s ease-out, transform .2s ease-out; }
+.v2-gl-dot[aria-current="true"]::before { opacity: 1; transform: scale(1.25); }
+.v2-gl-dot:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 0; border-radius: 50%; }
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-gl-dots { display: none; } }
+/* The FAQs are the next section now, so the link to them goes */
+html[data-flow="v2"] #tp-home-glance .tp-home-more { display: none; }
+@media (prefers-reduced-motion: reduce) { .v2-gl-dot::before { transition: none; } }
+
+/* Reset prototype in the menu: for reviewers, so it looks like a tool and not like the menu's own items. A dashed
+   box, a label saying who it is for, smaller and quieter type */
+.v2-menu-review { margin-top: var(--space-2); padding: var(--space-3); border: 1px dashed rgba(255, 255, 255, .5); border-radius: 10px; }
+.v2-menu-review-l { margin: 0 0 var(--space-2); font-family: var(--font-label, ui-monospace, monospace); font-size: .6875rem; line-height: 1.3; letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .72); }
+.v2-menu-r { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0 var(--space-3); border: 1px solid rgba(255, 255, 255, .6); border-radius: 999px; background: none; color: inherit; font: inherit; font-size: .875rem; font-weight: 500; cursor: pointer; }
+.v2-menu-r:active { background: rgba(255, 255, 255, .16); }
+.v2-menu-r:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (hover: hover) { .v2-menu-r:hover { background: rgba(255, 255, 255, .12); } }
+/* Desktop website: the Menu button sits in the middle of the header, so its menu opens under it, not at the far right */
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-menu { right: auto; left: 50%; width: 312px; margin-left: -156px; transform-origin: 50% 0; } }
+
+/* ---------- Header (24 Nov): the host city lockup far left, the Third Half logo to its right, the menu far right ----------
+   On phones and on desktop. The menu's wrapper is pulled up into the header row (--top-h is the header's height, set
+   by v2-view.js) and still sticks to the top of the screen once the header has scrolled away */
+html[data-flow="v2"] #tp-phone .tp-top { justify-content: flex-start; gap: var(--space-3); padding-right: calc(var(--space-5) + 44px + var(--space-3)); }
+html[data-flow="v2"] #tp-phone .tp-top .tp-lockup { order: -1; }
+html[data-flow="v2"] #tp-phone .v2-menu-wrap { justify-content: flex-end; margin: calc(-1 * (var(--top-h, 87px) / 2 + 22px)) var(--space-5) calc(var(--top-h, 87px) / 2 - 22px); }
+/* Phones: the hamburger alone, so the three fit on one row; its name is still read out */
+.v2-menu-btn { justify-content: center; }
+html:not(.pv-device) .v2-menu-btn, .pv-device .v2-menu-btn { width: 44px; padding: 0; }
+html:not(.pv-device) .v2-menu-btn span, .pv-device .v2-menu-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (min-width: 1024px) {
+  /* Desktop website: the button keeps its word, at the right edge of the content */
+  .pv-device .v2-menu-btn { width: auto; padding: 0 var(--space-4) 0 14px; }
+  .pv-device .v2-menu-btn span { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+  .pv-device #tp-phone .tp-top { padding-right: calc(var(--wide-pad) + 120px); gap: var(--space-5); }
+  html[data-flow="v2"] .pv-device #tp-phone .v2-menu-wrap, html[data-flow="v2"].pv-device #tp-phone .v2-menu-wrap { justify-content: flex-end; padding-right: var(--wide-pad);
+    margin: calc(-1 * (var(--top-h, 110px) / 2 + 22px)) calc(-1 * (var(--wide-pad) + var(--rail-span))) calc(var(--top-h, 110px) / 2 + 18px) calc(-1 * var(--wide-pad)); }
+  .pv-device #tp-phone .v2-menu { left: auto; right: var(--wide-pad); margin-left: 0; transform-origin: 100% 0; }
+}
+
+/* ---------- Your plan: the simple saved list (24 Nov, v2-saved.js) ---------- */
+/* The button: pinned bottom right on phones (Home and articles), in the header beside Menu on the desktop website.
+   Not shown while the game or the places are over the page. A shadow stands in for the pinned bar's top rule */
+.v2-pb { position: absolute; right: var(--space-4); bottom: var(--space-4); z-index: 200; display: inline-flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 var(--space-4) 0 14px; border: 0; border-radius: 22px; background: var(--c-btn); color: var(--c-on-dark, #fff); font: inherit; font-weight: 600; font-size: 1rem; cursor: pointer; box-shadow: 0 0 0 1px rgba(250, 247, 240, .35), 0 6px 18px rgba(17, 17, 17, .28); transition: transform .12s ease-out; }
+.v2-pb[hidden] { display: none; }
+.v2-pb:active { transform: scale(.97); }
+.v2-pb:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v2-pb-n { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--c-accent, #ff4802); color: var(--c-on-accent, #111); font-size: .75rem; font-weight: 700; line-height: 1; }
+.v2-pb-n:empty { display: none; }
+.v2-playing .v2-pb:not(.v2-pb--top) { display: none; }
+.v2-pb--top { position: static; display: none; margin-right: var(--space-2); box-shadow: 0 0 0 1px rgba(250, 247, 240, .35); pointer-events: auto; }
+html:not(.pv-device) .v2-pb--top, .pv-device .v2-pb--top { width: auto; padding: 0 var(--space-4) 0 14px; }
+html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+@media (min-width: 1024px) {
+  .pv-device .v2-pb:not(.v2-pb--top) { display: none; }
+  .pv-device .v2-pb--top:not([hidden]) { display: inline-flex; }
+}
+.v2-fly { z-index: 700; background: var(--c-accent, #ff4802); }
+.v2-menu-n { font-weight: 400; opacity: .75; }
+
+/* Add on an article: quiet outline pill, filled once added */
+.v2-add { display: inline-grid; place-items: center; min-height: 28px; margin-top: var(--space-2); padding: 0 12px 0 10px; border: 1px solid var(--c-line-ink, currentColor); border-radius: 999px; background: none; color: var(--c-ink); font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: transform .12s ease-out, background-color .12s ease-out, color .12s ease-out; }
+.v2-add-in { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 6px; }
+.v2-add::after { content: 'Added'; grid-area: 1 / 1; height: 0; padding-left: 18px; visibility: hidden; overflow: hidden; } /* one width for Add and Added */
+.v2-add:active { transform: scale(.96); }
+.v2-add:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v2-add[aria-pressed="true"] { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-on-dark, #fff); }
+@media (hover: hover) { .v2-add[aria-pressed="false"]:hover { background: var(--c-surface-2, rgba(17, 17, 17, .06)); } }
+.v2-art-add { margin: var(--space-3) 0 0; }
+.v2-art-add .v2-add { margin-top: 0; min-height: 36px; padding: 0 16px 0 14px; font-size: .875rem; }
+
+/* The sheet: over the page, and over the game when opened from it */
+.v2-sv-scrim { position: absolute; inset: 0; z-index: 590; background: rgba(17, 17, 17, .5); }
+.v2-sv-scrim[hidden], .v2-sv[hidden] { display: none; }
+.v2-sv { position: absolute; left: 0; right: 0; bottom: 0; z-index: 600; display: flex; flex-direction: column; max-height: 88%; min-height: min(360px, 88%); max-width: 560px; margin-inline: auto; background: var(--c-surface); color: var(--c-ink); border-radius: 16px 16px 0 0; box-shadow: 0 -8px 32px rgba(17, 17, 17, .25); outline: none; overflow: hidden; }
+.v2-sv-grab { flex: none; display: grid; place-items: center; width: 100%; height: 24px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; }
+.v2-sv-grab i { width: 36px; height: 4px; border-radius: 2px; background: var(--c-line-ink, #8c8c8c); opacity: .5; }
+.v2-sv-grab:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -4px; border-radius: 12px; }
+.v2-sv-head { flex: none; display: flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4) var(--space-2) var(--space-5); }
+.v2-sv-title { flex: 1 1 auto; margin: 0; font-family: var(--font-display, inherit); font-size: 1.375rem; line-height: 1.15; font-weight: 700; outline: none; }
+.v2-sv-ic { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid var(--c-line-soft, rgba(17, 17, 17, .14)); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); cursor: pointer; }
+.v2-sv-ic[hidden] { display: none; }
+.v2-sv-ic:focus-visible, .v2-sv-link:focus-visible, .v2-sv-rm:focus-visible, .v2-ss-row:focus-visible, .v2-ss-links a:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v2-sv-back { margin-left: calc(var(--space-2) * -1); }
+.v2-sv-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 var(--space-5) var(--space-5); }
+.v2-sv-foot { flex: none; display: grid; gap: var(--space-3); padding: var(--space-4) var(--space-5) var(--space-5); border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .14)); background: var(--c-surface); }
+.v2-sv-foot[hidden] { display: none; }
+.v2-sv-foot .tp-home-cta, .v2-sv-empty .tp-home-cta { margin: 0; width: 100%; min-width: 0; }
+.v2-sv-count { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); margin: 0; padding-bottom: var(--space-2); font-size: .875rem; color: var(--c-ink-2); }
+.v2-sv-link { padding: 0; min-height: 24px; border: 0; background: none; color: var(--c-ink); font: inherit; font-size: .875rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.v2-sv-undo { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin: 0 0 var(--space-3); padding: 10px var(--space-4); border-radius: 8px; background: var(--c-btn); color: var(--c-on-dark, #fff); font-size: .875rem; }
+.v2-sv-undo .v2-sv-link { color: inherit; }
+.v2-sv-list { margin: 0; padding: 0; list-style: none; }
+.v2-sv-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .14)); }
+.v2-sv-pic { position: relative; display: block; width: 72px; height: 54px; overflow: hidden; background-color: #d8d6cc; background-size: cover; background-position: center; }
+.v2-sv-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.v2-sv-pic--poster i { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; }
+.v2-sv-t { display: grid; gap: 2px; min-width: 0; }
+.v2-sv-kind { font-family: var(--font-label, inherit); font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--c-ink-2); }
+.v2-sv-t b { font-size: 1rem; line-height: 1.2; }
+.v2-sv-line { font-size: .8125rem; line-height: 1.35; color: var(--c-ink-2); }
+.v2-sv-rm { min-height: 28px; padding: 0 12px; border: 1px solid var(--c-line-ink, currentColor); border-radius: 999px; background: none; color: var(--c-ink); font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; }
+@media (hover: hover) { .v2-sv-rm:hover { background: var(--c-surface-2, rgba(17, 17, 17, .06)); } }
+.v2-sv-empty { padding: var(--space-4) 0 0; }
+.v2-sv-empty p { margin: 0; line-height: 1.45; }
+.v2-sv-acts { display: grid; justify-items: center; gap: var(--space-3); margin-top: var(--space-5) !important; }
+.v2-sv-acts--row { grid-template-columns: 1fr 1fr; margin-top: 0 !important; }
+.v2-sv-confirm { display: grid; gap: var(--space-3); }
+.v2-sv-confirm p { margin: 0; font-weight: 600; }
+.v2-sv .tp-home-cta svg { margin-left: 2px; }
+
+/* Save & share, a level down inside the sheet */
+.v2-ss-list { margin: 0; padding: 0; list-style: none; }
+.v2-ss-list > li { border-top: 1px solid var(--c-line-soft, rgba(17, 17, 17, .14)); }
+.v2-ss-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); width: 100%; min-height: 56px; padding: var(--space-3) 0; border: 0; background: none; color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; }
+.v2-ss-text { display: grid; gap: 2px; }
+.v2-ss-name { font-weight: 600; }
+.v2-ss-cap { font-size: .8125rem; color: var(--c-ink-2); }
+.v2-ss-state { flex: none; font-size: .8125rem; font-weight: 600; }
+.v2-ss-panel { display: grid; gap: var(--space-3); padding: 0 0 var(--space-4); }
+.v2-ss-panel .tp-home-cta { margin: 0; width: 100%; min-width: 0; }
+.v2-ss-fmt { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.v2-ss-pre { margin: 0; max-height: 180px; overflow: auto; padding: var(--space-3); border: 1px solid var(--c-line-soft, rgba(17, 17, 17, .14)); background: var(--c-surface-2, rgba(17, 17, 17, .04)); font: .8125rem/1.45 ui-monospace, monospace; white-space: pre-wrap; }
+.v2-ss-field { width: 100%; }
+.v2-ss-err { margin: 0; font-size: .8125rem; color: #b3261e; }
+.v2-ss-err[hidden] { display: none; }
+.v2-ss-links { margin: 0; padding: 0 0 var(--space-3); list-style: none; }
+.v2-ss-links a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 36px; color: var(--c-ink); font-size: .9375rem; text-underline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .v2-pb, .v2-add { transition: none; } .v2-pb:active, .v2-add:active { transform: none; } }
+@media (min-width: 1024px) { .pv-device #tp-phone .v2-sv .tp-home-cta { width: 100%; min-width: 0; justify-self: stretch; align-self: stretch; } }
+/* Low fidelity: Your plan's pictures and posters are grey blocks, as everywhere else in the wireframe */
+:root[data-theme="wireframe"] .v2-sv-pic--poster { background: #d9d9d9 !important; }
+:root[data-theme="wireframe"] .v2-sv-pic--poster i, :root[data-theme="wireframe"] .v2-sv-pic img { display: none; }
+
+/* ---------- Polish pass (25 Nov): alignment and spacing only ---------- */
+/* The page ends on the footer. The 104px (160px wide) kept under the page for Options A to C's plan bar left a strip
+   of page colour below the dark footer; Version 2 has no bar, and the footer's own bottom padding clears Your plan */
+.cn-phone .tp-body { padding-bottom: 0; }
+.cn-phone .tp-home { padding-bottom: 0; }
+.cn-phone .tp-home-foot { padding-bottom: 80px; } /* the copyright line clears the floating Your plan button by 20px */
+@media (min-width: 1024px) {
+  /* Wide: the footer's text starts on the page's left edge, not 24px in from the window */
+  .pv-device #tp-phone .tp-home-foot { padding-inline: var(--wide-pad); }
+  .pv-device #tp-phone.is-home > .cn-body { padding-bottom: 0; }
+  .pv-device #tp-phone .tp-home-foot { padding-bottom: var(--space-8); } /* wide: Your plan is at the top, so the usual 64px */
+}
+/* Viewer panel: the Version 1 block sits in the panel's gutter, set out like the same block in Options A to C */
+.v2-v1link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }
+.v2-v1link-title { margin: 0; font-size: 1rem; font-weight: 600; line-height: 1.4; }
+.v2-v1link-p { margin: 2px 0 0; font-size: .875rem; line-height: 1.45; color: #333; }
+.v2-v1link-go { flex: none; text-decoration: none; }
+@media (max-width: 960px) { .v2-v1link { padding-inline: var(--space-4); } }
+@media (max-height: 860px) and (min-width: 801px) { .v2-v1link { padding-block: var(--space-3); } .v2-v1link-p { display: none; } }
+/* Inside the prototype viewer (25 Nov 2026) its tabs replace this page's own tabs and the way back to Version 1 */
+.pv-framed .pv-header, .pv-framed .pv-tabs, .pv-framed .v2-v1link { display: none; }
+.pv-framed:not(.pv-device) .pv-side { padding-top: var(--pv-shell-room, 0px); } /* the viewer's tabs sit over the top of this panel */
+/* Stacking (25 Nov 2026): the team cards each carry a z-index of up to 43 (the fan stacks bottom row on top), and were compared with
+   the page itself, so scrolling the hand under the sticky nav (z-index 40: the capsule in Version 1, the menu in Version 2) painted
+   the bottom row over it. The hand now keeps its cards' z-indexes to itself: they are only compared with each other. */
+.tp-fan2-wrap { isolation: isolate; }
+
+/* Desktop on a 12-column grid (26 Nov 2026, from the desktop layout critique). The page is 12 columns with 24px gutters
+   across the one content width (1,265px at most); the hero picture is the only thing that runs edge to edge. Sections
+   take spans of it: Drop Goal's words 4 and its picture 8, the stadium map and cards 6 and 6, the FAQ 7 with the
+   newsletter and sharing in the last 4, the articles three of 4. See where your team plays and Where the matches are
+   are one block: the hand of cards on one row, the map and stadium cards under it, and the map answers the pick. These
+   override shared.css (which Options A to C and Version 1 also use), so they stay here. */
+@media (min-width: 1024px) {
+  html[data-flow="v2"].pv-device #tp-phone #tp-home:not([hidden]) { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--space-5); align-content: start; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home > * { grid-column: 1 / -1; }
+
+  /* The hero picture, edge to edge, short enough to leave the next heading peeking at 1440 x 900 */
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero > .tp-home-video { margin-inline: calc(-1 * var(--wide-pad)); width: auto; aspect-ratio: auto; height: clamp(400px, 56vh, 600px); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-home-video-tag { left: var(--wide-pad); }
+
+  /* Header and hero (26 Nov 2026): the hero picture sits straight under the header's rule (a 40px strip of paper between a
+     full-bleed picture and the rule read as a gap, not a band), and its line is set at a size that holds the first screen
+     with a picture 1,400px wide */
+  html[data-flow="v2"].pv-device #tp-phone .v2-menu-wrap { margin-bottom: calc(var(--top-h, 110px) / 2 - 22px); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-event { font-size: 1.25rem; line-height: 1.25; letter-spacing: .08em; }
+
+  /* Page rhythm (Experience principles 4): 48px between families, the largest break (96px) after the hero */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home { --sec-gap: var(--space-7); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero + .tp-home-sec { margin-top: var(--space-9); }
+
+  /* Articles: three columns of 4 on the grid's own gutters, and the same 24px between tiles down the page (the masonry stays) */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-reads .tp-reads { column-gap: var(--space-5); }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-reads .tp-read { margin-bottom: var(--space-5); }
+
+  /* See where your team plays: heading and words, then the hand on one row across all 12 columns */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan > .tp-home-hand { grid-column: 1; grid-row: auto; align-self: auto; }
+
+  /* ...and Where the matches are is the same block: no rule, 24px under the hand, its own heading and line kept for screen
+     readers (the block's heading and line above it already say it). Map and stadium cards, 6 and 6 */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where { position: relative; margin-top: var(--space-5); padding-top: 0; border-top: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-5); }
+  /* the three stadium cards share the map's height, so the block ends level on both sides */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where > .tp-home-cities { align-self: stretch; grid-auto-rows: minmax(0, 1fr); gap: var(--space-5); }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where .tp-city { align-content: center; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where > :is(.tp-sec-title, .tp-home-intro) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* Drop Goal: the words in columns 1 to 4 at the vertical middle, the picture in 5 to 12 (16:10, about 500px tall) */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--space-5); grid-template-rows: 1fr auto auto auto auto 1fr; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > * { grid-column: 1 / span 4; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-sec-title { grid-row: 2; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-home-intro { grid-row: 3; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .v2-demo-how { grid-row: 4; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .v2-kick-acts { grid-row: 5; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-home-kick-img { grid-column: 5 / -1; grid-row: 1 / -1; aspect-ratio: 16 / 10; }
+
+  /* At a glance: picture 7, words 5 */
+  html[data-flow="v2"].pv-device #tp-phone .tp-gl-img { flex: 7 1 0; }
+  html[data-flow="v2"].pv-device #tp-phone .tp-gl-body { flex: 5 1 0; }
+
+  /* The FAQ in columns 1 to 7, the newsletter and sharing one under the other in 9 to 12 */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home > #tp-home-faq { grid-column: 1 / span 7; grid-row: span 2; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home > :is(#tp-home-news, #tp-home-share) { grid-column: 9 / -1; }
+
+  /* The footer's two sign-ups in 6 and 6, on the same 24px gutter (its four link groups already sit on 3 columns each) */
+  html[data-flow="v2"].pv-device #tp-phone .tp-foot-news { column-gap: var(--space-5); }
+}
+
+/* One row of cards (26 Nov 2026): each card is over the one before it, so its left edge shows (code and flag). The pointer
+   is on a card's visible strip, so the stacking never changes under it (a raised card would cover the next strip and
+   trap the pointer): a hovered or focused card rises 24px and its name shows in a pill above it. Keyboard focus also
+   brings the card to the front, so its ring is whole. The size and place are set in v2-teams.js (oneRowGeo); --a is the
+   card's angle there */
+.tp-fan2-wrap.is-one .tp-card2 .tp-card2-name { position: absolute; left: 0; bottom: calc(100% + 10px); z-index: 1; padding: 3px 10px; border-radius: var(--radius-sm); background: var(--c-btn); color: var(--c-on-dark, #fff); font-size: var(--fs-sm); line-height: 1.3; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity var(--dur-micro, 120ms) linear; }
+.tp-fan2-wrap.is-one .tp-card2:is(:hover, :focus-visible) .tp-card2-name { opacity: 1; }
+.tp-fan2-wrap.is-one .tp-card2.is-picked { transform: rotate(var(--a, 0deg)) translateY(-18px) !important; } /* a picked card rises 18px: only its strip shows, so the lift (and the fill) says it is picked */
+.tp-fan2-wrap.is-one .tp-card2:is(:hover, :focus-visible) { transform: rotate(var(--a, 0deg)) translateY(-24px) !important; }
+.tp-fan2-wrap.is-one .tp-card2:focus-visible { z-index: 100 !important; }
+
+/* Your team on the map (26 Nov 2026, v2-home.js): the pins where a picked team plays are lit, the others grey; their
+   stadium cards say how many matches */
+.tp-home-pin.is-lit .tp-home-pin-i { background: var(--c-accent); transform: scale(1.25); }
+.tp-home-pin.is-lit .tp-home-pin-l { font-weight: var(--fw-bold); box-shadow: 0 0 0 1.5px var(--c-ink), var(--shadow-1); }
+.tp-home-pin.is-grey .tp-home-pin-i { background: #9a9a9a; }
+.tp-home-cities > li.is-lit .tp-city { border-color: var(--c-accent); box-shadow: inset 0 0 0 1px var(--c-accent); }
+.v2-city-yours { font-size: var(--fs-base); font-weight: var(--fw-semi); color: var(--c-ink); }
+@media (prefers-reduced-motion: reduce) { .tp-fan2-wrap.is-one .tp-card2 .tp-card2-name { transition: none; } }

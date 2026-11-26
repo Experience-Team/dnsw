@@ -8,6 +8,13 @@
 - Each prototype version keeps to its own files. Work on one version never edits another's files or a file they share
   (styles, scripts, data); it copies what it needs into its own folder and changes the copy (see
   `public/wireframes/v2/README.md`).
+- Archive folders are never edited. A snapshot under `public/wireframes/archive/<date>/<version>/` stays exactly as it
+  was archived: no fixes, no tidying, no find-and-replace across the repo that reaches into it. Each copy loads only
+  files inside its own folder and keeps its saved state under its own storage prefix, and
+  `tests/regression/archive.behaviour.spec.js` fails if a file in it changes or reaches outside it. To bring an archived
+  version back, restore it onto a branch (`npm run archive:restore -- <date>/<version>`, steps on
+  `public/wireframes/archive/index.html`). The one file there that changes is `archive/index.html`, when a snapshot is
+  added.
 - The prototypes are for approval, not a development hand-off. Spend the time on what an approver sees: it looks and
   feels polished on a current phone (390 wide) and on desktop. Don't spend time on hardening a developer would do
   later. For example, don't check or fix layouts for a 320px device.

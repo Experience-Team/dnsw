@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<!-- archive:start: added when this copy was archived (26 Nov 2026); scripts/restore-archive.mjs takes it out again -->
+<script>/* Archived copy of Version 2, 26 Nov 2026. Every key this page reads or writes in this browser's storage (local and
+   session) is filed under arc-2026-11-26-v2:, and it sees no other keys, so it never reads or changes the working prototype's saved
+   state, nor another archived copy's. Storage events from other pages are passed on only for its own keys. */
+(function () {
+  var P = 'arc-2026-11-26-v2:', S = Storage.prototype, get = S.getItem, set = S.setItem, del = S.removeItem, key = S.key, len = Object.getOwnPropertyDescriptor(S, 'length').get;
+  function own(st) { var out = []; for (var i = 0, n = len.call(st); i < n; i++) { var k = key.call(st, i); if (k !== null && k.indexOf(P) === 0) out.push(k); } return out; }
+  S.getItem = function (k) { return get.call(this, P + k); };
+  S.setItem = function (k, v) { return set.call(this, P + k, v); };
+  S.removeItem = function (k) { return del.call(this, P + k); };
+  S.key = function (i) { var k = own(this)[i]; return k === undefined ? null : k.slice(P.length); };
+  S.clear = function () { var st = this; own(st).forEach(function (k) { del.call(st, k); }); };
+  Object.defineProperty(S, 'length', { configurable: true, enumerable: true, get: function () { return own(this).length; } });
+  var add = window.addEventListener, rem = window.removeEventListener, wrapped = new WeakMap();
+  function wrap(fn) {
+    if (!wrapped.has(fn)) wrapped.set(fn, function (e) {
+      if (e.key === null || e.key.indexOf(P) !== 0) return;
+      var ev = new StorageEvent('storage', { key: e.key.slice(P.length), oldValue: e.oldValue, newValue: e.newValue, url: e.url, storageArea: e.storageArea });
+      return typeof fn === 'function' ? fn.call(this, ev) : fn.handleEvent(ev);
+    });
+    return wrapped.get(fn);
+  }
+  window.addEventListener = function (t, fn, o) { return add.call(this, t, t === 'storage' && fn ? wrap(fn) : fn, o); };
+  window.removeEventListener = function (t, fn, o) { return rem.call(this, t, t === 'storage' && fn ? wrap(fn) : fn, o); };
+})();</script>
+<!-- archive:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+<!-- Shown inside the prototype viewer (prototype-pick-your-team.html, 25 Nov 2026), which has the Version 1 and Version 2 tabs: the
+     page marks itself pv-framed so its own tabs and Open Version link step aside, and phone and desktop links go through the viewer. -->
+<script>(function () { try { if (window.top !== window) document.documentElement.classList.add('pv-framed'); } catch (e) { document.documentElement.classList.add('pv-framed'); } try { if (parent.pvShellRoom) document.documentElement.style.setProperty('--pv-shell-room', parent.pvShellRoom() + 'px'); } catch (e) {} try { if (parent.pvShellScroll) ['scroll', 'scrollend'].forEach(function (t) { document.addEventListener(t, function (e) { parent.pvShellScroll(window, e.target, e.type); }, true); }); } catch (e) {} window.pvShell = 'prototype-pick-your-team.html?version=2'; })();</script>
+<!-- Version 2 (23 Nov): a fresh start. Rules for working on it, and for iterations, are in v2/README.md. A fresh start, separate from Options A, B and C (prototype-pick-your-team.html). It shares their
+     styles (shared.css, themes/hifi.css), their components (copy markup and classes across) and their data files, but
+     none of their behaviour scripts, and it keeps its own saved state: every key it reads or writes in this browser's
+     storage is filed under v2:, so testing it never changes the other options' picks, nor theirs this one. Viewer
+     settings (pv-theme, the annotations switch) stay shared, so every tab looks the same. First, before anything reads
+     storage. -->
+<script>(function () {
+  var P = 'v2:', own = function (k) { return !/^(pv-|v2:)/.test(k) && k !== 'tp-annotations'; };
+  ['getItem', 'setItem', 'removeItem'].forEach(function (fn) {
+    var o = Storage.prototype[fn];
+    Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); if (own(String(k))) a[0] = P + k; return o.apply(this, a); };
+  });
+})();</script>
+<!-- Theme and phone view, as on the other options: ?theme=hifi or ?theme=wireframe, else the last choice in this browser
+     (pv-theme), else high fidelity. ?phone, or a touch screen under 500px wide, shows only the phone screen. Set before
+     the first paint; see pv-device.js. ?reset starts this version as a first visit. -->
+<script>(function () {
+  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m && m[1];
+  if (/[?&]phone\b/.test(q) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches) d.classList.add('pv-device');
+  d.classList.add('pv-tools');
+  d.setAttribute('data-flow', 'v2');
+  try { if (t) localStorage.setItem('pv-theme', t); else t = localStorage.getItem('pv-theme'); } catch (e) {}
+  if (t !== 'wireframe') d.setAttribute('data-theme', 'hifi');
+})();</script>
+<title>Pick your team, version 2 · RWC prototypes</title>
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="themes/hifi.css" />
+<!-- Version 2's own styles, after the shared ones: v2-prefixed classes only, never a change to a shared class -->
+<link rel="stylesheet" href="v2/v2.css" />
+<link rel="stylesheet" href="v2/v2-social.css" />
+<link rel="stylesheet" href="v2/v2-device.css" />
+<link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
+</head>
+<body class="pv-page">
+<!-- Prototype viewer, as on the other options: the left panel (title, tabs, the concept, its controls and annotations)
+     and the stage (the phone) are fixed to the window. -->
+<aside class="pv-side">
+  <header class="pv-header">
+    <h1 class="pv-title">RWC prototypes</h1>
+    <p class="pv-desc">Prototypes of individual components, shown at phone size only.</p>
+  </header>
+  <!-- Version 2 is a page of its own, and its tabs show only Version 2: Options A to C and the flow chart are left out
+       (they still work at their own addresses), and they do not link here. Iterations is a placeholder, not a link: once
+       an iteration is saved it becomes a tab of its own (see v2/README.md). The phone view's Switch prototype menu lists
+       the same tabs, links only. -->
+  <nav class="pv-tabs" aria-label="Prototypes"><a class="pv-tab is-active" href="prototype-pick-your-team-v2.html" aria-current="page">Version 2</a><span class="pv-tab v2-tab-soon" aria-disabled="true">Iterations<span class="visually-hidden">, none saved yet</span></span></nav>
+  <div class="pv-concept">
+    <div class="pv-concept-head">
+      <h2 class="pv-h2">Pick your team: Version 2</h2>
+    </div>
+    <p class="pv-p">Separate from Options A, B and C, with its own saved picks. Built to the January brief: a team comes first, then what a goal shows for that team. A team that plays in NSW gets places near its stadium and its next NSW match; a team that doesn&rsquo;t gets its watch parties in NSW. The planner is not in Version 2 yet, so the plan bar and the buttons that lead to it are hidden.</p>
+    <p class="pv-p">Iterations will show as tabs beside Version 2 once they are saved.</p>
+    <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
+    <div class="pv-switches">
+      <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
+      <button type="button" class="cn-switch pv-switch" id="pv-theme-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>High fidelity</button>
+    </div>
+    <div class="pv-switches pv-switches--test">
+      <!-- No design tests at the moment: the group hides itself while it is empty -->
+    </div>
+    <section class="cn-notes pv-notes" id="cn-notes" aria-labelledby="cn-notes-title" hidden>
+      <h3 class="cn-notes-title" id="cn-notes-title">Annotations</h3>
+      <ol class="cn-notes-list" id="cn-notes-list"></ol>
+      <p class="cn-notes-todo" id="cn-notes-todo"></p>
+    </section>
+  </div>
+  <!-- For reviewers (24 Nov): the way back to Version 1 (Options A to C, prototype-pick-your-team.html), the same block
+       Options A to C show here for Version 2. Above View on your phone, in its style. Not in the tabs or the phone
+       Settings menu, which stay Version 2's own. -->
+  <section class="v2-v1link" aria-labelledby="v2-v1link-title">
+    <div>
+      <h3 class="v2-v1link-title" id="v2-v1link-title">Version 1</h3>
+      <p class="v2-v1link-p">The first Pick your team prototype: Options A, B and C.</p>
+    </div>
+    <a class="pv-qr-btn v2-v1link-go" href="prototype-pick-your-team.html">Open Version 1</a>
+  </section>
+  <section class="pv-qr" id="pv-qr" aria-labelledby="pv-qr-title">
+    <!-- On short windows the code and its line open as a popover from the QR code button, so the annotations keep room -->
+    <div class="pv-qr-pop" id="pv-qr-pop">
+      <div class="pv-qr-code" id="pv-qr-code" role="img" aria-label="QR code that opens the phone view of this prototype"></div>
+      <p class="pv-qr-p" id="pv-qr-p">Scan to open just the phone screen. Your phone&rsquo;s keyboard and controls work there.</p>
+    </div>
+    <h3 class="pv-qr-title" id="pv-qr-title">View on your phone</h3>
+    <div class="pv-qr-acts">
+      <button type="button" class="pv-qr-btn pv-qr-show" id="pv-qr-show" aria-expanded="false" aria-controls="pv-qr-pop">QR code</button>
+      <button type="button" class="pv-qr-btn pv-qr-copy" id="pv-qr-copy"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>Copy link</span></button>
+    </div>
+    <p class="pv-qr-url" id="pv-qr-url" hidden></p>
+    <span class="visually-hidden" id="pv-qr-status" role="status"></span>
+  </section>
+</aside>
+<main class="pv-stage" id="tp-stage">
+  <div class="pv-phone">
+    <!-- The phone keeps the id tp-phone, so components copied from Options A to C pick up their styles unchanged -->
+    <div class="cn-phone is-home" id="tp-phone" role="group" aria-label="Pick your team, version 2, phone screen">
+      <!-- Skip link: the bar is last in the markup, so keyboard users get there from the first Tab (only while the bar is up) -->
+      <a class="tp-skip" id="tp-skip" href="#tp-tl-toggle" hidden>Go to your plan</a>
+      <div class="cn-body tp-body">
+        <!-- Hero, from Figma node 309:644 (Option A / Lockup in header): the logo and a reserved host city lockup slot,
+             the event strip, a picture, the headline, one line on what the page does, the countdown and the one note
+             that every kick-off on the page is Sydney time, Pick your teams (down to the hand), and a second picture.
+             Wireframe: both pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset
+             left then right, as in Figma. The dates are the tournament's (1 Oct to 13 Nov), not Figma's 11 Oct to 3 Nov.
+             The countdown runs to Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 8:45pm Sydney time (AEST,
+             UTC+10: daylight saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to see another moment. -->
+        <header class="tp-top">
+          <span class="tp-logo" role="img" aria-label="The Third Half"><img src="assets/images/tth-logo.webp" alt="" width="72" height="54"></span>
+          <span class="tp-lockup" role="img" aria-label="Host city lockup, reserved space"><span class="tp-lockup-in" aria-hidden="true"><span class="tp-lockup-t">Host city lockup</span><span class="tp-lockup-s">Host city + Feel New + World Rugby</span></span></span>
+        </header>
+        <!-- Menu (24 Nov, to be refined): the earlier prototypes' three tabs, as a menu. It keeps the capsule's place and
+             its wrapper (.tp-cap-wrap: sticky under the header), so the page lays out as before. Home goes to the top,
+             Plan your 3rd half to that section of Home (Version 2 has no planner yet), Play opens Drop goal over the whole
+             screen. Script: v2/v2-view.js. Styles: v2/v2.css. -->
+        <div class="tp-cap-wrap v2-menu-wrap" id="v2-menu-wrap">
+          <button type="button" class="v2-menu-btn" id="v2-menu-btn" aria-expanded="false" aria-controls="v2-menu"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 4h12M2 8h12M2 12h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Menu</span></button>
+          <nav class="v2-menu" id="v2-menu" aria-label="Sections" hidden>
+            <ul class="v2-menu-list">
+              <li><button type="button" class="v2-menu-i" data-v2-go="home">Home</button></li>
+              <li><button type="button" class="v2-menu-i" data-v2-go="plan">Plan your 3rd half</button></li>
+              <li><button type="button" class="v2-menu-i" data-v2-go="play">Play Drop Goal</button></li>
+              <!-- Your plan (24 Nov): shown once something is saved (v2/v2-saved.js) -->
+              <li id="v2-menu-plan-li" hidden><button type="button" class="v2-menu-i" id="v2-menu-plan">Your plan <span class="v2-menu-n" id="v2-menu-plan-n"></span></button></li>
+            </ul>
+            <!-- For whoever is reviewing the prototype, not part of the design: set apart and marked, so it does not read as
+                 something a visitor would get. It does what Reset prototype does everywhere else -->
+            <div class="v2-menu-review" role="group" aria-labelledby="v2-menu-review-l">
+              <p class="v2-menu-review-l" id="v2-menu-review-l">For reviewers &middot; not part of the design</p>
+              <button type="button" class="v2-menu-r" id="v2-menu-reset"><svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8M3.4 1v2.4H1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Reset prototype</button>
+            </div>
+          </nav>
+        </div>
+        <!-- Home (19 Nov, Figma 385:649, built in this page's own styles, not the Figma file's): the first tab. The hero
+             (a video placeholder and the event line; its Plan your 3rd half button was removed on 19 Nov), the same hand of
+             cards as the planner (lent here while Home shows, so a pick is one pick everywhere), At a glance, Where the
+             matches are (a cut-down map and the three NSW stadiums, each opening its host city sheet), Drop goal, FAQs,
+             updates, share and the footer. Script: "Home" at the end of this file. -->
+        <div class="tp-home" id="tp-home">
+          <section class="tp-home-hero" aria-labelledby="tp-home-h1">
+            <h1 class="visually-hidden" id="tp-home-h1">Rugby World Cup 2027 in NSW</h1>
+            <!-- Video placeholder: grey with a video icon in low fidelity, a still in high fidelity. No controls yet, so
+                 nothing that looks playable does nothing -->
+            <div class="ph-img tp-home-video" data-img="village" role="img" aria-label="Video placeholder: the hero video is to come"><span class="tp-home-video-tag" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 7l4-2.5v7l-4-2.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Video</span></div>
+            <div class="tp-home-hero-copy">
+              <p class="tp-event"><span class="tp-event-l">Men&rsquo;s Rugby World Cup</span><span class="visually-hidden">, </span><span class="tp-event-l"><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T20:45:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span></span></p>
+            </div>
+          </section>
+
+          <!-- Articles (19 Nov; pages 22 Nov): a masonry grid of dummy stories, the first section under the hero (23 Nov; it was under the team picker), built by
+               concepts-home.js from concepts-articles.js. A card opens its article here (#tp-article), in place of Home's
+               sections, and the address gains ?a=<slug>. -->
+          <section class="tp-home-sec" id="tp-home-reads" aria-labelledby="tp-home-reads-title">
+            <h2 class="tp-sec-title" id="tp-home-reads-title">Read before you go</h2>
+            <p class="tp-home-intro">Match-day tips and ideas for the days around your matches.</p>
+            <ul class="tp-reads" id="tp-reads"></ul>
+          </section>
+
+          <!-- Plan your 3rd half: the planner's hand of cards and its caption are lent here (#tp-home-hand) while Home shows. Under the articles since 23 Nov -->
+          <section class="tp-home-sec tp-home-plan" id="tp-home-plan" aria-labelledby="tp-home-plan-title">
+            <h2 class="tp-sec-title" id="tp-home-plan-title" tabindex="-1">See where your team plays</h2>
+            <p class="tp-home-intro">Pick a team and the map below shows their matches.</p>
+            <div class="tp-home-hand" id="tp-home-hand"></div>
+            <!-- Shown once anything is picked: the planner, with these picks -->
+            <a class="tp-home-cta" href="#tp-ask" id="tp-home-go" hidden>Plan around your matches<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+            <!-- No team: every NSW match, added in place (the same quiet link as in All matches; hidden once a team is picked) -->
+            <p class="tp-rugby-line tp-home-rugby" id="tp-home-rugby"><span class="tp-home-rugby-q">No team, or no tickets yet?</span><button type="button" class="tp-link tp-rugby-link" data-rugby data-rugby-home aria-describedby="tp-rugby-why-h"><span class="tp-u">I&rsquo;m just here for the rugby</span></button><span class="tp-rugby-why" id="tp-rugby-why-h">This adds every match played in NSW.</span></p>
+          </section>
+
+          <!-- Where the matches are: a cut-down planner map (stadium pins; a few regions within reach, shown lightly) and
+               one card per NSW stadium. A pin or a card opens that host city sheet over the page. No team picking here -->
+          <section class="tp-home-sec" id="tp-home-where" aria-labelledby="tp-home-where-title">
+            <h2 class="tp-sec-title" id="tp-home-where-title">Where the matches are</h2>
+            <p class="tp-home-intro">Two host cities, and plenty of NSW within reach between matches.</p>
+            <div class="tp-home-map" id="tp-home-map" role="group" aria-label="Map of the NSW host stadiums"></div>
+            <ul class="tp-home-cities" id="tp-home-cities"></ul>
+            <a class="tp-home-cta" href="#tp-home-plan-title" data-home-jump="tp-home-plan">Plan your 3rd half<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          </section>
+
+          <!-- Drop goal (shown as Play on phones; the route is ?view=kick): Play now opens Version 2's own game over the whole screen (#v2-play) -->
+          <section class="tp-home-sec" id="tp-home-kick" aria-labelledby="tp-home-kick-title">
+            <h2 class="tp-sec-title" id="tp-home-kick-title"><span class="tp-on-phone">Play</span><span class="tp-on-desk">Drop Goal</span></h2>
+            <p class="tp-home-intro">Line up your kick and go for goal. Wherever the ball lands is your next idea for somewhere to go in Sydney or NSW. Keep kicking to find more.</p>
+            <!-- How to play (24 Nov): the game playing itself in a small frame (v2/drop-goal/index.html?demo), in place of
+                 the still. It plays once each time the section comes into view, then rests; with a mouse, moving onto it plays it again. With
+                 reduced motion it stays still. The line under it says the same in words; a tap on the picture opens the
+                 game, as Play now does. Script: v2/v2-view.js. -->
+            <div class="tp-home-kick-img v2-demo" id="v2-demo" tabindex="-1">
+              <iframe class="v2-demo-frame" id="v2-demo-frame" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
+              <span class="v2-demo-hit" id="v2-demo-hit" data-view="kick" aria-hidden="true"></span>
+            </div>
+            <p class="v2-demo-how" id="v2-demo-how"><strong>How to play:</strong> tap to drop the ball, then tap again as it bounces.</p>
+            <!-- Two ways in (24 Nov): the game, or straight to its list of places, so nobody has to play to see them.
+                 The list is the game's own See the places, opened over the whole screen without the pitch (v2/v2-view.js) -->
+            <div class="v2-kick-acts">
+              <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+              <button type="button" class="v2-kick-places" id="v2-kick-places">Or see all the places</button>
+            </div>
+          </section>
+
+          <!-- At a glance: three cards of high-level facts. Version 2 (24 Nov): moved from under the team cards to just
+               above the FAQs (the map now follows the team cards), and a carousel on phones: one card at a time with the
+               next one peeking, and dots under it (v2/v2.css, v2/v2-view.js). See all FAQs is hidden here, as the FAQs
+               are the next thing on the page -->
+          <section class="tp-home-sec" id="tp-home-glance" aria-labelledby="tp-home-glance-title">
+            <h2 class="tp-sec-title" id="tp-home-glance-title">Rugby World Cup 2027 at a glance</h2>
+            <!-- At a glance as three cards (Figma 388:6855, 19 Nov), in the prototype's own colours: chalk, the colourway,
+                 ink. Stacked on a phone, each led by a big picture; landscape on the desktop website, picture left, text
+                 right. Pictures are stand-ins (pv-device.js IMG_ALIAS) until the right ones are supplied -->
+            <ul class="tp-gl">
+              <li class="tp-gl-card tp-gl-card--1">
+                <span class="ph-img tp-gl-img" data-img="glance-cities" aria-hidden="true"></span>
+                <div class="tp-gl-body"><span class="tp-gl-lock" aria-hidden="true">The<br>third<br>half</span>
+                  <h3 class="tp-gl-h">Six weeks. Two host cities.</h3>
+                  <p class="tp-gl-p">Matches run from 1 October to 13 November 2027 in Sydney and Newcastle, with <span id="tp-glance-n">9 pool matches</span> and <span id="tp-glance-ko">the knockouts</span> in NSW.</p>
+                  <a class="tp-gl-link" href="#tp-home-where-title" data-home-jump="tp-home-where">See where the matches are<svg class="tp-gl-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5"/></svg></a>
+                </div>
+              </li>
+              <li class="tp-gl-card tp-gl-card--2">
+                <span class="ph-img tp-gl-img" data-img="glance-tickets" aria-hidden="true"></span>
+                <div class="tp-gl-body"><span class="tp-gl-lock" aria-hidden="true">The<br>third<br>half</span>
+                  <h3 class="tp-gl-h">Tickets come first.</h3>
+                  <p class="tp-gl-p">Tickets are only sold through the official Rugby World Cup website. Once you know your matches, come back and plan your days around them.</p>
+                  <a class="tp-gl-link tp-out" href="#" rel="noopener" data-say="Placeholder link: it goes to the official Rugby World Cup ticketing site once the address is supplied.">Buy tickets on the official site<svg class="tp-gl-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 11L11 5M6 5h5v5"/></svg><span class="visually-hidden"> (opens the Rugby World Cup website)</span></a>
+                </div>
+              </li>
+              <li class="tp-gl-card tp-gl-card--3">
+                <span class="ph-img tp-gl-img" data-img="glance-transport" aria-hidden="true"></span>
+                <div class="tp-gl-body"><span class="tp-gl-lock" aria-hidden="true">The<br>third<br>half</span>
+                  <h3 class="tp-gl-h">Leave the car at home.</h3>
+                  <p class="tp-gl-p">Trains run from Central to Olympic Park in about 30 minutes, and Moore Park is a walk from Central through Surry Hills. Sydney to Newcastle is just under three hours by train.</p>
+                  <a class="tp-gl-link" href="?a=match-day-sydney" data-read="match-day-sydney">Read the match day guide<svg class="tp-gl-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5"/></svg></a>
+                </div>
+              </li>
+            </ul>
+            <div class="v2-gl-dots" id="v2-gl-dots" role="group" aria-label="At a glance cards"></div>
+            <a class="tp-link tp-home-more" href="#tp-home-faq-title" data-home-jump="tp-home-faq">See all FAQs<svg class="tp-home-arr tp-home-arr--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a>
+          </section>
+
+          <!-- FAQs: the six questions from Figma, with the answers the user supplied on 22 Nov (concepts-home.js) -->
+          <!-- Sydney on social (25 Nov 2026): stories and posts from our Sydney, and a way to visit the accounts. Gap fields, invented
+               sample content (docs/product-data-contract.md §21). Drawn and run by v2/v2-social.js and v2/v2-social.css; the viewer it opens is built there too -->
+          <section class="tp-home-sec v2-soc" id="v2-soc" aria-labelledby="v2-soc-title" hidden>
+            <h2 class="tp-sec-title" id="v2-soc-title">Sydney on social</h2>
+            <p class="tp-home-intro">Stories and posts from our Sydney. Follow along for what&rsquo;s on around the matches.</p>
+            <p class="tp-home-ph v2-soc-sample">[Sample stories and posts until the accounts are connected]</p>
+            <ul class="v2-soc-rings" id="v2-soc-rings" aria-label="Stories"></ul>
+            <ul class="v2-soc-posts" id="v2-soc-posts" aria-label="Recent posts"></ul>
+            <div class="v2-soc-visit" id="v2-soc-visit"></div>
+            <p class="v2-soc-say" id="v2-soc-say" role="status"></p>
+          </section>
+
+          <section class="tp-home-sec" id="tp-home-faq" aria-labelledby="tp-home-faq-title">
+            <h2 class="tp-sec-title" id="tp-home-faq-title" tabindex="-1">Rugby World Cup 2027 FAQs</h2>
+            <div class="tp-faq" id="tp-faq"></div>
+          </section>
+
+          <!-- Updates: email only (principle 2); consent wording to come -->
+          <section class="tp-home-sec" id="tp-home-news" aria-labelledby="tp-home-news-title">
+            <h2 class="tp-sec-title" id="tp-home-news-title">Get Rugby World Cup updates</h2>
+            <p class="tp-home-intro">Match-day tips, things to do around the matches and offers in Sydney and NSW, sent to your inbox.</p>
+            <form class="tp-news" id="tp-news" novalidate>
+              <label class="visually-hidden" for="tp-news-email">Email address</label>
+              <input class="tp-news-in" id="tp-news-email" type="email" name="email" placeholder="Email address" autocomplete="email" aria-describedby="tp-news-err" required>
+              <p class="tp-news-err" id="tp-news-err" hidden></p>
+              <label class="tp-ticket tp-news-ok tp-placeholder"><input type="checkbox" id="tp-news-consent"><span class="tp-home-ph">[Consent and privacy wording]</span></label>
+              <button type="submit" class="tp-home-cta">Sign up</button>
+              <p class="tp-news-done" id="tp-news-done" tabindex="-1" hidden></p>
+            </form>
+          </section>
+
+          <!-- Share: the device's share sheet where there is one, otherwise the link is copied (with a toast) -->
+          <section class="tp-home-sec" id="tp-home-share" aria-labelledby="tp-home-share-title">
+            <h2 class="tp-sec-title" id="tp-home-share-title">Going with friends?</h2>
+            <p class="tp-home-intro">Send them this page so everyone can plan their 3rd half.</p>
+            <button type="button" class="tp-home-cta tp-home-cta--line" id="tp-home-share-btn">Share this page</button>
+            <p class="tp-home-share-said" id="tp-home-share-said" role="status"></p>
+          </section>
+
+          <!-- An article from Read before you go (22 Nov): shown in place of Home's sections while #tp-home has .is-reading -->
+          <div class="tp-art-wrap" id="tp-article" hidden></div>
+          <!-- Site footer (22 Nov, the user's copy from sydney.com's Rugby World Cup page): the two newsletter sign-ups, the
+               Acknowledgement of Country, social links, the link groups and the copyright line. Every link opens the live
+               site in a new tab. Layout only; the live footer's own styling is not copied -->
+          <footer class="tp-home-foot">
+            <div class="tp-foot-news">
+              <div class="tp-foot-promo"><h3 class="tp-foot-h">Subscribe to our newsletter</h3><p>Stay connected to Sydney for all the latest news, stories, upcoming events and travel inspiration.</p><a class="tp-foot-btn" href="https://www.sydney.com/preferences" target="_blank" rel="noopener">Subscribe<span class="visually-hidden"> (opens in a new tab)</span></a></div>
+              <div class="tp-foot-promo"><h3 class="tp-foot-h">Discover Somewhere New</h3><p>All the insider news, tips and inspiration you need to plan your next trip, delivered straight to your inbox.</p><a class="tp-foot-btn" href="https://www.sydney.com/preferences" target="_blank" rel="noopener">Sign Up<span class="visually-hidden"> (opens in a new tab)</span></a></div>
+            </div>
+            <p class="tp-foot-ack">Destination NSW acknowledges and respects Aboriginal people as the state&rsquo;s first people and nations and recognises Aboriginal people as the Traditional Owners and occupants of New South Wales land and water.</p>
+            <ul class="tp-foot-social" aria-label="Sydney on social media"><li><a href="https://www.facebook.com/sydney" target="_blank" rel="noopener">Facebook<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://twitter.com/sydney_sider" target="_blank" rel="noopener">Twitter<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.youtube.com/user/seesydney" target="_blank" rel="noopener">Youtube<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://instagram.com/sydney" target="_blank" rel="noopener">Instagram<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://tiktok.com/@sydney" target="_blank" rel="noopener">Tiktok<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://pinterest.com/seesydney" target="_blank" rel="noopener">Pinterest<span class="visually-hidden"> (opens in a new tab)</span></a></li></ul>
+            <div class="tp-foot-cols">
+              <nav class="tp-foot-col" aria-label="Sydney"><h3 class="tp-foot-h">Sydney</h3><ul><li><a href="https://www.sydney.com/contact-us" target="_blank" rel="noopener">Contact Us<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/disclaimer" target="_blank" rel="noopener">Disclaimer<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/privacy" target="_blank" rel="noopener">Privacy<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/cookie-notice" target="_blank" rel="noopener">Cookie Notice<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/terms-of-use" target="_blank" rel="noopener">Terms of Use<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/events/rugbyworldcup27#" target="_blank" rel="noopener">Manage Cookies<span class="visually-hidden"> (opens in a new tab)</span></a></li></ul></nav>
+              <nav class="tp-foot-col" aria-label="On this site"><h3 class="tp-foot-h">On this site</h3><ul><li><a href="https://www.sydney.com/destinations" target="_blank" rel="noopener">Destinations<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/things-to-do" target="_blank" rel="noopener">Things To Do<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.visitnsw.com/things-to-do/drives-and-road-trips" target="_blank" rel="noopener">NSW Road Trips<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/events" target="_blank" rel="noopener">Events<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/accommodation" target="_blank" rel="noopener">Accommodation<span class="visually-hidden"> (opens in a new tab)</span></a></li></ul></nav>
+              <nav class="tp-foot-col" aria-label="Information"><h3 class="tp-foot-h">Information</h3><ul><li><a href="https://www.sydney.com/travel-information" target="_blank" rel="noopener">Travel Information<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.sydney.com/accessibility" target="_blank" rel="noopener">Accessible Sydney<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.destinationnsw.com.au/destination-nsw-business-support/australian-tourism-data-warehouse-atdw" target="_blank" rel="noopener">List your Business<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="http://www.business.nsw.gov.au/" target="_blank" rel="noopener">Business in NSW<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.study.nsw.gov.au/" target="_blank" rel="noopener">Education in NSW<span class="visually-hidden"> (opens in a new tab)</span></a></li></ul></nav>
+              <nav class="tp-foot-col" aria-label="Our sites"><h3 class="tp-foot-h">Our sites</h3><ul><li><a href="https://www.visitnsw.com/" target="_blank" rel="noopener">VisitNSW.com<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.destinationnsw.com.au/" target="_blank" rel="noopener">Destination NSW Corporate<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.meetinnsw.com.au/" target="_blank" rel="noopener">Business Events NSW<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://media.destinationnsw.com.au/" target="_blank" rel="noopener">Destination NSW Media Centre<span class="visually-hidden"> (opens in a new tab)</span></a></li><li><a href="https://www.vividsydney.com/" target="_blank" rel="noopener">Vivid Sydney<span class="visually-hidden"> (opens in a new tab)</span></a></li></ul></nav>
+            </div>
+            <p class="tp-foot-copy">Sydney.com is the official tourism site for Destination NSW. &copy; Copyright 2026 Destination NSW. All rights reserved</p>
+          </footer>
+        </div>
+        <!-- Hero (Option B2): the photo row, then the slogan, the event line, one line on what the page does, and the
+             button. The row swipes sideways and never moves on its own (low fidelity: no auto-scroll, marquee or timer);
+             each tile opens its photo details panel. The stadium and ocean photos first, then two more so there is
+             something to swipe (hifi: the closest pictures in assets; wireframe: grey with an image icon). -->
+        <section class="tp-hero" aria-labelledby="tp-hero-title">
+          <div class="tp-photos" role="group" aria-label="Photos">
+            <button type="button" class="tp-photo" data-photo="stadium" aria-label="Stadium photo, see details"><span class="ph-img tp-photo-img" data-img="hero-stadium" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="coast" aria-label="Ocean photo, see details"><span class="ph-img tp-photo-img" data-img="hero-coast" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="photo3" aria-label="Photo 3, see details"><span class="ph-img tp-photo-img" data-img="coast-aerial" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+            <button type="button" class="tp-photo" data-photo="photo4" aria-label="Photo 4, see details"><span class="ph-img tp-photo-img" data-img="village" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
+          </div>
+          <div class="tp-hero-copy">
+            <!-- The slogan, A by default; ?slogan=b shows B (set on <html> by the script in <head>) to test both -->
+            <h2 class="tp-hero-title" id="tp-hero-title"><span class="tp-slogan tp-slogan--a"><span class="tp-slogan-1">The Third Half</span> <span class="tp-slogan-2">belongs in NSW.</span></span><span class="tp-slogan tp-slogan--b"><span class="tp-slogan-1">Your team&rsquo;s matches.</span> <span class="tp-slogan-2">Your days in NSW.</span></span></h2>
+            <!-- Event line, under the slogan (B2): the event, then its dates (day then month) and the countdown, two
+                 lines. The countdown script below fills .tp-count. -->
+            <p class="tp-event"><span class="tp-event-l">Men&rsquo;s Rugby World Cup</span><span class="visually-hidden">, </span><span class="tp-event-l"><span class="tp-nowrap"><span aria-hidden="true">1 Oct&ndash;13 Nov &rsquo;27</span><span class="visually-hidden">1 October to 13 November 2027</span></span><span class="tp-sep" aria-hidden="true"> &bull; </span><span class="visually-hidden">, </span><span class="tp-nowrap tp-count" role="timer" aria-live="off" data-start="2027-10-01T20:45:00+10:00" data-end="2027-11-13T23:59:59+11:00">Counting down</span></span></p>
+          </div>
+        </section>
+
+        <!-- Team picker: a fanned hand of 24 team cards plus "Here for the rugby", built by concepts-teams.js from
+             cnFixtures. Pick one or more, then the picked cards fly out of the fan and flip to show their matches.
+             Choices follow the jobs to be done (docs/jtbd-itinerary.md, T1 to T16). -->
+        <section class="tp-pick" id="tp-pick" aria-labelledby="tp-pick-title">
+          <!-- The section's heading (17 Nov): the line that used to close the hero, so it reads as the hero's last line and
+               says what the cards are for. The old Pick your teams heading and its intro line are gone. Only the utility row
+               below still rises from behind the cards as the page scrolls. -->
+          <h3 class="tp-pick-title tp-pick-lead" id="tp-pick-title">Pick your teams, see their matches, and plan your NSW days around game time.</h3>
+          <!-- Utility row above the hand: Find (the search field slides across this row from its button, over the other
+               controls, so nothing below moves), Grid / Fan (the same cards as a grid, or back to the hand) and Plays in NSW
+               (marks the cards of teams with a match in NSW; nothing is hidden). Built by concepts-teams.js. -->
+          <div class="tp-util" id="tp-util">
+            <button type="button" class="tp-util-btn" id="tp-find-open" aria-expanded="false" aria-controls="tp-find"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 10.5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Find<span class="visually-hidden"> your team</span></button>
+            <button type="button" class="tp-util-btn" id="tp-view"><svg class="tp-ico tp-ico-grid" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg><span class="tp-view-l">Grid</span><span class="visually-hidden"> view of the teams</span></button>
+            <button type="button" class="cn-switch tp-switch tp-nsw-sw" id="tp-nswmark" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plays in NSW</button>
+            <div class="tp-find" id="tp-find" hidden>
+              <div class="tp-find-row">
+                <label class="visually-hidden" for="tp-find-in">Find your team</label>
+                <input type="search" id="tp-find-in" enterkeyhint="search" class="tp-find-in" placeholder="Find your team, for example Wales" autocomplete="off" spellcheck="false" aria-controls="tp-find-list" aria-expanded="false" aria-describedby="tp-find-help">
+                <button type="button" class="tp-find-close" id="tp-find-close" aria-label="Close search"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+                <!-- In NSW: kept wired but hidden for now -->
+                <button type="button" class="tp-chip tp-nsw" id="tp-nsw" aria-pressed="false" hidden>In NSW</button>
+              </div>
+              <p class="visually-hidden" id="tp-find-help">Suggestions appear below as you type. Enter picks the first one; down arrow moves through them. Escape closes the search.</p>
+              <ul class="tp-find-list" id="tp-find-list" aria-label="Matching teams" hidden></ul>
+            </div>
+          </div>
+          <div class="tp-picker" id="tp-picker">
+            <!-- The hand of cards, from Figma node 282:26254: all 24 teams at once on overlapping arcs, or as a grid
+                 (concepts-teams.js, "the hand of cards") -->
+            <div class="tp-fan2-wrap" id="tp-fan2-wrap" hidden>
+              <div class="tp-fan2" id="tp-fan2" role="group" aria-label="Teams" aria-describedby="tp-fan2-help"></div>
+            </div>
+            <p class="visually-hidden" id="tp-fan2-help">Arrow keys move between the teams, up and down between the rows; type a letter to jump to teams starting with it. Space or Enter picks one. You can pick more than one.</p>
+            <!-- The feedback line: what the last pick did (its text is read out by the live region; Undo, when offered, is a
+                 real button here) -->
+            <div class="tp-under">
+            <p class="tp-fan-caption" id="tp-fan-caption"></p>
+            <!-- Here for the rugby is no longer under the fan: it is a quiet link (data-rugby) where it is relevant, in
+                 All matches and in the plan's empty state -->
+            <!-- Clear all ends the caption's sentence (18 Nov), so it takes no row of its own; concepts-teams.js moves it in -->
+            <button type="button" class="tp-link tp-clear" id="tp-clear" hidden>Clear all</button>
+            </div>
+            <p class="visually-hidden" id="tp-chosen">No teams picked yet.</p>
+          </div>
+          <!-- Your days in NSW (18 Nov, Figma 372:3060): right under the team picker's Clear all, above the match tabs,
+               appearing once a team is picked (or every NSW match). Your days and Refine your plan (where you are staying,
+               who is coming), both optional. Built by concepts-third-half.js (renderAsk). Nothing is guessed: the days
+               start empty. The map (concepts-map.js) now follows All matches. -->
+          <!-- Option C only (?flow=c): an Add every NSW match link that goes with the hand into the Your answers card once
+               the flow is finished (24 Nov). Step 1 no longer shows it: its foot's Show every NSW match does the same.
+               Same link as the others (data-rugby): it reads Remove every NSW match while on, and hides while a team is picked. -->
+          <p class="tp-rugby-line tp-fc-rugby" id="tp-fc-rugby"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-c"></button><span class="tp-rugby-why" id="tp-rugby-why-c"></span></p>
+          <section class="tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1" hidden></section>
+          <!-- Once a team is picked: two tabs over the match area. Your matches (the picked teams' cards) and All matches
+               (the list below). No team picked: no tabs, and All matches stands alone. -->
+          <div class="tp-tabs" id="tp-tabs" role="tablist" aria-label="Matches" hidden>
+            <button type="button" class="tp-tab" id="tp-tab-yours" role="tab" aria-selected="true" aria-controls="tp-results">Your matches</button>
+            <button type="button" class="tp-tab" id="tp-tab-all" role="tab" aria-selected="false" aria-controls="tp-all" tabindex="-1">All matches</button>
+          </div>
+          <div class="tp-results" id="tp-results" role="tabpanel" aria-labelledby="tp-tab-yours" hidden>
+            <!-- Option B only (?flow=a): Your matches as a heading in place of the tabs, as All matches is on Home -->
+            <h3 class="tp-sec-title tp-yours-title" id="tp-yours-title" tabindex="-1" hidden>Your matches</h3>
+            <p class="tp-results-sum" id="tp-results-sum"></p>
+            <!-- Only for teams with no pool match in NSW (filled by concepts-teams.js): the way on, not a dead end -->
+            <div class="tp-deck" id="tp-deck" role="group" aria-label="Your matches"></div>
+            <p class="tp-deck-hint" id="tp-deck-hint" hidden>Swipe for your other cards.</p>
+          </div>
+          <!-- Option B only (?flow=a, 23 Nov): under the match cards, Add more teams opens the Add team sheet where you are,
+               and Your days in NSW (#tp-ask) moves under it. concepts-teams.js fills the icon and shows it once a team is
+               picked; on the All matches tab both follow the All matches list. -->
+          <div class="tp-more" id="tp-more" hidden><button type="button" class="tp-pill tp-more-btn" id="tp-more-teams" aria-haspopup="dialog">Add more teams</button></div>
+          <p class="visually-hidden" id="tp-live" role="status" aria-live="polite"></p>
+        </section>
+        <!-- All matches: right under the picker and its tabs whether or not anyone has picked a team, so the All matches tab and its list are never split by Your days or the map (17 Nov). Minimal, as this page is not the main
+             source for matches. Built by concepts-teams.js from cnFixtures; the All matches tab once a team is picked.
+             Each row opens that match's own page. -->
+        <section class="tp-all" id="tp-all" aria-labelledby="tp-all-title">
+          <h3 class="tp-all-title" id="tp-all-title">All matches</h3>
+          <!-- Filter: In NSW (the default) or All (interstate matches can be watched at NSW fan zones); with In NSW, one NSW host
+               city at a time. Built by concepts-teams.js; kept on reload. -->
+          <div class="tp-all-filter" id="tp-all-filter">
+            <!-- Which matches: In NSW (the default) or All, one segmented control; the cities show only with In NSW -->
+            <div class="tp-all-scope tp-seg has-sel" id="tp-all-scope" role="group" aria-label="Matches to show"><span class="tp-seg-thumb" aria-hidden="true"></span><button type="button" class="tp-seg-btn" data-scope="nsw" aria-pressed="true">In NSW</button><button type="button" class="tp-seg-btn" data-scope="all" aria-pressed="false">All</button></div>
+            <div class="tp-all-cities tp-seg" id="tp-all-cities" role="group" aria-label="NSW host city" hidden></div>
+          </div>
+          <p class="tp-all-note" id="tp-all-note">Every match of the tournament, by date. Tap one for its details.</p>
+          <!-- Here for the rugby, demoted to a quiet link: with no team picked it adds every NSW match; on, it takes them off.
+               Hidden while teams are picked (picking a team already replaces it). -->
+          <p class="tp-rugby-line"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-a"><svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg><span class="tp-u">Add every NSW match</span></button><span class="tp-rugby-why" id="tp-rugby-why-a">No team? This adds all the matches played in NSW.</span></p>
+          <!-- Columns of five matches, each a borderless card; swipe sideways (or use the arrow keys) for the next five -->
+          <div class="tp-all-scroll" id="tp-all-scroll" role="group" aria-label="All matches, five to a column. Arrow keys move between matches." aria-describedby="tp-all-hint"></div>
+          <p class="tp-all-empty" id="tp-all-empty" hidden><span id="tp-all-empty-text"></span> <button type="button" class="tp-link" id="tp-all-empty-clear">Show all matches</button></p>
+          <p class="tp-all-hint" id="tp-all-hint">Swipe sideways for the next five matches.</p>
+        </section>
+        <!-- Where to watch, Suits your 3rd half and the one question: built by concepts-third-half.js from fixture
+             fixtures (cnWatchSpots, cnThirdHalf), following the picks and tickets live. Shown straight away; nothing is
+             held back for dates. No venue or product is favoured: spots by type then name, products by distance then
+             name. Links go out only; nothing is booked here. -->
+        <section class="tp-sec" id="tp-watch" aria-labelledby="tp-watch-title">
+          <h3 class="tp-sec-title" id="tp-watch-title" tabindex="-1">Where to watch</h3>
+          <p class="tp-sec-note" id="tp-watch-note">Screenings for your matches, at pubs, the village and a fan zone.</p>
+          <div class="tp-watch-list" id="tp-watch-list"></div>
+          <button type="button" class="tp-link tp-watch-more" id="tp-watch-more" aria-expanded="false" hidden></button>
+        </section>
+        <section class="tp-sec" id="tp-third" aria-labelledby="tp-third-title">
+          <h3 class="tp-sec-title" id="tp-third-title">Around your matches</h3>
+          <p class="tp-sec-note" id="tp-third-note">Around your match days in NSW. Each links out; nothing is booked here.</p>
+          <!-- The link to the trip question, which lives in the open plan: a prompt until it is answered, then the answer -->
+          <p class="tp-third-trip" id="tp-third-trip"></p>
+          <div class="tp-third-list" id="tp-third-list"></div>
+        </section>
+        <!-- The end of the page: the plan so far, which the matches, screenings and suggestions above have been building.
+             Open your plan, or copy it as plain text for notes or a message (people keep plans outside the site). -->
+        <section class="tp-plan" id="tp-plan" aria-labelledby="tp-plan-title">
+          <h3 class="tp-plan-title" id="tp-plan-title">Your plan so far</h3>
+          <div id="tp-plan-body"></div>
+        </section>
+      </div>
+      <!-- Plan bar (Figma: Rugby World Cup, node 213:13100, adapted to 390px). Docked over the bottom of the phone,
+           outside the scrolling body, so it never moves the content; the body has 104px of room at the bottom so it never
+           covers the last match. Hidden until the match cards have scrolled past the top of the phone. The bar is one
+           button that opens the sheet upward; matches only for now. Built by concepts-teams.js. -->
+      <div class="tp-tl-scrim" id="tp-tl-scrim"></div>
+      <section class="tp-tl" id="tp-tl" aria-label="Your plan" inert>
+        <button type="button" class="tp-tl-bar" id="tp-tl-toggle" aria-expanded="false" aria-controls="tp-tl-panel">
+          <span class="tp-tl-grab" aria-hidden="true"></span>
+          <span class="tp-tl-sum"><span class="tp-tl-label" id="tp-tl-label"></span><span class="tp-tl-value" id="tp-tl-value"></span></span>
+          <span class="tp-tl-exp" aria-hidden="true"><span class="tp-tl-word" id="tp-tl-word">Your plan</span><svg width="16" height="16" viewBox="0 0 16 16"><path d="M3.5 10l4.5-4.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tp-tl-badge" id="tp-tl-badge" hidden></span></span>
+          <span class="tp-tl-strip" aria-hidden="true"><span class="tp-tl-strip-stay" hidden></span><span class="tp-tl-strip-axis"></span><span class="tp-tl-dots" id="tp-tl-dots"></span></span>
+          <span class="tp-tl-end tp-tl-end--start" aria-hidden="true">1 Oct</span><span class="visually-hidden" id="tp-tl-days"></span><span class="tp-tl-end tp-tl-end--end" aria-hidden="true">13 Nov</span>
+        </button>
+        <!-- No team (18 Nov): Add team on the bar, beside No matches yet or the count of saves; opens the team sheet.
+             Outside the bar's button, so it is a control of its own -->
+        <button type="button" class="tp-link tp-tl-addteam" id="tp-tl-addteam" hidden>Add team</button>
+        <div class="tp-tl-panel" id="tp-tl-panel" inert>
+          <div class="tp-tl-head">
+            <h3 class="tp-tl-title" id="tp-tl-title" tabindex="-1">Your plan</h3>
+            <!-- 16 Nov polish: the way to add or change teams sits on the title row (it had a line of its own), opening the team sheet stacked over the plan -->
+            <p class="tp-tl-teams" id="tp-tl-teams" hidden><button type="button" class="tp-link" id="tp-tl-teams-btn"><svg class="tp-ico tp-ico-fan" viewBox="0 0 36 33" aria-hidden="true" focusable="false"><path d="M31.313 0.355164L20.0081 0.482213C19.2242 0.491107 18.4682 0.721491 17.819 1.13186L12.5913 2.55355C12.5718 2.55905 12.5524 2.56498 12.5333 2.57176L10.7483 3.19176L10.7474 3.19007L10.7381 3.19515L10.5327 3.2663C10.0258 3.44247 9.56374 3.71224 9.16565 4.05697L7.62792 4.89973L6.57341 5.48713L6.55647 5.46426L6.38876 5.59004L5.87337 5.87674C5.41768 6.13084 5.0179 6.46583 4.69011 6.86138L2.0208 8.85903C2.01317 8.86453 2.0064 8.87004 1.9992 8.87596C1.12594 9.57389 0.577511 10.57 0.453849 11.68C0.331882 12.7785 0.639766 13.8593 1.32245 14.7266L12.1623 30.7315C12.1746 30.7497 12.1886 30.7679 12.2026 30.7857C13.0525 31.8491 14.3192 32.3865 15.5846 32.3535C16.4587 32.3302 17.3324 32.035 18.068 31.451L21.0723 29.2365L24.4654 28.5962L26.1967 28.2714L26.1878 28.4069L31.6632 28.5585C31.6852 28.5577 31.7064 28.5572 31.7284 28.5568C33.9988 28.4971 35.8194 26.3864 35.794 24.1139L35.5462 4.5982C35.5204 2.2914 33.6198 0.329754 31.313 0.355164ZM9.74076 6.02793C9.85637 5.81661 10.0021 5.62603 10.1706 5.46002L11.436 4.76633L12.0675 4.54696C11.7337 5.3101 11.63 6.16345 11.7854 6.99309L15.0993 26.0844L9.5811 8.05946C9.57814 8.04929 9.57475 8.03955 9.57136 8.02897C9.34225 7.37 9.40408 6.64074 9.74076 6.02793ZM15.8713 4.71339L16.0865 21.7563L13.4718 6.69452C13.4709 6.69029 13.4701 6.68605 13.4692 6.68182C13.3413 6.00295 13.5057 5.29613 13.9203 4.74219C14.2908 4.24712 14.8304 3.91086 15.4389 3.79609L15.9836 3.69361C15.9052 4.02394 15.8671 4.36528 15.8713 4.71339ZM7.74523 6.79574C7.68425 7.39075 7.74989 7.99848 7.94809 8.57528L13.4883 26.6727L5.77342 10.7775C5.76622 10.7631 5.7586 10.7487 5.75097 10.7347C5.40582 10.1147 5.34399 9.37442 5.58285 8.70402C5.66077 8.48507 5.76834 8.28052 5.90132 8.09503L7.32258 7.0312L7.74523 6.79574ZM2.6823 13.6852C2.26981 13.1698 2.08347 12.5253 2.15674 11.8697C2.22873 11.2183 2.54975 10.6339 3.05922 10.2218L3.73258 9.7183C3.76011 10.3523 3.9312 10.9782 4.24247 11.5453L11.8447 27.2084L2.72253 13.7399C2.70941 13.7212 2.69628 13.703 2.6823 13.6852ZM34.0754 23.9225C34.0903 25.2641 33.0125 26.3843 31.6721 26.4194L20.3274 26.5482C18.965 26.563 17.8444 25.467 17.8292 24.1041L17.5844 4.69349C17.578 4.1476 17.7474 3.62796 18.0731 3.19134C18.1167 3.13162 18.1616 3.07657 18.2052 3.02744C18.6647 2.5095 19.2979 2.21432 19.9882 2.19611L31.3324 2.06822C32.6948 2.05297 33.8158 3.14899 33.8307 4.51223L34.0754 23.9225Z"/></svg>Change teams</button></p>
+          </div>
+          <!-- Days set: one line that says what is set, with Change. No days yet: the date slider itself, until the plan
+               closes (concepts-third-half.js, renderDaysLine) -->
+          <p class="tp-tl-daysline" id="tp-tl-daysline"></p>
+          <div class="tp-tl-prompt" id="tp-tl-prompt">
+            <p class="tp-tl-prompt-text"><strong>Which team are you here for?</strong> Pick one to see only their matches.</p>
+            <button type="button" class="tp-tl-pick" id="tp-tl-pick"><svg class="tp-ico tp-ico-fan" viewBox="0 0 36 33" aria-hidden="true" focusable="false"><path d="M31.313 0.355164L20.0081 0.482213C19.2242 0.491107 18.4682 0.721491 17.819 1.13186L12.5913 2.55355C12.5718 2.55905 12.5524 2.56498 12.5333 2.57176L10.7483 3.19176L10.7474 3.19007L10.7381 3.19515L10.5327 3.2663C10.0258 3.44247 9.56374 3.71224 9.16565 4.05697L7.62792 4.89973L6.57341 5.48713L6.55647 5.46426L6.38876 5.59004L5.87337 5.87674C5.41768 6.13084 5.0179 6.46583 4.69011 6.86138L2.0208 8.85903C2.01317 8.86453 2.0064 8.87004 1.9992 8.87596C1.12594 9.57389 0.577511 10.57 0.453849 11.68C0.331882 12.7785 0.639766 13.8593 1.32245 14.7266L12.1623 30.7315C12.1746 30.7497 12.1886 30.7679 12.2026 30.7857C13.0525 31.8491 14.3192 32.3865 15.5846 32.3535C16.4587 32.3302 17.3324 32.035 18.068 31.451L21.0723 29.2365L24.4654 28.5962L26.1967 28.2714L26.1878 28.4069L31.6632 28.5585C31.6852 28.5577 31.7064 28.5572 31.7284 28.5568C33.9988 28.4971 35.8194 26.3864 35.794 24.1139L35.5462 4.5982C35.5204 2.2914 33.6198 0.329754 31.313 0.355164ZM9.74076 6.02793C9.85637 5.81661 10.0021 5.62603 10.1706 5.46002L11.436 4.76633L12.0675 4.54696C11.7337 5.3101 11.63 6.16345 11.7854 6.99309L15.0993 26.0844L9.5811 8.05946C9.57814 8.04929 9.57475 8.03955 9.57136 8.02897C9.34225 7.37 9.40408 6.64074 9.74076 6.02793ZM15.8713 4.71339L16.0865 21.7563L13.4718 6.69452C13.4709 6.69029 13.4701 6.68605 13.4692 6.68182C13.3413 6.00295 13.5057 5.29613 13.9203 4.74219C14.2908 4.24712 14.8304 3.91086 15.4389 3.79609L15.9836 3.69361C15.9052 4.02394 15.8671 4.36528 15.8713 4.71339ZM7.74523 6.79574C7.68425 7.39075 7.74989 7.99848 7.94809 8.57528L13.4883 26.6727L5.77342 10.7775C5.76622 10.7631 5.7586 10.7487 5.75097 10.7347C5.40582 10.1147 5.34399 9.37442 5.58285 8.70402C5.66077 8.48507 5.76834 8.28052 5.90132 8.09503L7.32258 7.0312L7.74523 6.79574ZM2.6823 13.6852C2.26981 13.1698 2.08347 12.5253 2.15674 11.8697C2.22873 11.2183 2.54975 10.6339 3.05922 10.2218L3.73258 9.7183C3.76011 10.3523 3.9312 10.9782 4.24247 11.5453L11.8447 27.2084L2.72253 13.7399C2.70941 13.7212 2.69628 13.703 2.6823 13.6852ZM34.0754 23.9225C34.0903 25.2641 33.0125 26.3843 31.6721 26.4194L20.3274 26.5482C18.965 26.563 17.8444 25.467 17.8292 24.1041L17.5844 4.69349C17.578 4.1476 17.7474 3.62796 18.0731 3.19134C18.1167 3.13162 18.1616 3.07657 18.2052 3.02744C18.6647 2.5095 19.2979 2.21432 19.9882 2.19611L31.3324 2.06822C32.6948 2.05297 33.8158 3.14899 33.8307 4.51223L34.0754 23.9225Z"/></svg>Pick your teams</button>
+          </div>
+          <p class="tp-rugby-line tp-tl-rugby" id="tp-tl-rugby"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-b"><svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg><span class="tp-u">Add every NSW match</span></button><span class="tp-rugby-why" id="tp-rugby-why-b">No team? This adds all the matches played in NSW.</span></p>
+          <!-- Show interstate matches too: only with Every NSW match on. Every interstate match joins the axis as the dashed
+               marker, to watch in NSW; none of them is counted or exported (concepts-teams.js, tlExtra) -->
+          <div class="tp-tl-inter" id="tp-tl-inter" hidden>
+            <button type="button" class="cn-switch tp-switch" id="tp-inter" role="switch" aria-checked="false" aria-describedby="tp-inter-help"><span class="cn-switch-track" aria-hidden="true"></span>Show interstate matches too</button>
+            <p class="tp-inter-help" id="tp-inter-help">To watch in NSW. They aren&rsquo;t added to your plan.</p>
+          </div>
+          <!-- The old tournament axis (16 Nov): kept only as hidden state for the match markers' code; the day strip and cards below replace it -->
+          <div class="tp-tl-scroll" id="tp-tl-scroll" hidden><div class="tp-tl-canvas" id="tp-tl-canvas" role="group" aria-label="Matches by date. Arrow keys move between matches."></div></div>
+          <!-- Saved from the map before your days were set: waiting for a free day (concepts-teams.js, tlUpdate) -->
+          <section class="tp-tl-wait" id="tp-tl-wait" aria-labelledby="tp-tl-wait-h" hidden></section>
+          <!-- Your plan, day by day (16 Nov, concepts-plan.js): a strip of your days as an index, then one card per day with
+               names, times and pictures, stacked. -->
+          <section class="tp-dc" id="tp-dc" aria-label="Your plan, day by day"></section>
+          <!-- A free day's ideas: lent to the stacked sheet (#tp-pm) when its + on the axis is tapped, and put back here
+               hidden when it closes; drawn by concepts-third-half.js (renderTlIdeas) -->
+          <section class="tp-tl-ideas" id="tp-tl-ideas" aria-labelledby="tp-tl-ideas-h" hidden></section>
+          <div class="tp-tl-detail" id="tp-tl-detail" aria-live="polite"></div>
+          <!-- Clear plan: takes off what was added (screenings, places, trips, single matches); teams, tickets on
+               their matches and the trip answer stay. Undo for six seconds, as Clear all. -->
+          <div class="tp-tl-clear">
+            <button type="button" class="tp-link" id="tp-tl-clear" hidden>Clear plan</button>
+            <p class="tp-tl-cleared" id="tp-tl-cleared" hidden><span id="tp-tl-cleared-text"></span> <button type="button" class="tp-link" id="tp-tl-undo">Undo</button></p>
+          </div>
+          <!-- Save & share: a prominent button pinned to the foot of the plan sheet (sticky as the sheet scrolls); opens the
+               Save & share sheet stacked over this one (#tp-ss). Shown once there is a plan to keep. -->
+          <div class="tp-tl-foot" id="tp-tl-foot"><p class="tp-tl-device" id="tp-tl-device">Your plan is currently saved to this device only. Your teams are only used to show their matches.</p><button type="button" class="tp-tl-share" id="tp-tl-share" aria-haspopup="dialog" aria-controls="tp-ss" aria-describedby="tp-tl-device" hidden>Save &amp; share</button></div>
+        </div>
+      </section>
+      <!-- Save & share: a second sheet stacked over the open plan, with the save and share options from the
+           Share/edit itinerary prototype (its sheet only: none of its other screens). Everything it keeps or sends is
+           this plan: the matches, tickets, days in NSW and what was added. Wired by concepts-third-half.js. -->
+      <!-- Stacked sheets: any sheet opened from the plan is a .tp-stack, opened with v2Picker.stackOpen(). This scrim
+           sits over the moved-back plan and the page; a tap on it closes the top sheet. -->
+      <!-- Indicative keyboard: a static grey picture of a phone keyboard, shown while Find your team is open so the
+           prototype reads like a phone. Not functional; on a real phone it is the native keyboard. Never over the
+           suggestions, which float just under the heading. -->
+      <div class="tp-kbd" id="tp-kbd" aria-hidden="true" hidden>
+        <div class="tp-kbd-row"><span class="tp-kbd-k">q</span><span class="tp-kbd-k">w</span><span class="tp-kbd-k">e</span><span class="tp-kbd-k">r</span><span class="tp-kbd-k">t</span><span class="tp-kbd-k">y</span><span class="tp-kbd-k">u</span><span class="tp-kbd-k">i</span><span class="tp-kbd-k">o</span><span class="tp-kbd-k">p</span></div>
+        <div class="tp-kbd-row tp-kbd-row--mid"><span class="tp-kbd-k">a</span><span class="tp-kbd-k">s</span><span class="tp-kbd-k">d</span><span class="tp-kbd-k">f</span><span class="tp-kbd-k">g</span><span class="tp-kbd-k">h</span><span class="tp-kbd-k">j</span><span class="tp-kbd-k">k</span><span class="tp-kbd-k">l</span></div>
+        <div class="tp-kbd-row"><span class="tp-kbd-k tp-kbd-k--fn">&#8679;</span><span class="tp-kbd-k">z</span><span class="tp-kbd-k">x</span><span class="tp-kbd-k">c</span><span class="tp-kbd-k">v</span><span class="tp-kbd-k">b</span><span class="tp-kbd-k">n</span><span class="tp-kbd-k">m</span><span class="tp-kbd-k tp-kbd-k--fn">&#9003;</span></div>
+        <div class="tp-kbd-row"><span class="tp-kbd-k tp-kbd-k--fn tp-kbd-k--wide">123</span><span class="tp-kbd-k tp-kbd-k--space">space</span><span class="tp-kbd-k tp-kbd-k--fn tp-kbd-k--wide">search</span></div>
+        <span class="tp-kbd-note">Indicative keyboard</span>
+      </div>
+      <!-- Photo details (B2 step 5): opened by a tile in the hero's photo row. Slides up from the bottom over a dark layer
+           (#111 at 50%). Place label and close, the photo (342 x 192), a title, a line or two and one outlined button. All
+           copy is placeholder in square brackets until it is decided. Closes by the close button, the dark layer or
+           Escape, and focus goes back to the tile. Filled by the script at the end of this file. -->
+      <div class="tp-ph-scrim" id="tp-ph-scrim" hidden></div>
+      <div class="tp-ph" id="tp-ph" role="dialog" aria-modal="true" aria-labelledby="tp-ph-title" hidden>
+        <div class="tp-ph-top">
+          <p class="tp-ph-where" id="tp-ph-where"></p>
+          <button type="button" class="tp-ph-close" data-ph-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        <span class="ph-img tp-ph-img" id="tp-ph-img" role="img"></span>
+        <h2 class="tp-ph-title" id="tp-ph-title"></h2>
+        <p class="tp-ph-p" id="tp-ph-p"></p>
+        <div class="tp-ph-acts"><button type="button" class="tp-ph-go" id="tp-ph-go" aria-disabled="true" aria-describedby="tp-ph-soon"></button><span class="tp-ph-soon" id="tp-ph-soon">Not linked yet</span></div>
+      </div>
+      <div class="tp-stack-scrim" id="tp-stack-scrim"></div>
+      <div class="cn-sheet tp-stack tp-ss" id="tp-ss" role="dialog" aria-modal="true" aria-labelledby="tp-ss-title" tabindex="-1" inert>
+        <span class="cn-grabber" aria-hidden="true"></span>
+        <div class="cn-sheet-head">
+          <h3 class="cn-sheet-title" id="tp-ss-title">Save &amp; share</h3>
+          <button type="button" class="cn-close" id="tp-ss-close" data-stack-close aria-label="Close Save &amp; share"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="cn-view">
+          <div class="cn-note" role="status"><span class="cn-note-dot" aria-hidden="true"></span><span id="tp-ss-note"></span></div>
+          <!-- Save & share as a list (22 Nov): two groups, the same order on every device. Each row is one button: its icon,
+               its name and a caption. Email and the rows with a peek open in place under themselves (concepts-third-half.js) -->
+          <h4 class="cn-sub cn-sub--copy">Keep a copy</h4>
+          <ul class="tp-ss-list" id="tp-ss-keep">
+            <li><button type="button" class="tp-ss-row" id="tp-ss-mailrow" aria-expanded="false" aria-controls="tp-ss-mail"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M2 4l6 5 6-5"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Email</span><span class="tp-ss-row-cap">Your plan comes as a PDF attachment.</span></span><svg class="tp-ss-chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4"/></svg></button></li>
+            <li class="tp-ss-mail-li"><div class="tp-ss-mail" id="tp-ss-mail" hidden>
+              <label class="visually-hidden" for="tp-ss-email">Email address</label>
+              <input class="cn-field" id="tp-ss-email" type="email" autocomplete="email" placeholder="name@example.com" aria-describedby="tp-ss-email-error" />
+              <p class="cn-error" id="tp-ss-email-error" role="alert" hidden>Enter an email like name@example.com</p>
+              <button type="button" class="cn-pill cn-pill--dark" id="tp-ss-send">Send my plan</button>
+              <button type="button" class="cn-pill cn-pill--sent" id="tp-ss-sent" tabindex="-1" aria-disabled="true"><svg width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="cn-sent-text" id="tp-ss-sent-text">Sent</span></button>
+              <button type="button" class="cn-again" id="tp-ss-again">Send again</button>
+              <p class="cn-legal">We will use your email only to send this plan. <a href="#" class="cn-legal-link">Privacy policy</a></p>
+              <label class="cn-check cn-check--optin"><input type="checkbox" id="tp-ss-news" /><span>Optional: also send me travel ideas and news from Destination NSW</span></label>
+            </div></li>
+            <li><button type="button" class="tp-ss-row" id="tp-ss-copy" aria-expanded="false" aria-controls="tp-ss-peek"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5v-3h-8v8h3"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Copy plan</span><span class="tp-ss-row-cap">Copy text for an AI assistant or your notes app.</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><svg class="tp-ss-chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4"/></svg></button></li>
+          </ul>
+          <h4 class="cn-sub cn-sub--copy">Open in your apps</h4>
+          <ul class="tp-ss-list" id="tp-ss-apps">
+            <li><button type="button" class="tp-ss-row" id="tp-ss-cal" aria-expanded="false" aria-controls="tp-ss-peek"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><rect x="1.5" y="3" width="13" height="11.5" rx="1.5"/><path d="M1.5 6.5h13M5 1.5v3M11 1.5v3"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Add to calendar</span><span class="tp-ss-row-cap">Google Calendar or Outlook</span></span><svg class="tp-ss-chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4"/></svg></button></li>
+            <li><button type="button" class="tp-ss-row" id="tp-ss-maps" aria-expanded="false" aria-controls="tp-ss-peek"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path d="M8 14.5s-5-4.3-5-8a5 5 0 0 1 10 0c0 3.7-5 8-5 8z"/><circle cx="8" cy="6.5" r="1.8"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Add to maps</span><span class="tp-ss-row-cap">Google Maps or Apple Maps</span></span><svg class="tp-ss-chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4"/></svg></button></li>
+            <li><button type="button" class="tp-ss-row" id="tp-ss-csv"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M1.5 6.5h13M6 2.5v11M10.5 8.5v3.5M9 10.5l1.5 1.5 1.5-1.5"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Download table</span><span class="tp-ss-row-cap">A .csv for Excel, Sheets or Numbers</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></li>
+            <li><button type="button" class="tp-ss-row" id="tp-ss-sheet"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M1.5 6.5h13M1.5 10h13M6 2.5v11"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Copy for a spreadsheet</span><span class="tp-ss-row-cap">Paste straight into cells</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></li>
+          </ul>
+          <!-- The peek (22 Nov): one panel, moved under whichever row opened it. Copy plan has a choice of three formats;
+               Add to calendar and Add to maps list one line per event or place, each with its own links -->
+          <div class="tp-ss-peek" id="tp-ss-peek" hidden>
+            <div class="tp-ss-fmt" id="tp-ss-fmt" role="group" aria-label="Format"><button type="button" class="tp-chip" data-fmt="detailed" aria-pressed="true">Detailed</button><button type="button" class="tp-chip" data-fmt="compact" aria-pressed="false">Compact</button><button type="button" class="tp-chip" data-fmt="ai" aria-pressed="false">For AI assistant</button></div>
+            <div class="tp-ss-peek-head"><span class="tp-ss-peek-label" id="tp-ss-peek-label"></span><button type="button" class="tp-ss-mini" id="tp-ss-peek-copy"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5v-3h-8v8h3"/></svg><span class="tp-ss-peek-copy-l">Copy</span></button></div>
+            <pre class="tp-ss-peek-text" id="tp-ss-peek-text" tabindex="0" role="region" aria-labelledby="tp-ss-peek-label"></pre>
+            <p class="tp-ss-route" id="tp-ss-route" hidden><a href="#" target="_blank" rel="noopener">Open the whole route in Google Maps</a></p>
+            <ul class="tp-ss-cal" id="tp-ss-cal-list" aria-labelledby="tp-ss-peek-label"></ul>
+          </div>
+          <div class="cn-fallback" id="tp-ss-fallback" hidden><label for="tp-ss-fallback-text" class="cn-fallback-label">This browser blocked copying. The text below is selected: choose Copy to keep it.</label><textarea id="tp-ss-fallback-text" class="cn-fallback-text" readonly rows="8"></textarea></div>
+        </div>
+        <p class="cn-toast" id="tp-ss-toast" role="status" hidden></p>
+      </div>
+      <!-- Add team (18 Nov): opened by Add team on the plan bar and in the saves' box. It lends the page's own picker
+           (Find, Grid / Fan, Plays in NSW, the hand and its caption) and gives it back on close, so there is one team
+           picker, not two (concepts-teams.js, atOpen). Over the open plan it stacks; from the page it opens on its own. -->
+      <div class="cn-sheet tp-stack tp-ts tp-at" id="tp-at" role="dialog" aria-modal="true" aria-labelledby="tp-at-title" tabindex="-1" inert>
+        <span class="cn-grabber" aria-hidden="true"></span>
+        <div class="cn-sheet-head">
+          <h3 class="cn-sheet-title" id="tp-at-title">Add team</h3>
+          <button type="button" class="cn-close" data-stack-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        </div>
+        <p class="tp-at-note">Pick the teams you follow. What you saved is planned around their matches.</p>
+        <div class="tp-at-body" id="tp-at-body"></div>
+        <div class="tp-ts-acts"><button type="button" class="tp-pill" data-stack-close>Done</button></div>
+      </div>
+      <!-- Your teams: a list editor stacked over the plan (no fan here; the fan is on the page). Pinned at the top: your
+           picks as removable chips, the count of their matches, the last change (with Undo where offered) and a search
+           field; only the list scrolls; Done is pinned at the foot. Every pick goes through the same state as the fan. -->
+      <div class="cn-sheet tp-stack tp-ts" id="tp-ts" role="dialog" aria-modal="true" aria-labelledby="tp-ts-title" tabindex="-1" inert>
+        <span class="cn-grabber" aria-hidden="true"></span>
+        <div class="cn-sheet-head">
+          <h3 class="cn-sheet-title" id="tp-ts-title">Pick your teams</h3>
+          <button type="button" class="cn-close" data-stack-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="tp-ts-top">
+          <p class="tp-ts-empty" id="tp-ts-empty">Pick the teams you follow.</p>
+          <ul class="tp-ts-chips" id="tp-ts-chips" aria-label="Your picks"></ul>
+          <p class="tp-ts-count" id="tp-ts-count"><span id="tp-ts-count-text"></span> <button type="button" class="tp-link" id="tp-ts-clear" hidden>Clear all</button></p>
+          <p class="tp-ts-note" id="tp-ts-note"></p>
+          <label class="visually-hidden" for="tp-ts-find">Find a team</label>
+          <input class="cn-field tp-ts-find" id="tp-ts-find" enterkeyhint="search" type="search" placeholder="Find a team" autocomplete="off" aria-controls="tp-ts-list" aria-describedby="tp-ts-find-help" />
+          <span class="visually-hidden" id="tp-ts-find-help">Type a team’s name or code; the list below narrows as you type. Escape clears it.</span>
+        </div>
+        <div class="tp-ts-body" id="tp-ts-body">
+          <ul class="tp-team-list tp-ts-list" id="tp-ts-list" aria-label="Teams"></ul>
+          <p class="tp-ts-none" id="tp-ts-none" hidden></p>
+        </div>
+        <div class="tp-ts-acts"><button type="button" class="tp-pill" data-stack-close>Done</button></div>
+      </div>
+      <div class="cn-sheet tp-stack tp-stack--fit tp-cc" id="tp-cc" role="alertdialog" aria-modal="true" aria-labelledby="tp-cc-title" aria-describedby="tp-cc-what" tabindex="-1" inert>
+        <span class="cn-grabber" aria-hidden="true"></span>
+        <div class="cn-sheet-head">
+          <h3 class="cn-sheet-title" id="tp-cc-title">Clear your plan?</h3>
+          <button type="button" class="cn-close" data-stack-close aria-label="Keep my plan"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        </div>
+        <div id="tp-cc-what">
+          <h4 class="tp-cc-h">Taken off</h4>
+          <ul class="tp-cc-list" id="tp-cc-off"></ul>
+          <h4 class="tp-cc-h">Stays</h4>
+          <ul class="tp-cc-list tp-cc-list--keep" id="tp-cc-keep"></ul>
+          <p class="tp-cc-note">You can undo this straight after.</p>
+        </div>
+        <div class="tp-cc-acts">
+          <button type="button" class="tp-plan-btn" data-stack-close>Cancel</button>
+          <button type="button" class="tp-pill" id="tp-cc-go">Clear plan</button>
+        </div>
+      </div>
+      <!-- Drop goal, over the whole screen (24 Nov): opened by Play now and the menu's Play Drop Goal. The game is
+           Version 2's own (v2/drop-goal/), in a frame, so its scripts never load in this page; the frame's address carries
+           the picked teams (?team=). The close cross sits top right, 16px from the edge (check 7); Escape and the
+           phone's back button close it too, and focus goes back to what opened it. Script: v2/v2-view.js. -->
+      <div class="v2-play" id="v2-play" role="dialog" aria-modal="true" aria-label="Drop goal" hidden>
+        <iframe class="v2-game" id="v2-game" title="Drop goal: drop the ball, then kick it through the posts"></iframe>
+        <!-- The team screen (24 Nov; one tap since the practice-kick brief): over the game when no team is picked, and from
+             Change on the pitch. A tap on a card picks the kicker and opens the pitch; there is nothing else to press.
+             The rules screen that followed it is gone: the game has a practice kick instead. Script: v2/v2-onboard.js. -->
+        <section class="v2-ob is-pitch" id="v2-ob" aria-label="Pick your team" hidden>
+          <div class="v2-ob-panel v2-ob-panel--team" data-step="team">
+            <h2 class="v2-ob-h" tabindex="-1">Who are you kicking for?</h2>
+            <p class="v2-ob-p"><span id="v2-ob-tap">Tap</span> a team. Your kicker wears their kit, and what a goal lands on depends on where they play. <b>No team? Pick the one you&rsquo;d like to follow.</b></p>
+            <div class="v2-ob-teams" id="v2-ob-teams"></div>
+          </div>
+          <p class="v2-ob-now" id="v2-ob-now" hidden></p>
+        </section>
+        <button type="button" class="v2-play-close v2-play-how" id="v2-play-how" aria-label="How to play"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M4.6 5.2a2.4 2.4 0 1 1 3.5 2.1c-.7.4-1.1.9-1.1 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="11.6" r="1.1" fill="currentColor"/></svg></button>
+        <button type="button" class="v2-play-close v2-play-back" id="v2-play-close" aria-label="Back to Home"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M12 7H2.5M6.5 3l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Back</span></button>
+      </div>
+    </div>
+    <!-- Viewer tools, not part of the design: Reset puts this version back as a first visit (only its own v2: keys);
+         Open in desktop opens the page on its own in a new tab (pv-device.js sets the address) -->
+    <div class="pv-frame-tools" role="group" aria-label="Prototype tools">
+      <button type="button" class="pv-frame-btn" id="tp-reset" aria-label="Reset prototype" title="Reset prototype"><svg width="16" height="15" viewBox="0 0 16 15" fill="none" aria-hidden="true"><path d="M13.7188 8.53125C14.125 8.65625 14.3438 9.0625 14.2188 9.46875C13.3438 12.4375 10.5938 14.5 7.5 14.5C5.03125 14.5 2.75 13.1562 1.5 11.0625V14.25C1.5 14.6875 1.1875 15 0.75 15C0.34375 15 0 14.6875 0 14.25V9.25C0 8.84375 0.34375 8.5 0.75 8.5H5.75C6.1875 8.5 6.5 8.84375 6.5 9.25C6.5 9.6875 6.15625 10 5.75 10H2.59375C3.53125 11.8125 5.40625 13 7.5 13C9.9375 13 12.125 11.375 12.7812 9.03125C12.9062 8.625 13.3125 8.40625 13.7188 8.53125ZM14.2812 0C14.6875 0 15.0312 0.34375 15.0312 0.75V5.75C15.0312 6.1875 14.6875 6.5 14.2812 6.5H9.28125C8.84375 6.5 8.53125 6.1875 8.53125 5.75C8.53125 5.34375 8.84375 5 9.28125 5H12.4062C11.4688 3.21875 9.59375 2 7.53125 2C5.09375 2 2.90625 3.65625 2.21875 5.96875C2.125 6.375 1.71875 6.59375 1.3125 6.46875C0.90625 6.375 0.6875 5.9375 0.78125 5.5625C1.65625 2.59375 4.4375 0.5 7.53125 0.5C10 0.5 12.2812 1.875 13.5312 3.96875V0.75C13.5312 0.34375 13.8438 0 14.2812 0Z" fill="currentColor"/></svg></button>
+      <a class="pv-frame-btn" id="pv-desktop" target="_blank" rel="noopener" aria-label="Open in desktop, in a new tab" title="Open in desktop"><svg width="18" height="16" viewBox="0 0 18 16" fill="none" aria-hidden="true"><path d="M16 0C17.0938 0 18 0.90625 18 2V11C18 12.125 17.0938 13 16 13H11.3438L11.6562 14.5H13.25C13.6562 14.5 14 14.8438 14 15.25C14 15.6875 13.6562 16 13.25 16H4.75C4.3125 16 4 15.6875 4 15.25C4 14.8438 4.3125 14.5 4.75 14.5H6.3125L6.625 13H2C0.875 13 0 12.125 0 11V2C0 0.90625 0.875 0 2 0H16ZM10.125 14.5L9.8125 13H8.15625L7.84375 14.5H10.125ZM16.5 11V9.5H1.5V11C1.5 11.2812 1.71875 11.5 2 11.5H16C16.25 11.5 16.5 11.2812 16.5 11ZM16.5 8V2C16.5 1.75 16.25 1.5 16 1.5H2C1.71875 1.5 1.5 1.75 1.5 2V8H16.5Z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+</main>
+
+<!-- Phone view: the Settings icon, top left of the header, as on Options A to C (copied) -->
+  <script>(function () {
+    if (!document.documentElement.classList.contains('pv-device')) return;
+    var reset = document.getElementById('tp-reset'), top = document.querySelector('#tp-phone .tp-top');
+    if (!reset || !top) return;
+    var phoneQ = /[?&]phone\b/.test(location.search);
+    var TICK = '<svg class="tp-dev-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'tp-dev-set'; btn.id = 'tp-dev-set';
+    btn.setAttribute('aria-label', 'Settings'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'tp-dev-menu');
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+    var menu = document.createElement('div');
+    menu.className = 'tp-dev-menu'; menu.id = 'tp-dev-menu'; menu.hidden = true;
+    menu.setAttribute('role', 'group'); menu.setAttribute('aria-label', 'Settings');
+    var links = [].map.call(document.querySelectorAll('.pv-side .pv-tabs a.pv-tab'), function (a) { // links only: Iterations is a placeholder
+      var href = a.getAttribute('href'), on = a.classList.contains('is-active');
+      if (phoneQ) href += (href.indexOf('?') > -1 ? '&' : '?') + 'phone';
+      return '<li><a class="tp-dev-item" href="' + href + '"' + (on ? ' aria-current="page"' : '') + '>' + a.textContent + (on ? TICK : '') + '</a></li>';
+    }).join('');
+    // Inside the viewer its own tabs switch prototype, so the menu leaves the list out
+    menu.innerHTML = document.documentElement.classList.contains('pv-framed') ? '' : '<p class="tp-dev-h" id="tp-dev-h">Switch prototype</p><ul class="tp-dev-list" aria-labelledby="tp-dev-h">' + links + '</ul><div class="tp-dev-sep" aria-hidden="true"></div>';
+    reset.className = 'tp-dev-item'; reset.removeAttribute('title'); reset.removeAttribute('aria-label');
+    reset.innerHTML = 'Reset prototype';
+    menu.appendChild(reset);
+    top.appendChild(btn); top.appendChild(menu);
+    var still = matchMedia('(prefers-reduced-motion: reduce)');
+    function open() {
+      menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
+      if (menu.animate) menu.animate(still.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: 'ease-out' });
+      var f = menu.querySelector('[aria-current="page"]') || menu.querySelector('.tp-dev-item'); f.focus({ preventScroll: true });
+    }
+    function close(back) {
+      if (menu.hidden) return;
+      menu.hidden = true; btn.setAttribute('aria-expanded', 'false');
+      if (back) btn.focus({ preventScroll: true });
+    }
+    btn.addEventListener('click', function () { if (menu.hidden) open(); else close(true); });
+    // Reset runs its own listeners (concepts-teams.js and the rest), then the menu closes with focus on the icon
+    reset.addEventListener('click', function () { close(true); });
+    document.addEventListener('pointerdown', function (e) { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false); }, true);
+    menu.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); return; }
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      var its = [].slice.call(menu.querySelectorAll('.tp-dev-item')), i = its.indexOf(document.activeElement);
+      e.preventDefault(); its[(i + (e.key === 'ArrowDown' ? 1 : its.length - 1)) % its.length].focus();
+    });
+    menu.addEventListener('focusout', function (e) { if (!menu.hidden && e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== btn) close(false); });
+  })();</script>
+<script>
+/* Pick your team: the countdown in the event line (320 days to go). Days to the opening match (hours, then minutes, on the day),
+   then that the tournament is under way, then that it has finished. Updates on the minute, lined up to the clock, and
+   stops while the tab is hidden. */
+(function () {
+  var boxes = [].slice.call(document.querySelectorAll('#tp-phone .tp-count')), box = boxes[0]; // Home's and the planner's
+  if (!box) return;
+  var start = Date.parse(box.dataset.start), end = Date.parse(box.dataset.end);
+  // For review: ?tp-now=<ISO date> shows the screen at that moment, and the clock runs on from there
+  var m = /[?&]tp-now=([^&]+)/.exec(location.search), offset = 0;
+  if (m) { var t = Date.parse(decodeURIComponent(m[1])); if (!isNaN(t)) offset = t - Date.now(); }
+  function n(v, one) { return v + ' ' + one + (v === 1 ? '' : 's'); }
+  var timer;
+  function tick() {
+    var now = Date.now() + offset, left = start - now, txt;
+    if (left > 0) {
+      var mins = Math.ceil(left / 60000);
+      txt = (mins >= 1440 ? n(Math.floor(mins / 1440), 'day') : mins >= 60 ? n(Math.floor(mins / 60), 'hour') : n(mins, 'minute')) + ' to go';
+      timer = setTimeout(tick, 60000 - (now % 60000) + 5);
+    } else {
+      txt = now < end ? 'Under way, final Sat 13 Nov' : 'The tournament is over';
+      if (now < end) timer = setTimeout(tick, Math.min(end - now + 1000, 3600000));
+    }
+    boxes.forEach(function (b) { if (b.textContent !== txt) b.textContent = txt; });
+  }
+  document.addEventListener('visibilitychange', function () { clearTimeout(timer); if (!document.hidden) tick(); });
+  tick();
+})();
+</script>
+<!-- Shared data, the same files as Options A to C (read only: nothing here changes them). cnFixtures and the rest
+     (concepts-fixtures.js), cnDestinations, cnGeo and cnMapPoi, TP_WORDS (it also renames Pool to Group on the phone),
+     TP_ARTICLES. -->
+<script src="concepts-destinations.js"></script>
+<script src="concepts-fixtures.js"></script>
+<script src="concepts-geo.js"></script>
+<script src="concepts-words.js"></script>
+<script src="concepts-articles.js"></script>
+<script src="concepts-social.js"></script>
+
+<!-- Version 2's own copies of the behaviour scripts Home needs (v2/README.md): the team cards, the host city sheets,
+     the map, the plan parts they lean on (kept out of reach for now) and Home itself. Never the concepts-*.js originals. -->
+<script src="v2/v2-teams.js"></script>
+<script src="v2/v2-third-half.js"></script>
+<script src="v2/v2-map.js"></script>
+<script src="v2/v2-plan.js"></script>
+<script src="v2/v2-home.js"></script><script src="v2/v2-onboard.js"></script>
+<script src="v2/v2-view.js"></script>
+<!-- Your plan, the simple saved list (24 Nov): the game's places, watch parties and kit colours are read here too, for the rows -->
+<script src="v2/drop-goal/places.js"></script><script src="v2/drop-goal/watch-parties.js"></script><script src="v2/drop-goal/kit.js"></script>
+<script src="v2/v2-saved.js"></script>
+<script src="v2/v2-social.js"></script>
+<script>
+/* Reset prototype and ?reset: clear every key this version saved (v2:, in both stores), leaving the viewer's own
+   settings and Options A to C alone, then reload as a first visit. */
+(function () {
+  function wipe() {
+    [localStorage, sessionStorage].forEach(function (st) {
+      try {
+        var gone = [];
+        for (var i = 0; i < st.length; i++) { var k = Storage.prototype.key.call(st, i); if (/^v2:/.test(k)) gone.push(k); }
+        // Called through the prototype's own key, as getItem and the rest add the v2: prefix themselves
+        gone.forEach(function (k) { st.removeItem(k.slice(3)); });
+      } catch (e) {}
+    });
+  }
+  if (/[?&]reset\b/.test(location.search)) {
+    wipe();
+    history.replaceState(null, '', location.pathname + location.search.replace(/([?&])reset\b&?/, '$1').replace(/[?&]$/, '') + location.hash);
+  }
+  var btn = document.getElementById('tp-reset');
+  if (btn) btn.addEventListener('click', function () { wipe(); location.reload(); });
+})();
+</script>
+
+<script>
+/* Annotations. Add one entry to NOTES per part built: sel finds it on the phone, title and points are the note. A
+   numbered badge hangs on each part that is on screen, and the list in the left panel matches. Call v2Notes() after
+   anything changes what is on screen. */
+(function () {
+  var NOTES = [
+    { sel: '#tp-home', title: 'Home', points: [
+      'Brought in from Options A to C on 24 Nov: the hero, Read before you go, Plan your 3rd half (the team cards), Where the matches are, Play, At a glance, the FAQs, updates, Share and the footer. Reordered for Version 2: the map now follows the team cards, and the three At a glance cards sit just above the FAQs, as a carousel on phones (one card with the next peeking, and dots). Version 2 has its own copies of the scripts, so a change here never reaches Options A to C.',
+      'Your plan (24 Nov): a simple saved list stands in for the planner. The day-by-day plan, Plan around your matches, and Add to my plan and I have a ticket on a match opened from a host city stay hidden. Picks are still kept.',
+      'Design: Every NSW match is not a choice in Version 2 (January brief): the I\u2019m just here for the rugby link is gone from Home, and a saved one counts as no team.',
+      'Wording: picking a team adds nothing to Your plan, so the cards say Tap a card to pick your team, then England picked: 3 matches, 2 in NSW.',
+      'Header: the host city lockup is far left, the Third Half logo beside it and the menu far right, on phones and on desktop. Your plan joins the menu in the header on desktop once something is added.',
+      'Add: every article in Read before you go, and the open article, has an Add button. A dot flies to the Your plan button, which bumps as its count goes up. Pressing Added takes it out again.'
+    ] },
+    { sel: '#v2-soc', title: 'Sydney on social', points: [
+      'Sydney on social (25 Nov 2026): a section above the FAQs, after At a glance, with stories and posts from our Sydney and a way to visit the accounts. It follows the practical content, so what helps someone decide comes first.',
+      'Stories: a ring for each account that has some (Instagram and TikTok here). A colour ring is not seen yet, grey is seen. Tapping one opens the stories over the whole phone: tap right for the next, left for the one before, hold to pause, or use Pause. Each lasts 5 seconds and the next account plays after the last. Close is top right; Escape closes; focus goes back to the ring.',
+      'Posts: a row of recent posts that scrolls sideways, the next one peeking. Tapping one opens it over the whole phone with its caption, date, View on Instagram or TikTok, and Visit the account.',
+      'Swipe: in the viewer, swipe or drag sideways to go to the next or previous post, or story (over to the next account at the end). The picture follows the finger, and carries on to the next one if you pass a quarter of the width or flick; otherwise it springs back. Posts also have Previous and Next buttons, and the arrow keys work, with the position said (post 2 of 6). Closing from a later post scrolls the row to it. On a phone the rows run to the screen edge, past the page margins.',
+      'Visit: a button for each account. The links are placeholders until the accounts are confirmed, so they say so and go nowhere.',
+      'Data: accounts, stories and posts are gap fields (contract section 21), invented sample content here. Empty states: no accounts hides the section, an account with no stories is a plain button with no ring, no posts hides the row.',
+      'Reduced motion: a story does not advance by itself and the progress bar is static; tap to move on.'
+    ] },
+    { sel: '#v2-menu-wrap', title: 'Menu', points: [
+      'In place of the three tabs, to be refined: Home goes to the top, Plan your 3rd half to that section of Home, and Play Drop Goal opens the game over the whole screen.',
+      'Try it: a tap outside, Escape or picking anything closes it, and focus goes back to the button. Arrow keys move through it.',
+      'Your plan shows here, with its count, once something is added.',
+      'For reviewers: Reset prototype sits in its own box at the foot of the menu, marked as not part of the design. It clears the team, the plan and the practice kick.'
+    ] },
+    { sel: '#tp-home-kick', title: 'Play now', points: [
+      'How to play: in place of the still, the game plays itself once: a ring marks each of the two taps, the words go Tap to drop, Tap to kick, Kick now, Goal, and a place shows between the posts. The line under it says the same in words. A tap on it opens the game.',
+      'Design: it plays once each time the section comes into view, then rests on Tap to drop. With a mouse, moving onto it plays it again. There is no Replay button: after a game it read as replay the game. Reduced motion: it stays still. It saves nothing and uses up no place.',
+      'Play now opens Drop goal over the whole screen, where the person is; the page behind does not move, and it is where it was when the game closes.',
+      'Try it: Back at the top left, Escape or the phone\u2019s back button closes the game, and focus goes back to Play now (or to Menu). Closing with a result card open puts the card away, so the game opens again on the pitch.',
+      'Or see all the places: a quieter second action beside Play now opens the list of places over the whole screen, without the pitch, the team screen or the practice kick, so nobody has to play to see them. No team is needed. Its cross, Escape and Back return to Home.',
+      'Address: ?view=kick opens the game once. It is taken off the address, so refreshing shows Home.'
+    ] },
+    { sel: '#v2-ob', title: 'Team screen', points: [
+      'Teams: a team is compulsory before playing, an agreed exception to asking for as little as possible (CLAUDE.md, experience principle 2), because what a goal lands on depends on the team. With any team picked on Home this screen is not shown, and the first one picked is the kicker. With none, it comes first by every route (Play now, the menu, the how-to-play picture, ?view=kick).',
+      'Try it: one tap. Tapping a card picks that team, Kicking for [team] shows for about half a second, and the pitch opens. There is no Continue and nothing to confirm. No team? Pick the one you\u2019d like to follow.',
+      'Design: the cards are Home\u2019s own and sit on the pitch. Here a tap only ever chooses, so the caption and Clear all stay on Home.',
+      'Change: on the pitch, Kicking for [team] \u00b7 Change opens this screen again. A tap makes that team the kicker and keeps any other teams picked on Home.'
+    ] },
+    { sel: '.v2-pb', title: 'Your plan', points: [
+      'A simple saved list (24 Nov): places and watch parties added in Drop goal, and articles added from Read before you go. No days, matches, map or sign-in. Picking a team adds nothing.',
+      'The button appears with the first add and goes when the list is empty. On phones it is pinned bottom right on Home and in articles; on desktop it sits in the header beside Menu. Inside the game it is not shown.',
+      'Try it: each row has a picture or poster, the name, one line (what it fits around; the match and where for a watch party; category and read time for an article) and Remove. Remove takes the row out at once and offers Undo for 8 seconds. Clear all asks first, and can be undone.',
+      'Save & share drills down inside the sheet: Copy plan (plain text, or worded for an AI assistant), Email (the send is pretend), Add to maps, Add to calendar (watch parties only, the one kind with a date), Download table and Copy for a spreadsheet.',
+      'Sheet: the cross closes it, Escape and the grabber go back one step, and a tap outside closes it. On the Clear all step a tap outside only cancels.',
+      'Empty: one line on how to add, with Play now and Or see all the places (Back to the game when it is opened over the game).',
+      'Open question: a place with no team picked, or with no match in its city, says A free day around Sydney, which reads oddly in a plan.'
+    ] },
+    { sel: '#v2-play', title: 'Drop goal', points: [
+      'Design: styled to docs/drop-goal-style.png: the kick screen (right) and the result screen (left). On phones the nation table sits under the logo. After a goal on a phone the card slides up and pushes the field off the top in one movement, leaving Kick again alone at the top; from 700px wide the posts and the framed place sit beside the card.',
+      'Practice kick: the first time the pitch is shown, and from the ? beside the close cross. Tap to drop, the ball drops and stops at the bounce with the bar\u2019s marker in the yellow KICK zone, Tap now to kick, and it goes through at normal speed. Then: You\u2019ve got it. This time it won\u2019t wait: tap as it bounces. It replaces the rules screen and its picture. Nothing in it is timed, it can be skipped, and it does not count: no place, no +3, nothing used from the rotation.',
+      'Try it: tap, click, Space or Enter drops the ball, and again kicks it as it bounces. The call to act follows the taps: Tap to drop, Tap to kick, then Kick now (yellow) while a kick would score, in step with the bar\u2019s KICK zone. Early goes wide, late falls short, and one tap alone says No kick. A miss on the first real kick is the game\u2019s own miss line.',
+      'Wording: with a mouse the game says Click wherever it says Tap: the calls to act, the hints, the miss lines and the practice kick.',
+      'Practice kick, quieter (24 Nov): while it is on, the nation table, Kicking for [team] and How to play are hidden, and fade in when the game is ready. A second press before the bounce says Too soon. Wait for the bounce, then tap. Left waiting two seconds it says Too late: in the game it won\u2019t wait. Tap now. The kick still goes through either way.',
+      'Back, not a cross: the game has Back with an arrow at the top left, and How to play at the top right. On phones, while a result card is up, Back steps aside and the card has its own close cross, which does what Kick again does.',
+      'The reveal: a place with no picture shows its name on the team\u2019s colour between the posts, and as a poster in the card\u2019s picture space. Stand-in pictures are marked as stand-ins.',
+      'The caption above the bar is typed out quickly each time it changes, to draw the eye. Reduced motion shows it at once.',
+      'See the places is not offered inside the game: Home has Or see all the places. The buttons say Add and Added, the same word as the articles.',
+      'Design: at rest, the line above the bar says what a goal lands on for this team (a place near where they play, or their watch party). It is the one place everyone sees it, now the rules screen is gone.',
+      'Design: the kick window opens as the ball lands and stays open for 0.3s (card 10\u2019s was 0.2s, starting just before the bounce, so a tap reacting to the bounce always came up short).',
+      'Places: the first picked team, the kicker, decides what a goal lands on. A team that plays in NSW: towns and things to do near where it plays (Sydney, Newcastle, or both, two from the next match\u2019s city for every one from the other), with its next NSW match beside the place (teams, date, kick-off, stadium, from the fixtures). No place repeats until every place in the set has been shown.',
+      'Watch parties: a team with no match in NSW (Argentina, Canada, Chile, Hong Kong China, Scotland, South Africa, Tonga, USA, Zimbabwe): a goal lands on one of its watch parties in NSW, on the same card. FITS is the match being screened, TRAVEL is where it is, and one line under them says the later rounds are in NSW if the team gets through. Each watch party once before any repeat. See the places lists that team\u2019s watch parties.',
+      'Data: watch parties are invented for the prototype (v2/drop-goal/watch-parties.js, contract \u00a720, every field gap), one in Sydney and one in Newcastle for each of the nine teams, at public precincts and fan sites only. All of it is sample, in pink.',
+      'Open question: a watch party is tied to one match, so its card goes stale once that match has passed. Not solved; for the team.',
+      'Remembered: Add writes Version 2\u2019s own saved state under v2:, and it shows in Your plan. After an add the card says [n] added \u00b7 Your plan, which opens the plan over the game. Reset prototype clears it.',
+      'Data: places are \u00a719 destinations in v2/drop-goal/places.js, every field gap. Descriptions come from the destination pages where there is one; the rest, the tags, the travel estimates and stand-in pictures are sample, in pink. FITS is worked out from the fixtures.',
+      'Teams: the teams picked on Home go to the game; the first one kicks. Every kicker has a team: the Third Half kit is gone, and Home\u2019s animation wears the picked team\u2019s kit, or Australia\u2019s before anyone has picked.',
+      'Keyboard: Space or Enter plays; Tab goes to Kicking for [team] \u00b7 Change, then Share the table. Escape closes the result.',
+      'Screen readers: the pitch\u2019s label explains the two taps. A live region says each practice prompt, each goal (the place, the points and where the team now sits on the table), each miss and why, each save and Share the table. The table reads as \u201c5, Portugal (your team), 41 points\u201d.',
+      'Design: contrast is WCAG 2.2 AA. The pitch is a shade darker than the reference so the large cream type and the timing bar reach 3:1, the small lines on the pitch sit on dark chips (4.5:1), the bar\u2019s inside is dark so the yellow KICK zone stands out, and GOAL is cream with a yellow underline.',
+      'Reduced motion: the ball still drops, as the timing needs it, but there is no flight, frame, +3 pop or card transition: the result opens straight away.'
+    ] }
+  ];
+  var phone = document.getElementById('tp-phone'), stage = document.getElementById('tp-stage');
+  var box = document.getElementById('cn-notes'), list = document.getElementById('cn-notes-list'), toggle = document.getElementById('cn-notes-toggle');
+  var todo = document.getElementById('cn-notes-todo');
+  var on = false;
+  try { on = localStorage.getItem('tp-annotations') === 'on'; } catch (e) {}
+  var LEADS = /^(Data|Not built yet|Open question|Test|Try it|Design|Keyboard|Screen readers|Reduced motion|Empty state|Edge case|Phones|Desktop|Wording|Prototype only): /;
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function render() {
+    phone.querySelectorAll('.cn-badge').forEach(function (b) { b.remove(); });
+    phone.querySelectorAll('.cn-badge-host').forEach(function (h) { h.classList.remove('cn-badge-host'); });
+    toggle.setAttribute('aria-checked', on ? 'true' : 'false');
+    box.hidden = !on; stage.classList.toggle('has-notes', on);
+    if (!on) return;
+    var n = 0, html = '';
+    NOTES.forEach(function (it) {
+      var el = phone.querySelector(it.sel);
+      if (!el || el.offsetParent === null) return;
+      n++;
+      if (getComputedStyle(el).position === 'static') el.classList.add('cn-badge-host');
+      var b = document.createElement('span');
+      b.className = 'cn-badge'; b.setAttribute('aria-hidden', 'true'); b.dataset.n = n; b.textContent = n;
+      el.appendChild(b);
+      var pts = it.points.map(function (p) { var m = LEADS.exec(p); return '<li>' + (m ? '<strong>' + esc(m[1]) + ':</strong> ' + esc(p.slice(m[0].length)) : esc(p)) + '</li>'; }).join('');
+      html += '<li data-n="' + n + '"><span class="cn-num" aria-hidden="true">' + n + '</span><div><button type="button" class="cn-note-go" title="Show on the phone">' + esc(it.title) + '</button><ul class="cn-note-points">' + pts + '</ul></div></li>';
+    });
+    list.innerHTML = html;
+    todo.hidden = true;
+  }
+  toggle.addEventListener('click', function () {
+    on = !on;
+    try { localStorage.setItem('tp-annotations', on ? 'on' : 'off'); } catch (e) {}
+    render();
+  });
+  // A note's title scrolls the phone to its part
+  list.addEventListener('click', function (e) {
+    var go = e.target.closest('.cn-note-go'); if (!go) return;
+    var b = phone.querySelector('.cn-badge[data-n="' + go.closest('li').dataset.n + '"]'); if (!b) return;
+    b.parentElement.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+  window.v2Notes = render;
+  setTimeout(render, 0);
+})();
+</script>
+<script>
+/* One line each: the slogan's two sentences and the event line's two lines never wrap. Each starts at its own size
+   (slogan 31px, event line 14px, the B2 brief) and steps down just enough when its widest line would not fit the copy
+   column, so it holds at 360px, at 320px, and with whatever system font the wireframe falls back to. This breaks the
+   type scale on purpose. Runs again when the width changes, whenever a font finishes loading, and when the countdown's
+   text changes (Under way, final Sat 13 Nov is longer than 319 days to go). */
+// The planner's hero and Home's event line (19 Nov) each fit their own column
+[].forEach.call(document.querySelectorAll('#tp-phone .tp-hero-copy, #tp-phone .tp-home-hero-copy'), function (col) {
+  var SETS = [['#tp-hero-title', '.tp-slogan-1, .tp-slogan-2'], ['.tp-event', '.tp-event-l']];
+  var stale = false; // a fit was asked for while the column was hidden: do it when the column shows again
+  function fit() {
+    if (!col.clientWidth) { stale = true; return; } // the planner is hidden (another section is showing)
+    stale = false;
+    var cs = getComputedStyle(col), room = col.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    SETS.forEach(function (set) {
+      var t = col.querySelector(set[0]); if (!t) return;
+      // Measured at its full size straight away: with reduced motion every property in the phone transitions over 1ms,
+      // font size included, so without this the lines were measured at the old, smaller size and never refitted
+      var still = [t].concat([].slice.call(t.querySelectorAll('*')));
+      still.forEach(function (el) { el.style.transitionProperty = 'none'; });
+      t.style.fontSize = '';
+      var lines = [].slice.call(t.querySelectorAll(set[1])).filter(function (l) { return l.offsetParent; });
+      var widest = Math.max.apply(null, lines.map(function (l) { return l.getBoundingClientRect().width; }));
+      if (widest > room) t.style.fontSize = (parseFloat(getComputedStyle(t).fontSize) * room / widest * 0.99).toFixed(2) + 'px';
+      void t.offsetWidth;
+      still.forEach(function (el) { el.style.transitionProperty = ''; });
+    });
+  }
+  fit();
+  // Only a change of width can make a line wrap; refitting on height changes (its own) would loop and nudge the page
+  var lastW = col.clientWidth;
+  // 0 while the planner is hidden: nothing to fit then. On return it refits only if a fit was skipped while it was
+  // hidden (the fonts loaded meanwhile), so it does not shift the page on every return
+  if (window.ResizeObserver) new ResizeObserver(function () { var w = col.clientWidth; if (w && (w !== lastW || stale)) { lastW = w; fit(); } }).observe(col);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  // A font used only on a hidden tab starts loading when that tab first shows, after fonts.ready has settled, so the
+  // line could stay fitted to the fallback font: refit whenever a font finishes loading too
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fit);
+  var count = col.querySelector('.tp-count');
+  if (count && window.MutationObserver) new MutationObserver(fit).observe(count, { childList: true, characterData: true, subtree: true });
+});
+</script>
+<script>
+/* Photo details (B2 step 5). Each tile in the hero's photo row opens the panel with its own picture and placeholder copy.
+   The panel slides up (and back down) with an even curve; everything behind waits (inert) while it is open; Tab stays
+   inside; the dark layer, the close button and Escape close it, and focus goes back to the tile that opened it. */
+(function () {
+  var phone = document.getElementById('tp-phone'), ph = document.getElementById('tp-ph'), scrim = document.getElementById('tp-ph-scrim');
+  if (!phone || !ph) return;
+  var PHOTOS = {
+    stadium: { where: '[Suburb, Sydney]', img: 'hero-stadium', alt: 'Stadium photo', title: '[Stadium name]' },
+    coast: { where: '[Town, NSW region]', img: 'hero-coast', alt: 'Ocean photo', title: '[Place name]' },
+    photo3: { where: '[Town, NSW region]', img: 'coast-aerial', alt: 'Photo 3', title: '[Place name]' },
+    photo4: { where: '[Town, NSW region]', img: 'village', alt: 'Photo 4', title: '[Place name]' }
+  };
+  var TEXT = '[One or two lines about this place and how it fits around a match day.]', GO = '[See this place]';
+  var opener = null, behind = [], img = document.getElementById('tp-ph-img');
+  var still = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  function open(key, from) {
+    var d = PHOTOS[key]; if (!d) return;
+    opener = from;
+    document.getElementById('tp-ph-where').textContent = d.where;
+    document.getElementById('tp-ph-title').textContent = d.title;
+    document.getElementById('tp-ph-p').textContent = TEXT;
+    document.getElementById('tp-ph-go').textContent = GO;
+    // A fresh element each time, so the high fidelity theme paints the new picture (it paints elements as they arrive)
+    var fresh = img.cloneNode(false);
+    fresh.setAttribute('aria-label', d.alt); fresh.setAttribute('data-img', d.img); fresh.style.backgroundImage = '';
+    fresh.innerHTML = from.querySelector('svg') ? from.querySelector('svg').outerHTML : '';
+    img.replaceWith(fresh); img = fresh;
+    behind = [phone.querySelector('.cn-body'), document.getElementById('tp-tl'), document.getElementById('tp-skip')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    scrim.hidden = false; ph.hidden = false;
+    if (!still() && ph.animate) {
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 280, easing: 'ease-out' });
+      ph.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.4, 0, .2, 1)' });
+    }
+    ph.querySelector('[data-ph-close]').focus({ preventScroll: true });
+  }
+  function close() {
+    if (ph.hidden) return;
+    behind.forEach(function (p) { p[0].inert = p[1]; }); behind = [];
+    function done() { ph.hidden = true; scrim.hidden = true; }
+    if (!still() && ph.animate) {
+      scrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in' });
+      ph.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)' }).onfinish = done;
+    } else done();
+    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    opener = null;
+  }
+  phone.addEventListener('click', function (e) {
+    var t = e.target.closest('.tp-photo[data-photo]');
+    if (t) { open(t.dataset.photo, t); return; }
+    if (e.target.closest('[data-ph-close]')) close();
+  });
+  scrim.addEventListener('click', close);
+  ph.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key !== 'Tab') return;
+    var f = [].slice.call(ph.querySelectorAll('button')), i = f.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+  });
+})();
+</script>
+<script>
+/* Peek and reveal (Figma 337:40429). The real layout is the finished one: heading, its line and the Find / Grid / Plays
+   in NSW row, then the cards, so reading and Tab order never change. At the top of the page the cards are drawn up by
+   D to peek PEEK px under the hero's last line (there is no hero button: the cards are the way in), and the intro is
+   faded out behind them. Over the first D pixels of scroll, p goes from 0 to 1: the cards come down exactly as fast as the page goes up,
+   so they hold still on screen, while the intro fades in and rises 16px into place from behind them. Scrolling back
+   reverses it. On load at the top, the peek glides up into view once. Reduced motion: the finished layout, no peek.
+   Focus landing in the intro before it is out (Tab, Find) scrolls the page just far enough to show it whole. */
+(function () {
+  var phone = document.getElementById('tp-phone'); if (!phone) return;
+  var body = phone.querySelector('.cn-body'), pick = document.getElementById('tp-pick'), picker = document.getElementById('tp-picker');
+  // Only the utility row rises from behind the cards now; the heading above them stays in view (17 Nov)
+  var intro = [document.getElementById('tp-util')].filter(Boolean);
+  if (!body || !picker || !intro.length) return;
+  // PEEK: the gap between the hero's last line and the cards at the top of the page (Figma 344:42858, on the 4px
+  // scale). It is set apart from the heading's own 44px break, so the cards sit close under the hero while the heading,
+  // once out, still has room above it.
+  var heroCopy = document.getElementById('tp-pick-title'), PEEK = 16; // the cards rest 16px under the heading
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)'), D = 0, raf = 0;
+  function measure() { D = Math.max(0, picker.offsetTop - (heroCopy ? heroCopy.offsetTop + heroCopy.offsetHeight + PEEK : intro[0].offsetTop)); }
+  function apply() {
+    raf = 0;
+    // Option C has no peek: a step's question, or the Your answers card, sits above the cards
+    var p = reduce.matches || !D || pick.offsetParent === null || document.documentElement.getAttribute('data-flow') === 'c' ? 1 : Math.max(0, Math.min(1, body.scrollTop / D));
+    picker.style.transform = p < 1 ? 'translateY(' + (-(1 - p) * D).toFixed(1) + 'px)' : '';
+    intro.forEach(function (el) {
+      el.style.opacity = p < 1 ? p.toFixed(3) : '';
+      el.style.transform = p < 1 ? 'translateY(' + ((1 - p) * 16).toFixed(1) + 'px)' : '';
+    });
+    pick.classList.toggle('is-peek', p < 1);
+    pick.classList.toggle('is-hidden-intro', p < 0.5);
+  }
+  function soon() { if (!raf) raf = requestAnimationFrame(apply); }
+  measure(); apply();
+  body.addEventListener('scroll', soon, { passive: true });
+  reduce.addEventListener('change', apply);
+  if (window.ResizeObserver) new ResizeObserver(function () { measure(); soon(); }).observe(pick);
+  if (window.MutationObserver) new MutationObserver(function () { measure(); soon(); }).observe(phone, { attributes: true, attributeFilter: ['data-fc'] });
+  // Focus in the intro while it is still behind the cards: bring it fully out
+  intro.forEach(function (el) { el.addEventListener('focusin', function () { measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
+  // The peek glides up into view once, on arrival at the top of the page
+  if (!reduce.matches && body.scrollTop < 4 && picker.animate && document.documentElement.getAttribute('data-flow') !== 'c') picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
+})();
+</script>
+<script src="vendor/qrcode.js"></script>
+<script src="pv-device.js"></script>
+<script>
+/* Marker tooltips (22 Nov), desktop only (a mouse that can hover): hovering a marker on the Your days slider, the plan
+   bar's strip or the open plan's axis shows what it marks. The text is the marker's data-tip (set where it is drawn),
+   or for the axis markers their own label. Touch screens never see it; screen readers already hear the labels. */
+(function () {
+  var mq = matchMedia('(hover: hover) and (pointer: fine)'), phone = document.getElementById('tp-phone');
+  if (!phone) return;
+  var tip = document.createElement('div'), on = null;
+  tip.className = 'tp-hovertip'; tip.setAttribute('aria-hidden', 'true'); tip.hidden = true;
+  document.body.appendChild(tip);
+  function textOf(el) { return el.getAttribute('data-tip') || (el.classList.contains('tp-tl-mk') ? el.getAttribute('aria-label') : '') || ''; }
+  function hide() { on = null; tip.hidden = true; }
+  function show(el) {
+    var t = textOf(el); if (!t) { hide(); return; }
+    on = el; tip.textContent = t; tip.hidden = false;
+    var r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    var x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)), y = r.top - h - 8;
+    if (y < 8) y = r.bottom + 8; // no room above: below the marker
+    tip.style.left = Math.round(x) + 'px'; tip.style.top = Math.round(y) + 'px';
+  }
+  phone.addEventListener('pointerover', function (e) {
+    if (!mq.matches || e.pointerType === 'touch') return;
+    var el = e.target.closest('[data-tip], .tp-tl-mk'); if (!el || !phone.contains(el)) { if (on) hide(); return; }
+    if (el !== on) show(el);
+  });
+  phone.addEventListener('pointerout', function (e) { if (on && (!e.relatedTarget || !on.contains(e.relatedTarget))) hide(); });
+  ['pointerdown', 'scroll', 'keydown'].forEach(function (ev) { document.addEventListener(ev, function () { if (on) hide(); }, true); });
+})();
+</script>
+<!-- Desktop website only, low fidelity theme only: a tab in the window's top left corner saying what this is -->
+<div class="pv-fidelity-tab" aria-hidden="true">Low fidelity prototype</div>
+</body>
+</html>

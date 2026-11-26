@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="hifi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+<title>Version 1, archived 26 Nov 2026 · RWC prototypes</title>
+<!-- ARCHIVED COPY (2026-11-26, from commit a6e5550). Never edit this folder; see ../../index.html and CLAUDE.md.
+     This is the prototype viewer cut down to Version 1 alone: the other tab and its frame are taken out, and the
+     line under the tab says it is archived. Archive only: scripts/restore-archive.mjs never copies it back.
+     The prototype viewer (25 Nov 2026): Version 1 and Version 2 as tabs of one page. Each version is still its own
+     page, shown in a frame: prototype-pick-your-team-v1-frame.html (was this address; Options A and B are archived, see
+     docs/archive-options-a-b.md) and prototype-pick-your-team-v2-frame.html (the old Version 2 address redirects here).
+     Nothing of either version is shared or merged. ?version=1 (default) or ?version=2 picks the tab; every other flag
+     (?phone, ?theme, ?reset, ?view, ?team) and the #hash go on to the version shown. ?flow=a or ?flow=c is dropped:
+     Version 1 is what was Option C. Both frames stay loaded once opened, so a tab keeps its place when you come back.
+     Version 1 is full functionality, Version 2 is reduced: the tabs say so, and a line under them says what each has. -->
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="themes/hifi.css" />
+<style>
+  html, body { height: 100%; margin: 0; }
+  .sh-page { --sh-bar: 0px; --sh-off: 0px; position: relative; padding: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #fff; color: #1a1a1a; }
+  /* The bar sits over the stage, and the frames start below it (--sh-bar, set by the script). On a phone the bar moves
+     with the scrolling: it rises by as much as the page rises (--sh-off, the distance it has gone up, set on every scroll)
+     and comes back as soon as the page is scrolled down again, and the frame's top moves with it. There is no timed slide
+     while scrolling. When scrolling stops part way it settles fully shown or fully hidden (is-settling, a short ease) */
+  .sh-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2; background: #fff; border-bottom: 1px solid #d1d1d1; transform: translateY(calc(-1 * var(--sh-off))); }
+  @media (prefers-reduced-motion: no-preference) {
+    .sh-page.is-settling .sh-bar { transition: transform .18s cubic-bezier(.4, 0, .2, 1); }
+    .sh-page.is-settling .sh-frame { transition: top .18s cubic-bezier(.4, 0, .2, 1), height .18s cubic-bezier(.4, 0, .2, 1); }
+  }
+  .sh-tabs { display: flex; gap: var(--space-2); padding: var(--space-3) var(--space-4) var(--space-2); }
+  .sh-tab { flex: 1 1 0; max-width: 240px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-1); min-height: 52px; padding: var(--space-2) var(--space-3); box-sizing: border-box; border: 1px solid #2666d9; border-radius: 12px; background: #fff; color: #2666d9; font-size: .875rem; line-height: 1.2; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
+  .sh-tab.is-active { background: #2666d9; color: #fff; }
+  @media (hover: hover) { .sh-tab:not(.is-active):hover { background: #f2f6fd; } }
+  .sh-tab:focus-visible { outline: 2px solid #005EA2; outline-offset: 2px; }
+  .sh-tag { display: inline-block; padding: 1px var(--space-2); border-radius: var(--radius-pill); font-size: .6875rem; line-height: 1.5; white-space: nowrap; }
+  .sh-tag--full { background: #dff3e5; color: #0b5d2a; }
+  .sh-tag--reduced { background: #ffefc7; color: #6a4200; }
+  .sh-note { margin: 0; padding: 0 var(--space-4) var(--space-3); font-size: .8125rem; line-height: 1.4; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (min-width: 900px) {
+    /* A window that shows the viewer (the version's left panel and its phone): the bar sits over the top of the version's
+       own left panel, which leaves room for it (--pv-shell-room, set in the frame), so it takes nothing from the phone's height */
+    body:not(.sh-device) .sh-bar { right: auto; width: 460px; border-right: 1px solid #d1d1d1; }
+    body:not(.sh-device) .sh-frame { top: 0; height: 100%; }
+    body:not(.sh-device) .sh-tabs, body:not(.sh-device) .sh-note { padding-inline: var(--space-6); } /* in line with the panel's text */
+    /* A phone view (?phone) fills its window, so the bar is one short row above it */
+    body.sh-device .sh-bar { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-2) var(--space-6); }
+    body.sh-device .sh-tabs { flex: none; padding: 0; }
+    body.sh-device .sh-tab { flex: none; flex-direction: row; align-items: center; gap: var(--space-2); max-width: none; min-height: 36px; padding: 0 var(--space-4); }
+    body.sh-device .sh-note { flex: 1 1 auto; min-width: 0; padding: 0; }
+  }
+  @media (min-width: 900px) and (max-width: 960px) { body:not(.sh-device) .sh-bar { width: 360px; } body:not(.sh-device) .sh-tabs, body:not(.sh-device) .sh-note { padding-inline: var(--space-4); } } /* the panel is narrower here */
+  .sh-stage { position: absolute; inset: 0; }
+  .sh-frame { position: absolute; top: calc(var(--sh-bar) - var(--sh-off)); left: 0; width: 100%; height: calc(100% - var(--sh-bar) + var(--sh-off)); border: 0; background: #fff; } /* an iframe does not stretch between top and bottom, so it has its height */
+  /* The version not showing stays loaded, at full size, so it keeps its place and is never re-measured */
+  .sh-frame[inert] { visibility: hidden; }
+</style>
+</head>
+<body class="sh-page">
+<script>document.body.classList.toggle('sh-device', /[?&]phone\b/.test(location.search) || matchMedia('(pointer: coarse) and (max-width: 500px)').matches); // as the version decides (pv-device.js)</script>
+<header class="sh-bar">
+  <nav class="sh-tabs" aria-label="Prototypes">
+    <a class="sh-tab" href="?version=1" data-version="1">Version 1<span class="sh-tag sh-tag--full">Full functionality</span></a>
+  </nav>
+  <p class="sh-note" id="sh-note"></p>
+</header>
+<main class="sh-stage">
+  <iframe class="sh-frame" id="sh-f1" title="Version 1: Pick your team, full functionality" data-src="prototype-pick-your-team-v1-frame.html"></iframe>
+</main>
+<script>(function () {
+  var NOTE = { 1: "Archived 26 Nov 2026. A frozen copy." };
+  var tabs = [].slice.call(document.querySelectorAll('.sh-tab')), note = document.getElementById('sh-note');
+  var frames = { 1: document.getElementById('sh-f1') }, NS = [1];
+  var first = 1, hash = location.hash;
+  // Every flag except the tab and the retired ?flow goes on to the version shown, with the #hash on the first one
+  function rest() { return location.search.slice(1).split('&').filter(function (x) { return x && !/^(version|flow)=/.test(x); }); }
+  function load(n) {
+    var f = frames[n];
+    if (f.getAttribute('src')) return;
+    f.setAttribute('src', f.getAttribute('data-src') + (rest().length ? '?' + rest().join('&') : '') + (n === first ? hash : ''));
+  }
+  // The bar moves with the scrolling, only where a version fills the screen (a phone, or ?phone: the frame's html has
+  // pv-device): it rises by as much as the page does and comes back as soon as the page goes down again. The scrolling is
+  // the page's own body (.tp-body) inside the frame, so each frame's document is watched, again whenever it loads (Reset
+  // reloads it). At the top of the page the bar is always fully shown. A scroll that only follows the frame growing (it
+  // can move the page by itself, at the foot) is not the person scrolling back up, so it is ignored.
+  var page = document.body, bar = document.querySelector('.sh-bar'), barH = 0, off = 0, current = first, last = 0, settleT = 0, lastShift = 0, lastShiftDir = 0, lastShiftAt = 0;
+  // In a window that shows the viewer the bar sits over the top of the version's left panel, and the version leaves room
+  // for it: the frame reads this when it loads (window.pvShellRoom) and it is kept up to date here
+  var wide = matchMedia('(min-width: 900px)');
+  function room() { return !page.classList.contains('sh-device') && wide.matches ? bar.offsetHeight : 0; }
+  window.pvShellRoom = room;
+  function syncRoom() { NS.forEach(function (n) { try { frames[n].contentDocument.documentElement.style.setProperty('--pv-shell-room', room() + 'px'); } catch (e) {} }); }
+  function measure() { barH = bar.offsetHeight; page.style.setProperty('--sh-bar', barH + 'px'); if (off > barH) setOff(barH); syncRoom(); }
+  wide.addEventListener('change', syncRoom);
+  function setOff(v) {
+    v = Math.max(0, Math.min(barH, v));
+    if (v === off) return;
+    lastShift = Math.abs(v - off); lastShiftDir = v > off ? 1 : -1; lastShiftAt = Date.now();
+    off = v; page.style.setProperty('--sh-off', off + 'px');
+    bar.inert = off >= barH - 1; // out of reach while it is out of sight
+  }
+  // When scrolling stops with the bar part way, it settles to whichever end is nearer
+  function settle() {
+    if (off <= 0 || off >= barH) return;
+    page.classList.add('is-settling'); setOff(off > barH / 2 ? barH : 0);
+    setTimeout(function () { page.classList.remove('is-settling'); }, 240);
+  }
+  var hasEnd = 'onscrollend' in window; // browsers without scrollend settle after a short pause instead
+  // Each version's page reports its scrolling here from its own head (the frame's pv-framed script), so nothing is missed
+  // while it loads. Only the page's own body (.tp-body) counts, and only in a phone view (pv-device)
+  window.pvShellScroll = function (win, t, type) {
+    var n = frames[1].contentWindow === win ? 1 : 0;
+    if (!n || n !== current || !t || !t.classList || !t.classList.contains('tp-body') || !win.document.documentElement.classList.contains('pv-device')) return;
+    if (type === 'scrollend') { // settle once the scrolling has ended (the finger is off and any glide is over), after a short quiet: a step of a wheel or a key can end and the next begin straight away
+      clearTimeout(settleT); settleT = setTimeout(settle, 120); return;
+    }
+    var y = Math.max(0, t.scrollTop), d = y - last;
+    last = y;
+    if (!d) return;
+    // At the foot of the page the frame growing can pull the page up by exactly what it grew: that is not the person scrolling up
+    if (d < 0 && lastShiftDir > 0 && Date.now() - lastShiftAt < 150 && Math.abs(-d - lastShift) <= 1 && t.scrollTop + t.clientHeight >= t.scrollHeight - 2) return;
+    page.classList.remove('is-settling');
+    if (y === 0) setOff(0); else setOff(off + d); // 1 to 1: down hides, up shows
+    clearTimeout(settleT);
+    if (!hasEnd) settleT = setTimeout(settle, 200);
+  };
+  NS.forEach(function (n) { frames[n].addEventListener('load', syncRoom); });
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(bar);
+  measure();
+  function show(n) {
+    current = n; clearTimeout(settleT); page.classList.remove('is-settling'); setOff(0); lastShiftAt = 0;
+    try { var b = frames[n].contentDocument.querySelector('.tp-body'); last = b ? b.scrollTop : 0; } catch (e) { last = 0; }
+    load(n);
+    NS.forEach(function (k) { frames[k].inert = k !== n; frames[k].setAttribute('aria-hidden', k === n ? 'false' : 'true'); });
+    tabs.forEach(function (a) {
+      var on = Number(a.getAttribute('data-version')) === n;
+      a.classList.toggle('is-active', on);
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    note.textContent = NOTE[n];
+    try { history.replaceState(history.state, '', location.pathname + '?' + ['version=' + n].concat(rest()).join('&') + (n === first ? hash : '')); } catch (e) {}
+  }
+  tabs.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return; // open in a new tab as usual
+      e.preventDefault();
+      show(Number(a.getAttribute('data-version')));
+    });
+  });
+  show(first);
+})();</script>
+</body>
+</html>
