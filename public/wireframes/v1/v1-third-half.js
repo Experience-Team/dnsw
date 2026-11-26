@@ -41,6 +41,8 @@
   var ask = document.getElementById('tp-ask'), tripEl = document.getElementById('tp-third-trip');
   if (!watchList || !thirdList || !ask) return;
 
+  // The suburb or venue a watch venue shows under (26 Nov 2026): never a region label such as North Shore. From v1-fanspots.js (sample)
+  function spPlace(sp) { var f = window.v1FanByName && window.v1FanByName(sp.name); return f ? f.suburb : sp.place; }
   var SPOT_TYPE = { fan_zone: 'Fan zone', village: 'Village', pub: 'Pub', club: 'Club' }, SPOT_ORDER = { fan_zone: 0, village: 1, pub: 2, club: 3 };
   var PTYPE = { food_and_drink: 'Food and drink', attraction: 'Attraction', tour: 'Tour', event: 'Event', hire: 'Hire', accommodation: 'Accommodation' };
   var WD = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -149,7 +151,7 @@
   function spotItem(sp, m) {
     var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
     var open = sp.open_from && sp.open_to ? 'Open daily, ' + tp.isoRange(sp.open_from, sp.open_to) : '';
-    ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: sp.place, note: open, day: m.f.d, matchName: matchName(m.f) };
+    ITEMS[id] = { id: id, kind: sp.type === 'village' ? 'place' : 'screening', title: sp.name, kindLabel: SPOT_TYPE[sp.type] || 'Screening', place: spPlace(sp), note: open, day: m.f.d, matchName: matchName(m.f) };
     MODAL[id] = { type: 'spot', sp: sp, m: m };
     return id;
   }
@@ -256,10 +258,10 @@
     return '<ul class="tp-wv">' + vs.map(function (c) {
       var showing = ms.filter(function (m) { return shows(c.sp, m); }), m0 = showing[0];
       var id = 'w:' + c.j + ':' + keyBase;
-      ITEMS[id] = { id: id, kind: 'screening', title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', place: c.sp.place, note: '', day: m0.f.d, matchName: showing.map(function (m) { return matchName(m.f); }).join(' and ') };
+      ITEMS[id] = { id: id, kind: 'screening', title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', place: spPlace(c.sp), note: '', day: m0.f.d, matchName: showing.map(function (m) { return matchName(m.f); }).join(' and ') };
       MODAL[id] = { type: 'spot', sp: c.sp, m: m0 };
       var what = two ? (c.all ? (ms.length > 2 ? 'Shows all ' + ms.length : 'Shows both') : 'Shows ' + matchName(m0.f) + ' only') : '';
-      return venueRow(id, c.sp.name, esc(SPOT_TYPE[c.sp.type] || 'Screening') + ' · ' + esc(c.sp.place) + (what ? ' · <strong>' + esc(what) + '</strong>' : ''),
+      return venueRow(id, c.sp.name, esc(SPOT_TYPE[c.sp.type] || 'Screening') + ' · ' + esc(spPlace(c.sp)) + (what ? ' · <strong>' + esc(what) + '</strong>' : ''),
         addBtn(id, c.sp.name + ', ' + ITEMS[id].matchName + ' on ' + m0.f.d));
     }).join('') + '</ul>';
   }
@@ -1174,12 +1176,17 @@
     var others = tp.userMatches().filter(function (m) { return m.key !== x.m.key && Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }).length;
     h += '<div class="plan-modal-img ph-img"' + imgKey(sp.name) + ' role="img" aria-label="' + esc(IMG(sp.name)) + '"></div><div class="plan-modal-body">';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(sp.name) + '</h2>';
-    h += '<p class="cn-pp-venue provenance-gap">' + esc(sp.place) + '</p>';
+    h += '<p class="cn-pp-venue provenance-gap">' + esc(spPlace(sp)) + '</p>';
     h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
       '<div><dt>Showing</dt><dd>' + esc(matchName(f)) + ', ' + esc(f.d) + ', ' + esc(f.k || TBC_L) + (f.a ? ' (played in ' + esc(f.a) + ')' : '') + '</dd></div>' +
       (others ? '<div><dt>Also shows</dt><dd><span class="provenance-gap">' + others + ' more of your matches</span></dd></div>' : '') +
       (sp.open_from && sp.open_to ? '<div><dt>Open</dt><dd><span class="provenance-gap">Daily, ' + esc(tp.isoRange(sp.open_from, sp.open_to)) + '</span></dd></div>' : '') +
       '</dl>';
+    // Transport, opening times and what is there (sample, 26 Nov 2026)
+    var fsp = window.v1FanByName && window.v1FanByName(sp.name);
+    if (fsp) h += '<h3 class="cn-pp-h">About this place <span class="v1-sample provenance-gap">Sample</span></h3><dl class="pl-option-facts cn-pp-facts">' +
+      '<div><dt>Getting there</dt><dd>' + esc(fsp.transport) + '</dd></div><div><dt>Open</dt><dd>' + esc(fsp.opens) + '</dd></div>' +
+      '<div><dt>What is there</dt><dd>' + esc(fsp.has.join(', ')) + '</dd></div></dl>';
     h += pmActions(id, sp.name + ' on ' + f.d) + '</div>';
     return h;
   }
@@ -1210,7 +1217,7 @@
           : '<h3 class="cn-pp-h" id="tp-pm-watch-h">Where to watch it in NSW</h3>') +
         (sps.length ? '<ul class="tp-wv tp-pm-watch-list">' + sps.map(function (sp) {
           var id = spotItem(sp, m), open = ITEMS[id].note;
-          return venueRow(id, sp.name, esc(SPOT_TYPE[sp.type] || 'Screening') + ' \u00b7 ' + esc(sp.place) + (open ? ' \u00b7 ' + esc(open) : ''),
+          return venueRow(id, sp.name, esc(SPOT_TYPE[sp.type] || 'Screening') + ' \u00b7 ' + esc(spPlace(sp)) + (open ? ' \u00b7 ' + esc(open) : ''),
             addBtn(id, sp.name + ', ' + matchName(f) + ' on ' + f.d).replace('class="tp-add"', 'class="tp-add" data-pm-spot="' + esc(id) + '"'));
         }).join('') + '</ul>' : '<p class="tp-pm-note">No NSW screenings listed for this match yet.</p>') + (away ? '</div>' : '') + '</section>';
     }
@@ -1347,7 +1354,7 @@
         SPOTS.forEach(function (v, j) {
           var ll = GEOX.watch && GEOX.watch[j]; if (!ll || !f.t || v.shows.indexOf(m.key) < 0) return;
           var key = spotItem(v, m); // the venue's own details, as from Where to watch
-          ws.push({ key: key, open: key, title: v.name, type: (SPOT_TYPE[v.type] || 'Screening') + ' · ' + v.place, time: f.k ? 'Shows the ' + f.k + ' kick-off' : '', ll: ll, d: SPOT_ORDER[v.type] * 10 + j, made: true });
+          ws.push({ key: key, open: key, title: v.name, type: (SPOT_TYPE[v.type] || 'Screening') + ' · ' + spPlace(v), time: f.k ? 'Shows the ' + f.k + ' kick-off' : '', ll: ll, d: SPOT_ORDER[v.type] * 10 + j, made: true });
         });
         ws.sort(function (x, y) { return x.d - y.d; });
         ws = ws.slice(0, 3); // three to start (fan zones first); Where to watch on the page lists them all
@@ -1390,6 +1397,33 @@
   tp.addBtnHtml = function (key, label) { return addBtn(key, label); };
   tp.imgAttr = function (title) { return imgKey(title); };
   tp.moveItem = function (id, d) { return moveItem(id, d); };
+  /* ---------- For the plan's day cards (v1/v1-plan.js, 26 Nov 2026) ---------- */
+  // The ideas for a free day, drawn as the page draws them (the cards and their Add buttons), all of them: the plan shows three and Show more
+  tp.ideasInline = function (d) {
+    var fd = freeInfo(d); if (!fd || fd.filled) return null;
+    var all = [], seen = {};
+    if (fd.half) all = partyFirst(IDEAS.filter(function (i) { return i.kind === 'half' && i.city === fd.base && !ideaAdded(i); }));
+    else { fd.show.forEach(function (i) { all.push(i); seen[i.id] = 1; }); ideasFor(d, fd.base).forEach(function (i) { if (!seen[i.id]) all.push(i); }); }
+    return { label: fd.label, count: all.length, cards: all.map(function (i) { return ideaCard(i, d); }) };
+  };
+  // What a card can say about something added, without opening it: where it is, how to get there, what it costs, when it is open
+  tp.itemMore = function (it) {
+    var out = [];
+    if (it.kind === 'product') {
+      var pid = String(it.id || '').split(':')[1], p = PRODUCTS.filter(function (x) { return x.id === pid; })[0];
+      if (p && p.distance_to_venue) { var dv = p.distance_to_venue; out.push((dv.transit_minutes ? dv.transit_minutes + ' min by public transport' : dv.walking_minutes + ' min walk') + ' to ' + dv.venue_ref); }
+      if (p && p.pricing) out.push(p.pricing.is_free ? 'Free' : 'Price band ' + p.pricing.band);
+    } else if (it.kind === 'screening') {
+      var fs = window.v1FanByName && window.v1FanByName(it.title);
+      if (fs) { out.push(fs.suburb + ': ' + fs.transport); out.push(fs.opens); }
+    } else if (String(it.id || '').indexOf('i:') === 0) {
+      var iid = it.id.slice(2).replace(/@.*$/, ''), idea = IDEAS.filter(function (x) { return x.id === iid; })[0];
+      if (idea) out.push(howLine(idea));
+    }
+    if (!out.length && it.place) out.push(it.place);
+    return out;
+  };
+  tp.goOne = function (m) { return goOne(m); };
   tp.freeDays = function () { return FREEINFO.map(function (x) { return { d: x.d, filled: x.filled, count: x.count }; }); };
   tp.imgKey = function (title) { return imgKey(title); };
   tp.itemClosed = function (it, d) { return (it.kind === 'product' || it.kind === 'place' || it.kind === 'poi') && !it.unplaced && !openOn(it, d); };
@@ -1834,14 +1868,14 @@
   // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
   function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
   function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
-  function dMatches() { var o = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
+  function dMatches() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
   /* ---------- Dates (26 Nov 2026): one range calendar, and a read-only strip above it ----------
      The strip shows the tournament in NSW, 29 Sep to 15 Nov, and scrolls sideways: the person's matches solid (NSW) or
      hollow (elsewhere), every other NSW match small and grey, the later rounds as diamonds with their stage. It is never
      an input; the calendar below it is open, and the first tap sets the first day, the second the last. */
   var STRIP_DW = 40, STRIP_PAD = 28;
   function stageShort(f) { var x = f.s || ''; return /^Round of 16/.test(x) ? 'R16' : /^Quarter/.test(x) ? 'QF' : /^Semi/.test(x) ? 'SF' : /^Bronze/.test(x) ? 'Bronze' : /^Final/.test(x) ? 'Final' : x; }
-  function ownKeys() { var o = {}; (tp.own() ? tp.userMatches() : []).forEach(function (m) { o[m.key] = true; }); return o; }
+  function ownKeys() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { o[m.key] = true; }); return o; }
   // NSW matches that are not the person's: other teams' pool matches and the later rounds, by day
   function tmDays() {
     var own = ownKeys(), o = {};
@@ -1896,7 +1930,7 @@
     var k = key || (root === ask ? 'ask' : 'pm'), at = stripKeep[k];
     if (at === null || at === undefined) {
       var first = sel ? sel.a : null;
-      if (first === null) { var own = tp.own() ? tp.userMatches().filter(function (m) { return !m.f.a; }) : []; first = own.length ? own[0].day : 0; }
+      if (first === null) { var own = tp.own() ? tp.userMatchesAll().filter(function (m) { return !m.f.a; }) : []; first = own.length ? own[0].day : 0; }
       at = Math.max(0, stripX(first) - STRIP_DW * 2.5);
     }
     sp.scrollLeft = at;
@@ -1911,7 +1945,7 @@
       return '<section class="v1-dm" aria-labelledby="v1-dm-h"><h4 class="v1-dm-h" id="v1-dm-h">Your matches</h4><p class="v1-dm-all">Every NSW match: ' +
         esc(tp.isoRange(isoOf(nsw[0].day), isoOf(nsw[nsw.length - 1].day))) + '.</p></section>';
     }
-    var ms = tp.userMatches(); if (!ms.length) return '';
+    var ms = tp.userMatchesAll(); if (!ms.length) return '';
     var row = function (m) {
       var f = m.f;
       return '<li><span class="v1-dm-d">' + esc(dayLabel(m.day)) + '</span><span class="v1-dm-n">' + esc(matchName(f)) + ' <span class="v1-dm-w">\u00b7 ' + esc(f.a ? 'in ' + f.a : CITY[cityOf(f.v)] || cityOf(f.v)) + '</span></span></li>';
@@ -2975,6 +3009,41 @@
   function signature() {
     return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.tab, openSet, moreBlk, moveOpen, askEditing, askManual, askError, openCard, copied]);
   }
+
+  /* ---------- Also on in NSW (26 Nov 2026) ----------
+     Once days are set: the other NSW matches inside them, whoever is playing, so a fan sees what else is on while they
+     are here; and, when a Newcastle match is on in their days and none of theirs is there, a Newcastle card with the
+     reason, even if they are staying in Sydney. The later rounds are named by stage and have no teams yet, so they are
+     listed, not added. */
+  var alsoEl = document.getElementById('v1-also');
+  function pickedHas(f) { return !!f.t && f.t.split(' v ').some(function (n) { return state.picked.indexOf(n) > -1; }); }
+  function renderAlso() {
+    if (!alsoEl) return;
+    var t = trip() || {}, hide = function () { alsoEl.hidden = true; alsoEl.innerHTML = ''; };
+    if (!tp.own() || tp.rugby() || !(t.from && t.to)) { hide(); return; }
+    var a = tp.isoDay(t.from), z = tp.isoDay(t.to);
+    var others = tp.allMatches().filter(function (m) { return !m.f.a && m.day >= a && m.day <= z && !pickedHas(m.f); });
+    if (!others.length) { hide(); return; }
+    var inNcl = others.filter(function (m) { return m.f.v === 'Newcastle Stadium'; });
+    var mineNcl = tp.userMatches().some(function (m) { return m.f.v === 'Newcastle Stadium'; });
+    var card = '';
+    if (inNcl.length && !mineNcl && t.base !== 'newcastle') {
+      card = '<div class="v1-also-card"><h4 class="v1-also-ct">Newcastle</h4>' +
+        '<p class="v1-also-why">Why not visit Newcastle, where there are other matches on</p>' +
+        '<p class="v1-also-on">On ' + inNcl.map(function (m) { return esc(dayLabel(m.day)); }).filter(function (x, i, arr) { return arr.indexOf(x) === i; }).join(', ') + '</p>' +
+        '<button type="button" class="tp-pill tp-pill--dark v1-also-go" data-open="city:Newcastle Stadium" aria-haspopup="dialog">See Newcastle</button></div>';
+    }
+    var rows = others.map(function (m) {
+      var f = m.f, ko = isKo(f), id = 'm:' + m.key, where = (HOSTS[f.v] ? HOSTS[f.v].title.replace(/^Sydney – /, '') : f.v);
+      if (!ko && f.t) ITEMS[id] = { id: id, kind: 'match', key: m.key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p };
+      var open = !ko && f.t ? '<button type="button" class="tp-link v1-also-open" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog">' + esc(matchName(f)) + '</button>' : '<span class="v1-also-n">' + esc(matchName(f)) + '</span>';
+      return '<li><span class="v1-also-d">' + esc(dayLabel(m.day)) + '</span><span class="v1-also-b">' + open + '<span class="v1-also-w">' + esc(where) + (ko ? ' · teams to be decided' : '') + '</span></span>' +
+        (!ko && f.t ? addBtn(id, matchName(f) + ', ' + f.d) : '') + '</li>';
+    }).join('');
+    alsoEl.hidden = false;
+    alsoEl.innerHTML = '<h3 class="tp-sec-title" id="v1-also-title" tabindex="-1">Also on in NSW</h3>' +
+      '<p class="tp-sec-note">Other matches inside your days, whoever is playing.</p>' + card + '<ul class="v1-also-l">' + rows + '</ul>';
+  }
   function render(force, focusSel) {
     var s = signature();
     if (!force && s === sig) return;
@@ -2994,6 +3063,7 @@
     }
     ITEMS = Object.assign({}, EVE_I); MODAL = Object.assign({}, EVE_M); // the plan's evening places keep working between redraws
     renderWatch();
+    renderAlso();
     renderThird();
     renderTripLine();
     renderAsk();
