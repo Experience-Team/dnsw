@@ -315,6 +315,7 @@
      switch between the two, were removed on 23 Nov.)
      Geometry from the Figma frame (462 wide), scaled to the phone: per-column angles, a 214px radius, rows 67px apart. */
   var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2');
+  var HOLD = { id: null, x0: 0, dx: 0, on: false, deg: 0, swallow: false };
   var cards2 = null, f2Dealt = false, f2Focus = 0, viewLabel = function () {}, syncNswMark = function () {};
   function handFocusEl() { return fan2 && fan2.querySelector('.tp-card2[tabindex="0"]'); }
   if (fan2) {
@@ -347,20 +348,20 @@
   function handGeo(n) {
     var W = fan2Wrap.clientWidth || 390, key = W + '|' + document.documentElement.className + '|' + n;
     if (HG && HG_KEY === key) return HG;
-    var avail = W - 24 - 20, PAD = 6, OVER = 6, pick = null;
+    var avail = W - 12, PAD = 6, OVER = 6, pick = null;
     wordW(14); // makes the probe
     // Six to a row (26 Nov 2026), so all 24 teams are four rows and none need a scroll down. The name takes the largest
     // size from 13 to 12px that fits the phone's width; if even 12px does not fit, the cards stay wide enough for it and
     // the hand runs a little past the phone's sides, to be dragged across (the box scrolls sideways).
-    for (var fs = 13; fs >= 12 && !pick; fs--) if (wordW(fs) + 16 <= avail / 6) pick = { N: 6, sp: avail / 6, fs: fs };
-    if (!pick) pick = { N: 6, sp: Math.max(avail / 6, wordW(12) + 16), fs: 12 };
-    var w = pick.sp + OVER, R = 900, WF = Math.max(W, Math.ceil(pick.sp * pick.N + 44));
+    for (var fs = 13; fs >= 12 && !pick; fs--) if (wordW(fs) + 12 <= avail / 6) pick = { N: 6, sp: avail / 6, fs: fs };
+    if (!pick) pick = { N: 6, sp: Math.max(avail / 6, wordW(12) + 12), fs: 12 };
+    var w = pick.sp + OVER, R = 900, WF = Math.max(W, Math.ceil(pick.sp * pick.N + 12));
     fan2.style.setProperty('--hand-fs', pick.fs + 'px');
     // Each name's height at the card's final width, measured off to the side (the cards may be gliding to a new width),
     // under where the code and flag end; the tallest in each row gives that row its height
     var n0 = fan2.querySelector('.tp-card2-name'), ncs = getComputedStyle(n0), pr = handGeo.probe;
     var top0 = n0.offsetTop, rows = [], rowsN = Math.ceil(n / pick.N);
-    pr.style.whiteSpace = 'normal'; pr.style.width = (w - PAD - 10 - 4).toFixed(1) + 'px'; pr.style.fontSize = pick.fs + 'px';
+    pr.style.whiteSpace = 'normal'; pr.style.width = (w - 5 - 8 - 4).toFixed(1) + 'px'; pr.style.fontSize = pick.fs + 'px';
     pr.style.lineHeight = '1.2'; pr.style.textWrap = 'balance'; pr.style.display = 'block';
     for (var r = 0; r < rowsN; r++) rows.push(0);
     seq.forEach(function (i, k) { if (k >= n) return; pr.textContent = CARDS[i].name; rows[Math.floor(k / pick.N)] = Math.max(rows[Math.floor(k / pick.N)], top0 + pr.offsetHeight); });
@@ -369,7 +370,7 @@
     strips.forEach(function (st) { tops.push(t); t += st; });
     var rc = R + h / 2, step = pick.sp / rc * 180 / Math.PI;
     var sag = rc * (1 - Math.cos(((pick.N - 1) / 2) * step * Math.PI / 180));
-    HG = { N: pick.N, fs: pick.fs, w: w, h: h, R: R, step: step, tops: tops, W: WF, cx: WF / 2, height: Math.ceil(tops[tops.length - 1] + h + sag + 6) };
+    HG = { N: pick.N, fs: pick.fs, w: w, h: h, R: R, step: step, tops: tops, W: WF, cx: WF / 2, py: tops[0] + h / 2 + R, height: Math.ceil(tops[tops.length - 1] + h + sag + 6) };
     HG_KEY = key;
     return HG;
   }
@@ -401,7 +402,8 @@
       b.style.left = sl.left.toFixed(1) + 'px'; b.style.top = sl.top.toFixed(1) + 'px';
       b.style.width = sl.w.toFixed(1) + 'px'; b.style.height = sl.h.toFixed(1) + 'px';
       b.style.transformOrigin = sl.ox.toFixed(1) + 'px ' + sl.oy.toFixed(1) + 'px';
-      b.style.transform = 'rotate(' + sl.a + 'deg) translateY(' + (on && !grid() ? -10 : 0) + 'px)';
+      b._a = sl.a; b._lift = on && !grid() ? -10 : 0;
+      b.style.transform = 'rotate(' + (sl.a + (grid() ? 0 : HOLD.deg)) + 'deg) translateY(' + b._lift + 'px)';
       b.style.zIndex = sl.z;
       if (!animate) { void b.offsetWidth; b.style.transition = ''; }
     });
@@ -420,18 +422,61 @@
   function fitHand() {
     if (!fan2) return;
     fan2.style.transform = '';
-    if (grid()) { fan2.style.width = ''; fan2.style.right = ''; return; }
+    if (grid()) { fan2.style.width = ''; fan2.style.right = ''; fan2.style.left = ''; return; }
     HG_KEY = ''; // a new width or font: measure again
     var n = seq.length; handGeo(n);
     fan2Wrap.style.height = HG.height + 'px';
     // A hand wider than the phone starts at the left margin, with the rest to drag across (the next card peeks at the edge)
     var wide = HG.W > fan2Wrap.clientWidth + 1;
     fan2.style.width = wide ? HG.W + 'px' : ''; fan2.style.right = wide ? 'auto' : '';
-    fan2Wrap.scrollLeft = 0;
+    fan2.style.left = wide ? ((fan2Wrap.clientWidth - HG.W) / 2).toFixed(1) + 'px' : '';
   }
   window.addEventListener('resize', function () { fitHand(); if (!grid()) sync2(false); });
   // The hand is measured in its own font: once the web font has loaded (high fidelity), measure again
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!fan2) return; HG_KEY = ''; if (!grid()) { fitHand(); sync2(false); } });
+  /* Hold and move the hand (26 Nov 2026): press anywhere on the fan and move sideways, and every card slides along its
+     own arc (each row turns about the centre of its curve, by the same angle), so the hand swings round like a fan being
+     turned rather than sliding across in a straight line. It follows the finger one for one at first, with growing
+     resistance towards the limit (7 degrees), and settles back to the middle, with the faintest overshoot, when let go.
+     A tap still picks a card; the turn starts only after 6px sideways. */
+  var HOLD_MAX = 7, HOLD_PX = 16; // 16px of travel is a degree on arcs of 900px
+  function holdAngle(dx) { return HOLD_MAX * Math.tanh(dx / HOLD_PX / HOLD_MAX); }
+  function holdSet(deg, ease) {
+    HOLD.deg = deg;
+    cards2.forEach(function (b) {
+      if (b._a === undefined) return;
+      b.style.transition = ease || 'none';
+      b.style.transform = 'rotate(' + (b._a + deg).toFixed(2) + 'deg) translateY(' + b._lift + 'px)';
+    });
+  }
+  function holdEnd() {
+    if (HOLD.id === null) return;
+    var was = HOLD.on; HOLD.id = null; HOLD.on = false; fan2.classList.remove('is-held');
+    if (!was) return;
+    holdSet(0, reduce.matches ? 'none' : 'transform 560ms cubic-bezier(.3, 1.25, .5, 1)');
+    setTimeout(function () { cards2.forEach(function (b) { b.style.transition = ''; }); }, 620);
+  }
+  if (fan2) {
+    fan2.addEventListener('pointerdown', function (e) {
+      if (grid() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      HOLD.id = e.pointerId; HOLD.x0 = e.clientX; HOLD.dx = 0; HOLD.on = false;
+    });
+    fan2.addEventListener('pointermove', function (e) {
+      if (HOLD.id !== e.pointerId) return;
+      HOLD.dx = e.clientX - HOLD.x0;
+      if (!HOLD.on) {
+        if (Math.abs(HOLD.dx) < 6) return;
+        HOLD.on = true; HOLD.x0 = e.clientX; HOLD.dx = 0; // the turn starts from where the drag began
+        fan2.classList.add('is-held');
+        try { fan2.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      holdSet(holdAngle(HOLD.dx));
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) { fan2.addEventListener(t, function (e) { if (HOLD.id === e.pointerId && (t !== 'lostpointercapture' || e.target === fan2)) holdEnd(); }); }); // a touch's own capture on the card is let go when the hand takes it: that is not the end
+    // A drag that ends over a card is not a pick
+    fan2.addEventListener('click', function (e) { if (HOLD.swallow) { HOLD.swallow = false; e.stopPropagation(); e.preventDefault(); } }, true);
+    fan2.addEventListener('pointerup', function () { if (HOLD.on) { HOLD.swallow = true; setTimeout(function () { HOLD.swallow = false; }, 50); } }, true);
+  }
   // The deal: the first time the stacked hand comes into view its cards come up into place, row by row
   function deal2() {
     if (f2Dealt) return;

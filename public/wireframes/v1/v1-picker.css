@@ -1,14 +1,14 @@
-/* Version 1's team picker (26 Nov 2026): six cards to a row, so all 24 teams show without a scroll down; the hand can
-   run a little past the phone's sides and is dragged across. The Find and Grid buttons are text only and compact.
+/* Version 1's team picker (26 Nov 2026): six cards to a row, so all 24 teams show without a scroll down; the hand is
+   centred, and held and moved it turns along its arcs. The Find and Grid buttons are text only and compact.
    Loaded after shared.css, so these rules win. */
-.tp-fan2-wrap { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; }
-.tp-fan2-wrap::-webkit-scrollbar { display: none; }
-.tp-fan2-wrap.is-grid { overflow-x: clip; }
+/* The hand is centred in the screen and may reach 9px past each side; it turns about its arcs when held and moved */
+.tp-fan2-wrap:not(.is-grid) .tp-fan2 { touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none; }
+.tp-fan2.is-held { cursor: grabbing; }
 .tp-pick .tp-fan2-wrap { margin-top: var(--space-2); }
 
 #tp-util { gap: var(--space-2) var(--space-3); margin-top: var(--space-2); min-height: 28px; }
 #tp-util .tp-util-btn { min-height: 28px; padding: 0 var(--space-3); gap: 0; }
 #tp-util .tp-nsw-sw { font-size: var(--fs-sm); }
 
-/* In the hand each card is overlapped 6px by the next, so its name keeps 10px clear on that side */
-.tp-fan2-wrap:not(.is-grid) .tp-card2 { padding-right: 10px; }
+/* In the hand each card is overlapped 6px by the next, so its name keeps 8px clear on that side */
+.tp-fan2-wrap:not(.is-grid) .tp-card2 { padding-left: 5px; padding-right: 8px; }
