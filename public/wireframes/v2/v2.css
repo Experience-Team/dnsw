@@ -285,3 +285,23 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
    the page itself, so scrolling the hand under the sticky nav (z-index 40: the capsule in Version 1, the menu in Version 2) painted
    the bottom row over it. The hand now keeps its cards' z-indexes to itself: they are only compared with each other. */
 .tp-fan2-wrap { isolation: isolate; }
+
+/* Desktop split rows, rebalanced (26 Nov 2026, from the desktop layout critique). See where your team plays and Drop
+   Goal were 5fr words / 6fr picture with the words top-aligned, which left a 600 x 450px void under the heading and a
+   320px one under Play now. Now the words take a third (4fr) and the picture two thirds (8fr), and the words sit at the
+   vertical middle of the picture: the spare height goes into the 1fr rows above and below them (so it splits evenly
+   whatever is showing). Where the matches are is left as it was. Overrides of shared.css, kept here so Options A to C
+   and Version 1 do not move. */
+@media (min-width: 1024px) {
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); grid-template-rows: 1fr auto auto auto 1fr; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan > .tp-sec-title { grid-row: 2; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan > .tp-home-intro { grid-row: 3; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan > :is(.tp-home-cta, .tp-home-rugby) { grid-row: 4; } /* never both: the button once a team is picked, the quiet link before */
+
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); grid-template-rows: 1fr auto auto auto auto 1fr; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-sec-title { grid-row: 2; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-home-intro { grid-row: 3; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .v2-demo-how { grid-row: 4; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .v2-kick-acts { grid-row: 5; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-home-kick-img { aspect-ratio: 16 / 10; } /* wider, about the height it was (about 500px) */
+}

@@ -355,7 +355,7 @@
     if (HG && HG_KEY === key) return HG;
     var avail = W - 24 - 20, PAD = 6, OVER = 6, pick = null;
     wordW(14); // makes the probe
-    for (var N = 5; N >= 3 && !pick; N--) {
+    for (var N = avail >= 700 ? 6 : 5; N >= 3 && !pick; N--) { // six to a row only where the hand is 744px or wider (the desktop Home split, 26 Nov 2026): the cards keep their size and 24 teams make four even rows
       var sp = avail / N, inner = sp - PAD * 2;
       for (var fs = 14; fs >= 12; fs--) if (wordW(fs) <= inner) { pick = { N: N, sp: sp, fs: fs }; break; }
     }
