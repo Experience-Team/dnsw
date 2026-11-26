@@ -1866,14 +1866,20 @@
   // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
   function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
   function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
-  function dMatches() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
+  /* The calendar marks two things only (26 Nov 2026): the person's own team's matches in NSW (an orange ring and dot), and the
+     later rounds in NSW (a diamond). Other teams' matches are not marked. With no team (Show every NSW match) every NSW pool
+     match is marked, as nothing is theirs yet. The later rounds always take the diamond. */
+  function dMatches() {
+    var o = {}, src = tp.rugby() ? tp.allMatches() : tp.own() ? tp.userMatchesAll() : [];
+    src.forEach(function (m) { if (!m.f.a && !isKo(m.f)) (o[m.day] = o[m.day] || []).push(m); });
+    return o;
+  }
   /* ---------- Dates (26 Nov 2026): one range calendar, open by default: the first tap sets the first day, the second the last.
      The read-only strip above it was taken out the same day (it was noise beside the calendar, which marks the same matches). */
-  function ownKeys() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { o[m.key] = true; }); return o; }
-  // NSW matches that are not the person's: other teams' pool matches and the later rounds, by day
-  function tmDays() {
-    var own = ownKeys(), o = {};
-    tp.allMatches().forEach(function (m) { if (!m.f.a && !own[m.key]) (o[m.day] = o[m.day] || []).push(m); });
+  // The later rounds in NSW, by day: the diamond
+  function koDays() {
+    var o = {};
+    tp.allMatches().forEach(function (m) { if (!m.f.a && isKo(m.f)) (o[m.day] = o[m.day] || []).push(m); });
     return o;
   }
   // What they picked, so they need not go back to check: each match with its date (the step "When are you in NSW?")
@@ -1890,28 +1896,27 @@
     return '<section class="v1-dm" aria-labelledby="v1-dm-h"><h4 class="v1-dm-h" id="v1-dm-h">Your matches</h4><ul class="v1-dm-l">' + head.map(row).join('') + '</ul>' +
       (rest.length ? '<details class="v1-dm-more"><summary>Show ' + rest.length + ' more</summary><ul class="v1-dm-l">' + rest.map(row).join('') + '</ul></details>' : '') + '</section>';
   }
+  // With a team: how many of their NSW matches fall inside the days; with no team: how many NSW matches do
+  function matchCount(inN) { return tp.rugby() ? (inN ? inN + (inN === 1 ? ' NSW match' : ' NSW matches') : 'no NSW matches') : (inN ? inN + ' of your NSW matches' : 'none of your NSW matches'); }
   function askSum(sel) {
     if (!sel) return 'Tap your first day, then your last.';
     if (sel.z === null) return 'First day: ' + dayLabel(sel.a) + '. Now tap your last day.';
     var n = sel.z - sel.a + 1, ms = dMatches(), inN = 0;
     Object.keys(ms).forEach(function (d) { if (+d >= sel.a && +d <= sel.z) inN += ms[d].length; });
-    return tp.isoRange(isoOf(sel.a), isoOf(sel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+    return tp.isoRange(isoOf(sel.a), isoOf(sel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
   }
-  /* The key to the calendar's marks (26 Nov 2026; it went with the strip and is back): each entry only when that mark is on
-     the calendar for this person, so the key never names something that is not there. Interstate matches are not marked
-     on the calendar, so they are not keyed. Screen readers hear each day's own label, so the key is hidden from them. */
+  /* The key to the calendar's marks (26 Nov 2026; it went with the strip and is back): two entries, each only when that mark
+     is on the calendar. It sits between the Your matches list and the calendar (above the calendar where there is no list).
+     Interstate matches are not marked, so they are not keyed. Screen readers hear each day's own label, so it is hidden from them. */
   function calKeyHtml(ms) {
-    var tm = tmDays(), other = false, later = false;
-    Object.keys(tm).forEach(function (d) { tm[d].forEach(function (m) { if (isKo(m.f)) later = true; else other = true; }); });
     var items = [];
-    if (Object.keys(ms || {}).length) items.push('<span class="v1-k v1-k-mine">Your match in NSW</span>');
-    if (other) items.push('<span class="v1-k v1-k-other">Other NSW match</span>');
-    if (later) items.push('<span class="v1-k v1-k-ko">Later rounds</span>');
+    if (Object.keys(ms || {}).length) items.push('<span class="v1-k v1-k-mine">' + (tp.rugby() ? 'Match in NSW' : 'Your match in NSW') + '</span>');
+    if (Object.keys(koDays()).length) items.push('<span class="v1-k v1-k-ko">Later rounds</span>');
     return items.length ? '<p class="v1-cal-key" aria-hidden="true">' + items.join('') + '</p>' : '';
   }
   function calMonth(y, mo, ms, sel, attr) {
     sel = sel === undefined ? dsel : sel; attr = attr || 'dday';
-    var tm = tmDays();
+    var kd = koDays();
     // Monday-first weeks; days outside 29 Sep to 15 Nov are shown but cannot be picked
     var first = new Date(Date.UTC(y, mo, 1)), lead = (first.getUTCDay() + 6) % 7, days = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
     var name = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][mo];
@@ -1922,13 +1927,12 @@
     for (var k = 0; k < cells; k++) {
       var d = start + k, dt = new Date(Date.UTC(2027, 9, 1 + d)), inMonth = dt.getUTCMonth() === mo;
       if (!inMonth && !(mo === 9 && d >= RMIN && d < 0)) { h += '<span class="tp-cal-x" aria-hidden="true"></span>'; continue; }
-      var can = d >= RMIN && d <= RMAX, mm = ms[d] || [], oo = tm[d] || [], a = sel && sel.a, z = sel ? sel.z : null;
+      var can = d >= RMIN && d <= RMAX, mm = ms[d] || [], oo = kd[d] || [], a = sel && sel.a, z = sel ? sel.z : null;
       var st = sel ? (d === a ? ' is-start' : '') + (z !== null && d === z ? ' is-end' : '') + (z !== null && d > a && d < z ? ' is-in' : '') : '';
-      var ko = oo.some(function (m) { return isKo(m.f); });
       var lbl = dayLabel(d) + (mm.length ? ', ' + mm.map(function (m) { return matchName(m.f); }).join(' and ') : '') +
-        (oo.length ? ', also on in NSW: ' + oo.map(function (m) { return matchName(m.f); }).join(' and ') : '') +
+        (oo.length ? ', later round in NSW: ' + oo.map(function (m) { return matchName(m.f); }).join(' and ') : '') +
         (sel && d === a ? ', first day' : '') + (z !== null && sel && d === z ? ', last day' : '');
-      h += can ? '<button type="button" class="tp-cal-d' + (mm.length ? ' is-match' : '') + (!mm.length && oo.length ? (ko ? ' is-ko' : ' is-tm') : '') + (inMonth ? '' : ' is-other') + st + '" data-' + attr + '="' + d + '" aria-pressed="' + !!st + '" aria-label="' + esc(lbl) + '">' + dt.getUTCDate() + '</button>'
+      h += can ? '<button type="button" class="tp-cal-d' + (oo.length ? ' is-ko' : mm.length ? ' is-match' : '') + (inMonth ? '' : ' is-other') + st + '" data-' + attr + '="' + d + '" aria-pressed="' + !!st + '" aria-label="' + esc(lbl) + '">' + dt.getUTCDate() + '</button>'
         : '<span class="tp-cal-d is-off" aria-hidden="true">' + dt.getUTCDate() + '</span>';
     }
     return h + '</div></div>';
@@ -1948,9 +1952,9 @@
     var n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
-      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
-      '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' + calKeyHtml(ms) +
+      calKeyHtml(ms) + '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
       // dates stay in view and it is clear the plan waits for that tap
       '<div class="tp-days-bar"><p class="tp-days-draft" hidden></p><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
@@ -1996,7 +2000,7 @@
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = pm.querySelector('.tp-days-sum');
     if (sum) sum.textContent = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
-      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' \u00b7 ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' \u00b7 ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
     var use = pm.querySelector('[data-duse]'); if (use) use.disabled = !n;
     // The draft follows every change (check 4): kept while it differs from the confirmed days, named in the bar
     var conf = dRange(), unsaved = !dSame(dsel, conf), dl = pm.querySelector('.tp-days-draft');
@@ -2314,7 +2318,7 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       h += '<p class="tp-sec-note">' + esc(own ? WHY : WHY_NONE) + '</p>' +
         (step === 'days' ? stepMatchesHtml() : '') +
-        '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' + calKeyHtml(dMatches()) +
+        calKeyHtml(dMatches()) + '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
         '<p class="tp-days-sum v1-cal-sum" aria-live="polite">' + esc(askSum(asel)) + '</p>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
