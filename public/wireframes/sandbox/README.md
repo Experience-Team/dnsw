@@ -20,3 +20,15 @@ repeat the edits in the table. The prototype's saved state is in the browser, so
 ## Regression tests
 
 None cover the sandbox, on purpose: it is a place to break things. The existing specs do not open it.
+
+## Differences from Version 1 (26 Nov 2026)
+
+Made in this copy only; Version 1 and Version 2 are unchanged.
+
+- The Plan tab's copy is distilled (repeated counts and restated headings cut).
+- **Find the fan zones** (a map pin) replaces Watch in NSW and its TV icon on interstate match rows.
+- The **Not going to the match?** group is gone, from Around your matches and the plan's day cards.
+- No Save bar on a place, product or idea page: its button already reads Added to your plan.
+- Add and Added look and read the same everywhere: outlined to add, filled with a tick once added; "Add" and "Added" in rows, "Add to your plan" and "Added to your plan" in sheets and on the Drop goal card.
+- Every sheet has a close cross at the top right. It replaces a text Close on the map popups, the days list and the overview popup, and it is new on the plan sheet.
+- Once the tickets step has been answered or skipped (`tix` in `tp-fc-v1`), nothing asks for tickets again: no "Going? Mark your ticket" line. The ticket controls on match rows and in the match sheet stay.

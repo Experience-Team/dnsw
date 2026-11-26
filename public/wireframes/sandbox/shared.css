@@ -3446,7 +3446,9 @@ body.cp-page code { font: inherit; }
 .tp-pm-why { padding: 2px 0; font-size: var(--fs-md); line-height: 1.4; } /* flush with the title, as the card lines are */
 .tp-pm-summary { margin-top: var(--space-3); }
 .tp-pm-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-5); }
-.tp-pm-add[aria-pressed="true"] { background: var(--c-surface); color: var(--c-ink); box-shadow: inset 0 0 0 1.5px var(--c-line-ink); }
+/* Add toggles read one way everywhere (26 Nov 2026, sandbox): not added is outlined, Added is filled with a tick, as the rows' Add is */
+.tp-pm-add { background: var(--c-surface); color: var(--c-ink); box-shadow: inset 0 0 0 var(--bw-2) var(--c-line-ink); }
+.tp-pm-add[aria-pressed="true"] { background: var(--c-btn); color: var(--c-on-dark); box-shadow: none; }
 .tp-pm-full { font-size: var(--fs-md); font-weight: var(--fw-semi); color: var(--c-ink-3); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; cursor: not-allowed; }
 .tp-pm-soon { padding: 1px 6px; border: var(--bw-1) dashed var(--c-line-strong); border-radius: var(--radius-sm); font-size: var(--fs-2xs); color: var(--c-ink-2); }
 /* The spot's name and place open its summary */
@@ -6073,3 +6075,15 @@ span.tp-map-arrow { display: block; }
    between families: 24px padding + 20px + the results' 4px */
 #tp-phone[data-fc-card] .tp-pick .tp-yours-title { margin-top: calc(var(--space-7) - var(--space-5) - var(--space-1)); }
 @media (min-width: 1024px) { .pv-device #tp-phone[data-fc-card] .tp-pick .tp-yours-title { margin-top: calc(var(--space-7) - var(--space-5) - var(--space-1)); } }
+
+/* Close crosses (26 Nov 2026, sandbox): where a popup or sheet had a text Close, the cross replaces it, top right */
+.tp-map-pop > .tp-pop-x { position: absolute; top: 8px; right: 12px; }
+.tp-map-pop > .tp-map-pop-t, .tp-map-pop > .tp-map-pop-m { padding-right: 48px; }
+.tp-ov-pop-top { align-items: center; }
+.tp-ov-pop-top .cn-close { margin: -4px -4px -4px 0; }
+.tp-map-jump-top { align-items: center; }
+/* The plan sheet's cross: top right, where the Your plan chevron sits while the sheet is closed; open, it takes the chevron's place */
+.tp-tl-x { display: none; position: absolute; top: 10px; right: 16px; z-index: 3; }
+.tp-tl.is-open .tp-tl-x { display: inline-grid; }
+.tp-tl.is-open .tp-tl-exp { visibility: hidden; }
+.tc-act > span:not(.visually-hidden) { text-wrap: balance; }

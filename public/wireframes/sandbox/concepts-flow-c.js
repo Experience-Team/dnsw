@@ -27,11 +27,13 @@
   var NAME = { teams: 'Your teams', tickets: 'Tickets', days: 'Your days', stay: 'Where you’re staying' };
   var NEXT = { teams: 'Next: tickets', tickets: 'Next: your days', days: 'See your plan' };
   var KEY = 'tp-fc-v1';
-  var fc = { step: 'teams', none: false, filled: false };
+  // tix: the tickets step has been answered or left (Next or Skip). From then on nothing asks about tickets again
+  // (26 Nov 2026); the match rows' I have tickets and the match sheet's tick stay, as controls, not prompts
+  var fc = { step: 'teams', none: false, filled: false, tix: false };
   try { if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY); } catch (e) {} // ?reset starts the flow again too
   try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (rec && rec.step === 'stay') rec.step = 'done'; // saved on the old stay step: the flow is finished, the answer kept
-    if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
+    if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, tix: !!rec.tix, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
   // Step 1 is the one required answer since 24 Nov. A place saved before then that got past it with nothing picked
   // goes back to step 1; saves since carry v: 2, so a card left with no team after the flow stays as it is
   if (fc.v !== 2 && fc.step !== 'teams' && !state.picked.length) fc.step = 'teams';
@@ -42,6 +44,7 @@
   function step() { return edit || (fc.step === 'done' ? '' : fc.step); }
   window.tpFlowC = {
     step: step,
+    ticketsAnswered: function () { return ticketsAnswered(); }, // answered or skipped: nothing prompts for tickets again
     inCard: function () { return !step(); }, // finished: Your days and Where you're staying sit in the card
     inLevel: function () { return cardOpen; }, // the Your answers level is open in the plan: its Save bar says what changed
     // Home's Plan around your matches: the step showing, or, once the questions are done, the plan with the card
@@ -68,7 +71,8 @@
   function myTickets() { return tixMatches().filter(function (m) { return state.tickets.indexOf(m.tkey) > -1; }); }
   function baseLabel(b) { return b === 'outside' ? 'Outside NSW' : b; }
   function teamsText() { return state.picked.length ? tp.list(state.picked.slice()) : 'None picked'; }
-  function ticketsText() { var n = myTickets().length; return n ? n + (n === 1 ? ' match' : ' matches') : fc.none ? 'None yet' : 'Not answered'; }
+  function ticketsAnswered() { return !!(fc.tix || fc.none || myTickets().length || fc.step === 'done' || STEPS.indexOf(fc.step) > STEPS.indexOf('tickets')); }
+  function ticketsText() { var n = myTickets().length; return n ? n + (n === 1 ? ' match' : ' matches') : fc.none ? 'None yet' : ticketsAnswered() ? 'Skipped' : 'Not answered'; }
   function daysText() { var t = state.trip; return t && t.from && t.to ? tp.isoRange(t.from, t.to) : 'Not set'; }
   function stayText() { var t = state.trip; return t && t.base ? baseLabel(t.base) : 'Not set'; }
   /* ---------- The step's head and foot, around the borrowed controls ---------- */
@@ -329,6 +333,7 @@
   }
   function go(to, dir) {
     if (to === 'done') closeLevel(false, true);
+    if (fc.step === 'tickets' && to !== 'tickets' && dir > 0) fc.tix = true; // Next or Skip on Tickets: it has been answered or left
     fc.step = to; keep(); show(dir, to !== 'done');
     // Finished: the card goes into the plan, so the page starts with Your matches
     if (to === 'done') { var y = document.getElementById('tp-yours-title'), r = document.getElementById('tp-results'); toTopOf(y && !r.hidden ? y : pick); }
@@ -355,7 +360,7 @@
     if (b.dataset.fcNone !== undefined) {
       // No tickets yet replaces any marked; pressing it again takes the answer back
       var had = myTickets();
-      fc.none = !(fc.none && !had.length); keep();
+      fc.none = !(fc.none && !had.length); fc.tix = true; keep();
       had.forEach(function (m) { tp.setTicket(m.tkey, false); });
       draw();
       tp.say(fc.none ? 'No tickets yet.' + (had.length ? ' ' + had.length + (had.length === 1 ? ' ticket' : ' tickets') + ' cleared.' : '') : 'Answer cleared.');
@@ -363,7 +368,7 @@
     }
     if (b.dataset.fcTix) {
       var on = state.tickets.indexOf(b.dataset.fcTix) < 0, m = tp.match(b.dataset.fcTix); // a ticket key is its match key
-      fc.none = false; keep();
+      fc.none = false; fc.tix = true; keep();
       tp.setTicket(b.dataset.fcTix, on);
       draw();
       tp.say((on ? 'Ticket marked: ' : 'Ticket removed: ') + (m ? m.f.t : '') + '.');
@@ -377,6 +382,9 @@
       var first = head.querySelector('[data-fc-none]'); if (first) first.focus({ preventScroll: true });
     }
   });
+  // The cross at the top right of the plan sheet itself closes it, as the grabber and Escape do (26 Nov 2026)
+  // It closes the whole sheet, the Your answers level included
+  document.addEventListener('click', function (e) { if (!e.target.closest('[data-tl-close]')) return; if (cardOpen) closeLevel(false, true); if (tp.closeTimeline) tp.closeTimeline(); });
   // Escape on the Your answers level goes back one step, to the plan, before the plan's own Escape closes it (not while
   // a sheet is stacked over the plan, or Find is open: those close first)
   if (tlEl) tlEl.addEventListener('keydown', function (e) {

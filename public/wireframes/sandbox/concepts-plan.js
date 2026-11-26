@@ -144,9 +144,6 @@
       .concat(screens.concat(after, rest).map(function (it) { return itemHtml(it, day); }))
       .concat(day.nights.map(function (x) { return '<li class="tp-dc-night"><span class="ph-img tp-dc-img"' + tp.imgKey(x.it.title) + ' aria-hidden="true"></span><div class="tp-dc-it-b"><span class="tp-dc-nm">' + esc(x.it.title) + ', night ' + x.n + '</span><span class="tp-dc-type">' + esc(x.it.kindLabel || 'Longer trip') + '</span></div></li>'; }));
     var h = li.length ? '<ul class="tp-dc-list">' + li.join('') + '</ul>' : '<p class="tp-dc-empty">Nothing added yet.</p>';
-    // Not going to the match? (Stage C, F-029): after the day's own list, so it is read before, the match, after, then this
-    var nm = day.ms.filter(function (m) { return !m.f.a; }), eve = nm.length && tp.eveningHtml ? tp.eveningHtml(nm.filter(hasTicket)[0] || nm[0]) : '';
-    if (eve) h += '<div class="tp-dc-eve">' + eve + '</div>';
     if (day.ideas) h += '<button type="button" class="tp-dc-ideas" data-dc-ideas="' + day.d + '" aria-haspopup="dialog">' + window.tpIcons.add + '<span>Add ideas</span></button>';
     return h;
   }

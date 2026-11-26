@@ -588,9 +588,9 @@
     if (!free) { if (x.p.html) { setSheet(true); hot(x.p.n, true); } return; }
     // Explore freely: a small card for the pin, with Add for its day and a way to that day
     var c = x.c || cards[x.i];
-    pop.innerHTML = '<p class="tp-map-pop-t">' + esc(x.p.title) + '</p><p class="tp-map-pop-m">' + esc(x.p.kindLabel) + ' · ' + esc(c.label) + '</p>' +
+    pop.innerHTML = '<button type="button" class="cn-close tp-pop-x" data-mpop-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>' + '<p class="tp-map-pop-t">' + esc(x.p.title) + '</p><p class="tp-map-pop-m">' + esc(x.p.kindLabel) + ' · ' + esc(c.label) + '</p>' +
       '<div class="tp-map-pop-a">' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add to ' + esc(c.label) + '</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') +
-      '<button type="button" class="tp-link" data-mgo="' + x.i + '" data-mday="' + c.day + '">Go to ' + esc(c.label) + '</button><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
+      '<button type="button" class="tp-link" data-mgo="' + x.i + '" data-mday="' + c.day + '">Go to ' + esc(c.label) + '</button></div>';
     pop.hidden = false;
     var f = pop.querySelector('.tp-add, [data-mgo]'); if (f) f.focus({ preventScroll: true });
   });
@@ -599,12 +599,12 @@
     var b = e.target.closest('.tp-map-cluster'); if (!b) return;
     var g = clusters[+b.dataset.g]; if (!g) return;
     if (cam.s < 1.15) { cancelAnimationFrame(anim); var to = { x: cam.x + (g.cx - vw / 2) / cam.s, y: cam.y + (g.cy - cam.fy) / cam.s, s: Math.min(1.2, cam.s * 2.2), fy: cam.fy }; glide(clampCam(to)); return; } // closest zoom: list them
-    pop.innerHTML = '<p class="tp-map-pop-t">' + g.length + ' stops here</p><ul class="tp-map-pop-l">' + g.map(function (q) {
+    pop.innerHTML = '<button type="button" class="cn-close tp-pop-x" data-mpop-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>' + '<p class="tp-map-pop-t">' + g.length + ' stops here</p><ul class="tp-map-pop-l">' + g.map(function (q) {
       var x = q.o.x, c = x.c || cards[x.i];
       return '<li><span><b>' + esc(x.p.title) + '</b> \u00b7 ' + esc(c.label) + '</span>' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') + '</li>';
-    }).join('') + '</ul><div class="tp-map-pop-a"><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
+    }).join('') + '</ul>';
     pop.hidden = false;
-    var f = pop.querySelector('.tp-add, [data-mpop-close]'); if (f) f.focus({ preventScroll: true });
+    var f = pop.querySelector('.tp-add') || pop.querySelector('[data-mpop-close]'); if (f) f.focus({ preventScroll: true });
   });
   pop.addEventListener('click', function (e) {
     var g = e.target.closest('[data-mgo]');
@@ -614,7 +614,7 @@
 
   /* ---------- Jump to a day ---------- */
   function openJump() {
-    jump.innerHTML = '<div class="tp-map-jump-top"><h4 id="tp-map-jump-h">Your days</h4><button type="button" class="tp-link" data-jclose>Close</button></div><ol class="tp-map-jump-l">' +
+    jump.innerHTML = '<div class="tp-map-jump-top"><h4 id="tp-map-jump-h">Your days</h4><button type="button" class="cn-close" data-jclose aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div><ol class="tp-map-jump-l">' +
       steps.map(function (st, i) { var c = cards[i]; return '<li><button type="button" data-jump="' + i + '"' + (i === cur ? ' aria-current="step"' : '') + '><span class="tp-map-jump-n">' + (i + 1) + '</span><span class="tp-map-jump-d">' + esc(st.days.length > 1 ? c.label.replace(/ (Oct|Nov)$/, '') + ' to ' + cardsFor(st, st.days[st.days.length - 1]).label : c.label) + '</span><span class="tp-map-jump-k">' + esc(c.kicker.split(' · ').slice(1).filter(function (x) { return !/^from /.test(x); }).join(' · ')) + (c.place ? ' · ' + esc(c.place) : '') + '</span></button></li>'; }).join('') +
       '</ol><div class="tp-map-jump-a"><button type="button" class="tp-link tp-map-jump-list" data-mlist2>See as a list instead</button><button type="button" class="tp-link tp-map-jump-list" data-mback2>Back to the overview</button></div>';
     jump.hidden = false; pill.setAttribute('aria-expanded', 'true');
@@ -1140,7 +1140,7 @@
       var x = VENS[k], ms = venShows(x), picked = tp.own(), fz = x.v.type === 'fan_zone';
       popAt = 'v' + k;
       var list = ms.slice(0, 5).map(function (m) { return esc(m.f.t) + ', ' + esc(m.f.d) + (m.f.k ? ', ' + esc(m.f.k) : '') + (m.f.a ? ' (in ' + esc(m.f.a) + ')' : ''); });
-      opop.innerHTML = '<div class="tp-ov-pop-top"><h4 class="tp-map-pop-t" id="tp-ov-pop-h" tabindex="-1">' + esc(x.v.name) + '</h4><button type="button" class="tp-link" data-oclose>Close</button></div>' +
+      opop.innerHTML = '<div class="tp-ov-pop-top"><h4 class="tp-map-pop-t" id="tp-ov-pop-h" tabindex="-1">' + esc(x.v.name) + '</h4><button type="button" class="cn-close" data-oclose aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div>' +
         '<p class="tp-map-pop-m">' + esc(VTYPE[x.v.type] || 'Screening') + ' \u00b7 ' + esc(x.v.place) + '<span class="tp-placeholder"> \u00b7 placeholder venue</span></p>' +
         '<p class="tp-ov-pop-k">' + (picked ? 'Your matches it shows' : 'Screenings') + '</p>' +
         (picked ? (list.length ? '<p class="tp-ov-pop-ms">' + list.join('<br>') + (ms.length > 5 ? '<br>and ' + (ms.length - 5) + ' more' : '') + '</p>' : '<p class="tp-map-pop-m">None of your matches is listed here yet.</p>')
@@ -1157,14 +1157,14 @@
       if (typeof k === 'string') { showVen(+k.slice(1), keep); return; }
       var l = LOCS[k], ms = l.kind === 'stadium' ? matchesAt(l.id) : [];
       popAt = k;
-      var h = '<div class="tp-ov-pop-top"><h4 class="tp-map-pop-t" id="tp-ov-pop-h" tabindex="-1">' + esc(l.kind === 'village' ? 'Fan village' : l.name) + '</h4><button type="button" class="tp-link" data-oclose>Close</button></div>' +
+      var h = '<div class="tp-ov-pop-top"><h4 class="tp-map-pop-t" id="tp-ov-pop-h" tabindex="-1">' + esc(l.kind === 'village' ? 'Fan village' : l.name) + '</h4><button type="button" class="cn-close" data-oclose aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></div>' +
         '<p class="tp-map-pop-m">' + esc(l.area) + (l.kind === 'village' ? ' · placeholder: big screens and fan events, details to come' : '') + '</p>' +
         (ms.length ? '<p class="tp-ov-pop-ms">' + ms.map(function (m) { return esc(m.f.t || 'To be decided') + ', ' + esc(m.f.d) + (m.f.k ? ', ' + esc(m.f.k) : ''); }).join('<br>') + '</p>' : '') +
         '<p class="tp-ov-pop-k">Nearby</p><ul class="tp-map-pop-l">' + l.near.map(function (p) {
           var it = itemOf(p), on = !!it;
           var note = !it ? '' : it.unplaced ? (state.trip && state.trip.from ? 'Saved, not placed yet. No free day fits it yet.' : 'Saved, not placed yet. It goes into a free day once you set your days.') : 'On your plan: ' + it.day;
           return '<li><span class="ph-img tp-pc-img tp-ov-pop-img" data-img="' + esc(String(p.title || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')) + '" aria-hidden="true"></span><span class="tp-ov-pop-txt"><button type="button" class="tp-link tp-place-link" data-open="poi:' + p.id + '" aria-haspopup="dialog">' + esc(p.title) + '</button><span class="tp-ov-pop-d">' + esc(p.cat) + ' · ' + esc(p.area) + ' · ' + esc(openDays(p)) + '</span>' + (note ? '<span class="tp-ov-pop-n" data-onote="' + p.id + '">' + esc(note) + '</span>' : '') + '</span>' +
-            '<button type="button" class="tp-add" data-oadd="' + p.id + '" aria-pressed="' + on + '"><span aria-hidden="true">' + (on ? TICK : PLUS) + '<span class="tp-add-t">' + (on ? 'Added' : 'Add') + '</span></span><span class="visually-hidden">' + (on ? 'Remove ' : 'Add ') + esc(p.title) + (on ? ' from your plan' : ' to your plan') + '</span></button></li>';
+            '<button type="button" class="tp-add" data-oadd="' + p.id + '" aria-pressed="' + on + '"><span aria-hidden="true">' + (on ? TICK : PLUS) + '<span class="tp-add-t">' + (on ? 'Added' : 'Add') + '</span></span><span class="visually-hidden">' + (on ? 'Added: ' : 'Add ') + esc(p.title) + (on ? '. Press to remove' : ' to your plan') + '</span></button></li>';
         }).join('') + '</ul>';
       var focusSel = keep && document.activeElement && opop.contains(document.activeElement) && document.activeElement.dataset.oadd ? '[data-oadd="' + document.activeElement.dataset.oadd + '"]' : null;
       opop.innerHTML = h; opop.hidden = false;
