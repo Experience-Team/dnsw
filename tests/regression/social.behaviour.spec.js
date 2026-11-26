@@ -24,7 +24,7 @@ for (const V of VERSIONS) {
       await go(page);
       await expect(page.locator(sec)).toBeVisible();
       expect(await page.locator(sec).evaluate((e) => e.nextElementSibling.id)).toBe('tp-home-faq');
-      await expect(page.locator(`${sec} h3`)).toHaveText('Sydney on social');
+      await expect(page.locator(`${sec} :is(h2, h3)`)).toHaveText('Sydney on social'); // Version 2's section headings are h2 under its hero h1 (26 Nov 2026), Version 1's h3
       await expect(page.locator(`${sec} ${sel('ring')}`)).toHaveCount(2);
       await expect(page.locator(`${sec} ${sel('post')}`)).toHaveCount(6);
       await expect(page.locator(`${sec} ${sel('visit')} a`)).toHaveText([/Visit Instagram/, /Visit TikTok/]);

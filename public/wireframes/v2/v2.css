@@ -300,6 +300,12 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
   html[data-flow="v2"].pv-device #tp-phone .tp-home-hero > .tp-home-video { margin-inline: calc(-1 * var(--wide-pad)); width: auto; aspect-ratio: auto; height: clamp(400px, 56vh, 600px); }
   html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-home-video-tag { left: var(--wide-pad); }
 
+  /* Header and hero (26 Nov 2026): the hero picture sits straight under the header's rule (a 40px strip of paper between a
+     full-bleed picture and the rule read as a gap, not a band), and its line is set at a size that holds the first screen
+     with a picture 1,400px wide */
+  html[data-flow="v2"].pv-device #tp-phone .v2-menu-wrap { margin-bottom: calc(var(--top-h, 110px) / 2 - 22px); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-event { font-size: 1.25rem; line-height: 1.25; letter-spacing: .08em; }
+
   /* Page rhythm (Experience principles 4): 48px between families, the largest break (96px) after the hero */
   html[data-flow="v2"].pv-device #tp-phone #tp-home { --sec-gap: var(--space-7); }
   html[data-flow="v2"].pv-device #tp-phone .tp-home-hero + .tp-home-sec { margin-top: var(--space-9); }
