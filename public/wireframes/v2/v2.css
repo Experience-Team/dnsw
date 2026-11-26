@@ -18,13 +18,15 @@ html[data-flow="v2"] .tp-rugby-line, html[data-flow="v2"] [data-rugby], html[dat
    Adding a team stays, as that is the same pick as its card */
 html[data-flow="v2"] #tp-pm .tp-pm-add[data-pm-match], html[data-flow="v2"] #tp-pm .tp-pm-ticket, html[data-flow="v2"] #tp-pm .tp-ticket-why { display: none !important; }
 
-/* Menu, in the capsule's place (to be refined). The wrapper keeps the capsule's height and margins (.tp-cap-wrap), so
-   the page lays out as it did; the button sits at its right */
-.v2-menu-wrap { display: flex; justify-content: flex-end; min-height: 44px; pointer-events: none; }
-.v2-menu-btn { pointer-events: auto; display: inline-flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 var(--space-4) 0 14px; border: 0; border-radius: 22px; background: var(--c-btn); color: var(--c-on-dark, #fff); font: inherit; font-weight: 600; font-size: 1rem; cursor: pointer; box-shadow: 0 0 0 1px rgba(250, 247, 240, .35); transition: transform .12s ease-out; }
-.v2-menu-btn:active { transform: scale(.97); }
-.v2-menu-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
-.v2-menu { pointer-events: auto; position: absolute; top: calc(100% + var(--space-2)); right: 0; min-width: 220px; padding: var(--space-2); border-radius: 16px; background: var(--c-btn); color: var(--c-on-dark, #fff); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); transform-origin: 100% 0; }
+/* Menu: a plain hamburger in the action bar (no pill, 26 Nov 2026). The bar is the first thing in the phone, over the
+   page (see Header and the bar below); its name is still read out */
+.v2-menu-btn { pointer-events: auto; display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--c-ink); font: inherit; cursor: pointer; transition: background-color .12s ease-out; }
+.v2-menu-btn svg { width: 20px; height: 20px; }
+@media (hover: hover) { .v2-menu-btn:hover { background: rgba(17, 17, 17, .08); } }
+.v2-menu-btn:active { background: rgba(17, 17, 17, .14); }
+.v2-menu-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 0; }
+#v2-menu-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.v2-menu { pointer-events: auto; position: absolute; top: calc(100% + var(--space-2)); right: var(--space-5); min-width: 220px; padding: var(--space-2); border-radius: 16px; background: var(--c-btn); color: var(--c-on-dark, #fff); box-shadow: 0 8px 24px rgba(17, 17, 17, .28); transform-origin: 100% 0; }
 .v2-menu-list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
 .v2-menu-i { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 var(--space-3); border: 0; border-radius: 10px; background: none; color: inherit; font: inherit; font-size: 1rem; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
 .v2-menu-i:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
@@ -145,43 +147,43 @@ html[data-flow="v2"] #tp-home-glance .tp-home-more { display: none; }
 /* Desktop website: the Menu button sits in the middle of the header, so its menu opens under it, not at the far right */
 @media (min-width: 1024px) { .pv-device #tp-phone .v2-menu { right: auto; left: 50%; width: 312px; margin-left: -156px; transform-origin: 50% 0; } }
 
-/* ---------- Header (24 Nov): the host city lockup far left, the Third Half logo to its right, the menu far right ----------
-   On phones and on desktop. The menu's wrapper is pulled up into the header row (--top-h is the header's height, set
-   by v2-view.js) and still sticks to the top of the screen once the header has scrolled away */
-html[data-flow="v2"] #tp-phone .tp-top { justify-content: flex-start; gap: var(--space-3); padding-right: calc(var(--space-5) + 44px + var(--space-3)); }
+/* ---------- Header and the action bar (24 Nov; the bar since 26 Nov 2026) ----------
+   The full header is the host city lockup far left and the Third Half logo to its right, then, at rest, a second row holding Your plan and the hamburger at the right. That row is one bar (the
+   wrapper, #v2-menu-wrap) that sits over the page, first in the phone; at rest it is in the slot under the header
+   (#v2-bar-slot) and it follows the scroll (v2-header.js): it leaves with the page on the way down and comes back on
+   the way up as a slim header, a bar with the paper behind it and a rule under it. On the desktop website the slot is
+   in the header's own row, at the right edge of the content, so the header is one row at rest. */
+:root { --v2-bar-h: 56px; }
+html[data-flow="v2"] #tp-phone .tp-top { position: relative; flex-wrap: wrap; justify-content: flex-start; gap: 0 var(--space-3); }
 html[data-flow="v2"] #tp-phone .tp-top .tp-lockup { order: -1; }
-html[data-flow="v2"] #tp-phone .v2-menu-wrap { justify-content: flex-end; margin: calc(-1 * (var(--top-h, 87px) / 2 + 22px)) var(--space-5) calc(var(--top-h, 87px) / 2 - 22px); }
-/* Phones: the hamburger alone, so the three fit on one row; its name is still read out */
-.v2-menu-btn { justify-content: center; }
-html:not(.pv-device) .v2-menu-btn, .pv-device .v2-menu-btn { width: 44px; padding: 0; }
-html:not(.pv-device) .v2-menu-btn span, .pv-device .v2-menu-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html[data-flow="v2"] #tp-phone .tp-top .v2-bar-slot { order: 9; flex: 1 0 100%; height: var(--v2-bar-h); margin: 0 calc(-1 * var(--space-5)) calc(-1 * var(--space-4)); }
+html[data-flow="v2"] #tp-phone > #v2-menu-wrap { position: absolute; top: 0; left: 0; right: 0; z-index: 130; display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); height: var(--v2-bar-h); min-height: 0; margin: 0; padding: 0 var(--space-5); background: transparent; box-shadow: none; pointer-events: none; transform: translate3d(0, var(--v2-bar-y, 0px), 0); will-change: transform; }
+html[data-flow="v2"] #tp-phone > #v2-menu-wrap::before { content: none; }
+html[data-flow="v2"] #tp-phone > #v2-menu-wrap.is-over { background: var(--c-surface); box-shadow: 0 1px 0 var(--c-line-soft); }
+html[data-flow="v2"] #tp-phone > #v2-menu-wrap.is-easing { transition: transform .26s cubic-bezier(.2, .7, .2, 1); }
+@media (prefers-reduced-motion: reduce) { html[data-flow="v2"] #tp-phone > #v2-menu-wrap.is-easing { transition: none; } }
 @media (min-width: 1024px) {
-  /* Desktop website: the button keeps its word, at the right edge of the content */
-  .pv-device .v2-menu-btn { width: auto; padding: 0 var(--space-4) 0 14px; }
-  .pv-device .v2-menu-btn span { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
-  .pv-device #tp-phone .tp-top { padding-right: calc(var(--wide-pad) + 120px); gap: var(--space-5); }
-  html[data-flow="v2"] .pv-device #tp-phone .v2-menu-wrap, html[data-flow="v2"].pv-device #tp-phone .v2-menu-wrap { justify-content: flex-end; padding-right: var(--wide-pad);
-    margin: calc(-1 * (var(--top-h, 110px) / 2 + 22px)) calc(-1 * (var(--wide-pad) + var(--rail-span))) calc(var(--top-h, 110px) / 2 + 18px) calc(-1 * var(--wide-pad)); }
-  .pv-device #tp-phone .v2-menu { left: auto; right: var(--wide-pad); margin-left: 0; transform-origin: 100% 0; }
+  /* Desktop website: the bar is in the header's own row at rest (the slot is centred in the header and takes no height),
+     its buttons at the content's right edge (the scrollbar's width is added, as the bar spans the window) */
+  html[data-flow="v2"].pv-device #tp-phone .tp-top .v2-bar-slot { position: absolute; top: 50%; right: 0; flex: none; width: 1px; margin: 0; transform: translateY(-50%); }
+  html[data-flow="v2"].pv-device #tp-phone > #v2-menu-wrap { padding: 0 calc(var(--wide-pad) + var(--v2-sbw, 0px)) 0 var(--wide-pad); }
+  .pv-device #tp-phone .v2-menu { left: auto; right: calc(var(--wide-pad) + var(--v2-sbw, 0px)); width: 312px; margin-left: 0; transform-origin: 100% 0; }
 }
 
 /* ---------- Your plan: the simple saved list (24 Nov, v2-saved.js) ---------- */
 /* The button: pinned bottom right on phones (Home and articles), in the header beside Menu on the desktop website.
    Not shown while the game or the places are over the page. A shadow stands in for the pinned bar's top rule */
-.v2-pb { position: absolute; right: var(--space-4); bottom: var(--space-4); z-index: 200; display: inline-flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 var(--space-4) 0 14px; border: 0; border-radius: 22px; background: var(--c-btn); color: var(--c-on-dark, #fff); font: inherit; font-weight: 600; font-size: 1rem; cursor: pointer; box-shadow: 0 0 0 1px rgba(250, 247, 240, .35), 0 6px 18px rgba(17, 17, 17, .28); transition: transform .12s ease-out; }
-.v2-pb[hidden] { display: none; }
-.v2-pb:active { transform: scale(.97); }
-.v2-pb:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+/* Your plan: a button in the action bar (26 Nov 2026), a small rectangular button like the page's own, not a pill. The one
+   pinned bottom right on phones is gone: the bar has it. Not shown while the game or the places are over the page (they
+   cover the bar) */
+.v2-pb:not(.v2-pb--top) { display: none !important; }
 .v2-pb-n { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--c-accent, #ff4802); color: var(--c-on-accent, #111); font-size: .75rem; font-weight: 700; line-height: 1; }
 .v2-pb-n:empty { display: none; }
-.v2-playing .v2-pb:not(.v2-pb--top) { display: none; }
-.v2-pb--top { position: static; display: none; margin-right: var(--space-2); box-shadow: 0 0 0 1px rgba(250, 247, 240, .35); pointer-events: auto; }
-html:not(.pv-device) .v2-pb--top, .pv-device .v2-pb--top { width: auto; padding: 0 var(--space-4) 0 14px; }
-html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
-@media (min-width: 1024px) {
-  .pv-device .v2-pb:not(.v2-pb--top) { display: none; }
-  .pv-device .v2-pb--top:not([hidden]) { display: inline-flex; }
-}
+.v2-pb--top { pointer-events: auto; display: none; align-items: center; gap: var(--space-2); width: auto; height: 36px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: var(--c-btn); color: var(--c-on-dark, #fff); font: inherit; font-size: .9375rem; font-weight: 600; cursor: pointer; }
+.v2-pb--top:not([hidden]) { display: inline-flex; }
+@media (hover: hover) { .v2-pb--top:hover { background: var(--c-btn-hover, #333); } }
+.v2-pb--top:active { transform: scale(.97); }
+.v2-pb--top:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .v2-fly { z-index: 700; background: var(--c-accent, #ff4802); }
 .v2-menu-n { font-weight: 400; opacity: .75; }
 
@@ -303,7 +305,6 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
   /* Header and hero (26 Nov 2026): the hero picture sits straight under the header's rule (a 40px strip of paper between a
      full-bleed picture and the rule read as a gap, not a band), and its line is set at a size that holds the first screen
      with a picture 1,400px wide */
-  html[data-flow="v2"].pv-device #tp-phone .v2-menu-wrap { margin-bottom: calc(var(--top-h, 110px) / 2 - 22px); }
   html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-event { font-size: 1.25rem; line-height: 1.25; letter-spacing: .08em; }
 
   /* Page rhythm (Experience principles 4): 48px between families, the largest break (96px) after the hero */
