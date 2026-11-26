@@ -1869,72 +1869,14 @@
   function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
   function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
   function dMatches() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
-  /* ---------- Dates (26 Nov 2026): one range calendar, and a read-only strip above it ----------
-     The strip shows the tournament in NSW, 29 Sep to 15 Nov, and scrolls sideways: the person's matches solid (NSW) or
-     hollow (elsewhere), every other NSW match small and grey, the later rounds as diamonds with their stage. It is never
-     an input; the calendar below it is open, and the first tap sets the first day, the second the last. */
-  var STRIP_DW = 40, STRIP_PAD = 28;
-  function stageShort(f) { var x = f.s || ''; return /^Round of 16/.test(x) ? 'R16' : /^Quarter/.test(x) ? 'QF' : /^Semi/.test(x) ? 'SF' : /^Bronze/.test(x) ? 'Bronze' : /^Final/.test(x) ? 'Final' : x; }
+  /* ---------- Dates (26 Nov 2026): one range calendar, open by default: the first tap sets the first day, the second the last.
+     The read-only strip above it was taken out the same day (it was noise beside the calendar, which marks the same matches). */
   function ownKeys() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { o[m.key] = true; }); return o; }
   // NSW matches that are not the person's: other teams' pool matches and the later rounds, by day
   function tmDays() {
     var own = ownKeys(), o = {};
     tp.allMatches().forEach(function (m) { if (!m.f.a && !own[m.key]) (o[m.day] = o[m.day] || []).push(m); });
     return o;
-  }
-  function stripX(d) { return STRIP_PAD + (d - RMIN) * STRIP_DW; }
-  function stripBandStyle(sel) {
-    if (!sel) return 'display:none';
-    var z = sel.z === null || sel.z === undefined ? sel.a : sel.z;
-    return 'left:' + (stripX(sel.a) - STRIP_DW / 2) + 'px;width:' + ((z - sel.a + 1) * STRIP_DW) + 'px';
-  }
-  function stripHtml(sel) {
-    var own = ownKeys(), byDay = {}, maxN = 0, MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    tp.allMatches().forEach(function (m) {
-      var mine = !!own[m.key];
-      if (m.f.a && !mine) return; // another team's match elsewhere is not on the strip
-      (byDay[m.day] = byDay[m.day] || []).push({ m: m, mine: mine });
-    });
-    Object.keys(byDay).forEach(function (k) {
-      byDay[k].sort(function (a, b) { return (b.mine ? 1 : 0) - (a.mine ? 1 : 0); }); // theirs on top
-      maxN = Math.max(maxN, byDay[k].length);
-    });
-    var rowH = 16, top = 6, mH = top + Math.max(1, maxN) * rowH + 4, H = mH + 44, w = STRIP_PAD * 2 + RSPAN * STRIP_DW;
-    var say = Object.keys(byDay).length ? 'Matches marked by day.' : '';
-    var h = '<div class="v1-strip-wrap"><div class="v1-strip" tabindex="0" role="group" aria-label="The tournament in NSW, 29 September to 15 November. Scrolls sideways. ' + say + '">' +
-      '<div class="v1-strip-in" style="width:' + w + 'px;height:' + H + 'px"><span class="v1-strip-band" style="' + stripBandStyle(sel) + ';height:' + H + 'px"></span>' +
-      '<span class="v1-strip-axis" style="top:' + mH + 'px;left:' + STRIP_PAD + 'px;width:' + (RSPAN * STRIP_DW) + 'px"></span>';
-    for (var d = RMIN; d <= RMAX; d++) {
-      var dt = new Date(Date.UTC(2027, 9, 1 + d)), n = dt.getUTCDate(), wd = dt.getUTCDay();
-      h += '<span class="v1-strip-d' + (wd === 0 || wd === 6 ? ' is-we' : '') + '" style="left:' + stripX(d) + 'px;top:' + mH + 'px" aria-hidden="true"><i></i><b>' + n + '</b>' +
-        (n === 1 || wd === 1 || d === RMIN ? '<em>' + MON[dt.getUTCMonth()] + '</em>' : '') + '</span>';
-      (byDay[d] || []).forEach(function (x, i) {
-        var f = x.m.f, ko = isKo(f), cls = ko ? 'is-ko' : x.mine ? (f.a ? 'is-mine is-away' : 'is-mine') : 'is-other';
-        h += '<span class="v1-strip-m ' + cls + '" aria-hidden="true" title="' + esc(dayLabel(d) + ': ' + matchName(f) + (f.a ? ' (in ' + f.a + ')' : '')) + '" style="left:' + stripX(d) + 'px;top:' + (top + i * rowH) + 'px">' +
-          (ko ? '<u>' + esc(stageShort(f)) + '</u>' : '') + '</span>';
-      });
-    }
-    h += '</div></div><p class="v1-strip-key" aria-hidden="true"><span class="v1-k v1-k-mine">Your match in NSW</span><span class="v1-k v1-k-away">Your match elsewhere</span>' +
-      '<span class="v1-k v1-k-other">Other NSW match</span><span class="v1-k v1-k-ko">Later rounds</span></p></div>';
-    return h;
-  }
-  // The band follows the calendar in place, with no redraw, so the strip keeps where it was scrolled
-  function stripBand(sp, sel) {
-    var b = sp.querySelector('.v1-strip-band'); if (!b) return;
-    var H = b.style.height; b.setAttribute('style', stripBandStyle(sel) + ';height:' + H);
-  }
-  var stripKeep = { ask: null, pm: null };
-  // On open or redraw: back to where it was, or at the first day (or the first match of theirs) with the one before it in view
-  function stripSettle(root, sel, key) {
-    var sp = root.querySelector('.v1-strip'); if (!sp) return;
-    var k = key || (root === ask ? 'ask' : 'pm'), at = stripKeep[k];
-    if (at === null || at === undefined) {
-      var first = sel ? sel.a : null;
-      if (first === null) { var own = tp.own() ? tp.userMatchesAll().filter(function (m) { return !m.f.a; }) : []; first = own.length ? own[0].day : 0; }
-      at = Math.max(0, stripX(first) - STRIP_DW * 2.5);
-    }
-    sp.scrollLeft = at;
-    if (!sp.dataset.bound) { sp.dataset.bound = '1'; sp.addEventListener('scroll', function () { stripKeep[k] = sp.scrollLeft; }, { passive: true }); }
   }
   // What they picked, so they need not go back to check: each match with its date (the step "When are you in NSW?")
   function stepMatchesHtml() {
@@ -2002,8 +1944,6 @@
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
-      // The tournament at a glance (read only), then the calendar: the first tap sets the first day, the second the last
-      stripHtml(dsel) +
       '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
       // dates stay in view and it is clear the plan waits for that tap
@@ -2018,7 +1958,7 @@
     var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
     openPm(stay ? 'days:stay' : 'days', opener, overTl);
     pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
-    daysPaint(); stripSettle(pm, dsel, 'pm');
+    daysPaint();
   }
   // Setting the days rebuilds the sections above the link that opened the sheet; the page is held so that link (now
   // Change) stays exactly where it was on screen, and focus goes back to it
@@ -2035,14 +1975,12 @@
   }
   function daysRefresh(focusSel) {
     pmBody.innerHTML = pmDays();
-    daysPaint(); stripSettle(pm, dsel, 'pm');
+    daysPaint();
     var el = focusSel && pm.querySelector(focusSel);
     if (el && !el.disabled) el.focus({ preventScroll: true });
   }
   // Selection drawn in place (slider handles, calendar days, summary, Use these dates): a drag never rebuilds the sheet
   function daysPaint() {
-    var sp = pm.querySelector('.v1-strip-wrap'); if (!sp) return;
-    stripBand(sp, dsel);
     pm.querySelectorAll('[data-dday]').forEach(function (b) {
       var d = +b.dataset.dday, st = !!dsel, s0 = st && d === dsel.a, s1 = st && dsel.z !== null && d === dsel.z, mid = st && dsel.z !== null && d > dsel.a && d < dsel.z;
       b.classList.toggle('is-start', s0); b.classList.toggle('is-end', s1); b.classList.toggle('is-in', mid);
@@ -2431,7 +2369,7 @@
     } else {
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       h += '<p class="tp-sec-note">' + esc(own ? WHY : WHY_NONE) + '</p>' +
-        (step === 'days' ? stepMatchesHtml() : '') + stripHtml(asel) +
+        (step === 'days' ? stepMatchesHtml() : '') +
         '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
         '<p class="tp-days-sum v1-cal-sum" aria-live="polite">' + esc(askSum(asel)) + '</p>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
@@ -2461,7 +2399,6 @@
     }
     h += '</div>';
     ask.innerHTML = h;
-    if (ask.querySelector('.v1-strip')) stripSettle(ask, asel, 'ask');
   }
   function placeList() {
     var q = placeQ.trim().toLowerCase(); if (!q) return '';
