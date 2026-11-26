@@ -1078,6 +1078,9 @@
     hint.textContent = deck.children.length > 1 ? 'Swipe for your other cards.' : 'Swipe sideways for more matches.';
     requestAnimationFrame(function () { hint.hidden = deck.scrollWidth <= deck.clientWidth + 2; });
     sum.textContent = summary();
+    // One card already says its count (Group A · 3 group matches · 1 in NSW): the line above it only repeats it, so it shows for
+    // two or more cards, or when a ticket is counted (distilled in the sandbox, 26 Nov 2026)
+    sum.hidden = deck.children.length === 1 && !state.tickets.length;
     lastDeckSig = deckSig();
     // (The box saying a team plays all its pool matches interstate is gone: each card's meta line says all interstate)
     // The newest card comes in gently and says it is new: it rises into place, the deck slides to it, and its

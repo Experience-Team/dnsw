@@ -943,7 +943,7 @@
       var st = can ? 3 : tp.own() ? 2 : 1;
       var none = !state.picked.length;
       osub.textContent = st === 1 ? 'The stadiums, the fan village, things near each, and places to watch (TV pins). Pick a team to see where they play.'
-        : st === 2 ? (mine().some(function (m) { return !m.f.a; }) ? (tp.rugby() ? 'Every NSW match on its stadium, and things nearby.' : 'Where your teams play in NSW, and things near each, as cards over the map. Swipe them, or use Previous and Next.') : 'Your teams play interstate. The cards over the map are places in NSW to watch them.')
+        : st === 2 ? (mine().some(function (m) { return !m.f.a; }) ? (tp.rugby() ? 'Every NSW match on its stadium, and things nearby.' : 'Things near where your teams play in NSW. Swipe the cards or use Previous and Next.') : 'Your teams play interstate. The cards over the map are places in NSW to watch them.')
         : tp.own() ? 'Your matches and what you’ve added, around NSW.' : 'The stadiums, the fan village and things near each, for your days.';
       ofollow.hidden = st !== 3;
       var sig = st + '|' + (none ? '' : state.picked.join(',')) + '|' + mine().map(function (m) { return m.key || m.f.d + m.f.t; }).join(',') + '|' + state.added.map(function (x) { return x.id; }).join(',') + '|' + (state.trip ? state.trip.from + state.trip.to : '');

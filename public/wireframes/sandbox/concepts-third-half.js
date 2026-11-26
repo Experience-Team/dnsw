@@ -160,7 +160,7 @@
   function goingQ(ms) {
     var open = ms.filter(function (m) { return m.tkey && !hasTicket(m); });
     if (!open.length) return '';
-    var m = open[0], q = open.length === 1 ? 'Going to ' + matchName(m.f) + '?' : 'Going to one of these?';
+    var m = open[0], q = open.length === 1 ? 'Going?' : 'Going to one of these?';
     return '<p class="tp-ws-going"><span class="tp-ws-going-q">' + esc(q) + '</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button></p>';
   }
   /* A match they have a ticket to (19 Nov, from the critique): not a card but one line above the carousel, so it is
@@ -277,7 +277,7 @@
     var going = ms.filter(hasTicket), left = ms.length - going.length;
     if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.'
       : going.length && !left ? 'You have tickets to all your matches. Screenings show here for any you\u2019re not at.'
-      : (going.length ? left + (left === 1 ? ' match' : ' matches') + ' to watch, ' : 'Every match of your teams, ') + 'interstate ones too, at fan zones, pubs and clubs in NSW. Venues are examples until real ones are supplied.';
+      : (going.length ? left + (left === 1 ? ' match' : ' matches') + ' to watch, ' : 'Every match of your teams, ') + 'interstate ones too, at fan zones, pubs and clubs in NSW. Venues are examples.';
     if (!ms.length) {
       h = '<p class="tp-empty">' + (s ? 'None of your matches falls in your days (' + esc(tp.isoRange(trip().from, trip().to)) + ').' : 'Pick your teams to see where to watch their matches.') + '</p>';
     }
@@ -289,7 +289,7 @@
       cards.push('<li class="tp-wm tp-wc' + (two ? ' is-clash' : '') + '" data-key="' + esc(watch[0].key) + '">' +
         (two ? '<p class="tp-wc-clash">' + manyLine(watch) + '</p>' : '') +
         watch.map(matchLine).join('') +
-        '<p class="tp-wc-sub">Where to watch in NSW' + (two ? ', venues showing ' + (watch.length > 2 ? 'all of them' : 'both') + ' first' : '') + '</p>' +
+        (two ? '<p class="tp-wc-sub">Venues showing ' + (watch.length > 2 ? 'all of them' : 'both') + ' first</p>' : '') +
         venueRows(watch, k) + goingQ(watch) + '</li>');
     });
     // More than one match day: a carousel, one card at a time with the next peeking in, the same as the team cards
@@ -1054,7 +1054,7 @@
     if (thirdNote) thirdNote.textContent = first ? 'A first look: around the next NSW match day. Each links out; nothing is booked here.'
       : M.range ? 'Your days in NSW, in order: match days and the free days between them. Each links out; nothing is booked here.'
       : M.own && !M.nsw.length && !M.local ? tp.list(state.picked.filter(function (n) { return tp.teams[n]; })) + ' plays interstate, so these are the NSW match days you could go to. Each links out; nothing is booked here.'
-      : 'Your match days in NSW. Each links out; nothing is booked here.';
+      : 'Each links out; nothing is booked here.';
     // Only the next block is open to start with; a different set of days starts again from the next one
     var sigNow = bs.map(function (b) { return b.key; }).join(',');
     if (sigNow !== blkSig || !openSet) { blkSig = sigNow; openSet = {}; var nx = bs.filter(function (b) { return b.kind !== 'away'; })[0]; if (nx) openSet[nx.key] = true; }
@@ -2800,7 +2800,7 @@
     planBody.innerHTML = '<ul class="tp-plan-facts">' + facts.join('') + '</ul>' + waitH + (clash ? clash + '<p class="tp-plan-clash-how">Open your plan to move or remove it.</p>' : '') +
       '<div class="tp-plan-acts"><button type="button" class="tp-plan-btn tp-plan-btn--primary" data-plan="open">Open your plan</button>' +
       '<button type="button" class="tp-plan-btn" data-plan="copy">' + (copied ? 'Copied' : 'Copy plan') + '</button></div>' +
-      '<p class="tp-plan-note">Copies as plain text for your notes or a message. Nothing leaves this device unless you paste it.</p>';
+      '<p class="tp-plan-note">Copies as plain text. Nothing leaves this device unless you paste it.</p>';
   }
   if (planBody) planBody.addEventListener('click', function (e) {
     var b = e.target.closest('[data-plan]'); if (!b) return;
