@@ -285,3 +285,84 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
    the page itself, so scrolling the hand under the sticky nav (z-index 40: the capsule in Version 1, the menu in Version 2) painted
    the bottom row over it. The hand now keeps its cards' z-indexes to itself: they are only compared with each other. */
 .tp-fan2-wrap { isolation: isolate; }
+
+/* Desktop on a 12-column grid (26 Nov 2026, from the desktop layout critique). The page is 12 columns with 24px gutters
+   across the one content width (1,265px at most); the hero picture is the only thing that runs edge to edge. Sections
+   take spans of it: Drop Goal's words 4 and its picture 8, the stadium map and cards 6 and 6, the FAQ 7 with the
+   newsletter and sharing in the last 4, the articles three of 4. See where your team plays and Where the matches are
+   are one block: the hand of cards on one row, the map and stadium cards under it, and the map answers the pick. These
+   override shared.css (which Options A to C and Version 1 also use), so they stay here. */
+@media (min-width: 1024px) {
+  html[data-flow="v2"].pv-device #tp-phone #tp-home:not([hidden]) { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--space-5); align-content: start; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home > * { grid-column: 1 / -1; }
+
+  /* The hero picture, edge to edge, short enough to leave the next heading peeking at 1440 x 900 */
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero > .tp-home-video { margin-inline: calc(-1 * var(--wide-pad)); width: auto; aspect-ratio: auto; height: clamp(400px, 56vh, 600px); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-home-video-tag { left: var(--wide-pad); }
+
+  /* Header and hero (26 Nov 2026): the hero picture sits straight under the header's rule (a 40px strip of paper between a
+     full-bleed picture and the rule read as a gap, not a band), and its line is set at a size that holds the first screen
+     with a picture 1,400px wide */
+  html[data-flow="v2"].pv-device #tp-phone .v2-menu-wrap { margin-bottom: calc(var(--top-h, 110px) / 2 - 22px); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-event { font-size: 1.25rem; line-height: 1.25; letter-spacing: .08em; }
+
+  /* Page rhythm (Experience principles 4): 48px between families, the largest break (96px) after the hero */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home { --sec-gap: var(--space-7); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero + .tp-home-sec { margin-top: var(--space-9); }
+
+  /* Articles: three columns of 4 on the grid's own gutters, and the same 24px between tiles down the page (the masonry stays) */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-reads .tp-reads { column-gap: var(--space-5); }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-reads .tp-read { margin-bottom: var(--space-5); }
+
+  /* See where your team plays: heading and words, then the hand on one row across all 12 columns */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-plan > .tp-home-hand { grid-column: 1; grid-row: auto; align-self: auto; }
+
+  /* ...and Where the matches are is the same block: no rule, 24px under the hand, its own heading and line kept for screen
+     readers (the block's heading and line above it already say it). Map and stadium cards, 6 and 6 */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where { position: relative; margin-top: var(--space-5); padding-top: 0; border-top: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-5); }
+  /* the three stadium cards share the map's height, so the block ends level on both sides */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where > .tp-home-cities { align-self: stretch; grid-auto-rows: minmax(0, 1fr); gap: var(--space-5); }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where .tp-city { align-content: center; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where > :is(.tp-sec-title, .tp-home-intro) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* Drop Goal: the words in columns 1 to 4 at the vertical middle, the picture in 5 to 12 (16:10, about 500px tall) */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--space-5); grid-template-rows: 1fr auto auto auto auto 1fr; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > * { grid-column: 1 / span 4; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-sec-title { grid-row: 2; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-home-intro { grid-row: 3; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .v2-demo-how { grid-row: 4; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .v2-kick-acts { grid-row: 5; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-kick > .tp-home-kick-img { grid-column: 5 / -1; grid-row: 1 / -1; aspect-ratio: 16 / 10; }
+
+  /* At a glance: picture 7, words 5 */
+  html[data-flow="v2"].pv-device #tp-phone .tp-gl-img { flex: 7 1 0; }
+  html[data-flow="v2"].pv-device #tp-phone .tp-gl-body { flex: 5 1 0; }
+
+  /* The FAQ in columns 1 to 7, the newsletter and sharing one under the other in 9 to 12 */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home > #tp-home-faq { grid-column: 1 / span 7; grid-row: span 2; }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home > :is(#tp-home-news, #tp-home-share) { grid-column: 9 / -1; }
+
+  /* The footer's two sign-ups in 6 and 6, on the same 24px gutter (its four link groups already sit on 3 columns each) */
+  html[data-flow="v2"].pv-device #tp-phone .tp-foot-news { column-gap: var(--space-5); }
+}
+
+/* One row of cards (26 Nov 2026): each card is over the one before it, so its left edge shows (code and flag). The pointer
+   is on a card's visible strip, so the stacking never changes under it (a raised card would cover the next strip and
+   trap the pointer): a hovered or focused card rises 24px and its name shows in a pill above it. Keyboard focus also
+   brings the card to the front, so its ring is whole. The size and place are set in v2-teams.js (oneRowGeo); --a is the
+   card's angle there */
+.tp-fan2-wrap.is-one .tp-card2 .tp-card2-name { position: absolute; left: 0; bottom: calc(100% + 10px); z-index: 1; padding: 3px 10px; border-radius: var(--radius-sm); background: var(--c-btn); color: var(--c-on-dark, #fff); font-size: var(--fs-sm); line-height: 1.3; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity var(--dur-micro, 120ms) linear; }
+.tp-fan2-wrap.is-one .tp-card2:is(:hover, :focus-visible) .tp-card2-name { opacity: 1; }
+.tp-fan2-wrap.is-one .tp-card2.is-picked { transform: rotate(var(--a, 0deg)) translateY(-18px) !important; } /* a picked card rises 18px: only its strip shows, so the lift (and the fill) says it is picked */
+.tp-fan2-wrap.is-one .tp-card2:is(:hover, :focus-visible) { transform: rotate(var(--a, 0deg)) translateY(-24px) !important; }
+.tp-fan2-wrap.is-one .tp-card2:focus-visible { z-index: 100 !important; }
+
+/* Your team on the map (26 Nov 2026, v2-home.js): the pins where a picked team plays are lit, the others grey; their
+   stadium cards say how many matches */
+.tp-home-pin.is-lit .tp-home-pin-i { background: var(--c-accent); transform: scale(1.25); }
+.tp-home-pin.is-lit .tp-home-pin-l { font-weight: var(--fw-bold); box-shadow: 0 0 0 1.5px var(--c-ink), var(--shadow-1); }
+.tp-home-pin.is-grey .tp-home-pin-i { background: #9a9a9a; }
+.tp-home-cities > li.is-lit .tp-city { border-color: var(--c-accent); box-shadow: inset 0 0 0 1px var(--c-accent); }
+.v2-city-yours { font-size: var(--fs-base); font-weight: var(--fw-semi); color: var(--c-ink); }
+@media (prefers-reduced-motion: reduce) { .tp-fan2-wrap.is-one .tp-card2 .tp-card2-name { transition: none; } }
