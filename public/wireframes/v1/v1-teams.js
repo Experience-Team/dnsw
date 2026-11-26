@@ -315,7 +315,7 @@
      switch between the two, were removed on 23 Nov.)
      Geometry from the Figma frame (462 wide), scaled to the phone: per-column angles, a 214px radius, rows 67px apart. */
   var fan2Wrap = document.getElementById('tp-fan2-wrap'), fan2 = document.getElementById('tp-fan2');
-  var HOLD = { id: null, x0: 0, dx: 0, on: false, deg: 0, swallow: false };
+  var HOLD = { id: null, x0: 0, dx: 0, on: false, deg: 0, base: 0, swallow: false };
   var cards2 = null, f2Dealt = false, f2Focus = 0, viewLabel = function () {}, syncNswMark = function () {};
   function handFocusEl() { return fan2 && fan2.querySelector('.tp-card2[tabindex="0"]'); }
   if (fan2) {
@@ -437,10 +437,11 @@
   /* Hold and move the hand (26 Nov 2026): press anywhere on the fan and move sideways, and every card slides along its
      own arc (each row turns about the centre of its curve, by the same angle), so the hand swings round like a fan being
      turned rather than sliding across in a straight line. It follows the finger one for one at first, with growing
-     resistance towards the limit (7 degrees), and settles back to the middle, with the faintest overshoot, when let go.
+     resistance towards the limit (7 degrees), and stays where it is let go; Grid and back to Fan centres it again.
      A tap still picks a card; the turn starts only after 6px sideways. */
+  function atanh(x) { x = Math.max(-.999, Math.min(.999, x)); return .5 * Math.log((1 + x) / (1 - x)); }
   var HOLD_MAX = 7, HOLD_PX = 16; // 16px of travel is a degree on arcs of 900px
-  function holdAngle(dx) { return HOLD_MAX * Math.tanh(dx / HOLD_PX / HOLD_MAX); }
+  function holdAngle(dx) { return HOLD_MAX * Math.tanh((HOLD.base + dx / HOLD_PX) / HOLD_MAX); } // from where the hand was
   function holdSet(deg, ease) {
     HOLD.deg = deg;
     cards2.forEach(function (b) {
@@ -451,10 +452,8 @@
   }
   function holdEnd() {
     if (HOLD.id === null) return;
-    var was = HOLD.on; HOLD.id = null; HOLD.on = false; fan2.classList.remove('is-held');
-    if (!was) return;
-    holdSet(0, reduce.matches ? 'none' : 'transform 560ms cubic-bezier(.3, 1.25, .5, 1)');
-    setTimeout(function () { cards2.forEach(function (b) { b.style.transition = ''; }); }, 620);
+    HOLD.id = null; HOLD.on = false; fan2.classList.remove('is-held');
+    cards2.forEach(function (b) { b.style.transition = ''; }); // the hand stays where it was let go
   }
   if (fan2) {
     fan2.addEventListener('pointerdown', function (e) {
@@ -466,7 +465,7 @@
       HOLD.dx = e.clientX - HOLD.x0;
       if (!HOLD.on) {
         if (Math.abs(HOLD.dx) < 6) return;
-        HOLD.on = true; HOLD.x0 = e.clientX; HOLD.dx = 0; // the turn starts from where the drag began
+        HOLD.on = true; HOLD.x0 = e.clientX; HOLD.dx = 0; HOLD.base = HOLD_MAX * atanh(HOLD.deg / HOLD_MAX); // the turn starts from where the drag began, and from where the hand was
         fan2.classList.add('is-held');
         try { fan2.setPointerCapture(e.pointerId); } catch (err) {}
       }
@@ -532,14 +531,15 @@
     /* Grid / Fan: the same 24 cards, laid out as a grid (upright, four to a row, full names) or as the hand. Picks stay.
        The cards glide from one layout to the other, a few milliseconds apart in reading order, so the eye can follow
        them; the box grows or shrinks with them. Reduced motion: the new layout appears at once. */
-    var viewBtn = document.getElementById('tp-view');
+    var viewBtn = document.getElementById('tp-view'), GRID_ICO = viewBtn ? viewBtn.querySelector('svg').outerHTML : '';
     var VIEW_EASE = 'cubic-bezier(.45, .05, .25, 1)', viewTimer = 0;
     viewLabel = function () {
       if (!viewBtn) return;
-      viewBtn.innerHTML = '<span class="tp-view-l">' + (grid() ? 'Fan' : 'Grid') + '</span><span class="visually-hidden"> view of the teams</span>';
+      viewBtn.innerHTML = (grid() ? window.tpIcons.fan : GRID_ICO) + '<span class="tp-view-l">' + (grid() ? 'Fan' : 'Grid') + '</span><span class="visually-hidden"> view of the teams</span>';
     };
     if (viewBtn) viewBtn.addEventListener('click', function () {
       state.view = grid() ? 'fan' : 'grid';
+      HOLD.deg = 0;
       save();
       var glide = !reduce.matches;
       clearTimeout(viewTimer);

@@ -363,8 +363,8 @@
                controls, so nothing below moves), Grid / Fan (the same cards as a grid, or back to the hand) and Plays in NSW
                (marks the cards of teams with a match in NSW; nothing is hidden). Built by concepts-teams.js. -->
           <div class="tp-util" id="tp-util">
-            <button type="button" class="tp-util-btn" id="tp-find-open" aria-expanded="false" aria-controls="tp-find">Find<span class="visually-hidden"> your team</span></button>
-            <button type="button" class="tp-util-btn" id="tp-view"><span class="tp-view-l">Grid</span><span class="visually-hidden"> view of the teams</span></button>
+            <button type="button" class="tp-util-btn" id="tp-find-open" aria-expanded="false" aria-controls="tp-find"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 10.5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Find<span class="visually-hidden"> your team</span></button>
+            <button type="button" class="tp-util-btn" id="tp-view"><svg class="tp-ico tp-ico-grid" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg><span class="tp-view-l">Grid</span><span class="visually-hidden"> view of the teams</span></button>
             <button type="button" class="cn-switch tp-switch tp-nsw-sw" id="tp-nswmark" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plays in NSW</button>
             <div class="tp-find" id="tp-find" hidden>
               <div class="tp-find-row">
@@ -911,7 +911,7 @@
       "A pick rises out of its row, larger and above its neighbours, then settles slightly lifted, in the picked colours with a tick.",
       "The first time it comes into view, the rows rise into place one after another.",
       "Keyboard: left and right move along the hand, up and down between rows, Home and End to either end, and a letter jumps to the next team starting with it.",
-      "The hand has six cards to a row, so all 24 teams show without scrolling down; the hand is centred in the screen. Press and move it sideways and every card slides along its own arc, then it settles back to the middle when let go. Find and Grid are text buttons. Grid shows the same cards upright, four to a row with full names; the button beside Find switches between Grid and the hand (Fan). Picks stay, and the cards glide between the two layouts.",
+      "The hand has six cards to a row, so all 24 teams show without scrolling down; the hand is centred in the screen. Press and move it sideways and every card slides along its own arc, and it stays where it is let go. Find and Grid are borderless buttons with their icons. Grid shows the same cards upright, four to a row with full names; the button beside Find switches between Grid and the hand (Fan). Picks stay, and the cards glide between the two layouts.",
       "Reduced motion: nothing moves; the colour and tick still change.",
       "Design: Figma 282:26254."
     ] },
