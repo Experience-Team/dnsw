@@ -7,9 +7,12 @@ import {
 
 const [ONE, TWO] = TEAMS;
 
-// Option C: from two teams picked, through each step (teams, tickets, your days) to Your answers
+// Option C: from two teams picked, through each step (teams, your days, where you're staying) to Your answers
 async function finishC(page) {
-  for (let i = 0; i < 3 && (await fcStep(page)); i++) await fcNext(page);
+  for (let i = 0; i < 3 && (await fcStep(page)); i++) {
+    if ((await fcStep(page)) === 'stay') await page.locator('#tp-ask [data-base="Sydney CBD"]').click();
+    await fcNext(page);
+  }
   expect(await fcStep(page)).toBe('');
 }
 
@@ -18,12 +21,13 @@ const STATES = {
   'plan-empty': { full: true, run: async (page) => { await goPlan(page); } },
   'one-card': { full: true, run: async (page) => { await goPlan(page); await pick(page, ONE); } },
   'two-cards': { full: true, run: async (page) => { await goPlan(page); await pick(page, ONE); await pick(page, TWO); } },
-  'c-tickets': { only: 'C', full: true, run: async (page) => {
-    await goPlan(page); await pick(page, ONE); await pick(page, TWO); await fcNext(page);
-    expect(await fcStep(page)).toBe('tickets');
+  // Where you're staying (26 Nov 2026: replaces the tickets step)
+  'c-stay': { only: 'C', full: true, run: async (page) => {
+    await goPlan(page); await pick(page, ONE); await pick(page, TWO); await fcNext(page); await fcNext(page);
+    expect(await fcStep(page)).toBe('stay');
   } },
   'c-days': { only: 'C', full: true, run: async (page) => {
-    await goPlan(page); await pick(page, ONE); await pick(page, TWO); await fcNext(page); await fcNext(page);
+    await goPlan(page); await pick(page, ONE); await pick(page, TWO); await fcNext(page);
     expect(await fcStep(page)).toBe('days');
   } },
   // The page once the questions are done; Your answers is a card in the open plan (plan-open)

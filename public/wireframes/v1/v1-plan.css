@@ -66,3 +66,9 @@
 .v1p-ideas .tp-pc .tp-add { justify-self: start; }
 
 .v1p-pin small { position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); padding: 0 5px; border-radius: 4px; background: color-mix(in srgb, var(--c-surface) 88%, transparent); color: var(--c-ink); font-size: var(--fs-2xs); font-weight: var(--fw-bold); line-height: 16px; white-space: nowrap; }
+
+/* The close cross on the plan's title row, top right (26 Nov 2026); the same on the Your answers level */
+.tp-tl-head .tp-tl-close, .tp-fc-lhead .tp-fc-lclose { flex: none; margin-left: auto; }
+
+.v1p-map-row.is-nopin .v1p-pin-n { background: transparent; color: var(--c-ink-3); border: 1px dashed var(--c-line-soft); }
+.v1p-map-row.is-nopin .v1p-map-t span { color: var(--c-ink-3); }

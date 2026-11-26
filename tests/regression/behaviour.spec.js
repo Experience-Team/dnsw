@@ -136,10 +136,10 @@ test.describe('Address flags', () => {
     await expect(next).not.toHaveAttribute('aria-disabled', 'true');
     await next.click();
     await settle(page);
-    expect(await fcStep(page)).toBe('tickets');
+    expect(await fcStep(page)).toBe('days');
     await page.reload();
     await settle(page);
-    expect(await fcStep(page)).toBe('tickets');
+    expect(await fcStep(page)).toBe('days');
   });
 
   test('?flow=c: Show every NSW match answers step 1 and moves on', async ({ page }) => {

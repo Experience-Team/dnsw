@@ -591,7 +591,7 @@
     // Explore freely: a small card for the pin, with Add for its day and a way to that day
     var c = x.c || cards[x.i];
     pop.innerHTML = '<p class="tp-map-pop-t">' + esc(x.p.title) + '</p><p class="tp-map-pop-m">' + esc(x.p.kindLabel) + ' · ' + esc(c.label) + '</p>' +
-      '<div class="tp-map-pop-a">' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add to ' + esc(c.label) + '</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') +
+      '<div class="tp-map-pop-a">' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' Added</span>') +
       '<button type="button" class="tp-link" data-mgo="' + x.i + '" data-mday="' + c.day + '">Go to ' + esc(c.label) + '</button><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
     pop.hidden = false;
     var f = pop.querySelector('.tp-add, [data-mgo]'); if (f) f.focus({ preventScroll: true });
@@ -603,7 +603,7 @@
     if (cam.s < 1.15) { cancelAnimationFrame(anim); var to = { x: cam.x + (g.cx - vw / 2) / cam.s, y: cam.y + (g.cy - cam.fy) / cam.s, s: Math.min(1.2, cam.s * 2.2), fy: cam.fy }; glide(clampCam(to)); return; } // closest zoom: list them
     pop.innerHTML = '<p class="tp-map-pop-t">' + g.length + ' stops here</p><ul class="tp-map-pop-l">' + g.map(function (q) {
       var x = q.o.x, c = x.c || cards[x.i];
-      return '<li><span><b>' + esc(x.p.title) + '</b> \u00b7 ' + esc(c.label) + '</span>' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' On your plan</span>') + '</li>';
+      return '<li><span><b>' + esc(x.p.title) + '</b> \u00b7 ' + esc(c.label) + '</span>' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' Added</span>') + '</li>';
     }).join('') + '</ul><div class="tp-map-pop-a"><button type="button" class="tp-link" data-mpop-close>Close</button></div>';
     pop.hidden = false;
     var f = pop.querySelector('.tp-add, [data-mpop-close]'); if (f) f.focus({ preventScroll: true });
@@ -802,7 +802,7 @@
     // 26 Nov 2026: pubs and fan zones have their own map (v1/v1-fanzones.js), so the planner's map no longer carries their pins
     var VENS = [];
     var VTYPE = { fan_zone: 'Fan zone', pub: 'Pub', club: 'Club' };
-    var I_TV = ICO('M2.5 4.5h11v7.5h-11zM6 14h4M5.5 2l2.5 2.5L10.5 2');
+    var I_TV = ICO('M8 14s4.5-4.1 4.5-7.6a4.5 4.5 0 0 0-9 0C3.5 9.9 8 14 8 14z M6.4 6.4a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0');
     function venShows(x) { return mine().filter(function (m) { return m.f.t && x.v.shows.indexOf(m.key) > -1; }); }
     var CITYFRAME = {
       sydney: LOCS.filter(function (l) { return l.city === 'sydney'; }),

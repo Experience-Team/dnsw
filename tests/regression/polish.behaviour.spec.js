@@ -7,22 +7,30 @@ const V2 = '/wireframes/prototype-pick-your-team-v2-frame.html';
 const v2url = (extra = '') => `${V2}?${['phone', 'theme=hifi', extra].filter(Boolean).join('&')}`;
 const toast = (page) => page.locator('#tp-phone .tp-toast');
 
-// Version 1 with Japan picked and the three steps answered, so the page shows Your matches
+// Version 1 with Japan picked and the three steps answered (teams, days, where you're staying), so the page shows Your
+// matches. Days wide enough for several NSW matches, so Also on in NSW has matches to add (26 Nov 2026: no tickets)
 async function planned(page, width = 390) {
   await open(page, { option: 'C', width, extra: 'reset' });
   await goPlan(page);
   await pick(page, 'Japan');
-  for (let i = 0; i < 4 && (await fcStep(page)); i++) await fcNext(page);
+  for (let i = 0; i < 4 && (await fcStep(page)); i++) {
+    if ((await fcStep(page)) === 'stay') await page.locator('#tp-ask [data-base="Sydney CBD"]').click();
+    await fcNext(page);
+  }
   expect(await fcStep(page)).toBe('');
+  await page.evaluate(() => window.tpPicker.setTrip({ from: '2027-10-01', to: '2027-10-20', base: 'Sydney CBD' }));
+  await settle(page);
 }
-const ticket = (page) => page.locator('#tp-phone [data-ticket]:visible').first();
+// Add on the first match under Also on in NSW: a change that lands out of view, so it gets a toast
+const addAlso = (page) => page.locator('#v1-also .tp-add').first();
 
 test.describe('25 Nov changes', () => {
   test('A toast is one sentence with at most one link, and goes after about 4 seconds', async ({ page }) => {
     await planned(page);
-    await ticket(page).click();
+    await addAlso(page).scrollIntoViewIfNeeded();
+    await addAlso(page).click();
     await expect(toast(page)).toBeVisible();
-    await expect(toast(page).locator('.tp-toast-txt')).toHaveText(/^Ticket marked for Japan v \w[\w ]*\.$/);
+    await expect(toast(page).locator('.tp-toast-txt')).toHaveText(/^[\w ]+ v [\w ]+ added to your plan, [\w ]+\.$/);
     expect(await toast(page).locator('.tp-toast-t, .tp-toast-d, .tp-toast-x').count()).toBe(0);   // no title, no second line, no cross
     expect(await toast(page).locator('button:visible').count()).toBeLessThanOrEqual(1);
     expect((await toast(page).boundingBox()).height).toBeLessThanOrEqual(60);
@@ -34,29 +42,20 @@ test.describe('25 Nov changes', () => {
 
   test('A toast on the page goes when a sheet opens over it', async ({ page }) => {
     await planned(page);
-    await ticket(page).click();
+    await addAlso(page).scrollIntoViewIfNeeded();
+    await addAlso(page).click();
     await expect(toast(page)).toBeVisible();
     await page.locator('#tp-phone .tc-open:visible').first().click();
     await expect(page.locator('#tp-phone [role="dialog"]:visible').first()).toBeVisible();
     await expect(toast(page)).toBeHidden({ timeout: 1500 });
   });
 
-  test('Where to watch: a ticket line sits level with its icon, and the match name is no taller than its sentence', async ({ page }) => {
+  test('There are no tickets anywhere: no step, no I have tickets button, no ticket box in a match sheet', async ({ page }) => {
     await planned(page);
-    await ticket(page).click();
-    const line = page.locator('#tp-phone .tp-ws-at-i').first();
-    await line.scrollIntoViewIfNeeded();
+    expect(await page.locator('#tp-phone [data-ticket], #tp-phone .tc-tix, #tp-phone [data-pm-ticket], #tp-phone [data-fc-tix]').count()).toBe(0);
+    await page.locator('#tp-phone .tc-open:visible').first().click();
     await settle(page);
-    const m = await line.evaluate((li) => {
-      const ic = li.querySelector('svg').getBoundingClientRect();
-      const what = li.querySelector('.tp-ws-at-what');
-      const r = document.createRange(); r.setStart(what.firstChild, 0); r.setEnd(what.firstChild, 4);
-      const t = r.getBoundingClientRect();
-      const link = what.querySelector('.tp-link').getBoundingClientRect();
-      return { icon: ic.top + ic.height / 2, text: t.top + t.height / 2, link: link.height, lh: parseFloat(getComputedStyle(what).lineHeight) };
-    });
-    expect(Math.abs(m.icon - m.text)).toBeLessThanOrEqual(2);
-    expect(m.link).toBeLessThanOrEqual(m.lh + 2);
+    await expect(page.locator('#tp-pm')).not.toContainText('I have a ticket');
   });
 
   test('Save & share no longer says Saved on this device only, in either version', async ({ page }) => {

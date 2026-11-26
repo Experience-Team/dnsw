@@ -55,7 +55,8 @@ for (const V of VERSIONS) {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`${V.page}?phone&theme=hifi`);
       await expect(page.locator('#tp-phone')).toBeVisible();
-      await page.addStyleTag({ content: '.tp-fan2-wrap { isolation: auto !important; }' });
+      // Version 1's hand has six to a row since 26 Nov 2026, so its cards now top out at z-index 35: the control gives them the old height
+      await page.addStyleTag({ content: '.tp-fan2-wrap { isolation: auto !important; } .tp-card2 { z-index: 43 !important; }' });
       expect((await covered(page)).bad.length).toBeGreaterThan(0);
     });
 
@@ -69,7 +70,7 @@ for (const V of VERSIONS) {
         return { isolated: c.isolation, z: [...document.querySelectorAll('.tp-card2')].map((e) => Number(getComputedStyle(e).zIndex) || 0) };
       });
       expect(m.isolated).toBe('isolate');
-      expect(Math.max(...m.z)).toBeGreaterThan(40); // the fan still stacks its cards, bottom row on top
+      expect(Math.max(...m.z)).toBeGreaterThan(V.name === 'Version 1' ? 30 : 40); // the fan still stacks its cards, bottom row on top (Version 1: four rows of six, up to 35)
     });
   });
 }

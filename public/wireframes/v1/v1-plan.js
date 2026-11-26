@@ -36,7 +36,6 @@
     var x = dateOf(a), y = dateOf(z);
     return x.getUTCMonth() === y.getUTCMonth() ? WD[x.getUTCDay()] + ' ' + x.getUTCDate() + ' to ' + dayLabel(z) : dayLabel(a) + ' to ' + dayLabel(z);
   }
-  function hasTicket(m) { return !!m.tkey && state.tickets.indexOf(m.tkey) > -1; }
   function mName(f) { return f.t || f.s + ', teams to be decided'; }
   function flags(f) { var t = f.t ? f.t.split(' v ') : []; return t.length === 2 && tp.flag(t[0]) && tp.flag(t[1]) ? '<span class="tp-dc-flags" aria-hidden="true">' + tp.flag(t[0]) + tp.flag(t[1]) + '</span>' : ''; }
   /* Away from NSW (Stage D, F-048): a day whose matches are all interstate names the cities, from the match rows. A day
@@ -87,19 +86,18 @@
 
   /* ---------- Drawing ---------- */
   var MOVE = '<svg class="tp-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h11M10 4.5L13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  /* I have tickets on the plan's match cards (19 Nov), the same button as the team cards' rows: one ticket wherever
-     it is marked, the same toast (ticketToggle in concepts-third-half.js). A match to watch only, or with teams to be
-     decided, keeps its line of text */
-  var I_TIX = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1.6a1.6 1.6 0 0 0 0 2.8V11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9.4a1.6 1.6 0 0 0 0-2.8z"/><path class="tc-tix-tick" d="M5.6 8.1l1.6 1.6 3.2-3.3"/></svg>';
+  /* A match on the plan has a quiet Remove, the same as an idea (26 Nov 2026): the matches are inferred from the teams and
+     the days, so the person takes off any they are not going to. It comes back from Also on in NSW. A match to watch
+     only, in NSW but not in the plan, has no Remove: it is not on the plan. */
   function matchHtml(m, watchOnly) {
-    var f = m.f, where = f.a ? f.v + ', ' + f.a + ' (interstate)' : f.v + ', ' + f.p, tix = !watchOnly && !!m.tkey;
-    return '<li class="tp-dc-m' + (f.a ? ' is-away' : '') + (tix ? ' has-tix' : '') + '">' + flags(f) +
+    var f = m.f, where = f.a ? f.v + ', ' + f.a + ' (interstate)' : f.v + ', ' + f.p;
+    return '<li class="tp-dc-m' + (f.a ? ' is-away' : '') + '" data-mkey="' + esc(m.key) + '">' + flags(f) +
       '<div class="tp-dc-m-b"><button type="button" class="tp-dc-name" data-dc-match="' + esc(m.key) + '" aria-haspopup="dialog">' + esc(mName(f)) + '</button>' +
       '<span class="tp-dc-time">' + (f.k ? esc(f.k) + ' Sydney time' : TBC) + '</span>' +
       (f.a ? '' : '<span class="tp-tag tp-tag--inline tp-dc-nsw">In NSW</span>') +
       '<span class="tp-dc-where">' + esc(where) + '</span>' +
-      (tix ? '' : '<span class="tp-dc-tk">' + (watchOnly ? 'To watch in NSW, not in your plan' : 'Teams to be decided') + '</span>') + '</div>' +
-      (tix ? '<button type="button" class="tc-act tc-tix tp-dc-tix" data-ticket="' + esc(m.tkey) + '" aria-pressed="' + hasTicket(m) + '">' + I_TIX + '<span>I have tickets</span><span class="visually-hidden">: ' + esc(mName(f)) + ', ' + esc(f.d) + '</span></button>' : '') + '</li>';
+      (watchOnly ? '<span class="tp-dc-tk">To watch in NSW, not in your plan</span>'
+        : '<div class="tp-dc-acts"><button type="button" class="tp-dc-act" data-dc-mrm="' + esc(m.key) + '">' + window.tpIcons.remove + '<span>Remove</span><span class="visually-hidden">: ' + esc(mName(f)) + ', ' + esc(f.d) + '</span></button></div>') + '</div></li>';
   }
   function itemHtml(it, day) {
     var time = '', sub = it.kindLabel || 'Added';
@@ -149,7 +147,7 @@
     return '<button type="button" class="v1p-suggest' + (big ? ' is-big' : '') + '" data-v1p-ideas="' + day.d + '" aria-expanded="' + open + '" aria-controls="v1p-ideas-' + day.d + '">' + lbl + '</button>';
   }
   function dayBody(day) {
-    var kick = (day.ms.filter(hasTicket)[0] || day.ms[0] || {}).f;
+    var kick = (day.ms[0] || {}).f;
     kick = kick && kick.k;
     var before = [], after = [], rest = [], screens = [];
     day.its.forEach(function (it) {
@@ -164,7 +162,7 @@
     var h = '';
     // Getting there and back, on the match day itself: one line, then the full details (26 Nov 2026)
     var nm = day.ms.filter(function (m) { return !m.f.a; });
-    if (nm.length && tp.goOne) h += '<div class="v1p-go">' + tp.goOne(nm.filter(hasTicket)[0] || nm[0]) + '</div>';
+    if (nm.length && tp.goOne) h += '<div class="v1p-go">' + tp.goOne(nm[0]) + '</div>';
     h += li.length ? '<ul class="tp-dc-list">' + li.join('') + '</ul>' : '';
     // Ideas for a day with something on it already (room for one more): a quiet button, the ideas open below it
     if (day.ideas && li.length) h += '<div class="v1p-more-acts">' + ideasToggle(day, false) + '</div>';
@@ -196,19 +194,31 @@
     return h + '</article></li>';
   }
   // The map view: where each day is, numbered, and the way into the full-screen map where the days swipe
+  /* The map (26 Nov 2026): each day's pin sits where that day's own things are: the stadium for a match, the place of
+     each idea or place added to it. A day with nothing on it has no pin, and the list names each day's real place. */
   function mapViewHtml(M) {
-    var plan = tp.mapPlan ? tp.mapPlan() : null, GEO = window.cnGeo;
-    if (!plan || !plan.length || !GEO) {
+    var GEO = window.cnGeo;
+    if (!GEO || !M.days.length) {
       return '<div class="v1p-mapnone"><p>Set your days to see your plan on a map, one day after another.</p><button type="button" class="tp-pill tp-pill--dark" data-dc-setdays aria-haspopup="dialog">' + window.tpIcons.cal + 'Set your days</button></div>';
     }
-    var pins = [];
-    plan.forEach(function (st, i) {
-      var r = tp.mapStep ? tp.mapStep(st, st.day) : null, a = r && (r.anchor || r.home);
-      pins.push({ n: i + 1, d: st.day, kind: st.kind, ll: a && a.ll || null, name: a && a.name || '' });
+    var pins = [], rows = [];
+    M.days.forEach(function (day, i) {
+      var pts = [];
+      day.ms.filter(function (m) { return !m.f.a; }).forEach(function (m) {
+        var ll = tp.venueLL && tp.venueLL(m.f.v); if (ll) pts.push({ ll: ll, name: m.f.v + ', ' + m.f.p, match: true });
+      });
+      day.its.forEach(function (it) {
+        var ll = tp.itemLL && tp.itemLL(it); if (ll) pts.push({ ll: ll, name: it.title + (it.place ? ', ' + it.place : ''), match: false });
+      });
+      pts.forEach(function (pt) { pins.push({ n: i + 1, d: day.d, kind: pt.match ? 'match' : 'item', ll: pt.ll, name: pt.name }); });
+      rows.push({ n: i + 1, d: day.d, kinds: day.kinds, names: pts.map(function (x) { return x.name; }), pinned: pts.length > 0 });
     });
+    if (!pins.length) {
+      return '<div class="v1p-mapnone"><p>Nothing on your plan has a place on the map yet. Add a match or an idea and it appears here.</p></div>';
+    }
     // Days in the same place share one pin, named by their numbers (1, 3 to 7)
     var spots = {};
-    pins.forEach(function (p) { if (!p.ll) return; var k = p.ll[0].toFixed(3) + ',' + p.ll[1].toFixed(3); (spots[k] = spots[k] || { ll: p.ll, ns: [], match: false, name: p.name }).ns.push(p.n); if (p.kind === 'match') spots[k].match = true; });
+    pins.forEach(function (p) { if (!p.ll) return; var k = p.ll[0].toFixed(3) + ',' + p.ll[1].toFixed(3); (spots[k] = spots[k] || { ll: p.ll, ns: [], match: false, name: p.name.split(',')[0] }).ns.push(p.n); if (p.kind === 'match') spots[k].match = true; });
     function nums(ns) {
       var out = [], i = 0;
       while (i < ns.length) { var j = i; while (j + 1 < ns.length && ns[j + 1] === ns[j] + 1) j++; out.push(j > i + 1 ? ns[i] + ' to ' + ns[j] : j === i + 1 ? ns[i] + ', ' + ns[j] : '' + ns[i]); i = j + 1; }
@@ -227,8 +237,8 @@
         geo.map(function (p) { return '<span class="v1p-pin' + (p.match ? ' is-match' : '') + '" style="left:' + ((p.ll[1] - v.lon0) / lonW * 100) + '%;top:' + ((v.lat1 - p.ll[0]) / latH * 100) + '%">' + p.txt + (p.name ? '<small>' + esc(p.name) + '</small>' : '') + '</span>'; }).join('') + '</div>';
     }
     h += '<button type="button" class="tp-pill tp-pill--dark v1p-full" data-v1p-full aria-haspopup="dialog">Open full screen, day by day</button>' +
-      '<ol class="v1p-map-days">' + pins.map(function (p) {
-        return '<li><button type="button" class="v1p-map-row" data-v1p-go="' + p.d + '"><span class="v1p-pin-n" aria-hidden="true">' + p.n + '</span><span class="v1p-map-t"><b>' + esc(dayLabel(p.d)) + '</b><span>' + esc(p.kind === 'match' ? 'Match day' : p.kind === 'half' ? 'Arrival or last day' : 'Free day') + (p.name ? ' · ' + esc(p.name) : '') + '</span></span></button></li>';
+      '<ol class="v1p-map-days">' + rows.map(function (r) {
+        return '<li><button type="button" class="v1p-map-row' + (r.pinned ? '' : ' is-nopin') + '" data-v1p-go="' + r.d + '"><span class="v1p-pin-n" aria-hidden="true">' + r.n + '</span><span class="v1p-map-t"><b>' + esc(dayLabel(r.d)) + '</b><span>' + esc(r.kinds.join(' · ')) + (r.pinned ? ' · ' + esc(r.names.join(' and ')) : ' · nothing planned, so no pin') + '</span></span></button></li>';
       }).join('') + '</ol></div>';
     return h;
   }
@@ -241,7 +251,7 @@
   function snapshot() {
     var a = document.activeElement, sel = null;
     if (a && root.contains(a)) {
-      var attrs = ['v1pIdeas', 'v1pMore', 'v1pView', 'v1pGo', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcTo', 'ticket', 'item'];
+      var attrs = ['v1pIdeas', 'v1pMore', 'v1pView', 'v1pGo', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcTo', 'dcMrm', 'item'];
       for (var i = 0; i < attrs.length; i++) if (a.dataset[attrs[i]] !== undefined) { sel = '[data-' + attrs[i].replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(a.dataset[attrs[i]]) + '"]'; break; }
       if (!sel && a.id) sel = '#' + CSS.escape(a.id);
     }
@@ -393,6 +403,17 @@
       if (h) h.focus({ preventScroll: true });
       return;
     }
+    if (ds.dcMrm) {
+      var mt = tp.match(ds.dcMrm); if (!mt) return;
+      var mli = b.closest('.tp-dc-m'), mnext = mli && (mli.nextElementSibling || mli.previousElementSibling), mnk = mnext && mnext.dataset.mkey, mcard = b.closest('.tp-dc-card'), mcid = mcard && mcard.id;
+      tp.dropMatch(ds.dcMrm);
+      tp.say(mName(mt.f) + ' removed from your plan.');
+      render();
+      var mf = mnk && root.querySelector('[data-dc-match="' + CSS.escape(mnk) + '"]');
+      if (!mf && mcid) mf = root.querySelector('#' + CSS.escape(mcid) + '-h');
+      if (mf) mf.focus({ preventScroll: true });
+      return;
+    }
     if (ds.dcRemove) {
       var gone = item(ds.dcRemove); if (!gone) return;
       var li = b.closest('.tp-dc-it'), next = li && (li.nextElementSibling || li.previousElementSibling), nextId = next && next.dataset.id, cardEl = b.closest('.tp-dc-card'), cid = cardEl && cardEl.id;
@@ -412,7 +433,7 @@
     openOn: openOn,
     focusCurrent: function () { var c = current !== null ? cardFor(current) : null, h = c && c.querySelector('.tp-dc-h'); if (h) h.focus({ preventScroll: true }); },
     same: function (el) {
-      var ds = el.dataset || {}, k = ['v1pIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'ticket'].filter(function (x) { return ds[x] !== undefined; })[0];
+      var ds = el.dataset || {}, k = ['v1pIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcMrm'].filter(function (x) { return ds[x] !== undefined; })[0];
       var hit = k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;
       // A day filled from its ideas sheet loses Add ideas: its card's heading stands in
       if (!hit && k === 'v1pIdeas') { var c = cardFor(+ds.v1pIdeas); hit = c && c.querySelector('.tp-dc-h'); }
