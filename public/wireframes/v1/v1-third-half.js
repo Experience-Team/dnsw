@@ -1905,6 +1905,84 @@
     Object.keys(ms).forEach(function (d) { if (+d >= sel.a && +d <= sel.z) inN += ms[d].length; });
     return tp.isoRange(isoOf(sel.a), isoOf(sel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
   }
+  /* What is on a marked day (26 Nov 2026): hover on a desktop, a long hold on a phone, and keyboard focus, show the matches on
+     that day and where they are: the match, its stadium and precinct, and the kick-off in Sydney time. Only the days the
+     calendar marks have one (the person's own team's NSW matches, or every NSW match with no team, and the later rounds).
+     A hold does not select the day: the tap that ends it is swallowed. Closed by moving off, a tap elsewhere, scrolling,
+     Escape, or the calendar being drawn again. The one tooltip lives inside the calendar, so it scrolls with it. */
+  var tipEl = null, tipBtn = null, tipTimer = 0, holdTimer = 0, holdAt = null, swallowClick = false, TIP_HOLD = 450, TIP_HOVER = 120;
+  function dayOfBtn(b) { var v = b.dataset.cday !== undefined ? b.dataset.cday : b.dataset.dday; return v === undefined ? null : +v; }
+  function tipHtml(d) {
+    var rows = (dMatches()[d] || []).concat(koDays()[d] || []);
+    if (!rows.length) return '';
+    return '<p class="v1-caltip-d">' + esc(dayLabel(d)) + '</p>' + rows.map(function (m) {
+      var f = m.f;
+      return '<p class="v1-caltip-m"><b>' + esc(matchName(f)) + '</b>' + (isKo(f) && !f.t ? ' <span>teams to be decided</span>' : '') + '<span>' + esc(f.v + (f.p ? ', ' + f.p : '')) + '</span><span>' + esc(f.k ? f.k + ' Sydney time' : TBC) + '</span></p>';
+    }).join('');
+  }
+  function tipHide() {
+    clearTimeout(tipTimer); clearTimeout(holdTimer);
+    if (tipBtn) tipBtn.removeAttribute('aria-describedby');
+    if (tipEl && tipEl.parentNode) tipEl.parentNode.removeChild(tipEl);
+    tipEl = null; tipBtn = null;
+  }
+  function tipShow(btn) {
+    if (tipBtn === btn && tipEl && tipEl.isConnected) return;
+    tipHide();
+    var d = dayOfBtn(btn), cal = btn.closest('.tp-cal'), html = d === null ? '' : tipHtml(d);
+    if (!html || !cal) return;
+    tipEl = document.createElement('div');
+    tipEl.className = 'v1-caltip'; tipEl.id = 'v1-caltip'; tipEl.setAttribute('role', 'tooltip'); tipEl.innerHTML = html;
+    cal.appendChild(tipEl); tipBtn = btn; btn.setAttribute('aria-describedby', 'v1-caltip');
+    // Above the day, kept inside the calendar's width; below it when there is no room above (under the sticky nav)
+    var c = cal.getBoundingClientRect(), r = btn.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    var left = Math.max(0, Math.min(c.width - w, r.left - c.left + r.width / 2 - w / 2));
+    var above = r.top - h - 8 > 96;
+    tipEl.style.left = left + 'px';
+    tipEl.style.top = (above ? r.top - c.top - h - 6 : r.bottom - c.top + 6) + 'px';
+    tipEl.style.setProperty('--arrow-x', Math.max(10, Math.min(w - 10, r.left - c.left + r.width / 2 - left)) + 'px');
+    tipEl.classList.toggle('is-below', !above);
+  }
+  function markedBtn(t) { var b = t && t.closest && t.closest('.tp-cal-d.is-match, .tp-cal-d.is-ko'); return b && phone.contains(b) ? b : null; }
+  // Desktop: hover, after a short pause so a sweep across the calendar does not flicker
+  phone.addEventListener('pointerover', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var b = markedBtn(e.target); if (!b) return;
+    clearTimeout(tipTimer); tipTimer = setTimeout(function () { tipShow(b); }, TIP_HOVER);
+  });
+  phone.addEventListener('pointerout', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var b = markedBtn(e.target); if (!b) return;
+    if (e.relatedTarget && b.contains(e.relatedTarget)) return;
+    tipHide();
+  });
+  // Keyboard: focus shows it (only for keyboard focus, so a tap, which also focuses a button, does not)
+  phone.addEventListener('focusin', function (e) {
+    var b = markedBtn(e.target); if (b && b.matches(':focus-visible')) tipShow(b);
+  });
+  phone.addEventListener('focusout', function (e) { if (markedBtn(e.target)) tipHide(); });
+  // Phone: a long hold. Moving, scrolling or lifting early is an ordinary tap or scroll
+  phone.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') { if (tipEl && !markedBtn(e.target)) tipHide(); return; }
+    var b = markedBtn(e.target);
+    if (!b) { if (tipEl) tipHide(); return; }
+    clearTimeout(holdTimer); holdAt = { x: e.clientX, y: e.clientY };
+    holdTimer = setTimeout(function () {
+      holdTimer = 0; swallowClick = true; tipShow(b);
+      setTimeout(function () { swallowClick = false; }, 900);
+    }, TIP_HOLD);
+  });
+  function holdCancel() { clearTimeout(holdTimer); holdTimer = 0; }
+  phone.addEventListener('pointermove', function (e) {
+    if (holdTimer && holdAt && Math.hypot(e.clientX - holdAt.x, e.clientY - holdAt.y) > 8) holdCancel();
+  });
+  phone.addEventListener('pointerup', holdCancel); phone.addEventListener('pointercancel', holdCancel);
+  // The hold's own click must not pick the day; a long hold also raises a context menu on some phones
+  phone.addEventListener('click', function (e) { if (swallowClick && markedBtn(e.target)) { e.stopPropagation(); e.preventDefault(); swallowClick = false; } }, true);
+  phone.addEventListener('contextmenu', function (e) { if (markedBtn(e.target) && (holdTimer || tipEl)) e.preventDefault(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tipEl) { e.stopPropagation(); tipHide(); } }, true);
+  body.addEventListener('scroll', function () { if (tipEl) tipHide(); holdCancel(); }, { passive: true });
+
   /* The key to the calendar's marks (26 Nov 2026; it went with the strip and is back): two entries, each only when that mark
      is on the calendar. It sits between the Your matches list and the calendar (above the calendar where there is no list).
      Interstate matches are not marked, so they are not keyed. Screen readers hear each day's own label, so it is hidden from them. */
