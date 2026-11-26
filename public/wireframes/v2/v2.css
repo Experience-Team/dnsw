@@ -296,12 +296,17 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
   html[data-flow="v2"].pv-device #tp-phone #tp-home:not([hidden]) { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--space-5); align-content: start; }
   html[data-flow="v2"].pv-device #tp-phone #tp-home > * { grid-column: 1 / -1; }
 
-  /* The hero picture, edge to edge, tall enough to leave the next heading peeking at 1440 x 900 */
-  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero > .tp-home-video { margin-inline: calc(-1 * var(--wide-pad)); width: auto; aspect-ratio: auto; height: clamp(420px, 62vh, 640px); }
+  /* The hero picture, edge to edge, short enough to leave the next heading peeking at 1440 x 900 */
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero > .tp-home-video { margin-inline: calc(-1 * var(--wide-pad)); width: auto; aspect-ratio: auto; height: clamp(400px, 56vh, 600px); }
   html[data-flow="v2"].pv-device #tp-phone .tp-home-hero .tp-home-video-tag { left: var(--wide-pad); }
 
-  /* Articles: three columns of 4, on the grid's own gutters (the masonry stays) */
+  /* Page rhythm (Experience principles 4): 48px between families, the largest break (96px) after the hero */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home { --sec-gap: var(--space-7); }
+  html[data-flow="v2"].pv-device #tp-phone .tp-home-hero + .tp-home-sec { margin-top: var(--space-9); }
+
+  /* Articles: three columns of 4 on the grid's own gutters, and the same 24px between tiles down the page (the masonry stays) */
   html[data-flow="v2"].pv-device #tp-phone #tp-home-reads .tp-reads { column-gap: var(--space-5); }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-reads .tp-read { margin-bottom: var(--space-5); }
 
   /* See where your team plays: heading and words, then the hand on one row across all 12 columns */
   html[data-flow="v2"].pv-device #tp-phone #tp-home-plan { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
@@ -310,6 +315,9 @@ html:not(.pv-device) .v2-pb--top span, .pv-device .v2-pb--top span { position: s
   /* ...and Where the matches are is the same block: no rule, 24px under the hand, its own heading and line kept for screen
      readers (the block's heading and line above it already say it). Map and stadium cards, 6 and 6 */
   html[data-flow="v2"].pv-device #tp-phone #tp-home-where { position: relative; margin-top: var(--space-5); padding-top: 0; border-top: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-5); }
+  /* the three stadium cards share the map's height, so the block ends level on both sides */
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where > .tp-home-cities { align-self: stretch; grid-auto-rows: minmax(0, 1fr); gap: var(--space-5); }
+  html[data-flow="v2"].pv-device #tp-phone #tp-home-where .tp-city { align-content: center; }
   html[data-flow="v2"].pv-device #tp-phone #tp-home-where > :is(.tp-sec-title, .tp-home-intro) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   /* Drop Goal: the words in columns 1 to 4 at the vertical middle, the picture in 5 to 12 (16:10, about 500px tall) */
