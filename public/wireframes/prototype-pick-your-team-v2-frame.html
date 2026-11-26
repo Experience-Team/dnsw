@@ -103,9 +103,20 @@
     <div class="cn-phone is-home" id="tp-phone" role="group" aria-label="Pick your team, version 2, phone screen">
       <!-- Skip link: the bar is last in the markup, so keyboard users get there from the first Tab (only while the bar is up) -->
       <a class="tp-skip" id="tp-skip" href="#tp-tl-toggle" hidden>Go to your plan</a>
-        <!-- Menu and Your plan (24 Nov; a bar over the page since 26 Nov 2026): the earlier prototypes' three tabs, as a menu, and the
-             Your plan button (added by v2/v2-saved.js). The wrapper keeps the class .tp-cap-wrap, which the scripts measure to
-             keep what they scroll to clear of it. Home goes to the top,
+      <div class="cn-body tp-body">
+        <!-- Hero, from Figma node 309:644 (Option A / Lockup in header): the logo and a reserved host city lockup slot,
+             the event strip, a picture, the headline, one line on what the page does, the countdown and the one note
+             that every kick-off on the page is Sydney time, Pick your teams (down to the hand), and a second picture.
+             Wireframe: both pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset
+             left then right, as in Figma. The dates are the tournament's (1 Oct to 13 Nov), not Figma's 11 Oct to 3 Nov.
+             The countdown runs to Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 8:45pm Sydney time (AEST,
+             UTC+10: daylight saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to see another moment. -->
+        <header class="tp-top">
+          <span class="tp-logo" role="img" aria-label="The Third Half"><img src="assets/images/tth-logo.webp" alt="" width="72" height="54"></span>
+          <span class="tp-lockup" role="img" aria-label="Host city lockup, reserved space"><span class="tp-lockup-in" aria-hidden="true"><span class="tp-lockup-t">Host city lockup</span><span class="tp-lockup-s">Host city + Feel New + World Rugby</span></span></span>
+        </header>
+        <!-- Menu (24 Nov, to be refined): the earlier prototypes' three tabs, as a menu. It keeps the capsule's place and
+             its wrapper (.tp-cap-wrap: sticky under the header), so the page lays out as before. Home goes to the top,
              Plan your 3rd half to that section of Home (Version 2 has no planner yet), Play opens Drop goal over the whole
              screen. Script: v2/v2-view.js. Styles: v2/v2.css. -->
         <div class="tp-cap-wrap v2-menu-wrap" id="v2-menu-wrap">
@@ -126,24 +137,6 @@
             </div>
           </nav>
         </div>
-      <div class="cn-body tp-body">
-        <!-- Hero, from Figma node 309:644 (Option A / Lockup in header): the logo and a reserved host city lockup slot,
-             the event strip, a picture, the headline, one line on what the page does, the countdown and the one note
-             that every kick-off on the page is Sydney time, Pick your teams (down to the hand), and a second picture.
-             Wireframe: both pictures are full-width grey blocks with an image icon. High fidelity: 182 x 102, offset
-             left then right, as in Figma. The dates are the tournament's (1 Oct to 13 Nov), not Figma's 11 Oct to 3 Nov.
-             The countdown runs to Australia v Hong Kong China, Perth Stadium, Fri 1 Oct 2027, 8:45pm Sydney time (AEST,
-             UTC+10: daylight saving starts on 3 Oct). Add ?tp-now=2027-10-05T12:00:00%2B11:00 to see another moment. -->
-        <header class="tp-top">
-          <span class="tp-logo" role="img" aria-label="The Third Half"><img src="assets/images/tth-logo.webp" alt="" width="72" height="54"></span>
-          <span class="tp-lockup" role="img" aria-label="Host city lockup, reserved space"><span class="tp-lockup-in" aria-hidden="true"><span class="tp-lockup-t">Host city lockup</span><span class="tp-lockup-s">Host city + Feel New + World Rugby</span></span></span>
-        
-          <!-- The action row's place at rest (26 Nov 2026), in the header: the menu and Your plan buttons are a bar over the page (the first
-             thing in the phone, before the page's own scroller) that sits here at rest, as the second row of the full header,
-             and then follows the scroll: it leaves with the page on the way down and comes back on the way up as a slim
-             header. This slot only marks the place and holds the row's height. Script: v2/v2-header.js -->
-          <div class="v2-bar-slot" id="v2-bar-slot" aria-hidden="true"></div>
-        </header>
         <!-- Home (19 Nov, Figma 385:649, built in this page's own styles, not the Figma file's): the first tab. The hero
              (a video placeholder and the event line; its Plan your 3rd half button was removed on 19 Nov), the same hand of
              cards as the planner (lent here while Home shows, so a pick is one pick everywhere), At a glance, Where the
@@ -767,7 +760,6 @@
 <!-- Your plan, the simple saved list (24 Nov): the game's places, watch parties and kit colours are read here too, for the rows -->
 <script src="v2/drop-goal/places.js"></script><script src="v2/drop-goal/watch-parties.js"></script><script src="v2/drop-goal/kit.js"></script>
 <script src="v2/v2-saved.js"></script>
-<script src="v2/v2-header.js"></script>
 <script src="v2/v2-social.js"></script>
 <script>
 /* Reset prototype and ?reset: clear every key this version saved (v2:, in both stores), leaving the viewer's own
