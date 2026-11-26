@@ -71,6 +71,11 @@
   @media (max-width: 960px) { .pv-v2link { padding-inline: var(--space-4); } }
   /* Short windows: one row, as View on your phone becomes, so the annotations keep their room */
   @media (max-height: 860px) and (min-width: 801px) { .pv-v2link { padding-block: var(--space-3); } .pv-v2link-p { display: none; } }
+  /* Archived versions (26 Nov): a quiet text link under View on your phone, at the foot of the left panel */
+  .pv-arc { flex: none; margin: calc(-1 * var(--space-2)) 0 0; padding: 0 var(--space-6) var(--space-4); font-size: .8125rem; line-height: 1.4; }
+  .pv-arc a { color: #4d4d4d; text-decoration: underline; text-decoration-color: #b3b3b3; text-underline-offset: 3px; }
+  @media (hover: hover) { .pv-arc a:hover { color: #1a1a1a; text-decoration-color: currentColor; } }
+  @media (max-width: 960px) { .pv-arc { padding-inline: var(--space-4); } }
 </style>
 </head>
 <body class="pv-page">
@@ -141,6 +146,9 @@
     <p class="pv-qr-url" id="pv-qr-url" hidden></p>
     <span class="visually-hidden" id="pv-qr-status" role="status"></span>
   </section>
+  <!-- For reviewers (26 Nov): frozen copies of earlier versions, archive/index.html. A quiet text link at the foot of the
+       panel, below View on your phone; not in the tabs or the phone Settings menu. It opens over the whole viewer (_top). -->
+  <p class="pv-arc"><a href="archive/index.html" target="_top">Archived versions</a></p>
 </aside>
 <!-- Concept: Pick your team. A new prototype in its own 390 x 844 phone window, started fresh: nothing here is shared
      with the itinerary prototype below (its own ids and script, no data-go jump buttons). So far: the hero. -->

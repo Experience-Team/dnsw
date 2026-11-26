@@ -1,0 +1,208 @@
+:root { --ink: #17211a; --panel: #f6f4ee; --muted: #5c665f; --yellow: #ecff57; --orange: #ff4d00; --purple: #a855f7; --green: #009b55; --field: #67a656; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Space Mono", ui-monospace, monospace; background: var(--panel); color: var(--ink); }
+  header { padding: 18px 24px 6px; display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: baseline; }
+  header h1 { font-size: 18px; margin: 0; }
+  header p { margin: 0; font-size: 13px; color: var(--muted); }
+  .stage-wrap { position: relative; margin: 8px 24px 0; border-radius: 14px; overflow: hidden; }
+  svg.stage { width: 100%; aspect-ratio: 12 / 7; display: block; }
+  .pin text { font-size: 13px; font-weight: 700; fill: #17211a; paint-order: stroke; stroke: rgba(255,255,255,.85); stroke-width: 4px; }
+  .pin.hit text { font-size: 16px; }
+  /* destination card */
+  .card { position: absolute; top: 4%; right: 2%; bottom: 4%; width: min(42%, 440px); display: flex; background: var(--yellow);
+          border-left: 14px solid var(--purple); box-shadow: inset 14px 0 0 var(--orange), inset -14px 0 0 var(--orange), inset -28px 0 0 var(--green);
+          transform: translateX(110%); transition: transform .45s cubic-bezier(.2,.8,.2,1); font-family: Archivo, system-ui, sans-serif; }
+  .card.open { transform: none; }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+  .card-inner { margin: 0 42px 0 26px; padding: 16px 0 0; overflow: auto; width: 100%; overscroll-behavior: contain; display: flex; flex-direction: column; }
+  .card-inner > * { flex-shrink: 0; }
+  .card-img { border-radius: 4px; overflow: hidden; aspect-ratio: 5 / 3; }
+  .card-img svg { width: 100%; height: 100%; display: block; }
+  .kicker { margin: 14px 0 0; font-size: 14px; }
+  .name-row { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+  .card h2 { font-size: clamp(24px, 3.2vw, 40px); font-weight: 800; margin: 2px 0 8px; outline: none; line-height: 1.05; }
+  .save { font: inherit; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--ink); background: transparent; border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .save[aria-pressed="true"] { background: var(--ink); color: var(--yellow); }
+  .save[aria-pressed="true"] path { fill: currentColor; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+  .tags span { background: rgba(0,0,0,.08); padding: 4px 9px; font-size: 13px; }
+  .blurb { font-size: 13px; line-height: 1.5; margin: 0 0 10px; }
+  .facts { font-size: 13px; margin: 0 0 12px; border-top: 1px solid rgba(0,0,0,.15); }
+  .facts div { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,.15); }
+  .facts dt { width: 70px; color: rgba(0,0,0,.55); text-transform: uppercase; font-size: 12px; padding-top: 1px; }
+  .facts dd { margin: 0; }
+  .note-inline { font-size: 12px; color: rgba(0,0,0,.6); margin: 0 0 10px; min-height: 1em; }
+  .card-actions { position: sticky; bottom: 0; display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 0 14px; margin-top: auto;
+                  background: var(--yellow); border-top: 1px solid rgba(0,0,0,.15); }
+  .card-actions::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 28px; pointer-events: none;
+                          background: linear-gradient(to bottom, rgba(236,255,87,0), var(--yellow)); }
+  .card-actions button { font: inherit; font-weight: 600; font-size: 14px; border: 2px solid var(--ink); border-radius: 999px; padding: 8px 14px; cursor: pointer; background: var(--ink); color: var(--yellow); }
+  .card-actions button.ghost { background: transparent; color: var(--ink); }
+  /* controls */
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 20px; padding: 14px 24px 6px; align-items: end; }
+  .group label, .group .lbl { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; letter-spacing: .03em; text-transform: uppercase; }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+  .route, select, .kick { font: inherit; font-size: 13px; font-weight: 700; border: 2px solid var(--ink); background: #fff; color: var(--ink); padding: 8px 12px; border-radius: 999px; cursor: pointer; transition: transform .12s ease, background .12s ease; }
+  .route[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .route:active, .kick:active { transform: scale(.96); }
+  button:disabled, select:disabled { opacity: .45; cursor: default; }
+  .slider { display: flex; align-items: center; gap: 10px; }
+  .slider input { flex: 1; accent-color: var(--ink); height: 28px; }
+  .slider output { width: 48px; text-align: right; font-weight: 700; }
+  .kick { background: #f2b41b; font-size: 16px; padding: 12px 22px; width: 100%; }
+  .start { font-size: 13px; }
+  .start b { background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 12px; display: inline-block; }
+  .pickers { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 14px 24px 2px; }
+  .teams { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: flex; align-items: center; gap: 6px; padding: 5px 9px 5px 5px; border-radius: 999px; border: 2px solid transparent; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .chip .sw { width: 18px; height: 18px; border-radius: 50%; overflow: hidden; display: grid; grid-template-rows: 1fr 1fr; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+  .chip[aria-checked="true"] { border-color: var(--ink); }
+  .curate { margin: 10px 24px 0; padding: 12px 14px; background: #fff; border-radius: 12px; display: grid; gap: 10px; }
+  .curate .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .curate .lbl { width: 44px; font-size: 13px; font-weight: 700; }
+  .swrow { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hint { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+  .kitdot { width: 44px; height: 28px; border-radius: 8px; border: 2px solid #fff; box-shadow: 0 0 0 2px transparent; cursor: pointer; padding: 0; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .kitdot[aria-checked="true"], .fdot[aria-checked="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  .fdot { width: 28px; height: 28px; border-radius: 8px; border: 3px solid #fff; box-shadow: 0 0 0 2px transparent; cursor: pointer; padding: 0; }
+  .custom { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .custom input { width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer; }
+  .curate .spacer { flex: 1; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px transparent; cursor: pointer; padding: 0; }
+  .dot[aria-checked="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  .teamname { font-size: 12px; color: var(--muted); }
+  .chip, .curate button:not(.kitdot):not(.fdot):not(.dot) { font-family: inherit; }
+  .curate button.pill { font: inherit; font-size: 13px; font-weight: 700; border: 2px solid var(--ink); background: #fff; padding: 7px 12px; border-radius: 999px; cursor: pointer; }
+  .curate h3 { margin: 0; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+  #importBox textarea { width: 100%; min-height: 90px; font: 12px "Space Mono", monospace; border: 2px solid var(--ink); border-radius: 8px; padding: 8px; }
+  .est { font-size: 12px; color: var(--muted); margin-top: 2px; min-height: 1.2em; }
+  .note { font-size: 12px; color: var(--muted); padding: 10px 24px 28px; max-width: 820px; line-height: 1.55; }
+  @media (max-width: 760px) {
+    .card { position: fixed; left: 0; right: 0; top: auto; bottom: 0; width: auto; max-height: 82vh; transform: translateY(110%); }
+  }
+
+  /* TEMPORARY (prototype Stage 1): the colour tools fold into one quiet disclosure, closed by default */
+  .curate-wrap { margin: 10px 24px 0; }
+  .curate-wrap > summary { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; font-size: 12px; color: var(--muted); cursor: pointer; list-style: none; }
+  .curate-wrap > summary::-webkit-details-marker { display: none; }
+  .curate-wrap > summary::before { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform .15s; }
+  .curate-wrap[open] > summary::before { transform: rotate(45deg); }
+  .curate-wrap > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .curate-wrap > .curate { margin: 8px 0 0; }
+  @media (prefers-reduced-motion: reduce) { .curate-wrap > summary::before { transition: none; } }
+
+  /* Fix (prototype Stage 1): .card's display: flex overrode [hidden], so a closed card's buttons stayed in the Tab order
+     off screen. Closed, it is now hidden from Tab and screen readers once it has finished sliding out (0.45s); opening is
+     unchanged. Reduced motion: at once */
+  .card[hidden] { visibility: hidden; transition: transform .45s cubic-bezier(.2,.8,.2,1), visibility 0s linear .45s; }
+  @media (prefers-reduced-motion: reduce) { .card[hidden] { transition: none; } }
+
+  /* Stage 2: Add to your plan. The heading and the button share a row while they fit; a long name pushes the button
+     under it rather than squeezing either. The action bar's first line names the latest change on this card */
+  .name-row { flex-wrap: wrap; }
+  .name-row h2 { min-width: 0; }
+  .card-status { flex: 1 0 100%; margin: 0 0 2px; font-size: 13px; font-weight: 600; }
+  .card-status:empty { display: none; }
+
+  /* Stage 3: the card's close cross, top right, 16px in (prototype check 7). No Save in its foot (user's call, 21 Nov):
+     the line there names the latest change, and the cross, Escape or a tap outside closes it */
+  .card-x { position: absolute; z-index: 2; top: 16px; right: 16px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
+            border: 0; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--ink); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .card-x:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .card-actions [hidden] { display: none; }
+
+  /* Stage 3 layout. Phone: the pitch stays at the top while the controls scroll under it, so a kick is always seen */
+  @media (max-width: 760px) {
+    .stage-wrap { position: sticky; top: 0; z-index: 3; margin: 0; border-radius: 0; }
+  }
+  /* Desktop: the controls in a column beside the pitch, so Kick is above the fold */
+  @media (min-width: 1024px) {
+    body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; column-gap: 24px; align-items: start; padding: 0 24px; }
+    body > header { grid-column: 1 / -1; grid-row: 1; padding-inline: 0; }
+    .stage-wrap { grid-column: 1; grid-row: 2 / span 4; margin: 8px 0 0; }
+    .controls, .pickers, .curate-wrap { grid-column: 2; }
+    .controls { grid-row: 2; } .pickers { grid-row: 3; } .curate-wrap { grid-row: 4; }   /* fixed rows: the header can be hidden (embedded) */
+    .controls { grid-template-columns: 1fr; padding: 8px 0 0; }
+    .pickers { padding: 14px 0 0; }
+    .curate-wrap { margin: 10px 0 0; }
+    .note { grid-column: 1; padding-inline: 0; }
+    .note:first-of-type { grid-row: 6; }
+  }
+
+  /* Kick (Line up next kick) pinned to the foot of the screen below the desktop layout, so it is always in view
+     whatever has been scrolled; a faint rule above it. The page keeps room for it at the bottom */
+  @media (max-width: 1023px) {
+    .kick-bar { position: fixed; z-index: 2; left: 0; right: 0; bottom: 0; padding: 12px 24px; background: var(--panel); border-top: 1px solid rgba(0,0,0,.08); }
+    body { padding-bottom: 76px; }
+  }
+  .card-actions { border-top-color: rgba(0,0,0,.08); }
+
+  /* Result card (21 Nov): name and Add to your plan first, the picture after them and no taller than about 30% of the
+     card, so both show on a short phone. The first line leaves room for the close cross beside it */
+  .card .kicker { padding-right: 44px; }
+  .card-img { aspect-ratio: auto; width: 100%; height: clamp(96px, 25vh, 215px); margin: 4px 0 10px; }
+  .card .name-row { margin-top: 8px; }   /* clear of the close cross, which sits beside the first line */
+
+  /* Short, wide frames (landscape phones and small tablets, 21 Nov): laid out by the frame's height as well as its width.
+     The pitch takes the left column and stays put at the top, never taller than the frame; the controls scroll in a
+     column beside it with Kick pinned at its foot; the result card rises at the right over the pitch */
+  @media (min-width: 600px) and (max-width: 1023px) and (max-height: 560px) {
+    body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; column-gap: 16px; align-items: start; padding: 0 12px 76px; }
+    body > header { grid-column: 1 / -1; grid-row: 1; padding-inline: 0; }
+    .stage-wrap { grid-column: 1; grid-row: 2 / span 4; position: sticky; top: 0; z-index: 3; margin: 0; border-radius: 0 0 14px 14px; }
+    svg.stage { width: min(100%, calc((100vh - 8px) * 12 / 7)); margin-inline: auto; }
+    .controls, .pickers, .curate-wrap { grid-column: 2; }
+    .controls { grid-row: 2; grid-template-columns: 1fr; padding: 8px 0 0; }
+    .pickers { grid-row: 3; padding: 14px 0 0; }
+    .curate-wrap { grid-row: 4; margin: 10px 0 0; }
+    .note { grid-column: 1; padding-inline: 0; }
+    .kick-bar { left: auto; right: 0; width: 324px; padding: 12px 12px 12px; }
+    .card { position: fixed; top: 8px; bottom: 8px; left: auto; right: 8px; width: min(400px, 56vw); max-height: none; transform: translateX(110%); }
+    .card.open { transform: none; }
+  }
+  /* See your plan: a link-style button at the end of the card's line, 24px tall to tap (AA) */
+  .card-actions .see-plan, .see-plan { font: inherit; font-weight: 700; min-height: 24px; padding: 0 2px; border: 0; background: none; border-radius: 0; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .see-plan:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* Phone sheet (22 Nov): two heights. It opens full; the short card keeps the place, Add to your plan and the action bar
+     and drops the rest, so the landing shows on the pitch above it. The grabber (and the card's head) drags between the
+     two, and a tap on the grabber switches them; dragging past the short height, or a flick, closes it (js/card-sheet.js) */
+  .card-grab { display: none; }
+  @media (max-width: 760px) {
+    .card-grab { display: block; position: absolute; z-index: 2; top: 0; left: 50%; transform: translateX(-50%); width: 64px; height: 24px;
+                 padding: 0; border: 0; background: none; cursor: grab; touch-action: none; }
+    .card-grab span { display: block; width: 36px; height: 4px; margin: 10px auto 0; border-radius: 2px; background: currentColor; opacity: .35; }
+    .card-grab:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 6px; }
+    .card .card-inner { padding-top: 24px; }
+    .card .kicker, .card h2 { touch-action: none; }
+    .card.is-short :is(.card-img, .tags, .blurb, .facts, .note-inline) { display: none; }
+    .card.is-short .card-actions::before { display: none; }   /* nothing scrolls under the bar, so no fade over the name */
+    .card.dragging { transition: none; }
+  }
+  @media (min-width: 600px) and (max-width: 760px) and (max-height: 560px) {
+    .card-grab { display: none; }
+    .card .card-inner { padding-top: 16px; }
+    .card .kicker, .card h2 { touch-action: auto; }
+  }
+
+  /* 22 Nov: Explore all stops, previous and next, never twice */
+  .sr-only, .sr-only-list { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; margin: -1px; padding: 0; }
+  .sr-only-list ul { list-style: none; margin: 0; padding: 0; }
+  .explore-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; margin-top: 8px; padding: 0 2px; border: 0; background: none;
+             font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .explore-btn[aria-pressed="true"] { text-decoration-thickness: 2px; }
+  .explore-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .explore-btn:disabled { opacity: .5; cursor: default; }
+  body.exploring svg.stage { touch-action: pan-y; cursor: grab; }
+  #windVal.gusting { color: #c2410c; }
+  .gust-flare { transform-box: fill-box; transform-origin: left center; animation: gustFlare .5s ease-out 2; }
+  @keyframes gustFlare { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .gust-flare { animation: none; } }
+  .card-inner { position: relative; overflow-x: hidden; }
+  .card-stop { display: flex; flex-direction: column; }
+  .card-stop > * { flex-shrink: 0; }
+  .card-ghost { position: absolute; left: 0; pointer-events: none; display: flex; flex-direction: column; }
+  .card-steps { flex: 1 0 100%; display: flex; gap: 8px; margin: 0 0 4px; }
+  .card-actions .step { min-height: 24px; padding: 0 2px; border: 0; background: none; color: inherit; font-size: 14px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; border-radius: 0; }
+  .card-actions .step-next { margin-left: auto; }
+  .card-actions .step[hidden] { display: none; }

@@ -11,7 +11,8 @@
     "test:regression": "playwright test",
     "test:visual": "playwright test --project=visual",
     "test:behaviour": "playwright test --project=behaviour",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "archive:restore": "node scripts/restore-archive.mjs"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.11.1",

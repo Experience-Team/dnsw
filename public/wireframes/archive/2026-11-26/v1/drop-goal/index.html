@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<!-- archive:start: added when this copy was archived (26 Nov 2026); scripts/restore-archive.mjs takes it out again -->
+<script>/* Archived copy of Version 1, 26 Nov 2026. Every key this page reads or writes in this browser's storage (local and
+   session) is filed under arc-2026-11-26-v1:, and it sees no other keys, so it never reads or changes the working prototype's saved
+   state, nor another archived copy's. Storage events from other pages are passed on only for its own keys. */
+(function () {
+  var P = 'arc-2026-11-26-v1:', S = Storage.prototype, get = S.getItem, set = S.setItem, del = S.removeItem, key = S.key, len = Object.getOwnPropertyDescriptor(S, 'length').get;
+  function own(st) { var out = []; for (var i = 0, n = len.call(st); i < n; i++) { var k = key.call(st, i); if (k !== null && k.indexOf(P) === 0) out.push(k); } return out; }
+  S.getItem = function (k) { return get.call(this, P + k); };
+  S.setItem = function (k, v) { return set.call(this, P + k, v); };
+  S.removeItem = function (k) { return del.call(this, P + k); };
+  S.key = function (i) { var k = own(this)[i]; return k === undefined ? null : k.slice(P.length); };
+  S.clear = function () { var st = this; own(st).forEach(function (k) { del.call(st, k); }); };
+  Object.defineProperty(S, 'length', { configurable: true, enumerable: true, get: function () { return own(this).length; } });
+  var add = window.addEventListener, rem = window.removeEventListener, wrapped = new WeakMap();
+  function wrap(fn) {
+    if (!wrapped.has(fn)) wrapped.set(fn, function (e) {
+      if (e.key === null || e.key.indexOf(P) !== 0) return;
+      var ev = new StorageEvent('storage', { key: e.key.slice(P.length), oldValue: e.oldValue, newValue: e.newValue, url: e.url, storageArea: e.storageArea });
+      return typeof fn === 'function' ? fn.call(this, ev) : fn.handleEvent(ev);
+    });
+    return wrapped.get(fn);
+  }
+  window.addEventListener = function (t, fn, o) { return add.call(this, t, t === 'storage' && fn ? wrap(fn) : fn, o); };
+  window.removeEventListener = function (t, fn, o) { return rem.call(this, t, t === 'storage' && fn ? wrap(fn) : fn, o); };
+})();</script>
+<!-- archive:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Third Half: kick to NSW prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/embed.css">
+<link rel="stylesheet" href="../no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
+<!-- Inside the prototype (its Drop goal iframe) the page's theme and section title take over: see css/embed.css -->
+<script>if (window.parent !== window) document.documentElement.classList.add("embedded");</script>
+
+</head>
+<body>
+<header>
+  <h1>The Third Half: kick to NSW</h1>
+  <p>Pick a route, set your angle and power, mind the wind. Where the ball lands is where you go next.</p>
+</header>
+
+<div class="stage-wrap">
+  <svg class="stage" viewBox="0 0 1200 700" role="img" aria-label="Side-on view of a rugby kicker, goal posts and a route across NSW">
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd3ec"/><stop offset="1" stop-color="#e9f4f2"/></linearGradient></defs>
+    <rect width="1200" height="700" fill="url(#sky)"/>
+    <g id="world"><g id="worldStatic"></g><g id="posts"></g><g id="player"></g></g>
+    <g id="overlay" font-family="Space Mono, monospace"></g>
+    <g id="mark" transform="translate(40 40)" font-family="Space Mono, monospace" font-weight="700" font-size="17" fill="#17211a"><text x="0" y="18">THE</text><text x="0" y="38">THIRD</text><text x="0" y="58">HALF</text></g>
+    <g id="windFlag" transform="translate(1030 60)" font-family="Space Mono, monospace"></g>
+  </svg>
+
+  <aside class="card" id="card" hidden role="dialog" aria-labelledby="cardName">
+    <!-- Phones: the card opens at full height; drag or tap the grabber for a short card that shows the landing (22 Nov) -->
+    <button class="card-grab" id="cardGrab" type="button" aria-controls="card" aria-expanded="true" aria-label="Show less"><span aria-hidden="true"></span></button>
+    <button class="card-x" id="btnX" type="button" aria-label="Close"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="card-inner">
+      <!-- The stop showing: previous and next slide this across inside the card, which holds its height (22 Nov) -->
+      <div class="card-stop" id="cardStop">
+      <p class="kicker" id="cardKicker">The ball landed in …</p>
+      <div class="name-row">
+        <h2 id="cardName" tabindex="-1">Place</h2>
+        <button class="save" id="btnSave" aria-pressed="false"><span aria-hidden="true">+</span><span>Add to your plan</span></button>
+      </div>
+      <!-- The place and Add to your plan lead (21 Nov); the picture follows, kept to about 30% of the card -->
+      <div class="card-img" id="cardImg"></div>
+      <div class="tags" id="cardTags"></div>
+      <!-- The summary from the destination's page on sydney.com or visitnsw.com (js/summaries.js); left out when a stop has none -->
+      <p class="blurb" id="cardBlurb"></p>
+      <dl class="facts">
+        <div><dt>Distance</dt><dd id="cardDist"></dd></div>
+        <div><dt>Route</dt><dd id="cardRoute"></dd></div>
+      </dl>
+      <p class="note-inline" id="cardNote"></p>
+      </div>
+      <p class="sr-only" id="cardSay" aria-live="polite"></p>
+      <div class="card-actions">
+        <div class="card-steps"><button class="step" id="btnPrev" type="button"><span aria-hidden="true">←</span> <span class="step-name"></span></button><button class="step step-next" id="btnNext" type="button"><span class="step-name"></span> <span aria-hidden="true">→</span></button></div>
+        <p class="card-status" id="cardStatus" role="status"></p>
+        <button id="btnAgain">Line up next kick</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="controls">
+  <div class="group"><span class="lbl">Kicking from</span>
+    <div class="seg" role="group" aria-label="Kicking from">
+      <button class="route startbtn" data-s="sydney" aria-pressed="true">Sydney</button>
+      <button class="route startbtn" data-s="newcastle" aria-pressed="false">Newcastle</button>
+    </div></div>
+  <div class="group"><span class="lbl">Route</span>
+    <div class="seg" role="group" aria-label="Route">
+      <button class="route dirbtn" data-r="local" aria-pressed="false">Local</button>
+      <button class="route dirbtn" data-r="north" aria-pressed="true">North</button>
+      <button class="route dirbtn" data-r="south" aria-pressed="false">South</button>
+      <button class="route dirbtn" data-r="west" aria-pressed="false">West</button>
+    </div>
+    <!-- Explore all stops (22 Nov): pan the pitch, every stop marked the same; the stops are also this list of buttons for
+         the keyboard and screen readers, hidden until one has focus (its marker then shows the focus ring) -->
+    <button class="explore-btn" id="btnExplore" type="button" aria-pressed="false"><svg width="14" height="16" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 15s5-4.6 5-8.5A5 5 0 0 0 2 6.5C2 10.4 7 15 7 15z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="7" cy="6.5" r="1.8" fill="currentColor"/></svg>Explore all stops</button>
+    <div id="exploreWrap" class="sr-only-list" hidden><p class="sr-only" id="exploreHead">Stops on this route, in distance order</p><ul id="exploreList" aria-labelledby="exploreHead"></ul></div>
+  </div>
+  <div class="group"><label for="angle">Angle</label><div class="slider"><input id="angle" type="range" min="10" max="80" value="45"><output id="angleVal">45°</output></div></div>
+  <div class="group"><label for="power">Power</label><div class="slider"><input id="power" type="range" min="0" max="100" value="50"><output id="powerVal">50%</output></div><div class="est" id="estVal" aria-live="polite"></div></div>
+  <div class="group"><span class="lbl">Wind</span><div id="windVal" style="font-weight:700;padding:6px 0">Calm</div></div>
+  <div class="group kick-bar"><button class="kick" id="btnKick">Kick</button></div>
+</div>
+<div class="pickers"><div class="teams" id="teams" role="radiogroup" aria-label="Team"></div></div>
+<!-- TEMPORARY (prototype Stage 1): the colour curation tools, folded away and closed by default. To be removed later. -->
+<details class="curate-wrap">
+  <summary>Colour settings (temporary)</summary>
+<div class="curate">
+  <h3>Colour configuration</h3>
+  <div class="row"><span class="lbl">Kit</span><div id="kitShades" class="swrow" role="radiogroup" aria-label="Kit shade"></div><span class="hint">per team</span></div>
+  <div class="row"><span class="lbl">Skin</span><div id="shades" class="swrow" role="radiogroup" aria-label="Skin shade"></div><span class="hint">per team</span></div>
+  <div class="row"><span class="lbl">Field</span><div id="fields" class="swrow" role="radiogroup" aria-label="Field colour"></div>
+    <label class="custom" title="Custom field colour"><input type="color" id="fieldCustom" aria-label="Custom field colour"><span>Custom</span></label>
+    <label class="hint"><input type="checkbox" id="fieldPerTeam"> per team</label></div>
+  <div class="row"><span class="teamname" id="teamName"></span><span class="spacer"></span><span class="toast hint" id="toast"></span>
+    <button class="pill" id="btnImport">Import settings</button><button class="pill" id="btnCopyCfg">Copy curated settings</button><button class="pill" id="btnResetTeam">Reset this team</button></div>
+  <div id="importBox" hidden>
+    <textarea id="importText" placeholder="Paste the JSON from Copy curated settings (from this page or the kicker rig page)"></textarea>
+    <div class="row" style="margin-top:8px"><button class="pill" id="btnApplyImport">Apply</button><button class="pill" id="btnCancelImport">Cancel</button></div>
+  </div>
+</div>
+</details>
+<p class="note">On the West route the Blue Mountains are solid: a low, flat kick hits the face and rolls back to the foothills, so you need height to reach Bathurst and beyond. The km estimate under Power assumes no wind.</p>
+<p class="note">Prototype. Destinations are placeholders in real distance order from the start point. Local covers roughly the first 30 km; the other routes start beyond it so stops are not repeated. Each stop's landing zone is sized from 4,000 simulated kicks so that every stop catches roughly 1 in 10 kicks, which is why some zones are wider than others. Distances are approximate. Clearing the crossbar is a bonus; every kick lands somewhere.</p>
+
+<script src="js/teams.js"></script>
+<script src="js/rig.js"></script>
+<script src="js/config.js"></script>
+<script src="js/routes.js"></script>
+<script src="js/summaries.js"></script>
+<script src="js/zones.js"></script>
+<script src="js/game.js"></script>
+<script src="js/visit.js"></script>
+<script src="js/main.js"></script>
+<script src="js/card-sheet.js"></script>
+<script src="js/plan-link.js"></script>
+</body>
+</html>
