@@ -6,7 +6,7 @@
      1 Teams: the hand of cards with Find your team and Clear all (#tp-util, #tp-picker), Every NSW match included.
      2 Tickets: your teams' NSW matches as a list built here; No tickets yet replaces any marked, and marking one
        replaces it (check 2); Clear all shows once one is marked (check 3).
-     3 Your days: the dates strip and the range calendar (#tp-ask), starting from your first to last NSW match.
+     3 Your days: the range calendar (#tp-ask), starting from your first to last NSW match.
      4 Where you're staying: the quick answers and the NSW place search from Refine your plan (#tp-ask).
    The plan bar stays in view the whole time and fills as answers come in, but does not open until the flow is
    finished (the user's call). Once finished, the planner is Option A's, under a Your answers block; each answer's
