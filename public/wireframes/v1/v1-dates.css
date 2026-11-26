@@ -3,7 +3,8 @@
 /* The calendar: the later rounds a diamond (26 Nov 2026: other teams' matches are not marked) */
 .tp-cal-d.is-ko::after { content: ""; position: absolute; bottom: 2px; left: 50%; }
 .tp-cal-d.is-ko::after { width: 6px; height: 6px; margin-left: -3px; background: var(--c-accent); transform: rotate(45deg); }
-.tp-cal-d.is-start.is-ko::after, .tp-cal-d.is-end.is-ko::after { background: var(--c-on-dark); }
+/* On the first or last day (the dark circle) the marks stay orange (26 Nov 2026); shared.css turns the match dot white there */
+.tp-cal-d.is-start.is-match::after, .tp-cal-d.is-end.is-match::after, .tp-cal-d.is-start.is-ko::after, .tp-cal-d.is-end.is-ko::after { background: var(--c-accent); }
 .v1-cal { margin-top: var(--space-3); }
 .v1-cal-key + .v1-cal { margin-top: var(--space-2); }
 /* The key to the calendar's marks, under it (26 Nov 2026): the swatches are drawn like the marks themselves */
