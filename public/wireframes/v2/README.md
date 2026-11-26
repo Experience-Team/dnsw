@@ -63,3 +63,31 @@ A saved iteration is frozen: later work goes into Version 2, never into a saved 
 full-screen viewer): classes, ids and globals start `v2-soc` / `v2Social`, and seen rings are kept in `v2:v2-soc-v1`.
 Version 1 has its own copy in `../v1/`. The fixtures, `../concepts-social.js`, are a shared data file, read only here.
 Fields are in `docs/product-data-contract.md` section 21.
+
+## The desktop Home (26 Nov 2026)
+
+The real desktop page is the frame page opened on its own with `?phone&theme=hifi`
+(`prototype-pick-your-team-v2-frame.html?phone&theme=hifi`, the viewer's "Open in desktop" link). The viewer's default
+view is only a 390px phone beside a notes panel. All of this is in `v2.css`, inside `@media (min-width: 1024px)`, and
+overrides rules in `shared.css`; Options A to C and Version 1 do not move.
+
+- **12 columns.** `#tp-home` is a 12-column grid with 24px gutters across the page's one content width (1,265px at most).
+  The hero picture is the only edge-to-edge element. Drop Goal's words are columns 1 to 4 and its picture 5 to 12 (16:10),
+  the map and stadium cards 6 and 6, At a glance 7 and 5, the FAQ 1 to 7 with the newsletter and sharing in 9 to 12, the
+  article columns three of 4 (the masonry stays, on 24px gaps both ways), and the footer's two sign-ups 6 and 6.
+- **Rhythm.** 48px between sections, 96px after the hero (Experience principles 4).
+- **One block for the team picker and the map.** See where your team plays and Where the matches are share a block: the
+  hand on one row across all 12 columns, the map and stadium cards under it (the second heading and line stay for screen
+  readers). The three stadium cards share the map's height.
+- **The hand on one row** (`oneRowGeo` in `v2-teams.js`). Where the hand is 944px wide or more (`avail >= 900`), the 24
+  cards sit on one gentle arc, each over the one before, showing its code and flag. A hovered or focused card rises 24px
+  and shows its name in a pill above it; hovering never changes the stacking, so the pointer is never trapped under a
+  raised card (keyboard focus brings the card to the front). A picked card rises 18px. From 700px (`avail >= 700`) the
+  hand seats six to a row instead of five (the Drop goal team screen on a desktop); phones keep five.
+- **The map answers the pick** (`v2-home.js`, "Your team on the map"). The stadiums where a picked team plays group matches
+  are lit and the other pins greyed, and the matching cards say how many matches. From `cnFixtures`, group matches only
+  (knockouts are not drawn); a team with no NSW match leaves the map alone.
+- **Hero.** The picture is `village.jpg` (a stand-in, 1,024px wide: a fan-zone crowd) until a wide, sharp rugby picture is
+  supplied; it sits straight under the header's rule; the event line is 20px. The hero's hidden heading is the page's
+  `h1`, the Home sections are `h2` and the At a glance cards and the footer's headings `h3`.
+- **Tests:** `tests/regression/catchup-26-nov.behaviour.spec.js`.
