@@ -1,0 +1,284 @@
+{
+  "id": "bridgeclimb-summit",
+  "type": "tour",
+  "title": "BridgeClimb Summit",
+  "overview": "Experience the breath taking 360-degree panoramic views of Sydney, whilst scaling the iconic Sydney Harbour Bridge on BridgeClimb's original Climb experience. Feel on top of the world as you journey along the upper arch to the peak of an Australian icon, soaking in the stories from your expert Climb Leader and the sights of the Harbour and the City skyline that surround you.",
+  "highlights": {
+    "items": [
+      "Climb BridgeClimb's original route to the very top of the Bridge",
+      "Sweeping 360° views across the Harbour, Opera House and city skyline",
+      "Expert Climb Leader commentary throughout the ascent"
+    ],
+    "provenance": "generated",
+    "generated_at": "2026-07-20"
+  },
+  "gallery": [
+    {
+      "url": "https://images.sydney.com/products/bridgeclimb-summit/arch.jpg",
+      "alt": "Climbers on the upper arch of the Sydney Harbour Bridge",
+      "credit": "BridgeClimb Sydney"
+    },
+    {
+      "url": "https://images.sydney.com/products/bridgeclimb-summit/summit-group.jpg",
+      "alt": "Climb group posing at the Summit",
+      "credit": "BridgeClimb Sydney"
+    },
+    {
+      "url": "https://images.sydney.com/products/bridgeclimb-summit/skyline.jpg",
+      "alt": "City skyline view from the top of the Bridge",
+      "credit": "BridgeClimb Sydney"
+    }
+  ],
+  "address": {
+    "line": "3 Cumberland Street",
+    "suburb": "The Rocks",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": {
+      "lat": -33.8523,
+      "lng": 151.2108
+    }
+  },
+  "contact": {
+    "phone": "(02) 8274 7777",
+    "email": "info@bridgeclimb.com"
+  },
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/BridgeClimbSydney"
+    },
+    {
+      "platform": "x",
+      "url": "https://x.com/bridgeclimb"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/bridgeclimb/"
+    }
+  ],
+  "links": {
+    "booking": "https://www.bridgeclimb.com/climbs-prices/summit",
+    "website": "https://www.bridgeclimb.com/climbs-prices/summit"
+  },
+  "accessibility": {
+    "status": "partial",
+    "detail": "Disabled access available, contact operator for details.",
+    "features": [],
+    "operator_access_url": null
+  },
+  "venue_facilities": [
+    "Retail store",
+    "Lockers",
+    "Showers",
+    "Café"
+  ],
+  "availability": {
+    "kind": "operating_days",
+    "opening_hours": [],
+    "special_hours": [],
+    "operating_days": [
+      "mon",
+      "tue",
+      "wed",
+      "thu",
+      "fri",
+      "sat",
+      "sun"
+    ],
+    "departure_times": [
+      "07:15",
+      "09:55",
+      "12:35",
+      "15:15",
+      "17:55"
+    ],
+    "duration_minutes": 210,
+    "seasonal": {
+      "from": "",
+      "to": ""
+    },
+    "event_dates": {
+      "start": "",
+      "end": ""
+    },
+    "sessions": [],
+    "recurrence": "",
+    "min_nights": 0,
+    "checkin_time": "",
+    "checkout_time": "",
+    "advance_booking_required": true,
+    "typical_duration_minutes": 210
+  },
+  "pricing": {
+    "from": 268,
+    "to": 468,
+    "currency": "AUD",
+    "band": "$$$$",
+    "is_free": false,
+    "unit": "per_person",
+    "concessions": [
+      {
+        "type": "child",
+        "from": 178
+      }
+    ],
+    "inclusions": [
+      "All safety equipment",
+      "Professional Climb Leader",
+      "Certificate and group photo"
+    ],
+    "exclusions": [
+      "Personal photography during the Climb"
+    ],
+    "cancellation_policy": "Free rescheduling up to 24 hours before your Climb."
+  },
+  "trust": {
+    "aggregate_rating": 4.8,
+    "review_count": 3410,
+    "review_excerpts": [
+      {
+        "author": "Sophie K.",
+        "text": "BridgeClimb's original Climb and still the best — full Summit views.",
+        "source": "TripAdvisor",
+        "date": "2026-07-05"
+      }
+    ],
+    "review_source": "TripAdvisor",
+    "review_licence": "Displayed under TripAdvisor Content API terms",
+    "accreditations": [],
+    "aboriginal_owned": false,
+    "awards": []
+  },
+  "getting_there": {
+    "nearest_transport": [
+      {
+        "mode": "train",
+        "name": "Circular Quay Station",
+        "walking_minutes": 8
+      },
+      {
+        "mode": "ferry",
+        "name": "Circular Quay Ferry Wharf",
+        "walking_minutes": 9
+      }
+    ],
+    "parking": {
+      "available": true,
+      "cost": "The Rocks Car Park, from $18 for 2 hours",
+      "distance_minutes": 5
+    },
+    "travel_time_from_cbd_minutes": 12,
+    "pickup_point": "BridgeClimb Base, 3 Cumberland Street, The Rocks"
+  },
+  "live_availability": {
+    "next_sessions": [
+      {
+        "datetime": "2026-08-12T08:00:00+10:00",
+        "status": "few_left"
+      },
+      {
+        "datetime": "2026-08-12T11:00:00+10:00",
+        "status": "available"
+      }
+    ],
+    "remaining_capacity": 4,
+    "sold_out": false,
+    "booking_partner": "BridgeClimb Direct Booking"
+  },
+  "suitability": {
+    "suitable_for": [
+      "couples",
+      "solo",
+      "groups"
+    ],
+    "age_guidance": "Minimum age 8, with adult supervision required under 16",
+    "dietary_options": [],
+    "languages_offered": [
+      "English"
+    ],
+    "fitness_level": "moderate",
+    "pet_policy": "Not permitted",
+    "group_size": {
+      "min": 2,
+      "max": 14
+    },
+    "weather_dependency": "outdoor_weather_dependent"
+  },
+  "practical": {
+    "what_to_bring": [
+      "Comfortable enclosed shoes",
+      "Photo ID"
+    ],
+    "on_site_facilities": [
+      "Lockers",
+      "Changing rooms",
+      "Retail shop"
+    ],
+    "best_time_to_visit": "Sunrise Climbs sell out first — book at least 2 weeks ahead"
+  },
+  "deals": [],
+  "faqs": [
+    {
+      "question": "How is Summit different from other BridgeClimb experiences?",
+      "answer": "Summit is BridgeClimb's original route, taking you all the way to the top of the Bridge via the upper arch."
+    },
+    {
+      "question": "What should I wear?",
+      "answer": "BridgeClimb provides a one-piece climb suit; wear comfortable enclosed shoes underneath."
+    }
+  ],
+  "place_ref": "sydney-harbour-bridge",
+  "operator_ref": "bridgeclimb-sydney-operator",
+  "parent_ref": "bridgeclimb-sydney",
+  "last_verified": "2026-08-01",
+  "extension": {
+    "itinerary": [
+      {
+        "order": 1,
+        "title": "Breathalyser and briefing",
+        "description": "Safety briefing, breathalyser test and climb suit fitting at BridgeClimb Base.",
+        "duration_minutes": 45
+      },
+      {
+        "order": 2,
+        "title": "Ascend the upper arch",
+        "description": "Guided ascent along the upper arch catwalk to the summit.",
+        "duration_minutes": 60
+      },
+      {
+        "order": 3,
+        "title": "Summit",
+        "description": "Time at the summit for 360-degree views and photos.",
+        "duration_minutes": 20
+      },
+      {
+        "order": 4,
+        "title": "Descend",
+        "description": "Guided descent back to BridgeClimb Base.",
+        "duration_minutes": 85
+      }
+    ],
+    "meeting_point": {
+      "description": "BridgeClimb Base, 3 Cumberland Street, The Rocks",
+      "geo": {
+        "lat": -33.8523,
+        "lng": 151.2108
+      }
+    },
+    "group_size": {
+      "min": 2,
+      "max": 14
+    },
+    "languages": [
+      "English"
+    ],
+    "fitness_level": "moderate",
+    "min_age": 8,
+    "what_to_bring": [
+      "Comfortable enclosed shoes",
+      "Photo ID"
+    ]
+  }
+}
