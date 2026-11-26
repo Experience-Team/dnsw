@@ -864,7 +864,8 @@ test.describe('Version 2', () => {
     window.DG2Result.open(p, [t], () => {});
     return Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {})));
   }, [id, team]);
-  const planBtn = (page, wide) => page.locator(wide ? '.v2-pb--top' : '.v2-pb:not(.v2-pb--top)');
+  // Your plan is a button in the action bar on every size (26 Nov 2026); the one that was pinned bottom right on phones is never shown now
+  const planBtn = (page, pinned) => page.locator(pinned ? '.v2-pb:not(.v2-pb--top)' : '.v2-pb--top');
   const sheet = (page) => page.locator('#v2-sv');
   // Home with things already in Your plan: articles by their place in the list, places and watch parties by id
   async function homeWithPlan(page, { arts = 0, kicks = [], team = '' } = {}, size = PHONE) {
@@ -920,23 +921,56 @@ test.describe('Version 2', () => {
   });
 
   for (const [name, size] of [['a phone', PHONE], ['desktop', WIDE]]) {
-    test(`Header on ${name}: the lockup sits left of the logo, and Menu is at the far right of the same row`, async ({ page }) => {
+    test(`Header on ${name}: the lockup sits left of the logo, and the hamburger is at the far right, ${size === WIDE ? 'in the same row' : 'in a second row under them'}`, async ({ page }) => {
       await page.setViewportSize(size);
       await page.goto(v2url('hifi'));
       const box = (s) => page.locator(s).boundingBox();
       const top = await box('#tp-phone .tp-top'), lockup = await box('#tp-phone .tp-top .tp-lockup'), logo = await box('#tp-phone .tp-top .tp-logo'), menu = await box('#v2-menu-btn');
       expect(lockup.x + lockup.width).toBeLessThanOrEqual(logo.x + 1);
-      // the same row: the button's middle is inside the header, and nothing in the row is further right
+      // the button's middle is inside the header (the action bar is the header's second row, or its row on desktop)
       expect(menu.y + menu.height / 2).toBeGreaterThan(top.y);
       expect(menu.y + menu.height / 2).toBeLessThan(top.y + top.height);
-      expect(menu.x).toBeGreaterThanOrEqual(logo.x + logo.width - 1);
+      if (size === WIDE) expect(menu.x).toBeGreaterThanOrEqual(logo.x + logo.width - 1); // desktop: the same row, further right
+      else expect(menu.y).toBeGreaterThanOrEqual(lockup.y + lockup.height - 1);          // a phone: under the lockup and the logo
       // as far from the right edge as the lockup is from the left: the page's own gutter
       expect(Math.abs(top.x + top.width - (menu.x + menu.width) - (lockup.x - top.x))).toBeLessThanOrEqual(2);
-      if (size === WIDE) await expect(page.locator('#v2-menu-btn span')).toBeVisible();
+      // a plain hamburger: no pill, its name still read out
       await expect(page.locator('#v2-menu-btn')).toHaveAccessibleName('Menu');
+      expect(await page.locator('#v2-menu-btn').evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
     });
   }
 
+  // The action bar follows the scroll (26 Nov 2026): in the header at rest, gone with the page on the way down, back by as
+  // much as the page comes back on the way up, a slim header (paper and a rule) while it is away from its place
+  test('The action bar leaves with the page on the way down and comes back, pixel for pixel, on the way up', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    const bar = () => page.evaluate(() => { const w = document.getElementById('v2-menu-wrap'), p = document.getElementById('tp-phone').getBoundingClientRect(); return { y: Math.round(w.getBoundingClientRect().top - p.top), over: w.classList.contains('is-over') }; });
+    const scrollTo = async (y) => { await page.evaluate((y) => document.querySelector('.tp-body').scrollTo(0, y), y); await page.waitForTimeout(80); };
+    const rest = await bar();
+    expect(rest.over).toBe(false);
+    await scrollTo(60); expect((await bar()).y).toBe(rest.y - 60);           // with the page, as the header does
+    await scrollTo(700); const hidden = await bar(); expect(hidden.y).toBe(-56); // gone
+    await scrollTo(680); expect((await bar()).y).toBe(-36);                  // 20px up brings back 20px
+    await scrollTo(650); expect((await bar()).y).toBe(-6);
+    await scrollTo(600); const slim = await bar(); expect(slim.y).toBe(0); expect(slim.over).toBe(true); // a slim header
+    await scrollTo(300); expect((await bar()).y).toBe(0);                    // it stays while the page goes on up
+    await scrollTo(0); const back = await bar(); expect(back.y).toBe(rest.y); expect(back.over).toBe(false); // and settles in its place
+  });
+
+  test('The action bar comes fully back when something is added to Your plan, and holds the hamburger and Your plan', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.goto(v2url('hifi'));
+    const y = () => page.evaluate(() => { const w = document.getElementById('v2-menu-wrap'); return Math.round(w.getBoundingClientRect().top - document.getElementById('tp-phone').getBoundingClientRect().top); });
+    await page.evaluate(() => document.querySelector('.tp-body').scrollTo(0, 420));
+    await page.waitForTimeout(100);
+    expect(await y()).toBe(-56);
+    await page.locator('#tp-reads [data-v2-add]').first().click();
+    await expect.poll(y).toBe(0);
+    await expect(planBtn(page)).toBeVisible();
+    await expect(page.locator('#v2-menu-btn')).toBeVisible();
+    await expect(planBtn(page, true)).toBeHidden();
+  });
   test('Or see all the places opens the list without the game or a team, and its cross and Escape go back to Home', async ({ page }) => {
     await page.setViewportSize(PHONE);
     await page.goto(v2url('hifi'));
@@ -1126,10 +1160,9 @@ test.describe('Version 2', () => {
 
   for (const [name, size] of [['a phone', PHONE], ['desktop', WIDE]]) {
     test(`Your plan on ${name}: adding an article brings in the button with its count, and pressing Added takes it out again`, async ({ page }) => {
-      const wide = size === WIDE;
       await page.setViewportSize(size);
       await page.goto(v2url('hifi'));
-      const btn = planBtn(page, wide), other = planBtn(page, !wide), add = page.locator('#tp-reads [data-v2-add]').first();
+      const btn = planBtn(page), other = planBtn(page, true), add = page.locator('#tp-reads [data-v2-add]').first();
       await expect(btn).toBeHidden(); await expect(other).toBeHidden();
       await expect(add).toHaveText('Add');
       await expect(add).toHaveAttribute('aria-pressed', 'false');
@@ -1139,7 +1172,7 @@ test.describe('Version 2', () => {
       await expect(btn).toBeVisible();
       await expect(btn.locator('.v2-pb-n')).toHaveText('1');   // once the dot has flown in
       await expect(btn).toHaveAccessibleName('Your plan, 1 added');
-      await expect(other).toBeHidden();   // one button: at the bottom of a phone, in the header on desktop
+      await expect(other).toBeHidden();   // one button, in the action bar: the one pinned bottom right on phones is gone
       await page.waitForTimeout(600);
       await add.click();
       await expect(add).toHaveText('Add');
