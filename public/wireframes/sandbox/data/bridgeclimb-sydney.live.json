@@ -1,0 +1,69 @@
+{
+  "id": "bridgeclimb-sydney",
+  "type": "tour",
+  "title": "BridgeClimb Sydney",
+  "overview": "BridgeClimb Sydney is an iconic Australian experience that takes you on a journey on the nation's most famous and celebrated structure, the Sydney Harbour Bridge.\n\nAs you ascend to the Summit of the world's largest steel arch, you'll experience breathtaking moments, spectacular 360-degree views, and fascinating facts from expert Bridge Tour Guides into the engineering and cultural history of this world-famous icon, while keeping you safe and entertained along the way.\n\nWith every day on the Bridge unique, and each e a new exhilarating adventure, everyone will take something different from this unforgettable experience.",
+  "highlights": {
+    "items": [
+      "Climb to the summit of the iconic Sydney Harbour Bridge",
+      "Enjoy 360° views with expert commentary on history and engineering",
+      "Safe, guided adventure offering a unique and memorable experience"
+    ],
+    "provenance": "generated",
+    "generated_at": null
+  },
+  "gallery": [],
+  "address": {
+    "line": "3 Cumberland Street",
+    "suburb": "The Rocks",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia",
+    "geo": null
+  },
+  "contact": {
+    "phone": "(02) 8274 7777",
+    "email": "contact@bridgeclimb.com"
+  },
+  "socials": [
+    {
+      "platform": "facebook",
+      "url": "https://www.facebook.com/bridgeclimbsydney/"
+    },
+    {
+      "platform": "x",
+      "url": "https://x.com/bridgeclimb"
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/bridgeclimb/"
+    }
+  ],
+  "links": {
+    "booking": "https://www.bridgeclimb.com/book",
+    "website": "http://www.bridgeclimb.com/"
+  },
+  "accessibility": {
+    "status": "partial",
+    "detail": null,
+    "features": [
+      "wheelchair_access"
+    ],
+    "operator_access_url": null
+  },
+  "venue_facilities": null,
+  "availability": null,
+  "pricing": null,
+  "trust": null,
+  "getting_there": null,
+  "live_availability": null,
+  "suitability": null,
+  "practical": null,
+  "deals": [],
+  "faqs": [],
+  "place_ref": null,
+  "operator_ref": null,
+  "parent_ref": null,
+  "last_verified": null,
+  "extension": null
+}
