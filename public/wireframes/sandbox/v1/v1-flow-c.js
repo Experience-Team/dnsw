@@ -114,8 +114,8 @@
   }
   function borrowed(id) {
     var el = document.getElementById(id);
-    // Lent elsewhere right now (Home, the Add team sheet): left where it is; it comes back to its marker or placeholder
-    return el && !el.closest('#tp-home, #tp-at') ? el : null;
+    // Lent elsewhere right now (Home, the Add team sheet, Drop goal's team screen): left where it is; it comes back to its marker or placeholder
+    return el && !el.closest('#tp-home, #tp-at, #sb-ob-teams') ? el : null;   // #sb-ob-teams: Drop goal's team screen (v1/sb-play.js, 27 Nov 2026)
   }
   function place() {
     var inCard = !step(), mark = pickMark(), tabs = document.getElementById('tp-tabs');

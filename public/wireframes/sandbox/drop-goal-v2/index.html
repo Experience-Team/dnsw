@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- SANDBOX copy (27 Nov 2026) of Version 2's Drop goal (v2/drop-goal/), shown by the sandbox page (../index.html, v1/sb-play.js). It loads only files in the sandbox, and keeps its state under sb:.
+     Drop goal, Version 2: the kick screen (24 Nov 2026). Shown in the Version 2 phone (../prototype-pick-your-team-v2.html)
+     in a frame, and it works opened on its own. Style: docs/drop-goal-style.png (right). Mechanic: concept lab card 10,
+     ported unchanged (game.js). ?team=<name> dresses the kicker and the ball in that team's colours (default kit
+     without); ?theme=wireframe or hifi when opened on its own (in the frame it follows the page). Nothing here is
+     shared with Options A to C's game (../drop-goal/): kit.js and kicker.js are copies. Reads the shared match
+     fixtures (../concepts-fixtures.js) only. -->
+<script>(function () {
+  var d = document.documentElement, q = location.search, m = /[?&]theme=(hifi|wireframe)\b/.exec(q), t = m ? m[1] : 'hifi';
+  try { if (parent !== window && parent.document) t = parent.document.documentElement.getAttribute('data-theme') === 'hifi' ? 'hifi' : 'wireframe'; } catch (e) {}
+  d.setAttribute('data-theme', t);
+  // ?demo: Home's snippet, the game playing itself and taking no input. With a mouse the words say Click, not Tap
+  // (is-click), here and in the game itself
+  if (/[?&]demo(?:&|$)/.test(q)) d.classList.add('is-demo');
+  // In the Version 2 page's layer, its Back button sits top left: the logo, the kicker's line and Kick again make room
+  else try { if (parent !== window && parent.sbPlay) d.classList.add('in-page'); } catch (e) {}
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) d.classList.add('is-click');
+})();</script>
+<title>Drop goal · Sandbox</title>
+<link rel="stylesheet" href="game.css" />
+</head>
+<body>
+<main class="dg" id="dg" tabindex="0" role="button"
+  aria-label="Drop goal. Press Space or Enter, or tap, to drop the ball, then again to kick it as it bounces up off the ground, about a second later. Kick in the KICK zone of the timing bar to put it through the posts.">
+  <svg class="dg-scene" id="dg-scene" viewBox="0 0 390 520" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+    <g id="dg-lines"></g>
+    <g id="dg-frame"></g>
+    <g id="dg-posts"></g>
+    <g id="dg-kicker"></g>
+    <g id="dg-ball"></g>
+  </svg>
+  <!-- Who is kicking, and the way to change it (the Version 2 page's team screen). Shown when the page shows the game -->
+  <p class="dg-who" id="dg-who" hidden><span id="dg-who-t"></span><span aria-hidden="true"> &middot; </span><button type="button" class="dg-link" id="dg-change">Change<span class="dg-vh"> team</span></button></p>
+  <header class="dg-top">
+    <img class="dg-logo" src="../assets/images/tth-logo.webp" alt="The Third Half" width="72" height="54" />
+  </header>
+  <!-- Nation table (sample scores, out of scope to make real). A goal adds 3 to the kicker's nation. -->
+  <aside class="dg-table" id="dg-table" aria-labelledby="dg-table-h">
+    <h2 class="dg-table-h" id="dg-table-h">Nation table · <span class="dg-sample">Sample</span></h2>
+    <ol class="dg-rows" id="dg-rows"></ol>
+    <button type="button" class="dg-share" id="dg-share">Share the table</button>
+  </aside>
+  <div class="dg-foot">
+    <p class="dg-hint" id="dg-hint">Then tap again as it bounces.</p>
+    <div class="dg-bar" id="dg-bar" aria-hidden="true">
+      <i class="dg-zone" id="dg-zone"></i>
+      <span class="dg-zone-l" id="dg-zone-l">Kick</span>
+      <svg class="dg-mark" id="dg-mark" viewBox="-19 -14 38 28" focusable="false"><g id="dg-mark-ball" transform="rotate(-28)"></g></svg>
+    </div>
+    <p class="dg-head" id="dg-head" aria-hidden="true">Tap to drop</p>
+    <button type="button" class="dg-link dg-link--pitch" id="dg-see">See the places</button>
+    <!-- The practice kick only: past it, into the game -->
+    <button type="button" class="dg-link dg-link--pitch" id="dg-skip">Skip practice</button>
+  </div>
+  <!-- Demo only (?demo): where each of the two presses lands, marked and named. A ring and "Tap 1", "Tap 2" on touch
+       screens; with a mouse, a pointer on the ring and "Click 1", "Click 2" -->
+  <i class="dg-tap" id="dg-tap" aria-hidden="true"><span class="dg-tap-ring" id="dg-tap-ring"></span><svg class="dg-tap-cur" width="22" height="26" viewBox="0 0 22 26" focusable="false"><path d="M2 2v19l5-4.6 3.4 7.6 3.2-1.5-3.3-7.4H18z" fill="#fff" stroke="#111" stroke-width="1.8" stroke-linejoin="round"/></svg><b class="dg-tap-l" id="dg-tap-l"></b></i>
+</main>
+<!-- Result screen (docs/drop-goal-style.png, left): the pitch with the place framed in the posts and Kick again, then the
+     place card inside the coloured borders. Stacked on phones, side by side from 700px wide. -->
+<section class="dg-result" id="dg-result" hidden aria-labelledby="dg-r-name">
+  <div class="dg-r-pitch">
+    <svg class="dg-r-posts" id="dg-r-frame" viewBox="196 16 176 300" aria-hidden="true" focusable="false"></svg>
+    <button type="button" class="dg-again" id="dg-r-again"><svg class="dg-again-ball" id="dg-r-ball" viewBox="-19 -14 38 28" width="52" height="38" aria-hidden="true" focusable="false"></svg><span>Kick again</span></button>
+  </div>
+  <div class="dg-r-frame-wrap">
+    <article class="dg-r-card" id="dg-r-card">
+      <!-- Phones only (24 Nov): the card closes with its own cross, top right, and the page's Back steps aside while the
+           card is up, so nothing beside the card reads as closing it. It does what Kick again does -->
+      <button type="button" class="dg-close dg-r-close" id="dg-r-close" aria-label="Close this card"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <div class="dg-r-photo" id="dg-r-photo"></div>
+      <div class="dg-r-body">
+        <p class="dg-r-kicker">The ball landed in &hellip;</p>
+        <div class="dg-r-titlerow">
+          <h2 class="dg-r-name" id="dg-r-name" tabindex="-1"></h2>
+          <button type="button" class="dg-save" id="dg-r-save"></button>
+        </div>
+        <div id="dg-r-tags"></div>
+        <p class="dg-r-desc" id="dg-r-desc"></p>
+        <dl class="dg-r-rows">
+          <!-- The team's next NSW match, beside the place (January brief): from the fixtures. Not shown for a watch party,
+               whose FITS row is the match itself -->
+          <div id="dg-r-match-row"><dt>Match</dt><dd id="dg-r-match"></dd></div>
+          <div><dt>Fits</dt><dd id="dg-r-fits"></dd></div>
+          <div><dt>Travel</dt><dd class="dg-sample" id="dg-r-travel"></dd></div>
+        </dl>
+        <!-- A watch party only: the later rounds are in NSW if the team gets through -->
+        <p class="dg-r-later" id="dg-r-later" hidden></p>
+        <p class="dg-r-links"><button type="button" class="dg-link" id="dg-r-see">See the places</button><!-- In the Version 2 page, after a save: the count, and the way to the list (Your plan) --><button type="button" class="dg-link dg-plan" id="dg-r-plan" hidden></button></p>
+      </div>
+    </article>
+  </div>
+</section>
+<!-- See the places: every place, the person's first, each with Save. Open from the kick screen and the result, so
+     nobody has to score to see them. -->
+<section class="dg-places" id="dg-places" hidden role="dialog" aria-modal="true" aria-labelledby="dg-pl-title">
+  <button type="button" class="dg-close" id="dg-pl-close" aria-label="Close the places"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  <h2 class="dg-pl-title" id="dg-pl-title" tabindex="-1">The places through the posts &middot; <span class="dg-sample">Sample</span></h2>
+  <p class="dg-pl-p">No goal needed. Add any of them to your plan. <span id="dg-pl-count"></span><button type="button" class="dg-link dg-plan" id="dg-pl-plan" hidden></button></p>
+  <div id="dg-pl-body"></div>
+</section>
+<p class="dg-sr" id="dg-say" aria-live="polite"></p>
+<script src="../concepts-fixtures.js"></script>
+<script src="places.js"></script>
+<script src="watch-parties.js"></script>
+<script src="kit.js"></script>
+<script src="kicker.js"></script>
+<script src="result.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
