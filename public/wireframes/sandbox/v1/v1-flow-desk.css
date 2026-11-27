@@ -1,0 +1,15 @@
+/* The three questions on a wide desktop (28 Nov 2026): the lead on the left, the answer on the right, on every step.
+   Step count, bar, title and note (and Find and Grid on step 1) sit in the left column; the hand of cards, the calendar or the
+   stay choices sit in the right column, whose right edge is the main column's edge, the edge the Next button also ends on.
+   Below 1280px the steps stay one column, the lead first (the grid has no explicit rows there), and the phone is unchanged. */
+@media (min-width: 1280px) {
+  .pv-device #tp-phone[data-fc] #tp-pick { grid-template-columns: minmax(0, 1fr) 520px; column-gap: var(--space-7, 48px); grid-template-rows: auto auto 1fr; align-content: start; }
+  .pv-device #tp-phone[data-fc] #tp-pick > .tp-fc { grid-column: 1; grid-row: 1; align-self: start; position: sticky; top: 96px; max-width: 24rem; }
+  .pv-device #tp-phone[data-fc] #tp-pick > #tp-util { grid-column: 1; grid-row: 2; align-self: start; margin-inline: 0; }
+  .pv-device #tp-phone[data-fc] #tp-pick > #tp-picker { grid-column: 2; grid-row: 1 / span 3; justify-self: end; width: 420px; margin-top: 0; }
+  .pv-device #tp-phone[data-fc] #tp-pick > #tp-ask { grid-column: 2; grid-row: 1 / span 3; align-self: start; margin-top: 0; }
+  .pv-device #tp-phone[data-fc="days"] #tp-pick > #tp-ask { grid-column: 2; }
+  .pv-device #tp-phone[data-fc] #tp-pick .v1-cal { column-gap: var(--space-5, 24px); }
+  /* The foot ends where the column ends: no padding on its right, its box reaching the column's right edge */
+  .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) .tp-fc-foot { right: calc(var(--rail-span, 0px) + var(--wide-pad, 0px) + var(--sbw, 0px)); padding-right: 0; }
+}

@@ -78,3 +78,5 @@ Copy and logic slips on the narrative plan page (28 Nov 2026): a distance and a 
 Sample tags inside the narrative sentences show only with Annotations on (28 Nov 2026); cards keep theirs. The last day offers places other than the arrival day's three where others are open.
 
 Layout (28 Nov 2026): each day's heading sticks under the floating nav on one line; a stretch of free days is one block (one list of up to three ideas, More ideas in place, two compact other matches, See day by day), which cuts the England plan from 8.2 to 4.6 screens.
+
+The three questions on a wide desktop (28 Nov 2026, `v1/v1-flow-desk.css`): the lead (step count, bar, title, note, Find and Grid) in a left column and the answer in a right column on every step, ending on the same edge as the Next button. Below 1280px they stay stacked.

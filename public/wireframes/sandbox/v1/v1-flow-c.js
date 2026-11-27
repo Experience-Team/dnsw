@@ -142,6 +142,10 @@
   // The page keeps room under the step for the floating foot
   function footRoom() { if (foot.offsetHeight) phone.style.setProperty('--fc-foot-h', foot.offsetHeight + 'px'); }
   if (window.ResizeObserver) new ResizeObserver(footRoom).observe(foot);
+  // The page's scrollbar, so the foot ends where the column ends on a wide screen (v1-flow-desk.css)
+  function sbw() { phone.style.setProperty('--sbw', (body.offsetWidth - body.clientWidth) + 'px'); }
+  sbw(); window.addEventListener('resize', sbw);
+  if (window.ResizeObserver) new ResizeObserver(sbw).observe(body);
 
   function stepNote(s) {
     if (s === 'teams') return 'Pick one or more teams to see their matches.';
