@@ -6082,8 +6082,6 @@ span.tp-map-arrow { display: block; }
 .tp-ov-pop-top { align-items: center; }
 .tp-ov-pop-top .cn-close { margin: -4px -4px -4px 0; }
 .tp-map-jump-top { align-items: center; }
-/* The plan sheet's cross: top right, where the Your plan chevron sits while the sheet is closed; open, it takes the chevron's place */
-.tp-tl-x { display: none; position: absolute; top: 10px; right: 16px; z-index: 3; }
-.tp-tl.is-open .tp-tl-x { display: inline-grid; }
+/* While the plan is open the Your plan pill is hidden; the one close cross is in the title row (27 Nov 2026: the dead second cross is gone) */
 .tp-tl.is-open .tp-tl-exp { visibility: hidden; }
 .tc-act > span:not(.visually-hidden) { text-wrap: balance; }

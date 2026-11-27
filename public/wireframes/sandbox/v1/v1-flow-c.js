@@ -39,7 +39,8 @@
   // goes back to step 1; saves since carry v: 2 or more, so a card left with no team after the flow stays as it is
   if ((fc.v || 1) < 2 && fc.step !== 'teams' && !state.picked.length) fc.step = 'teams';
   // Where you're staying needs a place (27 Nov 2026): a finished flow saved with none (an old Still deciding, or nothing) goes back to step 3
-  if (fc.step === 'done' && !(state.trip && state.trip.base)) fc.step = 'stay';
+  if (fc.step === 'done' && !(state.trip && state.trip.from && state.trip.to)) fc.step = 'days'; // Your days is required too (27 Nov 2026)
+  else if (fc.step === 'done' && !(state.trip && state.trip.base)) fc.step = 'stay';
   fc.v = 3;
   var edit = ''; // was a step reopened from Your answers; no longer set since the answers became a card (24 Nov)
   function keep() { fc.v = 3; try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
@@ -66,6 +67,7 @@
   function stayText() { var t = state.trip; return t && t.base ? tp.stayLine(t, true) : 'Not set'; }
   // Where you're staying is answered by a place (or Staying outside NSW); a second place is optional. No place is not an answer (27 Nov 2026)
   function hasBase() { var t = state.trip; return !!(t && t.base); }
+  function hasDays() { var t = state.trip; return !!(t && t.from && t.to); }
   /* ---------- The step's head and foot, around the borrowed controls ---------- */
   var head = document.createElement('section');
   head.className = 'tp-fc'; head.id = 'tp-fc';
@@ -145,9 +147,9 @@
     if (s === 'teams') return 'Pick one or more teams to see their matches.';
     if (s === 'days') {
       var t = state.trip;
-      if (tp.rugby()) return 'Tap a first day and a last day, and the NSW matches inside them are listed for you to add. Or skip if you don’t know yet.';
+      if (tp.rugby()) return 'Tap a first day and a last day, and the NSW matches inside them are listed for you to add.';
       if (t && t.from && fc.filled) return 'We’ve started with your first to last match in NSW. Tap a first and a last day to change it.';
-      return tp.own() ? 'Tap a first day and a last day, or skip if you don’t know yet.' : 'Set your days to see ideas for your time in NSW.';
+      return tp.own() ? 'Tap a first day and a last day. The matches inside them are your plan.' : 'Tap a first day and a last day to see ideas for your time in NSW.';
     }
     return 'Pick the closest place, or search. Thinking of somewhere? That counts. You can add a second place.';
   }
@@ -174,7 +176,7 @@
     return (edit ? '<p class="tp-fc-count">Change your answer</p>' : '<div class="tp-fc-top">' + back + '<p class="tp-fc-count" id="tp-fc-count">Step ' + (i + 1) + ' of ' + STEPS.length + '<span class="visually-hidden">: ' + NAME[s] + '</span></p></div>' +
       '<ol class="tp-fc-prog" aria-hidden="true">' + STEPS.map(function (x, j) { return '<li class="' + (j < i ? 'is-done' : j === i ? 'is-on' : '') + '"></li>'; }).join('') + '</ol>') +
       '<h3 class="tp-fc-h" id="tp-fc-h" tabindex="-1"' + (edit ? '' : ' aria-describedby="tp-fc-count"') + '>' + stepTitle(s) + '</h3>' +
-      '<p class="tp-fc-note">' + esc(edit ? stepNote(s).replace(/,? or skip[^.]*\./, '.').replace(/ Skip[^.]*\./, '') : stepNote(s)) + '</p>'; // no Skip while changing one answer
+      '<p class="tp-fc-note">' + esc(stepNote(s)) + '</p>';
   }
   function footHtml(s) {
     if (!s) return '';
@@ -185,12 +187,15 @@
     // stays in place and in the Tab order) with a line saying why, and the left button is Show every NSW match.
     // Step 3, where you're staying, is required too (26 Nov 2026): Next, See your plan, is unavailable until a place is
     // chosen, and there is no Skip
-    var need = s === 'teams' ? !state.picked.length : s === 'stay' ? !hasBase() : false;
-    var why = s === 'stay' ? 'Choose where you’re staying, or thinking of staying.' : 'Pick a team to carry on, or show every NSW match.';
-    var left = s === 'stay' ? '' : need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
+    // Your days is required too (27 Nov 2026): the first to last NSW match is the starting answer, and where there is
+    // nothing to start from (Show every NSW match, a team with no NSW match) a first and a last day are tapped before
+    // Next turns on. No Skip on days or on the stay step.
+    var need = s === 'teams' ? !state.picked.length : s === 'days' ? !hasDays() : s === 'stay' ? !hasBase() : false;
+    var why = s === 'stay' ? 'Choose where you’re staying, or thinking of staying.' : s === 'days' ? 'Tap a first day and a last day to carry on.' : 'Pick a team to carry on, or show every NSW match.';
+    var left = s === 'stay' || s === 'days' ? '' : need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
       : '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>';
     return (need ? '<p class="tp-fc-why" id="tp-fc-why">' + why + '</p>' : '') +
-      '<div class="tp-fc-nav' + (s === 'stay' ? ' tp-fc-nav--one' : '') + '">' + left +
+      '<div class="tp-fc-nav' + (s === 'stay' || s === 'days' ? ' tp-fc-nav--one' : '') + '">' + left +
       '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1"' + (need ? ' aria-disabled="true" aria-describedby="tp-fc-why"' : '') + '>' + NEXT[s] + ARR + '</button></div>';
   }
 
@@ -315,7 +320,7 @@
     var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b) || level.contains(b))) return;
     var s = step(), i = STEPS.indexOf(s);
     // Next on step 1 with nothing picked: it says why (the line is also its description) and stays where it is
-    if (b.getAttribute('aria-disabled') === 'true') { tp.say(s === 'stay' ? 'Choose where you’re staying, or thinking of staying.' : 'Pick a team to carry on, or show every NSW match.'); return; }
+    if (b.getAttribute('aria-disabled') === 'true') { tp.say(s === 'stay' ? 'Choose where you’re staying, or thinking of staying.' : s === 'days' ? 'Tap a first day and a last day to carry on.' : 'Pick a team to carry on, or show every NSW match.'); return; }
     if (b.dataset.fcAll !== undefined) { tp.addRugby(b); go('days', 1); return; }
     if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
     if (b.dataset.fcSkip !== undefined) {

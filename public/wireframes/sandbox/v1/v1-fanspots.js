@@ -3,13 +3,14 @@
    (concepts-fixtures.js), the suburbs and coordinates are real so the pins fall in the right place, and the transport,
    opening times and what is on are invented. Not in the product data contract; real details are still needed.
    kind: fan_zone, fan_village, pub or club. suburb: a suburb or venue, never a region label (North Shore, Inner West).
-   ll: [lat, lng]. transport, opens and has are the three things a fan asks about. */
+   ll: [lat, lng]. transport, opens and has are the three things a fan asks about. addr (27 Nov 2026, fan zones and villages
+   only): a made-up street address, Sample like the rest. */
 window.v1FanSpots = [
-  { id: 'fz-harbour', name: 'Harbour Square Fan Zone', kind: 'fan_zone', city: 'sydney', suburb: 'Circular Quay', ll: [-33.8617, 151.2108],
+  { id: 'fz-harbour', name: 'Harbour Square Fan Zone', kind: 'fan_zone', city: 'sydney', suburb: 'Circular Quay', ll: [-33.8617, 151.2108], addr: 'Pier 4, Circular Quay NSW 2000',
     transport: 'Train, ferry or light rail to Circular Quay, then a 3 minute walk. Step-free from the station.',
     opens: 'Daily 11am to 10pm. Match nights until 11:30pm.',
     has: ['Big screens', 'Food stalls', 'Free entry', 'Family friendly', 'Water refill'] },
-  { id: 'fv-darling', name: 'Darling Harbour Fan Village', kind: 'fan_village', city: 'sydney', suburb: 'Darling Harbour', ll: [-33.8748, 151.1987],
+  { id: 'fv-darling', name: 'Darling Harbour Fan Village', kind: 'fan_village', city: 'sydney', suburb: 'Darling Harbour', ll: [-33.8748, 151.1987], addr: 'Tumbalong Boulevard, Darling Harbour NSW 2000',
     transport: 'Light rail to Convention Centre, or a 10 minute walk from Town Hall station.',
     opens: 'Daily 10am to 11pm, 1 Oct to 13 Nov.',
     has: ['Big screens', 'Live music', 'Food and drink', 'Fan events', 'Free entry', 'Step-free access'] },
@@ -41,11 +42,11 @@ window.v1FanSpots = [
     transport: 'Wollongong station, then a 9 minute walk.',
     opens: 'Match days from 11am. Members and guests.',
     has: ['Big screens', 'Bistro', 'Outdoor green', 'Step-free access'] },
-  { id: 'fz-foreshore', name: 'Foreshore Park Fan Zone', kind: 'fan_zone', city: 'newcastle', suburb: 'Newcastle East', ll: [-32.9283, 151.7817],
+  { id: 'fz-foreshore', name: 'Foreshore Park Fan Zone', kind: 'fan_zone', city: 'newcastle', suburb: 'Newcastle East', ll: [-32.9283, 151.7817], addr: 'Wharf Road, Newcastle East NSW 2300',
     transport: 'Light rail to Newcastle Beach, then a 4 minute walk. Ferries from Stockton stop nearby.',
     opens: 'Daily 11am to 10pm. Match nights until 11pm.',
     has: ['Big screens', 'Food stalls', 'Free entry', 'Family friendly', 'Water refill'] },
-  { id: 'fv-newcastle', name: 'Newcastle Rugby Village', kind: 'fan_village', city: 'newcastle', suburb: 'Broadmeadow', ll: [-32.9232, 151.7339],
+  { id: 'fv-newcastle', name: 'Newcastle Rugby Village', kind: 'fan_village', city: 'newcastle', suburb: 'Broadmeadow', ll: [-32.9232, 151.7339], addr: 'Turton Road, Broadmeadow NSW 2292',
     transport: 'Broadmeadow station, 5 minute walk. Next to Newcastle Stadium.',
     opens: 'Daily 10am to 10pm, 1 Oct to 13 Nov.',
     has: ['Big screens', 'Live music', 'Food and drink', 'Fan events', 'Free entry', 'Step-free access'] },

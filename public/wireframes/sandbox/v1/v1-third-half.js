@@ -161,6 +161,68 @@
     return SPOTS.filter(function (sp) { return Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; })
       .sort(function (a, b) { return (SPOT_ORDER[a.type] - SPOT_ORDER[b.type]) || a.name.localeCompare(b.name); });
   }
+  /* Who gets screenings (27 Nov 2026): we assume the person is at their team's NSW matches inside their days, so no pubs or
+     clubs are offered for those. Screenings are for the team's matches inside their days that are played interstate, and for
+     a match they have removed (they are not going after all). watchMatches() is that list, in day order. */
+  function removedMatch(m) { return !!m.f.t && pickedHas(m.f) && tp.matchTaken(m.key); }
+  function watchMatches() {
+    var a = tp.userMatches().filter(function (m) { return m.f.a && m.f.t && inStay(m.day); });
+    var b = tp.allMatches().filter(function (m) { return removedMatch(m) && inStay(m.day); });
+    return a.concat(b.filter(function (m) { return a.indexOf(m) < 0; })).sort(function (x, y) { return x.day - y.day || (x.key < y.key ? -1 : 1); });
+  }
+  tp.watchMatches = watchMatches;
+  /* The nearest fan zone to a stadium, for a match the person is at (27 Nov 2026): somewhere to go before and after. The
+     fan zones and villages are sample data (v1-fanspots.js), so the line says Sample. Nearest by straight line. */
+  function fanSpots() { return (window.v1FanSpots || []).filter(function (x) { return x.kind === 'fan_zone' || x.kind === 'fan_village'; }); }
+  function nearestFan(ll) {
+    var g = fanSpots(); if (!g.length) return null; if (!ll) return g[0];
+    return g.slice().sort(function (x, y) { return kmBetween(x.ll, ll) - kmBetween(y.ll, ll); })[0];
+  }
+  var SAMPLE_TAG = '<span class="v1-sample provenance-gap">Sample</span>';
+  function fanNearHtml(f) {
+    var ll = window.cnGeo && window.cnGeo.venues[f.v], sp = nearestFan(ll); if (!sp || f.a) return '';
+    var km = ll ? kmBetween(sp.ll, ll) : null;
+    return '<p class="v1-fan-near"><span class="v1-fan-k">Before and after</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') +
+      (km !== null ? ' \u00b7 about ' + Math.max(1, Math.round(km)) + ' km from ' + esc(f.v) : '') + ' ' + SAMPLE_TAG + '</p>';
+  }
+  tp.fanNear = fanNearHtml;
+  /* Later rounds inside their days (27 Nov 2026): an NSW match with no teams yet is not assumed to be one they go to. The
+     day reads "[stage] is on, teams to be decided" with Add; once added it is one of their matches and a match day. */
+  function koItem(m) {
+    var f = m.f, id = 'm:' + m.key;
+    ITEMS[id] = { id: id, kind: 'match', key: m.key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p };
+    return id;
+  }
+  function koAddHtml(m) { return addBtn(koItem(m), matchName(m.f) + ', ' + m.f.d); }
+  function koOnDays() {
+    var r = dRange(); if (!r) return [];
+    var mine = {}; tp.userMatches().forEach(function (m) { mine[m.key] = true; });
+    return tp.allMatches().filter(function (m) { return !m.f.a && isKo(m.f) && m.day >= r.a && m.day <= r.z && !mine[m.key]; });
+  }
+  tp.koOnDays = koOnDays; tp.koAddHtml = koAddHtml; tp.koName = function (f) { return koName(f); };
+  /* A team with no NSW match inside their days (27 Nov 2026), on its card in Your matches. Playing interstate inside the days:
+     a watch block with the nearest fan zone to where they stay (sample address), the way from their stay (approximate: the
+     nearer of their places, a straight-line guess) and each of those matches with Add. No match at all: one line. */
+  function fanRouteHtml(sp) {
+    var from = nearerPlace(sp.ll), g = window.cnGeo; if (!from || !g || !g.places[from]) return '';
+    var km = kmBetween(g.places[from], sp.ll), walk = km <= 1.5, mins = walk ? Math.max(3, Math.round(km * 13)) : Math.round(10 + km * 3);
+    return 'From ' + esc(from) + ': ' + (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ', ' + (walk ? 'a ' + mins + ' minute walk' : 'about ' + mins + ' minutes by train or bus') + ' (approximate)';
+  }
+  tp.noNswBlock = function (team, away) {
+    if (!away.length) return '<p class="v1-nonsw-none">' + esc(team) + ' have no match inside your days. See Also on in NSW below for matches on while you\u2019re here.</p>';
+    var g = window.cnGeo, first = basePlace(), sp = nearestFan((first && g && g.places[first]) || (g && g.places['Sydney CBD'])); if (!sp) return '';
+    var route = fanRouteHtml(sp);
+    return '<div class="v1-nonsw"><p class="v1-nonsw-h">' + esc(team) + ' play interstate while you\u2019re here. Watch with other fans at <b>' + esc(sp.name) + '</b>.</p>' +
+      '<p class="v1-fan-near">' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') + ' ' + SAMPLE_TAG + '</p>' + (route ? '<p class="v1-fan-near">' + route + ' ' + SAMPLE_TAG + '</p>' : '') +
+      '<ul class="v1-nonsw-l">' + away.map(function (m) {
+        var f = m.f; return '<li><span class="v1-nonsw-m">' + esc(matchName(f)) + '<span>' + esc(f.d + ', ' + (f.k || TBC_L) + ' \u00b7 ' + f.a) + '</span></span>' + koAddHtml(m) + '</li>';
+      }).join('') + '</ul></div>';
+  };
+  function koBody(b) {
+    var m = b.ms[0], f = m.f;
+    return '<p class="tp-blk-note">' + esc(koName(f)) + ' is on at ' + esc(f.v) + ', ' + esc(f.p) + ', ' + esc(f.k || TBC_L) + '. Teams to be decided, so we haven\u2019t assumed you\u2019re going.</p>' +
+      '<div class="v1-ko-add">' + koAddHtml(m) + '</div>';
+  }
   // A screening (or the village) for one match: registered so Add and its page work, wherever it is listed
   function spotItem(sp, m) {
     var id = 'w:' + SPOTS.indexOf(sp) + ':' + m.key;
@@ -283,19 +345,15 @@
     VEN = {}; VUSED = {};
     // Every match of every picked team, interstate included, in their days once set; one with a ticket shows getting
     // there and back instead of screenings
-    var ms = tp.userMatches().filter(function (m) { return m.f.t && inStay(m.day); });
-    var s = stay(), h = '', first = teaser();
-    if (first) {
-      var d0 = teaserDay(), on = ms.filter(function (m) { return m.f.d === d0; });
-      ms = on.length ? on : ms.slice(0, 1);
-    }
+    var ms = watchMatches();
+    var s = stay(), h = '', first = false;
+    // Nothing to list (the person is at all their matches in NSW, or has no team): the section is not shown
+    var watchSec = document.getElementById('tp-watch'); if (watchSec) watchSec.hidden = !ms.length;
+    if (!ms.length) { watchList.innerHTML = ''; return; }
     var going = ms.filter(hasTicket), left = ms.length - going.length;
     if (watchNote) watchNote.textContent = first && ms.length ? 'A first look: screenings on ' + ms[0].f.d + ', the next NSW match day.'
       : going.length && !left ? 'You have tickets to all your matches. Screenings show here for any you\u2019re not at.'
-      : (going.length ? left + (left === 1 ? ' match' : ' matches') + ' to watch, ' : 'Every match of your teams, ') + 'interstate ones too, at fan zones, pubs and clubs in NSW. Venues are examples.';
-    if (!ms.length) {
-      h = '<p class="tp-empty">' + (s ? 'None of your matches falls in your days (' + esc(tp.isoRange(trip().from, trip().to)) + ').' : 'Pick your teams to see where to watch their matches.') + '</p>';
-    }
+      : 'Your matches played interstate' + (ms.some(removedMatch) ? ', and any you’re not going to after all, ' : ' ') + 'at fan zones, pubs and clubs in NSW. Venues are examples.';
     var evs = evenings(ms), cards = [];
     evs.forEach(function (ev) {
       var watch = ev.filter(function (m) { return !hasTicket(m); });
@@ -427,6 +485,7 @@
     var a = M.range.a, z = M.range.z, by = {}, out = [], st = null;
     M.ms.forEach(function (m) { if (m.day >= a && m.day <= z) (by[m.day] = by[m.day] || []).push(m); });
     function close() { if (st) { out.push(st); st = null; } }
+    var ko0 = {}; koOnDays().forEach(function (m) { (ko0[m.day] = ko0[m.day] || []).push(m); });
     for (var d = a; d <= z; d++) {
       var dm = by[d] || [], home = dm.filter(function (m) { return !m.f.a; }), away = dm.filter(function (m) { return m.f.a && hasTicket(m); });
       if (home.length) { close(); out.push({ kind: 'match', key: 'm' + d, day: d, ms: home }); continue; }
@@ -434,6 +493,8 @@
       // A free day with one of their matches on (interstate, no ticket): its own card, where to watch it in NSW
       var tv = dm.filter(function (m) { return m.f.a && m.f.t && !hasTicket(m) && M.ms.indexOf(m) > -1; });
       if (tv.length) { close(); out.push({ kind: 'watch', key: 'w' + d, day: d, ms: tv }); continue; }
+      // A later-round NSW match on the day (teams to be decided): not a free day, and not assumed (27 Nov 2026)
+      var ko = ko0[d]; if (ko) { close(); out.push({ kind: 'ko', key: 'k' + d, day: d, ms: ko }); continue; }
       if (a !== z && (d === a || d === z)) { close(); out.push({ kind: 'half', key: 'h' + d, day: d, first: d === a }); continue; }
       if (!st) st = { kind: 'free', key: 'f' + d, a: d, z: d };
       st.z = d;
@@ -557,6 +618,7 @@
     var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f, wd = weekdayOf(m.day), k = kickMins(f.k), d = { m: m };
     var groups = { before: [], after: [], near: [] }, h = goBlock(m) + alsoLine(m.day);
     if (b.ms.length > 1) h += '<p class="tp-blk-note">Also in NSW that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return esc(matchName(x.f)) + ', ' + esc(x.f.k || TBC_L) + ', ' + esc(x.f.v); }).join('; ') + '.</p>';
+    h += fanNearHtml(f);
     PRODUCTS.filter(function (p) { return p.distance_to_venue && p.distance_to_venue.venue_ref === f.v; }).forEach(function (p) {
       var o = hoursOn(p, wd);
       if (!o) return; // closed that day: not a fit, so not shown
@@ -803,6 +865,7 @@
   function heading(b) {
     if (b.kind === 'match') { var m = b.ms.filter(hasTicket)[0] || b.ms[0], f = m.f; return { when: dayLabel(b.day) + ' · Match day', what: matchName(f) + ', ' + (f.k || TBC_L) + ', ' + f.v + (hasTicket(m) ? ' (your ticket)' : '') }; }
     if (b.kind === 'free') { var n = b.z - b.a + 1; return { when: n + (n === 1 ? ' free day' : ' free days') + ' · ' + spanLabel(b.a, b.z), what: b.between ? 'Between Newcastle and Sydney' : 'From ' + (basePlace() || CITY[b.base]) }; }
+    if (b.kind === 'ko') return { when: dayLabel(b.day) + ' · Later round', what: koName(b.ms[0].f) + ' is on · teams to be decided' };
     if (b.kind === 'watch') return { when: dayLabel(b.day) + ' \u00b7 Free day', what: (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Here\u2019s where to watch' };
     if (b.kind === 'half') return { when: dayLabel(b.day) + ' · ' + (b.first ? 'Arrival day' : 'Last day'), what: 'Half a day, ' + halfWhere(b) };
     return { when: dayLabel(b.day) + ' · Away', what: matchName(b.m.f) + ' in ' + b.m.f.a + ' (your ticket)' };
@@ -947,7 +1010,7 @@
       r.title = matchName(f) + ', ' + (f.k ? f.k + ' kick-off' : 'kick-off to be confirmed') + ', ' + f.v;
       r.hero = { teams: f.t ? f.t.split(' v ') : [], k: f.k, v: f.v, ticket: hasTicket(m) };
       if (b.ms.length > 1) r.note = 'Also that day: ' + b.ms.filter(function (x) { return x !== m; }).map(function (x) { return matchName(x.f); }).join(', ');
-      r.lead = goOne(m);
+      r.lead = goOne(m) + fanNearHtml(m.f);
       r.pins = productPins(nearProducts(f.v, weekdayOf(d), d, 3), f, m);
       // The map frames where the day starts (where they are staying, else the city centre the route starts at) and the
       // stadium, with the way there and back between them
@@ -959,6 +1022,11 @@
       r.kicker = dl + ' \u00b7 Free day'; r.title = (b.ms.length > 1 ? manyLine(b.ms) : kickLine(b.ms[0])) + '. Where to watch';
       r.body = venueRows(b.ms, evKey(b.ms));
       r.pins = venuesFor(b.ms).map(function (c) { return { key: 'w:' + c.j + ':' + evKey(b.ms), open: 'w:' + c.j + ':' + evKey(b.ms), title: c.sp.name, kindLabel: SPOT_TYPE[c.sp.type] || 'Screening', ll: GEO && GEO.watch[c.j] }; }).filter(function (x) { return x.ll; });
+    } else if (st.kind === 'ko') {
+      var kf = b.ms[0].f;
+      r.anchor = stadiumLL(kf.v) || home || nearStadium(d, cityOf(kf.v)); r.place = kf.v;
+      r.kicker = dl + ' \u00b7 Later round'; r.title = koName(kf) + ' is on \u00b7 teams to be decided';
+      r.body = koBody(b);
     } else if (st.kind === 'half') {
       var wd = weekdayOf(d), c2 = b.base, fx = { d: dl, v: CITY[c2] };
       r.anchor = home || nearStadium(d, c2); r.place = home ? home.name : CITY[c2];
@@ -1046,7 +1114,7 @@
     var sigNow = bs.map(function (b) { return b.key; }).join(',');
     if (sigNow !== blkSig || !openSet) { blkSig = sigNow; openSet = {}; var nx = bs.filter(function (b) { return b.kind !== 'away'; })[0]; if (nx) openSet[nx.key] = true; }
     if (!bs.length) {
-      thirdList.innerHTML = '<p class="tp-empty">' + (stay() ? 'No NSW match falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your days, or see Where to watch above.' : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>';
+      thirdList.innerHTML = '<p class="tp-empty">' + (stay() ? 'No NSW match falls in your days here (' + esc(tp.isoRange(trip().from, trip().to)) + '). Change your days.' : 'There are no NSW matches to plan around yet. See Where to watch above.') + '</p>';
       return;
     }
     var h = '';
@@ -1055,7 +1123,7 @@
       if (b.kind === 'away') { h += '<div class="tp-blk tp-blk--away" data-blk="' + b.key + '" tabindex="-1"><p class="tp-blk-line"><span class="tp-blk-when">' + esc(hd.when) + '</span> <span class="tp-blk-what">' + esc(hd.what) + '</span></p></div>'; return; }
       h += '<section class="tp-blk tp-blk--' + b.kind + '" data-blk="' + b.key + '"><h4 class="tp-blk-h"><button type="button" class="tp-blk-head" data-blk-toggle="' + b.key + '" aria-expanded="' + open + '" aria-controls="' + bid + '">' +
         '<span class="tp-blk-when">' + esc(hd.when) + '</span><span class="tp-blk-what">' + esc(hd.what) + '</span><span class="tp-blk-chev" aria-hidden="true"></span></button></h4>' +
-        '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? b._html : b.kind === 'watch' ? watchBody(b) : halfBody(b)) : '') + '</div></section>';
+        '<div class="tp-blk-body" id="' + bid + '"' + (open ? '' : ' hidden') + '>' + (open ? (b.kind === 'match' ? matchBody(b, M) : b.kind === 'free' ? b._html : b.kind === 'watch' ? watchBody(b) : b.kind === 'ko' ? koBody(b) : halfBody(b)) : '') + '</div></section>';
     });
     thirdList.innerHTML = h;
   }
@@ -1191,7 +1259,7 @@
     // An interstate match leads with where to watch it in NSW: the fan zone, the village and pubs screening it (gap data)
     // With a ticket they will be there, not in NSW (19 Nov): the sheet says so first, and the NSW venues wait behind
     // Watching in NSW instead?, opened in place
-    if (f.a) {
+    if (f.a || removedMatch(m)) {
       var sps = spotsFor(m), away = hasTicket(m);
       h += '<section class="tp-pm-watch" aria-labelledby="tp-pm-watch-h">' +
         (away ? '<h3 class="cn-pp-h" id="tp-pm-watch-h">You\u2019re in ' + esc(f.a) + ' for this one</h3><p class="tp-pm-note">Your ticket is marked, so it\u2019s a day away on your plan.</p>' +
@@ -1342,6 +1410,12 @@
         // Said once per stop, under the stop line (20 Nov): where it is played, so a screening is not taken for a match here
         out.push({ key: 'a' + m.day + '|' + f.t, day: m.day, kind: 'away', ms: [m], label: f.d + ' · ' + (f.t || f.s), sub: 'Played in ' + f.a + '. Watch it in NSW.', ll: null, items: ws });
       }
+    });
+    // Later-round days inside their days: one card each, with the match to Add (27 Nov 2026)
+    koOnDays().forEach(function (m) {
+      var f = m.f, id = koItem(m), ll = GEOX.venues && GEOX.venues[f.v];
+      out.push({ key: 'k' + m.day, day: m.day, kind: 'ko', ms: [m], label: f.d + ' \u00b7 Later round', sub: koName(f) + ' is on. Teams to be decided.', ll: ll || null,
+        items: [{ key: id, open: 'match:' + m.key, title: koName(f), type: 'Later round', time: f.k ? f.k + ' Sydney time' : '', ll: ll || null }] });
     });
     // With days set: the free days and their ideas, in day order among the matches
     FREEINFO.forEach(function (fd) {
@@ -1814,7 +1888,7 @@
     return h;
   }
   function pmWt(name) {
-    var ms = tp.userMatches().filter(function (m) { return m.f.t && m.f.t.split(' v ').indexOf(name) > -1; });
+    var ms = watchMatches().filter(function (m) { return m.f.t.split(' v ').indexOf(name) > -1; });
     var h = '<div class="plan-modal-body tp-pm-wt"><h2 class="cn-pp-title" id="tp-pm-title">Find the fan zones for ' + esc(name) + '</h2>' +
       '<p class="tp-ko-note">' + ms.length + (ms.length === 1 ? ' match' : ' matches') + ', each at fan zones, pubs and clubs in NSW. Add the one you\u2019ll go to. Venues are examples until real ones are supplied.</p>';
     ms.forEach(function (m) { h += '<section class="tp-wt-m">' + matchLine(m) + venueRows([m], evKey([m])) + '</section>'; });
@@ -2026,13 +2100,13 @@
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
       : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
-    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
+    h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
       calKeyHtml(ms) + '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
       // dates stay in view and it is clear the plan waits for that tap
       '<div class="tp-days-bar"><p class="tp-days-draft" hidden></p><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
       '<div class="tp-days-acts"><button type="button" class="tp-pill tp-pill--dark" data-duse' + (n ? '' : ' disabled') + '>' + window.tpIcons.cal + 'Use these dates</button>' +
-      (has ? '<button type="button" class="tp-link" data-dclear>Remove my days</button>' : '') + '</div></div>';
+      '</div></div>'; // no Remove my days: Your days is required (27 Nov 2026)
     return h + '</div>';
   }
   tp.openDays = function (opener) { openDays(false, opener); };
@@ -2399,7 +2473,7 @@
      distance, route and ideas logic knows (PLACES, cnGeo.places). Bondi and Outside NSW are no longer buttons: a saved
      answer still works and shows as the current place; Staying outside NSW is a quiet link under the search. */
   function stayOptions() {
-    var r = dRange(), ms = tp.rugby() ? tp.allMatches().filter(function (m) { return !r || (m.day >= r.a && m.day <= r.z); }) : tp.userMatches();
+    var r = dRange(), ms = tp.rugby() ? tp.allMatches().filter(function (m) { return !r || (m.day >= r.a && m.day <= r.z); }) : tp.userMatches().concat(koOnDays()); // a later round inside the days adds its stadium's precinct (27 Nov 2026)
     var at = { cbd: false, olympic: false, moore: false, newc: false };
     ms.forEach(function (m) {
       if (m.f.a) return;
@@ -2483,7 +2557,7 @@
     var t = trip() || {}, own = tp.own(), step = fc(), card = fcCard(), show = own || FLOW_B || step === 'days' || step === 'stay' || card;
     ask.hidden = !show;
     if (!show) { ask.innerHTML = ''; return; }
-    var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW' + (has && !askEditing ? '' : ' (optional)') + '</h3>';
+    var has = !!(t.from && t.to), h = '<h3 class="tp-ask-title" id="tp-ask-title">Your days in NSW</h3>';
     var asel = askDraft && askDraft.from && !askDraft.to ? { a: tp.isoDay(askDraft.from), z: null } : has ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null;
     if (has && !askEditing && step !== 'days' && !card) {
       h += '<p class="tp-ask-sum">' + window.tpIcons.cal + '<span class="tp-ask-sum-text">' + esc(tp.isoRange(t.from, t.to)) + '</span> · <button type="button" class="tp-link" data-act="change">Change</button></p>';
@@ -2496,7 +2570,7 @@
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
           (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
-          (has || (askDraft && (askDraft.from || askDraft.to)) ? '<button type="button" class="tp-link tp-ico-link" data-act="clear">' + I_RESET + 'Reset</button>' : '') + '</div>' : '');
+          (step === 'days' && (has || (askDraft && (askDraft.from || askDraft.to))) ? '<button type="button" class="tp-link tp-ico-link" data-act="clear">' + I_RESET + 'Reset</button>' : '') + '</div>' : '');
     }
     // No line under Undo and Reset saying what changed (18 Nov): the toast and the section tint already say it, and
     // screen readers still hear it (askNews goes to tp.say)
@@ -2723,7 +2797,8 @@
   // From the results' interstate note: down to the screenings of their matches
   var toWatch = document.getElementById('tp-to-watch');
   if (toWatch) toWatch.addEventListener('click', function () {
-    var w = document.getElementById('tp-watch'), top = w.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16 - (window.tpCapRoom ? window.tpCapRoom() : 0);
+    var w = document.getElementById('tp-watch'); if (!w || w.hidden) return;
+    var top = w.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16 - (window.tpCapRoom ? window.tpCapRoom() : 0);
     body.scrollTo({ top: Math.max(0, top), behavior: reduce.matches ? 'auto' : 'smooth' });
     document.getElementById('tp-watch-title').setAttribute('tabindex', '-1');
     document.getElementById('tp-watch-title').focus({ preventScroll: true });
@@ -3100,10 +3175,10 @@
     }
     var rows = others.map(function (m) {
       var f = m.f, ko = isKo(f), id = 'm:' + m.key, where = (HOSTS[f.v] ? HOSTS[f.v].title.replace(/^Sydney – /, '') : f.v);
-      if (!ko && f.t) ITEMS[id] = { id: id, kind: 'match', key: m.key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p };
-      var open = !ko && f.t ? '<button type="button" class="tp-link v1-also-open" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog">' + esc(matchName(f)) + '</button>' : '<span class="v1-also-n">' + esc(matchName(f)) + '</span>';
+      ITEMS[id] = { id: id, kind: 'match', key: m.key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p };
+      var open = '<button type="button" class="tp-link v1-also-open" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog">' + esc(matchName(f)) + '</button>';
       return '<li><span class="v1-also-d">' + esc(dayLabel(m.day)) + '</span><span class="v1-also-b">' + open + '<span class="v1-also-w">' + esc(where) + (ko ? ' · teams to be decided' : '') + '</span></span>' +
-        (!ko && f.t ? addBtn(id, matchName(f) + ', ' + f.d) : '') + '</li>';
+        addBtn(id, matchName(f) + ', ' + f.d) + '</li>';
     }).join('');
     alsoEl.hidden = false;
     alsoEl.innerHTML = '<h3 class="tp-sec-title" id="v1-also-title" tabindex="-1">' + (noTeam ? 'On while you’re here' : 'Also on in NSW') + '</h3>' +

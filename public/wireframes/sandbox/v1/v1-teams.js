@@ -136,7 +136,7 @@
   var tlReady = false;
   // A ticket or a screening set from a sheet shows on its card's row as a chip: the deck redraws when either changes
   var lastDeckSig = '';
-  function deckSig() { var tr = state.trip || {}; return (tr.from || '') + (tr.to || '') + state.notGoing.join(',') + '|' + state.added.filter(function (x) { return x.kind === 'screening'; }).map(function (x) { return x.id; }).join(','); }
+  function deckSig() { var tr = state.trip || {}; return (tr.from || '') + (tr.to || '') + (tr.base || '') + (tr.base2 || '') + state.notGoing.join(',') + '|' + state.added.filter(function (x) { return x.kind === 'screening'; }).map(function (x) { return x.id; }).join(','); }
   function deckFollow() {
     if (!tabsOn || !deck.children.length) return;
     var ds = deckSig(); if (ds === lastDeckSig) return;
@@ -1054,7 +1054,7 @@
     } else {
       var fs = ms.slice().sort(function (a, b) { return dayOf(a.d) - dayOf(b.d); }), n0 = fs[0], opp0 = n0 && n0.t.split(' v ').filter(function (n) { return n !== c.name; })[0], nswIn = fs.filter(function (f) { return !f.a; }).length;
       h += band(TEAM_BAND[c.name] || ['var(--c-btn)']) + '<header class="tc-head">' + flagBig(c.name) +
-        '<div><h4 class="tc-name">' + esc(c.name) + '</h4><p class="tc-ahead">' + (fs.length ? fs.length + (fs.length === 1 ? ' match' : ' matches') + (fs.length > 1 ? ' in ' + daysSpan(fs) + ' days' : '') + (n0 ? ' · next: v ' + esc(opp0) + ', ' + esc(n0.d) : '') : 'No matches inside your days') + '</p></div>' +
+        '<div><h4 class="tc-name">' + esc(c.name) + '</h4><p class="tc-ahead">' + (fs.length ? fs.length + (fs.length === 1 ? ' match' : ' matches') + (fs.length > 1 ? ' in ' + daysSpan(fs) + ' days' : '') + (n0 ? ' · next: v ' + esc(opp0) + ', ' + esc(n0.d) : '') : 'Not playing inside your days') + '</p></div>' +
         (isNew ? '<span class="tp-rcard-new">Just added</span>' : '') +
         '<p class="tc-meta"><b>' + esc(c.pool) + '</b>' + (fs.length ? ' · ' + fs.length + ' ' + (fs.length === 1 ? GM1 : GM) : '') + (fs.length ? ' · <b>' + (nswIn ? nswIn + ' in NSW' : 'all interstate') + '</b>' : '') + '</p></header>';
     }
@@ -1068,13 +1068,22 @@
     if (koInDates(c)) h += '<button type="button" class="tc-ko" data-ko="' + esc(ko.key) + '" aria-haspopup="dialog">' + I_CUP + '<span>' + esc(ko.text) + '<b>' + esc(ko.strong) + '</b></span>' + I_NEXT + '</button>';
     // One next step: a team that plays in NSW plans around its match day; one that does not finds where to watch
     var wn = c.rugby ? 0 : userMatches().filter(function (m) { return m.f.t && m.f.t.split(' v ').indexOf(c.name) > -1; }).length; // the count the sheet lists
+    // A team with no NSW match inside the days (27 Nov 2026): not an empty card. Interstate matches inside the days: a watch block,
+    // with a fan zone, its address, the way from where they stay and each match to Add; none at all: one line pointing on
+    var noNsw = '';
+    var nb = window.tpPicker && window.tpPicker.noNswBlock;
+    if (!c.rugby && !nswIn && nb) {
+      var away = fs.filter(function (f) { return f.a; }).map(function (f) { return TLM_BY[idOf(f)]; }).filter(Boolean);
+      noNsw = nb(c.name, away);
+    }
+    h += noNsw;
     var next = c.rugby ? '' // no team: nothing is on the plan until a match is added (26 Nov 2026)
       : nswIn ? (function () {
         // See your match day (20 Nov, F-028): the plan, open on this team's NSW match day; the dates stay where they are
         var sd = seeDay(c.name);
         return '<button type="button" class="tc-next" data-see-day="' + esc(c.name) + '">' + 'See your match day' + (sd ? '<span class="visually-hidden">: ' + esc(sd.f.t) + ', ' + esc(sd.f.d) + '</span>' : '') + I_NEXT + '</button>';
       })()
-      : wn ? '<button type="button" class="tc-next" data-watch-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_TV + 'See where to watch all ' + wn + ' in NSW</button>' : ''; // none to show: no button (26 Nov 2026)
+      : wn && !noNsw ? '<button type="button" class="tc-next" data-watch-team="' + esc(c.name) + '" aria-haspopup="dialog">' + I_TV + 'See where to watch all ' + wn + ' in NSW</button>' : ''; // none to show: no button (26 Nov 2026)
     return h + (next ? '<div class="tc-foot">' + next + '</div>' : '');
   }
   var rugbyAll = false;
@@ -2081,6 +2090,8 @@
   var tlNudged = false, tlOpener = null, tlOpenAt = null;
   function tlSetOpen(open, focusBack) {
     if (open === tlOpen) return;
+    // The plan does not open until all three questions are answered (27 Nov 2026): every way of opening it comes through here
+    if (open && window.tpFlowC && window.tpFlowC.step()) return;
     if (!open && stackEl) stackClose(false); // a sheet stacked over the plan goes with it
     if (!open) tlZoom(false);
     if (!open && tlFreeOpen !== null) tlFreeShow(null);
@@ -2269,7 +2280,7 @@
     if (stackSolo) {
       stackSolo = false; stackHide(sh);
       soloHold(); soloAnchor = null;
-      body.inert = false; stackScrim.classList.remove('is-on'); tl.inert = !tlOn; syncBar();
+      body.inert = false; stackScrim.classList.remove('is-on'); tl.inert = !tlOn || !!(window.tpFlowC && window.tpFlowC.step()); syncBar();
       stackOpener = liveOpener(stackOpener);
       if (focusBack !== false && stackOpener && stackOpener.isConnected) stackOpener.focus({ preventScroll: true });
       stackOpener = null;
@@ -2281,7 +2292,7 @@
     tl.classList.add('is-fwd'); // the way back has the sheet's closing timing, so the two still move as one
     tl.classList.remove('is-back');
     clearTimeout(fwdT); fwdT = setTimeout(function () { tl.classList.remove('is-fwd'); }, 360);
-    tl.inert = false;
+    tl.inert = !!(window.tpFlowC && window.tpFlowC.step());
     stackScrim.classList.remove('is-on');
     stackOpener = liveOpener(stackOpener);
     if (focusBack !== false && stackOpener && stackOpener.isConnected) stackOpener.focus({ preventScroll: true });
