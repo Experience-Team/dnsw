@@ -119,6 +119,12 @@ export async function picked(page) {
 export async function fcStep(page) {
   return page.evaluate(() => (window.tpFlowC ? window.tpFlowC.step() : null));
 }
+// Where you're staying (step 3, 26 Nov 2026): the quick answers follow the person's matches, so the first one is
+// whatever is offered. It is a required answer: See your plan stays unavailable until one is chosen.
+export async function chooseStay(page) {
+  await page.locator('#tp-ask .tp-quick:first-of-type [data-base]').first().click();
+  await settle(page);
+}
 export async function fcNext(page) {
   await page.locator('#tp-phone .tp-fc-next:visible').first().click();
   await settle(page);

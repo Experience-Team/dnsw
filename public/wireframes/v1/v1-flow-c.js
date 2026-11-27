@@ -60,8 +60,9 @@
   function baseLabel(b) { return b === 'outside' ? 'Outside NSW' : b; }
   function teamsText() { return state.picked.length ? tp.list(state.picked.slice()) : 'None picked'; }
   function daysText() { var t = state.trip; return t && t.from && t.to ? tp.isoRange(t.from, t.to) : 'Not set'; }
-  function stayText() { var t = state.trip; return t && t.base ? baseLabel(t.base) : 'Not set'; }
-  function hasBase() { var t = state.trip; return !!(t && t.base); }
+  function stayText() { var t = state.trip; return t && (t.base || t.guess) ? tp.stayLine(t, true) : 'Not set'; }
+  // Where you're staying is answered by a place, Staying outside NSW, or Still deciding (with no place too)
+  function hasBase() { var t = state.trip; return !!(t && (t.base || t.guess)); }
   /* ---------- The step's head and foot, around the borrowed controls ---------- */
   var head = document.createElement('section');
   head.className = 'tp-fc'; head.id = 'tp-fc';
@@ -145,7 +146,7 @@
       if (t && t.from && fc.filled) return 'We’ve started with your first to last match in NSW. Tap a first and a last day to change it.';
       return tp.own() ? 'Tap a first day and a last day, or skip if you don’t know yet.' : 'Set your days to see ideas for your time in NSW.';
     }
-    return 'Pick the closest place, or search. Not sure yet? Choose a place and say it’s your best guess.';
+    return 'Pick the closest place, or search. Not sure yet? Say you’re still deciding.';
   }
   function stepTitle(s) {
     return { teams: 'Which teams are you following?', days: 'When are you in NSW?', stay: 'Where are you staying?' }[s];
@@ -156,7 +157,7 @@
   function answersHtml() {
     var t = state.trip || {}, bits = [];
     bits.push(t.from && t.to ? tp.isoRange(t.from, t.to) : 'No days set');
-    if (t.base) bits.push(t.base === 'outside' ? 'From outside NSW' : (t.guess ? 'Thinking of staying in ' : 'Staying in ') + t.base);
+    if (t.base || t.guess) bits.push(tp.stayLine(t, true));
     return '<h3 class="tp-fc-ah"><button type="button" class="tp-fc-cardbtn" id="tp-fc-h" data-fc-card="open">' +
       '<span class="tp-fc-cardt">Your answers</span><span class="tp-fc-cardact">Change' + NEXTI + '</span></button></h3>' +
       '<p class="tp-fc-sum1">' + esc(state.picked.length ? tp.list(state.picked.slice()) : 'No team picked') + '</p>' +
@@ -182,7 +183,7 @@
     // Step 3, where you're staying, is required too (26 Nov 2026): Next, See your plan, is unavailable until a place is
     // chosen, and there is no Skip
     var need = s === 'teams' ? !state.picked.length : s === 'stay' ? !hasBase() : false;
-    var why = s === 'stay' ? 'Choose where you’re staying to see your plan.' : 'Pick a team to carry on, or show every NSW match.';
+    var why = s === 'stay' ? 'Choose where you’re staying, or say you’re still deciding.' : 'Pick a team to carry on, or show every NSW match.';
     var left = s === 'stay' ? '' : need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
       : '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>';
     return (need ? '<p class="tp-fc-why" id="tp-fc-why">' + why + '</p>' : '') +
@@ -261,7 +262,7 @@
     if (added.length) return added[added.length - 1] + ' added to your teams';
     if (gone.length) return gone[gone.length - 1] + ' removed from your teams';
     if (b.from !== a.from || b.to !== a.to) return b.from && b.to ? 'Your days are now ' + tp.isoRange(b.from, b.to) : 'Your days are cleared';
-    if (b.base !== a.base || b.guess !== a.guess) return b.base ? (b.base === 'outside' ? 'Staying outside NSW' : (b.guess ? 'Thinking of staying in ' : 'Staying in ') + b.base) : 'Where you’re staying is cleared';
+    if (b.base !== a.base || b.guess !== a.guess) return b.base || b.guess ? tp.stayLine({ base: b.base || undefined, guess: b.guess }) : 'Where you’re staying is cleared';
     return '';
   }
   function followChange() {
@@ -310,7 +311,7 @@
     var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b) || level.contains(b))) return;
     var s = step(), i = STEPS.indexOf(s);
     // Next on step 1 with nothing picked: it says why (the line is also its description) and stays where it is
-    if (b.getAttribute('aria-disabled') === 'true') { tp.say(s === 'stay' ? 'Choose where you’re staying to see your plan.' : 'Pick a team to carry on, or show every NSW match.'); return; }
+    if (b.getAttribute('aria-disabled') === 'true') { tp.say(s === 'stay' ? 'Choose where you’re staying, or say you’re still deciding.' : 'Pick a team to carry on, or show every NSW match.'); return; }
     if (b.dataset.fcAll !== undefined) { tp.addRugby(b); go('days', 1); return; }
     if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
     if (b.dataset.fcSkip !== undefined) {

@@ -1,7 +1,7 @@
 // Things changed on 25 Nov 2026 that had no test (docs/handover-25-nov.md): the one-line toast, the Where to watch
 // ticket lines, the saved-on-this-device line that was removed, Home's pictures, the hidden focus rings and the end of
 // Version 2's page. Version 1 is the page Option C became; Version 2 is its own page.
-import { test, expect, open, goPlan, pick, fcNext, fcStep, settle, phone, SIZES } from './helpers.js';
+import { test, expect, open, goPlan, pick, fcNext, fcStep, settle, phone, SIZES, chooseStay } from './helpers.js';
 
 const V2 = '/wireframes/prototype-pick-your-team-v2-frame.html';
 const v2url = (extra = '') => `${V2}?${['phone', 'theme=hifi', extra].filter(Boolean).join('&')}`;
@@ -14,7 +14,7 @@ async function planned(page, width = 390) {
   await goPlan(page);
   await pick(page, 'Japan');
   for (let i = 0; i < 4 && (await fcStep(page)); i++) {
-    if ((await fcStep(page)) === 'stay') await page.locator('#tp-ask [data-base="Sydney CBD"]').click();
+    if ((await fcStep(page)) === 'stay') await chooseStay(page);
     await fcNext(page);
   }
   expect(await fcStep(page)).toBe('');

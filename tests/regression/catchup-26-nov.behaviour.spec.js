@@ -1,7 +1,7 @@
 // Things built on 26 Nov 2026 that had no test (docs/handover-26-nov.md): Version 2's desktop Home (the 12-column grid,
 // the hero picture and its h1, the one-row hand of cards, the map that answers a pick) and Version 1's motion (the
 // push between questions, the cards dealing in, Back in the pinned bar).
-import { test, expect, open, goPlan, pick, fcStep, settle, phone, SIZES } from './helpers.js';
+import { test, expect, open, goPlan, pick, fcStep, settle, phone, SIZES, chooseStay } from './helpers.js';
 
 const V2 = '/wireframes/prototype-pick-your-team-v2-frame.html';
 const v2url = (extra = '') => `${V2}?${['phone', 'theme=hifi', extra].filter(Boolean).join('&')}`;
@@ -200,7 +200,7 @@ test.describe('26 Nov: Version 1’s motion', () => {
     await settle(page);
     expect(await fcStep(page)).toBe('teams');
     for (let i = 0; i < 2; i++) { await page.locator('#tp-phone .tp-fc-next:visible').first().click(); await settle(page); }
-    await page.locator('#tp-ask [data-base="Sydney CBD"]').click(); await settle(page);   // where you're staying is required (26 Nov 2026)
+    await chooseStay(page);   // where you're staying is required (26 Nov 2026)
     await page.locator('#tp-phone .tp-fc-next:visible').first().click();     // See your plan
     expect(await ghost(page).count()).toBe(0);
     await settle(page);

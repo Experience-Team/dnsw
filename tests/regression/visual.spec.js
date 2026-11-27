@@ -2,7 +2,7 @@
 // Named <option>-<theme>-<width>-<state>.png. Page states are captured at their full height; sheets, menus and the
 // open plan at the phone's own screen size.
 import {
-  test, expect, open, goPlan, pick, fcNext, fcStep, openPlan, openMatch, openSettings, expandToContent, settle, TEAMS,
+  test, expect, open, goPlan, pick, fcNext, fcStep, chooseStay, openPlan, openMatch, openSettings, expandToContent, settle, TEAMS,
 } from './helpers.js';
 
 const [ONE, TWO] = TEAMS;
@@ -10,7 +10,7 @@ const [ONE, TWO] = TEAMS;
 // Option C: from two teams picked, through each step (teams, your days, where you're staying) to Your answers
 async function finishC(page) {
   for (let i = 0; i < 3 && (await fcStep(page)); i++) {
-    if ((await fcStep(page)) === 'stay') await page.locator('#tp-ask [data-base="Sydney CBD"]').click();
+    if ((await fcStep(page)) === 'stay') await chooseStay(page);
     await fcNext(page);
   }
   expect(await fcStep(page)).toBe('');

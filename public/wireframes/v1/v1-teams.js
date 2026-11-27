@@ -122,7 +122,7 @@
     var o = {};
     ['from', 'to', 'base', 'party'].forEach(function (k) { if (typeof t[k] === 'string' && t[k]) o[k] = t[k]; });
     if (o.base === 'local') delete o.base; // I'm a local is no longer an answer (24 Nov)
-    if (t.guess === true && o.base && o.base !== 'outside') o.guess = true; // This is my best guess (26 Nov 2026): the base is a guess, not a booking; one base only
+    if (t.guess === true && o.base !== 'outside') o.guess = true; // Still deciding where to stay (26 Nov 2026): with or without a place they are thinking of; the field keeps its old name, so saved answers still read. One base only
     if (!o.from || !o.to) { delete o.from; delete o.to; }
     o.mode = o.base === 'local' ? 'local' : o.from ? 'visiting' : undefined;
     return Object.keys(o).some(function (k) { return o[k]; }) ? o : null;
@@ -2343,7 +2343,7 @@
     if (keepX !== null) { tlScroll.scrollLeft = keepX; requestAnimationFrame(function () { tlScroll.scrollLeft = keepX; setTimeout(function () { tlScroll.scrollLeft = keepX; }, 60); }); }
   }
   function setTrip(t) {
-    // A best guess stays a best guess while the place is the same one, whoever sets the days or the party (26 Nov 2026)
+    // Still deciding stays on while the place is the same one (or there is none), whoever sets the days or the party (26 Nov 2026)
     if (t && !('guess' in t) && state.trip && state.trip.guess && t.base === state.trip.base) t = Object.assign({}, t, { guess: true });
     state.trip = normTrip(t); save(); changed();
   }
