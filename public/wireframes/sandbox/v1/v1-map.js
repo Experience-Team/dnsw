@@ -12,7 +12,8 @@
   'use strict';
   var tp = window.tpPicker, GEO = window.cnGeo;
   if (!tp || !GEO || typeof tp.mapPlan !== 'function') return;
-  var B = GEO.bounds, IW = 2800, IH = 3602, BAR = 88;
+  var B = GEO.bounds, IW = 2000, IH = 1000, BAR = 88;
+  var R = (IW / (B.lon1 - B.lon0)) / (2800 / 2.05); // the new map's pixels per degree against the old one's: zoom limits and minimum spans are scaled by it
   var phone = document.getElementById('tp-phone'), body = tp.body, reduce = tp.reduce, esc = tp.esc, state = tp.state;
   var list = document.getElementById('tp-third-list');
   if (!list) return;
@@ -72,11 +73,11 @@
   var measure = document.createElement('div'); measure.className = 'tp-map-card tp-map-measure'; measure.setAttribute('aria-hidden', 'true');
   mapEl.querySelector('.tp-map-stage').appendChild(measure);
   var snaps = mapEl.querySelector('.tp-map-snaps'), skip = dview.querySelector('a.tp-map-skip'), gImg = mapEl.querySelector('.tp-map-img');
-  var IMG = 'assets/images/map/nsw-relief.webp';
+  var IMG = 'assets/images/map/nsw-map.webp';
 
   /* ---------- State ---------- */
   var steps = [], cards = [], sub = {}, cur = -1, curDay = null, on = false, free = false;
-  var cam = { x: IW / 2, y: IH / 2, s: .2, fy: 200 }, anim = 0, stageH = 600, stepPx = 400, vw = 390;
+  var cam = { x: IW / 2, y: IH / 2, s: .2 / R, fy: 200 }, anim = 0, stageH = 600, stepPx = 400, vw = 390;
   // Guided (pinned while the page steps through their days) only once they press Follow day by day; not kept on reload,
   // so scrolling the page never quietly turns into stepping through a map
   var guided = false;
@@ -116,14 +117,14 @@
     pts.forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
     // Match day frames a journey, so its pins, pushed off the stadium's mark, need more room above the card
     var at = availTop(), ab = Math.max(at + 160, availBottom() - (c.kind === 'match' ? 48 : 0)), aw = vw - 120, ah = ab - at - 64;
-    var span = 140; // never closer than about 8 km across
+    var span = 140 * R; // never closer than about 8 km across
     var s = Math.min(aw / Math.max(x1 - x0, span), ah / Math.max(y1 - y0, span));
-    s = Math.max(sMin(), Math.min(1.35, s));
+    s = Math.max(sMin(), Math.min(2.2, s));
     return { x: (x0 + x1) / 2, y: (y0 + y1) / 2, s: s, fy: at + (ab - at) / 2 };
   }
   function sMin() { return Math.min(vw / IW, stageH / IH) * .98; }
   function apply() {
-    marksEl.classList.toggle('is-far', cam.s < .5);
+    marksEl.classList.toggle('is-far', cam.s < .5 / R);
     layer.style.transform = 'translate(' + (vw / 2 - cam.x * cam.s).toFixed(1) + 'px,' + (cam.fy - cam.y * cam.s).toFixed(1) + 'px) scale(' + cam.s.toFixed(4) + ')';
     place();
   }
@@ -600,7 +601,7 @@
   clustersEl.addEventListener('click', function (e) {
     var b = e.target.closest('.tp-map-cluster'); if (!b) return;
     var g = clusters[+b.dataset.g]; if (!g) return;
-    if (cam.s < 1.15) { cancelAnimationFrame(anim); var to = { x: cam.x + (g.cx - vw / 2) / cam.s, y: cam.y + (g.cy - cam.fy) / cam.s, s: Math.min(1.2, cam.s * 2.2), fy: cam.fy }; glide(clampCam(to)); return; } // closest zoom: list them
+    if (cam.s < 2.0) { cancelAnimationFrame(anim); var to = { x: cam.x + (g.cx - vw / 2) / cam.s, y: cam.y + (g.cy - cam.fy) / cam.s, s: Math.min(2.2, cam.s * 2.2), fy: cam.fy }; glide(clampCam(to)); return; } // closest zoom: list them
     pop.innerHTML = '<button type="button" class="cn-close tp-pop-x" data-mpop-close aria-label="Close"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>' + '<p class="tp-map-pop-t">' + g.length + ' stops here</p><ul class="tp-map-pop-l">' + g.map(function (q) {
       var x = q.o.x, c = x.c || cards[x.i];
       return '<li><span><b>' + esc(x.p.title) + '</b> \u00b7 ' + esc(c.label) + '</span>' + (x.p.key ? '<button type="button" class="tp-add" data-item="' + esc(x.p.key) + '" aria-pressed="false"><span aria-hidden="true">' + PLUS + '<span class="tp-add-t">Add</span></span><span class="visually-hidden">Add ' + esc(x.p.title) + ' to your plan on ' + esc(c.label) + '</span></button>' : '<span class="tp-map-pop-done">' + TICK + ' Added</span>') + '</li>';
@@ -663,7 +664,7 @@
       // Opens on the whole plan: every stop in view, each marked with its date
       var xs = pinEls.map(function (o) { return px(o.x.p.ll); }), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       xs.forEach(function (q) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });
-      if (xs.length) glide(clampCam({ x: (x0 + x1) / 2, y: (y0 + y1) / 2, s: Math.max(sMin(), Math.min(1.2, Math.min((vw - 80) / Math.max(x1 - x0, 140), (stageH - 160) / Math.max(y1 - y0, 140)))), fy: 60 + (stageH - 60) / 2 }));
+      if (xs.length) glide(clampCam({ x: (x0 + x1) / 2, y: (y0 + y1) / 2, s: Math.max(sMin(), Math.min(2.2, Math.min((vw - 80) / Math.max(x1 - x0, 140 * R), (stageH - 160) / Math.max(y1 - y0, 140 * R)))), fy: 60 + (stageH - 60) / 2 }));
       view.focus({ preventScroll: true });
       say('Explore freely. Drag to move, pinch or use plus and minus to zoom. Every day’s stops are shown.');
     } else {
@@ -677,7 +678,7 @@
   function zoomBy(f, cx, cy) {
     cancelAnimationFrame(anim);
     cx = cx === undefined ? vw / 2 : cx; cy = cy === undefined ? cam.fy : cy;
-    var ns = Math.max(sMin(), Math.min(1.2, cam.s * f)), wx = cam.x + (cx - vw / 2) / cam.s, wy = cam.y + (cy - cam.fy) / cam.s;
+    var ns = Math.max(sMin(), Math.min(2.2, cam.s * f)), wx = cam.x + (cx - vw / 2) / cam.s, wy = cam.y + (cy - cam.fy) / cam.s;
     cam = { x: wx - (cx - vw / 2) / ns, y: wy - (cy - cam.fy) / ns, s: ns, fy: cam.fy }; clampCam(); apply();
   }
   function clampCam(c) {
@@ -717,7 +718,7 @@
     if (ids.length > 1 && drag.pts.get(ids[1])) {
       var b0 = drag.pts.get(ids[1]), b1 = ptrs.get(ids[1]);
       var f = Math.hypot(a1.x - b1.x, a1.y - b1.y) / Math.max(20, Math.hypot(a0.x - b0.x, a0.y - b0.y));
-      cam = { x: drag.cam.x - ((a1.x + b1.x) - (a0.x + b0.x)) / 2 / drag.cam.s, y: drag.cam.y - ((a1.y + b1.y) - (a0.y + b0.y)) / 2 / drag.cam.s, s: Math.max(sMin(), Math.min(1.2, drag.cam.s * f)), fy: drag.cam.fy };
+      cam = { x: drag.cam.x - ((a1.x + b1.x) - (a0.x + b0.x)) / 2 / drag.cam.s, y: drag.cam.y - ((a1.y + b1.y) - (a0.y + b0.y)) / 2 / drag.cam.s, s: Math.max(sMin(), Math.min(2.2, drag.cam.s * f)), fy: drag.cam.fy };
     } else cam = { x: drag.cam.x - (a1.x - a0.x) / drag.cam.s, y: drag.cam.y - (a1.y - a0.y) / drag.cam.s, s: drag.cam.s, fy: drag.cam.fy };
     clampCam(); apply();
   });
@@ -778,7 +779,7 @@
     var osub = sec.querySelector('.tp-ov-sub'), ofollow = sec.querySelector('.tp-ov-follow'), osay = sec.querySelector('#tp-ov-say');
     function osayT(t) { osay.textContent = ''; setTimeout(function () { osay.textContent = t; }, 30); }
     var lastCity = null, W = 390, ocam = { x: 0, y: 0, s: 1, fy: OVH / 2 }, oanim = 0, loaded = false, stage = 0, popAt = null;
-    var S_MIN = .55, S_MAX = 1.2;
+    var S_MIN = .8, S_MAX = 2.2;
 
     // The places: the three stadiums and the village, each with the things near it
     var LOCS = Object.keys(GEO.venues).map(function (v) { return { id: v, name: v, area: POI.near[v], ll: GEO.venues[v], kind: 'stadium', city: /Newcastle/.test(v) ? 'newcastle' : 'sydney' }; });
@@ -812,7 +813,7 @@
     function frame(city) {
       var ls = CITYFRAME[city], x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       ls.forEach(function (l) { var q = px(l.ll); x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });
-      var s = Math.max(S_MIN, Math.min(S_MAX, (W - 150) / Math.max(x1 - x0, 120), (OVH - 200) / Math.max(y1 - y0, 120)));
+      var s = Math.max(S_MIN, Math.min(S_MAX, (W - 150) / Math.max(x1 - x0, 120 * R), (OVH - 200) / Math.max(y1 - y0, 120 * R)));
       // One stadium on its own (Newcastle) sits left of centre, so its label to the right has room
       return oclamp({ x: (x0 + x1) / 2 + (ls.length === 1 ? 70 / s : 0), y: (y0 + y1) / 2 - 20 / s, s: s, fy: OVH / 2 });
     }
@@ -1058,7 +1059,7 @@
       drawPins();
       if (o.scroll) { var c = cardEl(i); if (c) track.scrollTo({ left: c.offsetLeft - track.offsetLeft - 16, behavior: o.jump || reduce.matches ? 'auto' : 'smooth' }); }
       if (!o.keep) {
-        var q = px(x.it.ll), s = Math.max(ocam.s, .95), fy = Math.max(70, (OVH - railH()) / 2);
+        var q = px(x.it.ll), s = Math.max(ocam.s, 1.8), fy = Math.max(70, (OVH - railH()) / 2);
         var to = oclamp({ x: q[0], y: q[1], s: Math.min(S_MAX, s), fy: fy });
         if (o.jump) { ocam = to; oapply(); } else oglide(to);
       }
@@ -1137,7 +1138,7 @@
       [omarks, otvs].forEach(function (box) { Array.prototype.forEach.call(box.children, function (el) { var me = el.dataset.ven !== undefined ? 'v' + el.dataset.ven : +el.dataset.loc; el.classList.toggle('is-sel', me === key); el.setAttribute('aria-expanded', me === key ? 'true' : 'false'); }); });
     }
     function bringIn(ll) {
-      var q = px(ll), s = Math.max(ocam.s, .9); oglide(oclamp({ x: q[0], y: q[1], s: s, fy: OVH / 2 }));
+      var q = px(ll), s = Math.max(ocam.s, 1.7); oglide(oclamp({ x: q[0], y: q[1], s: s, fy: OVH / 2 }));
       var r = opop.getBoundingClientRect(), br = body.getBoundingClientRect(), room = br.bottom - 100; if (!full && r.bottom > room) body.scrollBy({ top: Math.min(r.bottom - room, r.top - br.top - 60), behavior: reduce.matches ? 'auto' : 'smooth' });
     }
     // A screening venue's card: what it is, and which of their matches it lists (or how many it shows), with the way to

@@ -10,7 +10,8 @@
   var K = tp.narKit, G = window.cnGeo, esc = tp.esc, body = tp.body, reduce = tp.reduce;
   var third = document.getElementById('tp-third'), pick = document.getElementById('tp-pick');
   if (!third || !pick || !pick.parentNode) return;
-  var B = G.bounds, IMG = 'assets/images/map/nsw-relief.webp', IW = 2800, IH = 3602, MAP_H = 280;
+  var B = G.bounds, IMG = 'assets/images/map/nsw-map.webp', IW = 2000, IH = 1000, MAP_H = 280;
+  var R = (IW / (B.lon1 - B.lon0)) / (2800 / 2.05); // the new map's pixels per degree against the old one's, so the zoom limits keep their meaning
   var state = { tab: {}, more: {}, lit: '' };
   tp.narState = state;
 
@@ -88,18 +89,18 @@
     var P = mapPoints(), sig = W + '|' + P.map(function (p) { return p.kind + p.key; }).join(',') + '|' + state.lit;
     if (sig === drawn) return; drawn = sig;
     if (!img.getAttribute('src')) img.src = IMG;
-    var H = MAP_H, xy = P.map(function (p) { return px(p.ll); });
+    var H = box.clientHeight || MAP_H, xy = P.map(function (p) { return px(p.ll); });
     var cx, cy, s;
     if (xy.length) {
       var x0 = Math.min.apply(null, xy.map(function (q) { return q[0]; })), x1 = Math.max.apply(null, xy.map(function (q) { return q[0]; }));
       var y0 = Math.min.apply(null, xy.map(function (q) { return q[1]; })), y1 = Math.max.apply(null, xy.map(function (q) { return q[1]; }));
       cx = (x0 + x1) / 2; cy = (y0 + y1) / 2;
-      var padX = 74, padY = 40, spanMin = 150;
+      var padX = 74, padY = 40, spanMin = 150 * R;
       s = Math.min((W - 2 * padX) / Math.max(x1 - x0, spanMin), (H - 2 * padY) / Math.max(y1 - y0, spanMin));
     } else { var c = px(G.places['Sydney CBD'] || [-33.87, 151.21]); cx = c[0]; cy = c[1]; s = 1; }
     // Never closer than the city (a Sydney-only trip shows Sydney) and as far out as the trip needs: on a wide box the picture may be
     // narrower than the box, so its sides fade out instead of the trip being cut off
-    s = Math.max(.08, Math.min(.8, s));
+    s = Math.max(.08 / R, Math.min(2, s));
     if (IW * s > W) cx = Math.max(W / (2 * s), Math.min(IW - W / (2 * s), cx));
     cy = Math.max(H / (2 * s), Math.min(IH - H / (2 * s), cy));
     layer.style.transform = 'translate(' + (W / 2 - cx * s) + 'px,' + (H / 2 - cy * s) + 'px) scale(' + s + ')';
