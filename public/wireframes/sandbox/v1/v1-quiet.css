@@ -82,3 +82,17 @@
 @media (max-width: 1023px) {
   #tp-phone.is-home .tp-cap-wrap { margin-bottom: calc(-1 * (var(--space-3) + 44px)); }
 }
+
+/* Home's map in the trip map's style (27 Nov 2026): the same drawn base map, colours, pins and name chips (v1-narrative.css) */
+.tp-home-map.v1-hm { --tm-water: #c9d9dc; --tm-land: var(--c-surface-2, #f1f1f1); --tm-coast: #a3babf; background: var(--tm-water); border-top: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); }
+.v1-hm-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.v1-hm .tp-home-reg { font-size: 11px; line-height: 14px; font-weight: var(--fw-regular, 400); color: var(--c-ink-2); opacity: .85; }
+.v1-hm .tp-home-reg.v1-hm-sea { font-style: italic; color: #4a6870; opacity: 1; }
+.v1-hm .tp-home-pin { gap: 6px; }
+.v1-hm .tp-home-pin-i { box-sizing: border-box; width: 16px; height: 16px; margin: 4px; border: 2px solid #fff; background: var(--c-accent); box-shadow: 0 0 0 1.5px var(--c-ink); transition: transform .2s cubic-bezier(.4, 0, .2, 1); }
+.v1-hm .tp-home-pin.is-l { transform: translateX(calc(-100% + 24px)); }
+.v1-hm .tp-home-pin-l { box-sizing: border-box; padding: 1px 6px; border: 1px solid var(--c-line-soft); border-radius: 4px; background: var(--c-surface); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-surface) 70%, transparent); font-size: 11px; line-height: 16px; font-weight: var(--fw-semi); }
+.v1-hm .tp-home-pin.is-on .tp-home-pin-i { background: var(--c-accent); transform: scale(1.35); box-shadow: 0 0 0 2px var(--c-ink), 0 0 0 6px color-mix(in srgb, var(--c-accent) 40%, transparent); }
+.v1-hm .tp-home-pin.is-on .tp-home-pin-l { font-weight: var(--fw-semi); border-color: var(--c-ink); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-surface) 70%, transparent); }
+@media (hover: hover) { .v1-hm .tp-home-pin:hover .tp-home-pin-i { transform: scale(1.2); } }
+@media (min-width: 900px) { .pv-device #tp-phone .tp-home-map.v1-hm { border: 1px solid var(--c-line); } }
