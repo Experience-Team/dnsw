@@ -10,6 +10,14 @@
   .pv-device #tp-phone[data-fc] #tp-pick > #tp-ask { grid-column: 2; grid-row: 1 / span 3; align-self: start; margin-top: 0; }
   .pv-device #tp-phone[data-fc="days"] #tp-pick > #tp-ask { grid-column: 2; }
   .pv-device #tp-phone[data-fc] #tp-pick .v1-cal { column-gap: var(--space-5, 24px); }
-  /* The foot ends where the column ends: no padding on its right, its box reaching the column's right edge */
-  .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) .tp-fc-foot { right: calc(var(--rail-span, 0px) + var(--wide-pad, 0px) + var(--sbw, 0px)); padding-right: 0; }
 }
+/* The foot's Back, Skip and Next sit together in the middle of the screen (28 Nov 2026), on the same centre as the section tabs
+   above (the page's scrollbar left out), not stretched across the column */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) .tp-fc-foot { left: 0; right: var(--sbw, 0px); padding-inline: var(--space-5, 24px); }
+  .pv-device #tp-phone[data-fc] .tp-fc-foot .tp-fc-nav { max-width: 440px; margin-inline: auto; flex-wrap: nowrap; }
+  .pv-device #tp-phone[data-fc] .tp-fc-foot .tp-fc-why { max-width: 440px; margin-inline: auto; text-align: center; }
+}
+
+/* Find and Grid: the Find icon starts on the same left edge as the title above it (the button's own 8px padding is taken off its margin) */
+@media (min-width: 1024px) { .pv-device #tp-phone[data-fc="teams"] #tp-util #tp-find-open { margin-left: -8px; } }
