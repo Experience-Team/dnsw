@@ -22,26 +22,7 @@
     '<div class="v1-tm" id="v1-tm" role="button" tabindex="0"><div class="v1-tm-layer" aria-hidden="true"><img class="v1-tm-img" alt="" draggable="false"></div>' +
     '<svg class="v1-tm-svg" aria-hidden="true" focusable="false"></svg><div class="v1-tm-pins" aria-hidden="true"></div></div>';
   pick.parentNode.insertBefore(sec, pick);
-  /* Getting around NSW: its own short block under the map (27 Nov 2026). Information and links only; the times and tips are sample,
-     the links go to real public sites (Transport for NSW, Visit NSW, sydney.com). */
-  var ga = document.createElement('section');
-  ga.className = 'tp-sec v1-ga'; ga.id = 'v1-ga'; ga.setAttribute('aria-labelledby', 'v1-ga-title');
-  var TNSW = ['https://transportnsw.info/', 'Transport for NSW'], VNSW = ['https://www.visitnsw.com/', 'Visit NSW'], SYD = ['https://www.sydney.com/', 'sydney.com'];
-  var GA = [
-    ['Plane', 'Sydney Airport trains reach the city in about 15 minutes. Newcastle Airport is about 30 minutes by road from the city.', VNSW],
-    ['Public transport', 'One Opal card covers trains, light rail, buses and ferries. Tap on and tap off.', TNSW],
-    ['Ferry', 'Harbour ferries leave from Circular Quay for Manly, Parramatta and across the water.', TNSW],
-    ['Car hire', 'Hire at the airport or in the city. On match days the train is easier: parking near the grounds is limited.', VNSW],
-    ['Ride share', 'Available across Sydney and Newcastle. After a match, expect queues and street closures near the ground.', TNSW],
-    ['Bike', 'Cycleways link the harbour, Centennial Park and Olympic Park. Ask a visitor centre about hire.', SYD]
-  ];
-  ga.innerHTML = '<h3 class="v1-ga-h" id="v1-ga-title">Getting around NSW</h3><p class="v1-ga-n">Sample details: the times and tips are made up for this prototype. The links go to the real sites.</p>' +
-    '<ul class="v1-ga-l">' + GA.map(function (r) {
-      return '<li class="v1-ga-i"><span class="v1-ga-m">' + r[0] + '</span><span class="v1-ga-t">' + r[1] + ' ' + '</span>' +
-        '<a class="tp-link v1-ga-a" href="' + r[2][0] + '" target="_blank" rel="noopener noreferrer">' + r[2][1] + '<span class="visually-hidden">, opens in a new tab</span></a></li>';
-    }).join('') + '</ul>';
-  pick.parentNode.insertBefore(ga, pick); // under the map, before the days
-  pick.parentNode.insertBefore(third, pick); // the days follow
+  pick.parentNode.insertBefore(third, pick); // the days follow the map
   var s1 = sec.querySelector('#v1-nar-s1'), s2 = sec.querySelector('#v1-nar-s2'), addp = sec.querySelector('#v1-nar-addp');
   var box = sec.querySelector('#v1-tm'), layer = box.querySelector('.v1-tm-layer'), img = box.querySelector('.v1-tm-img'), svg = box.querySelector('.v1-tm-svg'), pins = box.querySelector('.v1-tm-pins');
 

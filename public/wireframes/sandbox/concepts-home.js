@@ -285,6 +285,15 @@
     ['How do I get to Rugby World Cup 2027 matches in NSW?', [
       'Public transport is an easy way to get to Rugby World Cup matches in Sydney and Newcastle. Use the Transport for NSW [Trip Planner](https://transportnsw.info/trip-planner) to plan your journey to Sydney Football Stadium, Accor Stadium (Stadium Australia) and Newcastle Stadium, with detailed event transport information available closer to the tournament.',
       'Planning to explore beyond the host cities? Hiring a car is a great option if you want to turn your journey between Sydney and Newcastle into a road trip, with the Central Coast, Hunter Valley and more to discover along the way. Find out more about [car hire and driving in NSW](https://www.sydney.com/travel-information/car-rentals-and-driving).']],
+    ['How do I get around NSW?', [
+      'Plane: Sydney Airport trains reach the city in about 15 minutes, and Newcastle Airport is about 30 minutes by road from the city. See [Visit NSW](https://www.visitnsw.com/) for getting here.',
+      'Public transport: one Opal card covers trains, light rail, buses and ferries. Tap on and tap off. Plan a trip with [Transport for NSW](https://transportnsw.info/).',
+      'Ferry: harbour ferries leave from Circular Quay for Manly, Parramatta and across the water. Times are on [Transport for NSW](https://transportnsw.info/).',
+      'Car hire: hire at the airport or in the city. On match days the train is easier, as parking near the grounds is limited. See [Visit NSW](https://www.visitnsw.com/) for road trips.',
+      'Ride share: available across Sydney and Newcastle. After a match, expect queues and street closures near the ground. See [Transport for NSW](https://transportnsw.info/) for the options.',
+      'Bike: cycleways link the harbour, Centennial Park and Olympic Park. Ask a visitor centre about hire, or see [sydney.com](https://www.sydney.com/).',
+      'Sample details: the times and tips here are made up for this prototype. The links go to the real sites.'
+    ]],
     ['Can I visit both Sydney and Newcastle during the tournament?', [
       'Absolutely. Sydney and Newcastle are around 160km apart, making it easy to include both cities in your Rugby World Cup trip. Travel by train or make a road trip of it, stopping to explore the [Central Coast](https://www.visitnsw.com/destinations/central-coast) and [Hunter Valley](https://www.visitnsw.com/destinations/hunter/hunter-valley) along the way.']],
     ['What else can I see and do in NSW during Rugby World Cup 2027?', [
