@@ -50,3 +50,5 @@ Made in this copy only; Version 1 and Version 2 are unchanged.
   reading the same, the close cross on the plan sheet, and no ticket prompts (tickets are gone).
 
 Not carried over: the sandbox's earlier "Add to your plan" / "Added to your plan" wording in sheets. Version 1 uses Add and Added everywhere.
+
+Design rationale (27 Nov 2026): the annotations carry six "Why:" entries (36 lines) beside the handover notes: Your team, Your dates, Where you're staying, Matches and what's on, Fan zones and where to watch, Your plan.

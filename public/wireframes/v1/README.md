@@ -18,3 +18,5 @@ The same rule as `../v2/README.md`, the other way round.
 
 Tests: `tests/regression/catchup-26-nov.behaviour.spec.js` (the push, Back in the bar, the deal and reduced motion) and the
 existing `behaviour.spec.js`, which exercise the flow.
+
+Design rationale (27 Nov 2026): the annotations include six "Why:" entries (Your team, Your dates, Where you're staying, Matches and what's on, Fan zones and where to watch, Your plan), one reason per line, added beside the handover notes. Version 1 holds back the six lines that describe behaviour built in the sandbox only (dates required, the plan locked until all three questions are answered, later rounds as teams to be decided, the watch block for a team with no NSW match, screenings only for matches not attended, the nearest fan zone on a match day).
