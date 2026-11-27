@@ -1,0 +1,15 @@
+/* Version 1's team picker (26 Nov 2026): six cards to a row, so all 24 teams show without a scroll down; the hand is
+   centred, and held and moved it turns along its arcs. The Find and Grid buttons are text only and compact.
+   Loaded after shared.css, so these rules win. */
+/* The hand is centred in the screen and may reach 9px past each side; it turns about its arcs when held and moved */
+.tp-fan2-wrap:not(.is-grid) .tp-fan2 { touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none; }
+.tp-fan2.is-held { cursor: grabbing; }
+.tp-pick .tp-fan2-wrap { margin-top: var(--space-2); }
+
+#tp-util { gap: var(--space-2) var(--space-3); margin-top: var(--space-2); min-height: 28px; }
+#tp-util .tp-util-btn { min-height: 28px; padding: 0 var(--space-2); gap: 6px; border: 0; background: none; border-radius: var(--radius-sm); }
+#tp-util { gap: var(--space-2) var(--space-1); }
+#tp-util .tp-util-btn:first-child { margin-left: calc(var(--space-4) * -1); } /* the icon lines up with the page margin (the row sits 8px in, and the button has 8px of padding) */
+
+/* In the hand each card is overlapped 6px by the next, so its name keeps 8px clear on that side */
+.tp-fan2-wrap:not(.is-grid) .tp-card2 { padding-left: 5px; padding-right: 8px; }
