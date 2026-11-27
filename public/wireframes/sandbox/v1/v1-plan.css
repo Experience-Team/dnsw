@@ -69,6 +69,9 @@
 
 /* The close cross on the plan's title row, top right (26 Nov 2026); the same on the Your answers level */
 .tp-tl-head .tp-tl-close, .tp-fc-lhead .tp-fc-lclose { flex: none; margin-left: auto; }
+/* The plan's cross sits in the sheet's own top right corner, 16px from the top and the edge, level with the summary line (27 Nov 2026). Hidden (and out of the tab order) while the plan is closed */
+#tp-tl > .tp-tl-close { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 3; margin: 0; visibility: hidden; }
+#tp-tl.is-open > .tp-tl-close { visibility: visible; }
 
 .v1p-map-row.is-nopin .v1p-pin-n { background: transparent; color: var(--c-ink-3); border: 1px dashed var(--c-line-soft); }
 .v1p-map-row.is-nopin .v1p-map-t span { color: var(--c-ink-3); }
