@@ -80,3 +80,9 @@
 .v1z-page { display: inline-block; margin-top: var(--space-3); }
 .v1z-out-day { padding: var(--space-3) 0; }
 .v1z-out-day p { margin: var(--space-2) 0 var(--space-3); color: var(--c-ink-2); }
+
+/* Tidy (27 Nov 2026): the parts of the open plan are one family, 24px apart; a day's summary is a heading and rows, not a card holding cards */
+.v1z { margin-top: var(--space-5); }
+.v1z-sum { margin-top: var(--space-5); }
+.v1z-page { margin-top: var(--space-4); }
+.v1z-one .tp-dc-card:not(.is-free):not(.is-empty) { padding: 0; border: 0; background: none; box-shadow: none; }
