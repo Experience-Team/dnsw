@@ -917,7 +917,7 @@
   tp.narRoutes = function () {
     var t = trip() || {}, out = {};
     if (!tp.own() || !(t.from && t.to)) return [];
-    for (var d = tp.isoDay(t.from); d <= tp.isoDay(t.to); d++) otherOn(d).forEach(function (m) { var r = routeInfo(m.f); if (r && !out[r.venue]) out[r.venue] = { venue: r.venue, stops: r.stops.map(function (n) { return { name: n, ll: stopLL(n) }; }) }; });
+    for (var d = tp.isoDay(t.from); d <= tp.isoDay(t.to); d++) otherOn(d).forEach(function (m) { var r = routeInfo(m.f); if (r && !out[r.venue]) out[r.venue] = { venue: r.venue, m: m, stops: r.stops.map(function (n) { return { name: n, ll: stopLL(n) }; }) }; });
     return Object.keys(out).map(function (k) { return out[k]; });
   };
   // The other matches on one day, folded in from Also on in NSW: a free day carries its own, other blocks carry their day's
@@ -1275,6 +1275,8 @@
     return stepsOf(LASTBS);
   };
   tp.mapStep = mapStep;
+  // The block a day sits in (a match day, a free stretch, an arrival or last day): the trip map's Go to this day (27 Nov 2026)
+  tp.narBlockKey = function (d) { var b = LASTBS.filter(function (x) { return x.kind === 'free' ? d >= x.a && d <= x.z : x.day === d; })[0]; return b ? b.key : null; };
   // See as a list: the list opens at that day's block
   tp.listShowDay = function (d) {
     var b = LASTBS.filter(function (x) { return x.kind === 'free' ? d >= x.a && d <= x.z : x.day === d; })[0];
@@ -3498,6 +3500,7 @@
      the current ITEMS and MODAL (both are rebuilt on every render) */
   tp.narKit = {
     registerItem: function (id, it) { ITEMS[id] = it; },
+    item: function (id) { return ITEMS[id] || null; }, // the trip map's cards (27 Nov 2026)
     registerProduct: function (p, m, o) {
       var f = m.f, id = 'p:' + p.id + ':' + f.d;
       ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
