@@ -68,7 +68,7 @@
       (pic ? '<span class="v1-city-img" aria-hidden="true"><img src="assets/images/' + pic + '.webp" alt="" loading="lazy" draggable="false"></span>' : '') +
       '<span class="v1-city-b"><span class="tp-city-t">' + esc(h.title) + '</span>' +
       '<span class="tp-city-m">' + esc(v) + ' • ' + n + (n === 1 ? ' match' : ' matches') + '</span>' +
-      '<span class="tp-city-go"><span class="tp-u">Match day, where to eat and stay, and day trips</span>' + ARR + '</span></span></button></li>';
+      '<span class="tp-city-go"><span class="tp-u">Learn more</span>' + ARR + '</span></span></button></li>';
   }).join('');
   // The map: a drawn base map, cropped to Sydney up to Port Stephens. Stadium pins are
   // buttons; the regions are labels only, shown lightly
