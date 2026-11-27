@@ -33,7 +33,7 @@ test.describe('Where are you staying', () => {
     await page.locator('#tp-ask [data-guess]').click(); await settle(page);
     await expect(next(page)).not.toHaveAttribute('aria-disabled', 'true');
     expect(await page.evaluate(() => { const t = tpPicker.state.trip; return [t.guess, t.base || '']; })).toEqual([true, '']);
-    await page.reload(); await settle(page);
+    await page.goto(page.url().replace('&reset', '')); await settle(page);   // ?reset would clear it again
     expect(await page.evaluate(() => { const t = tpPicker.state.trip; return [t.guess, t.base || '']; })).toEqual([true, '']);
   });
 
