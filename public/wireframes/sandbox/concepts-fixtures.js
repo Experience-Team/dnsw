@@ -238,9 +238,9 @@ window.cnVenues = [
    default one, a train to an interchange, an event service to the stadium stop, and a walk to the gates. */
 window.cnMatchTravel = (function () {
   var V = {
-    'Stadium Australia':       { city: 'sydney',    default_start: 'Central', default_place: 'Sydney CBD', walk_mins: 10 },
+    'Stadium Australia':       { city: 'sydney',    default_start: 'Central', default_place: 'Sydney CBD', walk_mins: 8 },
     'Sydney Football Stadium': { city: 'sydney',    default_start: 'Central', default_place: 'Sydney CBD', walk_mins: 8 },
-    'Newcastle Stadium':       { city: 'newcastle', default_start: 'Newcastle Interchange', default_place: 'Newcastle', walk_mins: 10 }
+    'Newcastle Stadium':       { city: 'newcastle', default_start: 'Newcastle Interchange', default_place: 'Newcastle', walk_mins: 18 }
   };
   var EVENT_DAY = {
     placeholder: true,
@@ -255,10 +255,27 @@ window.cnMatchTravel = (function () {
     var v = V[venue]; if (!v) return null;
     var fromDefault = !start || start === v.default_place, from = fromDefault ? v.default_start : start;
     var cross = !fromDefault && startCity && startCity !== v.city, far = !fromDefault && !startCity;
-    var legs = [];
-    if (!fromDefault) legs.push({ mode: 'walk', to: from + ' station', mins: far ? null : 6 + h(from) % 6 });
-    legs.push({ mode: 'train', to: v.city === 'newcastle' ? 'Hamlin Junction' : 'Kingsbury Junction', mins: far ? null : cross ? 140 + h(from) % 30 : fromDefault ? 18 : 12 + h(from) % 26, intercity: cross || far });
-    legs.push({ mode: 'event', to: venue + ' Halt', mins: 8 }); // dummy stop and interchange names
+    /* Real stop names (27 Nov 2026, sandbox; they were made-up junctions and halts). Checked against Transport for NSW and venue pages
+       through search extracts: Olympic Park station, reached by the shuttle from Lidcombe outside event services (direct trains run
+       from Central on major event days); the Moore Park light rail stop on the L2 Randwick and L3 Kingsford lines, boarded at Central
+       Chalmers Street; Broadmeadow station on the Central Coast & Newcastle Line. Every time here is still a sample. */
+    var legs = [], local = far ? null : 12 + h(from) % 26;
+    // Staying in the ground's own precinct: it is a walk, not a train trip out and back
+    var beside = { 'Stadium Australia': 'Sydney Olympic Park', 'Sydney Football Stadium': 'Moore Park' }[venue] === start;
+    if (beside) return { venue: venue, from: from, fromDefault: false, mode: 'Walk', legs: [{ mode: 'walk', to: venue, mins: v.walk_mins + 4, gates: true }], mins: v.walk_mins + 4, cross: false, far: false, event_day: EVENT_DAY, placeholder: true };
+    if (!fromDefault) legs.push({ mode: 'walk', to: 'Your nearest station', mins: far ? null : 6 + h(from) % 6 });
+    if (venue === 'Newcastle Stadium') {
+      legs.push({ mode: 'train', to: 'Broadmeadow station', mins: far ? null : cross ? 140 + h(from) % 30 : fromDefault ? 5 : local, intercity: cross || far });
+    } else {
+      if (cross || far) legs.push({ mode: 'train', to: 'Central station', mins: far ? null : 140 + h(from) % 30, intercity: true });
+      if (venue === 'Stadium Australia') {
+        legs.push({ mode: 'train', to: 'Lidcombe station', mins: far ? null : fromDefault || cross ? 18 : local });
+        legs.push({ mode: 'train', label: 'Olympic Park line shuttle', to: 'Olympic Park station', mins: 8 });
+      } else {
+        if (!fromDefault && !cross && !far) legs.push({ mode: 'train', to: 'Central station', mins: local });
+        legs.push({ mode: 'light', to: 'Moore Park light rail stop', mins: 8 });
+      }
+    }
     legs.push({ mode: 'walk', to: venue, mins: v.walk_mins, gates: true });
     var total = legs.every(function (l) { return l.mins != null; }) ? legs.reduce(function (s, l) { return s + l.mins; }, 0) : null;
     return { venue: venue, from: from, fromDefault: fromDefault, mode: far ? 'Travel' : 'Train', legs: legs, mins: total, cross: !!cross, far: !!far, event_day: EVENT_DAY, placeholder: true };

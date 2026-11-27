@@ -37,7 +37,13 @@
       e.preventDefault();
       // To the planner, at Your days (or the picker's tabs before Your days shows)
       window.tpView.go('plan');
-      if (window.tpFlowC) { window.tpFlowC.focusStep(); return; } // Option C: the step it was on, or the Your answers card opened
+      // 27 Nov 2026 (sandbox): with the three questions answered it lands at the top of the plan page with the Your plan sheet closed (it used to open the sheet)
+      if (window.tpFlowC && window.tpFlowC.step() === '') {
+        if (tp.closeTimeline) tp.closeTimeline();
+        requestAnimationFrame(function () { tp.body.scrollTo({ top: 0, behavior: 'auto' }); var nar = document.getElementById('v1-nar'); if (nar) nar.focus({ preventScroll: true }); });
+        return;
+      }
+      if (window.tpFlowC) { window.tpFlowC.focusStep(); return; } // Option C: the step it was on
       var ask = document.getElementById('tp-ask');
       requestAnimationFrame(function () { tp.goTo(ask && !ask.hidden ? ask : document.getElementById('tp-pick')); });
     }
@@ -56,10 +62,13 @@
   var gn = document.getElementById('tp-glance-n'); if (gn && pool) gn.textContent = pool + ' ' + ((window.TP_WORDS || {}).groupMatches || 'pool matches'); var gk = document.getElementById('tp-glance-ko'); if (gk) gk.textContent = (window.TP_WORDS || {}).laterRounds || 'the knockouts'; // A2 (21 Nov)
   document.getElementById('tp-home-cities').innerHTML = nsw.map(function (v) {
     var h = HOSTS[v] || { title: v }, n = count(v);
-    return '<li><button type="button" class="tp-city" data-open="city:' + esc(v) + '" aria-haspopup="dialog">' +
-      '<span class="tp-city-t">' + esc(h.title) + '</span>' +
+    // 27 Nov 2026 (sandbox): each card carries a photo of its stadium (supplied by the user): on top on a phone, on the left on desktop
+    var pic = { 'Sydney Football Stadium': 'home-stadium-moore-park', 'Stadium Australia': 'home-stadium-olympic-park', 'Newcastle Stadium': 'home-stadium-newcastle' }[v];
+    return '<li><button type="button" class="tp-city' + (pic ? ' v1-city' : '') + '" data-open="city:' + esc(v) + '" aria-haspopup="dialog">' +
+      (pic ? '<span class="v1-city-img" aria-hidden="true"><img src="assets/images/' + pic + '.webp" alt="" loading="lazy" draggable="false"></span>' : '') +
+      '<span class="v1-city-b"><span class="tp-city-t">' + esc(h.title) + '</span>' +
       '<span class="tp-city-m">' + esc(v) + ' • ' + n + (n === 1 ? ' match' : ' matches') + '</span>' +
-      '<span class="tp-city-go"><span class="tp-u">Match day, where to eat and stay, and day trips</span>' + ARR + '</span></button></li>';
+      '<span class="tp-city-go"><span class="tp-u">Learn more</span>' + ARR + '</span></span></button></li>';
   }).join('');
   // The map: a drawn base map, cropped to Sydney up to Port Stephens. Stadium pins are
   // buttons; the regions are labels only, shown lightly
