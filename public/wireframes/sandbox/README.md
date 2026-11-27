@@ -33,7 +33,7 @@ matches, a quiet Staying outside NSW link, a place always required with an optio
 ## Walkthrough fixes (27 Nov 2026, sandbox only)
 
 - The Your plan bar does not open the plan until all three questions are answered (`tlSetOpen` in `v1/v1-teams.js` checks `tpFlowC.step()`).
-- Your days is required: no Skip, the pre-filled first to last NSW match is the starting answer, and without one Next waits for a first and a last day. A saved answer with no days goes back to step 2. Remove my days and Reset are gone outside the step.
+- Your days is required: no Skip, the pre-filled range (a day before the first NSW match to a day after the last) is the starting answer, and without one Next waits for a first and a last day. A saved answer with no days goes back to step 2. Remove my days and Reset are gone outside the step.
 - Screenings (fan zones, pubs, clubs) only for a team's interstate matches inside the days and for removed matches (`watchMatches` in `v1/v1-third-half.js`); Where to watch hides when empty. A match the person is at shows the nearest fan zone (sample address, `v1-fanspots.js`) in Around your matches and the plan card.
 - Later-round NSW days read "[stage] is on, teams to be decided" with Add (plan, Around your matches, Also on in NSW) and add their precinct to the stay answers.
 - A team with no NSW match inside the days: an interstate watch block (fan zone, sample address, approximate route, Add) or one line pointing to Also on in NSW.

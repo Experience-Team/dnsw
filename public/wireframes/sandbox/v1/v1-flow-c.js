@@ -6,7 +6,7 @@
    Each step borrows the planner's own controls, so an answer is the same answer as in Options A and B:
      1 Teams: the hand of cards with Find your team and Clear all (#tp-util, #tp-picker). Show every NSW match means
        no team: nothing is inferred, and the NSW matches inside the days are listed to add.
-     2 Your days: the range calendar (#tp-ask), starting from your first to last NSW match.
+     2 Your days: the range calendar (#tp-ask), starting from a day before your first NSW match to a day after your last.
      3 Where are you staying, or thinking of staying?: the quick answers and the NSW place search (#tp-ask), a place always
        required, with one more place optional (each with Remove).
    The plan bar stays in view the whole time and fills as answers come in, but does not open until the flow is
@@ -148,7 +148,7 @@
     if (s === 'days') {
       var t = state.trip;
       if (tp.rugby()) return 'Tap a first day and a last day, and the NSW matches inside them are listed for you to add.';
-      if (t && t.from && fc.filled) return 'We’ve started with your first to last match in NSW. Tap a first and a last day to change it.';
+      if (t && t.from && fc.filled) return 'We’ve started with a day either side of your first and last match in NSW. Tap a first and a last day to change it.';
       return tp.own() ? 'Tap a first day and a last day. The matches inside them are your plan.' : 'Tap a first day and a last day to see ideas for your time in NSW.';
     }
     return 'Pick the closest place, or search. Thinking of somewhere? That counts. You can add a second place.';
@@ -187,7 +187,7 @@
     // stays in place and in the Tab order) with a line saying why, and the left button is Show every NSW match.
     // Step 3, where you're staying, is required too (26 Nov 2026): Next, See your plan, is unavailable until a place is
     // chosen, and there is no Skip
-    // Your days is required too (27 Nov 2026): the first to last NSW match is the starting answer, and where there is
+    // Your days is required too (27 Nov 2026): a day before the first NSW match to a day after the last is the starting answer, and where there is
     // nothing to start from (Show every NSW match, a team with no NSW match) a first and a last day are tapped before
     // Next turns on. No Skip on days or on the stay step.
     var need = s === 'teams' ? !state.picked.length : s === 'days' ? !hasDays() : s === 'stay' ? !hasBase() : false;
@@ -243,10 +243,13 @@
       el.animate([{ transform: 'translateX(' + (dir > 0 ? 32 : -32) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 280, easing: 'cubic-bezier(.25, .1, .25, 1)' });
     });
   }
-  // Your days starts from their first to last NSW match, once, the first time the step opens with none set
+  // Your days starts from a day before their first NSW match to a day after their last, once, the first time the step opens with none set
   function prefillDays() {
     if (fc.filled || (state.trip && state.trip.from) || tp.rugby()) return; // no team: nothing is inferred
     var r = tp.inferTrip(); if (!r) return;
+    // One day either side of the first and last NSW match (27 Nov 2026), inside the days the calendar can pick (29 Sep to 15 Nov)
+    function shift(iso, n) { var d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+    r = { from: shift(r.from, -1) < '2027-09-29' ? '2027-09-29' : shift(r.from, -1), to: shift(r.to, 1) > '2027-11-15' ? '2027-11-15' : shift(r.to, 1) };
     var t = state.trip || {};
     fc.filled = true; fc.pre = r; keep();
     tp.setTrip({ from: r.from, to: r.to, base: t.base, base2: t.base2, party: t.party });
