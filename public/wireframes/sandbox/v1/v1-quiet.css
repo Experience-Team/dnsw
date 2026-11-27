@@ -70,3 +70,9 @@
 .tp-fc-edit { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm, 6px); background: var(--v1-tint, color-mix(in srgb, var(--c-ink) 6%, transparent)); color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-semi); cursor: pointer; white-space: nowrap; }
 .tp-fc-edit:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 @media (hover: hover) { .tp-fc-edit:hover { background: color-mix(in srgb, var(--c-ink) 10%, transparent); } }
+
+/* Home's H1 and its one line, under the event strip and above Read before you go (27 Nov 2026) */
+.tp-home-lead { display: flex; flex-direction: column; gap: var(--space-3); }
+.tp-home-h1 { margin: 0; font-size: 1.75rem; font-weight: var(--fw-heavy); line-height: 1.15; letter-spacing: -.02em; text-wrap: balance; }
+.tp-home-sub { margin: 0; font-size: var(--fs-lg); line-height: 1.45; color: var(--c-ink-2); max-width: 40rem; }
+@media (min-width: 1024px) { .pv-device #tp-phone .tp-home-h1 { font-size: var(--fs-hero); max-width: 24ch; } .pv-device #tp-phone .tp-home-sub { font-size: var(--fs-xl); line-height: 1.5; } }
