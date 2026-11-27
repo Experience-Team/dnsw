@@ -46,6 +46,7 @@
 <link rel="stylesheet" href="v1/v1-fanzones.css" />
 <link rel="stylesheet" href="v1/v1-plan.css" />
 <link rel="stylesheet" href="v1/v1-picker.css" />
+<link rel="stylesheet" href="v1/v1-narrative.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
 <style>
   /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
@@ -751,6 +752,7 @@
 <script src="concepts-articles.js"></script>
 <script src="concepts-home.js"></script>
 <script src="v1/v1-flow-c.js"></script>
+<script src="v1/v1-narrative.js"></script><!-- the narrative plan page (27 Nov 2026) -->
 <script src="v1/v1-fanzones.js"></script>
 <script src="concepts-social.js"></script><script src="v1/v1-social.js"></script>
 <script src="v1/v1-flow-motion.js"></script>
@@ -863,6 +865,34 @@
     ] },
 
     // The planner: picking teams
+    { sel: "#v1-nar", at: "tl", title: "Why: The plan page opens with two sentences and a map", points: [
+      "The page opens with two plain sentences, as a travel expert would begin by saying what they understand of the trip.",
+      "Each bracketed part is a control, so the user corrects the trip from the sentence that states it.",
+      "The dates and the places open the sheet that changes them, so a correction is one tap and the user stays on the page.",
+      "A bracketed match highlights its pin on the map, as the sentence tells the user what the map is showing.",
+      "Later rounds inside the dates are named in the first sentence but not assumed, so the user sees them without being counted as going.",
+      "“+ Add another place” sits under the second sentence, as that is where the places are named.",
+      "The map sits under the opening sentences, as the sentences tell the user what the map is showing.",
+      "The map is about a third of the screen and scrolls away with the page, so it is seen on arrival without taking over the page.",
+      "It zooms to fit the stays and the grounds, so a Sydney-only trip shows the city and a trip with Newcastle shows both.",
+      "Tapping the map opens the day-by-day map, as that is where the user looks at one day in detail.",
+      "It is the only map in the plan, so there is one picture of the trip.",
+      "On desktop the plan is anchored at the top right, under the header, so the user keeps the plan in view while they read the trip.",
+      "Fan zones, addresses, routes and places to stay are sample data, marked Sample."
+    ] },
+    { sel: ".v1-md-s", at: "tl", title: "Why: A match day is one block", points: [
+      "Each match day is one block that fits one phone screen, so the user reads the day without scrolling through it.",
+      "The block opens with the match and where it is played, as that is why the user is in NSW.",
+      "Distance and time are measured from the nearer place they stay, so with two places the figure is the one they will use.",
+      "The nearest fan zone follows the match, as the first thing people ask is where to go before and after.",
+      "One row of cards switches between food and drink, things to do and places to stay, so the block stays short and the user picks what they need.",
+      "Places to stay comes last for everyone, as we no longer know who has booked.",
+      "Two cards show before “Show more”, so the choice is not a wall.",
+      "A later match at a ground already shown is a short block with a link back, so the same cards are not repeated.",
+      "“Show on map” scrolls to the map and highlights the ground, and its label says it will.",
+      "A team with no NSW match gets the watch block in place of a match block and its fan zone is what the map shows, as those fans still need somewhere to follow their team.",
+      "The Your matches card, Where to watch and Your plan so far are hidden here, as the narrative says the same things in the order the trip happens."
+    ] },
     { sel: "#tp-picker", title: "Hand of cards: peek and reveal", points: [
       "At the top of the planner the hand peeks in just under the hero, and glides up into view once on arrival.",
       "Scrolling the first stretch, the cards hold still while the row above them (Find, Grid, Plays in NSW) rises from behind them in step with the scroll. Scrolling back reverses it. After that the page scrolls normally.",
@@ -937,7 +967,7 @@
       "Days apply as they are set: the second tap on the calendar sets the last day. No confirm button and no toast here, as the line under the calendar already shows the change.",
       "Undo steps back one change at a time. Reset clears the days and can itself be undone. Once set, the line shows your days with Change. There is no way to leave the days empty.",
       "The panel holds still on screen while the page below it updates.",
-      "Nothing is guessed: the calendar starts with no days picked, unless the step started them from the first to the last NSW match.",
+      "Nothing is guessed: the calendar starts with no days picked, unless the step started them from a day before the first NSW match to a day after the last.",
       "Refine your plan (folded away): Where are you staying? (quick answers that follow the person’s matches, see step 3, or search for a place in NSW; a quiet Staying outside NSW link; I’m a local was removed on 24 Nov, as matches are in both Sydney and Newcastle) and Who’s coming? (Solo, Couple, Friends, Family). One answer each, applied on tap; tap again to clear.",
       "How the answers change the ideas: where you stay sets the city for free days and sorts ideas by distance. Families get attractions and free things first, and day trips before longer trips. Couples and friends get food and drink first.",
       "Until a place is given, the copy says in Sydney (or the city), never near your base.",
@@ -958,7 +988,7 @@
     ] },
     { sel: ".v1-cal", at: "tl", title: "Why: Your dates", points: [
       "The user intentionally cannot proceed without dates, as the planner relies on them to work out which matches, free days and ideas apply.",
-      "The dates start filled in from the first to the last NSW match, so most users only need to confirm or stretch them.",
+      "The dates start filled in from a day before the first NSW match to a day after the last, as people arrive before and leave after the match, so most users only need to confirm them.",
       "Dates are chosen by tapping a first and last day on one calendar, as this is the pattern people expect from travel sites.",
       "The user’s matches are listed above the calendar, so they don’t have to go back a step to check a date.",
       "The calendar marks only the user’s own NSW matches and the later rounds, as those are the only matches that should influence when they travel.",
@@ -994,7 +1024,8 @@
       "The button reads “Find the fan zones” with a pin, as “Watch in NSW” with a TV was read as watching on television.",
       "Pubs and fan zones have their own map with suburb names, as region labels mean little to visitors.",
       "Screenings are offered only for matches the user isn’t at, as offering a pub for a match they are attending contradicts the plan.",
-      "On a match day the nearest fan zone appears as somewhere to go before and after, as testers expected match day to cover more than the fixture."
+      "On a match day the nearest fan zone appears as somewhere to go before and after, as testers expected match day to cover more than the fixture.",
+      "Where a day offers ideas to add, up to two watch zones near where the user stays show a match between teams they are not following, as a free evening is a reason to watch rugby somewhere. The fan village is left out, as it is open for every match on every day."
     ] },
     { sel: "#v1-fm", title: "Pubs and fan zones map", points: [
       "Added 26 Nov 2026. Pubs, clubs, fan zones and fan villages on their own map, apart from the planner's map, which no longer carries their pins. Pins are numbered and named by suburb or venue (Newtown, Circular Quay), never by a region such as North Shore.",
@@ -1005,7 +1036,8 @@
     { sel: "#v1-also", title: "Also on in NSW", points: [
       "Added 26 Nov 2026. Once days are set: the other NSW matches inside them, whoever is playing, each with Add (the same Add and Added as everywhere). The later rounds are listed by stage with teams to be decided, each with Add; nothing is assumed.",
       "A Newcastle card sits above the list when a Newcastle match is on inside the days and none of the person's own is there, even if they are staying in Sydney: Why not visit Newcastle, where there are other matches on, the days, and See Newcastle (the Newcastle sheet). It is not shown if they are staying in Newcastle.",
-      "Not shown with Every NSW match (those matches are already the person's) or before days are set."
+      "Not shown with Every NSW match (those matches are already the person's) or before days are set.",
+      "On the dates step it sits 64px under the calendar, as the other matches inside the dates are what the person checks while setting them."
     ] },
 
     // Once teams are picked: Your matches
@@ -1017,8 +1049,8 @@
       "Where are you staying, or thinking of staying? (step 3, the Your days sheet’s stay panel and the Your answers card, one builder) always needs a place, as the base of the plan. The quick answers follow the person’s matches (the ones inside their dates; all of their team’s NSW matches with no dates; every NSW match inside the dates with no team): Sydney CBD if a match is in Sydney, Sydney Olympic Park for Stadium Australia, Moore Park for the Sydney Football Stadium, Newcastle if a match is there, and Sydney CBD with Newcastle if there is no NSW match. The buttons carry the same place names the plan uses. The NSW place search stays under them, and a quiet Staying outside NSW link sits under the search. With one place, a quiet + Add another place allows one more, two in total, each shown with Remove; no nights are asked. The plan always reads Staying in [place], or Staying in [place] and [place]. A stadium or fan zone measures distance, time and route from whichever place is nearer; spare-time ideas and another match measure from the first place entered. There is no Still deciding and no no-place state: a saved answer with no place goes back to this step. See your plan is unavailable until a place is chosen, and there is no Skip.",
       "Later rounds (27 Nov 2026): a day with an NSW later-round match inside the person’s days reads [stage] is on, teams to be decided, with Add, in the plan timeline, in Around your matches and under Also on in NSW; it is not a free day and going is not assumed. Once added it is a match day. A later round inside the days adds that stadium’s precinct to the stay quick answers.",
       "Where to watch (27 Nov 2026): screenings (fan zones, pubs, clubs) are for a team’s matches inside the days that are played interstate, and for a match the person has removed; never for an NSW match they are assumed to attend. The section is hidden when it has nothing to list. A match they are at shows the nearest fan zone as somewhere to go before and after (sample address). A team with no NSW match inside the days gets a watch block (interstate: fan zone, address, route from where they stay, each match with Add) or one line pointing to Also on in NSW.",
-      "Your days start from your first to last NSW match, the first time the step opens with none set.",
-      "A button bar floats at the bottom: Skip on the left moves on to the next screen without that answer, Next on the right. Your days has no Skip (27 Nov 2026): the first to last NSW match is the starting answer, and where there is none to start from (Show every NSW match, a team with no NSW match) Next stays unavailable until a first and a last day are tapped; a saved answer with no days goes back to this step. on the last step Next reads See your plan. From step 2, Back is the first button in the bar (a square with an arrow beside Skip and Next, 26 Nov 2026) and goes back one step.",
+      "Your days start from a day before your first NSW match to a day after your last, the first time the step opens with none set.",
+      "A button bar floats at the bottom: Skip on the left moves on to the next screen without that answer, Next on the right. Your days has no Skip (27 Nov 2026): a day before the first NSW match to a day after the last is the starting answer, and where there is none to start from (Show every NSW match, a team with no NSW match) Next stays unavailable until a first and a last day are tapped; a saved answer with no days goes back to this step. on the last step Next reads See your plan. From step 2, Back is the first button in the bar (a square with an arrow beside Skip and Next, 26 Nov 2026) and goes back one step.",
       "Motion (26 Nov 2026): the cards deal in each time the Plan tab opens on step 1, leaving a pile below the hand and fanning out to their places. Next, Skip and Show every NSW match push: the question you leave goes out to the left as the next one comes in from the right, as one rail (Back goes the other way). Finishing the flow does not push. Reduced motion: nothing moves.",
       "The plan bar is hidden on step 1 until a team is picked; then it rises and the button bar rises with it, on the same curve. It fills as you answer, but does not open (and shows no grabber) until the flow is finished. No toasts while a step shows, as the sections they point to are hidden.",
       "Finished: the page starts with Your matches. Your answers is a condensed card at the top of the open plan, under its title (the teams, then your days and where you’re staying), and replaces the plan’s own Your teams button and days line. Change slides across inside the plan to a Your answers level with a back arrow: the hand of cards with Find and Show every NSW match, Your days and Where you’re staying. Back, Escape or a tap on the grabber go back to the plan; closing the plan closes both. The first change pins a Save bar to the level’s foot naming the latest change; Save closes the plan. No toasts while the level is open. Home’s Plan around your matches opens the plan on the card.",

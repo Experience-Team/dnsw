@@ -775,8 +775,42 @@
     if (i.car) return 'Car only, ' + mins(i.how.mins) + ' from ' + i.how.from + ' (no public transport)';
     return i.how.mode + ' from ' + i.how.from + ' · ' + (i.how.mins ? mins(i.how.mins) + ' by public transport' : TBC_L);
   }
+  /* Watch zones among a day's ideas (27 Nov 2026): wherever a day offers ideas to add (free days, the arrival and last day, on the
+     page, in the plan and on the map), up to two places near where they stay that show a match played that day between teams
+     they are not following. Fan zones, pubs and clubs; never the fan village, as it is open for every match on every day. The
+     venues are the page's examples (cnWatchVenues), so the card says Sample. */
+  var WATCH_KM = 15;
+  function watchIdeas(d) {
+    var g = window.cnGeo, ps = placesOf().map(function (n) { return { n: n, ll: g && g.places[n] }; }).filter(function (p) { return p.ll; });
+    if (!ps.length || !g.watch) return [];
+    var ms = tp.allMatches().filter(function (m) { return m.day === d && m.f.t && !pickedHas(m.f); }).sort(function (a, b) { return (kickMins(a.f.k) || 0) - (kickMins(b.f.k) || 0); });
+    if (!ms.length) return [];
+    var out = [];
+    SPOTS.forEach(function (sp, j) {
+      var ll = g.watch[j]; if (sp.type === 'village' || !ll || !Array.isArray(sp.shows)) return;
+      var near = ps.slice().sort(function (a, b) { return kmBetween(a.ll, ll) - kmBetween(b.ll, ll); })[0], km = kmBetween(near.ll, ll); if (km > WATCH_KM) return;
+      var shown = ms.filter(function (m) { return sp.shows.indexOf(m.key) > -1; }); if (!shown.length) return;
+      out.push({ id: 'wz:' + j + ':' + d, watch: true, sp: sp, j: j, m: shown[0], more: shown.length - 1, km: km, near: near.n, title: sp.name, kind: 'watch' });
+    });
+    return out.sort(function (a, b) { return a.km - b.km || a.title.localeCompare(b.title); }).slice(0, 2);
+  }
+  // Two cards in from the first, so they sit among the ideas shown first
+  function withWatch(list, d) {
+    var w = watchIdeas(d); if (!w.length) return list;
+    var out = list.slice(); out.splice(Math.min(2, out.length), 0, w[0]); if (w[1]) out.splice(Math.min(4, out.length), 0, w[1]);
+    return out;
+  }
+  function watchCard(i, d) {
+    var wid = spotItem(i.sp, i.m), f = i.m.f, dl = dayLabel(d);
+    var why = 'Shows ' + matchName(f) + (f.k ? ', ' + f.k : '') + (f.a ? ' (played in ' + f.a + ')' : '') + (i.more > 0 ? ' and ' + i.more + ' more' : '') + ' · ' + (i.km < 1 ? 'under 1 km' : 'about ' + Math.round(i.km) + ' km') + ' from ' + i.near;
+    return '<article class="tp-pc tp-idea tp-idea--watch" data-id="' + esc(wid) + '"><button type="button" class="tp-pc-main" data-open="' + esc(wid) + '" aria-haspopup="dialog">' +
+      '<span class="ph-img tp-pc-img"' + imgKey(i.sp.name) + ' aria-hidden="true"></span><span class="tp-pc-body"><span class="tp-pc-title">' + esc(i.sp.name) + '</span>' +
+      '<span class="tp-pc-type">Watch zone \u00b7 ' + esc(SPOT_TYPE[i.sp.type] || 'Venue') + ' ' + SAMPLE_TAG + '</span>' +
+      '<span class="tp-pc-why provenance-gap" data-why="' + esc(why) + '">' + esc(why) + '</span></span></button>' + addBtn(wid, i.sp.name + ' on ' + dl) + '</article>';
+  }
   // In the plan's ideas sheet (open) the card's main part is a button that shows the idea's details in the sheet
   function ideaCard(i, d, open) {
+    if (i.watch) return watchCard(i, d);
     var id = 'i:' + i.id, key = id + '@' + d, dl = dayLabel(d), type = (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city];
     var km = ideaKm(i), why = 'Fits ' + dl + (km !== null ? ' · ' + kmLine(km) : '') + ' · ' + howLine(i);
     // In the ideas sheet the day is the heading, so the line leads with how to get there and how long, then distance:
@@ -824,7 +858,7 @@
       }
       if (its.length) h += '<p class="tp-fday-so">So far: ' + placeLinks(its) + '. Room for one more.</p>';
       // Shared out so every free day left gets three to five while there are enough (More ideas shows the rest)
-      var list = ideasFor(d, b.base), per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
+      var list = withWatch(ideasFor(d, b.base), d), per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
       FREE_LEFT--;
       show.forEach(function (i) { SUGG[i.id] = true; });
       FREEINFO.push({ d: d, label: dl, filled: false, count: show.length, dk: dk, its: its, show: show, more: list.length > per, base: b.base });
@@ -858,6 +892,7 @@
       MODAL[id] = { type: 'product', p: p, f: { d: f.d, v: CITY[b.base] }, o: o, why: why };
       h += productCard(p, why, id, f);
     });
+    if (!full) watchIdeas(b.day).forEach(function (i) { h += watchCard(i, b.day); });
     h += '</div>';
     if (list.length > 3 && !full) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Fewer places' : 'More places') + '</button>';
     return h;
@@ -1118,6 +1153,30 @@
       return;
     }
     var h = '';
+    /* The narrative plan page (27 Nov 2026, sandbox): once the questions are answered the days read in order, every day open, a
+       match day as one block (tp.narMatchBody, v1-narrative.js). The other days keep their own bodies. */
+    if (tp.narMatchBody && fc() === '') {
+      tp.narBegin();
+      var noNswTeams = M.own && !M.nsw.length ? state.picked.filter(function (n) { return tp.teams[n]; }) : [], noNswDone = false;
+      bs.forEach(function (b) {
+        if (b.kind === 'away') return;
+        var hd = heading(b), venue = (b.kind === 'match' || b.kind === 'ko') ? b.ms[0].f.v : '', body;
+        if (b.kind === 'watch' && noNswTeams.length) hd = { when: dayLabel(b.day) + ' · Watch day' };
+        if (b.kind === 'match') body = tp.narMatchBody(b, M);
+        else if (b.kind === 'free') body = b._html;
+        else if (b.kind === 'watch') {
+          if (noNswTeams.length) { body = noNswDone ? '' : tp.narNoNsw(noNswTeams); noNswDone = true; } else body = watchBody(b);
+        } else if (b.kind === 'ko') body = koBody(b);
+        else body = halfBody(b);
+        if (!body) return;
+        h += '<section class="tp-blk tp-blk--' + b.kind + ' v1-nar-blk" data-blk="' + b.key + '" id="v1-blk-' + b.key + '"><h4 class="v1-nar-dh">' +
+          (venue ? '<button type="button" class="v1-nar-day" data-nar-day="' + esc(venue) + '">' : '<span class="v1-nar-day">') +
+          '<span class="tp-blk-when">' + esc(hd.when) + '</span>' + (venue ? '</button>' : '</span>') + '</h4><div class="tp-blk-body">' + body + '</div></section>';
+      });
+      if (noNswTeams.length && !noNswDone) { var nn = tp.narNoNsw(noNswTeams); h = '<section class="tp-blk tp-blk--watch v1-nar-blk">' + (nn.indexOf('class="v1-nonsw"') > -1 ? '<h4 class="v1-nar-dh"><span class="v1-nar-day"><span class="tp-blk-when">Watching from NSW</span></span></h4>' : '') + '<div class="tp-blk-body">' + nn + '</div></section>' + h; } // none of their matches is played in NSW inside the days: the watch block leads
+      thirdList.innerHTML = h;
+      return;
+    }
     bs.forEach(function (b) {
       var hd = heading(b), open = !!openSet[b.key], bid = 'tp-blk-' + b.key;
       if (b.kind === 'away') { h += '<div class="tp-blk tp-blk--away" data-blk="' + b.key + '" tabindex="-1"><p class="tp-blk-line"><span class="tp-blk-when">' + esc(hd.when) + '</span> <span class="tp-blk-what">' + esc(hd.what) + '</span></p></div>'; return; }
@@ -1421,6 +1480,7 @@
     FREEINFO.forEach(function (fd) {
       if (fd.filled || !fd.show || !fd.show.length) return;
       var its = fd.show.map(function (i) {
+        if (i.watch) { var wid = spotItem(i.sp, i.m), wll = GEOX.watch && GEOX.watch[i.j]; return wll ? { key: wid, open: wid, title: i.title, type: 'Watch zone \u00b7 ' + (SPOT_TYPE[i.sp.type] || 'Venue'), time: '', ll: wll, made: true } : null; }
         var key = 'i:' + i.id + '@' + fd.d, ll = GEOX.ideas && GEOX.ideas[i.id]; if (!ll || !ITEMS[key]) return null;
         return { key: key, open: 'idea:' + key, title: i.title, type: (i.kind === 'half' ? 'Half-day idea' : 'Day trip') + ' · ' + CITY[i.city], time: '', ll: ll, made: !!i.placeholder };
       }).filter(Boolean);
@@ -1459,12 +1519,12 @@
   function dayIdeas(d) {
     var fd = freeInfo(d); if (!fd || fd.filled) return [];
     var all = [], seen = {};
-    if (fd.half) all = partyFirst(IDEAS.filter(function (i) { return i.kind === 'half' && i.city === fd.base && !ideaAdded(i); }));
+    if (fd.half) all = withWatch(partyFirst(IDEAS.filter(function (i) { return i.kind === 'half' && i.city === fd.base && !ideaAdded(i); })), d);
     else { fd.show.forEach(function (i) { all.push(i); seen[i.id] = 1; }); ideasFor(d, fd.base).forEach(function (i) { if (!seen[i.id]) all.push(i); }); }
     return all;
   }
   function ideaPins(d) {
-    return dayIdeas(d).slice(0, 3).map(function (i) { var key = 'i:' + i.id + '@' + d; return { key: key, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', ll: GEO && GEO.ideas[i.id], trip: i.kind === 'day', html: ideaCard(i, d) }; }).filter(function (x) { return x.ll; });
+    return dayIdeas(d).slice(0, 3).map(function (i) { if (i.watch) return { key: spotItem(i.sp, i.m), title: i.title, kindLabel: 'Watch zone', ll: GEO && GEO.watch && GEO.watch[i.j], trip: false, html: watchCard(i, d) }; var key = 'i:' + i.id + '@' + d; return { key: key, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', ll: GEO && GEO.ideas[i.id], trip: i.kind === 'day', html: ideaCard(i, d) }; }).filter(function (x) { return x.ll; });
   }
   tp.ideasInline = function (d) {
     var fd = freeInfo(d); if (!fd || fd.filled) return null;
@@ -3228,6 +3288,28 @@
     if (f && f !== document.activeElement) f.focus({ preventScroll: true });
     notesRefresh();
   }
+  /* The narrative plan page's kit (27 Nov 2026, v1-narrative.js): what a block needs from here, as functions so it always reads
+     the current ITEMS and MODAL (both are rebuilt on every render) */
+  tp.narKit = {
+    registerItem: function (id, it) { ITEMS[id] = it; },
+    registerProduct: function (p, m, o) {
+      var f = m.f, id = 'p:' + p.id + ':' + f.d;
+      ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
+      MODAL[id] = { type: 'product', p: p, f: f, o: o, why: reason(p, o, { m: m }) };
+      return id;
+    },
+    registerPoi: function (q, f) {
+      var key = 'mp:' + q.id + ':' + f.d;
+      ITEMS[key] = { id: 'poi:' + q.id, kind: 'poi', poi: q.id, title: q.title, kindLabel: q.cat, place: q.area, day: f.d, matchName: matchName(f) };
+      return key;
+    },
+    addBtn: addBtn, goRoute: goRoute, kmBetween: kmBetween, nearerPlace: nearerPlace, nearestFan: nearestFan, fanSpots: fanSpots, placesOf: placesOf,
+    mins: mins, matchName: matchName, dayLabel: dayLabel, weekdayOf: weekdayOf, kickMins: kickMins, hoursOn: hoursOn, cityOf: cityOf,
+    products: function () { return PRODUCTS; }, ptype: PTYPE, travel: travel, imgKey: imgKey, tbc: TBC_L, sampleTag: SAMPLE_TAG,
+    isKo: isKo, koName: koName, koOnDays: koOnDays, hasTicket: hasTicket,
+    openStay: function (opener, add) { openDays(true, opener); if (add) { adding.s = true; daysRefresh('.tp-quick [data-sbase]'); } }
+  };
+  tp.render = function (force, sel) { render(!!force, sel); };
   phone.addEventListener('tp:state', function () { render(false); });
   tp.askRender = function () { render(true); }; // Option C: a step that borrows Your days or Where you're staying
   // Reset prototype (a reviewer tool): this section's own choices go back to a first visit too
