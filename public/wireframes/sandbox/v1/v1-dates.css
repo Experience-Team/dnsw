@@ -95,3 +95,8 @@
 .v1-nonsw-l li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 0; border-top: 1px solid var(--c-line-soft, var(--c-line)); }
 .v1-nonsw-m { display: flex; flex-direction: column; font-weight: var(--fw-semi); }
 .v1-nonsw-m span { font-weight: var(--fw-regular, 400); font-size: var(--fs-sm); color: var(--c-ink-2); }
+
+/* Also on in NSW on the dates step sits 64px under the calendar (27 Nov 2026): the room the pinned bar needs moves from under the
+   step to under this module, so the gap is the section gap and nothing hides behind the bar */
+#tp-phone[data-fc="days"] #tp-pick:has(+ #v1-also:not([hidden])) { padding-bottom: 0; }
+#tp-phone[data-fc="days"] #v1-also:not([hidden]) { margin-top: 64px; padding-bottom: calc(var(--fc-foot-h, 64px) + var(--space-5)); }
