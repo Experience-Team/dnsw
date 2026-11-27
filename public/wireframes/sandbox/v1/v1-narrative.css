@@ -12,26 +12,6 @@
   text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; text-decoration-color: var(--c-accent); cursor: pointer; border-radius: 2px; }
 .v1-nar-b:focus-visible, .v1-nar-day:focus-visible, .v1-nc-t:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 
-/* The trip map: fixed height, one static picture zoomed to fit; it scrolls away with the page */
-.v1-tm { position: relative; height: 280px; overflow: hidden; border-radius: 12px; border: 1px solid var(--c-line); background: #d6d6d6; cursor: pointer; touch-action: pan-y; margin-top: var(--space-3); }
-.v1-tm:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
-.v1-tm-layer { position: absolute; left: 0; top: 0; width: 2000px; height: 1000px; transform-origin: 0 0; }
-.v1-tm-img { display: block; width: 2000px; height: 1000px; max-width: none; user-select: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 220px, #000 calc(100% - 220px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 220px, #000 calc(100% - 220px), transparent 100%); }
-.v1-tm-svg, .v1-tm-pins { position: absolute; inset: 0; pointer-events: none; }
-.v1-tm-route { fill: none; stroke: var(--c-ink); stroke-width: 2; stroke-dasharray: 5 4; opacity: .75; }
-.v1-tm-route.is-maybe { opacity: .35; }
-.v1-tm-route.is-lit { stroke: var(--c-accent); stroke-width: 3.5; opacity: 1; stroke-dasharray: none; }
-.v1-tm-pin { position: absolute; width: 0; height: 0; transition: opacity .2s linear; }
-.v1-tm-pin i { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; border-radius: 50%; background: var(--c-accent); border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--c-ink); }
-.v1-tm-pin.is-stay i { border-radius: 3px; background: var(--c-ink); }
-.v1-tm-pin.is-fan i { border-radius: 3px; transform: rotate(45deg); }
-.v1-tm-pin.is-maybe i { background: #fff; }
-.v1-tm-pin b { position: absolute; left: 12px; top: -9px; padding: 1px 6px; border-radius: 4px; background: rgba(255, 255, 255, .88); font-size: 11px; line-height: 16px; font-weight: var(--fw-semi); white-space: nowrap; color: var(--c-ink); }
-.v1-tm-pin.is-l b { left: auto; right: 12px; }
-.v1-tm-pin.is-dim { opacity: .45; }
-.v1-tm-pin.is-lit i { transform: scale(1.35); box-shadow: 0 0 0 2px var(--c-ink), 0 0 0 5px rgba(255, 90, 0, .35); }
-.v1-tm-pin.is-lit { z-index: 2; }
 
 /* The days under the map */
 #tp-third { margin-top: var(--space-5, 24px); }
@@ -60,7 +40,6 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-md-acts { display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-2); }
 .v1-md-acts .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
 .v1-md-again { color: var(--c-ink-2); }
-@media (prefers-reduced-motion: reduce) { .v1-tm-pin { transition: none; } }
 
 .v1-nar-blk .v1-nonsw, .v1-nar-blk .v1-nonsw-none { margin: 0; padding: 0; }
 
@@ -136,13 +115,6 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-ao-n { align-self: flex-start; min-height: 28px; font-size: var(--fs-md); }
 .v1-ao-w { font-size: var(--fs-sm); color: var(--c-ink-2); }
 .v1-ao-r { margin-top: var(--space-1); font-size: var(--fs-sm); line-height: 1.45; }
-/* The map's extra route: dashed through its stops; the stops are small, the ground a ring */
-.v1-tm-route.is-extra { opacity: .7; stroke-dasharray: 3 5; }
-.v1-tm-route.is-extra.is-lit { stroke-dasharray: 3 5; opacity: 1; }
-.v1-tm-pin.is-extra i { background: #fff; }
-.v1-tm-pin.is-stop i { left: -4px; top: -4px; width: 8px; height: 8px; border-width: 1.5px; background: var(--c-ink); box-shadow: none; }
-.v1-tm-pin.is-stop b { left: 8px; top: -8px; font-weight: var(--fw-regular, 400); font-size: 10px; background: rgba(255, 255, 255, .8); }
-.v1-tm-pin.is-stop.is-l b { left: auto; right: 8px; }
 
 /* ---------- A watch day's matches (27 Nov 2026): the note, then the matches as one list, then where to watch ---------- */
 .v1-nar-blk .tp-blk-note { margin: 0 0 var(--space-2); font-size: var(--fs-base); line-height: 1.5; color: var(--c-ink); }
@@ -181,16 +153,8 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 
 /* The map picture (27 Nov 2026): one 2000 x 1000 image for every map, shown as it is. The trip map is half as tall again on desktop. */
 .tp-map-img { width: 2000px; height: 1000px; filter: none; }
-@media (min-width: 900px) { .pv-device #tp-phone .v1-tm { height: 420px; } }
 #v1-nar-s2 { margin-bottom: 24px; } /* the map follows the sentences directly (27 Nov 2026) */
 
-/* Map labels (27 Nov 2026): opaque chips with a soft halo, so the base map's own names never show through or sit over a label.
-   Their place is set in script, so none overlaps another or a pin and all stay inside the map */
-.v1-tm-pin b, .v1-tm-pin.is-stop b { box-sizing: border-box; border: 1px solid var(--c-line-soft); background: var(--c-surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-surface) 80%, transparent); }
-/* A pin dimmed while another is lit dims its dot, not its label chip, so the base map's names never show through a label */
-.v1-tm-pin.is-dim { opacity: 1; }
-.v1-tm-pin.is-dim i { opacity: .45; }
-.v1-tm-pin.is-dim b { color: var(--c-ink-2); }
 .v1-fan-inl { font-size: inherit; line-height: inherit; }
 .v1-sp-lead { margin-bottom: var(--space-4); }
 
@@ -222,3 +186,91 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-sp-foot { margin: var(--space-3) 0 0; font-size: var(--fs-sm); }
 .v1-nar-blk .v1-ao--c { margin: var(--space-4) 0 0; }
 .v1-ao--c .v1-sp-all { margin-top: var(--space-1); font-size: var(--fs-sm); }
+
+/* ---------- The trip map (27 Nov 2026): one drawn, interactive map, the same closed or expanded (v1-narrative.js, v1-basemap.js) ---------- */
+/* Three switches above it: each adds or removes its pins */
+.v1-tm-sw { display: flex; flex-wrap: nowrap; gap: 6px; margin: 0 0 var(--space-2); }
+.v1-tm-swb { appearance: none; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px 0 8px; border: var(--bw-1, 1px) solid var(--c-line); border-radius: var(--radius-pill, 999px); background: none; color: var(--c-ink); font: inherit; font-size: .8125rem; font-weight: var(--fw-semi); white-space: nowrap; cursor: pointer; }
+.v1-tm-swb i { flex: none; box-sizing: border-box; width: 14px; height: 14px; border: 1.5px solid var(--c-ink); border-radius: 2px; background: no-repeat center / 10px 10px; }
+.v1-tm-swb[aria-pressed="true"] { border-color: var(--c-ink); background: var(--v1-tint, rgba(0, 0, 0, .06)); }
+.v1-tm-swb[aria-pressed="true"] i { background-color: var(--c-ink); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.8 5.2l2.2 2.2 4.2-4.6' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.v1-tm-swb:focus-visible, .v1-tm-cb:focus-visible, .v1-tm-btn:focus-visible, .v1-tm-cx:focus-visible, .v1-tm-back:focus-visible, .v1-tm:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1-tm-pin:focus-visible { outline: none; }
+.v1-tm-pin:focus-visible b { outline: 2px solid var(--c-focus); outline-offset: 1px; }
+@media (hover: hover) { .v1-tm-swb:hover, .v1-tm-cb:hover { background-color: var(--c-surface-2, #f1f1f1); } }
+
+/* The map: a fixed height on the page; expanded it fills the screen. Drags belong to it (pan), so the page scrolls from outside it */
+.v1-tm-slot { height: 280px; }
+.v1-tm { --tm-water: #c9d9dc; --tm-land: var(--c-surface-2, #f1f1f1); --tm-coast: #a3babf; position: relative; height: 100%; overflow: hidden; box-sizing: border-box; border-radius: var(--radius-lg, 12px); border: 1px solid var(--c-line); background: var(--tm-water); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.v1-tm.is-drag { cursor: grabbing; }
+.v1-tm.is-full { position: absolute; inset: 0; z-index: 120; height: auto; border: 0; border-radius: 0; }
+@media (min-width: 900px) { .pv-device #tp-phone .v1-tm-slot { height: 420px; } }
+.v1-tm-base { position: absolute; left: 0; top: 0; display: block; pointer-events: none; }
+.v1-tm-land { fill: var(--tm-land); stroke: var(--tm-coast); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.v1-tm-lake { fill: var(--tm-water); stroke: var(--tm-coast); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.v1-tm-over { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.v1-tm-names, .v1-tm-pins { position: absolute; left: 0; top: 0; }
+/* The base map's own names: quiet, never tappable, only where no pin or pin name is */
+.v1-tm-nm { position: absolute; white-space: nowrap; pointer-events: none; font-size: 11px; line-height: 14px; color: var(--c-ink-2); opacity: .8; }
+.v1-tm-nm.is-c { font-size: 12px; font-weight: var(--fw-semi); opacity: .9; }
+.v1-tm-nm.is-a { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .65; }
+.v1-tm-nm.is-w { font-style: italic; color: #4a6870; opacity: 1; }
+/* Routes from where they stay */
+.v1-tm-route { fill: none; stroke: var(--c-ink); stroke-width: 2; stroke-dasharray: 5 4; opacity: .75; }
+.v1-tm-route.is-maybe { opacity: .35; }
+.v1-tm-route.is-lit { stroke: var(--c-accent); stroke-width: 3.5; opacity: 1; stroke-dasharray: none; }
+.v1-tm-route.is-extra { opacity: .7; stroke-dasharray: 3 5; }
+.v1-tm-route.is-extra.is-lit { stroke-dasharray: 3 5; opacity: 1; }
+/* Pins: a mark with its name beside it, the whole of it one button */
+.v1-tm-pin { appearance: none; position: absolute; width: 0; height: 0; padding: 0; margin: 0; border: 0; background: none; font: inherit; color: var(--c-ink); cursor: pointer; overflow: visible; -webkit-tap-highlight-color: transparent; }
+.v1-tm-pin i { position: absolute; left: -8px; top: -8px; box-sizing: border-box; width: 16px; height: 16px; border-radius: 50%; background: var(--c-accent); border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--c-ink); transition: transform .2s cubic-bezier(.4, 0, .2, 1), opacity .2s linear; }
+.v1-tm-pin i::after { content: ""; position: absolute; inset: -9px; } /* a 30px target round a 16px mark */
+.v1-tm-pin.is-stay i { border-radius: 3px; background: var(--c-ink); }
+.v1-tm-pin.is-fan i { border-radius: 3px; transform: rotate(45deg); }
+.v1-tm-pin.is-maybe i, .v1-tm-pin.is-extra i, .v1-tm-pin.is-ghost i { background: #fff; }
+.v1-tm-pin.is-idea i, .v1-tm-pin.is-spot i { left: -6px; top: -6px; width: 12px; height: 12px; background: #fff; border: 2px solid var(--c-ink); box-shadow: 0 0 0 1.5px #fff; }
+.v1-tm-pin.is-idea i::after, .v1-tm-pin.is-spot i::after { inset: -11px; }
+.v1-tm-pin.is-spot.is-fz i { border-radius: 2px; transform: rotate(45deg); }
+.v1-tm-pin.is-spot.is-pub i { border-radius: 2px; }
+.v1-tm-pin.is-stop { cursor: default; }
+.v1-tm-pin.is-stop i { left: -4px; top: -4px; width: 8px; height: 8px; border-width: 1.5px; background: var(--c-ink); box-shadow: none; }
+.v1-tm-pin b { position: absolute; left: 12px; top: -9px; box-sizing: border-box; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--c-line-soft); background: var(--c-surface); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-surface) 70%, transparent); font-size: 11px; line-height: 16px; font-weight: var(--fw-semi); white-space: nowrap; color: var(--c-ink); }
+.v1-tm-pin.is-idea b, .v1-tm-pin.is-spot b { font-weight: var(--fw-regular, 400); }
+.v1-tm-pin.is-stop b { font-weight: var(--fw-regular, 400); font-size: 10px; }
+.v1-tm-pin.is-dim i { opacity: .45; }
+.v1-tm-pin.is-dim b { color: var(--c-ink-2); }
+.v1-tm-pin.is-lit { z-index: 2; }
+.v1-tm-pin.is-lit i { transform: scale(1.35); box-shadow: 0 0 0 2px var(--c-ink), 0 0 0 6px color-mix(in srgb, var(--c-accent) 40%, transparent); animation: v1-tm-pulse .9s cubic-bezier(.4, 0, .2, 1) 1; }
+.v1-tm-pin.is-fan.is-lit i, .v1-tm-pin.is-spot.is-fz.is-lit i { transform: rotate(45deg) scale(1.35); animation: none; }
+.v1-tm-pin.is-lit b { border-color: var(--c-ink); }
+@keyframes v1-tm-pulse { 0% { transform: scale(1); } 45% { transform: scale(1.7); } 100% { transform: scale(1.35); } }
+/* Its controls: expand (a close cross once expanded), then plus and minus */
+.v1-tm-ctl { position: absolute; top: 8px; right: 8px; z-index: 3; display: flex; flex-direction: column; }
+.v1-tm.is-full .v1-tm-ctl { top: 16px; right: 16px; }
+.v1-tm-cb { appearance: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 1px solid var(--c-line); border-radius: var(--radius-md, 8px); background: var(--c-surface); color: var(--c-ink); cursor: pointer; }
+.v1-tm-cb svg, .v1-tm-cx svg, .v1-tm-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.v1-tm-cb[data-tm-full] { margin-bottom: 8px; }
+.v1-tm-cb[data-tm-zoom="1"] { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.v1-tm-cb[data-tm-zoom="-1"] { margin-top: -1px; border-top-left-radius: 0; border-top-right-radius: 0; }
+.v1-tm-back { appearance: none; position: absolute; top: 8px; left: 8px; z-index: 3; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; max-width: calc(100% - 68px); padding: 0 12px 0 8px; border: 1px solid var(--c-ink); border-radius: var(--radius-pill, 999px); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: .8125rem; font-weight: var(--fw-semi); white-space: nowrap; cursor: pointer; }
+.v1-tm.is-full .v1-tm-back { top: 16px; left: 16px; }
+.v1-tm-back[hidden], .v1-tm-more[hidden], .v1-tm-card[hidden], .v1-tm-pin b[hidden] { display: none; }
+.v1-tm-more { appearance: none; position: absolute; left: 8px; bottom: 8px; z-index: 2; margin: 0; min-height: 28px; padding: 0 10px; border: 1px solid var(--c-line); border-radius: var(--radius-pill, 999px); background: var(--c-surface); font: inherit; font-size: .75rem; font-weight: var(--fw-semi); color: var(--c-ink); cursor: pointer; }
+.v1-tm-more:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1-tm.is-full .v1-tm-more { left: 16px; bottom: 16px; }
+/* A pin's card: small, at the foot of the map, so the map and the pin stay in view */
+.v1-tm-card { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 4; box-sizing: border-box; max-height: calc(100% - 60px); overflow-y: auto; padding: var(--space-3); border: 1px solid var(--c-ink); border-radius: var(--radius-md, 8px); background: var(--c-surface); box-shadow: 0 6px 20px rgba(0, 0, 0, .14); cursor: default; user-select: text; -webkit-user-select: text; text-align: left; }
+.v1-tm-card:focus { outline: none; }
+.v1-tm.is-full .v1-tm-card { left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 900px) { .pv-device #tp-phone .v1-tm-card { right: auto; width: 360px; } }
+.v1-tm-cx { appearance: none; position: absolute; top: 4px; right: 4px; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 0; background: none; color: var(--c-ink); cursor: pointer; }
+.v1-tm-ct { margin: 0; padding-right: 32px; font-size: var(--fs-base); font-weight: var(--fw-semi); line-height: 1.3; }
+.v1-tm-cm { margin: 2px 0 0; padding-right: 32px; font-size: .8125rem; line-height: 1.4; color: var(--c-ink-2); }
+.v1-tm-cm .v1-sample { padding: 0 5px; border-width: 1px; font-size: .625rem; font-weight: var(--fw-semi); letter-spacing: .08em; line-height: 1.7; vertical-align: .1em; }
+.v1-tm-cr { margin-top: var(--space-2); }
+.v1-tm-cr + .v1-tm-cr { padding-top: var(--space-2); border-top: 1px solid var(--c-line-soft); }
+.v1-tm-cd { margin: 0; font-size: .8125rem; line-height: 1.4; }
+.v1-tm-ca { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+.v1-tm-btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 14px; border: var(--bw-2, 2px) solid var(--c-line-strong, #111); border-radius: var(--radius-pill, 999px); background: none; color: var(--c-ink); font: inherit; font-size: .8125rem; font-weight: var(--fw-semi); white-space: nowrap; cursor: pointer; }
+.v1-tm-btn.is-add { background: var(--c-btn, #111); border-color: var(--c-btn, #111); color: var(--c-on-dark, #fff); }
+@media (prefers-reduced-motion: reduce) { .v1-tm-pin i { transition: none; } .v1-tm-pin.is-lit i { animation: none; } }

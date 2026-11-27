@@ -83,5 +83,5 @@
   });
   render();
   watch.parentNode.insertBefore(fz, watch.nextSibling);
-  watch.parentNode.insertBefore(fm, fz.nextSibling);
+  // 27 Nov 2026 (sandbox): the separate Pubs and fan zones map is not shown. Its pins are the trip map's Fan zones and pubs switch (v1-narrative.js)
 })();
