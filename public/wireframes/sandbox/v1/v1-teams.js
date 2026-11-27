@@ -2072,6 +2072,7 @@
      the strip (its markers the size of the strip's dots) and grows into place while the sheet rises; closing, it shrinks
      back onto the strip. Both live in the sheet, so their offset holds while the sheet slides. Reduced motion: fades. */
   function tlZoom(open) {
+    return; // the open plan's timeline is the strip itself grown (v1-plan.js), so there is no copy of the old axis to shrink or grow (27 Nov 2026)
     if (reduce.matches || !tlCanvas.animate) return;
     var tr = tl.getBoundingClientRect(), cr = tlCanvas.getBoundingClientRect(), sr = tl.querySelector('.tp-tl-strip').getBoundingClientRect();
     var k = sr.width / ((DAYS - 1) * DAYW), H = tlCanvas.offsetHeight;

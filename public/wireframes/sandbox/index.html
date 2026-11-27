@@ -45,6 +45,7 @@
 <link rel="stylesheet" href="v1/v1-dates.css" />
 <link rel="stylesheet" href="v1/v1-fanzones.css" />
 <link rel="stylesheet" href="v1/v1-plan.css" />
+<link rel="stylesheet" href="v1/v1-zoom.css" />
 <link rel="stylesheet" href="v1/v1-picker.css" />
 <link rel="stylesheet" href="v1/v1-narrative.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
@@ -87,7 +88,7 @@
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team: Version 1</h2>
     </div>
-    <p class="pv-p pv-flow-c">Version 1: the Plan tab asks the questions up front, one step at a time: your teams, your days and where you’re staying. All three are required, and the plan does not open until all three are answered. A test from team feedback, with its own saved picks.</p>
+    <p class="pv-p pv-flow-c">Version 1: the Plan tab asks the questions up front, one step at a time: your teams, your days and where you’re staying. All three are answered before the plan opens. Your days and where you’re staying are required; with no team picked, every NSW match is assumed. A test from team feedback, with its own saved picks.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
@@ -182,7 +183,7 @@
 
           <!-- Plan your 3rd half: the planner's hand of cards and its caption are lent here (#tp-home-hand) while Home shows. Under the articles since 23 Nov -->
           <section class="tp-home-sec tp-home-plan" id="tp-home-plan" aria-labelledby="tp-home-plan-title">
-            <h3 class="tp-sec-title" id="tp-home-plan-title" tabindex="-1">Plan your 3rd half</h3>
+            <h3 class="tp-sec-title" id="tp-home-plan-title" tabindex="-1">Pick a team to plan your third half</h3>
             <p class="tp-home-intro">Pick your teams, see their matches, and plan your NSW days around game time.</p>
             <div class="tp-home-hand" id="tp-home-hand"></div>
             <!-- Shown once anything is picked: the planner, with these picks -->
@@ -369,7 +370,7 @@
                who is coming), both optional. Built by concepts-third-half.js (renderAsk). Nothing is guessed: the days
                start empty. The map (concepts-map.js) now follows All matches. -->
           <!-- Option C only (?flow=c): an Add every NSW match link that goes with the hand into the Your answers card once
-               the flow is finished (24 Nov). Step 1 no longer shows it: its foot's Show every NSW match does the same.
+               the flow is finished (24 Nov). Step 1 no longer shows it: Next with no team picked does the same.
                Same link as the others (data-rugby): it reads Remove every NSW match while on, and hides while a team is picked. -->
           <p class="tp-rugby-line tp-fc-rugby" id="tp-fc-rugby"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-c"></button><span class="tp-rugby-why" id="tp-rugby-why-c"></span></p>
           <section class="tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1" hidden></section>
@@ -824,8 +825,7 @@
     ] },
     { sel: "#tp-home-hand", title: "Home: pick your teams", points: [
       "Home shows the same hand of team cards as the planner. It is the planner’s own picker, moved across while Home shows, so a pick on Home is the same pick in the planner and the plan bar counts it.",
-      "Once anything is picked, Plan around your matches appears. It opens the planner at Your days, and its label says so.",
-      "I’m just here for the rugby adds every NSW match, no team needed. The line under it says what it does and nothing on the page moves. While on, it reads Remove every NSW match.",
+      "Plan around your matches is always there. It opens the planner at the step it was on, and its label says so. With no team picked it carries on as every NSW match, so nobody has to pick before they can start.",
       "Desktop: the heading, intro and links sit on the left and the hand on the right, as in the planner.",
       "Design: Figma 385:649."
     ] },
@@ -955,7 +955,7 @@
       "For people with no team in mind: ⊕ Add every NSW match adds all 17 matches played in NSW, knockouts included.",
       "While off, a quiet line under it says who it is for and that it adds rather than filters: No team? This adds all 17 matches played in NSW.",
       "While on, it reads ⊖ Remove every NSW match, so it is never one-way. Picking a team turns it off.",
-      "Shows only while no team is picked: here in All matches and in the plan’s empty state. Home has its own words for it, I’m just here for the rugby.",
+      "Shows only while no team is picked: here in All matches and in the plan’s empty state.",
       "Feedback is the same as a pick: dots sweep into the plan bar, the match tabs appear, and the caption says Every NSW match added. Focus stays on the link.",
       "Its label says what it will do, so it is a plain button, not an on/off switch. The circled + and − marks are used on every add and remove across the page.",
       "Data: the count comes from the fixtures."
@@ -995,25 +995,38 @@
       "The key sits between the match list and the calendar, so it is read before the markers it explains.",
       "Kick-off times are shown in Sydney time, as that is the time the user will be living on."
     ] },
-    { sel: "#tp-dc", title: "Your plan: a vertical timeline (new layout, 26 Nov 2026)", points: [
-      "A layout to try, built as the working version; the earlier plan (a strip of days, then cards) is kept in archive/. Testing said people open their plan and cannot read it, because the useful things sat in secondary sheets.",
-      "One vertical timeline, a day after another, each day a card on a rail with its date. A day with a match or things added has a solid card and a solid rail. An empty day has a dotted border and a dotted rail. Every day in the person's days is shown; runs of free days no longer fold into one card.",
-      "A free day has a dotted outline, a big plus and Suggest ideas (not Add). Suggest ideas opens the ideas on the card, up to three, with Show more for the rest, and the same Add and Added as everywhere. No ideas sheet. A day with something on it keeps a smaller Suggest ideas.",
-      "List or Map at the top. Map shows where each day is, numbered, and Open full screen, day by day opens the full-screen map where the days swipe. With no days set, Map says so and offers Set your days.",
-      "On the cards, from the sheets: getting there on a match day (Train from Central, about 36 min); for something added, how to get there, price and opening hours (a place), the suburb, transport and opening times (a pub, club or fan zone, sample data), and how long an idea takes. Move and Remove are on the card.",
-      "Still in a second sheet: a match's details, an added thing's full details, an idea's details, the full route there and back, Your answers (Change), Save & share and Clear plan.",
-      "Not built yet: the strip's keyboard days (the timeline is read top to bottom), and a map that shows the things added, not only each day's place."
+    { sel: "#v1z", title: "Your plan: a zoomable timeline (27 Nov 2026)", points: [
+      "The open plan shows one timeline, not the day-by-day plan again: the page has every day in full. It is the bar’s strip grown, one mark a day across 1 Oct to 13 Nov, with a slider below to zoom.",
+      "Your days are a tinted band, as the bar’s stay band. A day outside it is dimmed. An empty day inside it is a dotted ring, the page’s empty state, at every zoom.",
+      "Marks follow the bar’s dots: an NSW match is a filled circle, an interstate match a ring, a later round with teams to be decided a thin ring, a match to watch in NSW a dashed ring, an idea or place a square. Two matches at the same time have a red ring.",
+      "Zoom slider: a real range input (arrow keys, Home and End, aria-label Zoom the timeline, and its value text names the level) under a wedge, thin at the left (zoomed out) and thick at the right (zoomed in). Dragging changes the zoom continuously and the centre stays where it was. A jump (a key, a tap on the track) glides on an even ease, and with reduced motion it sets in place.",
+      "Three levels: from 0 to 33 the whole trip fits the width and shows marks only; from 34 to 66 each day has a label and match markers; from 67 to 100 each match shows its two flags and kick-off and each idea or place its picture and name. Labels and details blend in over a short band either side of those points.",
+      "Zoomed in, only the timeline scrolls sideways. It runs to the sheet’s edge, the first day lines up with the margin, and the next one peeks. The edge fades where more lies beyond and goes at the start or end.",
+      "Tap a day for its summary under the timeline: its matches with kick-off, and its ideas and places, in the same words as the page. A free day has Suggest ideas. Tapping it again closes the summary. Move and Remove are in an item’s own sheet, opened from its name.",
+      "Go to this day on the plan page is a separate link, and the one control here that moves the page. Left and right arrows move between days.",
+      "Opens zoomed all the way out, with no day chosen, so the first thing seen is which days are empty. See your match day and other links to a day open it zoomed in on that day.",
+      "Data: the pictures are the page’s stand-ins, and the flags are the team cards’. Nothing new is invented."
     ] },
+
     { sel: "#tp-dc", at: "tl", title: "Why: Your plan", points: [
-      "The timeline runs vertically, one day after another, so the trip reads in the order it will happen.",
+      "The plan page runs vertically, one day after another, so the trip reads in the order it will happen.",
       "Empty days have a dotted outline and “Suggest ideas”, so free time reads as an invitation and not a gap.",
       "Up to three ideas show inline with “Show more”, so the user sees options without opening another sheet.",
-      "A day shows the same ideas in the list and on the map, so the two views never disagree.",
+      "A day shows the same ideas on the page and on the full-screen map, so the two views never disagree.",
       "The plan’s map pins only the places a day’s items are in, so the map reflects the plan and not the stadium by default.",
       "Adding always reads “Add”, then “Added”, so the user learns one pattern and can trust it.",
       "Every sheet has a close cross top right, as testers looked there first to dismiss a sheet.",
       "The action reads “Share and export options”, and Share opens the phone’s own share sheet, as that is what “share” was expected to do."
+    ] },    { sel: "#v1z", at: "tl", title: "Why: The open plan is an overview", points: [
+      "The open plan is the trip at a glance, so the page is the only place that repeats every day in full.",
+      "It is the bar’s strip grown, so the closed and open plan read as one thing.",
+      "Days outside your dates are dimmed and empty days inside them are dotted, so a gap is never mistaken for a day that is not yours.",
+      "The slider is a wedge, thin when zoomed out and thick when zoomed in, so its shape says which way is closer.",
+      "Detail arrives in stages, so each zoom level has one job: the whole trip, then which days, then what is on them.",
+      "Tapping a day shows its summary in the sheet and never moves the page; Go to this day on the plan page says that it does.",
+      "It opens zoomed out, so the first thing seen is which days are empty; opened on a day, it opens zoomed in on that day."
     ] },
+
     { sel: "#v1-fz", title: "Fan zones and fan villages", points: [
       "Added 26 Nov 2026. Every fan zone and fan village, whichever team the person follows, by city. Each card says how to get there, when it is open and what is there. The details are sample data, marked Sample on every card and in the section note.",
       "Not filtered by the person's teams, dates or days: it is the whole list. The pubs and clubs that show a team's matches stay in Where to watch."
@@ -1044,13 +1057,13 @@
       "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md); their addresses open this page.",
       "The Plan tab asks three things in turn (26 Nov 2026): your teams, your days in NSW and where you’re staying. Tickets are not asked: the matches are inferred from the teams and the days, and each can be taken off the plan with a quiet Remove. Who’s coming is left out until it changes anything.",
       "Each step borrows the planner’s own control (the hand of cards, the days calendar), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
-      "Step 1 is a required answer: until a team or Every NSW match is picked, Next is unavailable (aria-disabled, with a line saying why) and the left button reads Show every NSW match. That means no team: nothing is inferred, and the NSW matches inside your days are listed under On while you’re here, each with Add. It goes straight to step 2. Once anything is picked the left button is Skip again. A team picked on Home counts; unpicking the last one makes Next unavailable again. A place saved before this rule that got past step 1 with nothing picked starts again at step 1.",
+      "Step 1 never blocks: with no team picked, a line says every NSW match will be shown, and Next carries on as Every NSW match. That means no team: nothing is inferred, and the NSW matches inside your days are listed under On while you’re here, each with Add. A team picked on Home counts, and once anything is picked the left button is Skip.",
       "Where are you staying, or thinking of staying? (step 3, the Your days sheet’s stay panel and the Your answers card, one builder) always needs a place, as the base of the plan. The quick answers follow the person’s matches (the ones inside their dates; all of their team’s NSW matches with no dates; every NSW match inside the dates with no team): Sydney CBD if a match is in Sydney, Sydney Olympic Park for Stadium Australia, Moore Park for the Sydney Football Stadium, Newcastle if a match is there, and Sydney CBD with Newcastle if there is no NSW match. The buttons carry the same place names the plan uses. The NSW place search stays under them, and a quiet Staying outside NSW link sits under the search. With one place, a quiet + Add another place allows one more, two in total, each shown with Remove; no nights are asked. The plan always reads Staying in [place], or Staying in [place] and [place]. A stadium or fan zone measures distance, time and route from whichever place is nearer; spare-time ideas and another match measure from the first place entered. There is no Still deciding and no no-place state: a saved answer with no place goes back to this step. See your plan is unavailable until a place is chosen, and there is no Skip.",
       "Later rounds (27 Nov 2026): a day with an NSW later-round match inside the person’s days reads [stage] is on, teams to be decided, with Add, in the plan timeline, in Around your matches and under Also on in NSW; it is not a free day and going is not assumed. Once added it is a match day. A later round inside the days adds that stadium’s precinct to the stay quick answers.",
       "Where to watch (27 Nov 2026): screenings (fan zones, pubs, clubs) are for a team’s matches inside the days that are played interstate, and for a match the person has removed; never for an NSW match they are assumed to attend. The section is hidden when it has nothing to list. A match they are at shows the nearest fan zone as somewhere to go before and after (sample address). A team with no NSW match inside the days gets a watch block (interstate: fan zone, address, route from where they stay, each match with Add) or one line pointing to Also on in NSW.",
       "Your days start from a day before your first NSW match to a day after your last, the first time the step opens with none set.",
       "A button bar floats at the bottom: Skip on the left moves on to the next screen without that answer, Next on the right. Your days has no Skip (27 Nov 2026): a day before the first NSW match to a day after the last is the starting answer, and where there is none to start from (Show every NSW match, a team with no NSW match) Next stays unavailable until a first and a last day are tapped; a saved answer with no days goes back to this step. on the last step Next reads See your plan. From step 2, Back is the first button in the bar (a square with an arrow beside Skip and Next, 26 Nov 2026) and goes back one step.",
-      "Motion (26 Nov 2026): the cards deal in each time the Plan tab opens on step 1, leaving a pile below the hand and fanning out to their places. Next, Skip and Show every NSW match push: the question you leave goes out to the left as the next one comes in from the right, as one rail (Back goes the other way). Finishing the flow does not push. Reduced motion: nothing moves.",
+      "Motion (26 Nov 2026): the cards deal in each time the Plan tab opens on step 1, leaving a pile below the hand and fanning out to their places. Next and Skip push: the question you leave goes out to the left as the next one comes in from the right, as one rail (Back goes the other way). Finishing the flow does not push. Reduced motion: nothing moves.",
       "The plan bar is hidden on step 1 until a team is picked; then it rises and the button bar rises with it, on the same curve. It fills as you answer, but does not open (and shows no grabber) until the flow is finished. No toasts while a step shows, as the sections they point to are hidden.",
       "Finished: the page starts with Your matches. Your answers is a condensed card at the top of the open plan, under its title (the teams, then your days and where you’re staying), and replaces the plan’s own Your teams button and days line. Change slides across inside the plan to a Your answers level with a back arrow: the hand of cards with Find and Show every NSW match, Your days and Where you’re staying. Back, Escape or a tap on the grabber go back to the plan; closing the plan closes both. The first change pins a Save bar to the level’s foot naming the latest change; Save closes the plan. No toasts while the level is open. Home’s Plan around your matches opens the plan on the card.",
       "A reload comes back to the step you were on; Reset prototype and ?reset start again. Breaks principle 1 (reward early) on purpose, to test asking first."
@@ -1299,7 +1312,7 @@
       "The strip runs from 1 Oct to 13 Nov with a dot per match. Your days, once set, are a band behind it. A day with two matches at the same time has a red ring.",
       "Every pick is seen working: the team’s matches fly as dots from the card into the strip and land on their dates, then the count changes. Unpicking lifts them out. Every NSW match is one sweep.",
       "Tap the bar or press Enter to open; tap again or Escape to close. Drag up past a third (or flick) to open, down past a third to close; a shorter drag springs back.",
-      "It opens on what matters. First time in a visit: the first of your days, else the earliest thing you added, else your first NSW match. After that: the day you last added to, else the day you last had open. A reload starts from the first rule.",
+      "It opens on the whole trip, zoomed all the way out, with no day chosen. Opened from a link to a day, it opens zoomed in on that day.",
       "The first save made while the bar is out of view gets a one-line toast naming the thing and its day (Bathers Way saved to your plan, Sun 3 Oct.), with Open your plan.",
       "Clashes are based only on kick-off times and cities: two matches at the same time ring the day (2 matches at the same time); matches in several cities get a quieter line and no ring. Tickets do not change this.",
       "The page keeps room at the bottom so the bar never covers the last content.",

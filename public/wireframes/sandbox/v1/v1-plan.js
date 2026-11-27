@@ -263,7 +263,7 @@
   function snapshot() {
     var a = document.activeElement, sel = null;
     if (a && root.contains(a)) {
-      var attrs = ['v1pIdeas', 'v1pMore', 'v1pView', 'v1pGo', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcTo', 'dcMrm', 'item'];
+      var attrs = ['z', 'zPage', 'v1pIdeas', 'v1pMore', 'v1pView', 'v1pGo', 'dcOpen', 'dcMatch', 'dcMove', 'dcRemove', 'dcTo', 'dcMrm', 'item'];
       for (var i = 0; i < attrs.length; i++) if (a.dataset[attrs[i]] !== undefined) { sel = '[data-' + attrs[i].replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(a.dataset[attrs[i]]) + '"]'; break; }
       if (!sel && a.id) sel = '#' + CSS.escape(a.id);
     }
@@ -274,22 +274,15 @@
     var snap = snapshot(), M = model();
     M0 = M;
     root.hidden = !M.n;
-    if (!M.n) { root.innerHTML = ''; return; }
+    if (!M.n) { root.innerHTML = ''; shell = null; return; }
     G = groups(M);
-    var cards = G.map(function (g, i) { return cardHtml(g, i, G.length, M); });
-    /* B3 (21 Nov, F-051): with no days set, one card under the last match day says what days unlock. Nothing is
-       guessed: no arrival or departure day, no ideas for undated days */
-    var W = window.TP_WORDS || {}, stay = '', lastM = -1;
-    G.forEach(function (g, i) { if (g.days[0].ms.length) lastM = i; });
-    if (!M.range && M.own && lastM > -1) stay = '<li class="v1p-stay"><section class="tp-dc-stay" aria-labelledby="tp-dc-stay-h"><p class="tp-dc-stay-p"><strong id="tp-dc-stay-h">' + esc(W.stayAfter || 'Staying after your last match?') + '</strong> ' +
-      esc(W.setDaysWhy || '') + '</p><button type="button" class="tp-dc-ideas" data-dc-setdays aria-haspopup="dialog">' + window.tpIcons.cal + '<span>' + esc(W.setDays || 'Set your days') + '</span></button></section></li>';
-    if (stay) cards.splice(lastM + 1, 0, stay);
-    var h = (outNote ? '<p class="tp-dc-out">' + esc(outNote) + '</p>' : '') + toggleHtml();
-    h += v1view === 'map' ? mapViewHtml(M) : '<ol class="v1p-days">' + cards.join('') + '</ol>';
-    root.innerHTML = h;
+    if (!shell || !root.contains(shell)) buildShell();
+    outEl.innerHTML = outNote ? '<p class="tp-dc-out">' + esc(outNote) + '</p>' : '';
+    track.innerHTML = colsHtml(M);
+    sumEl.innerHTML = sumHtml(M);
+    applyZoom(zoom, true);
     measure();
-    if (current === null || !M.days.some(function (x) { return x.d === current; })) current = M.first;
-    syncCurrent(false);
+    syncSel();
     if (snap.sel) { var f = root.querySelector(snap.sel); if (f) f.focus({ preventScroll: true }); }
     flashIds = [];
   }
@@ -304,76 +297,210 @@
   function tail() {}
   if (window.ResizeObserver && panel) new ResizeObserver(function () { measure(); }).observe(panel);
 
-  /* ---------- Where you are: the current day ---------- */
-  function cardFor(d) { var c = null; root.querySelectorAll('.tp-dc-card').forEach(function (el) { if (+el.dataset.dcA <= d && +el.dataset.dcZ >= d) c = el; }); return c; }
-  function syncCurrent() {
-    var card = current !== null ? cardFor(current) : null;
-    root.querySelectorAll('.tp-dc-card').forEach(function (c) { if (c === card) c.setAttribute('aria-current', 'date'); else c.removeAttribute('aria-current'); });
-  }
-  // The day at the top of the sheet is the current one
-  var raf = 0, lockT = 0;
-  if (panel) panel.addEventListener('scroll', function () {
-    if (raf || Date.now() < lockT) return;
-    raf = requestAnimationFrame(function () {
-      raf = 0;
-      var line = panel.getBoundingClientRect().top + 96, pick = null;
-      root.querySelectorAll('.tp-dc-card').forEach(function (c) { if (!pick && c.getBoundingClientRect().bottom > line) pick = c; });
-      if (pick && +pick.dataset.dcA !== current) { current = +pick.dataset.dcA; syncCurrent(); }
+  /* ---------- The zoomable timeline (27 Nov 2026) ----------
+     The open plan is the overview: the bar's strip grown, one mark a day across all 44 days, with a slider to zoom. Which
+     days are yours is a tinted band (your days); a day outside it is dimmed and never reads as a gap; an empty day inside
+     it is a dotted ring, the same empty state as the page. The full plan lives on the page. Tapping a day shows its
+     summary under the timeline and never moves the page; Go to this day on the plan page says that it does. */
+  var NDAYS = 44, PAD = 16, W1 = 132, ST_MID = 34, ST_CLOSE = 67;
+  var STAGES = ['Whole trip, marks only', 'Day labels and match markers', 'Day details, with flags and pictures'];
+  var shell = null, outEl = null, view = null, track = null, sumEl = null, rangeEl = null, zoomEl = null;
+  var zoom = 0, zTarget = 0, zAnim = null, zAnchor, zRaf = 0, sel = null;
+  function clamp01(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+  function stageOf(z) { return z < ST_MID ? 0 : z < ST_CLOSE ? 1 : 2; }
+  function buildShell() {
+    root.innerHTML = '<div class="v1z-out"></div><section class="v1z" id="v1z" aria-label="Your days">' +
+      '<div class="v1z-view" id="v1z-view"><div class="v1z-track" id="v1z-track" role="group" aria-label="Your days, 1 October to 13 November. Left and right arrows move between days."></div></div>' +
+      '<div class="v1z-zoom"><span class="v1z-wedge" aria-hidden="true"></span>' +
+      '<input type="range" class="v1z-range" id="v1z-range" min="0" max="100" step="1" value="0" aria-label="Zoom the timeline" aria-valuetext="' + STAGES[0] + '"></div>' +
+      '</section><div class="v1z-sum" id="v1z-sum"></div>';
+    shell = root.querySelector('.v1z'); outEl = root.querySelector('.v1z-out'); view = root.querySelector('#v1z-view'); track = root.querySelector('#v1z-track');
+    sumEl = root.querySelector('#v1z-sum'); rangeEl = root.querySelector('#v1z-range'); zoomEl = root.querySelector('.v1z-zoom');
+    rangeEl.value = zTarget; syncRange();
+    view.addEventListener('scroll', edges, { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(function () { applyZoom(zoom, true); }).observe(view);
+    // Zooming in from the whole trip, the centre is the chosen day, or the middle of your days, so there is something to look at
+    rangeEl.addEventListener('input', function () {
+      var R = M0 && M0.range, c = sel !== null ? sel : R ? (R.a + R.z) / 2 : undefined;
+      zAnchor = c === undefined ? undefined : (c + .5) / NDAYS;
+      zoomTo(+rangeEl.value);
     });
-  }, { passive: true });
-  // Go to a day: its card comes to the top of the sheet. Only the sheet scrolls, never the page behind
-  function goTo(d, focus, instant) {
-    if (v1view !== 'list') { v1view = 'list'; render(); }
-    var card = cardFor(d); if (!card) return;
-    current = +card.dataset.dcA;
-    lockT = Date.now() + 900;
-    var beh = instant || reduce.matches ? 'auto' : 'smooth';
-    if (panel) {
-      var pr = panel.getBoundingClientRect(), y = card.getBoundingClientRect().top - pr.top - panel.clientTop + panel.scrollTop;
-      panel.scrollTo({ top: Math.max(0, Math.min(panel.scrollHeight - panel.clientHeight, y - 16)), behavior: beh });
+  }
+  function syncRange() {
+    if (!rangeEl) return;
+    rangeEl.setAttribute('aria-valuetext', STAGES[stageOf(zTarget)]);
+    zoomEl.style.setProperty('--zp', zTarget + '%');
+  }
+  // The column width: the whole trip fits at 0, a day is W1 wide at 100; geometric, so equal slider steps are equal zoom factors
+  function colW(z, vw) { var w0 = Math.max(4, (vw - 2 * PAD) / NDAYS); return w0 * Math.pow(W1 / w0, z / 100); }
+  // Sets the zoom; the view's centre stays on the same day (or centreFrac, a day's place along the trip, when given)
+  function applyZoom(z, keep, centreFrac) {
+    if (!view) return;
+    var vw = view.clientWidth; if (!vw) return;
+    var old = parseFloat(shell.style.getPropertyValue('--cw')) || 0, cf = centreFrac;
+    if (cf === undefined) {
+      // Between the whole trip and about a third of the way in, the centre glides: toward the anchor (the chosen day, or the
+      // middle of your days) as the zoom grows, and back toward the middle of the trip as it shrinks. Past that the centre
+      // is simply wherever it was, so the eye keeps what it is following.
+      var qn = z >= 30 ? 1 : (z / 30) * (z / 30) * (3 - 2 * z / 30), qp = zoom >= 30 ? 1 : (zoom / 30) * (zoom / 30) * (3 - 2 * zoom / 30);
+      var here = old ? (view.scrollLeft + vw / 2 - PAD) / (NDAYS * old) : .5;
+      if (zAnchor !== undefined && qp < 1 && z >= zoom) cf = .5 + (zAnchor - .5) * qn;
+      else if (z < zoom && qn < qp && qp > 0) cf = .5 + (here - .5) * (qn / qp);
+      else cf = here;
     }
-    syncCurrent();
-    if (focus) card.querySelector('.tp-dc-h').focus({ preventScroll: true });
+    var cw = colW(z, vw), inner = NDAYS * cw + 2 * PAD;
+    zoom = z;
+    shell.style.setProperty('--cw', cw.toFixed(3) + 'px');
+    shell.style.setProperty('--s1', clamp01((z - 28) / 12).toFixed(3));
+    shell.style.setProperty('--s2', clamp01((z - 61) / 12).toFixed(3));
+    shell.classList.toggle('is-w3', cw >= 40); shell.classList.toggle('is-w4', cw >= 70);
+    track.style.width = inner + 'px';
+    view.scrollLeft = Math.max(0, Math.min(inner - vw, cf * NDAYS * cw + PAD - vw / 2));
+    edges();
   }
-  /* Where the plan first opens in a visit (20 Nov): your days in NSW (their first day), else the earliest-dated thing
-     you added, else your first NSW match, else the plan's first day. Reopening in the same visit returns to the day
-     last open or last added to (22 Nov, E1, below); a ticket does not change it. The strip's current day and the card
-     at the top of the sheet are set together. The first card stays at the very top of
-     the sheet, with the heading and your days line above it. */
-  function openDay(M) {
-    if (M.range) return M.range.a;
-    var its = M.days.filter(function (x) { return x.its.length || x.nights.length; })[0];
-    if (its) return its.d;
-    var nsw = M.days.filter(function (x) { return x.ms.some(function (m) { return !m.f.a; }); })[0];
-    return nsw ? nsw.d : M.first;
+  function edges() {
+    if (!view) return;
+    var max = view.scrollWidth - view.clientWidth;
+    shell.classList.toggle('can-l', view.scrollLeft > 2);
+    shell.classList.toggle('can-r', view.scrollLeft < max - 2);
   }
-  // at: { day, note } when the page asks for a day (See your match day, 20 Nov); a day with no card (outside your days)
-  // falls back to the rule, and the note says why
+  // Moves toward a zoom: small steps (a drag) follow the thumb exactly; a jump (a key, a tap on the track, opening on a day)
+  // glides on an even ease over a time that grows with the distance, the centre held or moved with it. Reduced motion, or
+  // instant, sets it in place.
+  function centreNow() { var vw = view.clientWidth, cw = parseFloat(shell.style.getPropertyValue('--cw')) || 0; return cw ? (view.scrollLeft + vw / 2 - PAD) / (NDAYS * cw) : .5; }
+  function zoomTo(t, day, instant) {
+    zTarget = Math.max(0, Math.min(100, t));
+    if (rangeEl) rangeEl.value = zTarget;
+    syncRange();
+    var cTo = day != null ? (day + .5) / NDAYS : undefined, dist = Math.abs(zTarget - zoom);
+    if (instant || reduce.matches || (dist <= 6 && cTo === undefined)) { zAnim = null; cancelAnimationFrame(zRaf); zRaf = 0; applyZoom(zTarget, false, cTo); return; }
+    zAnim = { from: zoom, to: zTarget, cFrom: centreNow(), cTo: cTo, t0: performance.now(), dur: Math.min(420, 140 + dist * 2.8) };
+    if (!zRaf) zRaf = requestAnimationFrame(zStep);
+  }
+  function zStep(now) {
+    zRaf = 0;
+    var a = zAnim; if (!a) return;
+    var p = Math.max(0, Math.min(1, (now - a.t0) / a.dur)), e = p * p * (3 - 2 * p);
+    applyZoom(a.from + (a.to - a.from) * e, false, a.cTo === undefined ? undefined : a.cFrom + (a.cTo - a.cFrom) * e);
+    if (p < 1) zRaf = requestAnimationFrame(zStep); else zAnim = null;
+  }
+  function thingsOf(day) {
+    var out = [], cl = tp.matchClash ? tp.matchClash(day.d) : null;
+    day.ms.forEach(function (m) { out.push({ k: m.f.a ? 'away' : 'nsw', f: m.f, name: mName(m.f) + (m.f.a ? ' (in ' + m.f.a + ')' : ''), clash: !!(cl && cl.ring) }); });
+    (day.kos || []).forEach(function (m) { out.push({ k: 'tbd', f: m.f, name: mName(m.f) }); });
+    day.extra.forEach(function (m) { out.push({ k: 'watch', f: m.f, name: mName(m.f) + ', to watch in NSW' }); });
+    day.its.forEach(function (it) { out.push({ k: 'item', it: it, name: it.title }); });
+    day.nights.forEach(function (x) { out.push({ k: 'night', it: x.it, name: x.it.title + ', night ' + x.n }); });
+    return out;
+  }
+  function detailHtml(t) {
+    if (t.it) return '<span class="v1z-t v1z-t--i"><span class="ph-img v1z-th"' + tp.imgKey(t.it.title) + '></span><small>' + esc(t.it.title) + '</small></span>';
+    var f = t.f, tm = f.t ? f.t.split(' v ') : [], fl = tm.length === 2 && tp.flag(tm[0]) && tp.flag(tm[1]);
+    return '<span class="v1z-t v1z-t--' + t.k + '">' + (fl ? '<span class="tp-dc-flags v1z-fl">' + tp.flag(tm[0]) + tp.flag(tm[1]) + '</span>' : '<span class="v1z-q">?</span>') +
+      '<small>' + (f.k ? esc(f.k) : 'Time to be confirmed') + (t.k === 'watch' ? ', to watch' : '') + '</small></span>';
+  }
+  function colHtml(d, day, R) {
+    var ins = R ? d >= R.a && d <= R.z : !!day, th = day ? thingsOf(day) : [], x = dateOf(d);
+    var tab = sel !== null ? d === sel : R ? d === R.a : d === 0;
+    var cls = 'v1z-d' + (ins ? ' is-in' : ' is-out') + (th.length ? ' is-has' : ins ? ' is-empty' : '') + (sel === d ? ' is-sel' : '');
+    var label = dayLabel(d) + (ins ? '' : ', outside your days') + (day && ins ? ', ' + day.kinds.join(', ') : '') + (th.length ? ': ' + th.map(function (t) { return t.name; }).join('; ') : ins ? ': nothing planned yet' : '');
+    var marks = th.length ? th.slice(0, 4).map(function (t) { return '<i class="v1z-m v1z-m--' + t.k + (t.clash ? ' is-clash' : '') + '"></i>'; }).join('') + (th.length > 4 ? '<i class="v1z-m v1z-m--more"></i>' : '')
+      : ins ? '<i class="v1z-m v1z-m--empty"></i>' : '<i class="v1z-m v1z-m--out"></i>';
+    var det = th.length ? th.slice(0, 2).map(detailHtml).join('') + (th.length > 2 ? '<span class="v1z-t v1z-t--more"><small>+' + (th.length - 2) + ' more</small></span>' : '')
+      : ins ? '<span class="v1z-t v1z-t--e"><small>Nothing yet</small></span>' : '';
+    return '<button type="button" class="' + cls + '" data-z="' + d + '" tabindex="' + (tab ? 0 : -1) + '" aria-pressed="' + (sel === d) + '" aria-label="' + esc(label) + '">' +
+      '<span class="v1z-lbl" aria-hidden="true"><b>' + x.getUTCDate() + '</b><small><span class="v1z-wd1">' + 'SMTWTFS'.charAt(x.getUTCDay()) + '</span><span class="v1z-wd3">' + WD[x.getUTCDay()] + '</span></small></span>' +
+      '<span class="v1z-mks" aria-hidden="true">' + marks + '</span><span class="v1z-det" aria-hidden="true">' + det + '</span></button>';
+  }
+  function colsHtml(M) {
+    var byD = {}; M.days.forEach(function (x) { byD[x.d] = x; });
+    var R = M.range;
+    var h = '<span class="v1z-mo" aria-hidden="true"><span class="v1z-mon" style="--a:0;--n:31"><b>October</b></span><span class="v1z-mon" style="--a:31;--n:13"><b>November</b></span></span>';
+    if (R) h += '<span class="v1z-band" aria-hidden="true" style="--a:' + R.a + ';--n:' + (R.z - R.a + 1) + '"></span>';
+    for (var d = 0; d < NDAYS; d++) h += colHtml(d, byD[d], R);
+    return h;
+  }
+  // The selected day, under the timeline: the day's own card, without the rail or Move and Remove (an item's own sheet has those)
+  function sumHtml(M) {
+    if (sel === null) return '<p class="v1z-hint">Tap a day for what is on it. Zoom in for more detail.</p>';
+    var day = M.days.filter(function (x) { return x.d === sel; })[0], R = M.range;
+    if (!day) {
+      return '<div class="v1z-out-day"><h4 class="tp-dc-h" id="v1z-sum-h" tabindex="-1">' + esc(dayLabel(sel)) + ' · Outside your days</h4>' +
+        '<p>' + (R ? 'Your days are ' + esc(spanLabel(R.a, R.z)) + '.' : 'Your days are not set yet.') + '</p>' +
+        '<button type="button" class="tp-pill" data-dc-setdays aria-haspopup="dialog">' + window.tpIcons.cal + '<span>Change your days</span></button></div>';
+    }
+    return '<ol class="v1p-days v1z-one">' + cardHtml({ run: false, key: 'd' + day.d, days: [day] }, 0, 1, M) + '</ol>' +
+      '<button type="button" class="tp-link v1z-page" data-z-page="' + day.d + '">Go to this day on the plan page</button>';
+  }
+  function syncSel() {
+    if (!track) return;
+    track.querySelectorAll('.v1z-d').forEach(function (b) {
+      var on = +b.dataset.z === sel;
+      b.classList.toggle('is-sel', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var tabD = sel !== null ? sel : M0 && M0.range ? M0.range.a : 0, tb = track.querySelector('[data-z="' + tabD + '"]');
+    if (tb) { track.querySelectorAll('.v1z-d').forEach(function (b) { b.tabIndex = -1; }); tb.tabIndex = 0; }
+    current = sel;
+  }
+  function select(d, focus) {
+    sel = d; current = d;
+    sumEl.innerHTML = M0 ? sumHtml(M0) : '';
+    syncSel();
+    if (d !== null) { var cb = track.querySelector('[data-z="' + d + '"]'); if (cb) keepIn(cb, true); tp.say(dayLabel(d) + ', details are under the timeline.'); }
+    if (focus && d !== null) { var b = track.querySelector('[data-z="' + d + '"]'); if (b) b.focus({ preventScroll: true }); }
+  }
+  // Keeps a day that has focus inside the view, scrolling the timeline only
+  function keepIn(el, smooth) {
+    var vr = view.getBoundingClientRect(), r = el.getBoundingClientRect();
+    if (r.left >= vr.left + PAD + 24 && r.right <= vr.right - PAD - 24) return; // clear of the edges and their fade
+    view.scrollTo({ left: Math.max(0, view.scrollLeft + (r.left + r.width / 2) - (vr.left + vr.width / 2)), behavior: smooth && !reduce.matches ? 'smooth' : 'auto' });
+  }
+  function cardFor(d) { return root.querySelector('.tp-dc-card[data-dc-a="' + d + '"]'); }
+  // Go to a day: it is selected and the timeline comes to it (zoomed in if it was zoomed out). Only the sheet moves, never the page
+  function goTo(d, focus, instant) {
+    if (!shell) return;
+    d = Math.max(0, Math.min(NDAYS - 1, d));
+    if (zTarget < ST_CLOSE) zoomTo(78, d, instant);
+    else { var cw = parseFloat(shell.style.getPropertyValue('--cw')) || 1; view.scrollTo({ left: Math.max(0, d * cw + cw / 2 + PAD - view.clientWidth / 2), behavior: instant || reduce.matches ? 'auto' : 'smooth' }); }
+    select(d, focus);
+  }
+  /* Opening: on a day the page asked for (See your match day), zoomed in on that day with its summary; otherwise the whole
+     trip, zoomed all the way out, so the first thing seen is which days are empty. Reopening starts the same way. */
   var outNote = '';
-  /* Reopening in the same visit (22 Nov, E1): the plan comes back to the day last added to since it was last opened,
-     else to the day last open when it closed. The first open of a visit (and a reload) keeps the rule above. */
   var lastOpen = null, addedSince = null, seenIds = null;
-  // Something added while it was open wins over where they were looking when they closed it
-  document.getElementById('tp-phone').addEventListener('tp:tlclose', function () { lastOpen = addedSince !== null ? addedSince : current; addedSince = null; });
   function noteAdds() {
     var ids = state.added.map(function (x) { return x.id; });
     if (seenIds) state.added.forEach(function (x) { if (seenIds.indexOf(x.id) < 0) { var d = itemDay(x); if (d !== null) addedSince = d; } });
     seenIds = ids;
   }
   function openOn(at) {
-    var want = at && at.note || '';
-    if (want !== outNote) { outNote = want; render(); }
-    tail();
+    outNote = at && at.note || '';
+    render();
     if (!M0 || !M0.n) return;
-    var back = addedSince !== null && cardFor(addedSince) ? addedSince : lastOpen !== null && cardFor(lastOpen) ? lastOpen : null;
-    var d = at && at.day != null && cardFor(at.day) ? at.day : back !== null ? back : openDay(M0), card = cardFor(d), first = root.querySelector('.tp-dc-card');
-    if (!card) return;
-    if (card === first) {
-      current = +card.dataset.dcA; lockT = Date.now() + 900;
-      if (panel) panel.scrollTop = 0;
-      syncCurrent();
-    } else goTo(d, false, true);
+    var d = at && at.day != null ? Math.max(0, Math.min(NDAYS - 1, at.day)) : null;
+    sel = d; current = d; zAnchor = undefined;
+    zoomTo(d === null ? 0 : 82, d === null ? undefined : d, true);
+    sumEl.innerHTML = sumHtml(M0);
+    syncSel();
   }
+  // Go to this day on the plan page: the one control here that moves the page, and its label says so (check 8)
+  function pageDay(d) {
+    var third = document.getElementById('tp-third'); if (!third) return;
+    var best = null, bn = -1;
+    third.querySelectorAll('[data-blk]').forEach(function (el) {
+      var m = /^[a-z]+(\d+)$/.exec(el.getAttribute('data-blk')); if (!m) return;
+      var n = +m[1]; if (n <= d && n > bn) { bn = n; best = el; }
+    });
+    if (best) tp.goTo(best);
+  }
+  root.addEventListener('keydown', function (e) {
+    var b = e.target.closest && e.target.closest('.v1z-d'); if (!b) return;
+    var i = +b.dataset.z, n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? NDAYS - 1 : null;
+    if (n === null || n < 0 || n >= NDAYS) return;
+    e.preventDefault();
+    var nb = track.querySelector('[data-z="' + n + '"]'); if (!nb) return;
+    b.tabIndex = -1; nb.tabIndex = 0; nb.focus({ preventScroll: true }); keepIn(nb);
+  });
 
   /* ---------- What people do on the cards ---------- */
   function item(id) { return state.added.filter(function (x) { return x.id === id; })[0]; }
@@ -384,6 +511,8 @@
     var dayEl = b.closest('.v1p-day');
     if (dayEl && b.classList.contains('tp-add') && tp.ideasInline) tp.ideasInline(+dayEl.dataset.d);
     if (ds.open && ds.open.indexOf('go:') === 0 && tp.goOne) { var gm = tp.match(ds.open.slice(3)); if (gm) tp.goOne(gm); }
+    if (ds.z !== undefined) { var zd = +ds.z; select(sel === zd ? null : zd, false); return; }
+    if (ds.zPage !== undefined) { pageDay(+ds.zPage); return; }
     if (ds.v1pView) { v1view = ds.v1pView; render(); var vb = root.querySelector('[data-v1p-view="' + v1view + '"]'); if (vb) vb.focus({ preventScroll: true }); tp.say(v1view === 'map' ? 'Plan on a map.' : 'Plan as a list.'); return; }
     if (ds.v1pGo) { goTo(+ds.v1pGo, true); return; }
     if (ds.v1pFull !== undefined) { if (tp.openDaysMap) tp.openDaysMap(b); return; }
@@ -443,7 +572,7 @@
     render: render,
     goTo: goTo,
     openOn: openOn,
-    focusCurrent: function () { var c = current !== null ? cardFor(current) : null, h = c && c.querySelector('.tp-dc-h'); if (h) h.focus({ preventScroll: true }); },
+    focusCurrent: function () { var b = sel !== null && track ? track.querySelector('[data-z="' + sel + '"]') : null; if (b) b.focus({ preventScroll: true }); },
     same: function (el) {
       var ds = el.dataset || {}, k = ['v1pIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcMrm'].filter(function (x) { return ds[x] !== undefined; })[0];
       var hit = k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;

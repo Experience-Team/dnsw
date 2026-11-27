@@ -100,3 +100,6 @@
    step to under this module, so the gap is the section gap and nothing hides behind the bar */
 #tp-phone[data-fc="days"] #tp-pick:has(+ #v1-also:not([hidden])) { padding-bottom: 0; }
 #tp-phone[data-fc="days"] #v1-also:not([hidden]) { margin-top: 64px; padding-bottom: calc(var(--fc-foot-h, 64px) + var(--space-5)); }
+
+/* Home no longer offers I'm just here for the rugby (27 Nov 2026): with no team picked, every NSW match is assumed when the person goes on */
+#tp-home-rugby { display: none; }
