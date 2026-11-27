@@ -84,3 +84,5 @@ The three questions on a wide desktop (28 Nov 2026, `v1/v1-flow-desk.css`): the 
 Where you're staying (28 Nov 2026) asks one thing: the other-matches block and the Newcastle suggestion no longer show under it (they stay on the dates step and the plan), and its note is one sentence shorter.
 
 Focus (28 Nov 2026): the temporary no-focus-ring.css is gone (and its links), so keyboard focus rings are back; each calendar (the step's and the Your days sheet's) is one tab stop with the arrow keys, Home, End, Page Up and Page Down moving between days.
+
+Calendars and fan zone cards (29 Nov 2026): the two months always stack, in the dates question, the plan panel and the Your days sheet (side by side they were too narrow). Fan zone and village cards no longer carry a Sample tag; their made-up fields (getting there, open, what is there) show the annotation wash with Annotations on. Sample tags remain on the plan page's place cards and the place page's About this place.
