@@ -191,3 +191,34 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-tm-pin.is-dim { opacity: 1; }
 .v1-tm-pin.is-dim i { opacity: .45; }
 .v1-tm-pin.is-dim b { color: var(--c-ink-2); }
+.v1-fan-inl { font-size: inherit; line-height: inherit; }
+.v1-sp-lead { margin-bottom: var(--space-4); }
+
+/* Sample tags inside the narrative's sentences show only with Annotations on (28 Nov 2026): they broke the voice of the page. The
+   cards keep theirs. */
+#tp-stage:not(.has-notes) .v1-nar-blk :is(p, .v1-ao-r) .v1-sample { display: none; }
+
+/* Each day's heading sticks under the floating nav (28 Nov 2026): the whole heading on one line (tile, title, date), the page's own
+   colour behind it, across the page, so cards scrolling under it never show through. It sticks inside its own day, so the next day's
+   heading arrives below it, pushes it up and replaces it: two never overlap. --nar-top is the nav's bottom edge and a gap */
+.v1-nar-dh { position: sticky; top: var(--nar-top, 60px); z-index: 30; isolation: isolate; margin: 0 0 var(--space-3); padding: var(--space-1) 0; background: var(--c-surface); }
+.v1-nar-dh::before { content: ""; position: absolute; z-index: -1; top: -18px; bottom: 0; left: calc(-1 * var(--space-4)); right: calc(-1 * var(--space-4)); background: var(--c-surface); }
+.v1-dk { flex-direction: row; align-items: baseline; flex-wrap: nowrap; gap: var(--space-2); }
+.v1-dk small, .v1-dk .tp-blk-when { white-space: nowrap; }
+@media (min-width: 1024px) { .pv-device #tp-phone { --nar-top: 76px; } .pv-device #tp-phone .v1-nar-dh::before { left: calc(-1 * var(--space-5)); right: calc(-1 * var(--space-5)); } }
+
+/* A stretch of free days is one block (28 Nov 2026) */
+.v1-sp-added { list-style: none; margin: 0 0 var(--space-3); padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.v1-sp-ad { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border: var(--bw-1) solid var(--c-line-soft); border-radius: var(--radius-lg, 12px); background: var(--v1-tint, transparent); }
+.v1-sp-adimg { flex: none; width: 48px; height: 36px; border-radius: 6px; }
+.v1-sp-adb { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: var(--fs-sm); }
+.v1-sp-adt { align-self: flex-start; font-weight: var(--fw-semi); font-size: var(--fs-base); }
+.v1-sp-adw { color: var(--c-ink-2); }
+.v1-sp-chg { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-1); }
+.v1-sp-to { min-height: 28px; padding: 0 10px; border: 0; border-radius: var(--radius-pill, 999px); background: var(--v1-tint, #eee); color: var(--c-ink); font: inherit; font-size: var(--fs-sm); cursor: pointer; }
+.v1-sp-to[aria-pressed="true"] { background: var(--c-ink); color: var(--c-surface); }
+.v1-sp-to:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1-sp-list { margin-top: var(--space-2); }
+.v1-sp-foot { margin: var(--space-3) 0 0; font-size: var(--fs-sm); }
+.v1-nar-blk .v1-ao--c { margin: var(--space-4) 0 0; }
+.v1-ao--c .v1-sp-all { margin-top: var(--space-1); font-size: var(--fs-sm); }

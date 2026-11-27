@@ -14,6 +14,16 @@ window.v1FanSpots = [
     transport: 'Light rail to Convention Centre, or a 10 minute walk from Town Hall station.',
     opens: 'Daily 10am to 11pm, 1 Oct to 13 Nov.',
     has: ['Big screens', 'Live music', 'Food and drink', 'Fan events', 'Free entry', 'Step-free access'] },
+  /* 28 Nov 2026: one fan zone in each stadium precinct that had none within a 20 minute walk (Sydney Olympic Park, Moore Park), so
+     every match day has a believable one. Sample like the rest: made-up names, addresses, times and what is on. */
+  { id: 'fz-olympic', name: 'Olympic Park Fan Zone', kind: 'fan_zone', city: 'sydney', suburb: 'Sydney Olympic Park', ll: [-33.8452, 151.0668], addr: 'Olympic Boulevard, Sydney Olympic Park NSW 2127',
+    transport: 'Sydney Olympic Park station, then a 6 minute walk. Step-free from the station.',
+    opens: 'Match days from 10am until two hours after the final whistle.',
+    has: ['Big screens', 'Food stalls', 'Free entry', 'Family friendly', 'Water refill'] },
+  { id: 'fz-moorepark', name: 'Moore Park Fan Zone', kind: 'fan_zone', city: 'sydney', suburb: 'Moore Park', ll: [-33.8935, 151.2222], addr: 'Driver Avenue, Moore Park NSW 2021',
+    transport: 'Light rail to Moore Park, then a 5 minute walk. Buses along Anzac Parade.',
+    opens: 'Match days from 10am until two hours after the final whistle.',
+    has: ['Big screens', 'Food stalls', 'Free entry', 'Family friendly', 'Water refill'] },
   { id: 'pub-tanner', name: "The Tanner's Arms", kind: 'pub', city: 'sydney', suburb: 'Newtown', ll: [-33.8984, 151.1790],
     transport: 'Newtown station, 4 minute walk. Buses along King Street.',
     opens: 'Match days from 11am. Kitchen open until 9pm.',

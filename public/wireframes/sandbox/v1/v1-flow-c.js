@@ -142,6 +142,10 @@
   // The page keeps room under the step for the floating foot
   function footRoom() { if (foot.offsetHeight) phone.style.setProperty('--fc-foot-h', foot.offsetHeight + 'px'); }
   if (window.ResizeObserver) new ResizeObserver(footRoom).observe(foot);
+  // The page's scrollbar, so the foot ends where the column ends on a wide screen (v1-flow-desk.css)
+  function sbw() { phone.style.setProperty('--sbw', (body.offsetWidth - body.clientWidth) + 'px'); }
+  sbw(); window.addEventListener('resize', sbw);
+  if (window.ResizeObserver) new ResizeObserver(sbw).observe(body);
 
   function stepNote(s) {
     if (s === 'teams') return 'Pick one or more teams to see their matches.';
@@ -151,10 +155,10 @@
       if (t && t.from && fc.filled) return 'We’ve started with a day either side of your first and last match in NSW. Tap a first and a last day to change it.';
       return tp.own() ? 'Tap a first day and a last day. The matches inside them are your plan.' : 'Tap a first day and a last day to see ideas for your time in NSW.';
     }
-    return 'Pick the closest place, or search. Thinking of somewhere? That counts. You can add a second place.';
+    return 'Pick the closest place, or search. You can add a second place.';
   }
   function stepTitle(s) {
-    return { teams: 'Which teams are you following?', days: 'When are you in NSW?', stay: 'Where are you staying, or thinking of staying?' }[s];
+    return { teams: 'Which teams are you following?', days: 'When will you be in NSW?', stay: 'Where are you staying, or thinking of staying?' }[s];
   }
   var PENCIL = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10.5 2.8l2.7 2.7M2.5 13.5l.6-2.9 7.4-7.4 2.3 2.3-7.4 7.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var NEXTI = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';

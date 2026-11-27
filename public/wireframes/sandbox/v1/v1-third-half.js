@@ -104,16 +104,27 @@
     var a = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(b[0] * r) * Math.cos(ll[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
     return 12742 * Math.asin(Math.sqrt(a));
   }
+  // A distance and a time in one sentence read "[distance], about [time] by [mode]": the "about" belongs to the time (28 Nov 2026)
+  function dist(km) { return km < 1 ? 'under 1 km' : Math.round(km) + ' km'; }
+  function byMode(r) { return !r ? '' : r.mode === 'Walk' ? 'on foot' : r.mode === 'Train' ? 'by train' : 'by train and coach'; }
   function kmLine(km) { return km === null || km === undefined ? '' : (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ' from ' + basePlace(); }
   function ideaKm(i) { return kmFrom(window.cnGeo && window.cnGeo.ideas[i.id]); }
   function prodKm(p) { return kmFrom(window.cnGeo && window.cnGeo.products[p.id]); }
   function byKm(fn) { return function (x, y) { var a = fn(x), b = fn(y); return (a === null ? 1e9 : a) - (b === null ? 1e9 : b); }; }
   // A half day's places: in their city and open that day, nearest to where they are staying first
-  function halfList(b, wd) {
+  function halfListRaw(b, wd) {
     var list = PRODUCTS.filter(function (p) { return p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === b.base && hoursOn(p, wd) && (p.type === 'food_and_drink' || p.type === 'attraction'); })
       .sort(function (x, y) { return partyRank(x) - partyRank(y) || x.distance_to_venue.km - y.distance_to_venue.km || x.title.localeCompare(y.title); });
     if (basePlace()) list.sort(byKm(prodKm));
     return list;
+  }
+  /* The last day offers places other than the arrival day's three (28 Nov 2026), so the two half days do not read as one template:
+     the places the arrival day shows go to the end of the last day's list, still there when little else is open that day */
+  function halfList(b, wd) {
+    var list = halfListRaw(b, wd), M = !b.first && basePlace() ? model() : null;
+    if (!M || !M.range || b.day === M.range.a) return list;
+    var seen = halfListRaw({ base: b.base }, weekdayOf(M.range.a)).slice(0, 3).map(function (p) { return p.id; });
+    return list.filter(function (p) { return seen.indexOf(p.id) < 0; }).concat(list.filter(function (p) { return seen.indexOf(p.id) > -1; }));
   }
   // The places a half day (arrival or last day) offers, the same wherever they show (Follow day by day, the map's
   // cards): nearest to where they are staying once that is known, otherwise a rotating order so no business is
@@ -123,7 +134,7 @@
     if (dayFilled(d)) return l.filter(function (p) { return added('p:' + p.id + ':' + dl); });
     return basePlace() ? l.slice(0, 3) : l.sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
   }
-  function halfNear(b) { var l = halfList(b, weekdayOf(b.day)), k = l.length ? prodKm(l[0]) : null; return k !== null && k <= NEAR_KM; }
+  function halfNear(b) { var l = halfListRaw(b, weekdayOf(b.day)), k = l.length ? prodKm(l[0]) : null; return k !== null && k <= NEAR_KM; }
   function halfWhere(b) { return basePlace() && !halfNear(b) ? 'in ' + CITY[b.base] : whereText(b.base); }
   function halfNote(b) { return basePlace() && !halfNear(b) ? 'Nothing listed close to ' + basePlace() + ' yet, so these are in ' + CITY[b.base] + '.' : 'Something ' + whereText(b.base) + ', nothing far.'; }
   /* Who is coming (optional): the order of ideas, never what is shown. Family: attractions and free things first;
@@ -181,9 +192,12 @@
   var SAMPLE_TAG = '<span class="v1-sample provenance-gap">Sample</span>';
   function fanNearHtml(f) {
     var ll = window.cnGeo && window.cnGeo.venues[f.v], sp = nearestFan(ll); if (!sp || f.a) return '';
-    var km = ll ? kmBetween(sp.ll, ll) : null;
-    return '<p class="v1-fan-near"><span class="v1-fan-k">Before and after</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') +
-      (km !== null ? ' \u00b7 about ' + Math.max(1, Math.round(km)) + ' km from ' + esc(f.v) : '') + ' ' + SAMPLE_TAG + '</p>';
+    var km = ll ? kmBetween(sp.ll, ll) : null, wk = km !== null ? Math.max(3, Math.round(km * 13)) : null;
+    // "Before and after" only within a 20 minute walk of the ground; further, it is the nearest one and how far (28 Nov 2026)
+    if (wk !== null && wk <= 20) return '<p class="v1-fan-near"><span class="v1-fan-k">Before and after</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') +
+      ' \u00b7 ' + wk + ' min walk from ' + esc(f.v) + ' ' + SAMPLE_TAG + '</p>';
+    return '<p class="v1-fan-near"><span class="v1-fan-k">Nearest fan zone:</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') +
+      (km !== null ? ', ' + dist(km) + ' from ' + esc(f.v) : '') + ' ' + SAMPLE_TAG + '</p>';
   }
   tp.fanNear = fanNearHtml;
   /* A day's heading on the plan page (27 Nov 2026): the date as a small tile, so the days can be scanned down the page, and
@@ -222,7 +236,7 @@
   function fanRouteHtml(sp) {
     var from = nearerPlace(sp.ll), g = window.cnGeo; if (!from || !g || !g.places[from]) return '';
     var km = kmBetween(g.places[from], sp.ll), walk = km <= 1.5, mins = walk ? Math.max(3, Math.round(km * 13)) : Math.round(10 + km * 3);
-    return 'From ' + esc(from) + ': ' + (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ', ' + (walk ? 'a ' + mins + ' minute walk' : 'about ' + mins + ' minutes by train or bus') + ' (approximate)';
+    return 'From ' + esc(from) + ': ' + dist(km) + ', about ' + mins + ' min ' + (walk ? 'on foot' : 'by train or bus') + ' (approximate)';
   }
   tp.noNswBlock = function (team, away) {
     var names = [].concat(team), who = names.length > 1 ? tp.list(names) : names[0]; // one team, or several in one block (the plan page)
@@ -872,23 +886,16 @@
      ideas; two, a day trip; three to five, a night or two away; more than five, a road trip. */
   function spareLine(b, M) {
     if (b.kind !== 'free' || !M.range) return '';
-    var n = b.z - b.a + 1, nights = M.range.z - M.range.a, city = b.base || 'sydney';
-    var avail = IDEAS.filter(function (i) { return i.city === city && !i.watch && !ideaAdded(i); });
-    var halves = avail.filter(function (i) { return i.kind === 'half'; }), days = avail.filter(function (i) { return i.kind === 'day'; });
-    function ideaLink(i) { ideaCard(i, b.a); return '<button type="button" class="v1-sp-b" data-open="idea:i:' + esc(i.id) + '@' + b.a + '" aria-haspopup="dialog">' + esc(i.title) + '</button>'; }
-    var what = '';
-    if (nights > 5 && n >= 3) {
-      what = 'a road trip, Sydney to Newcastle by road, with stops at Gosford, Terrigal and the Hunter Valley? ' + SAMPLE_TAG;
-    } else if (nights >= 3 && n >= 2) {
-      var longs = TRIPS.filter(function (t) { return t.kind === 'long' && t.nights <= 2 && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); });
-      if (longs.length) { tripCard(longs[0], b); what = 'a night or two away, in <button type="button" class="v1-sp-b" data-open="t:' + esc(longs[0].id) + '@' + esc(b.key) + '" aria-haspopup="dialog">' + esc(longs[0].region) + '</button>?'; }
-      else what = 'a night or two away, in the Hunter Valley? ' + SAMPLE_TAG;
-    } else if (nights >= 2 && days.length) {
-      what = 'a day trip to ' + ideaLink(days[0]) + '?';
-    } else if (halves.length) {
-      what = 'a half day at ' + ideaLink(halves[0]) + (halves[1] ? ' or ' + ideaLink(halves[1]) : '') + '?';
+    var n = b.z - b.a + 1, what = '';
+    if (b._lead) what = 'a night or two away, in <button type="button" class="v1-sp-b" data-open="t:' + esc(b._lead.id) + '@' + esc(b.key) + '" aria-haspopup="dialog">' + esc(b._lead.region) + '</button>?';
+    else {
+      // The first idea card shown under the sentence, on the first free day left in the stretch
+      var fi = FREEINFO.filter(function (x) { return x.dk && x.dk.indexOf(b.key + ':') === 0 && !x.filled && x.show.length; })[0], i = fi && fi.show[0];
+      if (!i || i.watch) return '';
+      ideaCard(i, fi.d); // registers its details, for the link
+      var link = '<button type="button" class="v1-sp-b" data-open="idea:i:' + esc(i.id) + '@' + fi.d + '" aria-haspopup="dialog">' + esc(i.title) + '</button>';
+      what = (i.kind === 'day' ? 'a day trip to ' : 'a half day at ') + link + '?';
     }
-    if (!what) return '';
     return '<p class="v1-sp">You have ' + n + (n === 1 ? ' spare day' : ' spare days') + '. If you have time, how about ' + what + '</p>';
   }
   /* The other NSW matches inside the days (what Also on in NSW lists), by the day they fall on */
@@ -931,8 +938,20 @@
   function narOn() { return phone.classList.contains('v1-nar-on'); }
   // A block already shows its own matches; only the others on that day are added to it
   function alsoDays(b) { return b.kind === 'free' || b.kind === 'away' || b.day === undefined ? '' : alsoRows(b.day, (b.ms || []).map(function (m) { return m.key; })); }
-  function freeBody(b) {
-    var h = '', n = b.z - b.a + 1;
+  /* The spare-time sentence and its first card are one idea (28 Nov 2026). A night or two away leads with the curated trip, when
+     one fits the stretch; otherwise the first card is the first day trip (a stay of two nights or more) or half day idea, and the
+     sentence names that card. So the sentence never names a place that has no card, nor a kind of idea its first card is not. */
+  function spareWant(b, M) {
+    if (b.kind !== 'free' || !M || !M.range) return null;
+    var n = b.z - b.a + 1, nights = M.range.z - M.range.a;
+    var longs = nights >= 3 && n >= 2 && !(nights > 5 && n >= 3) ? TRIPS.filter(function (t) { return t.kind === 'long' && t.nights <= 2 && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
+    if (longs.length) return { trip: longs[0] };
+    return { kind: nights >= 2 ? 'day' : 'half' };
+  }
+  function freeBody(b, M) {
+    var h = '', n = b.z - b.a + 1, want = narOn() ? spareWant(b, M) : null, led = false, leadH = '', stretch = [];
+    b._lead = null; b._added = '';
+    if (want && want.trip) { b._lead = want.trip; leadH = '<div class="tp-pcs v1-sp-lead">' + tripCard(want.trip, b) + '</div>'; led = true; }
     for (var d = b.a; d <= b.z; d++) {
       var dl = dayLabel(d), its = dayItems(d), dk = b.key + ':' + d;
       h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>' + (narOn() ? alsoRows(d) : '');
@@ -943,9 +962,12 @@
       }
       if (its.length) h += '<p class="tp-fday-so">So far: ' + placeLinks(its) + '. Room for one more.</p>';
       // Shared out so every free day left gets three to five while there are enough (More ideas shows the rest)
-      var list = withWatch(ideasFor(d, b.base), d), per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
+      var list = withWatch(ideasFor(d, b.base), d);
+      // The first day's first card is the kind the sentence offers (when there is one of that kind), unless a trip already leads
+      if (want && want.kind && !led) { led = true; var wi = list.filter(function (i) { return i.kind === want.kind; })[0]; if (wi) { list = list.filter(function (i) { return i !== wi; }); list.unshift(wi); } }
+      var per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
       FREE_LEFT--;
-      show.forEach(function (i) { SUGG[i.id] = true; });
+      show.forEach(function (i) { SUGG[i.id] = true; if (!i.watch) stretch.push(i); });
       FREEINFO.push({ d: d, label: dl, filled: false, count: show.length, dk: dk, its: its, show: show, more: list.length > per, base: b.base });
       if (!show.length) h += '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
       else h += '<div class="tp-pcs">' + show.map(function (i) { return ideaCard(i, d); }).join('') + '</div>';
@@ -953,9 +975,70 @@
       h += '</div>';
     }
     // Three or more free days: the curated longer trips, as before
-    var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
+    var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && t !== b._lead && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
     if (longs.length) h += '<h5 class="tp-grp">Or make it a longer trip</h5><div class="tp-pcs">' + longs.slice(0, 2).map(function (t) { return tripCard(t, b); }).join('') + '</div>';
-    return h;
+    if (!narOn()) return h;
+    /* The narrative plan page (28 Nov 2026): a stretch of free days is one block, not a list a day. Under the spare-time sentence,
+       one list of up to three ideas for the whole stretch (More ideas shows three more, in the block), the other NSW matches
+       as compact rows, and a quiet See day by day for the per-day lists. Add puts an idea on the first day with nothing planned. */
+    b._added = addedHtml(b);
+    if (spDays[b.key]) return leadH + h + '<p class="v1-sp-foot"><button type="button" class="tp-link v1-sp-dbd" data-sp-days="' + esc(b.key) + '" aria-expanded="true">Hide day by day</button></p>';
+    var target = spTarget(b), shown = 3 + 3 * (spMore[b.key] || 0), out = leadH;
+    if (target === null) out += '<p class="tp-fday-done">Your free days are full. Remove something to see more ideas.</p>';
+    else if (stretch.length) {
+      var dl0 = dayLabel(target);
+      out += '<div class="tp-pcs v1-sp-list">' + stretch.slice(0, shown).map(function (i) { return ideaCard(i, target).split('Fits ' + dl0).join('Fits your free days'); }).join('') + '</div>';
+      if (stretch.length > shown) out += '<button type="button" class="tp-link tp-blk-more v1-sp-more" data-sp-more="' + esc(b.key) + '">More ideas</button>';
+    } else out += '<p class="tp-empty">No new ideas for these days yet. Free days can stay free.</p>';
+    return out + compactAlso(b) + '<p class="v1-sp-foot"><button type="button" class="tp-link v1-sp-dbd" data-sp-days="' + esc(b.key) + '" aria-expanded="false">See day by day</button></p>';
+  }
+  var spMore = {}, spAll = {}, spDays = {}, spChange = {};
+  // The first free day in the stretch with nothing planned; else the first that is not full; null when every day is full
+  function spTarget(b) {
+    var d, firstOpen = null;
+    for (d = b.a; d <= b.z; d++) { if (dayFilled(d)) continue; if (!dayItems(d).length) return d; if (firstOpen === null) firstOpen = d; }
+    return firstOpen;
+  }
+  // What is on the plan in this stretch: each with the day it is on and a Change day that lists the other days of the stretch
+  function addedHtml(b) {
+    var seen = {}, out = [], d;
+    for (d = b.a; d <= b.z; d++) dayItems(d).forEach(function (it) { if (!seen[it.id]) { seen[it.id] = 1; out.push(it); } });
+    if (!out.length) return '';
+    return '<ul class="v1-sp-added">' + out.map(function (it) {
+      var trip = !!it.nights, open = !!spChange[it.id];
+      var when = trip ? 'Added: ' + esc(spanLabel(it.start, it.start + it.nights)) : 'Added to ' + esc(it.day);
+      var chips = '';
+      if (open) {
+        chips = '<span class="v1-sp-chg" role="group" aria-label="Move ' + esc(it.title) + ' to">';
+        for (d = b.a; d <= b.z; d++) chips += '<button type="button" class="v1-sp-to" data-sp-to="' + d + '" data-sp-id="' + esc(it.id) + '" aria-pressed="' + (dayLabel(d) === it.day) + '">' + esc(dayLabel(d)) + '</button>';
+        chips += '</span>';
+      }
+      return '<li class="v1-sp-ad"><span class="ph-img v1-sp-adimg"' + imgKey(it.title) + ' aria-hidden="true"></span><span class="v1-sp-adb"><button type="button" class="tp-link v1-sp-adt" data-open="item:' + esc(it.id) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' +
+        '<span class="v1-sp-adw">' + when + (trip ? '' : ' \u00b7 <button type="button" class="tp-link" data-sp-change="' + esc(it.id) + '" aria-expanded="' + open + '">Change day</button>') + '</span>' + chips + '</span></li>';
+    }).join('') + '</ul>';
+  }
+  // The other NSW matches in the stretch, compact: two, then Show all matches
+  function compactAlso(b) {
+    var ms = [], d;
+    for (d = b.a; d <= b.z; d++) otherOn(d).forEach(function (m) { ms.push(m); });
+    if (!ms.length) return '';
+    var noTeam = tp.rugby(), all = !!spAll[b.key], shown = all ? ms : ms.slice(0, 2);
+    var rows = shown.map(function (m) {
+      var f = m.f, ko = isKo(f), id = 'm:' + m.key, where = (HOSTS[f.v] ? HOSTS[f.v].title.replace(/^Sydney – /, '') : f.v), r = routeInfo(f);
+      ITEMS[id] = { id: id, kind: 'match', key: m.key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p };
+      return '<li class="v1-ao-i"><span class="v1-ao-b"><button type="button" class="tp-link v1-ao-n" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog">' + esc(matchName(f)) + '</button>' +
+        '<span class="v1-ao-w">' + esc(dayLabel(m.day)) + ' \u00b7 ' + esc(where) + (ko ? ' \u00b7 teams to be decided' : '') + (f.k ? ' \u00b7 ' + esc(f.k) : '') + (r ? ' \u00b7 <button type="button" class="tp-link" data-nar-route="' + esc(f.v) + '">Show route on map</button>' : '') + '</span></span>' +
+        addBtn(id, matchName(f) + ', ' + f.d) + '</li>';
+    }).join('');
+    return '<div class="v1-ao v1-ao--c"><h6 class="v1-ao-h">' + (noTeam ? 'On while you\u2019re here' : 'Also on in NSW') + '</h6><ul class="v1-ao-l">' + rows + '</ul>' +
+      (ms.length > 2 ? '<button type="button" class="tp-link v1-sp-all" data-sp-all="' + esc(b.key) + '" aria-expanded="' + all + '">' + (all ? 'Show fewer matches' : 'Show all matches (' + ms.length + ')') + '</button>' : '') + '</div>';
+  }
+  // Change day: an idea keeps its id and moves to another day of the stretch
+  function moveSp(id, d) {
+    var cur = addedItem(id); if (!cur) return;
+    spChange[id] = false;
+    if (cur.idea) { var nu = Object.assign({}, cur, { day: dayLabel(d) }); tp.removeItem(id); tp.addItem(nu); render(true, '[data-sp-change="' + CSS.escape(id) + '"]'); tp.say(cur.title + ' moved to ' + nu.day + '.'); }
+    else { var nid = moveItem(id, d); var f = thirdList.querySelector('[data-sp-change="' + CSS.escape(nid) + '"]'); if (f) f.focus({ preventScroll: true }); }
   }
   // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
   function watchBody(b) {
@@ -1212,7 +1295,7 @@
     LASTM = M; LASTBS = bs;
     // Free days' ideas in date order, open or not, so nothing is suggested twice on the page
     FREE_LEFT = 0; bs.forEach(function (b) { if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) if (!dayFilled(d)) FREE_LEFT++; });
-    bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b); });
+    bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b, M); });
     /* E2 (22 Nov): the arrival and last day get Add ideas in the plan too, offering only the half-day ideas (we do not
        know arrival or departure times, so nothing longer and no time is guessed) */
     bs.forEach(function (b) {
@@ -1248,7 +1331,7 @@
         var hd = heading(b), venue = (b.kind === 'match' || b.kind === 'ko') ? b.ms[0].f.v : '', body;
         if (b.kind === 'watch' && noNswTeams.length) hd = { when: dayLabel(b.day) + ' · Watch day' };
         if (b.kind === 'match') body = tp.narMatchBody(b, M);
-        else if (b.kind === 'free') body = spareLine(b, M) + b._html;
+        else if (b.kind === 'free') body = (b._added || '') + spareLine(b, M) + b._html;
         else if (b.kind === 'watch') {
           if (noNswTeams.length) { body = noNswDone ? '' : tp.narNoNsw(noNswTeams); noNswDone = true; } else body = watchBody(b);
         } else if (b.kind === 'ko') body = koBody(b);
@@ -1275,6 +1358,16 @@
   thirdList.addEventListener('click', function (e) {
     var t = e.target.closest('[data-blk-toggle]');
     if (t) { var k = t.dataset.blkToggle; if (openSet[k]) delete openSet[k]; else openSet[k] = true; render(true, '[data-blk-toggle="' + k + '"]'); return; }
+    var sp = e.target.closest('[data-sp-more]');
+    if (sp) { spMore[sp.dataset.spMore] = (spMore[sp.dataset.spMore] || 0) + 1; render(true, '[data-sp-more="' + CSS.escape(sp.dataset.spMore) + '"]'); return; }
+    sp = e.target.closest('[data-sp-all]');
+    if (sp) { spAll[sp.dataset.spAll] = !spAll[sp.dataset.spAll]; render(true, '[data-sp-all="' + CSS.escape(sp.dataset.spAll) + '"]'); return; }
+    sp = e.target.closest('[data-sp-days]');
+    if (sp) { spDays[sp.dataset.spDays] = !spDays[sp.dataset.spDays]; render(true, '[data-sp-days="' + CSS.escape(sp.dataset.spDays) + '"]'); return; }
+    sp = e.target.closest('[data-sp-change]');
+    if (sp) { var cid = sp.dataset.spChange; spChange[cid] = !spChange[cid]; render(true, '[data-sp-change="' + CSS.escape(cid) + '"]'); return; }
+    sp = e.target.closest('[data-sp-to]');
+    if (sp) { moveSp(sp.dataset.spId, +sp.dataset.spTo); return; }
     var m = e.target.closest('[data-more]');
     if (m) { moreBlk[m.dataset.more] = !moreBlk[m.dataset.more]; render(true, '[data-more="' + m.dataset.more + '"]'); return; }
     var mv = e.target.closest('[data-move]');
@@ -2097,7 +2190,7 @@
     tp.allMatches().forEach(function (m) { if (!m.f.a && isKo(m.f)) (o[m.day] = o[m.day] || []).push(m); });
     return o;
   }
-  // What they picked, so they need not go back to check: each match with its date (the step "When are you in NSW?")
+  // What they picked, so they need not go back to check: each match with its date (the step "When will you be in NSW?")
   function stepMatchesHtml() {
     if (!tp.own()) return '';
     if (tp.rugby()) return ''; // no team: nothing is inferred, and the matches inside the days are listed to add (Also on in NSW)
@@ -2198,6 +2291,35 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tipEl) { e.stopPropagation(); tipHide(); } }, true);
   body.addEventListener('scroll', function () { if (tipEl) tipHide(); holdCancel(); }, { passive: true });
 
+  /* The calendar is one tab stop (28 Nov 2026), not forty: Tab lands on the start day (else the first match day, else the first day)
+     and the arrow keys move between days (left and right a day, up and down a week, Home and End to the ends of the week, Page Up
+     and Page Down four weeks), as a date grid does. Enter or Space picks the day, as for any button. It covers the step's calendar
+     and the Your days sheet's, however often they are drawn again. */
+  function calDays(cal) { return [].slice.call(cal.querySelectorAll('.tp-cal-d[data-cday], .tp-cal-d[data-dday]')); }
+  function setStop(cal, on) { calDays(cal).forEach(function (b) { b.tabIndex = b === on ? 0 : -1; }); }
+  function rovAll() {
+    [].slice.call(phone.querySelectorAll('.tp-cal:not([data-rov])')).forEach(function (cal) {
+      var bs = calDays(cal); if (!bs.length) return;
+      cal.setAttribute('data-rov', '1');
+      var act = document.activeElement, on = act && cal.contains(act) && act.classList.contains('tp-cal-d') ? act
+        : bs.filter(function (b) { return b.classList.contains('is-start'); })[0] || bs.filter(function (b) { return b.classList.contains('is-match'); })[0] || bs[0];
+      setStop(cal, on);
+    });
+  }
+  if (window.MutationObserver) new MutationObserver(rovAll).observe(phone, { childList: true, subtree: true });
+  rovAll();
+  phone.addEventListener('focusin', function (e) { var b = e.target.closest && e.target.closest('.tp-cal-d'); if (b) setStop(b.closest('.tp-cal'), b); });
+  phone.addEventListener('keydown', function (e) {
+    var b = e.target.closest && e.target.closest('.tp-cal-d'); if (!b || e.altKey || e.ctrlKey || e.metaKey) return;
+    var attr = b.dataset.cday !== undefined ? 'cday' : 'dday', d = +b.dataset[attr], cal = b.closest('.tp-cal'), step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, PageUp: -28, PageDown: 28 }[e.key], to = null;
+    if (step !== undefined) to = d + step;
+    else if (e.key === 'Home' || e.key === 'End') { var wd = b.parentNode && [].slice.call(b.parentNode.children).indexOf(b) % 7; if (wd !== null) to = d + (e.key === 'Home' ? -wd : 6 - wd); }
+    if (to === null) return;
+    e.preventDefault();
+    // Past an end of the calendar, or onto a day that cannot be picked, the key stays on the nearest day that can
+    var days = calDays(cal), nb = cal.querySelector('.tp-cal-d[data-' + attr + '="' + to + '"]') || (to < d ? days[0] : days[days.length - 1]);
+    if (nb && nb !== b) { setStop(cal, nb); nb.focus({ preventScroll: false }); }
+  });
   /* The key to the calendar's marks (26 Nov 2026; it went with the strip and is back): two entries, each only when that mark
      is on the calendar. It sits between the Your matches list and the calendar (above the calendar where there is no list).
      Interstate matches are not marked, so they are not keyed. Screen readers hear each day's own label, so it is hidden from them. */
@@ -2629,9 +2751,9 @@
     if (!at.cbd && !at.newc) { at.cbd = true; at.newc = true; }
     var o = [];
     if (at.cbd) o.push(['Sydney CBD', 'Sydney CBD']);
-    if (at.olympic) o.push(['Sydney Olympic Park', 'Sydney Olympic Park']);
-    if (at.moore) o.push(['Moore Park', 'Moore Park']);
-    if (at.newc) o.push(['Newcastle', 'Newcastle']);
+    if (at.olympic) o.push(['Sydney Olympic Park', 'Around Olympic Park']); // the button says where around; the place stored is the same (28 Nov 2026)
+    if (at.moore) o.push(['Moore Park', 'Around Moore Park']);
+    if (at.newc) o.push(['Newcastle', 'Around Newcastle']);
     return o;
   }
   var PARTY_Q = [['solo', 'Solo'], ['couple', 'Couple'], ['friends', 'Friends'], ['family', 'Family']];
@@ -2710,8 +2832,9 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       h += '<p class="tp-sec-note">' + esc(own ? WHY : WHY_NONE) + '</p>' +
         (step === 'days' ? stepMatchesHtml() : '') +
-        calKeyHtml(dMatches()) + '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
+        // The summary of the dates sits above the calendar (28 Nov 2026), so on a phone it is seen without scrolling past two months
         '<p class="tp-days-sum v1-cal-sum" aria-live="polite">' + esc(askSum(asel)) + '</p>' +
+        calKeyHtml(dMatches()) + '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
           (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +
@@ -3386,7 +3509,7 @@
       ITEMS[key] = { id: 'poi:' + q.id, kind: 'poi', poi: q.id, title: q.title, kindLabel: q.cat, place: q.area, day: f.d, matchName: matchName(f) };
       return key;
     },
-    addBtn: addBtn, goRoute: goRoute, kmBetween: kmBetween, nearerPlace: nearerPlace, nearestFan: nearestFan, fanSpots: fanSpots, placesOf: placesOf,
+    dist: dist, byMode: byMode, addBtn: addBtn, goRoute: goRoute, kmBetween: kmBetween, nearerPlace: nearerPlace, nearestFan: nearestFan, fanSpots: fanSpots, placesOf: placesOf,
     mins: mins, matchName: matchName, dayLabel: dayLabel, weekdayOf: weekdayOf, kickMins: kickMins, hoursOn: hoursOn, cityOf: cityOf,
     products: function () { return PRODUCTS; }, ptype: PTYPE, travel: travel, imgKey: imgKey, tbc: TBC_L, sampleTag: SAMPLE_TAG,
     isKo: isKo, koName: koName, koOnDays: koOnDays, hasTicket: hasTicket,

@@ -7,7 +7,7 @@ Change anything in this folder; nothing here reaches the real prototypes, and no
 
 | Rule | How |
 | --- | --- |
-| Loads only its own files. | A full copy: `index.html` (Version 1's frame page), `shared.css`, `themes/`, `pv-device.js`, `no-focus-ring.css`, `concepts-*.js` and `third-half-list.js`, `v1/` (Version 1's own scripts and styles, including the forks that replace `concepts-teams.js`, `concepts-third-half.js`, `concepts-map.js`, `concepts-plan.js` and `concepts-flow-c.js`, which the page no longer loads), `drop-goal/`, `vendor/`, `flags/`, `data/`, and the images and fonts in `assets/`. Edit these copies, never the ones in `public/wireframes/`. |
+| Loads only its own files. | A full copy: `index.html` (Version 1's frame page), `shared.css`, `themes/`, `pv-device.js`, `concepts-*.js` and `third-half-list.js`, `v1/` (Version 1's own scripts and styles, including the forks that replace `concepts-teams.js`, `concepts-third-half.js`, `concepts-map.js`, `concepts-plan.js` and `concepts-flow-c.js`, which the page no longer loads), `drop-goal/`, `vendor/`, `flags/`, `data/`, and the images and fonts in `assets/`. Edit these copies, never the ones in `public/wireframes/`. |
 | Its own storage. | The first script in `index.html`'s head files every key under `sb:` (the theme and annotations switches included, so they don't follow the real prototypes). Drop goal's frame files its two keys under `sb:` too (`drop-goal/js/teams.js`, `visit.js`). Reset prototype and `?reset` clear only `sb:` keys. |
 | Its own flow value. | `data-flow="sb"` on `<html>`. The copies of `shared.css` and `v1/*.js` (`v1-flow-c.js`, `v1-teams.js`, `v1-flow-foot.js`, `v1-flow-motion.js`) and the page's own scripts test for `sb`, not `c`. |
 | No links in or out. | The viewer tabs, Open Version 2 and Archived versions are removed from the copy; the phone Settings menu holds only Reset prototype. |
@@ -72,3 +72,15 @@ Home (27 Nov 2026) takes the same treatment as the plan page, in `v1/v1-quiet.cs
 Desktop review (27 Nov 2026): a watch day lists its matches as one container and a quiet Interstate marker; teams with no NSW match share one watch block (one fan zone, one list, no repeats); product pictures keep a 4:3 frame (cards sit picture-left on desktop); the fan map keeps its chosen tab readable; the questions use soft tints, and the two calendar months sit side by side on desktop.
 
 The trip map under the opening sentences (27 Nov 2026, `v1/v1-narrative.js`) frames only the person's own places (where they stay, each ground or fan zone they are going to). The other city, its stops and its dotted route show when they stay near it or ask for it with Show route on map, and tapping elsewhere returns the map. Zoom is limited to 0.3 to 0.5 (one image pixel per device pixel at 2x is the sharpest), labels are measured and placed so none overlaps another label or a pin, and everything stays 24px inside the map's edge.
+
+Copy and logic slips on the narrative plan page (28 Nov 2026): a distance and a time read "14 km, about 36 min by train" ("on foot" for a walk); later rounds go in their own clause, not after "to see", until added (and the bar says "No matches added yet"); "Before and after the match" only within a 20 minute walk of the ground (two sample fan zones added, `v1/v1-fanspots.js`); the spare-time sentence names the first card under it.
+
+Sample tags inside the narrative sentences show only with Annotations on (28 Nov 2026); cards keep theirs. The last day offers places other than the arrival day's three where others are open.
+
+Layout (28 Nov 2026): each day's heading sticks under the floating nav on one line; a stretch of free days is one block (one list of up to three ideas, More ideas in place, two compact other matches, See day by day), which cuts the England plan from 8.2 to 4.6 screens.
+
+The three questions on a wide desktop (28 Nov 2026, `v1/v1-flow-desk.css`): the lead (step count, bar, title, note, Find and Grid) in a left column and the answer in a right column on every step, ending on the same edge as the Next button. Below 1280px they stay stacked.
+
+Where you're staying (28 Nov 2026) asks one thing: the other-matches block and the Newcastle suggestion no longer show under it (they stay on the dates step and the plan), and its note is one sentence shorter.
+
+Focus (28 Nov 2026): the temporary no-focus-ring.css is gone (and its links), so keyboard focus rings are back; each calendar (the step's and the Your days sheet's) is one tab stop with the arrow keys, Home, End, Page Up and Page Down moving between days.

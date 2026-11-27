@@ -1735,7 +1735,7 @@
     var fsAll = shown.map(function (m) { return m.f; }), inNsw = fsAll.filter(function (f) { return !f.a; }).length;
     // Nothing of their own yet: the empty state, even though the open plan previews every match
     var savedN = state.added.filter(function (it) { return it.kind !== 'match'; }).length;
-    setValue(own() && fsAll.length ? teamsPre() + countPhrase(fsAll, { short: true }) + ' \u00b7 ' + (nswFig(fsAll) || (inNsw ? inNsw + ' in NSW' : 'all interstate')) : !own() && savedN ? savedN + ' saved' : 'No matches yet');
+    setValue(own() && fsAll.length ? teamsPre() + countPhrase(fsAll, { short: true }) + ' \u00b7 ' + (nswFig(fsAll) || (inNsw ? inNsw + ' in NSW' : 'all interstate')) : !own() && savedN ? savedN + ' saved' : own() && window.tpPicker && window.tpPicker.koOnDays && window.tpPicker.koOnDays().length ? 'No matches added yet' : 'No matches yet'); // later rounds are on in their days but none is added (28 Nov 2026)
     // No team (18 Nov): Add team sits on the bar, beside the value, and opens the team sheet
     var addTeam = document.getElementById('tp-tl-addteam');
     if (addTeam) { addTeam.hidden = own(); tl.classList.toggle('has-addteam', !own()); }

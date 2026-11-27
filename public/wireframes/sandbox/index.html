@@ -47,9 +47,9 @@
 <link rel="stylesheet" href="v1/v1-plan.css" />
 <link rel="stylesheet" href="v1/v1-zoom.css" />
 <link rel="stylesheet" href="v1/v1-quiet.css" />
+<link rel="stylesheet" href="v1/v1-flow-desk.css" /><!-- after the quiet styles: it moves the days answer into the right column (28 Nov 2026) -->
 <link rel="stylesheet" href="v1/v1-picker.css" />
 <link rel="stylesheet" href="v1/v1-narrative.css" />
-<link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
 <style>
   /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
   .pv-v2link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }
@@ -870,11 +870,12 @@
 
     // The planner: picking teams
     { sel: "#v1-nar", at: "tl", title: "Why: The plan page opens with two sentences and a map", points: [
+      "Each day’s heading sticks just under the floating nav, on one line (date tile, title, date) with the page’s colour behind it. It sticks inside its own day, so the next day’s heading pushes it up and replaces it.",
       "The page opens with two plain sentences, as a travel expert would begin by saying what they understand of the trip.",
       "Each bracketed part is a control, so the user corrects the trip from the sentence that states it.",
       "The dates and the places open the sheet that changes them, so a correction is one tap and the user stays on the page.",
       "A bracketed match highlights its pin on the map, as the sentence tells the user what the map is showing.",
-      "Later rounds inside the dates are named in the first sentence but not assumed, so the user sees them without being counted as going.",
+      "Only matches the person is assumed to go to, or has added, come after “to see”. Later rounds on during their dates have a clause of their own (“while … are on”, or “… are also on while you’re here”), so the sentence agrees with the bar and the days: not assumed, not counted. Adding one moves it into “to see” and the bar counts it.",
       "A second place is added from Edit in the Your plan heading, where Where you’re staying lives, so the sentences carry no link of their own.",
       "The map sits under the opening sentences, as the sentences tell the user what the map is showing.",
       "The map is about a third of the screen and scrolls away with the page, so it is seen on arrival without taking over the page.",
@@ -887,8 +888,8 @@
     { sel: ".v1-md-s", at: "tl", title: "Why: A match day is one block", points: [
       "Each match day is one block that fits one phone screen, so the user reads the day without scrolling through it.",
       "The block opens with the match and where it is played, as that is why the user is in NSW.",
-      "Distance and time are measured from the nearer place they stay, so with two places the figure is the one they will use.",
-      "The nearest fan zone follows the match, as the first thing people ask is where to go before and after.",
+      "Distance and time are measured from the nearer place they stay, so with two places the figure is the one they will use. They read as one phrase, “14 km, about 36 min by train”, with “about” on the time only.",
+      "The nearest fan zone follows the match, as the first thing people ask is where to go before and after. “Before and after the match” is said only when it is within a 20 minute walk of the ground; further away it reads “Nearest fan zone: [name], [distance] from [ground]”, so it never promises a before-and-after that a 13 km trip cannot give. Sydney Olympic Park and Moore Park each have a sample fan zone.",
       "One row of cards switches between food and drink, things to do and places to stay, so the block stays short and the user picks what they need.",
       "Places to stay comes last for everyone, as we no longer know who has booked.",
       "Two cards show before “Show more”, so the choice is not a wall.",
@@ -903,8 +904,10 @@
       "The tips and times are sample data, marked Sample in the last line of the answer."
     ] },
     { sel: ".v1-sp", at: "tl", title: "Why: Spare days get one suggestion", points: [
+      "A stretch of free days is one block, not a list a day, so five free days no longer take five screens. Under the sentence: one list of up to three ideas for the stretch, More ideas to add three more in the block, the other NSW matches as two compact rows, and a quiet See day by day for the per-day lists.",
+      "Add puts an idea on the first free day with nothing planned; the card then reads Added to [day] · Change day, and Change day lists the other days of the stretch. The Your plan sheet keeps its day-by-day ideas.",
       "A run of free days says how many there are and offers one suggestion, so the person has a place to start before choosing from the lists.",
-      "The suggestion follows the whole stay, not the run: one night, a half day; two, a day trip; three to five, a night or two away; more than five, a road trip. A longer stay has the time for a bigger idea.",
+      "The sentence names the idea in the first card under it, and says the kind of idea it is (a night or two away leads with the curated trip, a day trip or a half day with that card), so the person can add what the sentence offers. A stay of two nights or more starts with a day trip; a shorter one with a half day. Where no card exists for a place, the sentence names the first card shown instead.",
       "Where an existing idea fits it is named and opens its details; where none exists the suggestion is marked Sample.",
       "The day-by-day ideas stay below it, so the sentence leads without replacing the choices."
     ] },
@@ -1083,6 +1086,7 @@
 
     // Once teams are picked: Your matches
     { sel: "#tp-fc", title: "Version 1: the questions up front", points: [
+      "On a wide desktop (1280px and up) every question has the same shape: the step count, bar, title and note (and Find and Grid on the first) in a left column, and the answer (the hand of cards, the calendar, the stay choices) in a right column. The question is always read first, and the answer, the plan rail and the Next button all end on the same edge.",
       "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md); their addresses open this page.",
       "The Plan tab asks three things in turn (26 Nov 2026): your teams, your days in NSW and where you’re staying. Tickets are not asked: the matches are inferred from the teams and the days, and each can be taken off the plan with a quiet Remove. Who’s coming is no longer asked (27 Nov 2026).",
       "Each step borrows the planner’s own control (the hand of cards, the days calendar), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
