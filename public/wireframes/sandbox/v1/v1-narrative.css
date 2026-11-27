@@ -193,3 +193,7 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-tm-pin.is-dim b { color: var(--c-ink-2); }
 .v1-fan-inl { font-size: inherit; line-height: inherit; }
 .v1-sp-lead { margin-bottom: var(--space-4); }
+
+/* Sample tags inside the narrative's sentences show only with Annotations on (28 Nov 2026): they broke the voice of the page. The
+   cards keep theirs. */
+#tp-stage:not(.has-notes) .v1-nar-blk :is(p, .v1-ao-r) .v1-sample { display: none; }

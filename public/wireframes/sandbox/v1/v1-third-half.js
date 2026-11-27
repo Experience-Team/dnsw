@@ -112,11 +112,19 @@
   function prodKm(p) { return kmFrom(window.cnGeo && window.cnGeo.products[p.id]); }
   function byKm(fn) { return function (x, y) { var a = fn(x), b = fn(y); return (a === null ? 1e9 : a) - (b === null ? 1e9 : b); }; }
   // A half day's places: in their city and open that day, nearest to where they are staying first
-  function halfList(b, wd) {
+  function halfListRaw(b, wd) {
     var list = PRODUCTS.filter(function (p) { return p.distance_to_venue && cityOf(p.distance_to_venue.venue_ref) === b.base && hoursOn(p, wd) && (p.type === 'food_and_drink' || p.type === 'attraction'); })
       .sort(function (x, y) { return partyRank(x) - partyRank(y) || x.distance_to_venue.km - y.distance_to_venue.km || x.title.localeCompare(y.title); });
     if (basePlace()) list.sort(byKm(prodKm));
     return list;
+  }
+  /* The last day offers places other than the arrival day's three (28 Nov 2026), so the two half days do not read as one template:
+     the places the arrival day shows go to the end of the last day's list, still there when little else is open that day */
+  function halfList(b, wd) {
+    var list = halfListRaw(b, wd), M = !b.first && basePlace() ? model() : null;
+    if (!M || !M.range || b.day === M.range.a) return list;
+    var seen = halfListRaw({ base: b.base }, weekdayOf(M.range.a)).slice(0, 3).map(function (p) { return p.id; });
+    return list.filter(function (p) { return seen.indexOf(p.id) < 0; }).concat(list.filter(function (p) { return seen.indexOf(p.id) > -1; }));
   }
   // The places a half day (arrival or last day) offers, the same wherever they show (Follow day by day, the map's
   // cards): nearest to where they are staying once that is known, otherwise a rotating order so no business is
@@ -126,7 +134,7 @@
     if (dayFilled(d)) return l.filter(function (p) { return added('p:' + p.id + ':' + dl); });
     return basePlace() ? l.slice(0, 3) : l.sort(function (x, y) { return hash(x.id + ':' + d) - hash(y.id + ':' + d); }).slice(0, 3);
   }
-  function halfNear(b) { var l = halfList(b, weekdayOf(b.day)), k = l.length ? prodKm(l[0]) : null; return k !== null && k <= NEAR_KM; }
+  function halfNear(b) { var l = halfListRaw(b, weekdayOf(b.day)), k = l.length ? prodKm(l[0]) : null; return k !== null && k <= NEAR_KM; }
   function halfWhere(b) { return basePlace() && !halfNear(b) ? 'in ' + CITY[b.base] : whereText(b.base); }
   function halfNote(b) { return basePlace() && !halfNear(b) ? 'Nothing listed close to ' + basePlace() + ' yet, so these are in ' + CITY[b.base] + '.' : 'Something ' + whereText(b.base) + ', nothing far.'; }
   /* Who is coming (optional): the order of ideas, never what is shown. Family: attractions and free things first;
