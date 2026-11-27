@@ -7,7 +7,7 @@ Change anything in this folder; nothing here reaches the real prototypes, and no
 
 | Rule | How |
 | --- | --- |
-| Loads only its own files. | A full copy: `index.html` (Version 1's frame page), `shared.css`, `themes/`, `pv-device.js`, `no-focus-ring.css`, `concepts-*.js` and `third-half-list.js`, `v1/` (Version 1's own scripts and styles, including the forks that replace `concepts-teams.js`, `concepts-third-half.js`, `concepts-map.js`, `concepts-plan.js` and `concepts-flow-c.js`, which the page no longer loads), `drop-goal/`, `vendor/`, `flags/`, `data/`, and the images and fonts in `assets/`. Edit these copies, never the ones in `public/wireframes/`. |
+| Loads only its own files. | A full copy: `index.html` (Version 1's frame page), `shared.css`, `themes/`, `pv-device.js`, `concepts-*.js` and `third-half-list.js`, `v1/` (Version 1's own scripts and styles, including the forks that replace `concepts-teams.js`, `concepts-third-half.js`, `concepts-map.js`, `concepts-plan.js` and `concepts-flow-c.js`, which the page no longer loads), `drop-goal/`, `vendor/`, `flags/`, `data/`, and the images and fonts in `assets/`. Edit these copies, never the ones in `public/wireframes/`. |
 | Its own storage. | The first script in `index.html`'s head files every key under `sb:` (the theme and annotations switches included, so they don't follow the real prototypes). Drop goal's frame files its two keys under `sb:` too (`drop-goal/js/teams.js`, `visit.js`). Reset prototype and `?reset` clear only `sb:` keys. |
 | Its own flow value. | `data-flow="sb"` on `<html>`. The copies of `shared.css` and `v1/*.js` (`v1-flow-c.js`, `v1-teams.js`, `v1-flow-foot.js`, `v1-flow-motion.js`) and the page's own scripts test for `sb`, not `c`. |
 | No links in or out. | The viewer tabs, Open Version 2 and Archived versions are removed from the copy; the phone Settings menu holds only Reset prototype. |
@@ -82,3 +82,5 @@ Layout (28 Nov 2026): each day's heading sticks under the floating nav on one li
 The three questions on a wide desktop (28 Nov 2026, `v1/v1-flow-desk.css`): the lead (step count, bar, title, note, Find and Grid) in a left column and the answer in a right column on every step, ending on the same edge as the Next button. Below 1280px they stay stacked.
 
 Where you're staying (28 Nov 2026) asks one thing: the other-matches block and the Newcastle suggestion no longer show under it (they stay on the dates step and the plan), and its note is one sentence shorter.
+
+Focus (28 Nov 2026): the temporary no-focus-ring.css is gone (and its links), so keyboard focus rings are back; each calendar (the step's and the Your days sheet's) is one tab stop with the arrow keys, Home, End, Page Up and Page Down moving between days.

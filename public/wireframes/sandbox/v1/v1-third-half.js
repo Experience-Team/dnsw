@@ -2291,6 +2291,35 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tipEl) { e.stopPropagation(); tipHide(); } }, true);
   body.addEventListener('scroll', function () { if (tipEl) tipHide(); holdCancel(); }, { passive: true });
 
+  /* The calendar is one tab stop (28 Nov 2026), not forty: Tab lands on the start day (else the first match day, else the first day)
+     and the arrow keys move between days (left and right a day, up and down a week, Home and End to the ends of the week, Page Up
+     and Page Down four weeks), as a date grid does. Enter or Space picks the day, as for any button. It covers the step's calendar
+     and the Your days sheet's, however often they are drawn again. */
+  function calDays(cal) { return [].slice.call(cal.querySelectorAll('.tp-cal-d[data-cday], .tp-cal-d[data-dday]')); }
+  function setStop(cal, on) { calDays(cal).forEach(function (b) { b.tabIndex = b === on ? 0 : -1; }); }
+  function rovAll() {
+    [].slice.call(phone.querySelectorAll('.tp-cal:not([data-rov])')).forEach(function (cal) {
+      var bs = calDays(cal); if (!bs.length) return;
+      cal.setAttribute('data-rov', '1');
+      var act = document.activeElement, on = act && cal.contains(act) && act.classList.contains('tp-cal-d') ? act
+        : bs.filter(function (b) { return b.classList.contains('is-start'); })[0] || bs.filter(function (b) { return b.classList.contains('is-match'); })[0] || bs[0];
+      setStop(cal, on);
+    });
+  }
+  if (window.MutationObserver) new MutationObserver(rovAll).observe(phone, { childList: true, subtree: true });
+  rovAll();
+  phone.addEventListener('focusin', function (e) { var b = e.target.closest && e.target.closest('.tp-cal-d'); if (b) setStop(b.closest('.tp-cal'), b); });
+  phone.addEventListener('keydown', function (e) {
+    var b = e.target.closest && e.target.closest('.tp-cal-d'); if (!b || e.altKey || e.ctrlKey || e.metaKey) return;
+    var attr = b.dataset.cday !== undefined ? 'cday' : 'dday', d = +b.dataset[attr], cal = b.closest('.tp-cal'), step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, PageUp: -28, PageDown: 28 }[e.key], to = null;
+    if (step !== undefined) to = d + step;
+    else if (e.key === 'Home' || e.key === 'End') { var wd = b.parentNode && [].slice.call(b.parentNode.children).indexOf(b) % 7; if (wd !== null) to = d + (e.key === 'Home' ? -wd : 6 - wd); }
+    if (to === null) return;
+    e.preventDefault();
+    // Past an end of the calendar, or onto a day that cannot be picked, the key stays on the nearest day that can
+    var days = calDays(cal), nb = cal.querySelector('.tp-cal-d[data-' + attr + '="' + to + '"]') || (to < d ? days[0] : days[days.length - 1]);
+    if (nb && nb !== b) { setStop(cal, nb); nb.focus({ preventScroll: false }); }
+  });
   /* The key to the calendar's marks (26 Nov 2026; it went with the strip and is back): two entries, each only when that mark
      is on the calendar. It sits between the Your matches list and the calendar (above the calendar where there is no list).
      Interstate matches are not marked, so they are not keyed. Screen readers hear each day's own label, so it is hidden from them. */
