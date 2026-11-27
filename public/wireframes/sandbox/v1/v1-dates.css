@@ -106,3 +106,8 @@
 
 /* Where you're staying asks one thing (28 Nov 2026): the other matches and the Newcastle suggestion belong to the dates step and the plan, not here */
 #tp-phone[data-fc="stay"] #v1-also { display: none !important; }
+
+/* The other matches (28 Nov 2026) belong to the dates step alone, where they are centred: not under the team question, not under the stay question */
+#tp-phone[data-fc="teams"] #v1-also, #tp-phone[data-fc="stay"] #v1-also { display: none !important; }
+#tp-phone[data-fc="days"] #v1-also { text-align: center; }
+#tp-phone[data-fc="days"] #v1-also :is(.v1-also-card, .v1-also-l) { max-width: 40rem; margin-inline: auto; text-align: left; }

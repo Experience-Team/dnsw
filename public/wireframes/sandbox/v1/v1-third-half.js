@@ -2190,7 +2190,7 @@
     tp.allMatches().forEach(function (m) { if (!m.f.a && isKo(m.f)) (o[m.day] = o[m.day] || []).push(m); });
     return o;
   }
-  // What they picked, so they need not go back to check: each match with its date (the step "When are you in NSW?")
+  // What they picked, so they need not go back to check: each match with its date (the step "When will you be in NSW?")
   function stepMatchesHtml() {
     if (!tp.own()) return '';
     if (tp.rugby()) return ''; // no team: nothing is inferred, and the matches inside the days are listed to add (Also on in NSW)
@@ -2722,9 +2722,9 @@
     if (!at.cbd && !at.newc) { at.cbd = true; at.newc = true; }
     var o = [];
     if (at.cbd) o.push(['Sydney CBD', 'Sydney CBD']);
-    if (at.olympic) o.push(['Sydney Olympic Park', 'Sydney Olympic Park']);
-    if (at.moore) o.push(['Moore Park', 'Moore Park']);
-    if (at.newc) o.push(['Newcastle', 'Newcastle']);
+    if (at.olympic) o.push(['Sydney Olympic Park', 'Around Olympic Park']); // the button says where around; the place stored is the same (28 Nov 2026)
+    if (at.moore) o.push(['Moore Park', 'Around Moore Park']);
+    if (at.newc) o.push(['Newcastle', 'Around Newcastle']);
     return o;
   }
   var PARTY_Q = [['solo', 'Solo'], ['couple', 'Couple'], ['friends', 'Friends'], ['family', 'Family']];

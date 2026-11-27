@@ -158,7 +158,7 @@
     return 'Pick the closest place, or search. You can add a second place.';
   }
   function stepTitle(s) {
-    return { teams: 'Which teams are you following?', days: 'When are you in NSW?', stay: 'Where are you staying, or thinking of staying?' }[s];
+    return { teams: 'Which teams are you following?', days: 'When will you be in NSW?', stay: 'Where are you staying, or thinking of staying?' }[s];
   }
   var PENCIL = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10.5 2.8l2.7 2.7M2.5 13.5l.6-2.9 7.4-7.4 2.3 2.3-7.4 7.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var NEXTI = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
