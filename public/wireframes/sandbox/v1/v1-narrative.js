@@ -203,15 +203,16 @@
     if (km !== null || (r && r.mins)) {
       var two = K.placesOf().length > 1;
       h += '<p class="v1-md-d">It’s ' + [km !== null ? (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') : '', r && r.mins ? 'about ' + K.mins(r.mins) : ''].filter(Boolean).join(', ') +
-        ', from ' + (two && np ? esc(np) : 'where you’re staying') + '. ' + K.sampleTag + ' <button type="button" class="tp-link" data-open="go:' + esc(m.key) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(K.matchName(f)) + '</span></button></p>';
+        ', from ' + (two && np ? esc(np) : 'where you’re staying') + '. ' + K.sampleTag + '</p>' +
+        '<p class="v1-md-l"><button type="button" class="tp-link" data-open="go:' + esc(m.key) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(K.matchName(f)) + '</span></button></p>';
     }
     // The nearest fan zone, before and after
     var sp = K.nearestFan(vv);
     if (sp) {
       var fid = 'fz:' + sp.id + ':' + f.d, fkm = vv ? K.kmBetween(sp.ll, vv) : null;
       K.registerItem(fid, { id: fid, kind: 'place', title: sp.name, kindLabel: sp.kind === 'fan_village' ? 'Fan village' : 'Fan zone', place: sp.suburb, note: sp.opens, day: f.d, matchName: K.matchName(f) });
-      h += '<div class="v1-md-fz"><p class="v1-fan-near"><span class="v1-fan-k">Before and after</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' · ' + esc(sp.addr) : '') +
-        (fkm !== null ? ' · about ' + Math.max(1, Math.round(fkm)) + ' km from ' + esc(venue) : '') + ' ' + K.sampleTag + '</p>' + K.addBtn(fid, sp.name + ' on ' + f.d) + '</div>';
+      h += '<div class="v1-md-fz"><p class="v1-fan-near"><strong class="v1-fan-nm">' + esc(sp.name) + '</strong><span class="v1-fan-sub">Before and after the match' +
+        (fkm !== null ? ' · about ' + Math.max(1, Math.round(fkm)) + ' km from ' + esc(venue) : '') + ' ' + K.sampleTag + '</span></p>' + K.addBtn(fid, sp.name + ' on ' + f.d) + '</div>';
     }
     // One row of cards, with a switch
     var tab = state.tab[b.key] || 'food', cards = cardData(tab, m, f), more = !!state.more[b.key], shown = more ? cards : cards.slice(0, 2);
