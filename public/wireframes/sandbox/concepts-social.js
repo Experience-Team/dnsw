@@ -5,8 +5,9 @@
    confirmed. Empty states (no accounts, no stories, no posts) are in each version's module script. */
 window.cnSocial = {
   accounts: [
-    { id: 'ig', platform: 'instagram', name: 'Sydney', handle: '@sydney', url: null },
-    { id: 'tt', platform: 'tiktok', name: 'Sydney', handle: '@sydney', url: null }
+    // 27 Nov 2026 (sandbox): the same addresses as the footer's Instagram and TikTok links
+    { id: 'ig', platform: 'instagram', name: 'Sydney', handle: '@sydney', url: 'https://instagram.com/sydney' },
+    { id: 'tt', platform: 'tiktok', name: 'Sydney', handle: '@sydney', url: 'https://tiktok.com/@sydney' }
   ],
   stories: [
     { id: 's-ig-1', account: 'ig', image: 'assets/images/coast-aerial.webp', caption: 'Ocean pools at sunrise: the best way to start a match day.' },

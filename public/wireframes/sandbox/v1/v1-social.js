@@ -18,6 +18,9 @@
   sec.hidden = false;
   var STORE = 'tp-soc-v1', MS = 5000;
   var LABEL = { instagram: 'Instagram', tiktok: 'TikTok' };
+  // An account's own address opens in a new tab (27 Nov 2026, sandbox); without one the link stays a placeholder that says so
+  function visitHref(a) { return a.url ? 'href="' + a.url + '" target="_blank" rel="noopener"' : 'href="#"'; }
+  var NEWTAB = '<span class="visually-hidden"> (opens in a new tab)</span>';
   var ICON = {
     instagram: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg>',
     tiktok: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3v11.2a3.2 3.2 0 1 1-3.2-3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 3c.3 2.4 1.9 4 4.5 4.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
@@ -50,7 +53,7 @@
   var rings = sec.querySelector('#tp-soc-rings'), postsEl = sec.querySelector('#tp-soc-posts'), visit = sec.querySelector('#tp-soc-visit'), say = sec.querySelector('#tp-soc-say');
   rings.innerHTML = accounts.map(function (a) {
     var n = storiesOf(a.id).length, p = LABEL[a.platform] || a.platform, inner = '<span class="tp-soc-av" aria-hidden="true">' + (ICON[a.platform] || '') + '</span><span class="tp-soc-rl">' + esc(a.name) + '</span><span class="tp-soc-rs">' + esc(p) + '</span>';
-    if (!n) return '<li><a class="tp-soc-ring is-plain" href="#" data-soc-visit="' + a.id + '" aria-label="Visit ' + esc(a.name) + ' on ' + esc(p) + '">' + inner + '</a></li>';
+    if (!n) return '<li><a class="tp-soc-ring is-plain" ' + visitHref(a) + ' data-soc-visit="' + a.id + '" aria-label="Visit ' + esc(a.name) + ' on ' + esc(p) + (a.url ? ' (opens in a new tab)' : '') + '">' + inner + '</a></li>';
     return '<li><button type="button" class="tp-soc-ring' + (seen[a.id] ? ' is-seen' : '') + '" data-soc-story="' + a.id + '" aria-label="' + esc(p) + ' stories from ' + esc(a.name) + ', ' + n + (n === 1 ? ' story' : ' stories') + (seen[a.id] ? ', seen' : ', not seen yet') + '">' + inner + '</button></li>';
   }).join('');
   if (!posts.length) postsEl.hidden = true;
@@ -62,7 +65,7 @@
   }).join('');
   visit.innerHTML = accounts.map(function (a) {
     var p = LABEL[a.platform] || a.platform;
-    return '<a class="tp-soc-btn" href="#" data-soc-visit="' + a.id + '">' + (ICON[a.platform] || '') + 'Visit ' + esc(p) + EXT + '</a>';
+    return '<a class="tp-soc-btn" ' + visitHref(a) + ' data-soc-visit="' + a.id + '">' + (ICON[a.platform] || '') + 'Visit ' + esc(p) + EXT + (a.url ? NEWTAB : '') + '</a>';
   }).join('');
 
   function visitNote(id, into) {
@@ -147,7 +150,7 @@
     var p = LABEL[a.platform] || '';
     return '<div class="tp-soc-head"><span class="tp-soc-av" aria-hidden="true">' + (ICON[a.platform] || '') + '</span><span class="tp-soc-hn"><b>' + esc(a.name) + '</b><small>' + esc(p) + (a.handle ? ' · ' + esc(a.handle) : '') + (sub ? ' · ' + esc(sub) : '') + '</small></span></div>';
   }
-  function visitBtn(a, solid) { return '<a class="tp-soc-btn' + (solid ? ' tp-soc-btn--solid' : '') + '" href="#" data-soc-visit="' + a.id + '">Visit ' + esc(LABEL[a.platform] || a.platform) + EXT + '</a>'; }
+  function visitBtn(a, solid) { return '<a class="tp-soc-btn' + (solid ? ' tp-soc-btn--solid' : '') + '" ' + visitHref(a) + ' data-soc-visit="' + a.id + '">Visit ' + esc(LABEL[a.platform] || a.platform) + EXT + (a.url ? NEWTAB : '') + '</a>'; }
 
   /* Stories */
   function openStories(id, from) {
@@ -245,6 +248,7 @@
   function onLayerClick(e) {
     if (swallow) { e.preventDefault(); return; } // the click that ends a swipe is not a tap
     var v = e.target.closest('[data-soc-visit]');
+    if (v && v.getAttribute('href') !== '#') return; // a real address: the link opens it
     if (v) { e.preventDefault(); visitNote(v.getAttribute('data-soc-visit'), layer.querySelector('#tp-soc-lsay')); return; }
     if (e.target.closest('.tp-soc-next')) next(); else if (e.target.closest('.tp-soc-prev')) prev();
   }
@@ -253,6 +257,7 @@
     var s = e.target.closest('[data-soc-story]'), p = e.target.closest('[data-soc-post]'), v = e.target.closest('[data-soc-visit]');
     if (s) { openStories(s.getAttribute('data-soc-story'), s); return; }
     if (p) { openPost(p.getAttribute('data-soc-post'), p); return; }
+    if (v && v.getAttribute('href') !== '#') return;
     if (v) { e.preventDefault(); visitNote(v.getAttribute('data-soc-visit'), say); }
   });
   window.tpSocial = { openStories: openStories, openPost: openPost, close: close, isOpen: function () { return !!layer && !layer.hidden; } };

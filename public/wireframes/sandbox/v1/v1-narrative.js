@@ -41,13 +41,14 @@
   function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
   function isoLabel(iso) { return K.dayLabel(tp.isoDay(iso)); }
   function nswMatches() { return tp.userMatches().filter(function (m) { return !m.f.a; }); }
-  function pinBtn(label, key) { return '<button type="button" class="v1-nar-b" data-nar-pin="' + esc(key) + '">' + esc(label) + '</button>'; }
+  // The underlined match opens its match sheet, as the dates and the stay open theirs (27 Nov 2026); Show on map is in that sheet
+  function pinBtn(label, key, mkey) { return mkey ? '<button type="button" class="v1-nar-b" data-open="match:' + esc(mkey) + '" aria-haspopup="dialog">' + esc(label) + '</button>' : '<button type="button" class="v1-nar-b" data-nar-pin="' + esc(key) + '">' + esc(label) + '</button>'; }
 
   /* Where they are going, for the sentence and the map: their NSW matches, and the later rounds inside their days (not assumed) */
   function going() {
     var out = [], seen = {};
-    nswMatches().forEach(function (m) { out.push({ label: K.matchName(m.f), venue: m.f.v, maybe: false }); seen[m.key] = true; });
-    K.koOnDays().forEach(function (m) { out.push({ label: K.koName(m.f), venue: m.f.v, maybe: true }); });
+    nswMatches().forEach(function (m) { out.push({ label: K.matchName(m.f), venue: m.f.v, maybe: false, mkey: m.key }); seen[m.key] = true; });
+    K.koOnDays().forEach(function (m) { out.push({ label: K.koName(m.f), venue: m.f.v, maybe: true, mkey: m.key }); });
     return out;
   }
   function noNswTeams() {
@@ -68,7 +69,7 @@
     var t = tp.state.trip || {};
     if (!(t.from && t.to)) { s1.textContent = ''; s2.textContent = ''; return; }
     // Only matches they are assumed to go to, or have added, go after "to see"; the later rounds on in their days have a clause of their own (28 Nov 2026)
-    var g = going(), items = g.filter(function (x) { return !x.maybe; }).map(function (x) { return pinBtn(x.label, x.venue); }), later = g.filter(function (x) { return x.maybe; }).map(function (x) { return pinBtn(x.label, x.venue); });
+    var g = going(), items = g.filter(function (x) { return !x.maybe; }).map(function (x) { return pinBtn(x.label, x.venue, x.mkey); }), later = g.filter(function (x) { return x.maybe; }).map(function (x) { return pinBtn(x.label, x.venue, x.mkey); });
     var tail = items.length ? ' to see ' + list(items) : (noNswTeams().length && !later.length ? ' to follow ' + esc(tp.list(noNswTeams())) : ''), plural = later.length > 1, more = '';
     if (later.length) { if (tail) more = ' ' + list(later) + (plural ? ' are' : ' is') + ' also on while you’re here.'; else tail = ', while ' + list(later) + (plural ? ' are' : ' is') + ' on'; }
     s1.innerHTML = 'It looks like you’re here between <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d1">' + esc(isoLabel(t.from)) + '</button> and <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d2">' + esc(isoLabel(t.to)) + '</button>' + tail + '.' + more;
@@ -402,6 +403,16 @@
   }
   function highlight(key) { light(state.lit === key ? '' : key); }
   tp.narHighlight = function (key) { light(key); };
+  // Show on map from a match sheet: the plan page, up at the map, that ground ringed
+  tp.narShowOnMap = function (venue) {
+    if (!on()) return false;
+    if (window.tpView && window.tpView.get() !== 'plan') window.tpView.go('plan');
+    if (card) cardClose(false);
+    backClear();
+    requestAnimationFrame(function () { light(venue, true); scrollTo(swEl, 12); box.focus({ preventScroll: true }); });
+    return true;
+  };
+  tp.narOn = function () { return on(); };
   if (window.ResizeObserver) new ResizeObserver(function () { if (!busy) draw(); }).observe(box);
 
   /* ---- The three switches ---- */

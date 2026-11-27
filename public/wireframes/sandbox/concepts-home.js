@@ -37,7 +37,13 @@
       e.preventDefault();
       // To the planner, at Your days (or the picker's tabs before Your days shows)
       window.tpView.go('plan');
-      if (window.tpFlowC) { window.tpFlowC.focusStep(); return; } // Option C: the step it was on, or the Your answers card opened
+      // 27 Nov 2026 (sandbox): with the three questions answered it lands at the top of the plan page with the Your plan sheet closed (it used to open the sheet)
+      if (window.tpFlowC && window.tpFlowC.step() === '') {
+        if (tp.closeTimeline) tp.closeTimeline();
+        requestAnimationFrame(function () { tp.body.scrollTo({ top: 0, behavior: 'auto' }); var nar = document.getElementById('v1-nar'); if (nar) nar.focus({ preventScroll: true }); });
+        return;
+      }
+      if (window.tpFlowC) { window.tpFlowC.focusStep(); return; } // Option C: the step it was on
       var ask = document.getElementById('tp-ask');
       requestAnimationFrame(function () { tp.goTo(ask && !ask.hidden ? ask : document.getElementById('tp-pick')); });
     }
