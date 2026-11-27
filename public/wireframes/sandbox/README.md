@@ -86,3 +86,20 @@ Where you're staying (28 Nov 2026) asks one thing: the other-matches block and t
 Focus (28 Nov 2026): the temporary no-focus-ring.css is gone (and its links), so keyboard focus rings are back; each calendar (the step's and the Your days sheet's) is one tab stop with the arrow keys, Home, End, Page Up and Page Down moving between days.
 
 Calendars and fan zone cards (29 Nov 2026): the two months always stack, in the dates question, the plan panel and the Your days sheet (side by side they were too narrow). Fan zone and village cards no longer carry a Sample tag; their made-up fields (getting there, open, what is there) show the annotation wash with Annotations on. Sample tags remain on the plan page's place cards and the place page's About this place.
+
+## One simple, interactive trip map (27 Nov 2026, sandbox only)
+
+The trip map under the opening sentences is now the only map of the trip (`v1/v1-narrative.js`, styles in `v1/v1-narrative.css`).
+
+- **One map, closed or expanded.** Expanding makes it bigger and swaps the expand icon for a close cross; the pins, switches' effect and controls are the same. It grows from where it sits and shrinks back into it.
+- **Named pins only.** Every pin shown has its name beside it. A pin whose name has no clear place (it would touch another name or pin) waits for a closer zoom, and a "Zoom in for more" button shows while any are waiting. No numbers, legend or clusters.
+- **A pin's card.** The place, its day, Add or Remove (in place: the card stays so a Remove can be undone), and Go to this day, which scrolls the page to that day (closing the expanded map first).
+- **Interactive where it sits.** Drag to pan, pinch to zoom, plus and minus, arrow keys. A plain mouse wheel scrolls the page; Ctrl or a trackpad pinch zooms. A one-finger drag on the map pans it, so on a phone the page scrolls from outside the map.
+- **Highlights.** The underlined match in the sentences and Show on map (or Show route on map) on a day ring that pin. Show on map goes up to the map and leaves a "Back to [day]" link on it.
+- **Three switches above it.** My plan (on), Ideas (what the days below offer, from `tp.mapStops`), Fan zones and pubs (`v1/v1-fanspots.js`, sample). Where they stay always shows.
+- **A drawn base map** (`v1/v1-basemap.js`), sharp at every zoom: the open coast is Natural Earth 1:10m (public domain); Sydney Harbour, the coast from Dee Why to Cape Banks, Newcastle harbour, Lake Macquarie and Brisbane Water are drawn by hand and approximate. The stretched picture (`assets/images/map/nsw-map.webp`, a map screenshot) is no longer used by this map.
+- **Framing.** It fits their own places with nothing closer than 24px to an edge or under the controls; zoom is limited (0.3 to 32, and never closer than 10 when it frames itself).
+- **Removed from the page.** The full-screen "Your days, day by day" map no longer opens from anywhere on the plan page (its script, `v1/v1-map.js`, still loads because sheets use `tp.poiItem` from it), and the separate "Pubs and fan zones on the map" section is not inserted (`v1/v1-fanzones.js`); the fan zones list stays.
+- **Home's map** (Where the matches are, `concepts-home.js`, styles in `v1/v1-quiet.css`) uses the same drawn base map, colours, pins and name chips. It keeps its own behaviour: fixed framing, a pin opens its host city sheet, and the stadium card in view marks its pin. It does not pan or zoom.
+
+Catch-up still owed for this change: annotations in `index.html` that describe the old maps (`#v1-fm`, Explore freely), low fidelity and reduced motion checks, unused styles (`.v1-fm-*`, `.tp-map*`) and tests.

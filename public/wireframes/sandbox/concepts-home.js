@@ -61,7 +61,7 @@
       '<span class="tp-city-m">' + esc(v) + ' • ' + n + (n === 1 ? ' match' : ' matches') + '</span>' +
       '<span class="tp-city-go"><span class="tp-u">Match day, where to eat and stay, and day trips</span>' + ARR + '</span></button></li>';
   }).join('');
-  // The map: the planner's illustration (assets/images/map), cropped to Sydney up to Port Stephens. Stadium pins are
+  // The map: a drawn base map, cropped to Sydney up to Port Stephens. Stadium pins are
   // buttons; the regions are labels only, shown lightly
   var mapEl = document.getElementById('tp-home-map');
   if (mapEl && GEO) {
@@ -75,7 +75,11 @@
     // Label sides keep the two Sydney pins apart: Olympic Park to the left, Moore Park to the right
     var SIDE = { 'Stadium Australia': 'l', 'Sydney Football Stadium': 'r', 'Newcastle Stadium': 'l' };
     var SHORT = { 'Stadium Australia': 'Olympic Park', 'Sydney Football Stadium': 'Moore Park', 'Newcastle Stadium': 'Newcastle' };
-    mapEl.innerHTML = '<img class="tp-home-map-img" src="assets/images/map/nsw-map.webp" alt="" draggable="false" style="left:' + (-(LON0 - B.lon0) / (LON1 - LON0) * 100).toFixed(2) + '%;top:' + (-(B.lat1 - TOP) / (TOP - BOT) * 100).toFixed(2) + '%;width:' + ((B.lon1 - B.lon0) / (LON1 - LON0) * 100).toFixed(2) + '%">' +
+    // 27 Nov 2026 (sandbox): the same drawn base map as the trip map (v1/v1-basemap.js), cut to this crop, in place of the stretched picture
+    var BM = window.v1BaseMap || { land: '', lakes: '' }, vx = (LON0 - B.lon0) / (B.lon1 - B.lon0) * 2000, vy = (B.lat1 - TOP) / (B.lat1 - B.lat0) * 1000;
+    mapEl.classList.add('v1-hm');
+    mapEl.innerHTML = '<svg class="v1-hm-base" viewBox="' + vx.toFixed(2) + ' ' + vy.toFixed(2) + ' ' + pxW.toFixed(2) + ' ' + pxH.toFixed(2) + '" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="v1-tm-land" d="' + BM.land + '"/><path class="v1-tm-lake" d="' + BM.lakes + '"/></svg>' +
+      '<span class="tp-home-reg v1-hm-sea" style="' + xy([-33.45, 151.85]) + '" aria-hidden="true">Tasman Sea</span>' +
       REG.filter(function (r) { return r[1]; }).map(function (r) { return '<span class="tp-home-reg is-' + r[2] + '" style="' + xy(r[1]) + '" aria-hidden="true">' + esc(r[0]) + '</span>'; }).join('') +
       nsw.map(function (v) {
         var ll = GEO.venues[v]; if (!ll) return '';
