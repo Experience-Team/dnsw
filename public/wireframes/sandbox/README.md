@@ -62,3 +62,5 @@ Not carried over: the sandbox's earlier "Add to your plan" / "Added to your plan
 Design rationale (27 Nov 2026): the annotations carry six "Why:" entries (36 lines) beside the handover notes: Your team, Your dates, Where you're staying, Matches and what's on, Fan zones and where to watch, Your plan.
 
 The open plan sheet (27 Nov 2026) shows one zoomable timeline instead of repeating every day (`v1/v1-plan.js`, `v1/v1-zoom.css`): the bar's strip grown across all 44 days, a wedge zoom slider with three levels, and the tapped day's summary underneath. Your days are a tinted band and the rest dimmed; List/Map and the sheet's day cards are gone, and Move and Remove are in an item's own sheet. The full-screen day-by-day map opens from the page's trip map.
+
+Tidy (27 Nov 2026): the plan page keeps one rhythm (days 24px apart, families 48px apart, the empty picker shell takes no room, every day heading one size) in `v1/v1-narrative.css`; the open plan sheet keeps its parts 24px apart and shows a day as a heading and rows, not a card holding cards, in `v1/v1-zoom.css`.

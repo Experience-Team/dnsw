@@ -1,0 +1,38 @@
+/* Quieter secondary controls (27 Nov 2026), sandbox only. A secondary button is a soft tint with no outline, so the page is not
+   a grid of boxes and rules; what is selected or on (Added, the chosen tab) stays solid ink, so state still reads at a glance.
+   Primary buttons (black pills) and focus rings are untouched. Loaded last. */
+#tp-phone { --v1-tint: color-mix(in srgb, var(--c-ink) 6%, transparent); --v1-tint-hover: color-mix(in srgb, var(--c-ink) 11%, transparent); }
+/* Add, everywhere it appears */
+#tp-phone .tp-add:not([aria-pressed="true"]) { border: 0; background: var(--v1-tint); }
+/* The switch under a match day, More ideas / More places / Show more */
+#tp-phone .v1-md-tab[aria-pressed="false"], #tp-phone .v1p-showmore { border: 0; background: var(--v1-tint); }
+#tp-phone .v1-nar-blk .tp-blk-more { border: 0; background: color-mix(in srgb, var(--c-ink) 3.5%, transparent); }
+@media (hover: hover) {
+  #tp-phone .tp-add:not([aria-pressed="true"]):hover, #tp-phone .v1-md-tab[aria-pressed="false"]:hover { background: var(--v1-tint-hover); }
+  #tp-phone .v1-nar-blk .tp-blk-more:hover { background: var(--v1-tint); }
+}
+/* Links: a hairline underline in a softer tone; it still says link, without a line under every phrase */
+#tp-phone .tp-link, #tp-phone .tp-out, #tp-phone .v1-nar-b, #tp-phone .v1-nc-t, #tp-phone .tp-dc-name { text-decoration-thickness: 1px; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); }
+/* Containers and tiles: one soft hairline */
+#tp-phone .v1-nar-blk .tp-pcs, #tp-phone .v1-nc, #tp-phone .v1-also-card { border-color: var(--c-line-soft); }
+#tp-phone .v1-dt:not(.is-match) { border-width: 1px; }
+/* The close cross and the plan bar's button: one hairline */
+#tp-phone .cn-close, #tp-phone .tp-tl-exp { border-width: 1px; }
+/* The Also on in NSW prompt is a soft panel, not a boxed outline */
+#tp-phone .v1-also-card { border: 0; background: color-mix(in srgb, var(--c-ink) 4%, transparent); }
+
+/* Home and the plan bar and sheet (27 Nov 2026): the same quiet treatment */
+/* The plan bar's Your plan: a soft pill, no outline */
+#tp-phone .tp-tl-exp { border: 0; border-radius: var(--radius-pill); background: var(--v1-tint); }
+/* The All matches filters on Home: a soft track, the chosen segment solid ink, no dividers */
+#tp-phone .tp-seg:not(.v1-md-sw) { border: 0; background: var(--v1-tint); }
+#tp-phone .tp-seg:not(.v1-md-sw) .tp-seg-btn::before { display: none; }
+/* The outlined secondary call to action, the venue cards, and the fan map's tabs */
+#tp-phone .tp-home-cta--line { border: 0; background: var(--v1-tint); }
+#tp-phone .tp-city { border-color: var(--c-line-soft); }
+#tp-phone .v1-fm-tab[aria-pressed="false"], #tp-phone .v1-fm-tab:not(.is-on):not([aria-selected="true"]) { border-color: transparent; background: var(--v1-tint); }
+/* The open plan: the Your answers card is a soft panel, the close cross a soft circle, and the timeline's axis a hairline */
+#tp-phone .tp-tl-panel .tp-fc { border: 0; background: color-mix(in srgb, var(--c-ink) 4%, transparent); }
+#tp-phone .cn-close { border: 0; background: var(--v1-tint); }
+@media (hover: hover) { #tp-phone .cn-close:hover { background: var(--v1-tint-hover); } }
+#tp-phone .v1z-track::before { background: var(--c-line); }
