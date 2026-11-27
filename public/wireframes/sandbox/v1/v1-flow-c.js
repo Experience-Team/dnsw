@@ -155,7 +155,7 @@
       if (t && t.from && fc.filled) return 'We’ve started with a day either side of your first and last match in NSW. Tap a first and a last day to change it.';
       return tp.own() ? 'Tap a first day and a last day. The matches inside them are your plan.' : 'Tap a first day and a last day to see ideas for your time in NSW.';
     }
-    return 'Pick the closest place, or search. Thinking of somewhere? That counts. You can add a second place.';
+    return 'Pick the closest place, or search. You can add a second place.';
   }
   function stepTitle(s) {
     return { teams: 'Which teams are you following?', days: 'When are you in NSW?', stay: 'Where are you staying, or thinking of staying?' }[s];

@@ -103,3 +103,6 @@
 
 /* Home no longer offers I'm just here for the rugby (27 Nov 2026): with no team picked, every NSW match is assumed when the person goes on */
 #tp-home-rugby { display: none; }
+
+/* Where you're staying asks one thing (28 Nov 2026): the other matches and the Newcastle suggestion belong to the dates step and the plan, not here */
+#tp-phone[data-fc="stay"] #v1-also { display: none !important; }
