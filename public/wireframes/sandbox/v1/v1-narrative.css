@@ -7,7 +7,7 @@
 #tp-phone.v1-nar-on :is(#tp-results, #tp-watch, #tp-plan, .tp-hero, #tp-third-title, #tp-third-note, #tp-third-trip) { display: none !important; }
 
 .v1-nar { margin-top: var(--space-4); }
-.v1-nar-s { margin: 0 0 var(--space-3); font-size: var(--fs-lg, 1.125rem); line-height: 1.45; }
+.v1-nar-s { margin: 0 0 var(--space-3); font-size: 24px; line-height: 1.35; }
 .v1-nar-b { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-weight: var(--fw-semi); color: var(--c-ink); text-align: left;
   text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; text-decoration-color: var(--c-accent); cursor: pointer; border-radius: 2px; }
 .v1-nar-b:focus-visible, .v1-nar-day:focus-visible, .v1-nc-t:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
@@ -177,3 +177,6 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-nar-blk .v1-nonsw-l { margin: var(--space-4) 0 0; border: var(--bw-1) solid var(--c-line-soft); border-radius: var(--radius-lg, 12px); background: var(--c-surface); overflow: hidden; }
 .v1-nar-blk .v1-nonsw-l li { padding: var(--space-3) var(--space-4); }
 .v1-nar-blk .v1-nonsw-l li:first-child { border-top: 0; }
+
+/* The opening sentences have no rule above them (27 Nov 2026) */
+#v1-nar { border-top: 0; }
