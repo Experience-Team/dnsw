@@ -2238,7 +2238,6 @@
       h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying, or thinking of staying?</h2><p class="tp-days-note">Ideas then start near it, and match days show your own way there and back.</p>' +
         '<span id="tp-sq-base" class="visually-hidden">Where are you staying, or thinking of staying?</span>' +
         stayChoicesHtml({ pre: 's', q: sheetQ, labelId: 'tp-sq-base' }) +
-        '<h3 class="tp-days-q">Who’s coming?</h3><div class="tp-quick" role="group" aria-label="Who’s coming">' + PARTY_Q.map(function (x) { return chip('sparty', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
       return h + '</div>';
     }
@@ -2731,8 +2730,6 @@
           : card ? '<h4 class="tp-refine-q" id="tp-q-base">Where are you staying, or thinking of staying?</h4><p class="tp-sec-note tp-q-base-note">The plan starts from here.</p>'
           : '<h4 class="tp-refine-q" id="tp-q-base">Where are you staying, or thinking of staying?</h4>') +
         stayChoicesHtml({ pre: '', q: placeQ, labelId: 'tp-q-base' }) +
-        '<h4 class="tp-refine-q" id="tp-q-party">Who’s coming?</h4>' +
-        '<div class="tp-quick" role="group" aria-labelledby="tp-q-party">' + PARTY_Q.map(function (x) { return chip('party', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '</div>';
     }
     h += '</div>';

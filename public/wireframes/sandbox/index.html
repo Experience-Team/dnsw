@@ -990,7 +990,7 @@
       "Undo steps back one change at a time. Reset clears the days and can itself be undone. Once set, the line shows your days with Change. There is no way to leave the days empty.",
       "The panel holds still on screen while the page below it updates.",
       "Nothing is guessed: the calendar starts with no days picked, unless the step started them from a day before the first NSW match to a day after the last.",
-      "Refine your plan (folded away): Where are you staying? (quick answers that follow the person’s matches, see step 3, or search for a place in NSW; a quiet Staying outside NSW link; I’m a local was removed on 24 Nov, as matches are in both Sydney and Newcastle) and Who’s coming? (Solo, Couple, Friends, Family). One answer each, applied on tap; tap again to clear.",
+      "Refine your plan (folded away): Where are you staying? (quick answers that follow the person’s matches, see step 3, or search for a place in NSW; a quiet Staying outside NSW link; I’m a local was removed on 24 Nov, as matches are in both Sydney and Newcastle). Who’s coming? was removed on 27 Nov 2026 and is no longer asked.",
       "How the answers change the ideas: where you stay sets the city for free days and sorts ideas by distance. Families get attractions and free things first, and day trips before longer trips. Couples and friends get food and drink first.",
       "Until a place is given, the copy says in Sydney (or the city), never near your base.",
       "Open question: the line above the dates, Set your days to see ideas for the rest of your trip., is wording still to approve."
@@ -1079,7 +1079,7 @@
     // Once teams are picked: Your matches
     { sel: "#tp-fc", title: "Version 1: the questions up front", points: [
       "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md); their addresses open this page.",
-      "The Plan tab asks three things in turn (26 Nov 2026): your teams, your days in NSW and where you’re staying. Tickets are not asked: the matches are inferred from the teams and the days, and each can be taken off the plan with a quiet Remove. Who’s coming is left out until it changes anything.",
+      "The Plan tab asks three things in turn (26 Nov 2026): your teams, your days in NSW and where you’re staying. Tickets are not asked: the matches are inferred from the teams and the days, and each can be taken off the plan with a quiet Remove. Who’s coming is no longer asked (27 Nov 2026).",
       "Each step borrows the planner’s own control (the hand of cards, the days calendar), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
       "Step 1 never blocks: with no team picked, a line says every NSW match will be shown, and Next carries on as Every NSW match. That means no team: nothing is inferred, and the NSW matches inside your days are listed under On while you’re here, each with Add. A team picked on Home counts, and once anything is picked the left button is Skip.",
       "Where are you staying, or thinking of staying? (step 3, the Your days sheet’s stay panel and the Your answers card, one builder) always needs a place, as the base of the plan. The quick answers follow the person’s matches (the ones inside their dates; all of their team’s NSW matches with no dates; every NSW match inside the dates with no team): Sydney CBD if a match is in Sydney, Sydney Olympic Park for Stadium Australia, Moore Park for the Sydney Football Stadium, Newcastle if a match is there, and Sydney CBD with Newcastle if there is no NSW match. The buttons carry the same place names the plan uses. The NSW place search stays under them, and a quiet Staying outside NSW link sits under the search. With one place, a quiet + Add another place allows one more, two in total, each shown with Remove; no nights are asked. The plan always reads Staying in [place], or Staying in [place] and [place]. A stadium or fan zone measures distance, time and route from whichever place is nearer; spare-time ideas and another match measure from the first place entered. There is no Still deciding and no no-place state: a saved answer with no place goes back to this step. See your plan is unavailable until a place is chosen, and there is no Skip.",
@@ -1256,7 +1256,7 @@
       "A bar pinned to the foot of the sheet shows what is picked (9 to 20 Oct · 12 days, 1 of your NSW matches) with Use these dates and Remove my days. Nothing changes until Use these dates is tapped.",
       "Days picked but not confirmed are kept: closing the sheet any way keeps them, and reopening shows them with Not saved yet. Use these dates to keep them. Use these dates, Remove my days, or the days changing elsewhere drop the draft. A reload starts from the saved days.",
       "Setting days holds the page still, with focus back on the button that opened the sheet. A toast confirms: Your days are now 8 to 14 Oct, with See Where to watch.",
-      "The plan’s Set your days opens the same sheet over the plan. Add where you’re staying opens it at the staying and who’s coming questions.",
+      "The plan’s Set your days opens the same sheet over the plan. Add where you’re staying opens it at the staying question.",
       "Nothing is guessed: with no days, the ideas follow your match days only."
     ] },
     { sel: "#tp-third-note", title: "Around your matches", points: [
@@ -1285,7 +1285,7 @@
       "Each free day gets three to five ideas of its own, mixing half days in the city with day trips, tagged Fits [day], with how to get there and how long. More ideas shows the rest.",
       "Nothing is suggested twice on the page, and nothing already in the plan is suggested.",
       "A day with a day trip, or two half-day ideas, is full: it shows Your day: … and its ideas move on to the next free day.",
-      "First-time visitors (not local and not staying in Sydney) see Sydney half days first; otherwise a day trip leads. Who’s coming and where you are staying also reorder them.",
+      "First-time visitors (not local and not staying in Sydney) see Sydney half days first; otherwise a day trip leads. Where you are staying also reorders them.",
       "Three or more free days still offer a curated longer trip.",
       "A new set of days (new picks, new dates) starts again from the next block.",
       "Data: 35 real towns and precincts from sydney.com and visitnsw.com (contract §19, gap), marked pink with Annotations on. Towns have no opening hours or price, so those rows are left out. Getting there to be confirmed where the town page does not say. Map positions are approximate."
