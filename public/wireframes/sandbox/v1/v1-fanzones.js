@@ -7,7 +7,7 @@
   var SPOTS = window.v1FanSpots, KIND = window.v1FanKinds, GEO = window.cnGeo;
   var phone = document.getElementById('tp-phone'), watch = document.getElementById('tp-watch');
   if (!SPOTS || !SPOTS.length || !GEO || !phone || !watch) return;
-  var B = GEO.bounds, IMG = 'assets/images/map/nsw-relief.webp';
+  var B = GEO.bounds, IMG = 'assets/images/map/nsw-map.webp';
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   /* The map views, by the places on them (lon0, lon1, lat0 south, lat1 north). Each is picked so its pins are at least a
@@ -52,7 +52,7 @@
   var view = VIEWS[0], sel = view.ids[0];
   function drawMap() {
     var v = view, lonW = v.lon1 - v.lon0, latH = v.lat1 - v.lat0;
-    var pxW = lonW * ((2800) / (B.lon1 - B.lon0)), pxH = latH * ((3602) / (B.lat1 - B.lat0));
+    var pxW = lonW * ((2000) / (B.lon1 - B.lon0)), pxH = latH * ((1000) / (B.lat1 - B.lat0));
     var img = '<img class="v1-fm-img" src="' + IMG + '" alt="" style="left:' + (-(v.lon0 - B.lon0) / lonW * 100) + '%;top:' + (-(B.lat1 - v.lat1) / latH * 100) + '%;width:' + ((B.lon1 - B.lon0) / lonW * 100) + '%;height:' + ((B.lat1 - B.lat0) / latH * 100) + '%">';
     var pins = v.ids.map(function (id, i) {
       var s = spot(id);

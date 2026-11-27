@@ -10,7 +10,8 @@
   var K = tp.narKit, G = window.cnGeo, esc = tp.esc, body = tp.body, reduce = tp.reduce;
   var third = document.getElementById('tp-third'), pick = document.getElementById('tp-pick');
   if (!third || !pick || !pick.parentNode) return;
-  var B = G.bounds, IMG = 'assets/images/map/nsw-relief.webp', IW = 2800, IH = 3602, MAP_H = 280;
+  var B = G.bounds, IMG = 'assets/images/map/nsw-map.webp', IW = 2000, IH = 1000, MAP_H = 280;
+  var R = (IW / (B.lon1 - B.lon0)) / (2800 / 2.05); // the new map's pixels per degree against the old one's, so the zoom limits keep their meaning
   var state = { tab: {}, more: {}, lit: '' };
   tp.narState = state;
 
@@ -18,12 +19,12 @@
   var sec = document.createElement('section');
   sec.className = 'tp-sec v1-nar'; sec.id = 'v1-nar'; sec.tabIndex = -1; sec.setAttribute('aria-labelledby', 'v1-nar-title');
   sec.innerHTML = '<h2 class="visually-hidden" id="v1-nar-title">Your trip</h2>' +
-    '<p class="v1-nar-s" id="v1-nar-s1"></p><p class="v1-nar-s" id="v1-nar-s2"></p><p class="v1-nar-addp" id="v1-nar-addp" hidden></p>' +
+    '<p class="v1-nar-s" id="v1-nar-s1"></p><p class="v1-nar-s" id="v1-nar-s2"></p>' +
     '<div class="v1-tm" id="v1-tm" role="button" tabindex="0"><div class="v1-tm-layer" aria-hidden="true"><img class="v1-tm-img" alt="" draggable="false"></div>' +
     '<svg class="v1-tm-svg" aria-hidden="true" focusable="false"></svg><div class="v1-tm-pins" aria-hidden="true"></div></div>';
   pick.parentNode.insertBefore(sec, pick);
   pick.parentNode.insertBefore(third, pick); // the days follow the map
-  var s1 = sec.querySelector('#v1-nar-s1'), s2 = sec.querySelector('#v1-nar-s2'), addp = sec.querySelector('#v1-nar-addp');
+  var s1 = sec.querySelector('#v1-nar-s1'), s2 = sec.querySelector('#v1-nar-s2');
   var box = sec.querySelector('#v1-tm'), layer = box.querySelector('.v1-tm-layer'), img = box.querySelector('.v1-tm-img'), svg = box.querySelector('.v1-tm-svg'), pins = box.querySelector('.v1-tm-pins');
 
   function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
@@ -54,16 +55,13 @@
 
   function sentences() {
     var t = tp.state.trip || {};
-    if (!(t.from && t.to)) { s1.textContent = ''; s2.textContent = ''; addp.hidden = true; return; }
+    if (!(t.from && t.to)) { s1.textContent = ''; s2.textContent = ''; return; }
     var g = going(), items = g.map(function (x) { return pinBtn(x.label, x.venue); });
     var tail = items.length ? ' to see ' + list(items) : (noNswTeams().length ? ' to follow ' + esc(tp.list(noNswTeams())) : '');
     s1.innerHTML = 'It looks like you’re here between <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d1">' + esc(isoLabel(t.from)) + '</button> and <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d2">' + esc(isoLabel(t.to)) + '</button>' + tail + '.';
     if (t.base === 'outside') s2.innerHTML = 'You’re <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">staying outside NSW</button>.';
     else if (t.base) s2.innerHTML = 'You’re staying in <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">' + esc(t.base) + '</button>' + (t.base2 ? ' and <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p2">' + esc(t.base2) + '</button>' : '') + '.';
     else s2.innerHTML = '<button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">Add where you’re staying</button>.';
-    var canAdd = !!t.base && t.base !== 'outside' && !t.base2;
-    addp.hidden = !canAdd;
-    addp.innerHTML = canAdd ? '<button type="button" class="tp-link" data-nar-addplace id="v1-nar-addplace">+ Add another place</button>' : '';
   }
 
   /* ---------- The trip map: fixed height, zoomed to fit, one static picture ---------- */
@@ -88,18 +86,18 @@
     var P = mapPoints(), sig = W + '|' + P.map(function (p) { return p.kind + p.key; }).join(',') + '|' + state.lit;
     if (sig === drawn) return; drawn = sig;
     if (!img.getAttribute('src')) img.src = IMG;
-    var H = MAP_H, xy = P.map(function (p) { return px(p.ll); });
+    var H = box.clientHeight || MAP_H, xy = P.map(function (p) { return px(p.ll); });
     var cx, cy, s;
     if (xy.length) {
       var x0 = Math.min.apply(null, xy.map(function (q) { return q[0]; })), x1 = Math.max.apply(null, xy.map(function (q) { return q[0]; }));
       var y0 = Math.min.apply(null, xy.map(function (q) { return q[1]; })), y1 = Math.max.apply(null, xy.map(function (q) { return q[1]; }));
       cx = (x0 + x1) / 2; cy = (y0 + y1) / 2;
-      var padX = 74, padY = 40, spanMin = 150;
+      var padX = 74, padY = 40, spanMin = 150 * R;
       s = Math.min((W - 2 * padX) / Math.max(x1 - x0, spanMin), (H - 2 * padY) / Math.max(y1 - y0, spanMin));
     } else { var c = px(G.places['Sydney CBD'] || [-33.87, 151.21]); cx = c[0]; cy = c[1]; s = 1; }
     // Never closer than the city (a Sydney-only trip shows Sydney) and as far out as the trip needs: on a wide box the picture may be
     // narrower than the box, so its sides fade out instead of the trip being cut off
-    s = Math.max(.08, Math.min(.8, s));
+    s = Math.max(.08 / R, Math.min(2, s));
     if (IW * s > W) cx = Math.max(W / (2 * s), Math.min(IW - W / (2 * s), cx));
     cy = Math.max(H / (2 * s), Math.min(IH - H / (2 * s), cy));
     layer.style.transform = 'translate(' + (W / 2 - cx * s) + 'px,' + (H / 2 - cy * s) + 'px) scale(' + s + ')';
@@ -156,7 +154,6 @@
   sec.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.hasAttribute('data-nar-days')) { tp.openDays(b); return; }
-    if (b.hasAttribute('data-nar-addplace')) { K.openStay(b, true); return; }
     if (b.dataset.narPin !== undefined) { highlight(b.dataset.narPin); return; }
   });
   third.addEventListener('click', function (e) {
@@ -247,12 +244,16 @@
       '<button type="button" class="tp-link" data-nar-onmap="' + esc(venue) + '">Show on map</button></div>';
     return h;
   };
-  // A team with no NSW match inside the days: the watch block takes the place of a match block, its fan zone is on the map
+  // Teams with no NSW match inside the days: one watch block for all of them, the fan zone and its address once, then their interstate
+  // matches as one list in date order (a match between two of them is listed once)
   tp.narNoNsw = function (teams) {
-    return teams.map(function (n) {
+    var by = {}, some = [], none = [];
+    teams.forEach(function (n) {
       var away = tp.userMatches().filter(function (m) { return m.f.a && m.f.t && m.f.t.split(' v ').indexOf(n) > -1; });
-      return tp.noNswBlock ? tp.noNswBlock(n, away) : '';
-    }).join('');
+      if (away.length) { some.push(n); away.forEach(function (m) { by[m.key] = m; }); } else none.push(n);
+    });
+    var ms = Object.keys(by).map(function (k) { return by[k]; }).sort(function (a, b) { return a.day - b.day || (K.kickMins(a.f.k) || 0) - (K.kickMins(b.f.k) || 0); });
+    return (some.length && tp.noNswBlock ? tp.noNswBlock(some, ms) : '') + none.map(function (n) { return tp.noNswBlock ? tp.noNswBlock(n, []) : ''; }).join('');
   };
 
   /* ---------- Rendering: on every change, and the class that swaps the old sections out ---------- */

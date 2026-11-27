@@ -65,16 +65,17 @@
   // buttons; the regions are labels only, shown lightly
   var mapEl = document.getElementById('tp-home-map');
   if (mapEl && GEO) {
-    var B = GEO.bounds, TOP = -32.6, BOT = -34.05;
-    var IW = 2800, IH = 3602, frac = (TOP - BOT) / (B.lat1 - B.lat0);
-    mapEl.style.aspectRatio = IW + ' / ' + Math.round(IH * frac);
-    var xy = function (ll) { return 'left:' + ((ll[1] - B.lon0) / (B.lon1 - B.lon0) * 100).toFixed(2) + '%;top:' + ((TOP - ll[0]) / (TOP - BOT) * 100).toFixed(2) + '%'; };
+    // The crop: Sydney up to Port Stephens, out to the Blue Mountains (the new map is wider than the crop, so it is cut on every side)
+    var B = GEO.bounds, TOP = -32.6, BOT = -34.05, LON0 = 150.2, LON1 = 152.25;
+    var pxW = (LON1 - LON0) * (2000 / (B.lon1 - B.lon0)), pxH = (TOP - BOT) * (1000 / (B.lat1 - B.lat0));
+    mapEl.style.aspectRatio = Math.round(pxW) + ' / ' + Math.round(pxH);
+    var xy = function (ll) { return 'left:' + ((ll[1] - LON0) / (LON1 - LON0) * 100).toFixed(2) + '%;top:' + ((TOP - ll[0]) / (TOP - BOT) * 100).toFixed(2) + '%'; };
     var P = GEO.places || {};
     var REG = [['Blue Mountains', P.Katoomba, 'r'], ['Central Coast', P.Gosford, 'r'], ['Hunter Valley', P.Pokolbin, 'l'], ['Port Stephens', P['Nelson Bay'], 'l']];
     // Label sides keep the two Sydney pins apart: Olympic Park to the left, Moore Park to the right
     var SIDE = { 'Stadium Australia': 'l', 'Sydney Football Stadium': 'r', 'Newcastle Stadium': 'l' };
     var SHORT = { 'Stadium Australia': 'Olympic Park', 'Sydney Football Stadium': 'Moore Park', 'Newcastle Stadium': 'Newcastle' };
-    mapEl.innerHTML = '<img class="tp-home-map-img" src="assets/images/map/nsw-relief.webp" alt="" draggable="false" style="transform:translateY(' + (-(B.lat1 - TOP) / (B.lat1 - B.lat0) * 100).toFixed(2) + '%)">' +
+    mapEl.innerHTML = '<img class="tp-home-map-img" src="assets/images/map/nsw-map.webp" alt="" draggable="false" style="left:' + (-(LON0 - B.lon0) / (LON1 - LON0) * 100).toFixed(2) + '%;top:' + (-(B.lat1 - TOP) / (TOP - BOT) * 100).toFixed(2) + '%;width:' + ((B.lon1 - B.lon0) / (LON1 - LON0) * 100).toFixed(2) + '%">' +
       REG.filter(function (r) { return r[1]; }).map(function (r) { return '<span class="tp-home-reg is-' + r[2] + '" style="' + xy(r[1]) + '" aria-hidden="true">' + esc(r[0]) + '</span>'; }).join('') +
       nsw.map(function (v) {
         var ll = GEO.venues[v]; if (!ll) return '';

@@ -2011,7 +2011,8 @@
     var pr = phoneEl.getBoundingClientRect(), capW = phoneEl.querySelector('.tp-cap-wrap'), pick = document.getElementById('tp-pick');
     var under = capW ? capW.getBoundingClientRect().bottom - pr.top + 24 : 24;
     // The narrative plan page (27 Nov 2026): the rail is anchored under the section nav, at the top of the page, not beside the picker
-    var start = pick && !phoneEl.classList.contains('v1-nar-on') ? pick.getBoundingClientRect().top - pr.top : under;
+    var s1 = phoneEl.classList.contains('v1-nar-on') ? document.getElementById('v1-nar-s1') : null; // the first sentence: the rail's top lines up with it, then follows the page up to the nav
+    var start = s1 && s1.offsetParent ? s1.getBoundingClientRect().top - pr.top : pick && !phoneEl.classList.contains('v1-nar-on') ? pick.getBoundingClientRect().top - pr.top : under;
     railTop = Math.max(under, start);
     // Open, the plan needs room: the rail rises (never above the nav) until 320px of it fits above the window's foot
     if (tlOpen) railTop = Math.max(under, Math.min(railTop, phoneEl.clientHeight - 24 - BAR - 320));

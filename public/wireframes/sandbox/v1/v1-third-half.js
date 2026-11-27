@@ -225,10 +225,11 @@
     return 'From ' + esc(from) + ': ' + (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ', ' + (walk ? 'a ' + mins + ' minute walk' : 'about ' + mins + ' minutes by train or bus') + ' (approximate)';
   }
   tp.noNswBlock = function (team, away) {
-    if (!away.length) return '<p class="v1-nonsw-none">' + esc(team) + ' have no match inside your days. See Also on in NSW below for matches on while you\u2019re here.</p>';
+    var names = [].concat(team), who = names.length > 1 ? tp.list(names) : names[0]; // one team, or several in one block (the plan page)
+    if (!away.length) return '<p class="v1-nonsw-none">' + esc(who) + ' have no match inside your days. See Also on in NSW below for matches on while you\u2019re here.</p>';
     var g = window.cnGeo, first = basePlace(), sp = nearestFan((first && g && g.places[first]) || (g && g.places['Sydney CBD'])); if (!sp) return '';
     var route = fanRouteHtml(sp);
-    return '<div class="v1-nonsw"><p class="v1-nonsw-h">' + esc(team) + ' play interstate while you\u2019re here. Watch with other fans at <b>' + esc(sp.name) + '</b>.</p>' +
+    return '<div class="v1-nonsw"><p class="v1-nonsw-h">' + esc(who) + ' play interstate while you\u2019re here. Watch with other fans at <b>' + esc(sp.name) + '</b>.</p>' +
       '<p class="v1-fan-near">' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') + ' ' + SAMPLE_TAG + '</p>' + (route ? '<p class="v1-fan-near">' + route + ' ' + SAMPLE_TAG + '</p>' : '') +
       '<ul class="v1-nonsw-l">' + away.map(function (m) {
         var f = m.f; return '<li><span class="v1-nonsw-m">' + esc(matchName(f)) + '<span>' + esc(f.d + ', ' + (f.k || TBC_L) + ' \u00b7 ' + f.a) + '</span></span>' + koAddHtml(m) + '</li>';
@@ -959,7 +960,7 @@
   // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
   function watchBody(b) {
     return alsoLine(b.day) + '<p class="tp-blk-note">' + (b.ms.length > 1 ? manyLine(b.ms) + ', so venues showing ' + (b.ms.length > 2 ? 'all of them' : 'both') + ' come first. ' : '') + 'Here\u2019s where to watch in NSW.</p>' +
-      b.ms.map(matchLine).join('') + venueRows(b.ms, evKey(b.ms));
+      '<div class="v1-wm-l">' + b.ms.map(matchLine).join('') + '</div>' + venueRows(b.ms, evKey(b.ms));
   }
   function halfBody(b) {
     var wd = weekdayOf(b.day), f = { d: dayLabel(b.day) };
@@ -1970,7 +1971,7 @@
     pmScrim.hidden = !asSheet && !wideModal(); // a full page is a modal over the dimmed page on desktop too
     // Everything behind waits; remember what was already inert so closing puts it back as it was
     pmLayerBack(true);
-    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full'), document.getElementById('v1z-wide')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
@@ -2237,7 +2238,6 @@
       h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying, or thinking of staying?</h2><p class="tp-days-note">Ideas then start near it, and match days show your own way there and back.</p>' +
         '<span id="tp-sq-base" class="visually-hidden">Where are you staying, or thinking of staying?</span>' +
         stayChoicesHtml({ pre: 's', q: sheetQ, labelId: 'tp-sq-base' }) +
-        '<h3 class="tp-days-q">Who’s coming?</h3><div class="tp-quick" role="group" aria-label="Who’s coming">' + PARTY_Q.map(function (x) { return chip('sparty', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
       return h + '</div>';
     }
@@ -2730,8 +2730,6 @@
           : card ? '<h4 class="tp-refine-q" id="tp-q-base">Where are you staying, or thinking of staying?</h4><p class="tp-sec-note tp-q-base-note">The plan starts from here.</p>'
           : '<h4 class="tp-refine-q" id="tp-q-base">Where are you staying, or thinking of staying?</h4>') +
         stayChoicesHtml({ pre: '', q: placeQ, labelId: 'tp-q-base' }) +
-        '<h4 class="tp-refine-q" id="tp-q-party">Who’s coming?</h4>' +
-        '<div class="tp-quick" role="group" aria-labelledby="tp-q-party">' + PARTY_Q.map(function (x) { return chip('party', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '</div>';
     }
     h += '</div>';
