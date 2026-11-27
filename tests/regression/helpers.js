@@ -111,12 +111,19 @@ export async function pick(page, name) {
 }
 
 export async function picked(page) {
-  return page.locator('#tp-phone .tp-card2[aria-pressed="true"]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  // the card's label adds ", plays in NSW" for a team with a match in NSW (always, since 26 Nov 2026): the name is what is asked
+  return page.locator('#tp-phone .tp-card2[aria-pressed="true"]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label').replace(/, plays in NSW$/, '')));
 }
 
 // Option C: the step showing, or '' once the flow is finished
 export async function fcStep(page) {
   return page.evaluate(() => (window.tpFlowC ? window.tpFlowC.step() : null));
+}
+// Where you're staying (step 3, 26 Nov 2026): the quick answers follow the person's matches, so the first one is
+// whatever is offered. It is a required answer: See your plan stays unavailable until one is chosen.
+export async function chooseStay(page) {
+  await page.locator('#tp-ask .tp-quick:first-of-type [data-base]').first().click();
+  await settle(page);
 }
 export async function fcNext(page) {
   await page.locator('#tp-phone .tp-fc-next:visible').first().click();

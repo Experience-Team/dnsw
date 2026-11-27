@@ -1,18 +1,19 @@
 /* Option C (?flow=c, 23 Nov): the questions up front, one step at a time, a test from team feedback.
-   The Plan tab asks four things in turn before it shows the planner: your teams, the tickets you already have, your
-   days in NSW and where you're staying. Who's coming is left out until it changes anything (the user's call). Every
-   step can be skipped, and Skip to your plan finishes the flow from any step with whatever has been answered.
+   The Plan tab asks three things in turn before it shows the plan: your teams, your days in NSW and where you're
+   staying (26 Nov 2026: the tickets step is gone; the matches are inferred from the teams and the days, and each can
+   be taken off). Who's coming is left out until it changes anything (the user's call). Teams and where you're
+   staying are required; your days can be skipped.
    Each step borrows the planner's own controls, so an answer is the same answer as in Options A and B:
-     1 Teams: the hand of cards with Find your team and Clear all (#tp-util, #tp-picker), Every NSW match included.
-     2 Tickets: your teams' NSW matches as a list built here; No tickets yet replaces any marked, and marking one
-       replaces it (check 2); Clear all shows once one is marked (check 3).
-     3 Your days: the range calendar (#tp-ask), starting from your first to last NSW match.
-     4 Where you're staying: the quick answers and the NSW place search from Refine your plan (#tp-ask).
+     1 Teams: the hand of cards with Find your team and Clear all (#tp-util, #tp-picker). Show every NSW match means
+       no team: nothing is inferred, and the NSW matches inside the days are listed to add.
+     2 Your days: the range calendar (#tp-ask), starting from your first to last NSW match.
+     3 Where you're staying: the quick answers and the NSW place search (#tp-ask), one base only, with This is my best
+       guess for someone who is not sure.
    The plan bar stays in view the whole time and fills as answers come in, but does not open until the flow is
    finished (the user's call). Once finished, the planner is Option A's, under a Your answers block; each answer's
    Change opens its step again in place, and Done comes back to the answer.
-   The flow's own place (step, No tickets yet, whether the days were started for them) is kept in this browser with
-   Option C's other saves (flow-c:, the storage script in the page's <head>). Reset prototype starts it again. */
+   The flow's own place (step, whether the days were started for them) is kept in this browser with Option C's other
+   saves (flow-c:, the storage script in the page's <head>). Reset prototype starts it again. */
 (function () {
   'use strict';
   if (document.documentElement.getAttribute('data-flow') !== 'c') return;
@@ -21,23 +22,25 @@
   var pick = document.getElementById('tp-pick'), ask = document.getElementById('tp-ask');
   if (!phone || !pick || !ask) return;
 
-  // Three steps since 24 Nov: Where you're staying left the up-front questions and stays an optional refinement in
-  // the Your answers card (the user's call)
-  var STEPS = ['teams', 'tickets', 'days'];
-  var NAME = { teams: 'Your teams', tickets: 'Tickets', days: 'Your days', stay: 'Where you’re staying' };
-  var NEXT = { teams: 'Next: tickets', tickets: 'Next: your days', days: 'See your plan' };
+  // Three steps since 26 Nov 2026: your teams, your days, where you're staying (the tickets step is gone; where you're
+  // staying is required, as the base of the plan)
+  var STEPS = ['teams', 'days', 'stay'];
+  var NAME = { teams: 'Your teams', days: 'Your days', stay: 'Where you’re staying' };
+  var NEXT = { teams: 'Next: your dates', days: 'Next: your stay', stay: 'See your plan' };
   var KEY = 'tp-fc-v1';
-  var fc = { step: 'teams', none: false, filled: false };
+  var fc = { step: 'teams', filled: false };
   try { if (/[?&]reset\b/.test(location.search)) localStorage.removeItem(KEY); } catch (e) {} // ?reset starts the flow again too
   try { var rec = JSON.parse(localStorage.getItem(KEY) || 'null');
-    if (rec && rec.step === 'stay') rec.step = 'done'; // saved on the old stay step: the flow is finished, the answer kept
-    if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, none: !!rec.none, filled: !!rec.filled, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
+    // Saved before 26 Nov 2026 (v < 3): a place on the old tickets step moves to the days; the old stay step (gone since
+    // 24 Nov) means the flow was finished, the answer kept
+    if (rec && (rec.v || 1) < 3) { if (rec.step === 'tickets') rec.step = 'days'; else if (rec.step === 'stay') rec.step = 'done'; }
+    if (rec && (STEPS.indexOf(rec.step) > -1 || rec.step === 'done')) fc = { step: rec.step, filled: !!rec.filled, pre: rec.pre || null, v: rec.v || 1 }; } catch (e) {}
   // Step 1 is the one required answer since 24 Nov. A place saved before then that got past it with nothing picked
-  // goes back to step 1; saves since carry v: 2, so a card left with no team after the flow stays as it is
-  if (fc.v !== 2 && fc.step !== 'teams' && !state.picked.length) fc.step = 'teams';
-  fc.v = 2;
+  // goes back to step 1; saves since carry v: 2 or more, so a card left with no team after the flow stays as it is
+  if ((fc.v || 1) < 2 && fc.step !== 'teams' && !state.picked.length) fc.step = 'teams';
+  fc.v = 3;
   var edit = ''; // was a step reopened from Your answers; no longer set since the answers became a card (24 Nov)
-  function keep() { fc.v = 2; try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
+  function keep() { fc.v = 3; try { localStorage.setItem(KEY, JSON.stringify(fc)); } catch (e) {} }
   // The step showing, or '' once the flow is finished and nothing is reopened
   function step() { return edit || (fc.step === 'done' ? '' : fc.step); }
   window.tpFlowC = {
@@ -54,38 +57,26 @@
   var BACK = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4L3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* ---------- What has been answered ---------- */
-  function city(f) { return (window.cnVenueCity || {})[f.v] || f.p; }
-  // The matches a ticket can be marked on: your teams' NSW matches whose teams are known (as the match cards' I have
-  // tickets), by date
-  // Every match of your teams whose teams are known: NSW first, then interstate (24 Nov; NSW only before, which left
-  // teams that play all their pool matches interstate with nothing to mark). The plan and each match's sheet already
-  // take an interstate ticket. Knockouts are left out: with no teams yet, a ticket for one cannot be recorded
-  function tixMatches() {
-    if (!tp.own()) return [];
-    var ms = tp.userMatches().filter(function (m) { return m.tkey; });
-    return ms.filter(function (m) { return !m.f.a; }).concat(ms.filter(function (m) { return m.f.a; }));
-  }
-  function myTickets() { return tixMatches().filter(function (m) { return state.tickets.indexOf(m.tkey) > -1; }); }
   function baseLabel(b) { return b === 'outside' ? 'Outside NSW' : b; }
   function teamsText() { return state.picked.length ? tp.list(state.picked.slice()) : 'None picked'; }
-  function ticketsText() { var n = myTickets().length; return n ? n + (n === 1 ? ' match' : ' matches') : fc.none ? 'None yet' : 'Not answered'; }
   function daysText() { var t = state.trip; return t && t.from && t.to ? tp.isoRange(t.from, t.to) : 'Not set'; }
-  function stayText() { var t = state.trip; return t && t.base ? baseLabel(t.base) : 'Not set'; }
+  function stayText() { var t = state.trip; return t && (t.base || t.guess) ? tp.stayLine(t, true) : 'Not set'; }
+  // Where you're staying is answered by a place, Staying outside NSW, or Still deciding (with no place too)
+  function hasBase() { var t = state.trip; return !!(t && (t.base || t.guess)); }
   /* ---------- The step's head and foot, around the borrowed controls ---------- */
   var head = document.createElement('section');
   head.className = 'tp-fc'; head.id = 'tp-fc';
   head.setAttribute('aria-labelledby', 'tp-fc-h');
   pick.insertBefore(head, pick.firstChild);
-  /* Once the questions are done (24 Nov), Your answers is one condensed card: the teams, then tickets, days and where
+  /* Once the questions are done (24 Nov), Your answers is one condensed card: the teams, then days and where
      you're staying in a line. Change opens it, and inside are all the answers' own controls: the hand of cards (with
-     Find and Every NSW match), the tickets list, Your days and Where you're staying. They are the same controls the
+     Find and Every NSW match), Your days and Where you're staying. They are the same controls the
      steps borrow, moved into the card's body by id; Home and the Add team sheet still borrow the hand from wherever it
      is, and put it back there. Done (at the top or the foot of the card) closes it. Closed again on every visit. */
   var headTop = document.createElement('div'); headTop.className = 'tp-fc-head';
   var cardBody = document.createElement('div'); cardBody.className = 'tp-fc-body'; cardBody.id = 'tp-fc-body';
   cardBody.setAttribute('role', 'region'); cardBody.setAttribute('aria-label', 'Your answers');
   cardBody.innerHTML = '<h4 class="tp-fc-bh">Your teams</h4><div class="tp-fc-slot" id="tp-fc-slot-teams"></div>' +
-    '<h4 class="tp-fc-bh">Tickets</h4><div class="tp-fc-slot" id="tp-fc-slot-tix"></div>' +
     '<div class="tp-fc-slot" id="tp-fc-slot-ask"></div>';
   head.appendChild(headTop);
   /* Since 24 Nov the card lives in the open plan (the timeline sheet), at its top under the title, and Change drills
@@ -99,14 +90,15 @@
   level.setAttribute('role', 'region'); level.setAttribute('aria-labelledby', 'tp-fc-lh');
   level.innerHTML = '<div class="tp-fc-lhead"><button type="button" class="tp-fc-backbtn tp-fc-lback" data-fc-card="back" aria-label="Back to Your plan">' +
     '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4L3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
-    '<h3 class="tp-fc-lh" id="tp-fc-lh" tabindex="-1">Your answers</h3></div>';
+    '<h3 class="tp-fc-lh" id="tp-fc-lh" tabindex="-1">Your answers</h3>' +
+    '<button type="button" class="cn-close tp-fc-lclose" data-fc-card="close" aria-label="Close your plan"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>';
   level.appendChild(cardBody);
   var saveBar = document.createElement('div');
   saveBar.className = 'tp-fc-save'; saveBar.hidden = true;
   saveBar.innerHTML = '<p class="tp-fc-save-t" role="status"></p><button type="button" class="tp-home-cta" data-fc-card="save">Save</button>';
   level.appendChild(saveBar);
   if (tlPanel) tlPanel.appendChild(level);
-  var slotTeams = cardBody.querySelector('#tp-fc-slot-teams'), slotTix = cardBody.querySelector('#tp-fc-slot-tix'), slotAsk = cardBody.querySelector('#tp-fc-slot-ask');
+  var slotTeams = cardBody.querySelector('#tp-fc-slot-teams'), slotAsk = cardBody.querySelector('#tp-fc-slot-ask');
   var cardOpen = false;
   // The planner's own controls the card holds, in order. The hand's place marker (a comment the tab script leaves so
   // the hand comes back from Home) moves with it, so Home returns the hand to the card
@@ -148,49 +140,28 @@
 
   function stepNote(s) {
     if (s === 'teams') return 'Pick one or more teams to see their matches.';
-    if (s === 'tickets') {
-      if (!tp.own()) return 'Pick a team first, and its matches show here.';
-      return tixMatches().length ? 'Mark the matches you already have tickets for.' : 'There are no matches to mark yet: their teams are still to be decided.';
-    }
     if (s === 'days') {
       var t = state.trip;
+      if (tp.rugby()) return 'Tap a first day and a last day, and the NSW matches inside them are listed for you to add. Or skip if you don’t know yet.';
       if (t && t.from && fc.filled) return 'We’ve started with your first to last match in NSW. Tap a first and a last day to change it.';
       return tp.own() ? 'Tap a first day and a last day, or skip if you don’t know yet.' : 'Set your days to see ideas for your time in NSW.';
     }
-    return 'Ideas near you come first. Skip if you’re not sure yet.';
+    return 'Pick the closest place, or search. Not sure yet? Say you’re still deciding.';
   }
   function stepTitle(s) {
-    return { teams: 'Which teams are you following?', tickets: 'Do you have tickets yet?', days: 'When are you in NSW?', stay: 'Where are you staying?' }[s];
-  }
-  function ticketsHtml() {
-    var ms = tixMatches(); if (!ms.length) return '';
-    var on = myTickets().length;
-    return '<div class="tp-fc-tix" role="group" aria-label="Tickets you have">' +
-      '<button type="button" class="tp-fc-opt tp-fc-none" data-fc-none aria-pressed="' + (fc.none && !on) + '">' + TICK + '<span class="tp-fc-opt-t">No tickets yet</span></button>' +
-      ms.map(function (m, i) {
-        var has = state.tickets.indexOf(m.tkey) > -1;
-        // A heading where the list turns from NSW to interstate matches (or leads it, when every match is interstate)
-        var sub = m.f.a && (i === 0 || !ms[i - 1].f.a) ? '<p class="tp-fc-sub">' + (i === 0 ? 'Your teams’ matches, all interstate' : 'Interstate') + '</p>' : '';
-        return sub + '<button type="button" class="tp-fc-opt" data-fc-tix="' + esc(m.tkey) + '" aria-pressed="' + has + '">' + TICK +
-          '<span class="tp-fc-opt-t">' + esc(m.f.t) + '</span><span class="tp-fc-opt-m">' + esc(m.f.d + ' · ' + m.f.k + (m.f.a ? ' Sydney time · ' + m.f.v + ', ' + m.f.a : ' · ' + m.f.v + ', ' + city(m.f))) + '</span></button>';
-      }).join('') + '</div>' +
-      (on ? '<p class="tp-fc-clear"><button type="button" class="tp-link" data-fc-clear>Clear all</button></p>' : '');
+    return { teams: 'Which teams are you following?', days: 'When are you in NSW?', stay: 'Where are you staying?' }[s];
   }
   var NEXTI = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var CHEV = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  // The condensed card: the teams on one line, then tickets, days and where you're staying, each only once answered
+  // The condensed card: the teams on one line, then days and where you're staying, each only once answered
   function answersHtml() {
-    var n = myTickets().length, t = state.trip || {}, bits = [];
-    bits.push(n ? n + (n === 1 ? ' ticket' : ' tickets') : fc.none ? 'No tickets yet' : '');
+    var t = state.trip || {}, bits = [];
     bits.push(t.from && t.to ? tp.isoRange(t.from, t.to) : 'No days set');
-    if (t.base) bits.push(t.base === 'outside' ? 'From outside NSW' : 'Staying in ' + t.base);
+    if (t.base || t.guess) bits.push(tp.stayLine(t, true));
     return '<h3 class="tp-fc-ah"><button type="button" class="tp-fc-cardbtn" id="tp-fc-h" data-fc-card="open">' +
       '<span class="tp-fc-cardt">Your answers</span><span class="tp-fc-cardact">Change' + NEXTI + '</span></button></h3>' +
       '<p class="tp-fc-sum1">' + esc(state.picked.length ? tp.list(state.picked.slice()) : 'No team picked') + '</p>' +
       '<p class="tp-fc-sum2">' + esc(bits.filter(Boolean).join(' · ')) + '</p>';
-  }
-  function tixSlotHtml() {
-    return ticketsHtml() || '<p class="tp-fc-note">' + esc(stepNote('tickets')) + '</p>';
   }
   function headHtml(s) {
     if (!s) return answersHtml();
@@ -200,8 +171,7 @@
     return (edit ? '<p class="tp-fc-count">Change your answer</p>' : '<div class="tp-fc-top">' + back + '<p class="tp-fc-count" id="tp-fc-count">Step ' + (i + 1) + ' of ' + STEPS.length + '<span class="visually-hidden">: ' + NAME[s] + '</span></p></div>' +
       '<ol class="tp-fc-prog" aria-hidden="true">' + STEPS.map(function (x, j) { return '<li class="' + (j < i ? 'is-done' : j === i ? 'is-on' : '') + '"></li>'; }).join('') + '</ol>') +
       '<h3 class="tp-fc-h" id="tp-fc-h" tabindex="-1"' + (edit ? '' : ' aria-describedby="tp-fc-count"') + '>' + stepTitle(s) + '</h3>' +
-      '<p class="tp-fc-note">' + esc(edit ? stepNote(s).replace(/,? or skip[^.]*\./, '.').replace(/ Skip[^.]*\./, '') : stepNote(s)) + '</p>' + // no Skip while changing one answer
-      (s === 'tickets' ? ticketsHtml() : '');
+      '<p class="tp-fc-note">' + esc(edit ? stepNote(s).replace(/,? or skip[^.]*\./, '.').replace(/ Skip[^.]*\./, '') : stepNote(s)) + '</p>'; // no Skip while changing one answer
   }
   function footHtml(s) {
     if (!s) return '';
@@ -209,11 +179,15 @@
     // Skip on the left moves on to the next screen without this answer; Next on the right (24 Nov). The plan bar under
     // the foot already says what is on the plan, so the foot carries the buttons only.
     // Step 1 is required (24 Nov): until a team or Every NSW match is picked, Next is unavailable (aria-disabled, so it
-    // stays in place and in the Tab order) with a line saying why, and the left button is Show every NSW match
-    var need = s === 'teams' && !state.picked.length;
-    return (need ? '<p class="tp-fc-why" id="tp-fc-why">Pick a team to carry on, or show every NSW match.</p>' : '') +
-      '<div class="tp-fc-nav">' + (need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
-        : '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>') +
+    // stays in place and in the Tab order) with a line saying why, and the left button is Show every NSW match.
+    // Step 3, where you're staying, is required too (26 Nov 2026): Next, See your plan, is unavailable until a place is
+    // chosen, and there is no Skip
+    var need = s === 'teams' ? !state.picked.length : s === 'stay' ? !hasBase() : false;
+    var why = s === 'stay' ? 'Choose where you’re staying, or say you’re still deciding.' : 'Pick a team to carry on, or show every NSW match.';
+    var left = s === 'stay' ? '' : need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
+      : '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>';
+    return (need ? '<p class="tp-fc-why" id="tp-fc-why">' + why + '</p>' : '') +
+      '<div class="tp-fc-nav' + (s === 'stay' ? ' tp-fc-nav--one' : '') + '">' + left +
       '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1"' + (need ? ' aria-disabled="true" aria-describedby="tp-fc-why"' : '') + '>' + NEXT[s] + ARR + '</button></div>';
   }
 
@@ -221,22 +195,20 @@
   // Redrawn whenever the answers change; the control with focus is found again by what it does
   function focusKey(el) {
     if (!el || !el.dataset) return null;
-    if (el.dataset.fcTix) return '[data-fc-tix="' + CSS.escape(el.dataset.fcTix) + '"]';
-    var ks = ['fcNone', 'fcClear', 'fcDone', 'fcSkip', 'fcAll'];
+    var ks = ['fcDone', 'fcSkip', 'fcAll'];
     for (var i = 0; i < ks.length; i++) if (el.dataset[ks[i]] !== undefined) return '[data-' + ks[i].replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + ']';
     if (el.dataset.fcGo) return '[data-fc-go="' + el.dataset.fcGo + '"]';
     if (el.dataset.fcCard) return '[data-fc-card="' + el.dataset.fcCard + '"]';
     return null;
   }
-  var lastH = '', lastF = '', lastX = '';
+  var lastH = '', lastF = '';
   function draw() {
-    var s = step(), a = document.activeElement, k = ((headTop.contains(a) || slotTix.contains(a)) || foot.contains(a) || saveBar.contains(a)) ? focusKey(a) : null;
+    var s = step(), a = document.activeElement, k = (headTop.contains(a) || foot.contains(a) || saveBar.contains(a)) ? focusKey(a) : null;
     if (s) phone.setAttribute('data-fc', s); else phone.removeAttribute('data-fc');
     if (s) phone.removeAttribute('data-fc-card'); else phone.setAttribute('data-fc-card', cardOpen ? 'open' : 'closed');
     place();
-    var h = headHtml(s), f = footHtml(s), x = s ? '' : tixSlotHtml();
+    var h = headHtml(s), f = footHtml(s);
     if (h !== lastH) { headTop.innerHTML = h; lastH = h; }
-    if (x !== lastX) { slotTix.innerHTML = x; lastX = x; }
     if (f !== lastF) { foot.innerHTML = f; lastF = f; }
     if (k) { var el = phone.querySelector(k); if (el && el !== document.activeElement) el.focus({ preventScroll: true }); else if (!el) focusHead(); }
   }
@@ -265,11 +237,11 @@
   }
   // Your days starts from their first to last NSW match, once, the first time the step opens with none set
   function prefillDays() {
-    if (fc.filled || (state.trip && state.trip.from)) return;
+    if (fc.filled || (state.trip && state.trip.from) || tp.rugby()) return; // no team: nothing is inferred
     var r = tp.inferTrip(); if (!r) return;
     var t = state.trip || {};
     fc.filled = true; fc.pre = r; keep();
-    tp.setTrip({ from: r.from, to: r.to, base: t.base, party: t.party });
+    tp.setTrip({ from: r.from, to: r.to, base: t.base, guess: t.guess, party: t.party });
   }
   function show(dir, focus) {
     var s = step();
@@ -283,15 +255,14 @@
     slideIn(dir);
   }
   // What the answers are now, to name the latest change on the Save bar
-  function snap() { var t = state.trip || {}; return { picked: state.picked.slice(), tix: myTickets().length, from: t.from || '', to: t.to || '', base: t.base || '' }; }
+  function snap() { var t = state.trip || {}; return { picked: state.picked.slice(), from: t.from || '', to: t.to || '', base: t.base || '', guess: !!t.guess }; }
   var lastSnap = null;
   function changeLine(a, b) {
     var added = b.picked.filter(function (n) { return a.picked.indexOf(n) < 0; }), gone = a.picked.filter(function (n) { return b.picked.indexOf(n) < 0; });
     if (added.length) return added[added.length - 1] + ' added to your teams';
     if (gone.length) return gone[gone.length - 1] + ' removed from your teams';
-    if (b.tix !== a.tix) return b.tix > a.tix ? 'Ticket marked' : 'Ticket removed';
     if (b.from !== a.from || b.to !== a.to) return b.from && b.to ? 'Your days are now ' + tp.isoRange(b.from, b.to) : 'Your days are cleared';
-    if (b.base !== a.base) return b.base ? (b.base === 'outside' ? 'Staying outside NSW' : 'Staying in ' + b.base) : 'Where you’re staying is cleared';
+    if (b.base !== a.base || b.guess !== a.guess) return b.base || b.guess ? tp.stayLine({ base: b.base || undefined, guess: b.guess }) : 'Where you’re staying is cleared';
     return '';
   }
   function followChange() {
@@ -340,42 +311,19 @@
     var b = e.target.closest('button'); if (!b || !(head.contains(b) || foot.contains(b) || level.contains(b))) return;
     var s = step(), i = STEPS.indexOf(s);
     // Next on step 1 with nothing picked: it says why (the line is also its description) and stays where it is
-    if (b.getAttribute('aria-disabled') === 'true') { tp.say('Pick a team to carry on, or show every NSW match.'); return; }
-    if (b.dataset.fcAll !== undefined) { tp.addRugby(b); go('tickets', 1); return; }
+    if (b.getAttribute('aria-disabled') === 'true') { tp.say(s === 'stay' ? 'Choose where you’re staying, or say you’re still deciding.' : 'Pick a team to carry on, or show every NSW match.'); return; }
+    if (b.dataset.fcAll !== undefined) { tp.addRugby(b); go('days', 1); return; }
     if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
     if (b.dataset.fcSkip !== undefined) {
       // Skipping Your days takes back the days started for them, if they were left as they were: a skip is not a yes
       var t = state.trip, pre = fc.pre;
-      if (s === 'days' && t && pre && t.from === pre.from && t.to === pre.to) tp.setTrip({ base: t.base, party: t.party });
+      if (s === 'days' && t && pre && t.from === pre.from && t.to === pre.to) tp.setTrip({ base: t.base, guess: t.guess, party: t.party });
       go(i + 1 >= STEPS.length ? 'done' : STEPS[i + 1], 1); return;
     }
     if (b.dataset.fcCard === 'open') { openLevel(); return; }
     if (b.dataset.fcCard === 'back') { closeLevel(true); return; }
+    if (b.dataset.fcCard === 'close') { closeLevel(false, true); if (tp.closeTimeline) tp.closeTimeline(); return; } // the cross closes the plan, the level with it
     if (b.dataset.fcCard === 'save') { closeLevel(false, true); if (tp.closeTimeline) tp.closeTimeline(); return; } // Save is the plan's close
-    if (b.dataset.fcNone !== undefined) {
-      // No tickets yet replaces any marked; pressing it again takes the answer back
-      var had = myTickets();
-      fc.none = !(fc.none && !had.length); keep();
-      had.forEach(function (m) { tp.setTicket(m.tkey, false); });
-      draw();
-      tp.say(fc.none ? 'No tickets yet.' + (had.length ? ' ' + had.length + (had.length === 1 ? ' ticket' : ' tickets') + ' cleared.' : '') : 'Answer cleared.');
-      return;
-    }
-    if (b.dataset.fcTix) {
-      var on = state.tickets.indexOf(b.dataset.fcTix) < 0, m = tp.match(b.dataset.fcTix); // a ticket key is its match key
-      fc.none = false; keep();
-      tp.setTicket(b.dataset.fcTix, on);
-      draw();
-      tp.say((on ? 'Ticket marked: ' : 'Ticket removed: ') + (m ? m.f.t : '') + '.');
-      return;
-    }
-    if (b.dataset.fcClear !== undefined) {
-      var all = myTickets();
-      all.forEach(function (m) { tp.setTicket(m.tkey, false); });
-      draw();
-      tp.say(all.length + (all.length === 1 ? ' ticket' : ' tickets') + ' cleared.');
-      var first = head.querySelector('[data-fc-none]'); if (first) first.focus({ preventScroll: true });
-    }
   });
   // Escape on the Your answers level goes back one step, to the plan, before the plan's own Escape closes it (not while
   // a sheet is stacked over the plan, or Find is open: those close first)
@@ -393,6 +341,6 @@
   phone.addEventListener('tp:tlclose', function () { closeLevel(false, true); });
   phone.addEventListener('tp:state', function () { draw(); followChange(); });
   var reset = document.getElementById('tp-reset');
-  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', none: false, filled: false, v: 2 }; edit = ''; closeLevel(false, true); keep(); show(0, false); });
+  if (reset) reset.addEventListener('click', function () { fc = { step: 'teams', filled: false, v: 3 }; edit = ''; closeLevel(false, true); keep(); show(0, false); });
   show(0, false);
 })();

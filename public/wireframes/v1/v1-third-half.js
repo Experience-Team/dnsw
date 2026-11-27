@@ -69,7 +69,7 @@
   function stay() { var t = trip(); return t && t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
   /* Where you are staying (optional, under Refine your plan). Quick answers, then NSW places to search; each place goes
      with the host city it is nearest (null: far enough from both that neither is assumed). Outside NSW is one answer. */
-  var PLACES = [['Sydney CBD', 'sydney'], ['Bondi', 'sydney'], ['Newcastle', 'newcastle'], ['Blacktown', 'sydney'], ['Bondi Junction', 'sydney'], ['Campbelltown', 'sydney'], ['Chatswood', 'sydney'], ['Coogee', 'sydney'], ['Cronulla', 'sydney'],
+  var PLACES = [['Sydney CBD', 'sydney'], ['Bondi', 'sydney'], ['Newcastle', 'newcastle'], ['Moore Park', 'sydney'], ['Blacktown', 'sydney'], ['Bondi Junction', 'sydney'], ['Campbelltown', 'sydney'], ['Chatswood', 'sydney'], ['Coogee', 'sydney'], ['Cronulla', 'sydney'],
     ['Darling Harbour', 'sydney'], ['Hornsby', 'sydney'], ['Liverpool', 'sydney'], ['Manly', 'sydney'], ['Newtown', 'sydney'], ['North Sydney', 'sydney'], ['Parramatta', 'sydney'], ['Penrith', 'sydney'], ['Randwick', 'sydney'],
     ['Surry Hills', 'sydney'], ['Sydney Olympic Park', 'sydney'], ['The Rocks', 'sydney'], ['Katoomba', 'sydney'], ['Leura', 'sydney'], ['Gosford', 'sydney'], ['Terrigal', 'sydney'], ['Wollongong', 'sydney'], ['Kiama', 'sydney'],
     ['Merewether', 'newcastle'], ['Maitland', 'newcastle'], ['Cessnock', 'newcastle'], ['Pokolbin', 'newcastle'], ['Lake Macquarie', 'newcastle'], ['Nelson Bay', 'newcastle'], ['Port Stephens', 'newcastle'],
@@ -90,7 +90,8 @@
     var a = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(b[0] * r) * Math.cos(ll[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
     return 12742 * Math.asin(Math.sqrt(a));
   }
-  function kmLine(km) { return km === null || km === undefined ? '' : (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ' from ' + basePlace(); }
+  // Still deciding (26 Nov 2026): the distance is to a place they may not stay in, and says so
+  function kmLine(km) { var t = trip() || {}; return km === null || km === undefined ? '' : (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ' from ' + basePlace() + (t.guess ? ', if you stay there' : ''); }
   function ideaKm(i) { return kmFrom(window.cnGeo && window.cnGeo.ideas[i.id]); }
   function prodKm(p) { return kmFrom(window.cnGeo && window.cnGeo.products[p.id]); }
   function byKm(fn) { return function (x, y) { var a = fn(x), b = fn(y); return (a === null ? 1e9 : a) - (b === null ? 1e9 : b); }; }
@@ -163,12 +164,7 @@
   // (agreed 15 Nov). The link goes there; once marked, the card turns into getting there and back.
   // One line per card, not one per match (a card with four matches said it four times in a row): the match is named
   // when there is one; with several it asks once and the link goes to the first one's ticket box
-  function goingQ(ms) {
-    var open = ms.filter(function (m) { return m.tkey && !hasTicket(m); });
-    if (!open.length) return '';
-    var m = open[0], q = open.length === 1 ? 'Going to ' + matchName(m.f) + '?' : 'Going to one of these?';
-    return '<p class="tp-ws-going"><span class="tp-ws-going-q">' + esc(q) + '</span> <button type="button" class="tp-link" data-going-mark="' + esc(m.key) + '">Mark your ticket on the match</button></p>';
-  }
+  function goingQ(ms) { return ''; } // 26 Nov 2026: no tickets are asked for, so no Going? line
   /* A match they have a ticket to (19 Nov, from the critique): not a card but one line above the carousel, so it is
      the first thing seen here. Getting there lives in one place, the match day in Around your matches, which See your
      match day opens (check 8: the label names where it goes). An interstate one says where they will be that day and
@@ -417,8 +413,6 @@
     }
     var a = M.range.a, z = M.range.z, by = {}, out = [], st = null;
     M.ms.forEach(function (m) { if (m.day >= a && m.day <= z) (by[m.day] = by[m.day] || []).push(m); });
-    // Here for the rugby watches every interstate match too
-    if (M.rugby) tp.allMatches().forEach(function (m) { if (m.f.a && m.day >= a && m.day <= z) (by[m.day] = by[m.day] || []).push(m); });
     function close() { if (st) { out.push(st); st = null; } }
     for (var d = a; d <= z; d++) {
       var dm = by[d] || [], home = dm.filter(function (m) { return !m.f.a; }), away = dm.filter(function (m) { return m.f.a && hasTicket(m); });
@@ -498,7 +492,18 @@
   var TRAVEL = window.cnMatchTravel || null;
   var TRAIN_ICO = '<svg class="tp-ico tp-go-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3.5" y="1.5" width="9" height="10" rx="2.5"/><path d="M3.5 7.5h9M6 14.5l1-3M10 14.5l-1-3"/><circle cx="6" cy="9.5" r=".6"/><circle cx="10" cy="9.5" r=".6"/></svg>';
   var LEG = { walk: 'Walk', train: 'Train', event: 'Event shuttle' };
-  function goRoute(f) { return TRAVEL && !f.a ? TRAVEL.route(f.v, basePlace(), baseCity()) : null; }
+  /* Staying in the stadium's own precinct (Around Olympic Park for Stadium Australia, Around Moore Park for the Sydney
+     Football Stadium, 26 Nov 2026) is a walk to the gates, not a train: the placeholder route works out a train for any
+     place that is not the default start, so for these two the route is the walk alone */
+  var OWN_PRECINCT = { 'Stadium Australia': 'Sydney Olympic Park', 'Sydney Football Stadium': 'Moore Park' };
+  function goRoute(f) {
+    var r = TRAVEL && !f.a ? TRAVEL.route(f.v, basePlace(), baseCity()) : null;
+    if (r && OWN_PRECINCT[f.v] && OWN_PRECINCT[f.v] === basePlace()) {
+      var w = TRAVEL.venues[f.v].walk_mins;
+      r = Object.assign({}, r, { from: basePlace(), fromDefault: false, mode: 'Walk', legs: [{ mode: 'walk', to: f.v, mins: w, gates: true }], mins: w, cross: false, far: false });
+    }
+    return r;
+  }
   function ampm(t) { t = ((t % 1440) + 1440) % 1440; var hh = Math.floor(t / 60), mm = t % 60; return ((hh % 12) || 12) + (mm ? ':' + (mm < 10 ? '0' : '') + mm : '') + (hh < 12 ? 'am' : 'pm'); }
   function lower(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
   function goLine(r) { return r.mode + ' from ' + r.from + ', ' + (r.mins ? 'about ' + mins(r.mins) : TBC_L) + ' · ' + lower(r.event_day.extra_services); }
@@ -977,14 +982,8 @@
       r.anchor = home || nearStadium(d, c2); r.place = home ? home.name : CITY[c2];
       r.kicker = dl + ' \u00b7 ' + (b.first ? 'Arrival day' : 'Last day'); r.title = 'Half a day, ' + halfWhere(b);
       if (basePlace() && !halfNear(b)) r.note = halfNote(b);
-      var ps = halfPicks(b);
       if (dayFilled(d)) r.note = 'Your half day is full.';
-      r.pins = ps.map(function (p) {
-        var o = hoursOn(p, wd), id = 'p:' + p.id + ':' + dl, why = ['Open ' + dl + ', ' + clock(o.opens) + ' to ' + clock(o.closes), p.pricing.is_free ? 'free' : p.pricing.band, p.address.suburb, kmLine(prodKm(p))].filter(Boolean).join(' \u00b7 ');
-        ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address.suburb, day: dl };
-        MODAL[id] = { type: 'product', p: p, f: fx, o: o, why: why };
-        return { key: id, title: p.title, kindLabel: PTYPE[p.type] || 'Product', ll: GEO && GEO.products[p.id], html: productCard(p, why, id, fx) };
-      }).filter(function (x) { return x.ll; });
+      r.pins = ideaPins(d);
     } else if (st.kind === 'away') {
       var am = b.m, ll = AWAY_LL[am.f.a];
       r.anchor = home || nearStadium(d, 'sydney'); r.place = am.f.a; r.away = ll ? { ll: ll, name: am.f.a } : null;
@@ -999,7 +998,7 @@
       if (fd && fd.filled) r.body = '<p class="tp-fday-done">Your day: ' + placeLinks(its, ' and ') + '. New ideas move on to your next free day.</p>';
       else if (fd) {
         if (its.length) r.note = 'So far: ' + its.map(function (x) { return x.title; }).join(', ') + '. Room for one more.';
-        r.pins = fd.show.map(function (i) { var key = 'i:' + i.id + '@' + d; return { key: key, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', ll: GEO && GEO.ideas[i.id], trip: i.kind === 'day', html: ideaCard(i, d) }; }).filter(function (x) { return x.ll; });
+        r.pins = ideaPins(d);
       }
       // What is already on that day: shown as done pins, with a loop for a day trip
       its.forEach(function (x) {
@@ -1152,7 +1151,7 @@
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
   function pmActions(id, label) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
-    return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to your plan' : 'Add to your plan') + '</span><span class="visually-hidden">, ' + esc(label) + '</span></button>' +
+    return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden">, ' + esc(label) + '</span></button>' +
       '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>';
   }
   function pmProduct(id, x) {
@@ -1231,9 +1230,8 @@
     if (cw.length) h += '<p class="tp-pm-clash">' + esc(clashLine(cw)) + '</p>';
     // On the plan already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
-    if (by.length || rugby) h += '<p class="tp-pm-on">' + window.tpIcons.added + '<span>On your plan: ' + (by.length ? esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') : 'Every NSW match is on') + '</span></p>';
-    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to my plan' : 'Add to my plan') + '</span><span class="visually-hidden"> for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
-    if (f.t) h += '<label class="tp-ticket tp-pm-ticket"><input type="checkbox" data-pm-ticket="' + esc(m.tkey) + '"' + (state.tickets.indexOf(m.tkey) > -1 ? ' checked' : '') + ' aria-describedby="tp-pm-ticket-why" /><span class="tp-pm-ticket-l">' + window.tpIcons.ticket + 'I have a ticket</span></label><p class="tp-ticket-why" id="tp-pm-ticket-why">Mark it if you\u2019re going, so we skip its screenings and plan your days around it.</p>';
+    if (by.length && !tp.matchTaken(key)) h += '<p class="tp-pm-on">' + window.tpIcons.added + '<span>On your plan: ' + esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') + '</span></p>'; // Every NSW match puts none on the plan (26 Nov 2026)
+    else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden"> for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
     h += '</div>';
     if (teams.length) {
       // The same toggle as Add to my plan: pressed reads Added, with a tick; pressing it again takes the team off
@@ -1399,11 +1397,21 @@
   tp.moveItem = function (id, d) { return moveItem(id, d); };
   /* ---------- For the plan's day cards (v1/v1-plan.js, 26 Nov 2026) ---------- */
   // The ideas for a free day, drawn as the page draws them (the cards and their Add buttons), all of them: the plan shows three and Show more
-  tp.ideasInline = function (d) {
-    var fd = freeInfo(d); if (!fd || fd.filled) return null;
+  /* A day's ideas, in the order the plan's list shows them, and the first three of them are what the full-screen map pins
+     for that day (26 Nov 2026: the list and the map had each picked their own) */
+  function dayIdeas(d) {
+    var fd = freeInfo(d); if (!fd || fd.filled) return [];
     var all = [], seen = {};
     if (fd.half) all = partyFirst(IDEAS.filter(function (i) { return i.kind === 'half' && i.city === fd.base && !ideaAdded(i); }));
     else { fd.show.forEach(function (i) { all.push(i); seen[i.id] = 1; }); ideasFor(d, fd.base).forEach(function (i) { if (!seen[i.id]) all.push(i); }); }
+    return all;
+  }
+  function ideaPins(d) {
+    return dayIdeas(d).slice(0, 3).map(function (i) { var key = 'i:' + i.id + '@' + d; return { key: key, title: i.title, kindLabel: i.kind === 'half' ? 'Half-day idea' : 'Day trip', ll: GEO && GEO.ideas[i.id], trip: i.kind === 'day', html: ideaCard(i, d) }; }).filter(function (x) { return x.ll; });
+  }
+  tp.ideasInline = function (d) {
+    var fd = freeInfo(d); if (!fd || fd.filled) return null;
+    var all = dayIdeas(d);
     return { label: fd.label, count: all.length, cards: all.map(function (i) { return ideaCard(i, d); }) };
   };
   // What a card can say about something added, without opening it: where it is, how to get there, what it costs, when it is open
@@ -1424,6 +1432,8 @@
     return out;
   };
   tp.goOne = function (m) { return goOne(m); };
+  tp.itemLL = function (it) { return addedLL(it); }; // where an added item is (26 Nov 2026: the plan's map)
+  tp.venueLL = function (v) { return GEO && GEO.venues[v] ? GEO.venues[v] : null; };
   tp.freeDays = function () { return FREEINFO.map(function (x) { return { d: x.d, filled: x.filled, count: x.count }; }); };
   tp.imgKey = function (title) { return imgKey(title); };
   tp.itemClosed = function (it, d) { return (it.kind === 'product' || it.kind === 'place' || it.kind === 'poi') && !it.unplaced && !openOn(it, d); };
@@ -1452,7 +1462,7 @@
     h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
       '<div><dt>Open</dt><dd><span class="provenance-gap">' + esc(poiDays(p)) + '</span></dd></div>' +
       '<div><dt>On your plan</dt><dd>' + (!it ? 'Not yet' : it.unplaced ? 'Saved, not placed yet' + (stay() ? ': no free day fits it yet' : ': it goes into a free day once you set your days') : esc(it.day)) + '</dd></div></dl>';
-    h += '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-poi="' + esc(p.id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added to your plan' : 'Add to your plan') + '</span><span class="visually-hidden">, ' + esc(p.title) + '</span></button>' +
+    h += '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-poi="' + esc(p.id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden">, ' + esc(p.title) + '</span></button>' +
       '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div></div>';
     return h;
   }
@@ -1822,7 +1832,7 @@
   }
   function pmWt(name) {
     var ms = tp.userMatches().filter(function (m) { return m.f.t && m.f.t.split(' v ').indexOf(name) > -1; });
-    var h = '<div class="plan-modal-body tp-pm-wt"><h2 class="cn-pp-title" id="tp-pm-title">Watch ' + esc(name) + ' in NSW</h2>' +
+    var h = '<div class="plan-modal-body tp-pm-wt"><h2 class="cn-pp-title" id="tp-pm-title">Find the fan zones for ' + esc(name) + '</h2>' +
       '<p class="tp-ko-note">' + ms.length + (ms.length === 1 ? ' match' : ' matches') + ', each at fan zones, pubs and clubs in NSW. Add the one you\u2019ll go to. Venues are examples until real ones are supplied.</p>';
     ms.forEach(function (m) { h += '<section class="tp-wt-m">' + matchLine(m) + venueRows([m], evKey([m])) + '</section>'; });
     return h + '</div>';
@@ -1852,7 +1862,7 @@
      Your days: the calendar is inline (October and November 2027, the tournament and two days either side), their NSW
      matches are marked, the first tap sets the first day and the second the last. Add where you're staying opens the
      same sheet on the staying question. Nothing moves behind it, and closing returns focus to what opened it. */
-  var dsel = null, dStay = false, pmOpenerEl = null, pmAnchor = null;
+  var dsel = null, dStay = false, pmOpenerEl = null, pmAnchor = null, sheetQ = '';
   /* Unconfirmed days are kept (21 Nov, check 10's "unconfirmed input"): days picked but not yet confirmed with Use these
      dates survive closing the sheet any way (cross, Escape, grabber, a tap outside) and come back when it reopens, with
      "Not saved yet". The draft is dropped by Use these dates, Remove my days, or the confirmed days changing elsewhere
@@ -1868,44 +1878,135 @@
   // What the opener sits in (a day's block), so focus and the page can be held even when the opener itself is rebuilt
   function anchorOf(op) { var c = op && op.closest('[data-blk], [id]'); return !c ? null : c.dataset.blk ? '[data-blk="' + CSS.escape(c.dataset.blk) + '"]' : '#' + CSS.escape(c.id); }
   function dRange() { var t = trip() || {}; return t.from && t.to ? { a: tp.isoDay(t.from), z: tp.isoDay(t.to) } : null; }
-  function dMatches() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { if (!m.f.a) (o[m.day] = o[m.day] || []).push(m); }); return o; }
+  /* The calendar marks two things only (26 Nov 2026): the person's own team's matches in NSW (an orange ring and dot), and the
+     later rounds in NSW (a diamond). Other teams' matches are not marked. With no team (Show every NSW match) every NSW pool
+     match is marked, as nothing is theirs yet. The later rounds always take the diamond. */
+  function dMatches() {
+    var o = {}, src = tp.rugby() ? tp.allMatches() : tp.own() ? tp.userMatchesAll() : [];
+    src.forEach(function (m) { if (!m.f.a && !isKo(m.f)) (o[m.day] = o[m.day] || []).push(m); });
+    return o;
+  }
   /* ---------- Dates (26 Nov 2026): one range calendar, open by default: the first tap sets the first day, the second the last.
      The read-only strip above it was taken out the same day (it was noise beside the calendar, which marks the same matches). */
-  function ownKeys() { var o = {}; (tp.own() ? tp.userMatchesAll() : []).forEach(function (m) { o[m.key] = true; }); return o; }
-  // NSW matches that are not the person's: other teams' pool matches and the later rounds, by day
-  function tmDays() {
-    var own = ownKeys(), o = {};
-    tp.allMatches().forEach(function (m) { if (!m.f.a && !own[m.key]) (o[m.day] = o[m.day] || []).push(m); });
+  // The later rounds in NSW, by day: the diamond
+  function koDays() {
+    var o = {};
+    tp.allMatches().forEach(function (m) { if (!m.f.a && isKo(m.f)) (o[m.day] = o[m.day] || []).push(m); });
     return o;
   }
   // What they picked, so they need not go back to check: each match with its date (the step "When are you in NSW?")
   function stepMatchesHtml() {
     if (!tp.own()) return '';
-    if (tp.rugby()) {
-      var nsw = tp.allMatches().filter(function (m) { return !m.f.a; });
-      if (!nsw.length) return '';
-      return '<section class="v1-dm" aria-labelledby="v1-dm-h"><h4 class="v1-dm-h" id="v1-dm-h">Your matches</h4><p class="v1-dm-all">Every NSW match: ' +
-        esc(tp.isoRange(isoOf(nsw[0].day), isoOf(nsw[nsw.length - 1].day))) + '.</p></section>';
-    }
+    if (tp.rugby()) return ''; // no team: nothing is inferred, and the matches inside the days are listed to add (Also on in NSW)
     var ms = tp.userMatchesAll(); if (!ms.length) return '';
     var row = function (m) {
       var f = m.f;
-      return '<li><span class="v1-dm-d">' + esc(dayLabel(m.day)) + '</span><span class="v1-dm-n">' + esc(matchName(f)) + ' <span class="v1-dm-w">\u00b7 ' + esc(f.a ? 'in ' + f.a : CITY[cityOf(f.v)] || cityOf(f.v)) + '</span></span></li>';
+      // A match in NSW (Sydney or Newcastle) is picked out (26 Nov 2026): a tint and an In NSW tag, so the ones that decide the days stand out from the interstate ones
+      return '<li' + (f.a ? '' : ' class="is-nsw"') + '><span class="v1-dm-d">' + esc(dayLabel(m.day)) + '</span><span class="v1-dm-n">' + esc(matchName(f)) + ' <span class="v1-dm-w">\u00b7 ' + esc(f.a ? 'in ' + f.a : CITY[cityOf(f.v)] || cityOf(f.v)) + '</span>' + (f.a ? '' : ' <span class="tp-tag tp-tag--inline v1-dm-tag">In NSW</span>') + '</span></li>';
     };
     var head = ms.slice(0, 6), rest = ms.slice(6);
     return '<section class="v1-dm" aria-labelledby="v1-dm-h"><h4 class="v1-dm-h" id="v1-dm-h">Your matches</h4><ul class="v1-dm-l">' + head.map(row).join('') + '</ul>' +
       (rest.length ? '<details class="v1-dm-more"><summary>Show ' + rest.length + ' more</summary><ul class="v1-dm-l">' + rest.map(row).join('') + '</ul></details>' : '') + '</section>';
   }
+  // With a team: how many of their NSW matches fall inside the days; with no team: how many NSW matches do
+  function matchCount(inN) { return tp.rugby() ? (inN ? inN + (inN === 1 ? ' NSW match' : ' NSW matches') : 'no NSW matches') : (inN ? inN + ' of your NSW matches' : 'none of your NSW matches'); }
   function askSum(sel) {
     if (!sel) return 'Tap your first day, then your last.';
     if (sel.z === null) return 'First day: ' + dayLabel(sel.a) + '. Now tap your last day.';
     var n = sel.z - sel.a + 1, ms = dMatches(), inN = 0;
     Object.keys(ms).forEach(function (d) { if (+d >= sel.a && +d <= sel.z) inN += ms[d].length; });
-    return tp.isoRange(isoOf(sel.a), isoOf(sel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+    return tp.isoRange(isoOf(sel.a), isoOf(sel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
+  }
+  /* What is on a marked day (26 Nov 2026): hover on a desktop, a long hold on a phone, and keyboard focus, show the matches on
+     that day and where they are: the match, its stadium and precinct, and the kick-off in Sydney time. Only the days the
+     calendar marks have one (the person's own team's NSW matches, or every NSW match with no team, and the later rounds).
+     A hold does not select the day: the tap that ends it is swallowed. Closed by moving off, a tap elsewhere, scrolling,
+     Escape, or the calendar being drawn again. The one tooltip lives inside the calendar, so it scrolls with it. */
+  var tipEl = null, tipBtn = null, tipTimer = 0, holdTimer = 0, holdAt = null, swallowClick = false, TIP_HOLD = 450, TIP_HOVER = 120;
+  function dayOfBtn(b) { var v = b.dataset.cday !== undefined ? b.dataset.cday : b.dataset.dday; return v === undefined ? null : +v; }
+  function tipHtml(d) {
+    var rows = (dMatches()[d] || []).concat(koDays()[d] || []);
+    if (!rows.length) return '';
+    return '<p class="v1-caltip-d">' + esc(dayLabel(d)) + '</p>' + rows.map(function (m) {
+      var f = m.f;
+      return '<p class="v1-caltip-m"><b>' + esc(matchName(f)) + '</b>' + (isKo(f) && !f.t ? ' <span>teams to be decided</span>' : '') + '<span>' + esc(f.v + (f.p ? ', ' + f.p : '')) + '</span><span>' + esc(f.k ? f.k + ' Sydney time' : TBC) + '</span></p>';
+    }).join('');
+  }
+  function tipHide() {
+    clearTimeout(tipTimer); clearTimeout(holdTimer);
+    if (tipBtn) tipBtn.removeAttribute('aria-describedby');
+    if (tipEl && tipEl.parentNode) tipEl.parentNode.removeChild(tipEl);
+    tipEl = null; tipBtn = null;
+  }
+  function tipShow(btn) {
+    if (tipBtn === btn && tipEl && tipEl.isConnected) return;
+    tipHide();
+    var d = dayOfBtn(btn), cal = btn.closest('.tp-cal'), html = d === null ? '' : tipHtml(d);
+    if (!html || !cal) return;
+    tipEl = document.createElement('div');
+    tipEl.className = 'v1-caltip'; tipEl.id = 'v1-caltip'; tipEl.setAttribute('role', 'tooltip'); tipEl.innerHTML = html;
+    cal.appendChild(tipEl); tipBtn = btn; btn.setAttribute('aria-describedby', 'v1-caltip');
+    // Above the day, kept inside the calendar's width; below it when there is no room above (under the sticky nav)
+    var c = cal.getBoundingClientRect(), r = btn.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    var left = Math.max(0, Math.min(c.width - w, r.left - c.left + r.width / 2 - w / 2));
+    var above = r.top - h - 8 > 96;
+    tipEl.style.left = left + 'px';
+    tipEl.style.top = (above ? r.top - c.top - h - 6 : r.bottom - c.top + 6) + 'px';
+    tipEl.style.setProperty('--arrow-x', Math.max(10, Math.min(w - 10, r.left - c.left + r.width / 2 - left)) + 'px');
+    tipEl.classList.toggle('is-below', !above);
+  }
+  function markedBtn(t) { var b = t && t.closest && t.closest('.tp-cal-d.is-match, .tp-cal-d.is-ko'); return b && phone.contains(b) ? b : null; }
+  // Desktop: hover, after a short pause so a sweep across the calendar does not flicker
+  phone.addEventListener('pointerover', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var b = markedBtn(e.target); if (!b) return;
+    clearTimeout(tipTimer); tipTimer = setTimeout(function () { tipShow(b); }, TIP_HOVER);
+  });
+  phone.addEventListener('pointerout', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var b = markedBtn(e.target); if (!b) return;
+    if (e.relatedTarget && b.contains(e.relatedTarget)) return;
+    tipHide();
+  });
+  // Keyboard: focus shows it (only for keyboard focus, so a tap, which also focuses a button, does not)
+  phone.addEventListener('focusin', function (e) {
+    var b = markedBtn(e.target); if (b && b.matches(':focus-visible')) tipShow(b);
+  });
+  phone.addEventListener('focusout', function (e) { if (markedBtn(e.target)) tipHide(); });
+  // Phone: a long hold. Moving, scrolling or lifting early is an ordinary tap or scroll
+  phone.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') { if (tipEl && !markedBtn(e.target)) tipHide(); return; }
+    var b = markedBtn(e.target);
+    if (!b) { if (tipEl) tipHide(); return; }
+    clearTimeout(holdTimer); holdAt = { x: e.clientX, y: e.clientY };
+    holdTimer = setTimeout(function () {
+      holdTimer = 0; swallowClick = true; tipShow(b);
+      setTimeout(function () { swallowClick = false; }, 900);
+    }, TIP_HOLD);
+  });
+  function holdCancel() { clearTimeout(holdTimer); holdTimer = 0; }
+  phone.addEventListener('pointermove', function (e) {
+    if (holdTimer && holdAt && Math.hypot(e.clientX - holdAt.x, e.clientY - holdAt.y) > 8) holdCancel();
+  });
+  phone.addEventListener('pointerup', holdCancel); phone.addEventListener('pointercancel', holdCancel);
+  // The hold's own click must not pick the day; a long hold also raises a context menu on some phones
+  phone.addEventListener('click', function (e) { if (swallowClick && markedBtn(e.target)) { e.stopPropagation(); e.preventDefault(); swallowClick = false; } }, true);
+  phone.addEventListener('contextmenu', function (e) { if (markedBtn(e.target) && (holdTimer || tipEl)) e.preventDefault(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tipEl) { e.stopPropagation(); tipHide(); } }, true);
+  body.addEventListener('scroll', function () { if (tipEl) tipHide(); holdCancel(); }, { passive: true });
+
+  /* The key to the calendar's marks (26 Nov 2026; it went with the strip and is back): two entries, each only when that mark
+     is on the calendar. It sits between the Your matches list and the calendar (above the calendar where there is no list).
+     Interstate matches are not marked, so they are not keyed. Screen readers hear each day's own label, so it is hidden from them. */
+  function calKeyHtml(ms) {
+    var items = [];
+    if (Object.keys(ms || {}).length) items.push('<span class="v1-k v1-k-mine">' + (tp.rugby() ? 'Match in NSW' : 'Your match in NSW') + '</span>');
+    if (Object.keys(koDays()).length) items.push('<span class="v1-k v1-k-ko">Later rounds</span>');
+    return items.length ? '<p class="v1-cal-key" aria-hidden="true">' + items.join('') + '</p>' : '';
   }
   function calMonth(y, mo, ms, sel, attr) {
     sel = sel === undefined ? dsel : sel; attr = attr || 'dday';
-    var tm = tmDays();
+    var kd = koDays();
     // Monday-first weeks; days outside 29 Sep to 15 Nov are shown but cannot be picked
     var first = new Date(Date.UTC(y, mo, 1)), lead = (first.getUTCDay() + 6) % 7, days = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
     var name = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][mo];
@@ -1916,13 +2017,12 @@
     for (var k = 0; k < cells; k++) {
       var d = start + k, dt = new Date(Date.UTC(2027, 9, 1 + d)), inMonth = dt.getUTCMonth() === mo;
       if (!inMonth && !(mo === 9 && d >= RMIN && d < 0)) { h += '<span class="tp-cal-x" aria-hidden="true"></span>'; continue; }
-      var can = d >= RMIN && d <= RMAX, mm = ms[d] || [], oo = tm[d] || [], a = sel && sel.a, z = sel ? sel.z : null;
+      var can = d >= RMIN && d <= RMAX, mm = ms[d] || [], oo = kd[d] || [], a = sel && sel.a, z = sel ? sel.z : null;
       var st = sel ? (d === a ? ' is-start' : '') + (z !== null && d === z ? ' is-end' : '') + (z !== null && d > a && d < z ? ' is-in' : '') : '';
-      var ko = oo.some(function (m) { return isKo(m.f); });
       var lbl = dayLabel(d) + (mm.length ? ', ' + mm.map(function (m) { return matchName(m.f); }).join(' and ') : '') +
-        (oo.length ? ', also on in NSW: ' + oo.map(function (m) { return matchName(m.f); }).join(' and ') : '') +
+        (oo.length ? ', later round in NSW: ' + oo.map(function (m) { return matchName(m.f); }).join(' and ') : '') +
         (sel && d === a ? ', first day' : '') + (z !== null && sel && d === z ? ', last day' : '');
-      h += can ? '<button type="button" class="tp-cal-d' + (mm.length ? ' is-match' : '') + (!mm.length && oo.length ? (ko ? ' is-ko' : ' is-tm') : '') + (inMonth ? '' : ' is-other') + st + '" data-' + attr + '="' + d + '" aria-pressed="' + !!st + '" aria-label="' + esc(lbl) + '">' + dt.getUTCDate() + '</button>'
+      h += can ? '<button type="button" class="tp-cal-d' + (oo.length ? ' is-ko' : mm.length ? ' is-match' : '') + (inMonth ? '' : ' is-other') + st + '" data-' + attr + '="' + d + '" aria-pressed="' + !!st + '" aria-label="' + esc(lbl) + '">' + dt.getUTCDate() + '</button>'
         : '<span class="tp-cal-d is-off" aria-hidden="true">' + dt.getUTCDate() + '</span>';
     }
     return h + '</div></div>';
@@ -1931,10 +2031,10 @@
     var t = trip() || {}, ms = dMatches(), has = !!(t.from && t.to);
     var h = '<div class="plan-modal-body tp-days">';
     if (dStay) {
-      var cur = t.base || '';
-      h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying?</h2><p class="tp-days-note">Optional. Ideas then start near it, and match days show your own way there and back.</p>' +
-        '<div class="tp-quick" role="group" aria-label="Where you’re staying">' + BASE_Q.map(function (x) { return chip('sbase', x[0], x[1], cur === x[0]); }).join('') + '</div>' +
-        (basePlace() && !BASE_Q.some(function (x) { return x[0] === cur; }) ? '<p class="tp-days-note">' + esc(baseLabel(cur)) + '</p>' : '') +
+      // The same choices as step 3 and Your answers (26 Nov 2026): one builder; here a place, outside NSW or still deciding
+      h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying?</h2><p class="tp-days-note">Ideas then start near it, and match days show your own way there and back.</p>' +
+        '<span id="tp-sq-base" class="visually-hidden">Where you’re staying</span>' +
+        stayChoicesHtml({ pre: 's', required: true, q: sheetQ, labelId: 'tp-sq-base' }) +
         '<h3 class="tp-days-q">Who’s coming?</h3><div class="tp-quick" role="group" aria-label="Who’s coming">' + PARTY_Q.map(function (x) { return chip('sparty', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
       return h + '</div>';
@@ -1942,9 +2042,9 @@
     var n = dsel && dsel.z !== null ? dsel.z - dsel.a + 1 : 0, inN = 0;
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
-      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' · ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Your days in NSW (optional)</h2><p class="tp-days-note">' + esc(WHY) + '</p>' +
-      '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
+      calKeyHtml(ms) + '<div class="tp-cal">' + calMonth(2027, 9, ms) + calMonth(2027, 10, ms) + '</div>' +
       // Fixed to the bottom of the sheet (16 Nov): the calendar runs below the fold, so what is picked and Use these
       // dates stay in view and it is clear the plan waits for that tap
       '<div class="tp-days-bar"><p class="tp-days-draft" hidden></p><p class="tp-days-sum" aria-live="polite">' + esc(sum) + '</p>' +
@@ -1954,7 +2054,7 @@
   }
   tp.openDays = function (opener) { openDays(false, opener); };
   function openDays(stay, opener) {
-    dStay = !!stay; dsel = stay ? dRange() : dStart();
+    dStay = !!stay; sheetQ = ''; dsel = stay ? dRange() : dStart();
     var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
     openPm(stay ? 'days:stay' : 'days', opener, overTl);
     pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
@@ -1990,7 +2090,7 @@
     if (n) Object.keys(ms).forEach(function (d) { if (+d >= dsel.a && +d <= dsel.z) inN += ms[d].length; });
     var sum = pm.querySelector('.tp-days-sum');
     if (sum) sum.textContent = !dsel ? 'Tap your first day, then your last.' : dsel.z === null ? 'First day: ' + dayLabel(dsel.a) + '. Now tap your last day.'
-      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' \u00b7 ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + (inN ? inN + ' of your NSW matches' : 'none of your NSW matches') : '');
+      : tp.isoRange(isoOf(dsel.a), isoOf(dsel.z)) + ' \u00b7 ' + n + (n === 1 ? ' day' : ' days') + (Object.keys(ms).length ? ', ' + matchCount(inN) : '');
     var use = pm.querySelector('[data-duse]'); if (use) use.disabled = !n;
     // The draft follows every change (check 4): kept while it differs from the confirmed days, named in the bar
     var conf = dRange(), unsaved = !dSame(dsel, conf), dl = pm.querySelector('.tp-days-draft');
@@ -1999,7 +2099,7 @@
   }
   pm.addEventListener('click', function (e) {
     if (!pmOpen || pmOpen.id.indexOf('days') !== 0) return;
-    var b = e.target.closest('[data-dday], [data-duse], [data-dclear], [data-sbase], [data-sparty], [data-dclose]'); if (!b) return;
+    var b = e.target.closest('[data-dday], [data-duse], [data-dclear], [data-sbase], [data-sout], [data-sguess], [data-sparty], [data-dclose]'); if (!b) return;
     var t = trip() || {};
     if (b.dataset.dday !== undefined) {
       var d = +b.dataset.dday;
@@ -2024,7 +2124,23 @@
       holdPlace(function () { tp.setTrip({ base: t.base, party: t.party }); }); closePm(); tp.say('Your days are removed.');
       changedSince(cBefore, ''); changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']); return;
     }
-    if (b.dataset.sbase !== undefined) { var v = t.base === b.dataset.sbase ? undefined : b.dataset.sbase, sBefore = snap(); askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: v, party: t.party }); }); changedSince(sBefore, ''); baseToast(v); daysRefresh('[data-sbase="' + CSS.escape(b.dataset.sbase) + '"]'); tp.say(v ? baseLabel(v) + '.' : 'Where you’re staying is removed.'); return; }
+    if (b.dataset.sbase !== undefined) {
+      // Required, as on step 3: choosing a place replaces the one before, and tapping the chosen one keeps it
+      if (t.base === b.dataset.sbase) { sheetQ = ''; return; }
+      var v = b.dataset.sbase, sBefore = snap(); askOwn = true; sheetQ = '';
+      holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: v, guess: t.guess, party: t.party }); }); changedSince(sBefore, ''); baseToast(v);
+      daysRefresh(stayOptions().some(function (x) { return x[0] === v; }) ? '[data-sbase="' + CSS.escape(v) + '"]' : '#tp-splace'); tp.say(stayLine({ base: v, guess: t.guess }) + '.'); return;
+    }
+    if (b.dataset.sout !== undefined) {
+      var oBefore = snap(); askOwn = true; sheetQ = '';
+      holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: 'outside', guess: false, party: t.party }); }); changedSince(oBefore, ''); baseToast('outside');
+      daysRefresh('.v1-stay-cur'); tp.say('Staying outside NSW.'); return;
+    }
+    if (b.dataset.sguess !== undefined) {
+      var gBefore = snap(), on = !t.guess; askOwn = true;
+      holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, guess: on, party: t.party }); }); changedSince(gBefore, ''); baseToast(on ? 'deciding' : undefined, true);
+      daysRefresh('[data-sguess]'); tp.say(on ? 'Still deciding where to stay.' : 'No longer still deciding.'); return;
+    }
     if (b.dataset.sparty !== undefined) { var pv = t.party === b.dataset.sparty ? undefined : b.dataset.sparty; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, party: pv }); }); daysRefresh('[data-sparty="' + CSS.escape(b.dataset.sparty) + '"]'); return; }
     if (b.hasAttribute('data-dclose')) closePm();
   });
@@ -2142,23 +2258,16 @@
     if (on) tp.addItem(Object.assign({}, it)); else tp.removeItem(it.id);
     // The page stays open; its button follows (the card behind updates with the page)
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
-    b.querySelector('.tp-pm-add-l').innerHTML = addLabel(on, on ? 'Added to your plan' : 'Add to your plan');
+    b.querySelector('.tp-pm-add-l').innerHTML = addLabel(on, on ? 'Added' : 'Add');
     tp.say(it.title + (on ? ' added to your plan on ' + it.day + '. ' : ' removed from your plan. ') + state.added.length + ' added.');
     planToast(it.id, it.title, on);
   });
-  pm.addEventListener('change', function (e) {
-    var cb = e.target.closest('[data-pm-ticket]'); if (!cb || !pmOpen) return;
-    var key = pmOpen.id.slice(6), m = tp.match(key), f = m.f, mine = f.t.split(' v ').some(function (n) { return tp.isPicked(n); }) || (tp.rugby() && !f.a);
-    // A ticket means they are going: the match goes on the plan too, if no team of theirs puts it there already
-    ticketToggle(m, cb.checked, function () {
-      if (cb.checked && !mine && !added(matchId(key))) tp.addItem({ id: matchId(key), kind: 'match', key: key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p });
-      // Unticked: a match that was only on the plan for its ticket comes off with it, as Not going after all? did
-      if (!cb.checked && !mine && added(matchId(key))) tp.removeItem(matchId(key));
-      tp.setTicket(m.tkey, cb.checked);
-    });
-    said(cb.checked ? 'Ticket marked' + (mine ? '.' : '. The match is on your plan.') : 'Ticket removed.');
-    pmRefresh('[data-pm-ticket]');
-    tp.say(pmSaid);
+  pm.addEventListener('input', function (e) {
+    if (e.target.id !== 'tp-splace') return;
+    sheetQ = e.target.value;
+    var list = pm.querySelector('#tp-splace-list');
+    list.innerHTML = placeList('s', sheetQ); list.hidden = !sheetQ.trim();
+    e.target.setAttribute('aria-expanded', sheetQ.trim() ? 'true' : 'false');
   });
   pm.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePm(); return; }
@@ -2173,24 +2282,10 @@
   phone.addEventListener('click', function (e) {
     var out = e.target.closest('.tp-out');
     if (out && out.getAttribute('href') === '#') { e.preventDefault(); tp.say(out.dataset.say || 'Placeholder link: it goes to the listing\u2019s own website once real listings are in.'); return; }
-    // Going? Mark your ticket on the match: the match's own sheet opens over the page, at its I have a ticket (it used
-    // to scroll the page up to the match card in Your matches, a jump nobody asked for)
     var ad = e.target.closest('[data-at-day]');
     // See your match day: the plan, open on that day, as on the team cards (20 Nov; it moved the page to the day in Around your matches)
     if (ad) { tp.openPlanDay(+ad.dataset.atDay, ad); return; }
     if (e.target.closest('[data-at-plan]')) { tp.openPlan(); return; }
-    var gk = e.target.closest('[data-going-mark]');
-    if (gk) {
-      var km = tp.match(gk.dataset.goingMark); if (!km) return;
-      openPm('match:' + km.key, gk); pmOpenerEl = gk;
-      // The sheet opens at its ticket toggle, fully in view, not under the venues (19 Nov: focus was hidden at 953px)
-      var tb2 = pm.querySelector('[data-pm-ticket]');
-      if (tb2) { var tl2 = tb2.closest('.tp-ticket') || tb2, r2 = tl2.getBoundingClientRect(), b2 = pmBody.getBoundingClientRect();
-        if (r2.bottom > b2.bottom - 16 || r2.top < b2.top) pmBody.scrollTop += r2.bottom - (b2.bottom - 16);
-        tb2.focus({ preventScroll: true }); }
-      tp.say(matchName(km.f) + ': tick I have a ticket if you are going.');
-      return;
-    }
     // Not a button inside a sheet, and not one a sheet has just redrawn away (it is no longer in the page)
     var inIdeas = !!(tlIdeas && tlIdeas.contains(e.target));
     var b = e.target.closest('.tp-add'); if (!b || (pm.contains(b) && !inIdeas) || !b.isConnected) return;
@@ -2252,7 +2347,9 @@
     // One line saying what they did; the link names the first section it changed (verb and none are no longer shown)
     tp.toast(title + '.', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null);
   }
-  function baseToast(v) {
+  function baseToast(v, decidingOnly) {
+    if (v === 'deciding') { changeToast('Still deciding where to stay', ['now starts from the stadium’s city', 'now start from the stadium’s city']); return; }
+    if (decidingOnly) { changeToast('No longer still deciding', ['is updated to suit', 'are updated to suit']); return; }
     if (v === 'local') changeToast('Ideas now suit a local', ['now shows the nearest first', 'now show the nearest first']);
     else if (v === 'outside') changeToast('Now staying outside NSW', ['is updated to suit', 'are updated to suit']);
     else if (v) changeToast('Now staying in ' + v, ['now starts from there', 'now start from there']);
@@ -2265,41 +2362,7 @@
     var ch = lastChanged.filter(function (c) { return c[1]; });
     tp.toast('Your days are now ' + tp.isoRange(from, to) + '.', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null, 'days');
   }
-  /* A ticket marked or removed (18 Nov, check 11): it changes the match on your plan and can change Where to watch and
-     Around your matches, none of them in view from a match card or a sheet, so one toast says so. The title names the
-     match; the line names what changed (your plan always, then the sections that did); one link to the first section
-     that changed, or Open your plan, and none while a sheet is open over the page. Screen readers already hear the
-     change from the control, so the toast adds nothing for them. */
   function clashLine(cw) { return 'At the same time as ' + tp.list(cw.map(function (c) { return c.name + ' in ' + c.city; })) + '.'; }
-  function ticketToggle(m, on, apply, fromSec, opener) {
-    var before = snap();
-    apply();
-    changedSince(before, '');
-    var ch = lastChanged.filter(function (c) { return c[1]; });
-    // The link goes to the first changed section other than the one they acted in, and lands on the change itself
-    var to = ch.filter(function (c) { return c[1] !== fromSec; })[0];
-    var act = pmOpen ? null : to ? { label: 'See ' + to[0], fn: function () { tp.goTo(to[1]); if (to[1] === SECS.watch) watchShow(m.key); else if (to[1] === SECS.third) tp.listShowDay(m.day); } } : { label: 'Open your plan', fn: tp.openPlan };
-    tp.toast((on ? 'Ticket marked for ' : 'Ticket removed for ') + matchName(m.f) + '.', act);
-    // Never over the control they just pressed (check 11): if the toast would cover it, it is left out; the button's
-    // own pressed state shows the change, and screen readers hear it. Checked before the toast is painted.
-    // The pressed button may have been redrawn, and the same ticket has a button in more than one place, so every
-    // button for this ticket is checked
-    var te = document.querySelector('.tp-toast'), obs = [];
-    if (opener && opener.isConnected) obs.push(opener);
-    else if (opener && opener.dataset && opener.dataset.ticket) obs = [].slice.call(document.querySelectorAll('[data-ticket="' + CSS.escape(opener.dataset.ticket) + '"]'));
-    if (te && !te.hidden && obs.some(function (ob) {
-      var a = te.getBoundingClientRect(), c = ob.getBoundingClientRect();
-      return c.height && c.bottom > a.top - 12 && c.top < a.bottom + 12 && c.right > a.left && c.left < a.right;
-    })) tp.toastHide(true);
-  }
-  // I have tickets on a match row: the same ticket as the match sheet's
-  phone.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-ticket]'); if (!b || pm.contains(b)) return;
-    var m = tp.match(b.dataset.ticket); if (!m) return;
-    var on = state.tickets.indexOf(m.tkey) < 0;
-    ticketToggle(m, on, function () { tp.setTicket(m.tkey, on); }, null, b);
-    tp.say((on ? 'Ticket marked for ' : 'Ticket removed for ') + matchName(m.f) + '. ' + tp.summary());
-  });
   // Something put on, or taken off, the plan: says which day it landed on; the link opens the plan (not over a sheet)
   function planToast(id, title, on) {
     // In a sheet the Save bar says it, where they acted (check 11): no toast as well
@@ -2353,11 +2416,62 @@
   }
   // I'm a local was removed on 24 Nov (the user's call): with matches in both Sydney and Newcastle, local to where is
   // not clear. The local paths below (nearest first, Make a day of it) no longer run; a saved local answer is dropped
-  var BASE_Q = [['Sydney CBD', 'Sydney CBD'], ['Newcastle', 'Newcastle'], ['Bondi', 'Bondi'], ['outside', 'Outside NSW']];
+  /* Where you are staying (26 Nov 2026). The quick answers follow the person's matches in NSW: the ones inside their days
+     (all of their team's with no days; every NSW match inside the days with no team). Sydney CBD when one is in Sydney,
+     Around Olympic Park when one is at Stadium Australia, Around Moore Park when one is at the Sydney Football Stadium,
+     Newcastle when one is in Newcastle; with no match in NSW, Sydney CBD and Newcastle. Each button stores a place the
+     distance, route and ideas logic knows (PLACES, cnGeo.places). Bondi and Outside NSW are no longer buttons: a saved
+     answer still works and shows as the current place; Staying outside NSW is a quiet link under the search. */
+  function stayOptions() {
+    var r = dRange(), ms = tp.rugby() ? tp.allMatches().filter(function (m) { return !r || (m.day >= r.a && m.day <= r.z); }) : tp.userMatches();
+    var at = { cbd: false, olympic: false, moore: false, newc: false };
+    ms.forEach(function (m) {
+      if (m.f.a) return;
+      if (m.f.v === 'Stadium Australia') { at.cbd = true; at.olympic = true; }
+      else if (m.f.v === 'Sydney Football Stadium') { at.cbd = true; at.moore = true; }
+      else if (m.f.v === 'Newcastle Stadium') at.newc = true;
+    });
+    if (!at.cbd && !at.newc) { at.cbd = true; at.newc = true; }
+    var o = [];
+    if (at.cbd) o.push(['Sydney CBD', 'Sydney CBD']);
+    if (at.olympic) o.push(['Sydney Olympic Park', 'Around Olympic Park']);
+    if (at.moore) o.push(['Moore Park', 'Around Moore Park']);
+    if (at.newc) o.push(['Newcastle', 'Newcastle']);
+    return o;
+  }
   var PARTY_Q = [['solo', 'Solo'], ['couple', 'Couple'], ['friends', 'Friends'], ['family', 'Family']];
-  function baseLabel(b) { return b === 'local' ? 'I’m a local' : b === 'outside' ? 'Staying outside NSW' : 'Staying in ' + b; }
+  /* What the person has said about where they stay, in words (26 Nov 2026): a place, outside NSW, or still deciding (with or
+     without a place they are thinking of). The plan, Your answers, the toasts and the share text all read it. */
+  function stayLine(t, short) {
+    t = t || {};
+    if (t.base === 'outside') return 'Staying outside NSW';
+    if (t.guess) return t.base ? (short ? 'Still deciding (' + t.base + ')' : 'Still deciding where to stay, thinking of ' + t.base) : (short ? 'Still deciding' : 'Still deciding where to stay');
+    if (t.base === 'local') return 'I’m a local';
+    return t.base ? 'Staying in ' + t.base : '';
+  }
+  tp.stayLine = stayLine;
+  function baseLabel(b) { var t = trip() || {}; return stayLine(b === t.base ? t : { base: b }); }
   function partyLabel(p) { return { solo: 'Solo', couple: 'A couple', friends: 'Friends', family: 'Family' }[p] || ''; }
   function chip(attr, val, label, on) { return '<button type="button" class="tp-chip" data-' + attr + '="' + esc(val) + '" aria-pressed="' + !!on + '">' + label + '</button>'; }
+  /* The stay choices, one builder for step 3 and Your answers (pre '') and the Your days sheet (pre 's'): the quick answers,
+     the NSW place search, a quiet Staying outside NSW link, and Still deciding where to stay. Required (the flow, the card
+     and the sheet): choosing a place replaces the one before and tapping it again keeps it. Not required (the old Refine
+     panel): tapping it again clears it. A saved place that is not a button now shows as the current place. */
+  function stayChoicesHtml(o) {
+    var t = trip() || {}, pre = o.pre || '', cur = t.base || '', opts = stayOptions(), offered = opts.some(function (x) { return x[0] === cur; });
+    var h = '<div class="tp-quick" role="group" aria-labelledby="' + o.labelId + '">' + opts.map(function (x) { return chip(pre + 'base', x[0], x[1], cur === x[0]); }).join('') + '</div>' +
+      '<label class="tp-place"><span>Or find a place in NSW</span><input type="search" id="tp-' + pre + 'place" autocomplete="off" placeholder="For example Parramatta" value="' + esc(o.q) + '" aria-controls="tp-' + pre + 'place-list" aria-expanded="' + !!o.q + '"></label>' +
+      '<ul class="tp-place-list" id="tp-' + pre + 'place-list" aria-label="NSW places"' + (o.q ? '' : ' hidden') + '>' + placeList(pre, o.q) + '</ul>';
+    if (cur && cur !== 'outside' && !offered) {
+      h += '<p class="tp-place-cur">' + esc(stayLine({ base: cur })) + (o.required ? '' : ' · <button type="button" class="tp-link" data-' + pre + 'base="' + esc(cur) + '">Remove</button>') + '</p>';
+    }
+    h += '<p class="v1-stay-out">' + (cur === 'outside' ? '<span class="v1-stay-cur" tabindex="-1" aria-live="polite"><svg width="14" height="12" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Staying outside NSW<span class="v1-stay-hint"> · choose a place above to change it</span></span>' : '<button type="button" class="tp-link" data-' + pre + 'out>Staying outside NSW</button>') + '</p>';
+    if (o.required && cur !== 'outside') {
+      h += '<button type="button" class="tp-chip tp-guess" data-' + pre + 'guess aria-pressed="' + !!t.guess + '">Still deciding where to stay</button><p class="tp-sec-note tp-guess-note">' +
+        (t.guess ? 'We’ll say what’s approximate and suggest places to stay.' : 'Not sure yet? Say so and we’ll start from the stadium’s city and suggest places to stay.') + '</p>';
+    }
+    return h;
+  }
   function renderAsk() {
     var t = trip() || {}, own = tp.own(), step = fc(), card = fcCard(), show = own || FLOW_B || step === 'days' || step === 'stay' || card;
     ask.hidden = !show;
@@ -2370,7 +2484,7 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       h += '<p class="tp-sec-note">' + esc(own ? WHY : WHY_NONE) + '</p>' +
         (step === 'days' ? stepMatchesHtml() : '') +
-        '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
+        calKeyHtml(dMatches()) + '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
         '<p class="tp-days-sum v1-cal-sum" aria-live="polite">' + esc(askSum(asel)) + '</p>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
@@ -2380,19 +2494,17 @@
     // No line under Undo and Reset saying what changed (18 Nov): the toast and the section tint already say it, and
     // screen readers still hear it (askNews goes to tp.say)
     // Refine your plan: folded; a line under it says what is set
-    var bits = [t.base ? baseLabel(t.base) : '', t.party ? partyLabel(t.party) : ''].filter(Boolean);
+    var bits = [stayLine(t), t.party ? partyLabel(t.party) : ''].filter(Boolean);
     h += '<div class="tp-refine"><button type="button" class="tp-refine-btn" data-act="refine" aria-expanded="' + refineOpen + '" aria-controls="tp-refine-panel">Refine your plan by adding more details<svg class="tp-refine-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
       (bits.length && !refineOpen ? '<p class="tp-refine-sum">' + esc(bits.join(' · ')) + '</p>' : '');
     if (refineOpen || step === 'stay' || card) {
-      var cur = t.base || '', fromList = basePlace() && !BASE_Q.some(function (x) { return x[0] === cur; });
+      var required = step === 'stay' || card;
       h += '<div class="tp-refine-panel" id="tp-refine-panel">' +
-        // In Option C's Your answers card it is an optional extra, not a question left unanswered (24 Nov)
-        (card ? '<h4 class="tp-refine-q" id="tp-q-base">Where you’re staying <span class="tp-opt">(optional)</span></h4><p class="tp-sec-note tp-q-base-note">Add it to see ideas near you first.</p>'
+        // Where you're staying is required since 26 Nov 2026 (the base of the plan): the step's own title asks the question
+        (step === 'stay' ? '<h4 class="tp-refine-q visually-hidden" id="tp-q-base">Where you’re staying</h4>'
+          : card ? '<h4 class="tp-refine-q" id="tp-q-base">Where you’re staying</h4><p class="tp-sec-note tp-q-base-note">The plan starts from here.</p>'
           : '<h4 class="tp-refine-q" id="tp-q-base">Do you know where you’re staying?</h4>') +
-        '<div class="tp-quick" role="group" aria-labelledby="tp-q-base">' + BASE_Q.map(function (x) { return chip('base', x[0], x[1], cur === x[0]); }).join('') + '</div>' +
-        '<label class="tp-place"><span>Or find a place in NSW</span><input type="search" id="tp-place" autocomplete="off" placeholder="For example Parramatta" value="' + esc(placeQ) + '" aria-controls="tp-place-list" aria-expanded="' + !!placeQ + '"></label>' +
-        '<ul class="tp-place-list" id="tp-place-list" aria-label="NSW places"' + (placeQ ? '' : ' hidden') + '>' + placeList() + '</ul>' +
-        (fromList ? '<p class="tp-place-cur">' + esc(baseLabel(cur)) + ' · <button type="button" class="tp-link" data-base="' + esc(cur) + '">Remove</button></p>' : '') +
+        stayChoicesHtml({ pre: '', required: required, q: placeQ, labelId: 'tp-q-base' }) +
         '<h4 class="tp-refine-q" id="tp-q-party">Who’s coming?</h4>' +
         '<div class="tp-quick" role="group" aria-labelledby="tp-q-party">' + PARTY_Q.map(function (x) { return chip('party', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '</div>';
@@ -2400,14 +2512,16 @@
     h += '</div>';
     ask.innerHTML = h;
   }
-  function placeList() {
-    var q = placeQ.trim().toLowerCase(); if (!q) return '';
-    var hits = PLACES.filter(function (x) { return x.n.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(q) === 0; }) || x.n.toLowerCase().indexOf(q) === 0; }).slice(0, 5);
-    return hits.length ? hits.map(function (x) { return '<li><button type="button" class="tp-place-opt" data-base="' + esc(x.n) + '">' + esc(x.n) + '</button></li>'; }).join('')
-      : '<li class="tp-place-none">No NSW place matches “' + esc(placeQ.trim()) + '”. Staying outside NSW? Choose Outside NSW above.</li>';
+  function placeList(pre, q) {
+    pre = pre || ''; q = (q === undefined ? placeQ : q) || '';
+    var ql = q.trim().toLowerCase(); if (!ql) return '';
+    var hits = PLACES.filter(function (x) { return x.n.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(ql) === 0; }) || x.n.toLowerCase().indexOf(ql) === 0; }).slice(0, 5);
+    return hits.length ? hits.map(function (x) { return '<li><button type="button" class="tp-place-opt" data-' + pre + 'base="' + esc(x.n) + '">' + esc(x.n) + '</button></li>'; }).join('')
+      : '<li class="tp-place-none">No NSW place matches “' + esc(q.trim()) + '”. Staying outside NSW? Use the link below.</li>';
   }
   function setPart(k, v, before, lead) {
-    var t = trip() || {}, o = { from: t.from, to: t.to, base: t.base, party: t.party };
+    var t = trip() || {}, o = { from: t.from, to: t.to, base: t.base, guess: t.guess, party: t.party };
+    if (k === 'base' && v === 'outside') o.guess = false; // Staying outside NSW is not a thing to be still deciding about
     o[k] = v; askOwn = true; tp.setTrip(o);
     return changedSince(before, lead);
   }
@@ -2415,7 +2529,7 @@
     if (e.target.id !== 'tp-place') return;
     placeQ = e.target.value;
     var list = ask.querySelector('#tp-place-list');
-    list.innerHTML = placeList(); list.hidden = !placeQ.trim();
+    list.innerHTML = placeList('', placeQ); list.hidden = !placeQ.trim();
     e.target.setAttribute('aria-expanded', placeQ.trim() ? 'true' : 'false');
   });
   ask.addEventListener('click', function (e) {
@@ -2431,12 +2545,25 @@
       settle('[data-act="change"]', h0); tp.say(said); daysToast(!!t.from, r.from, r.to); return;
     }
     if (b.dataset.base !== undefined && ask.contains(b)) {
-      // One answer: tapping the chosen one again clears it; choosing a place from the list replaces a quick answer
+      // One answer, and one only (26 Nov 2026): choosing a place replaces the one before (a quick answer or a place from the
+      // list). Where you're staying is required in the flow and the card, so tapping the chosen one again keeps it;
+      // outside the flow (Remove on the place line) it still clears
+      var inFlow = fc() === 'stay' || fcCard();
+      if (inFlow && t.base === b.dataset.base) { placeQ = ''; return; }
       var v = t.base === b.dataset.base ? undefined : b.dataset.base;
       placeQ = '';
-      said = setPart('base', v, before, v ? baseLabel(v) + '.' + (v === 'local' ? ' Ideas now for a local: nearest first, no dates needed.' : '') : 'Where you’re staying is cleared.');
-      settle(v && !BASE_Q.some(function (x) { return x[0] === v; }) ? '#tp-place' : '[data-base="' + CSS.escape(b.dataset.base) + '"]', h0); tp.say(said);
+      said = setPart('base', v, before, v ? stayLine({ base: v, guess: t.guess }) + '.' : 'Where you’re staying is cleared.');
+      settle(v && !stayOptions().some(function (x) { return x[0] === v; }) ? '#tp-place' : '[data-base="' + CSS.escape(b.dataset.base) + '"]', h0); tp.say(said);
       baseToast(v); return;
+    }
+    if (b.dataset.out !== undefined) {
+      placeQ = '';
+      said = setPart('base', 'outside', before, 'Staying outside NSW.');
+      settle('.v1-stay-cur', h0); tp.say(said); baseToast('outside'); return;
+    }
+    if (b.dataset.guess !== undefined) {
+      said = setPart('guess', !t.guess, before, !t.guess ? 'Still deciding where to stay.' : 'No longer still deciding.');
+      settle('[data-guess]', h0); tp.say(said); baseToast(!t.guess ? 'deciding' : undefined, true); return;
     }
     if (b.dataset.party) {
       var pv = t.party === b.dataset.party ? undefined : b.dataset.party;
@@ -2574,7 +2701,7 @@
     if (!daysLine) return;
     var t = trip() || {}, bits = [], has = !!(t.from && t.to), wait = tp.waiting().length;
     if (has) bits.push('Your days: ' + tp.isoRange(t.from, t.to));
-    if (t.base) bits.push(baseLabel(t.base));
+    if (stayLine(t)) bits.push(stayLine(t));
     if (t.party) bits.push(partyLabel(t.party));
     daysLine.hidden = !tp.own() && !wait;
     /* E3 (22 Nov): one slider only, under the team picker on the page (Figma 372:3060). The plan shows one line either
@@ -2612,7 +2739,7 @@
   function planText() {
     var t = trip(), lines = ['My Rugby World Cup 2027 plan (Plan your 3rd half)'];
     if (t && t.from && t.to) lines.push('In NSW ' + tp.isoRange(t.from, t.to));
-    if (t && t.base) lines.push(baseLabel(t.base));
+    if (t && stayLine(t)) lines.push(stayLine(t));
     if (t && t.party) lines.push('Coming: ' + partyLabel(t.party).toLowerCase());
     if (tp.own()) {
       lines.push('', 'Matches (kick-off times are Sydney time):');
@@ -2918,6 +3045,11 @@
     var b = e.target.closest('button'); if (!b) return;
     switch (b.id) {
       case 'tp-ss-mailrow': var open = mailPanel.hidden; peekClose(); mailSet(open); if (open) { into(mailPanel); setTimeout(function () { (ss.classList.contains('is-sent') ? document.getElementById('tp-ss-again') : email).focus({ preventScroll: true }); }, 0); } break;
+      case 'tp-ss-share':
+        // The phone's own share sheet (26 Nov 2026); where there is none, the plan is copied instead
+        if (navigator.share) navigator.share({ title: 'My Rugby World Cup 2027 plan', text: planText() }).then(function () { mark(b); }, function () { /* closed without sharing: nothing to say */ });
+        else copy(planText(), b, 'Sharing is not available here, so your plan is copied.');
+        break;
       case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(b); ssSay('Downloaded ' + fileName('csv')); break;
       case 'tp-ss-sheet': copy(tsv(), b, 'Copied for your spreadsheet. Paste into cells.'); break;
       case 'tp-ss-copy': case 'tp-ss-cal': case 'tp-ss-maps': peekOpen(b); break;
@@ -2944,7 +3076,7 @@
   /* ---------- Render: only when something it depends on changed ---------- */
   var sig = '', seen = {}, whys = {};
   function signature() {
-    return JSON.stringify([state.picked, state.tickets, state.trip, state.added.map(function (x) { return x.id; }), state.tab, openSet, moreBlk, moveOpen, askEditing, askManual, askError, openCard, copied]);
+    return JSON.stringify([state.picked, state.notGoing, state.trip, state.added.map(function (x) { return x.id; }), state.tab, openSet, moreBlk, moveOpen, askEditing, askManual, askError, openCard, copied]);
   }
 
   /* ---------- Also on in NSW (26 Nov 2026) ----------
@@ -2957,14 +3089,15 @@
   function renderAlso() {
     if (!alsoEl) return;
     var t = trip() || {}, hide = function () { alsoEl.hidden = true; alsoEl.innerHTML = ''; };
-    if (!tp.own() || tp.rugby() || !(t.from && t.to)) { hide(); return; }
+    if (!tp.own() || !(t.from && t.to)) { hide(); return; }
+    var noTeam = tp.rugby();
     var a = tp.isoDay(t.from), z = tp.isoDay(t.to);
-    var others = tp.allMatches().filter(function (m) { return !m.f.a && m.day >= a && m.day <= z && !pickedHas(m.f); });
+    var others = tp.allMatches().filter(function (m) { return !m.f.a && m.day >= a && m.day <= z && (!pickedHas(m.f) || tp.matchTaken(m.key)); });
     if (!others.length) { hide(); return; }
     var inNcl = others.filter(function (m) { return m.f.v === 'Newcastle Stadium'; });
     var mineNcl = tp.userMatches().some(function (m) { return m.f.v === 'Newcastle Stadium'; });
     var card = '';
-    if (inNcl.length && !mineNcl && t.base !== 'newcastle') {
+    if (inNcl.length && !mineNcl && baseCity() !== 'newcastle') {
       card = '<div class="v1-also-card"><h4 class="v1-also-ct">Newcastle</h4>' +
         '<p class="v1-also-why">Why not visit Newcastle, where there are other matches on</p>' +
         '<p class="v1-also-on">On ' + inNcl.map(function (m) { return esc(dayLabel(m.day)); }).filter(function (x, i, arr) { return arr.indexOf(x) === i; }).join(', ') + '</p>' +
@@ -2978,8 +3111,8 @@
         (!ko && f.t ? addBtn(id, matchName(f) + ', ' + f.d) : '') + '</li>';
     }).join('');
     alsoEl.hidden = false;
-    alsoEl.innerHTML = '<h3 class="tp-sec-title" id="v1-also-title" tabindex="-1">Also on in NSW</h3>' +
-      '<p class="tp-sec-note">Other matches inside your days, whoever is playing.</p>' + card + '<ul class="v1-also-l">' + rows + '</ul>';
+    alsoEl.innerHTML = '<h3 class="tp-sec-title" id="v1-also-title" tabindex="-1">' + (noTeam ? 'On while you’re here' : 'Also on in NSW') + '</h3>' +
+      '<p class="tp-sec-note">' + (noTeam ? 'NSW matches inside your days. Add the ones you’re going to.' : 'Other matches inside your days, whoever is playing.') + '</p>' + card + '<ul class="v1-also-l">' + rows + '</ul>';
   }
   function render(force, focusSel) {
     var s = signature();
