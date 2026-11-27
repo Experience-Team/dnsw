@@ -104,6 +104,10 @@ The trip map under the opening sentences is now the only map of the trip (`v1/v1
 
 Catch-up still owed for this change: annotations in `index.html` that describe the old maps (`#v1-fm`, Explore freely), low fidelity and reduced motion checks, unused styles (`.v1-fm-*`, `.tp-map*`) and tests.
 
+## Drop goal from Version 2 (27 Nov 2026, sandbox only)
+
+Play is Version 2's Drop goal: the two-tap game with the team screen, the practice kick, the result card, the places and Home's how-to-play picture, with Version 2's copy and motion. `drop-goal-v2/` is the sandbox's copy of `../v2/drop-goal/` (paths point inside the sandbox, state under `sb:`); `v1/sb-play.js` and `v1/sb-play.css` are Version 2's `v2-view.js` (the Play part), `v2-onboard.js` and their styles, renamed `sb-`. Differences from Version 2: the Play tab opens the game over the whole screen and no longer changes the page (`index.html`, the tabs script); Add goes into the planner's saved state through `tpPicker.addItem` (kind `kick`, Saved, not placed yet), not a simple saved list; "[n] added · Your plan" closes the game and shows the Plan tab; the team cards are lent from Home or the planner and put back (`v1/v1-flow-c.js` leaves them alone while lent). The old game (`drop-goal/`) is no longer loaded; its folder, the hidden `#tp-kick` section, its messages in `v1/v1-teams.js` and its three annotations are left for a tidy-up.
+
 ## Links (27 Nov 2026, sandbox only)
 
 - **Visit Instagram / Visit TikTok** on Home open the footer's addresses in a new tab (`concepts-social.js`, `v1/v1-social.js`). "View on Instagram" on a single sample post is still a placeholder.
