@@ -1,0 +1,82 @@
+/* The open plan's zoomable timeline (27 Nov 2026): the bar's strip grown, one mark a day, a wedge slider to zoom, the
+   chosen day's summary underneath. Sandbox only. --cw is a day's width, --s1 brings in day labels, --s2 the details. */
+.v1z { --cw: 8px; --s1: 0; --s2: 0; --zp: 0%; position: relative; margin: var(--space-3) 0 0; }
+/* The timeline runs to the sheet's edges, its first day on the margin; only it scrolls sideways */
+.v1z-view { position: relative; margin: 0 calc(-1 * var(--space-4)); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.v1z-view::-webkit-scrollbar { display: none; }
+.v1z-track { position: relative; display: flex; box-sizing: border-box; min-width: 100%; height: 160px; padding: 0 16px; }
+/* The axis through the marks, like the bar's strip; it gives way to the details */
+.v1z-track::before { content: ""; position: absolute; left: 16px; right: 16px; top: 105px; height: 1px; background: var(--c-fill-strong); opacity: calc(1 - var(--s2)); pointer-events: none; }
+/* Where the timeline carries on past the edge, it fades; at the start or the end there is no fade */
+.v1z::before, .v1z::after { content: ""; position: absolute; top: 0; z-index: 3; width: 28px; height: 160px; pointer-events: none; opacity: 0; transition: opacity .15s linear; }
+.v1z::before { left: calc(-1 * var(--space-4)); background: linear-gradient(to right, var(--c-surface), transparent); }
+.v1z::after { right: calc(-1 * var(--space-4)); background: linear-gradient(to left, var(--c-surface), transparent); }
+.v1z.can-l::before, .v1z.can-r::after { opacity: 1; }
+/* Months: a rule where each begins, its name sticking to the left edge while the month is in view */
+.v1z-mo { position: absolute; left: 0; right: 0; top: 0; height: 20px; pointer-events: none; }
+.v1z-mon { position: absolute; top: 0; height: 20px; left: calc(16px + var(--a) * var(--cw)); width: calc(var(--n) * var(--cw)); border-left: 1px solid var(--c-line-soft); }
+.v1z-mon:last-child { border-right: 1px solid var(--c-line-soft); }
+.v1z-mon b { position: sticky; left: 20px; display: inline-block; padding-left: 4px; font-size: .6875rem; font-weight: var(--fw-semi); line-height: 20px; color: var(--c-ink-2); white-space: nowrap; }
+/* Your days: a tinted band, as the bar's stay band */
+.v1z-band { position: absolute; top: 20px; bottom: 0; left: calc(16px + var(--a) * var(--cw)); width: calc(var(--n) * var(--cw)); border: var(--bw-1) solid var(--c-accent-line); border-radius: 6px; background: var(--c-accent-soft); pointer-events: none; }
+.v1z-d { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; width: var(--cw); height: 100%; margin: 0; padding: 20px 0 0; border: 0; border-radius: 6px; background: transparent; color: var(--c-ink); font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.v1z-d::before { content: ""; position: absolute; left: 0; right: 0; top: 20px; bottom: 0; border-radius: 6px; pointer-events: none; }
+.v1z-d:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; z-index: 2; }
+.v1z-d.is-sel::before { background: var(--c-fill-soft); box-shadow: inset 0 -3px 0 var(--c-ink); }
+@media (hover: hover) { .v1z-d:not(.is-sel):hover::before { background: color-mix(in srgb, var(--c-fill-soft) 60%, transparent); } }
+.v1z-lbl { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 30px; line-height: 1; opacity: var(--s1); pointer-events: none; }
+.v1z-d.is-out .v1z-lbl { opacity: calc(var(--s1) * .45); }
+.v1z-lbl b { font-size: .75rem; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.v1z-lbl small { margin-top: 2px; font-size: .625rem; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .02em; color: var(--c-ink-2); }
+.v1z-wd3 { display: none; }
+.v1z.is-w3 .v1z-wd1 { display: none; }
+.v1z.is-w3 .v1z-wd3 { display: inline; }
+/* Marks: matches filled or ringed, as the bar's dots; ideas and places squares; a day with nothing is a dotted ring */
+.v1z-mks { --mk: calc(6px + 8px * var(--s1)); position: absolute; left: 0; right: 0; top: 50px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(3px + 3px * var(--s1)); opacity: calc(1 - var(--s2)); pointer-events: none; }
+.v1z-m { flex: none; display: block; box-sizing: border-box; width: var(--mk); height: var(--mk); border-radius: 50%; background: var(--c-fill-strong); }
+.v1z-m--away { background: var(--c-surface); box-shadow: inset 0 0 0 1.5px var(--c-line-strong); }
+.v1z-m--tbd { background: var(--c-surface); box-shadow: inset 0 0 0 1px var(--c-line-strong); }
+.v1z-m--watch { background: transparent; border: 1.5px dashed var(--c-line-strong); }
+.v1z-m--item, .v1z-m--night { border-radius: 2px; background: var(--c-surface); box-shadow: inset 0 0 0 1.5px var(--c-line-ink); }
+.v1z-m--night { box-shadow: inset 0 0 0 1.5px var(--c-line-strong); }
+.v1z-m--more { height: 3px; border-radius: 2px; }
+.v1z-m--empty { width: calc(6px + 8px * var(--s1)); height: calc(6px + 8px * var(--s1)); border: 1.5px dotted var(--c-line-ink); background: transparent; }
+.v1z-m--out { background: transparent; }
+.v1z-m.is-clash { box-shadow: 0 0 0 1.5px var(--c-surface), 0 0 0 3px var(--c-danger); }
+/* Close: flags for each match, a picture for each idea or place; the marks give way to them */
+.v1z-det { position: absolute; left: 3px; right: 3px; top: 50px; bottom: 0; display: flex; flex-direction: column; gap: 5px; padding-top: 6px; overflow: hidden; opacity: var(--s2); pointer-events: none; text-align: left; }
+.v1z-t { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; min-width: 0; min-height: 28px; }
+.v1z-t small { min-width: 0; font-size: .6875rem; line-height: 1.15; color: var(--c-ink-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.v1z-t--i { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: 3px; }
+.v1z-t--i small { display: none; width: 100%; color: var(--c-ink); }
+.v1z.is-w4 .v1z-t--i small { display: block; white-space: nowrap; text-overflow: ellipsis; }
+.v1z-t--m small, .v1z-t--away small, .v1z-t--tbd small, .v1z-t--watch small { color: var(--c-ink); font-weight: var(--fw-semi); }
+.v1z-t--e { flex: 1 1 auto; justify-content: center; margin-bottom: 8px; border: 2px dotted var(--c-line-ink); border-radius: 8px; text-align: center; }
+.v1z-t--e small { display: block; padding: 0 2px; }
+.v1z-t--more { min-height: 0; }
+.v1z-fl { display: inline-flex; gap: 2px; flex: none; }
+.v1z-fl svg { display: block; width: 18px; height: auto; }
+.v1z-t--away .v1z-fl, .v1z-t--watch .v1z-fl { opacity: .6; }
+.v1z-q { display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; border: 1px solid var(--c-line-strong); border-radius: 50%; font-size: .6875rem; font-weight: var(--fw-bold); }
+.v1z-th { flex: none; width: 36px; height: 24px; border-radius: 4px; }
+/* The wedge: narrow at the left (zoomed out), taller to the right (zoomed in). The real range input sits over it */
+.v1z-zoom { position: relative; height: 32px; margin-top: var(--space-2); }
+.v1z-wedge { position: absolute; left: 12px; right: 12px; top: 50%; height: 20px; transform: translateY(-50%); background: linear-gradient(to right, var(--c-ink) var(--zp), var(--c-fill-strong) var(--zp)); clip-path: polygon(0 calc(50% - 1px), 100% 0, 100% 100%, 0 calc(50% + 1px)); }
+.v1z-range { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; touch-action: pan-y; }
+.v1z-range::-webkit-slider-runnable-track { height: 32px; background: transparent; }
+.v1z-range::-moz-range-track { height: 32px; background: transparent; }
+.v1z-range::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: 4px; box-sizing: border-box; border: 2px solid var(--c-ink); border-radius: 50%; background: var(--c-surface); }
+.v1z-range::-moz-range-thumb { width: 24px; height: 24px; box-sizing: border-box; border: 2px solid var(--c-ink); border-radius: 50%; background: var(--c-surface); }
+.v1z-range:focus-visible { outline: none; }
+.v1z-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1z-range:focus-visible::-moz-range-thumb { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+/* The chosen day: its own card, without the rail, Move and Remove (an item's sheet has those) or getting there (the page has it) */
+.v1z-sum { margin-top: var(--space-4); }
+.v1z-hint { margin: 0; font-size: var(--fs-md); color: var(--c-ink-2); }
+.v1z-one { margin: 0; }
+.v1z-one .v1p-day { display: block; padding-bottom: 0; }
+.v1z-one .v1p-day::before, .v1z-one .v1p-rail { display: none; }
+.v1z-sum .tp-dc-act, .v1z-sum .tp-dc-move, .v1z-sum .v1p-go, .v1z-sum .v1p-fz { display: none; }
+.v1z-page { display: inline-block; margin-top: var(--space-3); }
+.v1z-out-day { padding: var(--space-3) 0; }
+.v1z-out-day p { margin: var(--space-2) 0 var(--space-3); color: var(--c-ink-2); }

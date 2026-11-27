@@ -45,6 +45,7 @@
 <link rel="stylesheet" href="v1/v1-dates.css" />
 <link rel="stylesheet" href="v1/v1-fanzones.css" />
 <link rel="stylesheet" href="v1/v1-plan.css" />
+<link rel="stylesheet" href="v1/v1-zoom.css" />
 <link rel="stylesheet" href="v1/v1-picker.css" />
 <link rel="stylesheet" href="v1/v1-narrative.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
@@ -994,25 +995,38 @@
       "The key sits between the match list and the calendar, so it is read before the markers it explains.",
       "Kick-off times are shown in Sydney time, as that is the time the user will be living on."
     ] },
-    { sel: "#tp-dc", title: "Your plan: a vertical timeline (new layout, 26 Nov 2026)", points: [
-      "A layout to try, built as the working version; the earlier plan (a strip of days, then cards) is kept in archive/. Testing said people open their plan and cannot read it, because the useful things sat in secondary sheets.",
-      "One vertical timeline, a day after another, each day a card on a rail with its date. A day with a match or things added has a solid card and a solid rail. An empty day has a dotted border and a dotted rail. Every day in the person's days is shown; runs of free days no longer fold into one card.",
-      "A free day has a dotted outline, a big plus and Suggest ideas (not Add). Suggest ideas opens the ideas on the card, up to three, with Show more for the rest, and the same Add and Added as everywhere. No ideas sheet. A day with something on it keeps a smaller Suggest ideas.",
-      "List or Map at the top. Map shows where each day is, numbered, and Open full screen, day by day opens the full-screen map where the days swipe. With no days set, Map says so and offers Set your days.",
-      "On the cards, from the sheets: getting there on a match day (Train from Central, about 36 min); for something added, how to get there, price and opening hours (a place), the suburb, transport and opening times (a pub, club or fan zone, sample data), and how long an idea takes. Move and Remove are on the card.",
-      "Still in a second sheet: a match's details, an added thing's full details, an idea's details, the full route there and back, Your answers (Change), Save & share and Clear plan.",
-      "Not built yet: the strip's keyboard days (the timeline is read top to bottom), and a map that shows the things added, not only each day's place."
+    { sel: "#v1z", title: "Your plan: a zoomable timeline (27 Nov 2026)", points: [
+      "The open plan shows one timeline, not the day-by-day plan again: the page has every day in full. It is the bar’s strip grown, one mark a day across 1 Oct to 13 Nov, with a slider below to zoom.",
+      "Your days are a tinted band, as the bar’s stay band. A day outside it is dimmed. An empty day inside it is a dotted ring, the page’s empty state, at every zoom.",
+      "Marks follow the bar’s dots: an NSW match is a filled circle, an interstate match a ring, a later round with teams to be decided a thin ring, a match to watch in NSW a dashed ring, an idea or place a square. Two matches at the same time have a red ring.",
+      "Zoom slider: a real range input (arrow keys, Home and End, aria-label Zoom the timeline, and its value text names the level) under a wedge, thin at the left (zoomed out) and thick at the right (zoomed in). Dragging changes the zoom continuously and the centre stays where it was. A jump (a key, a tap on the track) glides on an even ease, and with reduced motion it sets in place.",
+      "Three levels: from 0 to 33 the whole trip fits the width and shows marks only; from 34 to 66 each day has a label and match markers; from 67 to 100 each match shows its two flags and kick-off and each idea or place its picture and name. Labels and details blend in over a short band either side of those points.",
+      "Zoomed in, only the timeline scrolls sideways. It runs to the sheet’s edge, the first day lines up with the margin, and the next one peeks. The edge fades where more lies beyond and goes at the start or end.",
+      "Tap a day for its summary under the timeline: its matches with kick-off, and its ideas and places, in the same words as the page. A free day has Suggest ideas. Tapping it again closes the summary. Move and Remove are in an item’s own sheet, opened from its name.",
+      "Go to this day on the plan page is a separate link, and the one control here that moves the page. Left and right arrows move between days.",
+      "Opens zoomed all the way out, with no day chosen, so the first thing seen is which days are empty. See your match day and other links to a day open it zoomed in on that day.",
+      "Data: the pictures are the page’s stand-ins, and the flags are the team cards’. Nothing new is invented."
     ] },
+
     { sel: "#tp-dc", at: "tl", title: "Why: Your plan", points: [
-      "The timeline runs vertically, one day after another, so the trip reads in the order it will happen.",
+      "The plan page runs vertically, one day after another, so the trip reads in the order it will happen.",
       "Empty days have a dotted outline and “Suggest ideas”, so free time reads as an invitation and not a gap.",
       "Up to three ideas show inline with “Show more”, so the user sees options without opening another sheet.",
-      "A day shows the same ideas in the list and on the map, so the two views never disagree.",
+      "A day shows the same ideas on the page and on the full-screen map, so the two views never disagree.",
       "The plan’s map pins only the places a day’s items are in, so the map reflects the plan and not the stadium by default.",
       "Adding always reads “Add”, then “Added”, so the user learns one pattern and can trust it.",
       "Every sheet has a close cross top right, as testers looked there first to dismiss a sheet.",
       "The action reads “Share and export options”, and Share opens the phone’s own share sheet, as that is what “share” was expected to do."
+    ] },    { sel: "#v1z", at: "tl", title: "Why: The open plan is an overview", points: [
+      "The open plan is the trip at a glance, so the page is the only place that repeats every day in full.",
+      "It is the bar’s strip grown, so the closed and open plan read as one thing.",
+      "Days outside your dates are dimmed and empty days inside them are dotted, so a gap is never mistaken for a day that is not yours.",
+      "The slider is a wedge, thin when zoomed out and thick when zoomed in, so its shape says which way is closer.",
+      "Detail arrives in stages, so each zoom level has one job: the whole trip, then which days, then what is on them.",
+      "Tapping a day shows its summary in the sheet and never moves the page; Go to this day on the plan page says that it does.",
+      "It opens zoomed out, so the first thing seen is which days are empty; opened on a day, it opens zoomed in on that day."
     ] },
+
     { sel: "#v1-fz", title: "Fan zones and fan villages", points: [
       "Added 26 Nov 2026. Every fan zone and fan village, whichever team the person follows, by city. Each card says how to get there, when it is open and what is there. The details are sample data, marked Sample on every card and in the section note.",
       "Not filtered by the person's teams, dates or days: it is the whole list. The pubs and clubs that show a team's matches stay in Where to watch."
@@ -1298,7 +1312,7 @@
       "The strip runs from 1 Oct to 13 Nov with a dot per match. Your days, once set, are a band behind it. A day with two matches at the same time has a red ring.",
       "Every pick is seen working: the team’s matches fly as dots from the card into the strip and land on their dates, then the count changes. Unpicking lifts them out. Every NSW match is one sweep.",
       "Tap the bar or press Enter to open; tap again or Escape to close. Drag up past a third (or flick) to open, down past a third to close; a shorter drag springs back.",
-      "It opens on what matters. First time in a visit: the first of your days, else the earliest thing you added, else your first NSW match. After that: the day you last added to, else the day you last had open. A reload starts from the first rule.",
+      "It opens on the whole trip, zoomed all the way out, with no day chosen. Opened from a link to a day, it opens zoomed in on that day.",
       "The first save made while the bar is out of view gets a one-line toast naming the thing and its day (Bathers Way saved to your plan, Sun 3 Oct.), with Open your plan.",
       "Clashes are based only on kick-off times and cities: two matches at the same time ring the day (2 matches at the same time); matches in several cities get a quieter line and no ring. Tickets do not change this.",
       "The page keeps room at the bottom so the bar never covers the last content.",
