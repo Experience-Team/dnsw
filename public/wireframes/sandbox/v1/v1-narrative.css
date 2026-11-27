@@ -1,0 +1,66 @@
+/* The narrative plan page (27 Nov 2026), sandbox only: v1/v1-narrative.js */
+/* The old sections it replaces are hidden, not deleted, once the three questions are answered; the Around the matches in NSW map is
+   replaced by the trip map under the sentences */
+#tp-ov { display: none !important; }
+#tp-phone:not(.v1-nar-on) #v1-nar { display: none; }
+#tp-phone[data-fc] #v1-nar { display: none !important; }
+#tp-phone.v1-nar-on :is(#tp-results, #tp-watch, #tp-plan, .tp-hero, #tp-third-title, #tp-third-note, #tp-third-trip) { display: none !important; }
+
+.v1-nar { margin-top: var(--space-4); }
+.v1-nar-s { margin: 0 0 var(--space-3); font-size: var(--fs-lg, 1.125rem); line-height: 1.45; }
+.v1-nar-b { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-weight: var(--fw-semi); color: var(--c-ink); text-align: left;
+  text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; text-decoration-color: var(--c-accent); cursor: pointer; border-radius: 2px; }
+.v1-nar-b:focus-visible, .v1-nar-day:focus-visible, .v1-nc-t:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1-nar-addp { margin: 0 0 var(--space-4); font-size: var(--fs-sm); }
+.v1-nar-addp .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
+
+/* The trip map: fixed height, one static picture zoomed to fit; it scrolls away with the page */
+.v1-tm { position: relative; height: 280px; overflow: hidden; border-radius: 12px; border: 1px solid var(--c-line); background: #e9e6df; cursor: pointer; touch-action: pan-y; margin-top: var(--space-3); }
+.v1-tm:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1-tm-layer { position: absolute; left: 0; top: 0; width: 2800px; height: 3602px; transform-origin: 0 0; }
+.v1-tm-img { display: block; width: 2800px; height: 3602px; max-width: none; filter: grayscale(1) contrast(.85) brightness(1.08); user-select: none; }
+.v1-tm-svg, .v1-tm-pins { position: absolute; inset: 0; pointer-events: none; }
+.v1-tm-route { fill: none; stroke: var(--c-ink); stroke-width: 2; stroke-dasharray: 5 4; opacity: .75; }
+.v1-tm-route.is-maybe { opacity: .35; }
+.v1-tm-route.is-lit { stroke: var(--c-accent); stroke-width: 3.5; opacity: 1; stroke-dasharray: none; }
+.v1-tm-pin { position: absolute; width: 0; height: 0; transition: opacity .2s linear; }
+.v1-tm-pin i { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; border-radius: 50%; background: var(--c-accent); border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--c-ink); }
+.v1-tm-pin.is-stay i { border-radius: 3px; background: var(--c-ink); }
+.v1-tm-pin.is-fan i { border-radius: 3px; transform: rotate(45deg); }
+.v1-tm-pin.is-maybe i { background: #fff; }
+.v1-tm-pin b { position: absolute; left: 12px; top: -9px; padding: 1px 6px; border-radius: 4px; background: rgba(255, 255, 255, .88); font-size: 11px; line-height: 16px; font-weight: var(--fw-semi); white-space: nowrap; color: var(--c-ink); }
+.v1-tm-pin.is-l b { left: auto; right: 12px; }
+.v1-tm-pin.is-dim { opacity: .45; }
+.v1-tm-pin.is-lit i { transform: scale(1.35); box-shadow: 0 0 0 2px var(--c-ink), 0 0 0 5px rgba(255, 90, 0, .35); }
+.v1-tm-pin.is-lit { z-index: 2; }
+
+/* The days under the map */
+#tp-third { margin-top: var(--space-5, 24px); }
+.v1-nar-blk { margin-top: var(--space-6, 32px); }
+.v1-nar-blk:first-child { margin-top: 0; }
+.v1-nar-dh { margin: 0 0 var(--space-2); font-size: var(--fs-lg, 1.125rem); line-height: 1.3; }
+.v1-nar-day { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-weight: var(--fw-semi); color: var(--c-ink); text-align: left; }
+button.v1-nar-day { cursor: pointer; }
+.v1-nar-blk .tp-blk-body { padding: 0; }
+.v1-md-s, .v1-md-d { margin: 0 0 var(--space-2); font-size: var(--fs-base); line-height: 1.5; }
+.v1-md-d .tp-link { min-height: 28px; }
+.v1-md-fz { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-3); }
+.v1-md-fz .v1-fan-near { margin: 0; flex: 1; min-width: 0; }
+.v1-md-sw.tp-seg { display: flex; width: 100%; height: auto; margin-top: var(--space-4); padding: 0; border: 0; gap: var(--space-2); background: none; }
+.v1-md-sw .v1-md-tab { flex: 1 1 0; min-width: 0; min-height: 36px; padding: 0 6px; font-size: var(--fs-xs, .8125rem); font-weight: var(--fw-semi); white-space: nowrap; border-radius: 999px; background: none; border: var(--bw-2, 2px) solid var(--c-line-strong, #111); color: var(--c-ink); }
+.v1-md-sw .v1-md-tab[aria-pressed="true"] { background: var(--c-btn, #111); color: var(--c-on-dark, #fff); border-color: var(--c-btn, #111); }
+.v1-md-sw .v1-md-tab:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.v1-nc-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
+.v1-nc { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); border: 1px solid var(--c-line); border-radius: 8px; min-width: 0; }
+.v1-nc-img { display: block; height: 68px; border-radius: 6px; }
+.v1-nc-b { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.v1-nc-t { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-weight: var(--fw-semi); font-size: var(--fs-sm); text-align: left; color: var(--c-ink); line-height: 1.25; }
+button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.v1-nc-k, .v1-nc-w { font-size: var(--fs-xs, .8125rem); color: var(--c-ink-2); line-height: 1.3; }
+.v1-nc .tp-add { align-self: flex-start; }
+.v1-md-acts { display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-2); }
+.v1-md-acts .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
+.v1-md-again { color: var(--c-ink-2); }
+@media (prefers-reduced-motion: reduce) { .v1-tm-pin { transition: none; } }
+
+.v1-nar-blk .v1-nonsw, .v1-nar-blk .v1-nonsw-none { margin: 0; padding: 0; }

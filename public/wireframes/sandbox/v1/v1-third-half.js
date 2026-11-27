@@ -1118,6 +1118,30 @@
       return;
     }
     var h = '';
+    /* The narrative plan page (27 Nov 2026, sandbox): once the questions are answered the days read in order, every day open, a
+       match day as one block (tp.narMatchBody, v1-narrative.js). The other days keep their own bodies. */
+    if (tp.narMatchBody && fc() === '') {
+      tp.narBegin();
+      var noNswTeams = M.own && !M.nsw.length ? state.picked.filter(function (n) { return tp.teams[n]; }) : [], noNswDone = false;
+      bs.forEach(function (b) {
+        if (b.kind === 'away') return;
+        var hd = heading(b), venue = (b.kind === 'match' || b.kind === 'ko') ? b.ms[0].f.v : '', body;
+        if (b.kind === 'watch' && noNswTeams.length) hd = { when: dayLabel(b.day) + ' · Watch day' };
+        if (b.kind === 'match') body = tp.narMatchBody(b, M);
+        else if (b.kind === 'free') body = b._html;
+        else if (b.kind === 'watch') {
+          if (noNswTeams.length) { body = noNswDone ? '' : tp.narNoNsw(noNswTeams); noNswDone = true; } else body = watchBody(b);
+        } else if (b.kind === 'ko') body = koBody(b);
+        else body = halfBody(b);
+        if (!body) return;
+        h += '<section class="tp-blk tp-blk--' + b.kind + ' v1-nar-blk" data-blk="' + b.key + '" id="v1-blk-' + b.key + '"><h4 class="v1-nar-dh">' +
+          (venue ? '<button type="button" class="v1-nar-day" data-nar-day="' + esc(venue) + '">' : '<span class="v1-nar-day">') +
+          '<span class="tp-blk-when">' + esc(hd.when) + '</span>' + (venue ? '</button>' : '</span>') + '</h4><div class="tp-blk-body">' + body + '</div></section>';
+      });
+      if (noNswTeams.length && !noNswDone) { var nn = tp.narNoNsw(noNswTeams); h = '<section class="tp-blk tp-blk--watch v1-nar-blk">' + (nn.indexOf('class="v1-nonsw"') > -1 ? '<h4 class="v1-nar-dh"><span class="v1-nar-day"><span class="tp-blk-when">Watching from NSW</span></span></h4>' : '') + '<div class="tp-blk-body">' + nn + '</div></section>' + h; } // none of their matches is played in NSW inside the days: the watch block leads
+      thirdList.innerHTML = h;
+      return;
+    }
     bs.forEach(function (b) {
       var hd = heading(b), open = !!openSet[b.key], bid = 'tp-blk-' + b.key;
       if (b.kind === 'away') { h += '<div class="tp-blk tp-blk--away" data-blk="' + b.key + '" tabindex="-1"><p class="tp-blk-line"><span class="tp-blk-when">' + esc(hd.when) + '</span> <span class="tp-blk-what">' + esc(hd.what) + '</span></p></div>'; return; }
@@ -3228,6 +3252,28 @@
     if (f && f !== document.activeElement) f.focus({ preventScroll: true });
     notesRefresh();
   }
+  /* The narrative plan page's kit (27 Nov 2026, v1-narrative.js): what a block needs from here, as functions so it always reads
+     the current ITEMS and MODAL (both are rebuilt on every render) */
+  tp.narKit = {
+    registerItem: function (id, it) { ITEMS[id] = it; },
+    registerProduct: function (p, m, o) {
+      var f = m.f, id = 'p:' + p.id + ':' + f.d;
+      ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
+      MODAL[id] = { type: 'product', p: p, f: f, o: o, why: reason(p, o, { m: m }) };
+      return id;
+    },
+    registerPoi: function (q, f) {
+      var key = 'mp:' + q.id + ':' + f.d;
+      ITEMS[key] = { id: 'poi:' + q.id, kind: 'poi', poi: q.id, title: q.title, kindLabel: q.cat, place: q.area, day: f.d, matchName: matchName(f) };
+      return key;
+    },
+    addBtn: addBtn, goRoute: goRoute, kmBetween: kmBetween, nearerPlace: nearerPlace, nearestFan: nearestFan, fanSpots: fanSpots, placesOf: placesOf,
+    mins: mins, matchName: matchName, dayLabel: dayLabel, weekdayOf: weekdayOf, kickMins: kickMins, hoursOn: hoursOn, cityOf: cityOf,
+    products: function () { return PRODUCTS; }, ptype: PTYPE, travel: travel, imgKey: imgKey, tbc: TBC_L, sampleTag: SAMPLE_TAG,
+    isKo: isKo, koName: koName, koOnDays: koOnDays, hasTicket: hasTicket,
+    openStay: function (opener, add) { openDays(true, opener); if (add) { adding.s = true; daysRefresh('.tp-quick [data-sbase]'); } }
+  };
+  tp.render = function (force, sel) { render(!!force, sel); };
   phone.addEventListener('tp:state', function () { render(false); });
   tp.askRender = function () { render(true); }; // Option C: a step that borrows Your days or Where you're staying
   // Reset prototype (a reviewer tool): this section's own choices go back to a first visit too

@@ -39,6 +39,10 @@ matches, a quiet Staying outside NSW link, a place always required with an optio
 - A team with no NSW match inside the days: an interstate watch block (fan zone, sample address, approximate route, Add) or one line pointing to Also on in NSW.
 - One close cross on the plan sheet (the dead second one is gone).
 
+## The narrative plan page (27 Nov 2026, sandbox only)
+
+Once the three questions are answered, the Plan tab opens on two opening sentences (the dates and matches, then where they stay, each bracketed part a control), one fixed-height trip map under them, and the days in date order. New files: `v1/v1-narrative.js` (sentences, map, match-day block) and `v1/v1-narrative.css`; `v1/v1-third-half.js` renders every day open when the flow is done (`renderThird`), exports `tp.narKit` and `tp.render`; `v1/v1-flow-c.js` lands See your plan on `#v1-nar`. The Your matches card, Where to watch, Your plan so far and the Around the matches in NSW map are hidden, not deleted; Also on in NSW, the fan zones list, the pubs map and All matches stay below. Transport, route, address and place-to-stay details are sample data, marked Sample. Stage 2 (getting there and around, spare time, another match, Also on in NSW folded in) is not built.
+
 ## Differences from Version 1 (27 Nov 2026)
 
 Made in this copy only; Version 1 and Version 2 are unchanged.

@@ -46,6 +46,7 @@
 <link rel="stylesheet" href="v1/v1-fanzones.css" />
 <link rel="stylesheet" href="v1/v1-plan.css" />
 <link rel="stylesheet" href="v1/v1-picker.css" />
+<link rel="stylesheet" href="v1/v1-narrative.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
 <style>
   /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
@@ -751,6 +752,7 @@
 <script src="concepts-articles.js"></script>
 <script src="concepts-home.js"></script>
 <script src="v1/v1-flow-c.js"></script>
+<script src="v1/v1-narrative.js"></script><!-- the narrative plan page (27 Nov 2026) -->
 <script src="v1/v1-fanzones.js"></script>
 <script src="concepts-social.js"></script><script src="v1/v1-social.js"></script>
 <script src="v1/v1-flow-motion.js"></script>
@@ -863,6 +865,33 @@
     ] },
 
     // The planner: picking teams
+    { sel: "#v1-nar", at: "tl", title: "Why: The plan page opens with two sentences and a map", points: [
+      "The page opens with two plain sentences, as a travel expert would begin by saying what they understand of the trip.",
+      "Each bracketed part is a control, so the user corrects the trip from the sentence that states it.",
+      "The dates and the places open the sheet that changes them, so a correction is one tap and the user stays on the page.",
+      "A bracketed match highlights its pin on the map, as the sentence tells the user what the map is showing.",
+      "Later rounds inside the dates are named in the first sentence but not assumed, so the user sees them without being counted as going.",
+      "“+ Add another place” sits under the second sentence, as that is where the places are named.",
+      "The map sits under the opening sentences, as the sentences tell the user what the map is showing.",
+      "The map is about a third of the screen and scrolls away with the page, so it is seen on arrival without taking over the page.",
+      "It zooms to fit the stays and the grounds, so a Sydney-only trip shows the city and a trip with Newcastle shows both.",
+      "Tapping the map opens the day-by-day map, as that is where the user looks at one day in detail.",
+      "It is the only map in the plan, so there is one picture of the trip.",
+      "Fan zones, addresses, routes and places to stay are sample data, marked Sample."
+    ] },
+    { sel: ".v1-md-s", at: "tl", title: "Why: A match day is one block", points: [
+      "Each match day is one block that fits one phone screen, so the user reads the day without scrolling through it.",
+      "The block opens with the match and where it is played, as that is why the user is in NSW.",
+      "Distance and time are measured from the nearer place they stay, so with two places the figure is the one they will use.",
+      "The nearest fan zone follows the match, as the first thing people ask is where to go before and after.",
+      "One row of cards switches between food and drink, things to do and places to stay, so the block stays short and the user picks what they need.",
+      "Places to stay comes last for everyone, as we no longer know who has booked.",
+      "Two cards show before “Show more”, so the choice is not a wall.",
+      "A later match at a ground already shown is a short block with a link back, so the same cards are not repeated.",
+      "“Show on map” scrolls to the map and highlights the ground, and its label says it will.",
+      "A team with no NSW match gets the watch block in place of a match block and its fan zone is what the map shows, as those fans still need somewhere to follow their team.",
+      "The Your matches card, Where to watch and Your plan so far are hidden here, as the narrative says the same things in the order the trip happens."
+    ] },
     { sel: "#tp-picker", title: "Hand of cards: peek and reveal", points: [
       "At the top of the planner the hand peeks in just under the hero, and glides up into view once on arrival.",
       "Scrolling the first stretch, the cards hold still while the row above them (Find, Grid, Plays in NSW) rises from behind them in step with the scroll. Scrolling back reverses it. After that the page scrolls normally.",

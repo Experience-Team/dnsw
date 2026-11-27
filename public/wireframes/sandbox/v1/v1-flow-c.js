@@ -311,7 +311,8 @@
     if (fc.step === 'tickets' && to !== 'tickets' && dir > 0) fc.tix = true; // Next or Skip on Tickets: it has been answered or left
     fc.step = to; keep(); show(dir, to !== 'done');
     // Finished: the card goes into the plan, so the page starts with Your matches
-    if (to === 'done') { var y = document.getElementById('tp-yours-title'), r = document.getElementById('tp-results'); toTopOf(y && !r.hidden ? y : pick); }
+    // Finished: See your plan lands at the top of the plan page, the opening sentences (27 Nov 2026)
+    if (to === 'done') { var nar = document.getElementById('v1-nar'), y = document.getElementById('tp-yours-title'), r = document.getElementById('tp-results'); toTopOf(nar && nar.offsetParent !== null ? nar : y && !r.hidden ? y : pick); }
     tp.say(to === 'done' ? 'Your plan, with your answers.' : '');
   }
 
