@@ -27,8 +27,8 @@ The sandbox now carries everything Version 1 gained on 26 and 27 Nov: the range 
 hover or long-hold detail; matches outside the days hidden; Also on in NSW; fan zones and the fan zone map; the new plan
 layout; the team hand; the questions without tickets (team, days, stay) with Remove on inferred matches; Show every NSW
 match as no team; the later-round kick-offs in Sydney time; and where you're staying (quick answers that follow the
-matches, a quiet Staying outside NSW link, Still deciding where to stay, Moore Park as a place). See `v1/README.md` and
-`docs/report-27-nov-session-updates.md`. Version 1's files were copied into `v1/` and the `sb` edits above re-applied.
+matches, a quiet Staying outside NSW link, a place always required with an optional second place, Moore Park as a place). See `v1/README.md` and
+`docs/report-27-nov-session-updates.md`. Version 1's files were copied into `v1/` and the `sb` edits above re-applied. The Where are you staying rework of 27 Nov (a place always required, a second place with Remove, the same place names on buttons and in the plan, no Still deciding) is in too. The shared fixtures' kick-off fix of 27 Nov was not copied here: the sandbox keeps its own fixtures and `v1/v1-fixtures.js`.
 
 ## Differences from Version 1 (27 Nov 2026)
 

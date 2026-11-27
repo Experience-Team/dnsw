@@ -114,15 +114,16 @@
     // The trip: your days (from, to), where you are staying (base) and who is coming (party), each optional. Saved before
     // as a Visiting / local / not sure answer: a local becomes base local; not sure is dropped; days are kept
     // I'm a local is no longer offered (24 Nov): a saved local answer is dropped, as normTrip does with base 'local'
-    if (rec && rec.trip && typeof rec.trip === 'object') state.trip = normTrip({ from: rec.trip.from, to: rec.trip.to, base: rec.trip.base || (rec.trip.mode === 'local' ? 'local' : undefined), guess: rec.trip.guess, party: rec.trip.party });
+    if (rec && rec.trip && typeof rec.trip === 'object') state.trip = normTrip({ from: rec.trip.from, to: rec.trip.to, base: rec.trip.base || (rec.trip.mode === 'local' ? 'local' : undefined), base2: rec.trip.base2, party: rec.trip.party });
   } catch (e) { /* storage blocked: the picker still works, it just is not kept */ }
   // mode follows from the answers: local if staying is I'm a local, visiting once days are set; nothing else is assumed
   function normTrip(t) {
     if (!t) return null;
     var o = {};
-    ['from', 'to', 'base', 'party'].forEach(function (k) { if (typeof t[k] === 'string' && t[k]) o[k] = t[k]; });
+    ['from', 'to', 'base', 'base2', 'party'].forEach(function (k) { if (typeof t[k] === 'string' && t[k]) o[k] = t[k]; });
     if (o.base === 'local') delete o.base; // I'm a local is no longer an answer (24 Nov)
-    if (t.guess === true && o.base !== 'outside') o.guess = true; // Still deciding where to stay (26 Nov 2026): with or without a place they are thinking of; the field keeps its old name, so saved answers still read. One base only
+    // A second place (27 Nov 2026): at most two in total, never outside NSW, never the same twice. Still deciding is gone, so a saved guess is dropped
+    if (o.base2 !== undefined) { if (!o.base || o.base === 'outside' || o.base2 === 'outside' || o.base2 === o.base) delete o.base2; }
     if (!o.from || !o.to) { delete o.from; delete o.to; }
     o.mode = o.base === 'local' ? 'local' : o.from ? 'visiting' : undefined;
     return Object.keys(o).some(function (k) { return o[k]; }) ? o : null;
@@ -2346,8 +2347,8 @@
     if (keepX !== null) { tlScroll.scrollLeft = keepX; requestAnimationFrame(function () { tlScroll.scrollLeft = keepX; setTimeout(function () { tlScroll.scrollLeft = keepX; }, 60); }); }
   }
   function setTrip(t) {
-    // Still deciding stays on while the place is the same one (or there is none), whoever sets the days or the party (26 Nov 2026)
-    if (t && !('guess' in t) && state.trip && state.trip.guess && t.base === state.trip.base) t = Object.assign({}, t, { guess: true });
+    // The second place stays while the first is the same one, whoever sets the days or the party (27 Nov 2026)
+    if (t && !('base2' in t) && state.trip && state.trip.base2 && t.base === state.trip.base) t = Object.assign({}, t, { base2: state.trip.base2 });
     state.trip = normTrip(t); save(); changed();
   }
   // The added item travels from the button that added it to the plan bar, then the badge pops

@@ -77,7 +77,21 @@
     .map(function (x) { return { n: x[0], c: x[1] }; });
   function baseOf() { var t = trip(); return t && t.base || null; }
   function basePlace() { var b = baseOf(); return b && b !== 'local' && b !== 'outside' ? b : null; }
-  function baseCity() { var n = basePlace(), p = n && PLACES.filter(function (x) { return x.n === n; })[0]; return p ? p.c : null; }
+  function cityOfPlace(n) { var p = n && PLACES.filter(function (x) { return x.n === n; })[0]; return p ? p.c : null; }
+  function baseCity() { return cityOfPlace(basePlace()); }
+  /* A second place (27 Nov 2026): up to two in total, no nights asked. A stadium or fan zone measures from whichever place is
+     nearer; spare-time ideas and another match measure from the first (basePlace). */
+  function placesOf() { var t = trip() || {}; return [t.base, t.base2].filter(function (n) { return n && n !== 'local' && n !== 'outside'; }); }
+  function kmBetween(a, b) {
+    var r = Math.PI / 180, dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
+    var x = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 12742 * Math.asin(Math.sqrt(x));
+  }
+  function nearerPlace(ll) {
+    var g = window.cnGeo, ps = placesOf().filter(function (n) { return g && g.places[n]; });
+    if (!ps.length) return null; if (!ll || ps.length < 2) return ps[0];
+    return ps.sort(function (x, y) { return kmBetween(g.places[x], ll) - kmBetween(g.places[y], ll); })[0];
+  }
   // Until a base is given the copy says the city ("in Sydney"); once given, where they are staying
   function whereText(city) { var n = basePlace(); return n ? 'near where you\u2019re staying, ' + n : 'in ' + CITY[city]; }
   /* Honest fit: once they say where they are staying, ideas are ranked by distance from it and each says how far
@@ -90,8 +104,7 @@
     var a = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(b[0] * r) * Math.cos(ll[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
     return 12742 * Math.asin(Math.sqrt(a));
   }
-  // Still deciding (26 Nov 2026): the distance is to a place they may not stay in, and says so
-  function kmLine(km) { var t = trip() || {}; return km === null || km === undefined ? '' : (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ' from ' + basePlace() + (t.guess ? ', if you stay there' : ''); }
+  function kmLine(km) { return km === null || km === undefined ? '' : (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ' from ' + basePlace(); }
   function ideaKm(i) { return kmFrom(window.cnGeo && window.cnGeo.ideas[i.id]); }
   function prodKm(p) { return kmFrom(window.cnGeo && window.cnGeo.products[p.id]); }
   function byKm(fn) { return function (x, y) { var a = fn(x), b = fn(y); return (a === null ? 1e9 : a) - (b === null ? 1e9 : b); }; }
@@ -464,11 +477,13 @@
      Football Stadium, 26 Nov 2026) is a walk to the gates, not a train: the placeholder route works out a train for any
      place that is not the default start, so for these two the route is the walk alone */
   var OWN_PRECINCT = { 'Stadium Australia': 'Sydney Olympic Park', 'Sydney Football Stadium': 'Moore Park' };
+  tp.nearerPlace = function (venue) { return nearerPlace(window.cnGeo && window.cnGeo.venues[venue]); };
   function goRoute(f) {
-    var r = TRAVEL && !f.a ? TRAVEL.route(f.v, basePlace(), baseCity()) : null;
-    if (r && OWN_PRECINCT[f.v] && OWN_PRECINCT[f.v] === basePlace()) {
+    var from = f.a ? null : nearerPlace(window.cnGeo && window.cnGeo.venues[f.v]) || null;
+    var r = TRAVEL && !f.a ? TRAVEL.route(f.v, from, cityOfPlace(from) || baseCity()) : null;
+    if (r && OWN_PRECINCT[f.v] && OWN_PRECINCT[f.v] === from) {
       var w = TRAVEL.venues[f.v].walk_mins;
-      r = Object.assign({}, r, { from: basePlace(), fromDefault: false, mode: 'Walk', legs: [{ mode: 'walk', to: f.v, mins: w, gates: true }], mins: w, cross: false, far: false });
+      r = Object.assign({}, r, { from: from, fromDefault: false, mode: 'Walk', legs: [{ mode: 'walk', to: f.v, mins: w, gates: true }], mins: w, cross: false, far: false });
     }
     return r;
   }
@@ -1999,10 +2014,10 @@
     var t = trip() || {}, ms = dMatches(), has = !!(t.from && t.to);
     var h = '<div class="plan-modal-body tp-days">';
     if (dStay) {
-      // The same choices as step 3 and Your answers (26 Nov 2026): one builder; here a place, outside NSW or still deciding
-      h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying?</h2><p class="tp-days-note">Ideas then start near it, and match days show your own way there and back.</p>' +
-        '<span id="tp-sq-base" class="visually-hidden">Where you’re staying</span>' +
-        stayChoicesHtml({ pre: 's', required: true, q: sheetQ, labelId: 'tp-sq-base' }) +
+      // The same choices as step 3 and Your answers (26 Nov 2026): one builder; here one or two places, or outside NSW
+      h += '<h2 class="cn-pp-title" id="tp-pm-title">Where are you staying, or thinking of staying?</h2><p class="tp-days-note">Ideas then start near it, and match days show your own way there and back.</p>' +
+        '<span id="tp-sq-base" class="visually-hidden">Where are you staying, or thinking of staying?</span>' +
+        stayChoicesHtml({ pre: 's', q: sheetQ, labelId: 'tp-sq-base' }) +
         '<h3 class="tp-days-q">Who’s coming?</h3><div class="tp-quick" role="group" aria-label="Who’s coming">' + PARTY_Q.map(function (x) { return chip('sparty', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '<div class="tp-days-acts"><button type="button" class="tp-pill" data-dclose>Done</button></div>';
       return h + '</div>';
@@ -2022,7 +2037,7 @@
   }
   tp.openDays = function (opener) { openDays(false, opener); };
   function openDays(stay, opener) {
-    dStay = !!stay; sheetQ = ''; dsel = stay ? dRange() : dStart();
+    dStay = !!stay; sheetQ = ''; adding.s = false; dsel = stay ? dRange() : dStart();
     var tl = document.getElementById('tp-tl'), overTl = !!(tl && tl.classList.contains('is-open'));
     openPm(stay ? 'days:stay' : 'days', opener, overTl);
     pmOpenerEl = opener || null; pmAnchor = anchorOf(opener);
@@ -2067,7 +2082,7 @@
   }
   pm.addEventListener('click', function (e) {
     if (!pmOpen || pmOpen.id.indexOf('days') !== 0) return;
-    var b = e.target.closest('[data-dday], [data-duse], [data-dclear], [data-sbase], [data-sout], [data-sguess], [data-sparty], [data-dclose]'); if (!b) return;
+    var b = e.target.closest('[data-dday], [data-duse], [data-dclear], [data-sbase], [data-sout], [data-sadd], [data-scancel], [data-srm], [data-sparty], [data-dclose]'); if (!b) return;
     var t = trip() || {};
     if (b.dataset.dday !== undefined) {
       var d = +b.dataset.dday;
@@ -2089,27 +2104,19 @@
     if (b.hasAttribute('data-dclear')) {
       askEditing = false; askDraft = null; askError = ''; askOwn = true; dsel = null; dDraft = null;
       var cBefore = snap();
-      holdPlace(function () { tp.setTrip({ base: t.base, party: t.party }); }); closePm(); tp.say('Your days are removed.');
+      holdPlace(function () { tp.setTrip({ base: t.base, base2: t.base2, party: t.party }); }); closePm(); tp.say('Your days are removed.');
       changedSince(cBefore, ''); changeToast('Your days are cleared', ['now works from your matches again', 'now work from your matches again']); return;
     }
-    if (b.dataset.sbase !== undefined) {
-      // Required, as on step 3: choosing a place replaces the one before, and tapping the chosen one keeps it
-      if (t.base === b.dataset.sbase) { sheetQ = ''; return; }
-      var v = b.dataset.sbase, sBefore = snap(); askOwn = true; sheetQ = '';
-      holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: v, guess: t.guess, party: t.party }); }); changedSince(sBefore, ''); baseToast(v);
-      daysRefresh(stayOptions().some(function (x) { return x[0] === v; }) ? '[data-sbase="' + CSS.escape(v) + '"]' : '#tp-splace'); tp.say(stayLine({ base: v, guess: t.guess }) + '.'); return;
+    if (b.dataset.sbase !== undefined || b.dataset.sout !== undefined || b.dataset.sadd !== undefined || b.dataset.scancel !== undefined || b.dataset.srm !== undefined) {
+      // The same choices as step 3 (27 Nov 2026): one place, or two each with Remove; a place is always required
+      sheetQ = '';
+      var sr = stayDo('s', b); if (!sr || sr.none) return;
+      if (sr.show) { daysRefresh(sr.focus); return; }
+      var sBefore = snap();
+      holdPlace(function () { stayPatch(sr.patch); }); changedSince(sBefore, ''); baseToast(sr.v);
+      daysRefresh(sr.focus); tp.say(stayLine(trip()) + '.'); return;
     }
-    if (b.dataset.sout !== undefined) {
-      var oBefore = snap(); askOwn = true; sheetQ = '';
-      holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: 'outside', guess: false, party: t.party }); }); changedSince(oBefore, ''); baseToast('outside');
-      daysRefresh('.v1-stay-cur'); tp.say('Staying outside NSW.'); return;
-    }
-    if (b.dataset.sguess !== undefined) {
-      var gBefore = snap(), on = !t.guess; askOwn = true;
-      holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, guess: on, party: t.party }); }); changedSince(gBefore, ''); baseToast(on ? 'deciding' : undefined, true);
-      daysRefresh('[data-sguess]'); tp.say(on ? 'Still deciding where to stay.' : 'No longer still deciding.'); return;
-    }
-    if (b.dataset.sparty !== undefined) { var pv = t.party === b.dataset.sparty ? undefined : b.dataset.sparty; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, party: pv }); }); daysRefresh('[data-sparty="' + CSS.escape(b.dataset.sparty) + '"]'); return; }
+    if (b.dataset.sparty !== undefined) { var pv = t.party === b.dataset.sparty ? undefined : b.dataset.sparty; askOwn = true; holdPlace(function () { tp.setTrip({ from: t.from, to: t.to, base: t.base, base2: t.base2, party: pv }); }); daysRefresh('[data-sparty="' + CSS.escape(b.dataset.sparty) + '"]'); return; }
     if (b.hasAttribute('data-dclose')) closePm();
   });
 
@@ -2315,11 +2322,11 @@
     // One line saying what they did; the link names the first section it changed (verb and none are no longer shown)
     tp.toast(title + '.', ch.length ? { label: 'See ' + ch[0][0], fn: function () { tp.goTo(ch[0][1]); } } : null);
   }
-  function baseToast(v, decidingOnly) {
-    if (v === 'deciding') { changeToast('Still deciding where to stay', ['now starts from the stadium’s city', 'now start from the stadium’s city']); return; }
-    if (decidingOnly) { changeToast('No longer still deciding', ['is updated to suit', 'are updated to suit']); return; }
+  function baseToast(v) {
+    var t = trip() || {};
     if (v === 'local') changeToast('Ideas now suit a local', ['now shows the nearest first', 'now show the nearest first']);
     else if (v === 'outside') changeToast('Now staying outside NSW', ['is updated to suit', 'are updated to suit']);
+    else if (v && t.base2) changeToast('Now staying in ' + t.base + ' and ' + t.base2, ['now measures from the nearer', 'now measure from the nearer']);
     else if (v) changeToast('Now staying in ' + v, ['now starts from there', 'now start from there']);
     else changeToast('Where you’re staying is cleared', ['is updated to suit', 'are updated to suit']);
   }
@@ -2386,7 +2393,8 @@
   // not clear. The local paths below (nearest first, Make a day of it) no longer run; a saved local answer is dropped
   /* Where you are staying (26 Nov 2026). The quick answers follow the person's matches in NSW: the ones inside their days
      (all of their team's with no days; every NSW match inside the days with no team). Sydney CBD when one is in Sydney,
-     Around Olympic Park when one is at Stadium Australia, Around Moore Park when one is at the Sydney Football Stadium,
+     Sydney Olympic Park when one is at Stadium Australia, Moore Park when one is at the Sydney Football Stadium (the same
+     names the plan uses),
      Newcastle when one is in Newcastle; with no match in NSW, Sydney CBD and Newcastle. Each button stores a place the
      distance, route and ideas logic knows (PLACES, cnGeo.places). Bondi and Outside NSW are no longer buttons: a saved
      answer still works and shows as the current place; Staying outside NSW is a quiet link under the search. */
@@ -2402,43 +2410,74 @@
     if (!at.cbd && !at.newc) { at.cbd = true; at.newc = true; }
     var o = [];
     if (at.cbd) o.push(['Sydney CBD', 'Sydney CBD']);
-    if (at.olympic) o.push(['Sydney Olympic Park', 'Around Olympic Park']);
-    if (at.moore) o.push(['Moore Park', 'Around Moore Park']);
+    if (at.olympic) o.push(['Sydney Olympic Park', 'Sydney Olympic Park']);
+    if (at.moore) o.push(['Moore Park', 'Moore Park']);
     if (at.newc) o.push(['Newcastle', 'Newcastle']);
     return o;
   }
   var PARTY_Q = [['solo', 'Solo'], ['couple', 'Couple'], ['friends', 'Friends'], ['family', 'Family']];
-  /* What the person has said about where they stay, in words (26 Nov 2026): a place, outside NSW, or still deciding (with or
-     without a place they are thinking of). The plan, Your answers, the toasts and the share text all read it. */
-  function stayLine(t, short) {
+  /* What the person has said about where they stay, in words (27 Nov 2026): always a place, one or two, or outside NSW. The
+     plan, Your answers, the toasts and the share text all read it, and the buttons carry the same place names. */
+  function stayLine(t) {
     t = t || {};
     if (t.base === 'outside') return 'Staying outside NSW';
-    if (t.guess) return t.base ? (short ? 'Still deciding (' + t.base + ')' : 'Still deciding where to stay, thinking of ' + t.base) : (short ? 'Still deciding' : 'Still deciding where to stay');
     if (t.base === 'local') return 'I’m a local';
-    return t.base ? 'Staying in ' + t.base : '';
+    return t.base ? 'Staying in ' + t.base + (t.base2 ? ' and ' + t.base2 : '') : '';
   }
   tp.stayLine = stayLine;
   function baseLabel(b) { var t = trip() || {}; return stayLine(b === t.base ? t : { base: b }); }
   function partyLabel(p) { return { solo: 'Solo', couple: 'A couple', friends: 'Friends', family: 'Family' }[p] || ''; }
   function chip(attr, val, label, on) { return '<button type="button" class="tp-chip" data-' + attr + '="' + esc(val) + '" aria-pressed="' + !!on + '">' + label + '</button>'; }
-  /* The stay choices, one builder for step 3 and Your answers (pre '') and the Your days sheet (pre 's'): the quick answers,
-     the NSW place search, a quiet Staying outside NSW link, and Still deciding where to stay. Required (the flow, the card
-     and the sheet): choosing a place replaces the one before and tapping it again keeps it. Not required (the old Refine
-     panel): tapping it again clears it. A saved place that is not a button now shows as the current place. */
+  /* The stay choices, one builder for step 3 and Your answers (pre '') and the Your days sheet (pre 's'). A place is always
+     required (27 Nov 2026). One place: the quick answers, the NSW place search and a quiet Staying outside NSW link (choosing
+     another replaces it), with a quiet + Add another place under them. Adding: the same choices for the second place, with
+     Cancel. Two places: each shown with Remove, nothing else (no nights are asked). A saved place that is not a button now
+     shows as the current place. */
+  var adding = { '': false, s: false };
   function stayChoicesHtml(o) {
-    var t = trip() || {}, pre = o.pre || '', cur = t.base || '', opts = stayOptions(), offered = opts.some(function (x) { return x[0] === cur; });
-    var h = '<div class="tp-quick" role="group" aria-labelledby="' + o.labelId + '">' + opts.map(function (x) { return chip(pre + 'base', x[0], x[1], cur === x[0]); }).join('') + '</div>' +
+    var t = trip() || {}, pre = o.pre || '', cur = t.base || '', two = t.base2 || '';
+    if (cur && two) {
+      adding[pre] = false;
+      return '<ul class="v1-stay-list" aria-label="Where you’re staying">' + [cur, two].map(function (n, i) {
+        return '<li><span class="v1-stay-name">' + esc(n) + '</span><button type="button" class="tp-link" data-' + pre + 'rm="' + (i + 1) + '" aria-label="Remove ' + esc(n) + '">Remove</button></li>';
+      }).join('') + '</ul>';
+    }
+    if (!cur || cur === 'outside') adding[pre] = false;
+    var add = adding[pre], opts = stayOptions().filter(function (x) { return !add || x[0] !== cur; }), sel = add ? '' : cur, offered = opts.some(function (x) { return x[0] === cur; });
+    var h = add ? '<p class="v1-stay-cur-line">' + esc(stayLine({ base: cur })) + '</p><p class="tp-sec-note v1-stay-addq">Add one more place</p>' : '';
+    h += '<div class="tp-quick" role="group" aria-labelledby="' + o.labelId + '">' + opts.map(function (x) { return chip(pre + 'base', x[0], x[1], sel === x[0]); }).join('') + '</div>' +
       '<label class="tp-place"><span>Or find a place in NSW</span><input type="search" id="tp-' + pre + 'place" autocomplete="off" placeholder="For example Parramatta" value="' + esc(o.q) + '" aria-controls="tp-' + pre + 'place-list" aria-expanded="' + !!o.q + '"></label>' +
       '<ul class="tp-place-list" id="tp-' + pre + 'place-list" aria-label="NSW places"' + (o.q ? '' : ' hidden') + '>' + placeList(pre, o.q) + '</ul>';
-    if (cur && cur !== 'outside' && !offered) {
-      h += '<p class="tp-place-cur">' + esc(stayLine({ base: cur })) + (o.required ? '' : ' · <button type="button" class="tp-link" data-' + pre + 'base="' + esc(cur) + '">Remove</button>') + '</p>';
-    }
-    h += '<p class="v1-stay-out">' + (cur === 'outside' ? '<span class="v1-stay-cur" tabindex="-1" aria-live="polite"><svg width="14" height="12" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Staying outside NSW<span class="v1-stay-hint"> · choose a place above to change it</span></span>' : '<button type="button" class="tp-link" data-' + pre + 'out>Staying outside NSW</button>') + '</p>';
-    if (o.required && cur !== 'outside') {
-      h += '<button type="button" class="tp-chip tp-guess" data-' + pre + 'guess aria-pressed="' + !!t.guess + '">Still deciding where to stay</button><p class="tp-sec-note tp-guess-note">' +
-        (t.guess ? 'We’ll say what’s approximate and suggest places to stay.' : 'Not sure yet? Say so and we’ll start from the stadium’s city and suggest places to stay.') + '</p>';
-    }
+    if (cur && cur !== 'outside' && !offered && !add) h += '<p class="tp-place-cur">' + esc(stayLine({ base: cur })) + '</p>';
+    if (!add) h += '<p class="v1-stay-out">' + (cur === 'outside' ? '<span class="v1-stay-cur" tabindex="-1" aria-live="polite"><svg width="14" height="12" viewBox="0 0 12 10" aria-hidden="true" focusable="false"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Staying outside NSW<span class="v1-stay-hint"> · choose a place above to change it</span></span>'
+      : '<button type="button" class="tp-link" data-' + pre + 'out>Staying outside NSW</button>') + '</p>';
+    if (cur && cur !== 'outside') h += add ? '<p class="v1-stay-add"><button type="button" class="tp-link" data-' + pre + 'cancel>Cancel</button></p>'
+      : '<p class="v1-stay-add"><button type="button" class="tp-link" data-' + pre + 'add>+ Add another place</button></p>';
     return h;
+  }
+  /* What a tap in the stay choices does, the same on step 3, Your answers and the sheet (pre '' or 's'): a patch to the
+     trip and a line to say, or just a change of what shows (Add another place, Cancel). */
+  function stayDo(pre, b) {
+    var t = trip() || {}, g = function (n) { return b.dataset[pre + n]; }, v = g('base');
+    if (v !== undefined) {
+      if (adding[pre]) { if (v === t.base) return { none: true }; adding[pre] = false; return { patch: { base2: v }, focus: '[data-' + pre + 'rm]', v: v }; }
+      if (t.base === v) return { none: true };
+      return { patch: { base: v }, focus: v && !stayOptions().some(function (x) { return x[0] === v; }) ? '#tp-' + pre + 'place' : '[data-' + pre + 'base="' + CSS.escape(v) + '"]', v: v };
+    }
+    if (g('out') !== undefined) return { patch: { base: 'outside', base2: undefined }, focus: '.v1-stay-cur', v: 'outside' };
+    if (g('add') !== undefined) { adding[pre] = true; return { show: true, focus: '.tp-quick [data-' + pre + 'base]' }; }
+    if (g('cancel') !== undefined) { adding[pre] = false; return { show: true, focus: '[data-' + pre + 'add]' }; }
+    if (g('rm') !== undefined) {
+      var first = g('rm') === '1';
+      return { patch: first ? { base: t.base2, base2: undefined } : { base2: undefined }, focus: '[data-' + pre + 'add]', v: first ? t.base2 : t.base };
+    }
+    return null;
+  }
+  function stayPatch(patch) {
+    var t = trip() || {}, n = { from: t.from, to: t.to, base: t.base, base2: t.base2, party: t.party };
+    Object.keys(patch).forEach(function (k) { n[k] = patch[k]; });
+    if (n.base === 'outside') n.base2 = undefined;
+    askOwn = true; tp.setTrip(n);
   }
   function renderAsk() {
     var t = trip() || {}, own = tp.own(), step = fc(), card = fcCard(), show = own || FLOW_B || step === 'days' || step === 'stay' || card;
@@ -2466,13 +2505,12 @@
     h += '<div class="tp-refine"><button type="button" class="tp-refine-btn" data-act="refine" aria-expanded="' + refineOpen + '" aria-controls="tp-refine-panel">Refine your plan by adding more details<svg class="tp-refine-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
       (bits.length && !refineOpen ? '<p class="tp-refine-sum">' + esc(bits.join(' · ')) + '</p>' : '');
     if (refineOpen || step === 'stay' || card) {
-      var required = step === 'stay' || card;
       h += '<div class="tp-refine-panel" id="tp-refine-panel">' +
         // Where you're staying is required since 26 Nov 2026 (the base of the plan): the step's own title asks the question
-        (step === 'stay' ? '<h4 class="tp-refine-q visually-hidden" id="tp-q-base">Where you’re staying</h4>'
-          : card ? '<h4 class="tp-refine-q" id="tp-q-base">Where you’re staying</h4><p class="tp-sec-note tp-q-base-note">The plan starts from here.</p>'
-          : '<h4 class="tp-refine-q" id="tp-q-base">Do you know where you’re staying?</h4>') +
-        stayChoicesHtml({ pre: '', required: required, q: placeQ, labelId: 'tp-q-base' }) +
+        (step === 'stay' ? '<h4 class="tp-refine-q visually-hidden" id="tp-q-base">Where are you staying, or thinking of staying?</h4>'
+          : card ? '<h4 class="tp-refine-q" id="tp-q-base">Where are you staying, or thinking of staying?</h4><p class="tp-sec-note tp-q-base-note">The plan starts from here.</p>'
+          : '<h4 class="tp-refine-q" id="tp-q-base">Where are you staying, or thinking of staying?</h4>') +
+        stayChoicesHtml({ pre: '', q: placeQ, labelId: 'tp-q-base' }) +
         '<h4 class="tp-refine-q" id="tp-q-party">Who’s coming?</h4>' +
         '<div class="tp-quick" role="group" aria-labelledby="tp-q-party">' + PARTY_Q.map(function (x) { return chip('party', x[0], x[1], t.party === x[0]); }).join('') + '</div>' +
         '</div>';
@@ -2483,13 +2521,13 @@
   function placeList(pre, q) {
     pre = pre || ''; q = (q === undefined ? placeQ : q) || '';
     var ql = q.trim().toLowerCase(); if (!ql) return '';
-    var hits = PLACES.filter(function (x) { return x.n.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(ql) === 0; }) || x.n.toLowerCase().indexOf(ql) === 0; }).slice(0, 5);
+    var first = adding[pre] ? (trip() || {}).base : null;
+    var hits = PLACES.filter(function (x) { return x.n !== first && x.n.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(ql) === 0; }) || x.n.toLowerCase().indexOf(ql) === 0; }).slice(0, 5);
     return hits.length ? hits.map(function (x) { return '<li><button type="button" class="tp-place-opt" data-' + pre + 'base="' + esc(x.n) + '">' + esc(x.n) + '</button></li>'; }).join('')
       : '<li class="tp-place-none">No NSW place matches “' + esc(q.trim()) + '”. Staying outside NSW? Use the link below.</li>';
   }
   function setPart(k, v, before, lead) {
-    var t = trip() || {}, o = { from: t.from, to: t.to, base: t.base, guess: t.guess, party: t.party };
-    if (k === 'base' && v === 'outside') o.guess = false; // Staying outside NSW is not a thing to be still deciding about
+    var t = trip() || {}, o = { from: t.from, to: t.to, base: t.base, base2: t.base2, party: t.party };
     o[k] = v; askOwn = true; tp.setTrip(o);
     return changedSince(before, lead);
   }
@@ -2508,30 +2546,19 @@
     if (b.dataset.quick) {
       var r = quickRange(b.dataset.quick); if (!r) return;
       askEditing = false; askDraft = null; askError = '';
-      askOwn = true; tp.setTrip({ from: r.from, to: r.to, base: t.base, party: t.party });
+      askOwn = true; tp.setTrip({ from: r.from, to: r.to, base: t.base, base2: t.base2, party: t.party });
       said = changedSince(before, 'Your days: ' + tp.isoRange(r.from, r.to) + '.');
       settle('[data-act="change"]', h0); tp.say(said); daysToast(!!t.from, r.from, r.to); return;
     }
-    if (b.dataset.base !== undefined && ask.contains(b)) {
-      // One answer, and one only (26 Nov 2026): choosing a place replaces the one before (a quick answer or a place from the
-      // list). Where you're staying is required in the flow and the card, so tapping the chosen one again keeps it;
-      // outside the flow (Remove on the place line) it still clears
-      var inFlow = fc() === 'stay' || fcCard();
-      if (inFlow && t.base === b.dataset.base) { placeQ = ''; return; }
-      var v = t.base === b.dataset.base ? undefined : b.dataset.base;
+    if ((b.dataset.base !== undefined || b.dataset.out !== undefined || b.dataset.add !== undefined || b.dataset.cancel !== undefined || b.dataset.rm !== undefined) && ask.contains(b)) {
+      // The stay choices (27 Nov 2026): one place, or two each with Remove; a place is always required
       placeQ = '';
-      said = setPart('base', v, before, v ? stayLine({ base: v, guess: t.guess }) + '.' : 'Where you’re staying is cleared.');
-      settle(v && !stayOptions().some(function (x) { return x[0] === v; }) ? '#tp-place' : '[data-base="' + CSS.escape(b.dataset.base) + '"]', h0); tp.say(said);
-      baseToast(v); return;
-    }
-    if (b.dataset.out !== undefined) {
-      placeQ = '';
-      said = setPart('base', 'outside', before, 'Staying outside NSW.');
-      settle('.v1-stay-cur', h0); tp.say(said); baseToast('outside'); return;
-    }
-    if (b.dataset.guess !== undefined) {
-      said = setPart('guess', !t.guess, before, !t.guess ? 'Still deciding where to stay.' : 'No longer still deciding.');
-      settle('[data-guess]', h0); tp.say(said); baseToast(!t.guess ? 'deciding' : undefined, true); return;
+      var r = stayDo('', b); if (!r) return;
+      if (r.none) return;
+      if (r.show) { settle(r.focus, h0); return; }
+      stayPatch(r.patch);
+      said = changedSince(before, stayLine(trip()) + '.');
+      settle(r.focus, h0); tp.say(said); baseToast(r.v); return;
     }
     if (b.dataset.party) {
       var pv = t.party === b.dataset.party ? undefined : b.dataset.party;

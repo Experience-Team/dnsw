@@ -69,4 +69,11 @@
 .v1-stay-cur { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 6px; min-height: 28px; font-weight: var(--fw-semi); }
 .v1-stay-cur svg { flex: none; }
 .v1-stay-hint { font-weight: var(--fw-regular, 400); color: var(--c-ink-2); }
-.tp-refine-panel .tp-guess, .tp-days .tp-guess { margin-top: var(--space-4); }
+.v1-stay-add { margin: var(--space-3) 0 0; font-size: var(--fs-sm); }
+.v1-stay-add .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
+.v1-stay-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+.v1-stay-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 36px; padding: var(--space-1) 0; border-top: 1px solid var(--c-line-soft, var(--c-line)); }
+.v1-stay-list li:last-child { border-bottom: 1px solid var(--c-line-soft, var(--c-line)); }
+.v1-stay-name { font-weight: var(--fw-semi); }
+.v1-stay-cur-line { margin: var(--space-3) 0 0; font-weight: var(--fw-semi); }
+.v1-stay-addq { margin: var(--space-2) 0 var(--space-3); }
