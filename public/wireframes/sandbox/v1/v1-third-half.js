@@ -564,7 +564,7 @@
      start, such as Central, until they say), then a button to a sheet with the schematic route and all the details. */
   var TRAVEL = window.cnMatchTravel || null;
   var TRAIN_ICO = '<svg class="tp-ico tp-go-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3.5" y="1.5" width="9" height="10" rx="2.5"/><path d="M3.5 7.5h9M6 14.5l1-3M10 14.5l-1-3"/><circle cx="6" cy="9.5" r=".6"/><circle cx="10" cy="9.5" r=".6"/></svg>';
-  var LEG = { walk: 'Walk', train: 'Train', event: 'Event shuttle' };
+  var LEG = { walk: 'Walk', train: 'Train', event: 'Event shuttle', light: 'Light rail' };
   /* Staying in the stadium's own precinct (Around Olympic Park for Stadium Australia, Around Moore Park for the Sydney
      Football Stadium, 26 Nov 2026) is a walk to the gates, not a train: the placeholder route works out a train for any
      place that is not the default start, so for these two the route is the walk alone */
@@ -611,8 +611,8 @@
     var h = '<figure class="tp-go-map-f"><ol class="tp-go-map" aria-label="Route from ' + esc(r.from) + ' to ' + esc(r.venue) + '">';
     h += '<li class="tp-go-stop is-end"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n">' + esc(r.from) + '</span>' + (r.fromDefault ? '' : '<span class="tp-go-stop-s">Where you’re staying</span>') + '</li>';
     r.legs.forEach(function (l) {
-      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.mode === 'train' && r.far ? 'Regional coach' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + '' + ', ' + (l.mins ? 'about ' + mins(l.mins) : TBC_L) + '</span></li>';
-      h += '<li class="tp-go-stop' + (l.gates ? ' is-end is-venue' : '') + '"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n' + (l.gates ? '' : ' provenance-gap') + '">' + esc(l.to) + '</span></li>';
+      h += '<li class="tp-go-leg is-' + l.mode + '"><span class="tp-go-seg" aria-hidden="true"></span><span class="tp-go-leg-t provenance-gap">' + esc(l.label ? l.label : l.mode === 'train' && r.far && l.intercity ? 'Regional coach' : l.mode === 'train' && l.intercity ? 'Intercity train' : LEG[l.mode]) + '' + ', ' + (l.mins ? 'about ' + mins(l.mins) : TBC_L) + '</span></li>';
+      h += '<li class="tp-go-stop' + (l.gates ? ' is-end is-venue' : '') + '"><span class="tp-go-dot" aria-hidden="true"></span><span class="tp-go-stop-n">' + esc(l.to) + '</span></li>';
     });
     return h + '</ol><figcaption class="tp-go-cap">Schematic, not to scale</figcaption></figure>';
   }
@@ -623,7 +623,7 @@
     h += '<p class="tp-pm-type">' + esc(f.d) + '</p>';
     h += '<h2 class="cn-pp-title" id="tp-pm-title">Getting there and back</h2>';
     h += '<p class="cn-pp-venue">' + esc(matchName(f)) + ', ' + esc(f.k || TBC_L) + ', ' + esc(f.v) + '</p>';
-    h += '<p class="tp-go-ph" role="note">Placeholder transport details. Real routes, times and services to come.</p>';
+    h += '<p class="tp-go-ph" role="note">The stops are real. The times and event-day services are sample details.</p>' + (r.venue === 'Stadium Australia' && r.legs.length > 1 ? '<p class="tp-go-p">On major event days, direct trains also run from Central to Olympic Park.</p>' : '');
     h += goMap(r);
     h += '<h3 class="cn-pp-h">Getting there</h3><dl class="pl-option-facts cn-pp-facts">' +
       '<div><dt>From</dt><dd>' + esc(r.from) + (r.fromDefault && !baseOf() ? ' · <button type="button" class="tp-link" data-go-stay>Add where you’re staying</button>' : '') + '</dd></div>' +
@@ -638,6 +638,8 @@
     // A long way back after an evening match: say so plainly, and that staying closer that night is an option
     if ((r.cross || r.far) && (ft === null || ft + 30 + (r.mins || 0) >= 23 * 60)) h += '<p class="tp-go-p">That\u2019s a late, long trip back. Think about staying in ' + esc(CITY[cityOf(f.v)]) + ' the night of the match.</p>';
     h += '<h3 class="cn-pp-h">Accessibility</h3><p class="tp-go-p provenance-gap">' + esc(e.accessibility) + '</p>';
+    // 27 Nov 2026 (sandbox): the Transport NSW trip planner, in a new tab (its front page: no link that fills in the trip is confirmed)
+    h += '<p class="tp-pm-links"><a class="tp-link" href="https://transportnsw.info/trip" target="_blank" rel="noopener">Plan this trip on Transport NSW<span class="visually-hidden"> (opens in a new tab)</span></a></p>';
     h += '<div class="tp-pm-acts"><span class="tp-pm-full" role="link" aria-disabled="true">Learn more on Practical info</span><span class="tp-pm-soon">Not linked yet</span></div></div>';
     return h;
   }
@@ -875,7 +877,7 @@
       '<div class="tp-placeholder"><dt>Price</dt><dd><span class="provenance-gap">[Price to come]</span></dd></div>') + '</dl>';
     h += i.dest ? '<p class="cn-pp-text provenance-gap tp-idea-desc">' + esc(i.dest.summary) + '</p>'
       : '<p class="cn-pp-text provenance-gap tp-idea-desc tp-placeholder">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
-    return h + pmActions(key, i.title + ' on ' + dl);
+    return h + pmActions(key, i.title + ' on ' + dl, { title: i.dest && i.dest.place || i.title, where: '', url: i.dest && i.dest.url, outside: i.city !== 'sydney' || i.kind === 'day' });
   }
   /* ---------- Stage 2 of the narrative plan page (27 Nov 2026): spare days, and other matches folded into their days ----------
      Sample: the road trip, the stops on the way to Newcastle and the journey times are made up for this prototype. */
@@ -971,7 +973,7 @@
       FREEINFO.push({ d: d, label: dl, filled: false, count: show.length, dk: dk, its: its, show: show, more: list.length > per, base: b.base });
       if (!show.length) h += '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
       else h += '<div class="tp-pcs">' + show.map(function (i) { return ideaCard(i, d); }).join('') + '</div>';
-      if (list.length > per) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(dk) + '" aria-expanded="' + !!moreBlk[dk] + '">' + (moreBlk[dk] ? 'Fewer ideas' : 'More ideas') + '</button>';
+      if (list.length > per) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(dk) + '" aria-expanded="' + !!moreBlk[dk] + '">' + (moreBlk[dk] ? 'Show fewer' : 'More ideas') + '</button>';
       h += '</div>';
     }
     // Three or more free days: the curated longer trips, as before
@@ -988,7 +990,9 @@
     else if (stretch.length) {
       var dl0 = dayLabel(target);
       out += '<div class="tp-pcs v1-sp-list">' + stretch.slice(0, shown).map(function (i) { return ideaCard(i, target).split('Fits ' + dl0).join('Fits your free days'); }).join('') + '</div>';
-      if (stretch.length > shown) out += '<button type="button" class="tp-link tp-blk-more v1-sp-more" data-sp-more="' + esc(b.key) + '">More ideas</button>';
+      // More ideas adds three at a time; once they are all showing the same button reads Show fewer and goes back to three (27 Nov 2026)
+      if (stretch.length > shown) out += '<button type="button" class="tp-link tp-blk-more v1-sp-more" data-sp-more="' + esc(b.key) + '" aria-expanded="' + (shown > 3) + '">More ideas</button>';
+      else if (stretch.length > 3) out += '<button type="button" class="tp-link tp-blk-more v1-sp-more" data-sp-more="' + esc(b.key) + '" data-sp-less aria-expanded="true">Show fewer</button>';
     } else out += '<p class="tp-empty">No new ideas for these days yet. Free days can stay free.</p>';
     return out + compactAlso(b) + '<p class="v1-sp-foot"><button type="button" class="tp-link v1-sp-dbd" data-sp-days="' + esc(b.key) + '" aria-expanded="false">See day by day</button></p>';
   }
@@ -1062,7 +1066,7 @@
     });
     if (!full) watchIdeas(b.day).forEach(function (i) { h += watchCard(i, b.day); });
     h += '</div>';
-    if (list.length > 3 && !full) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Fewer places' : 'More places') + '</button>';
+    if (list.length > 3 && !full) h += '<button type="button" class="tp-link tp-blk-more" data-more="' + esc(b.key) + '" aria-expanded="' + !!moreBlk[b.key] + '">' + (moreBlk[b.key] ? 'Show fewer' : 'More places') + '</button>';
     return h;
   }
   function heading(b) {
@@ -1112,7 +1116,7 @@
       if (next) h += '<button type="button" class="tp-go-btn tp-tl-ideas-next" data-tlideas-go="' + next.d + '">Next free day: ' + esc(next.label) + ' · ' + next.count + (next.count === 1 ? ' idea' : ' ideas') + '</button>';
     } else {
       if (!fd.show.length) h += '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
-      if (fd.more) h += '<button type="button" class="tp-link tp-blk-more" data-tlideas-more="' + esc(fd.dk) + '" aria-expanded="' + !!moreBlk[fd.dk] + '">' + (moreBlk[fd.dk] ? 'Fewer ideas' : 'More ideas') + '</button>';
+      if (fd.more) h += '<button type="button" class="tp-link tp-blk-more" data-tlideas-more="' + esc(fd.dk) + '" aria-expanded="' + !!moreBlk[fd.dk] + '">' + (moreBlk[fd.dk] ? 'Show fewer' : 'More ideas') + '</button>';
     }
     h += '<div class="tp-pm-acts tp-tl-ideas-full"><span class="tp-pm-full" role="link" aria-disabled="true">See all ideas for this day</span><span class="tp-pm-soon">Not linked yet</span></div>';
     tlIdeas.innerHTML = h;
@@ -1361,7 +1365,7 @@
     var t = e.target.closest('[data-blk-toggle]');
     if (t) { var k = t.dataset.blkToggle; if (openSet[k]) delete openSet[k]; else openSet[k] = true; render(true, '[data-blk-toggle="' + k + '"]'); return; }
     var sp = e.target.closest('[data-sp-more]');
-    if (sp) { spMore[sp.dataset.spMore] = (spMore[sp.dataset.spMore] || 0) + 1; render(true, '[data-sp-more="' + CSS.escape(sp.dataset.spMore) + '"]'); return; }
+    if (sp) { spMore[sp.dataset.spMore] = sp.hasAttribute('data-sp-less') ? 0 : (spMore[sp.dataset.spMore] || 0) + 1; render(true, '[data-sp-more="' + CSS.escape(sp.dataset.spMore) + '"]'); return; }
     sp = e.target.closest('[data-sp-all]');
     if (sp) { spAll[sp.dataset.spAll] = !spAll[sp.dataset.spAll]; render(true, '[data-sp-all="' + CSS.escape(sp.dataset.spAll) + '"]'); return; }
     sp = e.target.closest('[data-sp-days]');
@@ -1440,10 +1444,29 @@
   phone.insertBefore(pmScrim, pm);
   pmScrim.addEventListener('click', function () { pmClearHistory(); closePm(); }); // the dark area closes the whole sheet, every level
   pmBody = pm.querySelector('#tp-pm-body'); pmKind = pm.querySelector('#tp-pm-kind');
-  function pmActions(id, label) {
+  /* Outbound links on a place sheet (27 Nov 2026, sandbox): one link to the place's page on sydney.com (visitnsw.com outside Sydney),
+     and Get directions from where they are staying. Both open in a new tab. The real page where one is known (an idea's own url from
+     concepts-destinations.js, and the listings in REAL_PAGE, found by search on 27 Nov 2026); otherwise a sample address (the
+     site's front page), marked Sample. Directions use Google Maps' public directions link (an assumption: no trip planner deep link
+     is confirmed), starting from their stay when they have one, or wherever the map app has them. */
+  var REAL_PAGE = {
+    'Bourke Street Bakery': 'https://www.sydney.com/destinations/sydney/inner-sydney/surry-hills/food-and-drink/bourke-street-bakery-surry-hills',
+    'White Rabbit Gallery': 'https://www.sydney.com/destinations/sydney/inner-sydney/chippendale/attractions/white-rabbit-gallery',
+    'Entertainment Quarter': 'https://www.sydney.com/destinations/sydney/sydney-east/moore-park/attractions/the-entertainment-quarter'
+  };
+  var NEWTAB = '<span class="visually-hidden"> (opens in a new tab)</span>';
+  function outLinks(o) {
+    if (!o || !o.title) return '';
+    var url = o.url || REAL_PAGE[o.title], site = url ? (/visitnsw\.com/.test(url) ? 'visitnsw.com' : 'sydney.com') : (o.outside ? 'visitnsw.com' : 'sydney.com');
+    var sample = !url; if (sample) url = 'https://www.' + site + '/';
+    var from = basePlace(), dir = 'https://www.google.com/maps/dir/?api=1' + (from ? '&origin=' + encodeURIComponent(from + ', NSW, Australia') : '') + '&destination=' + encodeURIComponent(o.title + (o.where ? ', ' + o.where : '') + ', NSW, Australia');
+    return '<p class="tp-pm-links tp-pm-out"><span class="tp-pm-lk"><a class="tp-link" href="' + esc(url) + '" target="_blank" rel="noopener">See more on ' + site + NEWTAB + '</a>' + (sample ? ' ' + SAMPLE_TAG : '') + '</span>' +
+      '<a class="tp-link" href="' + esc(dir) + '" target="_blank" rel="noopener">Get directions<span class="visually-hidden">' + (from ? ' from ' + esc(from) : '') + ' to ' + esc(o.title) + ' (opens in a new tab)</span></a></p>';
+  }
+  function pmActions(id, label, out) {
     var on = added(ITEMS[id] ? ITEMS[id].id : id);
     return '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-add="' + esc(id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden">, ' + esc(label) + '</span></button>' +
-      '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>';
+      '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>' + outLinks(out);
   }
   function pmProduct(id, x) {
     var p = x.p, f = x.f, h = '';
@@ -1457,19 +1480,22 @@
       '<div><dt>' + esc(f.d) + '</dt><dd><span class="provenance-gap">Open ' + clock(x.o.opens) + ' to ' + clock(x.o.closes) + '</span></dd></div>' +
       '<div><dt>Opening hours</dt><dd><span class="provenance-gap">' + esc(weekHours(p)) + '</span></dd></div>' +
       '<div><dt>Price</dt><dd><span class="provenance-gap">' + (p.pricing.is_free ? 'Free' : esc(p.pricing.band) + ' (price band)') + '</span></dd></div></dl>';
-    h += pmActions(id, p.title + ' on ' + f.d) + '</div>';
+    h += pmActions(id, p.title + ' on ' + f.d, { title: p.title, where: p.address && p.address.suburb, outside: cityOf(f.v) === 'newcastle' }) + '</div>';
     return h;
   }
   function pmSpot(id, x) {
     var sp = x.sp, f = x.m.f, h = '';
     // Summarised: what it is, where, what it shows for this match, and how many of your other matches it shows
-    var others = tp.userMatches().filter(function (m) { return m.key !== x.m.key && Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }).length;
+    var otherMs = tp.userMatches().filter(function (m) { return m.key !== x.m.key && Array.isArray(sp.shows) && sp.shows.indexOf(m.key) > -1; }), others = otherMs.length;
+    // "Your matches" only when the match this sheet is about and every other one are matches of a team they follow (27 Nov 2026); otherwise just how many more it shows
+    var allMine = otherMs.concat([x.m]).every(function (m) { return m.f.t && m.f.t.split(' v ').some(function (n) { return tp.isPicked(n); }); });
+    var othersTxt = allMine ? others + ' more of your matches' : others + (others === 1 ? ' more match' : ' more matches');
     h += '<div class="plan-modal-img ph-img"' + imgKey(sp.name) + ' role="img" aria-label="' + esc(IMG(sp.name)) + '"></div><div class="plan-modal-body">';
     h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(sp.name) + '</h2>';
     h += '<p class="cn-pp-venue provenance-gap">' + esc(spPlace(sp)) + '</p>';
     h += '<dl class="pl-option-facts cn-pp-facts tp-pm-summary">' +
       '<div><dt>Showing</dt><dd>' + esc(matchName(f)) + ', ' + esc(f.d) + ', ' + esc(f.k || TBC_L) + (f.a ? ' (played in ' + esc(f.a) + ')' : '') + '</dd></div>' +
-      (others ? '<div><dt>Also shows</dt><dd><span class="provenance-gap">' + others + ' more of your matches</span></dd></div>' : '') +
+      (others ? '<div><dt>Also shows</dt><dd><span class="provenance-gap">' + othersTxt + '</span></dd></div>' : '') +
       (sp.open_from && sp.open_to ? '<div><dt>Open</dt><dd><span class="provenance-gap">Daily, ' + esc(tp.isoRange(sp.open_from, sp.open_to)) + '</span></dd></div>' : '') +
       '</dl>';
     // Transport, opening times and what is there (sample, 26 Nov 2026)
@@ -1477,7 +1503,7 @@
     if (fsp) h += '<h3 class="cn-pp-h">About this place <span class="v1-sample provenance-gap">Sample</span></h3><dl class="pl-option-facts cn-pp-facts">' +
       '<div><dt>Getting there</dt><dd>' + esc(fsp.transport) + '</dd></div><div><dt>Open</dt><dd>' + esc(fsp.opens) + '</dd></div>' +
       '<div><dt>What is there</dt><dd>' + esc(fsp.has.join(', ')) + '</dd></div></dl>';
-    h += pmActions(id, sp.name + ' on ' + f.d) + '</div>';
+    h += pmActions(id, sp.name + ' on ' + f.d, { title: sp.name, where: spPlace(sp), outside: /newcastle|broadmeadow|wickham|belmont/i.test(spPlace(sp)) }) + '</div>';
     return h;
   }
   /* A match from All matches: the facts (date, Sydney kick-off, venue, city, in NSW or interstate), then what can be
@@ -1487,6 +1513,7 @@
      ticket means they are going. Nothing here adds a team without its own button. */
   var pmSaid = '';
   function matchId(key) { return 'm:' + key; }
+  var TICKETS_URL = 'https://www.rugbyworldcup.com/2027/en/tickets'; // the official Rugby World Cup 2027 site's Tickets & Packages page (opened and checked 27 Nov 2026)
   function pmMatch(key) {
     var m = tp.match(key); if (!m) return '';
     var f = m.f, teams = f.t ? f.t.split(' v ') : [], h = '';
@@ -1521,8 +1548,15 @@
     if (cw.length) h += '<p class="tp-pm-clash">' + esc(clashLine(cw)) + '</p>';
     // On the plan already, through a team or Here for the rugby: say so instead of offering to add it
     h += '<div class="tp-pm-acts tp-pm-acts--match">';
-    if (by.length && !tp.matchTaken(key)) h += '<p class="tp-pm-on">' + window.tpIcons.added + '<span>On your plan: ' + esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') + '</span></p>'; // Every NSW match puts none on the plan (26 Nov 2026)
+    var going = by.length && !tp.matchTaken(key);
+    if (going) h += '<p class="tp-pm-on">' + window.tpIcons.added + '<span>On your plan: ' + esc(tp.list(by)) + (by.length === 1 ? ' is one of your teams' : ' are your teams') + '</span></p>'; // Every NSW match puts none on the plan (26 Nov 2026)
     else h += '<button type="button" class="tp-pill tp-pm-add" data-pm-match="' + esc(key) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden"> for ' + esc(matchName(f)) + ', ' + esc(f.d) + '</span></button>';
+    // 27 Nov 2026 (sandbox): Show on map and Remove for a match they are going to; a quiet link to official tickets for one they are not
+    var links = '';
+    if (!f.a && tp.narOn && tp.narOn() && (going || on)) links += '<button type="button" class="tp-link" data-pm-onmap="' + esc(f.v) + '">Show on map</button>';
+    if (going && !f.a) links += '<button type="button" class="tp-link" data-pm-mdrop="' + esc(key) + '">Remove<span class="visually-hidden"> ' + esc(matchName(f)) + ' from your plan</span></button>';
+    if (!going && !on) links += '<a class="tp-link tp-pm-tix" href="' + TICKETS_URL + '" target="_blank" rel="noopener">Tickets on the official site<span class="visually-hidden"> (opens in a new tab)</span></a>';
+    if (links) h += '<p class="tp-pm-links">' + links + '</p>';
     h += '</div>';
     if (teams.length) {
       // The same toggle as Add to my plan: pressed reads Added, with a tick; pressing it again takes the team off
@@ -1761,7 +1795,7 @@
       '<div><dt>Open</dt><dd><span class="provenance-gap">' + esc(poiDays(p)) + '</span></dd></div>' +
       '<div><dt>On your plan</dt><dd>' + (!it ? 'Not yet' : it.unplaced ? 'Saved, not placed yet' + (stay() ? ': no free day fits it yet' : ': it goes into a free day once you set your days') : esc(it.day)) + '</dd></div></dl>';
     h += '<div class="tp-pm-acts"><button type="button" class="tp-pill tp-pm-add" data-pm-poi="' + esc(p.id) + '" aria-pressed="' + on + '"><span class="tp-pm-add-l">' + addLabel(on, on ? 'Added' : 'Add') + '</span><span class="visually-hidden">, ' + esc(p.title) + '</span></button>' +
-      '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div></div>';
+      '<span class="tp-pm-full" role="link" aria-disabled="true">View full page</span><span class="tp-pm-soon">Not linked yet</span></div>' + outLinks({ title: p.title, where: p.area, outside: p.near === 'Newcastle Stadium' }) + '</div>';
     return h;
   }
   tp.poiItem = function (p) { return { id: 'poi:' + p.id, kind: 'poi', poi: p.id, title: p.title, kindLabel: p.cat, place: p.area, day: '', unplaced: true }; };
@@ -2499,6 +2533,17 @@
       return;
     }
     // A match page's own actions
+    var om = e.target.closest('[data-pm-onmap]');
+    if (om) { var ven = om.dataset.pmOnmap; pmClearHistory(); closePm(); if (tp.closeTimeline) tp.closeTimeline(); tp.narShowOnMap(ven); return; }
+    var md = e.target.closest('[data-pm-mdrop]');
+    if (md) {
+      var dk = md.dataset.pmMdrop, df = tp.match(dk).f;
+      tp.dropMatch(dk);
+      said(matchName(df) + ' is off your plan.');
+      pmRefresh('[data-pm-match]'); // the sheet now offers Add, so it can be put back here
+      tp.say(pmSaid);
+      return;
+    }
     var mb = e.target.closest('[data-pm-match]');
     if (mb) {
       var key = mb.dataset.pmMatch, f = tp.match(key).f, id = matchId(key), on = !added(id);

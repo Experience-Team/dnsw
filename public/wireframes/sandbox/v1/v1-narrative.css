@@ -274,3 +274,7 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-tm-btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 14px; border: var(--bw-2, 2px) solid var(--c-line-strong, #111); border-radius: var(--radius-pill, 999px); background: none; color: var(--c-ink); font: inherit; font-size: .8125rem; font-weight: var(--fw-semi); white-space: nowrap; cursor: pointer; }
 .v1-tm-btn.is-add { background: var(--c-btn, #111); border-color: var(--c-btn, #111); color: var(--c-on-dark, #fff); }
 @media (prefers-reduced-motion: reduce) { .v1-tm-pin i { transition: none; } .v1-tm-pin.is-lit i { animation: none; } }
+
+/* Match sheet links (27 Nov 2026): Show on map, Remove, Tickets on the official site, as one quiet row */
+.tp-pm-links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: 0; }
+.tp-pm-links .tp-link { min-height: 36px; display: inline-flex; align-items: center; font-size: var(--fs-base); }

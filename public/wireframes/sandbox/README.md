@@ -103,3 +103,14 @@ The trip map under the opening sentences is now the only map of the trip (`v1/v1
 - **Home's map** (Where the matches are, `concepts-home.js`, styles in `v1/v1-quiet.css`) uses the same drawn base map, colours, pins and name chips. It keeps its own behaviour: fixed framing, a pin opens its host city sheet, and the stadium card in view marks its pin. It does not pan or zoom.
 
 Catch-up still owed for this change: annotations in `index.html` that describe the old maps (`#v1-fm`, Explore freely), low fidelity and reduced motion checks, unused styles (`.v1-fm-*`, `.tp-map*`) and tests.
+
+## Links (27 Nov 2026, sandbox only)
+
+- **Visit Instagram / Visit TikTok** on Home open the footer's addresses in a new tab (`concepts-social.js`, `v1/v1-social.js`). "View on Instagram" on a single sample post is still a placeholder.
+- **The underlined match in the opening sentences** opens its match sheet. For a match they are going to, the sheet has Show on map (closes the sheet, goes to the map, rings the ground) and Remove (the sheet then offers Add, so it can be undone).
+- **More places / More ideas** read Show fewer once everything is showing, and collapse.
+- **Plan around your matches** on Home lands at the top of the plan page with the Your plan sheet closed, once the three questions are answered.
+- **A fan zone sheet** says "more of your matches" only when the match it is about and the others are all matches of teams they follow; otherwise "[n] more matches".
+- **Place sheets** have "See more on sydney.com" (visitnsw.com outside Sydney) and "Get directions", both in a new tab. Real pages: every idea's own `url` (`concepts-destinations.js`) and three listings in `REAL_PAGE` (`v1/v1-third-half.js`); anything else goes to the site's front page and is marked Sample. Directions are a Google Maps directions link from where they stay.
+- **Match sheets for a match they are not going to** have "Tickets on the official site" (rugbyworldcup.com/2027/en/tickets, new tab).
+- **Getting there and back** has "Plan this trip on Transport NSW" (transportnsw.info/trip, new tab) and real stops in place of the made-up junctions and halts (`concepts-fixtures.js`): Lidcombe and Olympic Park stations for Stadium Australia, the Moore Park light rail stop for Sydney Football Stadium, Broadmeadow station for Newcastle Stadium. Times are still sample. Someone staying in the ground's own precinct gets a walk.
