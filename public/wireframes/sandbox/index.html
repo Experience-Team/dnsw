@@ -20,6 +20,24 @@
       Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); a[0] = P + k; return o.apply(this, a); };
     });
   } catch (e) {}
+  /* Copy link (Share and export options, 27 Nov 2026): a link ending ?plan=... carries the plan as it was when the link
+     was copied (the teams, days, stay and everything added, and where the questions had got to). Opening it puts that
+     plan in this browser, in place of any plan here, before anything reads it; the code then comes off the address,
+     so a refresh keeps later changes. A link that can't be read is ignored. Made by v1/v1-third-half.js (planLink). */
+  try {
+    var pm = /[?&]plan=([A-Za-z0-9_-]+)/.exec(location.search);
+    if (pm) {
+      try {
+        var rec = JSON.parse(decodeURIComponent(escape(atob(pm[1].replace(/-/g, '+').replace(/_/g, '/')))));
+        if (rec && rec.p && typeof rec.p === 'object') {
+          localStorage.setItem('tp-pick-v1', JSON.stringify(rec.p));
+          if (rec.f && typeof rec.f === 'object') localStorage.setItem('tp-fc-v1', JSON.stringify(rec.f)); else localStorage.removeItem('tp-fc-v1');
+        }
+      } catch (e) {}
+      var u = new URL(location.href); u.searchParams.delete('plan'); u.searchParams.delete('reset');
+      history.replaceState(history.state, '', u.pathname + u.search.replace(/=(?=&|$)/g, '') + u.hash);
+    }
+  } catch (e) {}
 })();</script>
 <!-- One address, with every side control (the High fidelity switch and the test switches included). The low fidelity
      address without them was removed on 23 Nov; ?tools is still accepted, so old links work, but changes nothing.
@@ -578,6 +596,8 @@
           <h4 class="cn-sub cn-sub--copy">Share</h4>
           <ul class="tp-ss-list" id="tp-ss-share-list">
             <li><button type="button" class="tp-ss-row" id="tp-ss-share"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><circle cx="12" cy="3.5" r="1.8"/><circle cx="4" cy="8" r="1.8"/><circle cx="12" cy="12.5" r="1.8"/><path d="M5.6 7.1l4.8-2.7M5.6 8.9l4.8 2.7"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Share</span><span class="tp-ss-row-cap">Opens your phone&rsquo;s own share options.</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></li>
+            <!-- Copy link (27 Nov 2026, sandbox): the plan as it is now, carried in the link itself (v1/v1-third-half.js, planLink) -->
+            <li><button type="button" class="tp-ss-row" id="tp-ss-link"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path d="M6.8 9.2a3 3 0 0 0 4.2 0l2.3-2.3a3 3 0 0 0-4.2-4.2l-.9.9M9.2 6.8a3 3 0 0 0-4.2 0L2.7 9.1a3 3 0 0 0 4.2 4.2l.9-.9"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Copy link</span><span class="tp-ss-row-cap">A link that opens this plan as it is now.</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></li>
           </ul>
           <h4 class="cn-sub cn-sub--copy">Keep a copy</h4>
           <ul class="tp-ss-list" id="tp-ss-keep">
