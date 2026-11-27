@@ -36,3 +36,12 @@
 #tp-phone .cn-close { border: 0; background: var(--v1-tint); }
 @media (hover: hover) { #tp-phone .cn-close:hover { background: var(--v1-tint-hover); } }
 #tp-phone .v1z-track::before { background: var(--c-line); }
+
+/* Home takes the planner page's treatment (27 Nov 2026): sections 48px apart, hairline underlines, quiet tags and buttons */
+#tp-phone .tp-home-sec, #tp-phone #tp-all, #tp-phone #tp-soc { margin-top: var(--space-12, 48px); }
+#tp-phone .tp-faq-link, #tp-phone .tp-gl-link { text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); }
+/* The In NSW marker on 17 rows: small and even, the same scale as the Sample mark, not a loud block */
+#tp-phone .tp-tag--inline { padding: 0 6px; font-size: .625rem; letter-spacing: .08em; line-height: 1.7; }
+/* Outlined follow buttons are soft tints, like the other secondary buttons */
+#tp-phone .tp-soc-btn { border: 0; background: var(--v1-tint); }
+@media (hover: hover) { #tp-phone .tp-soc-btn:hover { background: var(--v1-tint-hover); } }

@@ -120,3 +120,28 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-also-card { border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-lg, 12px); }
 /* No blue wash over a whole section when something changes: on this page the Add button and its toast already say so, and a flash over thousands of pixels reads as a glitch */
 #tp-phone.v1-nar-on .tp-sec.is-changed { animation: none; background: none; }
+
+/* ---------- Stage 2 (27 Nov 2026): spare days, other matches in their days ---------- */
+/* Also on in NSW is folded into the days it falls on; the module itself stays for the dates step */
+#tp-phone.v1-nar-on:not([data-fc]) #v1-also { display: none !important; }
+/* Spare days: one sentence above the free days */
+.v1-sp { margin: 0 0 var(--space-3); font-size: var(--fs-base); line-height: 1.5; }
+.v1-sp-b { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-weight: var(--fw-semi); color: var(--c-ink); text-align: left; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; }
+.v1-sp-b:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+/* The other matches that day, folded in from Also on in NSW */
+.v1-ao { margin-top: var(--space-3); }
+.v1-ao-h { margin: 0 0 var(--space-2); font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink-2); }
+.v1-ao-l { list-style: none; margin: 0; padding: 0; border: var(--bw-1) solid var(--c-line-soft); border-radius: var(--radius-lg, 12px); background: var(--c-surface); overflow: hidden; }
+.v1-ao-i { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); }
+.v1-ao-i + .v1-ao-i { border-top: var(--bw-1) solid var(--c-line-soft); }
+.v1-ao-b { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.v1-ao-n { align-self: flex-start; min-height: 28px; font-size: var(--fs-md); }
+.v1-ao-w { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.v1-ao-r { margin-top: var(--space-1); font-size: var(--fs-sm); line-height: 1.45; }
+/* The map's extra route: dashed through its stops; the stops are small, the ground a ring */
+.v1-tm-route.is-extra { opacity: .7; stroke-dasharray: 3 5; }
+.v1-tm-route.is-extra.is-lit { stroke-dasharray: 3 5; opacity: 1; }
+.v1-tm-pin.is-extra i { background: #fff; }
+.v1-tm-pin.is-stop i { left: -4px; top: -4px; width: 8px; height: 8px; border-width: 1.5px; background: var(--c-ink); box-shadow: none; }
+.v1-tm-pin.is-stop b { left: 8px; top: -8px; font-weight: var(--fw-regular, 400); font-size: 10px; background: rgba(255, 255, 255, .8); }
+.v1-tm-pin.is-stop.is-l b { left: auto; right: 8px; }

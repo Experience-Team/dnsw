@@ -862,11 +862,79 @@
       : '<p class="cn-pp-text provenance-gap tp-idea-desc tp-placeholder">[A short description of ' + esc(i.title) + ' to come: what it is and why it is worth the time.]</p>';
     return h + pmActions(key, i.title + ' on ' + dl);
   }
+  /* ---------- Stage 2 of the narrative plan page (27 Nov 2026): spare days, and other matches folded into their days ----------
+     Sample: the road trip, the stops on the way to Newcastle and the journey times are made up for this prototype. */
+  var STOPS_SYD_NCL = ['Gosford', 'Lake Macquarie'];
+  function stopLL(name) { var P = (window.cnGeo || {}).places || {}; return P[name] || null; }
+  function joinList(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+  /* You have [n] spare days. If you have time, how about [suggestion]? The suggestion follows the whole stay: one night, half-day
+     ideas; two, a day trip; three to five, a night or two away; more than five, a road trip. */
+  function spareLine(b, M) {
+    if (b.kind !== 'free' || !M.range) return '';
+    var n = b.z - b.a + 1, nights = M.range.z - M.range.a, city = b.base || 'sydney';
+    var avail = IDEAS.filter(function (i) { return i.city === city && !i.watch && !ideaAdded(i); });
+    var halves = avail.filter(function (i) { return i.kind === 'half'; }), days = avail.filter(function (i) { return i.kind === 'day'; });
+    function ideaLink(i) { ideaCard(i, b.a); return '<button type="button" class="v1-sp-b" data-open="idea:i:' + esc(i.id) + '@' + b.a + '" aria-haspopup="dialog">' + esc(i.title) + '</button>'; }
+    var what = '';
+    if (nights > 5 && n >= 3) {
+      what = 'a road trip, Sydney to Newcastle by road, with stops at Gosford, Terrigal and the Hunter Valley? ' + SAMPLE_TAG;
+    } else if (nights >= 3 && n >= 2) {
+      var longs = TRIPS.filter(function (t) { return t.kind === 'long' && t.nights <= 2 && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); });
+      if (longs.length) { tripCard(longs[0], b); what = 'a night or two away, in <button type="button" class="v1-sp-b" data-open="t:' + esc(longs[0].id) + '@' + esc(b.key) + '" aria-haspopup="dialog">' + esc(longs[0].region) + '</button>?'; }
+      else what = 'a night or two away, in the Hunter Valley? ' + SAMPLE_TAG;
+    } else if (nights >= 2 && days.length) {
+      what = 'a day trip to ' + ideaLink(days[0]) + '?';
+    } else if (halves.length) {
+      what = 'a half day at ' + ideaLink(halves[0]) + (halves[1] ? ' or ' + ideaLink(halves[1]) : '') + '?';
+    }
+    if (!what) return '';
+    return '<p class="v1-sp">You have ' + n + (n === 1 ? ' spare day' : ' spare days') + '. If you have time, how about ' + what + '</p>';
+  }
+  /* The other NSW matches inside the days (what Also on in NSW lists), by the day they fall on */
+  function otherOn(d) {
+    var t = trip() || {};
+    if (!tp.own() || !(t.from && t.to)) return [];
+    var a = tp.isoDay(t.from), z = tp.isoDay(t.to);
+    return tp.allMatches().filter(function (m) { return !m.f.a && m.day === d && d >= a && d <= z && (!pickedHas(m.f) || tp.matchTaken(m.key)); });
+  }
+  // A match in the other city from where they stay: the way there, by train, via two stops (sample)
+  function routeInfo(f) {
+    var bc = baseCity(), vc = cityOf(f.v), G = window.cnGeo || {}, from = basePlace();
+    if (!bc || bc === vc || !from || !G.places || !G.venues || !G.venues[f.v] || !G.places[from]) return null;
+    var stops = bc === 'sydney' ? STOPS_SYD_NCL.slice() : STOPS_SYD_NCL.slice().reverse();
+    stops = stops.filter(function (n) { return stopLL(n); });
+    var km = kmBetween(G.places[from], G.venues[f.v]);
+    return { from: from, venue: f.v, stops: stops, mins: Math.max(30, Math.round(km / 65 * 12) * 5) };
+  }
+  tp.narRoutes = function () {
+    var t = trip() || {}, out = {};
+    if (!tp.own() || !(t.from && t.to)) return [];
+    for (var d = tp.isoDay(t.from); d <= tp.isoDay(t.to); d++) otherOn(d).forEach(function (m) { var r = routeInfo(m.f); if (r && !out[r.venue]) out[r.venue] = { venue: r.venue, stops: r.stops.map(function (n) { return { name: n, ll: stopLL(n) }; }) }; });
+    return Object.keys(out).map(function (k) { return out[k]; });
+  };
+  // The other matches on one day, folded in from Also on in NSW: a free day carries its own, other blocks carry their day's
+  function alsoRows(d, skip) {
+    var ms = otherOn(d).filter(function (m) { return !skip || skip.indexOf(m.key) < 0; }); if (!ms.length) return '';
+    var noTeam = tp.rugby();
+    var rows = ms.map(function (m) {
+      var f = m.f, ko = isKo(f), id = 'm:' + m.key, where = (HOSTS[f.v] ? HOSTS[f.v].title.replace(/^Sydney – /, '') : f.v);
+      ITEMS[id] = { id: id, kind: 'match', key: m.key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p };
+      var r = routeInfo(f);
+      return '<li class="v1-ao-i"><span class="v1-ao-b"><button type="button" class="tp-link v1-ao-n" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog">' + esc(matchName(f)) + '</button>' +
+        '<span class="v1-ao-w">' + esc(where) + (ko ? ' · teams to be decided' : '') + (f.k ? ' · ' + esc(f.k) : '') + '</span>' +
+        (r ? '<span class="v1-ao-r">From ' + esc(r.from) + ': about ' + mins(r.mins) + ' by train, via ' + esc(joinList(r.stops)) + '. ' + SAMPLE_TAG + ' <button type="button" class="tp-link" data-nar-route="' + esc(f.v) + '">Show route on map</button></span>' : '') + '</span>' +
+        addBtn(id, matchName(f) + ', ' + f.d) + '</li>';
+    }).join('');
+    return '<div class="v1-ao"><h6 class="v1-ao-h">' + (noTeam ? 'On while you’re here' : 'Also on in NSW') + '</h6><ul class="v1-ao-l">' + rows + '</ul></div>';
+  }
+  function narOn() { return phone.classList.contains('v1-nar-on'); }
+  // A block already shows its own matches; only the others on that day are added to it
+  function alsoDays(b) { return b.kind === 'free' || b.kind === 'away' || b.day === undefined ? '' : alsoRows(b.day, (b.ms || []).map(function (m) { return m.key; })); }
   function freeBody(b) {
     var h = '', n = b.z - b.a + 1;
     for (var d = b.a; d <= b.z; d++) {
       var dl = dayLabel(d), its = dayItems(d), dk = b.key + ':' + d;
-      h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>';
+      h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>' + (narOn() ? alsoRows(d) : '');
       if (dayFilled(d)) {
         FREEINFO.push({ d: d, label: dl, filled: true, count: 0, dk: dk, its: its, show: [], more: false, base: b.base });
         h += '<p class="tp-fday-done">Your day: ' + placeLinks(its, ' and ') + '. New ideas move on to your next free day.</p></div>';
@@ -1179,12 +1247,13 @@
         var hd = heading(b), venue = (b.kind === 'match' || b.kind === 'ko') ? b.ms[0].f.v : '', body;
         if (b.kind === 'watch' && noNswTeams.length) hd = { when: dayLabel(b.day) + ' · Watch day' };
         if (b.kind === 'match') body = tp.narMatchBody(b, M);
-        else if (b.kind === 'free') body = b._html;
+        else if (b.kind === 'free') body = spareLine(b, M) + b._html;
         else if (b.kind === 'watch') {
           if (noNswTeams.length) { body = noNswDone ? '' : tp.narNoNsw(noNswTeams); noNswDone = true; } else body = watchBody(b);
         } else if (b.kind === 'ko') body = koBody(b);
         else body = halfBody(b);
         if (!body) return;
+        body += alsoDays(b); // the other NSW matches that day, folded in from Also on in NSW (27 Nov 2026)
         h += '<section class="tp-blk tp-blk--' + b.kind + ' v1-nar-blk" data-blk="' + b.key + '" id="v1-blk-' + b.key + '"><h4 class="v1-nar-dh">' +
           (venue ? '<button type="button" class="v1-nar-day" data-nar-day="' + esc(venue) + '">' : '<span class="v1-nar-day">') +
           narDayHead(hd.when, b.kind) + (venue ? '</button>' : '</span>') + '</h4><div class="tp-blk-body">' + body + '</div></section>';

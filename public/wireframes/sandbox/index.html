@@ -856,7 +856,7 @@
       "Reduced motion: a story does not advance by itself and the progress bar is static; tap to move on."
     ] },
     { sel: "#tp-faq", title: "Home: FAQs, updates, share and footer", points: [
-      "Six questions, each opening on its own; the answer glides open. Links in answers open in a new tab.",
+      "Seven questions, each opening on its own; the answer glides open. Links in answers open in a new tab.",
       "See all FAQs and Plan your 3rd half scroll within Home, and their labels say so. Play now opens the Play tab.",
       "Updates asks for an email only. Empty or badly formed: an error under the field. Valid: a confirmation in place. Nothing is sent in the prototype.",
       "Share this page opens the phone’s share sheet. On desktop it copies the link and the button itself says Link copied for a few seconds (a toast would cover the button).",
@@ -892,7 +892,25 @@
       "“Show on map” scrolls to the map and highlights the ground, and its label says it will.",
       "A team with no NSW match gets the watch block in place of a match block and its fan zone is what the map shows, as those fans still need somewhere to follow their team.",
       "The Your matches card, Where to watch and Your plan so far are hidden here, as the narrative says the same things in the order the trip happens."
+    ] },    { sel: "#tp-faq", at: "tl", title: "Why: Getting around is in the FAQs", points: [
+      "How to get around NSW is a question people ask, so it is one of the FAQs, where they already look for practical answers, and the plan page stays about the days.",
+      "One answer covers plane, public transport, ferry, car hire, ride share and bike, a paragraph each, so the person finds their mode without opening six questions.",
+      "Each paragraph links to a real public site (Transport for NSW, Visit NSW, sydney.com) that opens in a new tab, so nothing is booked here and no business is favoured.",
+      "The tips and times are sample data, marked Sample in the last line of the answer."
     ] },
+    { sel: ".v1-sp", at: "tl", title: "Why: Spare days get one suggestion", points: [
+      "A run of free days says how many there are and offers one suggestion, so the person has a place to start before choosing from the lists.",
+      "The suggestion follows the whole stay, not the run: one night, a half day; two, a day trip; three to five, a night or two away; more than five, a road trip. A longer stay has the time for a bigger idea.",
+      "Where an existing idea fits it is named and opens its details; where none exists the suggestion is marked Sample.",
+      "The day-by-day ideas stay below it, so the sentence leads without replacing the choices."
+    ] },
+    { sel: ".v1-ao", at: "tl", title: "Why: Other matches sit in their day", points: [
+      "Another NSW match is shown on the day it is played, with Add, so the person sees it where they are looking at that day and not in a list at the foot of the page.",
+      "When it is in the other city from where they stay, the way there is one line (by train, via two stops) and Show route on map shows the same route, dashed, on the trip map.",
+      "The stops and journey time are sample data, marked Sample.",
+      "A match already shown in its own block is not repeated."
+    ] },
+
     { sel: "#tp-picker", title: "Hand of cards: peek and reveal", points: [
       "At the top of the planner the hand peeks in just under the hero, and glides up into view once on arrival.",
       "Scrolling the first stretch, the cards hold still while the row above them (Find, Grid, Plays in NSW) rises from behind them in step with the scroll. Scrolling back reverses it. After that the page scrolls normally.",
@@ -1050,7 +1068,8 @@
       "Added 26 Nov 2026. Once days are set: the other NSW matches inside them, whoever is playing, each with Add (the same Add and Added as everywhere). The later rounds are listed by stage with teams to be decided, each with Add; nothing is assumed.",
       "A Newcastle card sits above the list when a Newcastle match is on inside the days and none of the person's own is there, even if they are staying in Sydney: Why not visit Newcastle, where there are other matches on, the days, and See Newcastle (the Newcastle sheet). It is not shown if they are staying in Newcastle.",
       "Not shown with Every NSW match (those matches are already the person's) or before days are set.",
-      "On the dates step it sits 64px under the calendar, as the other matches inside the dates are what the person checks while setting them."
+      "On the dates step it sits 64px under the calendar, as the other matches inside the dates are what the person checks while setting them.",
+      "On the plan page it is folded into the days: each match sits in the day it is played, so the module does not show there."
     ] },
 
     // Once teams are picked: Your matches
