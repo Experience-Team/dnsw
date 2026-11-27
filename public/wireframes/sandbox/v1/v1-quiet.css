@@ -76,3 +76,9 @@
 .tp-home-h1 { margin: 0; font-size: 1.75rem; font-weight: var(--fw-heavy); line-height: 1.15; letter-spacing: -.02em; text-wrap: balance; }
 .tp-home-sub { margin: 0; font-size: var(--fs-lg); line-height: 1.45; color: var(--c-ink-2); max-width: 40rem; }
 @media (min-width: 1024px) { .pv-device #tp-phone .tp-home-h1 { font-size: var(--fs-hero); max-width: 24ch; } .pv-device #tp-phone .tp-home-sub { font-size: var(--fs-xl); line-height: 1.5; } }
+
+/* Home on a phone (27 Nov 2026): the hero picture starts straight under the header, no gap, and the tabs pill floats over
+   its top edge. The pill's own height and its top margin are taken off the space below it, so the picture moves up under it */
+@media (max-width: 1023px) {
+  #tp-phone.is-home .tp-cap-wrap { margin-bottom: calc(-1 * (var(--space-3) + 44px)); }
+}
