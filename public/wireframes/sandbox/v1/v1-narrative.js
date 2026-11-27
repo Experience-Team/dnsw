@@ -247,12 +247,16 @@
       '<button type="button" class="tp-link" data-nar-onmap="' + esc(venue) + '">Show on map</button></div>';
     return h;
   };
-  // A team with no NSW match inside the days: the watch block takes the place of a match block, its fan zone is on the map
+  // Teams with no NSW match inside the days: one watch block for all of them, the fan zone and its address once, then their interstate
+  // matches as one list in date order (a match between two of them is listed once)
   tp.narNoNsw = function (teams) {
-    return teams.map(function (n) {
+    var by = {}, some = [], none = [];
+    teams.forEach(function (n) {
       var away = tp.userMatches().filter(function (m) { return m.f.a && m.f.t && m.f.t.split(' v ').indexOf(n) > -1; });
-      return tp.noNswBlock ? tp.noNswBlock(n, away) : '';
-    }).join('');
+      if (away.length) { some.push(n); away.forEach(function (m) { by[m.key] = m; }); } else none.push(n);
+    });
+    var ms = Object.keys(by).map(function (k) { return by[k]; }).sort(function (a, b) { return a.day - b.day || (K.kickMins(a.f.k) || 0) - (K.kickMins(b.f.k) || 0); });
+    return (some.length && tp.noNswBlock ? tp.noNswBlock(some, ms) : '') + none.map(function (n) { return tp.noNswBlock ? tp.noNswBlock(n, []) : ''; }).join('');
   };
 
   /* ---------- Rendering: on every change, and the class that swaps the old sections out ---------- */

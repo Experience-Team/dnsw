@@ -30,7 +30,8 @@
 /* The outlined secondary call to action, the venue cards, and the fan map's tabs */
 #tp-phone .tp-home-cta--line { border: 0; background: var(--v1-tint); }
 #tp-phone .tp-city { border-color: var(--c-line-soft); }
-#tp-phone .v1-fm-tab[aria-pressed="false"], #tp-phone .v1-fm-tab:not(.is-on):not([aria-selected="true"]) { border-color: transparent; background: var(--v1-tint); }
+#tp-phone .v1-fm-tab[aria-pressed="false"] { border-color: transparent; background: var(--v1-tint); }
+#tp-phone .v1-fm-tab[aria-pressed="true"] { border-color: var(--c-btn); }
 /* The open plan: the Your answers card is a soft panel, the close cross a soft circle, and the timeline's axis a hairline */
 #tp-phone .tp-tl-panel .tp-fc { border: 0; background: color-mix(in srgb, var(--c-ink) 4%, transparent); }
 #tp-phone .cn-close { border: 0; background: var(--v1-tint); }
@@ -45,3 +46,19 @@
 /* Outlined follow buttons are soft tints, like the other secondary buttons */
 #tp-phone .tp-soc-btn { border: 0; background: var(--v1-tint); }
 @media (hover: hover) { #tp-phone .tp-soc-btn:hover { background: var(--v1-tint-hover); } }
+
+/* Desktop review (27 Nov 2026) */
+/* The questions' choices: soft tints until chosen, solid ink once chosen */
+#tp-phone .tp-chip[aria-pressed="false"] { border-color: transparent; background: var(--v1-tint); }
+@media (hover: hover) { #tp-phone .tp-chip[aria-pressed="false"]:hover { background: var(--v1-tint-hover); } }
+/* Sample marks are the same quiet size everywhere, fan zones included */
+#tp-phone .v1-sample { padding: 0 5px; border-width: 1px; font-size: .625rem; font-weight: var(--fw-semi); letter-spacing: .08em; line-height: 1.7; }
+/* A fan zone's or village's kind: a soft label, not a black block that competes with Add */
+#tp-phone .v1-fz-kind { padding: 0 6px; border: 0; background: var(--v1-tint); color: var(--c-ink); font-size: .625rem; font-weight: var(--fw-semi); letter-spacing: .08em; line-height: 1.7; }
+/* Wide screens: the two months sit side by side instead of leaving half the page empty */
+@media (min-width: 900px) {
+  .pv-device #tp-phone[data-fc="days"] #tp-pick > #tp-ask { grid-column: 1 / -1; }
+  .pv-device #tp-phone .v1-cal { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-12, 48px); align-items: start; }
+}
+/* Under the left-aligned calendar, Undo and Reset line up with it, not the middle */
+#tp-phone .tp-ask-acts--links { justify-content: flex-start; }

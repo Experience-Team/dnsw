@@ -225,10 +225,11 @@
     return 'From ' + esc(from) + ': ' + (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ', ' + (walk ? 'a ' + mins + ' minute walk' : 'about ' + mins + ' minutes by train or bus') + ' (approximate)';
   }
   tp.noNswBlock = function (team, away) {
-    if (!away.length) return '<p class="v1-nonsw-none">' + esc(team) + ' have no match inside your days. See Also on in NSW below for matches on while you\u2019re here.</p>';
+    var names = [].concat(team), who = names.length > 1 ? tp.list(names) : names[0]; // one team, or several in one block (the plan page)
+    if (!away.length) return '<p class="v1-nonsw-none">' + esc(who) + ' have no match inside your days. See Also on in NSW below for matches on while you\u2019re here.</p>';
     var g = window.cnGeo, first = basePlace(), sp = nearestFan((first && g && g.places[first]) || (g && g.places['Sydney CBD'])); if (!sp) return '';
     var route = fanRouteHtml(sp);
-    return '<div class="v1-nonsw"><p class="v1-nonsw-h">' + esc(team) + ' play interstate while you\u2019re here. Watch with other fans at <b>' + esc(sp.name) + '</b>.</p>' +
+    return '<div class="v1-nonsw"><p class="v1-nonsw-h">' + esc(who) + ' play interstate while you\u2019re here. Watch with other fans at <b>' + esc(sp.name) + '</b>.</p>' +
       '<p class="v1-fan-near">' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') + ' ' + SAMPLE_TAG + '</p>' + (route ? '<p class="v1-fan-near">' + route + ' ' + SAMPLE_TAG + '</p>' : '') +
       '<ul class="v1-nonsw-l">' + away.map(function (m) {
         var f = m.f; return '<li><span class="v1-nonsw-m">' + esc(matchName(f)) + '<span>' + esc(f.d + ', ' + (f.k || TBC_L) + ' \u00b7 ' + f.a) + '</span></span>' + koAddHtml(m) + '</li>';
@@ -959,7 +960,7 @@
   // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
   function watchBody(b) {
     return alsoLine(b.day) + '<p class="tp-blk-note">' + (b.ms.length > 1 ? manyLine(b.ms) + ', so venues showing ' + (b.ms.length > 2 ? 'all of them' : 'both') + ' come first. ' : '') + 'Here\u2019s where to watch in NSW.</p>' +
-      b.ms.map(matchLine).join('') + venueRows(b.ms, evKey(b.ms));
+      '<div class="v1-wm-l">' + b.ms.map(matchLine).join('') + '</div>' + venueRows(b.ms, evKey(b.ms));
   }
   function halfBody(b) {
     var wd = weekdayOf(b.day), f = { d: dayLabel(b.day) };

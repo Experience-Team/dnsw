@@ -145,3 +145,35 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .v1-tm-pin.is-stop i { left: -4px; top: -4px; width: 8px; height: 8px; border-width: 1.5px; background: var(--c-ink); box-shadow: none; }
 .v1-tm-pin.is-stop b { left: 8px; top: -8px; font-weight: var(--fw-regular, 400); font-size: 10px; background: rgba(255, 255, 255, .8); }
 .v1-tm-pin.is-stop.is-l b { left: auto; right: 8px; }
+
+/* ---------- A watch day's matches (27 Nov 2026): the note, then the matches as one list, then where to watch ---------- */
+.v1-nar-blk .tp-blk-note { margin: 0 0 var(--space-2); font-size: var(--fs-base); line-height: 1.5; color: var(--c-ink); }
+.v1-nar-blk .tp-blk-note + .tp-blk-note { margin-top: var(--space-2); }
+.v1-wm-l { margin: var(--space-4) 0 var(--space-5); border: var(--bw-1) solid var(--c-line-soft); border-radius: var(--radius-lg, 12px); background: var(--c-surface); overflow: hidden; }
+.v1-wm-l .tp-wc-m { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: var(--space-3) var(--space-4); }
+.v1-wm-l .tp-wc-m + .tp-wc-m { margin-top: 0; border-top: var(--bw-1) solid var(--c-line-soft); }
+.v1-wm-l .tp-wc-when { gap: var(--space-2) var(--space-3); font-size: var(--fs-sm); font-weight: var(--fw-regular, 400); }
+.v1-wm-l .tp-wc-teams { margin: 0; font-size: var(--fs-md); }
+/* The marker beside a time: small and even, the same scale as the Sample mark, not a block of capitals */
+#tp-phone .v1-nar-blk .tp-tag { margin: 0; padding: 0 8px; font-family: inherit; font-size: .75rem; font-weight: var(--fw-semi); letter-spacing: 0; text-transform: none; line-height: 1.6; color: var(--c-ink-2); }
+.v1-nar-blk .tp-wv { margin-top: 0; }
+/* Product images keep one shape: a row's thumbnail is 4:3, and on desktop a card's picture is a 4:3 thumbnail beside its words, so a wide or tall photo is cropped to the same frame, never a thin strip */
+.v1-nar-blk .tp-pc-img { width: 72px; height: 54px; }
+@media (min-width: 900px) {
+  .pv-device #tp-phone .v1-nc { display: grid; grid-template-columns: 120px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: var(--space-4); align-items: start; }
+  .pv-device #tp-phone .v1-nc .v1-nc-img { grid-row: 1 / span 2; width: 120px; height: 90px; aspect-ratio: auto; }
+  .pv-device #tp-phone .v1-nc .tp-add { grid-column: 2; justify-self: start; margin-top: var(--space-2); }
+  .pv-device #tp-phone .v1-nar-blk .tp-pc-img { width: 88px; height: 66px; }
+}
+/* A free day's parts are grouped by space: the day, then the other matches that day, then the ideas */
+.v1-nar-blk .v1-ao { margin: var(--space-3) 0 var(--space-5); }
+.v1-nar-blk .tp-fday .tp-grp { margin-top: var(--space-5); }
+.v1-nar-blk .tp-fday:first-child .tp-grp { margin-top: var(--space-4); }
+.v1-nar-blk .tp-fday .tp-grp + .tp-pcs, .v1-nar-blk .tp-fday .tp-grp + .tp-fday-so { margin-top: var(--space-2); }
+/* Teams with no NSW match: one watch block. The fan zone, then its matches as one list like a day's ideas */
+.v1-nar-blk .v1-nonsw-h { margin: 0 0 var(--space-2); font-size: var(--fs-base); line-height: 1.5; }
+.v1-nar-blk .v1-nonsw .v1-fan-near { margin: 0; font-size: var(--fs-sm); line-height: 1.5; }
+.v1-nar-blk .v1-nonsw .v1-fan-near + .v1-fan-near { margin-top: var(--space-1); }
+.v1-nar-blk .v1-nonsw-l { margin: var(--space-4) 0 0; border: var(--bw-1) solid var(--c-line-soft); border-radius: var(--radius-lg, 12px); background: var(--c-surface); overflow: hidden; }
+.v1-nar-blk .v1-nonsw-l li { padding: var(--space-3) var(--space-4); }
+.v1-nar-blk .v1-nonsw-l li:first-child { border-top: 0; }
