@@ -79,11 +79,13 @@ Sample tags inside the narrative sentences show only with Annotations on (28 Nov
 
 Layout (28 Nov 2026): each day's heading sticks under the floating nav on one line; a stretch of free days is one block (one list of up to three ideas, More ideas in place, two compact other matches, See day by day), which cuts the England plan from 8.2 to 4.6 screens.
 
-The three questions on a wide desktop (28 Nov 2026, `v1/v1-flow-desk.css`): the lead (step count, bar, title, note, Find and Grid) in a left column and the answer in a right column on every step, ending on the same edge as the Next button. Below 1280px they stay stacked.
+The three questions on a wide desktop (28 Nov 2026, `v1/v1-flow-desk.css`): the lead (step count, bar, title, note, Find and Grid) in a left column and the answer in a right column on every step. The answer column (520px) sits on the screen's centre, the same centre as the section tabs and the Back and Next buttons, so the plan rail on those steps is 300px; the Also on in NSW block under the dates step is centred on it too. Home and the kick-off layer are left out of these rules. Below 1280px they stay stacked, centred in the space beside the rail.
 
 Where you're staying (28 Nov 2026) asks one thing: the other-matches block and the Newcastle suggestion no longer show under it (they stay on the dates step and the plan), and its note is one sentence shorter.
 
 Focus (28 Nov 2026): the temporary no-focus-ring.css is gone (and its links), so keyboard focus rings are back; each calendar (the step's and the Your days sheet's) is one tab stop with the arrow keys, Home, End, Page Up and Page Down moving between days.
+
+Calendars and fan zone cards (29 Nov 2026): the two months always stack, in the dates question, the plan panel and the Your days sheet (side by side they were too narrow). Fan zone and village cards no longer carry a Sample tag; their made-up fields (getting there, open, what is there) show the annotation wash with Annotations on. Sample tags remain on the plan page's place cards and the place page's About this place.
 
 ## One simple, interactive trip map (27 Nov 2026, sandbox only)
 

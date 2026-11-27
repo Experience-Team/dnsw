@@ -29,10 +29,10 @@
     return '<article class="v1-fz-card' + (opt.sel ? ' is-sel' : '') + '" data-spot="' + esc(s.id) + '">' +
       '<header class="v1-fz-head"><div><h4 class="v1-fz-name">' + (opt.n ? '<span class="v1-fz-n" aria-hidden="true">' + opt.n + '</span>' : '') + esc(s.name) + '</h4>' +
       '<p class="v1-fz-meta"><span class="v1-fz-kind is-' + s.kind + '">' + esc(KIND[s.kind]) + '</span><span class="v1-fz-sub">' + esc(s.suburb) + '</span></p></div>' +
-      '<span class="v1-sample provenance-gap">Sample</span></header>' +
-      '<dl class="v1-fz-dl"><div><dt>Getting there</dt><dd>' + esc(s.transport) + '</dd></div>' +
-      '<div><dt>Open</dt><dd>' + esc(s.opens) + '</dd></div>' +
-      '<div><dt>What is there</dt><dd><ul class="v1-fz-has">' + s.has.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('') + '</ul></dd></div></dl></article>';
+      '</header>' +
+      '<dl class="v1-fz-dl"><div><dt>Getting there</dt><dd class="provenance-gap">' + esc(s.transport) + '</dd></div>' +
+      '<div><dt>Open</dt><dd class="provenance-gap">' + esc(s.opens) + '</dd></div>' +
+      '<div><dt>What is there</dt><dd class="provenance-gap"><ul class="v1-fz-has">' + s.has.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('') + '</ul></dd></div></dl></article>';
   }
 
   /* ---- 1. every fan zone and fan village ---- */

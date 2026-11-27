@@ -55,10 +55,9 @@
 #tp-phone .v1-sample { padding: 0 5px; border-width: 1px; font-size: .625rem; font-weight: var(--fw-semi); letter-spacing: .08em; line-height: 1.7; }
 /* A fan zone's or village's kind: a soft label, not a black block that competes with Add */
 #tp-phone .v1-fz-kind { padding: 0 6px; border: 0; background: var(--v1-tint); color: var(--c-ink); font-size: .625rem; font-weight: var(--fw-semi); letter-spacing: .08em; line-height: 1.7; }
-/* Wide screens: the two months sit side by side instead of leaving half the page empty */
+/* Wide screens: the days answer spans the grid. The months stay stacked everywhere (29 Nov 2026): side by side they were too narrow in the plan panel and the question's column */
 @media (min-width: 900px) {
   .pv-device #tp-phone[data-fc="days"] #tp-pick > #tp-ask { grid-column: 1 / -1; }
-  .pv-device #tp-phone .v1-cal { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-12, 48px); align-items: start; }
 }
 /* Under the left-aligned calendar, Undo and Reset line up with it, not the middle */
 #tp-phone .tp-ask-acts--links { justify-content: flex-start; }
@@ -81,6 +80,18 @@
    its top edge. The pill's own height and its top margin are taken off the space below it, so the picture moves up under it */
 @media (max-width: 1023px) {
   #tp-phone.is-home .tp-cap-wrap { margin-bottom: calc(-1 * (var(--space-3) + 44px)); }
+}
+
+/* Home on a desktop (29 Nov 2026): the FAQs, the updates sign-up and Going with friends? sit on the page's centre, the same
+   centre as the section tabs: heading, intro and the block each centred, the questions themselves still read from the left */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone :is(#tp-home-faq, #tp-home-news, #tp-home-share) { text-align: center; }
+  .pv-device #tp-phone :is(#tp-home-faq, #tp-home-news, #tp-home-share) .tp-home-intro { margin-inline: auto; }
+  .pv-device #tp-phone #tp-home-faq .tp-faq { margin-inline: auto; text-align: left; }
+  .pv-device #tp-phone #tp-home-news .tp-news { margin-inline: auto; text-align: left; justify-items: center; }
+  .pv-device #tp-phone #tp-home-news .tp-news-in { justify-self: stretch; }
+  .pv-device #tp-phone :is(#tp-home-news, #tp-home-share) .tp-home-cta { justify-self: center; align-self: center; }
+  .pv-device #tp-phone #tp-home-share .tp-home-cta { display: block; margin-inline: auto; }
 }
 
 /* Home's map in the trip map's style (27 Nov 2026): the same drawn base map, colours, pins and name chips (v1-narrative.css) */

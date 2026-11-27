@@ -11,8 +11,6 @@
   .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) #tp-pick > #tp-util { grid-column: 1; grid-row: 2; align-self: start; margin-inline: 0; }
   .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) #tp-pick > #tp-picker { grid-column: 2; grid-row: 1 / span 3; justify-self: center; width: 420px; margin-top: 0; }
   .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) #tp-pick > #tp-ask { grid-column: 2; grid-row: 1 / span 3; align-self: start; margin-top: 0; }
-  .pv-device #tp-phone[data-fc="days"]:not(.is-home):not(.is-kick) #tp-pick > #tp-ask { grid-column: 2; }
-  .pv-device #tp-phone[data-fc]:not(.is-home):not(.is-kick) #tp-pick .v1-cal { column-gap: var(--space-5, 24px); }
   /* Also on in NSW: its centred column sits on the same centre */
   .pv-device #tp-phone[data-fc="days"]:not(.is-home):not(.is-kick) #v1-also { margin-right: calc(-1 * var(--rail-span)); }
 }
