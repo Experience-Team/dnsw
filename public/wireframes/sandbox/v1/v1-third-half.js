@@ -949,9 +949,9 @@
     return { kind: nights >= 2 ? 'day' : 'half' };
   }
   function freeBody(b, M) {
-    var h = '', n = b.z - b.a + 1, want = narOn() ? spareWant(b, M) : null, led = false;
-    b._lead = null;
-    if (want && want.trip) { b._lead = want.trip; h += '<div class="tp-pcs v1-sp-lead">' + tripCard(want.trip, b) + '</div>'; led = true; }
+    var h = '', n = b.z - b.a + 1, want = narOn() ? spareWant(b, M) : null, led = false, leadH = '', stretch = [];
+    b._lead = null; b._added = '';
+    if (want && want.trip) { b._lead = want.trip; leadH = '<div class="tp-pcs v1-sp-lead">' + tripCard(want.trip, b) + '</div>'; led = true; }
     for (var d = b.a; d <= b.z; d++) {
       var dl = dayLabel(d), its = dayItems(d), dk = b.key + ':' + d;
       h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>' + (narOn() ? alsoRows(d) : '');
@@ -967,7 +967,7 @@
       if (want && want.kind && !led) { led = true; var wi = list.filter(function (i) { return i.kind === want.kind; })[0]; if (wi) { list = list.filter(function (i) { return i !== wi; }); list.unshift(wi); } }
       var per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
       FREE_LEFT--;
-      show.forEach(function (i) { SUGG[i.id] = true; });
+      show.forEach(function (i) { SUGG[i.id] = true; if (!i.watch) stretch.push(i); });
       FREEINFO.push({ d: d, label: dl, filled: false, count: show.length, dk: dk, its: its, show: show, more: list.length > per, base: b.base });
       if (!show.length) h += '<p class="tp-empty">No new ideas for this day yet: everything has been suggested on another day. Free days can stay free.</p>';
       else h += '<div class="tp-pcs">' + show.map(function (i) { return ideaCard(i, d); }).join('') + '</div>';
@@ -977,7 +977,68 @@
     // Three or more free days: the curated longer trips, as before
     var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && t !== b._lead && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
     if (longs.length) h += '<h5 class="tp-grp">Or make it a longer trip</h5><div class="tp-pcs">' + longs.slice(0, 2).map(function (t) { return tripCard(t, b); }).join('') + '</div>';
-    return h;
+    if (!narOn()) return h;
+    /* The narrative plan page (28 Nov 2026): a stretch of free days is one block, not a list a day. Under the spare-time sentence,
+       one list of up to three ideas for the whole stretch (More ideas shows three more, in the block), the other NSW matches
+       as compact rows, and a quiet See day by day for the per-day lists. Add puts an idea on the first day with nothing planned. */
+    b._added = addedHtml(b);
+    if (spDays[b.key]) return leadH + h + '<p class="v1-sp-foot"><button type="button" class="tp-link v1-sp-dbd" data-sp-days="' + esc(b.key) + '" aria-expanded="true">Hide day by day</button></p>';
+    var target = spTarget(b), shown = 3 + 3 * (spMore[b.key] || 0), out = leadH;
+    if (target === null) out += '<p class="tp-fday-done">Your free days are full. Remove something to see more ideas.</p>';
+    else if (stretch.length) {
+      var dl0 = dayLabel(target);
+      out += '<div class="tp-pcs v1-sp-list">' + stretch.slice(0, shown).map(function (i) { return ideaCard(i, target).split('Fits ' + dl0).join('Fits your free days'); }).join('') + '</div>';
+      if (stretch.length > shown) out += '<button type="button" class="tp-link tp-blk-more v1-sp-more" data-sp-more="' + esc(b.key) + '">More ideas</button>';
+    } else out += '<p class="tp-empty">No new ideas for these days yet. Free days can stay free.</p>';
+    return out + compactAlso(b) + '<p class="v1-sp-foot"><button type="button" class="tp-link v1-sp-dbd" data-sp-days="' + esc(b.key) + '" aria-expanded="false">See day by day</button></p>';
+  }
+  var spMore = {}, spAll = {}, spDays = {}, spChange = {};
+  // The first free day in the stretch with nothing planned; else the first that is not full; null when every day is full
+  function spTarget(b) {
+    var d, firstOpen = null;
+    for (d = b.a; d <= b.z; d++) { if (dayFilled(d)) continue; if (!dayItems(d).length) return d; if (firstOpen === null) firstOpen = d; }
+    return firstOpen;
+  }
+  // What is on the plan in this stretch: each with the day it is on and a Change day that lists the other days of the stretch
+  function addedHtml(b) {
+    var seen = {}, out = [], d;
+    for (d = b.a; d <= b.z; d++) dayItems(d).forEach(function (it) { if (!seen[it.id]) { seen[it.id] = 1; out.push(it); } });
+    if (!out.length) return '';
+    return '<ul class="v1-sp-added">' + out.map(function (it) {
+      var trip = !!it.nights, open = !!spChange[it.id];
+      var when = trip ? 'Added: ' + esc(spanLabel(it.start, it.start + it.nights)) : 'Added to ' + esc(it.day);
+      var chips = '';
+      if (open) {
+        chips = '<span class="v1-sp-chg" role="group" aria-label="Move ' + esc(it.title) + ' to">';
+        for (d = b.a; d <= b.z; d++) chips += '<button type="button" class="v1-sp-to" data-sp-to="' + d + '" data-sp-id="' + esc(it.id) + '" aria-pressed="' + (dayLabel(d) === it.day) + '">' + esc(dayLabel(d)) + '</button>';
+        chips += '</span>';
+      }
+      return '<li class="v1-sp-ad"><span class="ph-img v1-sp-adimg"' + imgKey(it.title) + ' aria-hidden="true"></span><span class="v1-sp-adb"><button type="button" class="tp-link v1-sp-adt" data-open="item:' + esc(it.id) + '" aria-haspopup="dialog">' + esc(it.title) + '</button>' +
+        '<span class="v1-sp-adw">' + when + (trip ? '' : ' \u00b7 <button type="button" class="tp-link" data-sp-change="' + esc(it.id) + '" aria-expanded="' + open + '">Change day</button>') + '</span>' + chips + '</span></li>';
+    }).join('') + '</ul>';
+  }
+  // The other NSW matches in the stretch, compact: two, then Show all matches
+  function compactAlso(b) {
+    var ms = [], d;
+    for (d = b.a; d <= b.z; d++) otherOn(d).forEach(function (m) { ms.push(m); });
+    if (!ms.length) return '';
+    var noTeam = tp.rugby(), all = !!spAll[b.key], shown = all ? ms : ms.slice(0, 2);
+    var rows = shown.map(function (m) {
+      var f = m.f, ko = isKo(f), id = 'm:' + m.key, where = (HOSTS[f.v] ? HOSTS[f.v].title.replace(/^Sydney – /, '') : f.v), r = routeInfo(f);
+      ITEMS[id] = { id: id, kind: 'match', key: m.key, title: matchName(f), kindLabel: 'Match', day: f.d, place: f.v + ', ' + f.p };
+      return '<li class="v1-ao-i"><span class="v1-ao-b"><button type="button" class="tp-link v1-ao-n" data-open="match:' + esc(m.key) + '" aria-haspopup="dialog">' + esc(matchName(f)) + '</button>' +
+        '<span class="v1-ao-w">' + esc(dayLabel(m.day)) + ' \u00b7 ' + esc(where) + (ko ? ' \u00b7 teams to be decided' : '') + (f.k ? ' \u00b7 ' + esc(f.k) : '') + (r ? ' \u00b7 <button type="button" class="tp-link" data-nar-route="' + esc(f.v) + '">Show route on map</button>' : '') + '</span></span>' +
+        addBtn(id, matchName(f) + ', ' + f.d) + '</li>';
+    }).join('');
+    return '<div class="v1-ao v1-ao--c"><h6 class="v1-ao-h">' + (noTeam ? 'On while you\u2019re here' : 'Also on in NSW') + '</h6><ul class="v1-ao-l">' + rows + '</ul>' +
+      (ms.length > 2 ? '<button type="button" class="tp-link v1-sp-all" data-sp-all="' + esc(b.key) + '" aria-expanded="' + all + '">' + (all ? 'Show fewer matches' : 'Show all matches (' + ms.length + ')') + '</button>' : '') + '</div>';
+  }
+  // Change day: an idea keeps its id and moves to another day of the stretch
+  function moveSp(id, d) {
+    var cur = addedItem(id); if (!cur) return;
+    spChange[id] = false;
+    if (cur.idea) { var nu = Object.assign({}, cur, { day: dayLabel(d) }); tp.removeItem(id); tp.addItem(nu); render(true, '[data-sp-change="' + CSS.escape(id) + '"]'); tp.say(cur.title + ' moved to ' + nu.day + '.'); }
+    else { var nid = moveItem(id, d); var f = thirdList.querySelector('[data-sp-change="' + CSS.escape(nid) + '"]'); if (f) f.focus({ preventScroll: true }); }
   }
   // A free day with one (or two) of their matches on: where to watch in NSW, the same fair venues as Where to watch
   function watchBody(b) {
@@ -1270,7 +1331,7 @@
         var hd = heading(b), venue = (b.kind === 'match' || b.kind === 'ko') ? b.ms[0].f.v : '', body;
         if (b.kind === 'watch' && noNswTeams.length) hd = { when: dayLabel(b.day) + ' · Watch day' };
         if (b.kind === 'match') body = tp.narMatchBody(b, M);
-        else if (b.kind === 'free') body = spareLine(b, M) + b._html;
+        else if (b.kind === 'free') body = (b._added || '') + spareLine(b, M) + b._html;
         else if (b.kind === 'watch') {
           if (noNswTeams.length) { body = noNswDone ? '' : tp.narNoNsw(noNswTeams); noNswDone = true; } else body = watchBody(b);
         } else if (b.kind === 'ko') body = koBody(b);
@@ -1297,6 +1358,16 @@
   thirdList.addEventListener('click', function (e) {
     var t = e.target.closest('[data-blk-toggle]');
     if (t) { var k = t.dataset.blkToggle; if (openSet[k]) delete openSet[k]; else openSet[k] = true; render(true, '[data-blk-toggle="' + k + '"]'); return; }
+    var sp = e.target.closest('[data-sp-more]');
+    if (sp) { spMore[sp.dataset.spMore] = (spMore[sp.dataset.spMore] || 0) + 1; render(true, '[data-sp-more="' + CSS.escape(sp.dataset.spMore) + '"]'); return; }
+    sp = e.target.closest('[data-sp-all]');
+    if (sp) { spAll[sp.dataset.spAll] = !spAll[sp.dataset.spAll]; render(true, '[data-sp-all="' + CSS.escape(sp.dataset.spAll) + '"]'); return; }
+    sp = e.target.closest('[data-sp-days]');
+    if (sp) { spDays[sp.dataset.spDays] = !spDays[sp.dataset.spDays]; render(true, '[data-sp-days="' + CSS.escape(sp.dataset.spDays) + '"]'); return; }
+    sp = e.target.closest('[data-sp-change]');
+    if (sp) { var cid = sp.dataset.spChange; spChange[cid] = !spChange[cid]; render(true, '[data-sp-change="' + CSS.escape(cid) + '"]'); return; }
+    sp = e.target.closest('[data-sp-to]');
+    if (sp) { moveSp(sp.dataset.spId, +sp.dataset.spTo); return; }
     var m = e.target.closest('[data-more]');
     if (m) { moreBlk[m.dataset.more] = !moreBlk[m.dataset.more]; render(true, '[data-more="' + m.dataset.more + '"]'); return; }
     var mv = e.target.closest('[data-move]');

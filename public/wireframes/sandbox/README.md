@@ -76,3 +76,5 @@ The trip map under the opening sentences (27 Nov 2026, `v1/v1-narrative.js`) fra
 Copy and logic slips on the narrative plan page (28 Nov 2026): a distance and a time read "14 km, about 36 min by train" ("on foot" for a walk); later rounds go in their own clause, not after "to see", until added (and the bar says "No matches added yet"); "Before and after the match" only within a 20 minute walk of the ground (two sample fan zones added, `v1/v1-fanspots.js`); the spare-time sentence names the first card under it.
 
 Sample tags inside the narrative sentences show only with Annotations on (28 Nov 2026); cards keep theirs. The last day offers places other than the arrival day's three where others are open.
+
+Layout (28 Nov 2026): each day's heading sticks under the floating nav on one line; a stretch of free days is one block (one list of up to three ideas, More ideas in place, two compact other matches, See day by day), which cuts the England plan from 8.2 to 4.6 screens.
