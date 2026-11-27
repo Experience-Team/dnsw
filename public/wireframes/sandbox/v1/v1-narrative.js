@@ -22,7 +22,26 @@
     '<div class="v1-tm" id="v1-tm" role="button" tabindex="0"><div class="v1-tm-layer" aria-hidden="true"><img class="v1-tm-img" alt="" draggable="false"></div>' +
     '<svg class="v1-tm-svg" aria-hidden="true" focusable="false"></svg><div class="v1-tm-pins" aria-hidden="true"></div></div>';
   pick.parentNode.insertBefore(sec, pick);
-  pick.parentNode.insertBefore(third, pick); // the days follow the map
+  /* Getting around NSW: its own short block under the map (27 Nov 2026). Information and links only; the times and tips are sample,
+     the links go to real public sites (Transport for NSW, Visit NSW, sydney.com). */
+  var ga = document.createElement('section');
+  ga.className = 'tp-sec v1-ga'; ga.id = 'v1-ga'; ga.setAttribute('aria-labelledby', 'v1-ga-title');
+  var TNSW = ['https://transportnsw.info/', 'Transport for NSW'], VNSW = ['https://www.visitnsw.com/', 'Visit NSW'], SYD = ['https://www.sydney.com/', 'sydney.com'];
+  var GA = [
+    ['Plane', 'Sydney Airport trains reach the city in about 15 minutes. Newcastle Airport is about 30 minutes by road from the city.', VNSW],
+    ['Public transport', 'One Opal card covers trains, light rail, buses and ferries. Tap on and tap off.', TNSW],
+    ['Ferry', 'Harbour ferries leave from Circular Quay for Manly, Parramatta and across the water.', TNSW],
+    ['Car hire', 'Hire at the airport or in the city. On match days the train is easier: parking near the grounds is limited.', VNSW],
+    ['Ride share', 'Available across Sydney and Newcastle. After a match, expect queues and street closures near the ground.', TNSW],
+    ['Bike', 'Cycleways link the harbour, Centennial Park and Olympic Park. Ask a visitor centre about hire.', SYD]
+  ];
+  ga.innerHTML = '<h3 class="v1-ga-h" id="v1-ga-title">Getting around NSW</h3><p class="v1-ga-n">Sample details: the times and tips are made up for this prototype. The links go to the real sites.</p>' +
+    '<ul class="v1-ga-l">' + GA.map(function (r) {
+      return '<li class="v1-ga-i"><span class="v1-ga-m">' + r[0] + '</span><span class="v1-ga-t">' + r[1] + ' ' + '</span>' +
+        '<a class="tp-link v1-ga-a" href="' + r[2][0] + '" target="_blank" rel="noopener noreferrer">' + r[2][1] + '<span class="visually-hidden">, opens in a new tab</span></a></li>';
+    }).join('') + '</ul>';
+  pick.parentNode.insertBefore(ga, pick); // under the map, before the days
+  pick.parentNode.insertBefore(third, pick); // the days follow
   var s1 = sec.querySelector('#v1-nar-s1'), s2 = sec.querySelector('#v1-nar-s2'), addp = sec.querySelector('#v1-nar-addp');
   var box = sec.querySelector('#v1-tm'), layer = box.querySelector('.v1-tm-layer'), img = box.querySelector('.v1-tm-img'), svg = box.querySelector('.v1-tm-svg'), pins = box.querySelector('.v1-tm-pins');
 
@@ -75,6 +94,12 @@
     var seenV = {};
     going().forEach(function (x) { if (!seenV[x.venue] && G.venues[x.venue]) { seenV[x.venue] = 1; P.push({ kind: x.maybe ? 'maybe' : 'stadium', key: x.venue, label: x.venue, ll: G.venues[x.venue] }); } });
     if (watchTeams().length) { var fz = watchFan(); if (fz) P.push({ kind: 'fan', key: fz.name, label: fz.name, ll: fz.ll }); }
+    // Another match while you're here, in the other city: its ground, and the stops on the way (sample), joined by a dashed route
+    (tp.narRoutes ? tp.narRoutes() : []).forEach(function (r) {
+      if (!G.venues[r.venue]) return;
+      if (!seenV[r.venue]) { seenV[r.venue] = 1; P.push({ kind: 'extra', key: r.venue, label: r.venue, ll: G.venues[r.venue], stops: r.stops.map(function (x) { return 'stop:' + x.name; }) }); }
+      r.stops.forEach(function (x) { P.push({ kind: 'stop', key: 'stop:' + x.name, label: x.name, ll: x.ll }); });
+    });
     return P;
   }
   function draw() {
@@ -102,20 +127,35 @@
     // The route between: from the nearer place they stay to each stadium (or the fan zone)
     var stays = pts.filter(function (o) { return o.p.kind === 'stay'; }), lines = '';
     pts.forEach(function (o) {
-      if (o.p.kind === 'stay' || !stays.length) return;
+      if (o.p.kind === 'stay' || o.p.kind === 'stop' || !stays.length) return;
+      if (o.p.kind === 'extra') {
+        // Through its stops, in order, from the nearer place they stay: a dashed line
+        var f0 = stays.slice().sort(function (a, b) { return Math.hypot(a.x - o.x, a.y - o.y) - Math.hypot(b.x - o.x, b.y - o.y); })[0], d = 'M' + f0.x.toFixed(1) + ' ' + f0.y.toFixed(1);
+        (o.p.stops || []).forEach(function (k) { var q = pts.filter(function (z) { return z.p.key === k; })[0]; if (q) d += ' L' + q.x.toFixed(1) + ' ' + q.y.toFixed(1); });
+        lines += '<path class="v1-tm-route is-extra' + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + '" d="' + d + ' L' + o.x.toFixed(1) + ' ' + o.y.toFixed(1) + '"/>';
+        return;
+      }
       var from = stays.slice().sort(function (a, b) { return Math.hypot(a.x - o.x, a.y - o.y) - Math.hypot(b.x - o.x, b.y - o.y); })[0];
       if (Math.hypot(from.x - o.x, from.y - o.y) < 16) return; // staying at the ground: nothing to draw
       var mx = (from.x + o.x) / 2, my = (from.y + o.y) / 2 - Math.min(30, Math.hypot(from.x - o.x, from.y - o.y) * .18);
       lines += '<path class="v1-tm-route' + (o.p.kind === 'maybe' ? ' is-maybe' : '') + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + '" d="M' + from.x.toFixed(1) + ' ' + from.y.toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + o.x.toFixed(1) + ' ' + o.y.toFixed(1) + '"/>';
     });
     svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = lines;
+    var placed = [];
     pins.innerHTML = pts.map(function (o, i) {
       var near = pts.some(function (q, j) { return j < i && Math.hypot(q.x - o.x, q.y - o.y) < 22; });
-      // A pin on top of another (staying at the ground) moves up and to the left, and its label goes to the left, so both read
-      var x = o.x + (near ? -4 : 0), y = o.y + (near ? 16 : 0), lw = o.p.label.length * 6.3 + 16, left = near || x + 12 + lw > W - 4;
+      // A pin on top of another (staying at the ground) moves down and to the left, and its label goes to the left, so both read
+      var x = o.x + (near ? -4 : 0), y = o.y + (near ? 20 : 0), lw = o.p.label.length * (o.p.kind === 'stop' ? 5.4 : 6.3) + 16, left = near || x + 12 + lw > W - 4;
       if (left && x - 12 - lw < 4) left = false; // no room on the left: the label goes right even if it runs on
       if (!left && x + 12 + lw > W - 4 && x - 12 - lw >= 4) left = true;
-      return '<span class="v1-tm-pin is-' + o.p.kind + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + (state.lit && state.lit !== o.p.key ? ' is-dim' : '') + (left ? ' is-l' : '') + '" data-pin="' + esc(o.p.key) + '" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px"><i></i><b>' + esc(o.p.label) + '</b></span>';
+      // Labels never sit on one another: try the other side, then below
+      function rect(l, dy) { return l ? [x - 12 - lw, y - 9 + dy, x - 12, y + 9 + dy] : [x + 12, y - 9 + dy, x + 12 + lw, y + 9 + dy]; }
+      function hits(r) { return placed.some(function (q) { return r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]; }); }
+      var dy = 0, r = rect(left, 0);
+      if (hits(r) && !hits(rect(!left && x - 12 - lw >= 4 || left && x + 12 + lw <= W - 4 ? !left : left, 0))) { left = !left; r = rect(left, 0); }
+      for (var k = 0; hits(r) && k < 3; k++) { dy += 18; r = rect(left, dy); }
+      placed.push(r);
+      return '<span class="v1-tm-pin is-' + o.p.kind + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + (state.lit && state.lit !== o.p.key ? ' is-dim' : '') + (left ? ' is-l' : '') + '" data-pin="' + esc(o.p.key) + '" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px"><i></i><b' + (dy ? ' style="top:' + (dy - 9) + 'px"' : '') + '>' + esc(o.p.label) + '</b></span>';
     }).join('');
     var names = P.map(function (p) { return p.label; });
     box.setAttribute('aria-label', 'Trip map' + (names.length ? ': ' + list(names) : '') + '. Opens the full-screen map, day by day.');
@@ -141,6 +181,7 @@
   third.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.dataset.narDay !== undefined) { highlight(b.dataset.narDay); return; }
+    if (b.dataset.narRoute !== undefined) { state.lit = b.dataset.narRoute; drawn = ''; draw(); scrollTo(box, 12); return; }
     if (b.dataset.narOnmap !== undefined) { state.lit = b.dataset.narOnmap; drawn = ''; draw(); scrollTo(box, 12); return; }
     if (b.dataset.narGoto !== undefined) { var t = document.getElementById(b.dataset.narGoto); if (t) { scrollTo(t, 12); } return; }
     if (b.dataset.narTab !== undefined) { var p = b.dataset.narTab.split('|'); state.tab[p[0]] = p[1]; tp.render(true, '[data-nar-tab="' + CSS.escape(b.dataset.narTab) + '"]'); return; }
