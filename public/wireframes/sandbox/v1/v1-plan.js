@@ -61,21 +61,25 @@
     items.forEach(function (it) { set[itemDay(it)] = true; });
     var days = Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
     var free = {}; (tp.freeDays ? tp.freeDays() : []).forEach(function (x) { free[x.d] = x; });
+    // Later-round NSW matches inside the days (teams to be decided): not a free day, and not assumed (27 Nov 2026)
+    var koAll = range && tp.koOnDays ? tp.koOnDays() : [];
     var out = days.map(function (d) {
       var dm = ms.filter(function (m) { return m.day === d; }), dx = range ? extra.filter(function (m) { return m.day === d; }) : [];
       var its = items.filter(function (it) { return itemDay(it) === d; });
       // A longer trip's later days: "Hunter Valley, night 2" (the trip itself sits on its first day)
       var nights = items.filter(function (it) { var s = itemDay(it); return it.kind === 'trip' && it.nights > 0 && d > s && d <= s + it.nights; })
         .map(function (it) { return { it: it, n: d - itemDay(it) + 1 }; });
+      var kos = koAll.filter(function (m) { return m.day === d; });
       var kinds = [];
       if (range && range.a !== range.z && d === range.a) kinds.push('Arrival day');
       if (dm.length) kinds.push('Match day');
       if (range && range.a !== range.z && d === range.z) kinds.push('Last day');
+      if (kos.length && !dm.length) kinds.push('Later round');
       if (!kinds.length) kinds.push('Free day');
       var fi = free[d];
-      return { d: d, ms: dm, extra: dx, its: its, nights: nights, kinds: kinds, ideas: !!(fi && !fi.filled) && !dm.length,
+      return { d: d, ms: dm, kos: kos, extra: dx, its: its, nights: nights, kinds: kinds, ideas: !!(fi && !fi.filled) && !dm.length,
         // The arrival and last day keep their own card, with Add ideas, and never fold into a run of free days (E2)
-        empty: !dm.length && !dx.length && !its.length && !nights.length && !(range && range.a !== range.z && (d === range.a || d === range.z)) };
+        empty: !dm.length && !kos.length && !dx.length && !its.length && !nights.length && !(range && range.a !== range.z && (d === range.a || d === range.z)) };
     });
     return { range: range, own: own, days: out, n: days.length, first: days[0] };
   }
@@ -98,6 +102,13 @@
       '<span class="tp-dc-where">' + esc(where) + '</span>' +
       (watchOnly ? '<span class="tp-dc-tk">To watch in NSW, not in your plan</span>'
         : '<div class="tp-dc-acts"><button type="button" class="tp-dc-act" data-dc-mrm="' + esc(m.key) + '">' + window.tpIcons.remove + '<span>Remove</span><span class="visually-hidden">: ' + esc(mName(f)) + ', ' + esc(f.d) + '</span></button></div>') + '</div></li>';
+  }
+  // A later round on the day, teams to be decided: one line with Add, nothing assumed (27 Nov 2026)
+  function koHtml(m) {
+    var f = m.f;
+    return '<li class="tp-dc-m v1p-ko" data-mkey="' + esc(m.key) + '"><div class="tp-dc-m-b"><span class="tp-dc-name v1p-ko-n">' + esc(tp.koName(f)) + ' is on \u00b7 teams to be decided</span>' +
+      '<span class="tp-dc-time">' + (f.k ? esc(f.k) + ' Sydney time' : TBC) + '</span><span class="tp-dc-where">' + esc(f.v + ', ' + f.p) + '</span>' +
+      '<div class="tp-dc-acts">' + tp.koAddHtml(m) + '</div></div></li>';
   }
   function itemHtml(it, day) {
     var time = '', sub = it.kindLabel || 'Added';
@@ -156,13 +167,14 @@
       (s === 'before' ? before : s === 'after' ? after : rest).push(it);
     });
     var li = before.map(function (it) { return itemHtml(it, day); })
-      .concat(day.ms.map(function (m) { return matchHtml(m, false); }), day.extra.map(function (m) { return matchHtml(m, true); }))
+      .concat(day.ms.map(function (m) { return matchHtml(m, false); }), (day.kos || []).map(koHtml), day.extra.map(function (m) { return matchHtml(m, true); }))
       .concat(screens.concat(after, rest).map(function (it) { return itemHtml(it, day); }))
       .concat(day.nights.map(function (x) { return '<li class="tp-dc-night"><span class="ph-img tp-dc-img"' + tp.imgKey(x.it.title) + ' aria-hidden="true"></span><div class="tp-dc-it-b"><span class="tp-dc-nm">' + esc(x.it.title) + ', night ' + x.n + '</span><span class="tp-dc-type">' + esc(x.it.kindLabel || 'Longer trip') + '</span></div></li>'; }));
     var h = '';
     // Getting there and back, on the match day itself: one line, then the full details (26 Nov 2026)
     var nm = day.ms.filter(function (m) { return !m.f.a; });
     if (nm.length && tp.goOne) h += '<div class="v1p-go">' + tp.goOne(nm[0]) + '</div>';
+    if (nm.length && tp.fanNear) h += '<div class="v1p-fz">' + tp.fanNear(nm[0].f) + '</div>';
     h += li.length ? '<ul class="tp-dc-list">' + li.join('') + '</ul>' : '';
     // Ideas for a day with something on it already (room for one more): a quiet button, the ideas open below it
     if (day.ideas && li.length) h += '<div class="v1p-more-acts">' + ideasToggle(day, false) + '</div>';
@@ -171,7 +183,7 @@
   }
   function cardHtml(g, idx, total, M) {
     var day = g.days[0], d = day.d, id = 'tp-dc-' + g.key;
-    var has = day.ms.length || day.its.length || day.nights.length || day.extra.length;
+    var has = day.ms.length || day.its.length || day.nights.length || day.extra.length || (day.kos || []).length;
     var aw = awayCities(day), W = window.TP_WORDS || {};
     var free = !has && day.ideas, empty = !has && !day.ideas;
     var x = dateOf(d), title = dayLabel(d) + ' · ' + day.kinds.join(' · ');

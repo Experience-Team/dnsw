@@ -77,3 +77,21 @@
 .v1-stay-name { font-weight: var(--fw-semi); }
 .v1-stay-cur-line { margin: var(--space-3) 0 0; font-weight: var(--fw-semi); }
 .v1-stay-addq { margin: var(--space-2) 0 var(--space-3); }
+
+/* The nearest fan zone on a match day (27 Nov 2026), sample data */
+.v1-fan-near { margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.v1-fan-k { font-weight: var(--fw-semi); color: var(--c-ink); }
+.v1p-fz { margin-top: var(--space-2); }
+.v1p-fz .v1-fan-near { margin: 0; }
+.v1p-ko-n { text-decoration: none; display: block; cursor: default; }
+.v1-ko-add { margin-top: var(--space-3); }
+
+/* A team with no NSW match inside the days (27 Nov 2026) */
+.v1-nonsw, .v1-nonsw-none { margin: var(--space-4) 0 0; padding: 0 var(--space-4) var(--space-4); }
+.v1-nonsw-none { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.v1-nonsw-h { margin: 0; font-size: var(--fs-base); }
+.v1-nonsw .v1-fan-near { margin-top: var(--space-2); }
+.v1-nonsw-l { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+.v1-nonsw-l li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 0; border-top: 1px solid var(--c-line-soft, var(--c-line)); }
+.v1-nonsw-m { display: flex; flex-direction: column; font-weight: var(--fw-semi); }
+.v1-nonsw-m span { font-weight: var(--fw-regular, 400); font-size: var(--fs-sm); color: var(--c-ink-2); }

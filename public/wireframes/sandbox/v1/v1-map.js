@@ -803,7 +803,7 @@
     var VENS = [];
     var VTYPE = { fan_zone: 'Fan zone', pub: 'Pub', club: 'Club' };
     var I_TV = ICO('M8 14s4.5-4.1 4.5-7.6a4.5 4.5 0 0 0-9 0C3.5 9.9 8 14 8 14z M6.4 6.4a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0');
-    function venShows(x) { return mine().filter(function (m) { return m.f.t && x.v.shows.indexOf(m.key) > -1; }); }
+    function venShows(x) { return (tp.watchMatches ? tp.watchMatches() : []).filter(function (m) { return m.f.t && x.v.shows.indexOf(m.key) > -1; }); } // screenings are for matches played interstate or removed (27 Nov 2026)
     var CITYFRAME = {
       sydney: LOCS.filter(function (l) { return l.city === 'sydney'; }),
       newcastle: LOCS.filter(function (l) { return l.city === 'newcastle'; })
@@ -1151,7 +1151,7 @@
         '<p class="tp-ov-pop-k">' + (picked ? 'Your matches it shows' : 'Screenings') + '</p>' +
         (picked ? (list.length ? '<p class="tp-ov-pop-ms">' + list.join('<br>') + (ms.length > 5 ? '<br>and ' + (ms.length - 5) + ' more' : '') + '</p>' : '<p class="tp-map-pop-m">None of your matches is listed here yet.</p>')
           : '<p class="tp-map-pop-m">' + (fz ? 'Every match of the tournament, on big screens.' : x.v.shows.length + ' matches across the tournament.') + ' Pick a team to see which of theirs.</p>') +
-        '<div class="tp-map-pop-a"><a href="#tp-watch" class="tp-link" data-owatch>See screenings in Where to watch</a></div>';
+        ((document.getElementById('tp-watch') || {}).hidden === false ? '<div class="tp-map-pop-a"><a href="#tp-watch" class="tp-link" data-owatch>See screenings in Where to watch</a></div>' : '');
       opop.hidden = false;
       if (!keep) opop.querySelector('.tp-map-pop-t').focus({ preventScroll: true });
       selMark(popAt);

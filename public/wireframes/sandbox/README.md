@@ -30,6 +30,15 @@ match as no team; the later-round kick-offs in Sydney time; and where you're sta
 matches, a quiet Staying outside NSW link, a place always required with an optional second place, Moore Park as a place). See `v1/README.md` and
 `docs/report-27-nov-session-updates.md`. Version 1's files were copied into `v1/` and the `sb` edits above re-applied. The Where are you staying rework of 27 Nov (a place always required, a second place with Remove, the same place names on buttons and in the plan, no Still deciding) is in too. The shared fixtures' kick-off fix of 27 Nov was not copied here: the sandbox keeps its own fixtures and `v1/v1-fixtures.js`.
 
+## Walkthrough fixes (27 Nov 2026, sandbox only)
+
+- The Your plan bar does not open the plan until all three questions are answered (`tlSetOpen` in `v1/v1-teams.js` checks `tpFlowC.step()`).
+- Your days is required: no Skip, the pre-filled first to last NSW match is the starting answer, and without one Next waits for a first and a last day. A saved answer with no days goes back to step 2. Remove my days and Reset are gone outside the step.
+- Screenings (fan zones, pubs, clubs) only for a team's interstate matches inside the days and for removed matches (`watchMatches` in `v1/v1-third-half.js`); Where to watch hides when empty. A match the person is at shows the nearest fan zone (sample address, `v1-fanspots.js`) in Around your matches and the plan card.
+- Later-round NSW days read "[stage] is on, teams to be decided" with Add (plan, Around your matches, Also on in NSW) and add their precinct to the stay answers.
+- A team with no NSW match inside the days: an interstate watch block (fan zone, sample address, approximate route, Add) or one line pointing to Also on in NSW.
+- One close cross on the plan sheet (the dead second one is gone).
+
 ## Differences from Version 1 (27 Nov 2026)
 
 Made in this copy only; Version 1 and Version 2 are unchanged.
@@ -41,3 +50,5 @@ Made in this copy only; Version 1 and Version 2 are unchanged.
   reading the same, the close cross on the plan sheet, and no ticket prompts (tickets are gone).
 
 Not carried over: the sandbox's earlier "Add to your plan" / "Added to your plan" wording in sheets. Version 1 uses Add and Added everywhere.
+
+Design rationale (27 Nov 2026): the annotations carry six "Why:" entries (36 lines) beside the handover notes: Your team, Your dates, Where you're staying, Matches and what's on, Fan zones and where to watch, Your plan.
