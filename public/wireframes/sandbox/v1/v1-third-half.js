@@ -2803,8 +2803,9 @@
       // No quick picks and no Use these dates (16 Nov): every change applies as it is made, with Undo and Reset
       h += '<p class="tp-sec-note">' + esc(own ? WHY : WHY_NONE) + '</p>' +
         (step === 'days' ? stepMatchesHtml() : '') +
-        calKeyHtml(dMatches()) + '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
+        // The summary of the dates sits above the calendar (28 Nov 2026), so on a phone it is seen without scrolling past two months
         '<p class="tp-days-sum v1-cal-sum" aria-live="polite">' + esc(askSum(asel)) + '</p>' +
+        calKeyHtml(dMatches()) + '<div class="tp-cal v1-cal">' + calMonth(2027, 9, dMatches(), asel, 'cday') + calMonth(2027, 10, dMatches(), asel, 'cday') + '</div>' +
         (askError ? '<p class="tp-ask-err" role="alert">' + esc(askError) + '</p>' : '') +
         ((askUndo.length || has || (askDraft && (askDraft.from || askDraft.to))) ? '<div class="tp-ask-acts tp-ask-acts--links">' +
           (askUndo.length ? '<button type="button" class="tp-link tp-ico-link" data-act="undo">' + I_UNDO + 'Undo</button>' : '') +

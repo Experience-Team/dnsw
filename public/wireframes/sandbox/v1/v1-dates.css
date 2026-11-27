@@ -13,7 +13,7 @@
 .v1-k::before { content: ""; flex: none; box-sizing: border-box; width: 10px; height: 10px; }
 .v1-k-mine::before { border-radius: 50%; background: var(--c-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 30%, var(--c-surface)); }
 .v1-k-ko::before { width: 7px; height: 7px; margin: 1.5px; background: var(--c-accent); transform: rotate(45deg); }
-.v1-cal-sum { margin: var(--space-3) 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.4; }
+.v1-cal-sum { margin: var(--space-4) 0 var(--space-3); font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.4; }
 
 /* The matches they picked, on the step */
 .v1-dm { margin: var(--space-3) 0 var(--space-2); }
