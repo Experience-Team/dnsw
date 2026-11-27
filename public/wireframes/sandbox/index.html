@@ -87,7 +87,7 @@
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team: Version 1</h2>
     </div>
-    <p class="pv-p pv-flow-c">Version 1: the Plan tab asks the questions up front, one step at a time: your teams, your days and where you’re staying. All three are required, and the plan does not open until all three are answered. A test from team feedback, with its own saved picks.</p>
+    <p class="pv-p pv-flow-c">Version 1: the Plan tab asks the questions up front, one step at a time: your teams, your days and where you’re staying. All three are answered before the plan opens. Your days and where you’re staying are required; with no team picked, every NSW match is assumed. A test from team feedback, with its own saved picks.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
@@ -182,7 +182,7 @@
 
           <!-- Plan your 3rd half: the planner's hand of cards and its caption are lent here (#tp-home-hand) while Home shows. Under the articles since 23 Nov -->
           <section class="tp-home-sec tp-home-plan" id="tp-home-plan" aria-labelledby="tp-home-plan-title">
-            <h3 class="tp-sec-title" id="tp-home-plan-title" tabindex="-1">Plan your 3rd half</h3>
+            <h3 class="tp-sec-title" id="tp-home-plan-title" tabindex="-1">Pick a team to plan your third half</h3>
             <p class="tp-home-intro">Pick your teams, see their matches, and plan your NSW days around game time.</p>
             <div class="tp-home-hand" id="tp-home-hand"></div>
             <!-- Shown once anything is picked: the planner, with these picks -->
@@ -369,7 +369,7 @@
                who is coming), both optional. Built by concepts-third-half.js (renderAsk). Nothing is guessed: the days
                start empty. The map (concepts-map.js) now follows All matches. -->
           <!-- Option C only (?flow=c): an Add every NSW match link that goes with the hand into the Your answers card once
-               the flow is finished (24 Nov). Step 1 no longer shows it: its foot's Show every NSW match does the same.
+               the flow is finished (24 Nov). Step 1 no longer shows it: Next with no team picked does the same.
                Same link as the others (data-rugby): it reads Remove every NSW match while on, and hides while a team is picked. -->
           <p class="tp-rugby-line tp-fc-rugby" id="tp-fc-rugby"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-c"></button><span class="tp-rugby-why" id="tp-rugby-why-c"></span></p>
           <section class="tp-ask" id="tp-ask" aria-labelledby="tp-ask-title" tabindex="-1" hidden></section>
@@ -824,8 +824,7 @@
     ] },
     { sel: "#tp-home-hand", title: "Home: pick your teams", points: [
       "Home shows the same hand of team cards as the planner. It is the planner’s own picker, moved across while Home shows, so a pick on Home is the same pick in the planner and the plan bar counts it.",
-      "Once anything is picked, Plan around your matches appears. It opens the planner at Your days, and its label says so.",
-      "I’m just here for the rugby adds every NSW match, no team needed. The line under it says what it does and nothing on the page moves. While on, it reads Remove every NSW match.",
+      "Plan around your matches is always there. It opens the planner at the step it was on, and its label says so. With no team picked it carries on as every NSW match, so nobody has to pick before they can start.",
       "Desktop: the heading, intro and links sit on the left and the hand on the right, as in the planner.",
       "Design: Figma 385:649."
     ] },
@@ -955,7 +954,7 @@
       "For people with no team in mind: ⊕ Add every NSW match adds all 17 matches played in NSW, knockouts included.",
       "While off, a quiet line under it says who it is for and that it adds rather than filters: No team? This adds all 17 matches played in NSW.",
       "While on, it reads ⊖ Remove every NSW match, so it is never one-way. Picking a team turns it off.",
-      "Shows only while no team is picked: here in All matches and in the plan’s empty state. Home has its own words for it, I’m just here for the rugby.",
+      "Shows only while no team is picked: here in All matches and in the plan’s empty state.",
       "Feedback is the same as a pick: dots sweep into the plan bar, the match tabs appear, and the caption says Every NSW match added. Focus stays on the link.",
       "Its label says what it will do, so it is a plain button, not an on/off switch. The circled + and − marks are used on every add and remove across the page.",
       "Data: the count comes from the fixtures."
@@ -1044,13 +1043,13 @@
       "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md); their addresses open this page.",
       "The Plan tab asks three things in turn (26 Nov 2026): your teams, your days in NSW and where you’re staying. Tickets are not asked: the matches are inferred from the teams and the days, and each can be taken off the plan with a quiet Remove. Who’s coming is left out until it changes anything.",
       "Each step borrows the planner’s own control (the hand of cards, the days calendar), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
-      "Step 1 is a required answer: until a team or Every NSW match is picked, Next is unavailable (aria-disabled, with a line saying why) and the left button reads Show every NSW match. That means no team: nothing is inferred, and the NSW matches inside your days are listed under On while you’re here, each with Add. It goes straight to step 2. Once anything is picked the left button is Skip again. A team picked on Home counts; unpicking the last one makes Next unavailable again. A place saved before this rule that got past step 1 with nothing picked starts again at step 1.",
+      "Step 1 never blocks: with no team picked, a line says every NSW match will be shown, and Next carries on as Every NSW match. That means no team: nothing is inferred, and the NSW matches inside your days are listed under On while you’re here, each with Add. A team picked on Home counts, and once anything is picked the left button is Skip.",
       "Where are you staying, or thinking of staying? (step 3, the Your days sheet’s stay panel and the Your answers card, one builder) always needs a place, as the base of the plan. The quick answers follow the person’s matches (the ones inside their dates; all of their team’s NSW matches with no dates; every NSW match inside the dates with no team): Sydney CBD if a match is in Sydney, Sydney Olympic Park for Stadium Australia, Moore Park for the Sydney Football Stadium, Newcastle if a match is there, and Sydney CBD with Newcastle if there is no NSW match. The buttons carry the same place names the plan uses. The NSW place search stays under them, and a quiet Staying outside NSW link sits under the search. With one place, a quiet + Add another place allows one more, two in total, each shown with Remove; no nights are asked. The plan always reads Staying in [place], or Staying in [place] and [place]. A stadium or fan zone measures distance, time and route from whichever place is nearer; spare-time ideas and another match measure from the first place entered. There is no Still deciding and no no-place state: a saved answer with no place goes back to this step. See your plan is unavailable until a place is chosen, and there is no Skip.",
       "Later rounds (27 Nov 2026): a day with an NSW later-round match inside the person’s days reads [stage] is on, teams to be decided, with Add, in the plan timeline, in Around your matches and under Also on in NSW; it is not a free day and going is not assumed. Once added it is a match day. A later round inside the days adds that stadium’s precinct to the stay quick answers.",
       "Where to watch (27 Nov 2026): screenings (fan zones, pubs, clubs) are for a team’s matches inside the days that are played interstate, and for a match the person has removed; never for an NSW match they are assumed to attend. The section is hidden when it has nothing to list. A match they are at shows the nearest fan zone as somewhere to go before and after (sample address). A team with no NSW match inside the days gets a watch block (interstate: fan zone, address, route from where they stay, each match with Add) or one line pointing to Also on in NSW.",
       "Your days start from a day before your first NSW match to a day after your last, the first time the step opens with none set.",
       "A button bar floats at the bottom: Skip on the left moves on to the next screen without that answer, Next on the right. Your days has no Skip (27 Nov 2026): a day before the first NSW match to a day after the last is the starting answer, and where there is none to start from (Show every NSW match, a team with no NSW match) Next stays unavailable until a first and a last day are tapped; a saved answer with no days goes back to this step. on the last step Next reads See your plan. From step 2, Back is the first button in the bar (a square with an arrow beside Skip and Next, 26 Nov 2026) and goes back one step.",
-      "Motion (26 Nov 2026): the cards deal in each time the Plan tab opens on step 1, leaving a pile below the hand and fanning out to their places. Next, Skip and Show every NSW match push: the question you leave goes out to the left as the next one comes in from the right, as one rail (Back goes the other way). Finishing the flow does not push. Reduced motion: nothing moves.",
+      "Motion (26 Nov 2026): the cards deal in each time the Plan tab opens on step 1, leaving a pile below the hand and fanning out to their places. Next and Skip push: the question you leave goes out to the left as the next one comes in from the right, as one rail (Back goes the other way). Finishing the flow does not push. Reduced motion: nothing moves.",
       "The plan bar is hidden on step 1 until a team is picked; then it rises and the button bar rises with it, on the same curve. It fills as you answer, but does not open (and shows no grabber) until the flow is finished. No toasts while a step shows, as the sections they point to are hidden.",
       "Finished: the page starts with Your matches. Your answers is a condensed card at the top of the open plan, under its title (the teams, then your days and where you’re staying), and replaces the plan’s own Your teams button and days line. Change slides across inside the plan to a Your answers level with a back arrow: the hand of cards with Find and Show every NSW match, Your days and Where you’re staying. Back, Escape or a tap on the grabber go back to the plan; closing the plan closes both. The first change pins a Save bar to the level’s foot naming the latest change; Save closes the plan. No toasts while the level is open. Home’s Plan around your matches opens the plan on the card.",
       "A reload comes back to the step you were on; Reset prototype and ?reset start again. Breaks principle 1 (reward early) on purpose, to test asking first."

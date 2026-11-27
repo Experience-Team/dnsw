@@ -43,7 +43,7 @@
     }
   });
   var go = document.getElementById('tp-home-go');
-  function syncGo() { go.hidden = !state.picked.length; }
+  function syncGo() { go.hidden = false; } // always there (27 Nov 2026): with no team picked, the planner assumes every NSW match
   phone.addEventListener('tp:state', syncGo);
   syncGo();
 

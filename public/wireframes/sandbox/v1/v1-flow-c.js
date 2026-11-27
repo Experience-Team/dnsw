@@ -190,12 +190,12 @@
     // Your days is required too (27 Nov 2026): a day before the first NSW match to a day after the last is the starting answer, and where there is
     // nothing to start from (Show every NSW match, a team with no NSW match) a first and a last day are tapped before
     // Next turns on. No Skip on days or on the stay step.
-    var need = s === 'teams' ? !state.picked.length : s === 'days' ? !hasDays() : s === 'stay' ? !hasBase() : false;
+    var noTeam = s === 'teams' && !state.picked.length, need = s === 'days' ? !hasDays() : s === 'stay' ? !hasBase() : false;
     var why = s === 'stay' ? 'Choose where you’re staying, or thinking of staying.' : s === 'days' ? 'Tap a first day and a last day to carry on.' : 'Pick a team to carry on, or show every NSW match.';
-    var left = s === 'stay' || s === 'days' ? '' : need ? '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn tp-fc-allbtn" data-fc-all>Show every NSW match</button>'
+    var left = s === 'stay' || s === 'days' || noTeam ? ''
       : '<button type="button" class="tp-home-cta tp-home-cta--line tp-fc-skipbtn" data-fc-skip>Skip</button>';
-    return (need ? '<p class="tp-fc-why" id="tp-fc-why">' + why + '</p>' : '') +
-      '<div class="tp-fc-nav' + (s === 'stay' || s === 'days' ? ' tp-fc-nav--one' : '') + '">' + left +
+    return (need ? '<p class="tp-fc-why" id="tp-fc-why">' + why + '</p>' : noTeam ? '<p class="tp-fc-why" id="tp-fc-why">No team picked? We’ll show every NSW match.</p>' : '') +
+      '<div class="tp-fc-nav' + (s === 'stay' || s === 'days' || noTeam ? ' tp-fc-nav--one' : '') + '">' + left +
       '<button type="button" class="tp-home-cta tp-fc-next" data-fc-go="1"' + (need ? ' aria-disabled="true" aria-describedby="tp-fc-why"' : '') + '>' + NEXT[s] + ARR + '</button></div>';
   }
 
@@ -326,7 +326,8 @@
     // Next on step 1 with nothing picked: it says why (the line is also its description) and stays where it is
     if (b.getAttribute('aria-disabled') === 'true') { tp.say(s === 'stay' ? 'Choose where you’re staying, or thinking of staying.' : s === 'days' ? 'Tap a first day and a last day to carry on.' : 'Pick a team to carry on, or show every NSW match.'); return; }
     if (b.dataset.fcAll !== undefined) { tp.addRugby(b); go('days', 1); return; }
-    if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
+    if (b.dataset.fcGo) { var d = +b.dataset.fcGo, j = i + d; if (s === 'teams' && d > 0 && !state.picked.length) tp.addRugby(b); // no team picked: every NSW match is assumed (27 Nov 2026)
+      go(j >= STEPS.length ? 'done' : STEPS[Math.max(0, j)], d); return; }
     if (b.dataset.fcSkip !== undefined) {
       // Skipping Your days takes back the days started for them, if they were left as they were: a skip is not a yes
       var t = state.trip, pre = fc.pre;
