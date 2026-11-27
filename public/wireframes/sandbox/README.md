@@ -43,6 +43,10 @@ matches, a quiet Staying outside NSW link, a place always required with an optio
 
 Once the three questions are answered, the Plan tab opens on two opening sentences (the dates and matches, then where they stay, each bracketed part a control), one fixed-height trip map under them, and the days in date order. New files: `v1/v1-narrative.js` (sentences, map, match-day block) and `v1/v1-narrative.css`; `v1/v1-third-half.js` renders every day open when the flow is done (`renderThird`), exports `tp.narKit` and `tp.render`; `v1/v1-flow-c.js` lands See your plan on `#v1-nar`. The Your matches card, Where to watch, Your plan so far and the Around the matches in NSW map are hidden, not deleted; Also on in NSW, the fan zones list, the pubs map and All matches stay below. Transport, route, address and place-to-stay details are sample data, marked Sample. Stage 2 (getting there and around, spare time, another match, Also on in NSW folded in) is not built.
 
+## Watch zones among a day's ideas (27 Nov 2026, sandbox only)
+
+Wherever a day offers ideas to add (free days, the arrival and last day, on the page, in the plan's Suggest ideas and on the full-screen map), up to two fan zones, pubs or clubs within 15 km of where they stay that show a match played that day between teams they are not following appear among the ideas, marked Sample. The fan village is left out. `watchIdeas`, `withWatch` and `watchCard` in `v1/v1-third-half.js`; they use the page's example venues (`cnWatchVenues`).
+
 ## Differences from Version 1 (27 Nov 2026)
 
 Made in this copy only; Version 1 and Version 2 are unchanged.
