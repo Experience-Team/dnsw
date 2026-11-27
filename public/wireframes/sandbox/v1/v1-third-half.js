@@ -3263,6 +3263,18 @@
     function fallback() { fb.hidden = false; fbText.value = text; fbText.focus(); fbText.select(); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { mark(tile); ssSay(msg); }, fallback); else fallback();
   }
+  /* Copy link (27 Nov 2026, sandbox): this page's address with the plan as it is now packed into it (the two saved
+     records, the picks and the questions' progress), so the link opens the same plan anywhere. Read back by the first
+     script in index.html. The theme and phone view stay on the address; nothing else does */
+  function planLink() {
+    var rec = {};
+    try { rec.p = JSON.parse(localStorage.getItem('tp-pick-v1') || 'null'); rec.f = JSON.parse(localStorage.getItem('tp-fc-v1') || 'null'); } catch (e) {}
+    var code = btoa(unescape(encodeURIComponent(JSON.stringify(rec)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    var u = new URL(location.href), keep = new URLSearchParams();
+    ['phone', 'theme'].forEach(function (k) { if (u.searchParams.has(k)) keep.set(k, u.searchParams.get(k)); });
+    keep.set('plan', code);
+    return u.origin + u.pathname + '?' + keep.toString().replace(/=(?=&|$)/g, '');
+  }
   function mapsUrl() {
     var stops = [];
     planRows().forEach(function (r) { if (r.place && stops[stops.length - 1] !== r.place) stops.push(r.place); });
@@ -3433,6 +3445,7 @@
         if (navigator.share) navigator.share({ title: 'My Rugby World Cup 2027 plan', text: planText() }).then(function () { mark(b); }, function () { /* closed without sharing: nothing to say */ });
         else copy(planText(), b, 'Sharing is not available here, so your plan is copied.');
         break;
+      case 'tp-ss-link': copy(planLink(), b, 'Link copied. It opens this plan as it is now.'); break;
       case 'tp-ss-csv': download(csv(), 'text/csv;charset=utf-8', 'csv'); mark(b); ssSay('Downloaded ' + fileName('csv')); break;
       case 'tp-ss-sheet': copy(tsv(), b, 'Copied for your spreadsheet. Paste into cells.'); break;
       case 'tp-ss-copy': case 'tp-ss-cal': case 'tp-ss-maps': peekOpen(b); break;
