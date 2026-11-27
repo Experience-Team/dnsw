@@ -81,3 +81,15 @@
 @media (max-width: 1023px) {
   #tp-phone.is-home .tp-cap-wrap { margin-bottom: calc(-1 * (var(--space-3) + 44px)); }
 }
+
+/* Home on a desktop (29 Nov 2026): the FAQs, the updates sign-up and Going with friends? sit on the page's centre, the same
+   centre as the section tabs: heading, intro and the block each centred, the questions themselves still read from the left */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone :is(#tp-home-faq, #tp-home-news, #tp-home-share) { text-align: center; }
+  .pv-device #tp-phone :is(#tp-home-faq, #tp-home-news, #tp-home-share) .tp-home-intro { margin-inline: auto; }
+  .pv-device #tp-phone #tp-home-faq .tp-faq { margin-inline: auto; text-align: left; }
+  .pv-device #tp-phone #tp-home-news .tp-news { margin-inline: auto; text-align: left; justify-items: center; }
+  .pv-device #tp-phone #tp-home-news .tp-news-in { justify-self: stretch; }
+  .pv-device #tp-phone :is(#tp-home-news, #tp-home-share) .tp-home-cta { justify-self: center; align-self: center; }
+  .pv-device #tp-phone #tp-home-share .tp-home-cta { display: block; margin-inline: auto; }
+}
