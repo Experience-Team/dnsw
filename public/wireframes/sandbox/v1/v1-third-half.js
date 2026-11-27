@@ -104,6 +104,9 @@
     var a = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(b[0] * r) * Math.cos(ll[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
     return 12742 * Math.asin(Math.sqrt(a));
   }
+  // A distance and a time in one sentence read "[distance], about [time] by [mode]": the "about" belongs to the time (28 Nov 2026)
+  function dist(km) { return km < 1 ? 'under 1 km' : Math.round(km) + ' km'; }
+  function byMode(r) { return !r ? '' : r.mode === 'Walk' ? 'on foot' : r.mode === 'Train' ? 'by train' : 'by train and coach'; }
   function kmLine(km) { return km === null || km === undefined ? '' : (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ' from ' + basePlace(); }
   function ideaKm(i) { return kmFrom(window.cnGeo && window.cnGeo.ideas[i.id]); }
   function prodKm(p) { return kmFrom(window.cnGeo && window.cnGeo.products[p.id]); }
@@ -181,9 +184,12 @@
   var SAMPLE_TAG = '<span class="v1-sample provenance-gap">Sample</span>';
   function fanNearHtml(f) {
     var ll = window.cnGeo && window.cnGeo.venues[f.v], sp = nearestFan(ll); if (!sp || f.a) return '';
-    var km = ll ? kmBetween(sp.ll, ll) : null;
-    return '<p class="v1-fan-near"><span class="v1-fan-k">Before and after</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') +
-      (km !== null ? ' \u00b7 about ' + Math.max(1, Math.round(km)) + ' km from ' + esc(f.v) : '') + ' ' + SAMPLE_TAG + '</p>';
+    var km = ll ? kmBetween(sp.ll, ll) : null, wk = km !== null ? Math.max(3, Math.round(km * 13)) : null;
+    // "Before and after" only within a 20 minute walk of the ground; further, it is the nearest one and how far (28 Nov 2026)
+    if (wk !== null && wk <= 20) return '<p class="v1-fan-near"><span class="v1-fan-k">Before and after</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') +
+      ' \u00b7 ' + wk + ' min walk from ' + esc(f.v) + ' ' + SAMPLE_TAG + '</p>';
+    return '<p class="v1-fan-near"><span class="v1-fan-k">Nearest fan zone:</span> ' + esc(sp.name) + ', ' + esc(sp.suburb) + (sp.addr ? ' \u00b7 ' + esc(sp.addr) : '') +
+      (km !== null ? ', ' + dist(km) + ' from ' + esc(f.v) : '') + ' ' + SAMPLE_TAG + '</p>';
   }
   tp.fanNear = fanNearHtml;
   /* A day's heading on the plan page (27 Nov 2026): the date as a small tile, so the days can be scanned down the page, and
@@ -222,7 +228,7 @@
   function fanRouteHtml(sp) {
     var from = nearerPlace(sp.ll), g = window.cnGeo; if (!from || !g || !g.places[from]) return '';
     var km = kmBetween(g.places[from], sp.ll), walk = km <= 1.5, mins = walk ? Math.max(3, Math.round(km * 13)) : Math.round(10 + km * 3);
-    return 'From ' + esc(from) + ': ' + (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') + ', ' + (walk ? 'a ' + mins + ' minute walk' : 'about ' + mins + ' minutes by train or bus') + ' (approximate)';
+    return 'From ' + esc(from) + ': ' + dist(km) + ', about ' + mins + ' min ' + (walk ? 'on foot' : 'by train or bus') + ' (approximate)';
   }
   tp.noNswBlock = function (team, away) {
     var names = [].concat(team), who = names.length > 1 ? tp.list(names) : names[0]; // one team, or several in one block (the plan page)
@@ -872,23 +878,16 @@
      ideas; two, a day trip; three to five, a night or two away; more than five, a road trip. */
   function spareLine(b, M) {
     if (b.kind !== 'free' || !M.range) return '';
-    var n = b.z - b.a + 1, nights = M.range.z - M.range.a, city = b.base || 'sydney';
-    var avail = IDEAS.filter(function (i) { return i.city === city && !i.watch && !ideaAdded(i); });
-    var halves = avail.filter(function (i) { return i.kind === 'half'; }), days = avail.filter(function (i) { return i.kind === 'day'; });
-    function ideaLink(i) { ideaCard(i, b.a); return '<button type="button" class="v1-sp-b" data-open="idea:i:' + esc(i.id) + '@' + b.a + '" aria-haspopup="dialog">' + esc(i.title) + '</button>'; }
-    var what = '';
-    if (nights > 5 && n >= 3) {
-      what = 'a road trip, Sydney to Newcastle by road, with stops at Gosford, Terrigal and the Hunter Valley? ' + SAMPLE_TAG;
-    } else if (nights >= 3 && n >= 2) {
-      var longs = TRIPS.filter(function (t) { return t.kind === 'long' && t.nights <= 2 && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); });
-      if (longs.length) { tripCard(longs[0], b); what = 'a night or two away, in <button type="button" class="v1-sp-b" data-open="t:' + esc(longs[0].id) + '@' + esc(b.key) + '" aria-haspopup="dialog">' + esc(longs[0].region) + '</button>?'; }
-      else what = 'a night or two away, in the Hunter Valley? ' + SAMPLE_TAG;
-    } else if (nights >= 2 && days.length) {
-      what = 'a day trip to ' + ideaLink(days[0]) + '?';
-    } else if (halves.length) {
-      what = 'a half day at ' + ideaLink(halves[0]) + (halves[1] ? ' or ' + ideaLink(halves[1]) : '') + '?';
+    var n = b.z - b.a + 1, what = '';
+    if (b._lead) what = 'a night or two away, in <button type="button" class="v1-sp-b" data-open="t:' + esc(b._lead.id) + '@' + esc(b.key) + '" aria-haspopup="dialog">' + esc(b._lead.region) + '</button>?';
+    else {
+      // The first idea card shown under the sentence, on the first free day left in the stretch
+      var fi = FREEINFO.filter(function (x) { return x.dk && x.dk.indexOf(b.key + ':') === 0 && !x.filled && x.show.length; })[0], i = fi && fi.show[0];
+      if (!i || i.watch) return '';
+      ideaCard(i, fi.d); // registers its details, for the link
+      var link = '<button type="button" class="v1-sp-b" data-open="idea:i:' + esc(i.id) + '@' + fi.d + '" aria-haspopup="dialog">' + esc(i.title) + '</button>';
+      what = (i.kind === 'day' ? 'a day trip to ' : 'a half day at ') + link + '?';
     }
-    if (!what) return '';
     return '<p class="v1-sp">You have ' + n + (n === 1 ? ' spare day' : ' spare days') + '. If you have time, how about ' + what + '</p>';
   }
   /* The other NSW matches inside the days (what Also on in NSW lists), by the day they fall on */
@@ -931,8 +930,20 @@
   function narOn() { return phone.classList.contains('v1-nar-on'); }
   // A block already shows its own matches; only the others on that day are added to it
   function alsoDays(b) { return b.kind === 'free' || b.kind === 'away' || b.day === undefined ? '' : alsoRows(b.day, (b.ms || []).map(function (m) { return m.key; })); }
-  function freeBody(b) {
-    var h = '', n = b.z - b.a + 1;
+  /* The spare-time sentence and its first card are one idea (28 Nov 2026). A night or two away leads with the curated trip, when
+     one fits the stretch; otherwise the first card is the first day trip (a stay of two nights or more) or half day idea, and the
+     sentence names that card. So the sentence never names a place that has no card, nor a kind of idea its first card is not. */
+  function spareWant(b, M) {
+    if (b.kind !== 'free' || !M || !M.range) return null;
+    var n = b.z - b.a + 1, nights = M.range.z - M.range.a;
+    var longs = nights >= 3 && n >= 2 && !(nights > 5 && n >= 3) ? TRIPS.filter(function (t) { return t.kind === 'long' && t.nights <= 2 && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
+    if (longs.length) return { trip: longs[0] };
+    return { kind: nights >= 2 ? 'day' : 'half' };
+  }
+  function freeBody(b, M) {
+    var h = '', n = b.z - b.a + 1, want = narOn() ? spareWant(b, M) : null, led = false;
+    b._lead = null;
+    if (want && want.trip) { b._lead = want.trip; h += '<div class="tp-pcs v1-sp-lead">' + tripCard(want.trip, b) + '</div>'; led = true; }
     for (var d = b.a; d <= b.z; d++) {
       var dl = dayLabel(d), its = dayItems(d), dk = b.key + ':' + d;
       h += '<div class="tp-fday"><h5 class="tp-grp">' + esc(dl) + '</h5>' + (narOn() ? alsoRows(d) : '');
@@ -943,7 +954,10 @@
       }
       if (its.length) h += '<p class="tp-fday-so">So far: ' + placeLinks(its) + '. Room for one more.</p>';
       // Shared out so every free day left gets three to five while there are enough (More ideas shows the rest)
-      var list = withWatch(ideasFor(d, b.base), d), per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
+      var list = withWatch(ideasFor(d, b.base), d);
+      // The first day's first card is the kind the sentence offers (when there is one of that kind), unless a trip already leads
+      if (want && want.kind && !led) { led = true; var wi = list.filter(function (i) { return i.kind === want.kind; })[0]; if (wi) { list = list.filter(function (i) { return i !== wi; }); list.unshift(wi); } }
+      var per = Math.max(3, Math.min(5, Math.floor(list.length / Math.max(1, FREE_LEFT)))), show = list.slice(0, moreBlk[dk] ? per + 4 : per);
       FREE_LEFT--;
       show.forEach(function (i) { SUGG[i.id] = true; });
       FREEINFO.push({ d: d, label: dl, filled: false, count: show.length, dk: dk, its: its, show: show, more: list.length > per, base: b.base });
@@ -953,7 +967,7 @@
       h += '</div>';
     }
     // Three or more free days: the curated longer trips, as before
-    var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
+    var longs = n >= 3 ? TRIPS.filter(function (t) { return t.kind === 'long' && t !== b._lead && starts(t, b).length && (t.bases.indexOf(b.base) > -1 || (b.between && t.on_the_way)); }) : [];
     if (longs.length) h += '<h5 class="tp-grp">Or make it a longer trip</h5><div class="tp-pcs">' + longs.slice(0, 2).map(function (t) { return tripCard(t, b); }).join('') + '</div>';
     return h;
   }
@@ -1212,7 +1226,7 @@
     LASTM = M; LASTBS = bs;
     // Free days' ideas in date order, open or not, so nothing is suggested twice on the page
     FREE_LEFT = 0; bs.forEach(function (b) { if (b.kind === 'free') for (var d = b.a; d <= b.z; d++) if (!dayFilled(d)) FREE_LEFT++; });
-    bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b); });
+    bs.forEach(function (b) { if (b.kind === 'free') b._html = freeBody(b, M); });
     /* E2 (22 Nov): the arrival and last day get Add ideas in the plan too, offering only the half-day ideas (we do not
        know arrival or departure times, so nothing longer and no time is guessed) */
     bs.forEach(function (b) {
@@ -3386,7 +3400,7 @@
       ITEMS[key] = { id: 'poi:' + q.id, kind: 'poi', poi: q.id, title: q.title, kindLabel: q.cat, place: q.area, day: f.d, matchName: matchName(f) };
       return key;
     },
-    addBtn: addBtn, goRoute: goRoute, kmBetween: kmBetween, nearerPlace: nearerPlace, nearestFan: nearestFan, fanSpots: fanSpots, placesOf: placesOf,
+    dist: dist, byMode: byMode, addBtn: addBtn, goRoute: goRoute, kmBetween: kmBetween, nearerPlace: nearerPlace, nearestFan: nearestFan, fanSpots: fanSpots, placesOf: placesOf,
     mins: mins, matchName: matchName, dayLabel: dayLabel, weekdayOf: weekdayOf, kickMins: kickMins, hoursOn: hoursOn, cityOf: cityOf,
     products: function () { return PRODUCTS; }, ptype: PTYPE, travel: travel, imgKey: imgKey, tbc: TBC_L, sampleTag: SAMPLE_TAG,
     isKo: isKo, koName: koName, koOnDays: koOnDays, hasTicket: hasTicket,

@@ -55,9 +55,11 @@
   function sentences() {
     var t = tp.state.trip || {};
     if (!(t.from && t.to)) { s1.textContent = ''; s2.textContent = ''; return; }
-    var g = going(), items = g.map(function (x) { return pinBtn(x.label, x.venue); });
-    var tail = items.length ? ' to see ' + list(items) : (noNswTeams().length ? ' to follow ' + esc(tp.list(noNswTeams())) : '');
-    s1.innerHTML = 'It looks like you’re here between <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d1">' + esc(isoLabel(t.from)) + '</button> and <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d2">' + esc(isoLabel(t.to)) + '</button>' + tail + '.';
+    // Only matches they are assumed to go to, or have added, go after "to see"; the later rounds on in their days have a clause of their own (28 Nov 2026)
+    var g = going(), items = g.filter(function (x) { return !x.maybe; }).map(function (x) { return pinBtn(x.label, x.venue); }), later = g.filter(function (x) { return x.maybe; }).map(function (x) { return pinBtn(x.label, x.venue); });
+    var tail = items.length ? ' to see ' + list(items) : (noNswTeams().length && !later.length ? ' to follow ' + esc(tp.list(noNswTeams())) : ''), plural = later.length > 1, more = '';
+    if (later.length) { if (tail) more = ' ' + list(later) + (plural ? ' are' : ' is') + ' also on while you’re here.'; else tail = ', while ' + list(later) + (plural ? ' are' : ' is') + ' on'; }
+    s1.innerHTML = 'It looks like you’re here between <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d1">' + esc(isoLabel(t.from)) + '</button> and <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d2">' + esc(isoLabel(t.to)) + '</button>' + tail + '.' + more;
     if (t.base === 'outside') s2.innerHTML = 'You’re <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">staying outside NSW</button>.';
     else if (t.base) s2.innerHTML = 'You’re staying in <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">' + esc(t.base) + '</button>' + (t.base2 ? ' and <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p2">' + esc(t.base2) + '</button>' : '') + '.';
     else s2.innerHTML = '<button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">Add where you’re staying</button>.';
@@ -285,17 +287,19 @@
     var km = pp && vv ? K.kmBetween(pp, vv) : null;
     if (km !== null || (r && r.mins)) {
       var two = K.placesOf().length > 1;
-      h += '<p class="v1-md-d">It’s ' + [km !== null ? (km < 1 ? 'under 1 km' : 'about ' + Math.round(km) + ' km') : '', r && r.mins ? 'about ' + K.mins(r.mins) : ''].filter(Boolean).join(', ') +
+      h += '<p class="v1-md-d">It’s ' + [km !== null ? K.dist(km) : '', r && r.mins ? 'about ' + K.mins(r.mins) + ' ' + K.byMode(r) : ''].filter(Boolean).join(', ') +
         ', from ' + (two && np ? esc(np) : 'where you’re staying') + '. ' + K.sampleTag + '</p>' +
         '<p class="v1-md-l"><button type="button" class="tp-link" data-open="go:' + esc(m.key) + '" aria-haspopup="dialog">Getting there and back<span class="visually-hidden">, ' + esc(K.matchName(f)) + '</span></button></p>';
     }
-    // The nearest fan zone, before and after
+    // The nearest fan zone: "before and after" only when it is within a 20 minute walk of the ground (28 Nov 2026); further, it says it is the nearest and how far
     var sp = K.nearestFan(vv);
     if (sp) {
-      var fid = 'fz:' + sp.id + ':' + f.d, fkm = vv ? K.kmBetween(sp.ll, vv) : null;
+      var fid = 'fz:' + sp.id + ':' + f.d, fkm = vv ? K.kmBetween(sp.ll, vv) : null, fwalk = fkm !== null ? Math.max(3, Math.round(fkm * 13)) : null, near = fwalk !== null && fwalk <= 20;
       K.registerItem(fid, { id: fid, kind: 'place', title: sp.name, kindLabel: sp.kind === 'fan_village' ? 'Fan village' : 'Fan zone', place: sp.suburb, note: sp.opens, day: f.d, matchName: K.matchName(f) });
-      h += '<div class="v1-md-fz"><p class="v1-fan-near"><strong class="v1-fan-nm">' + esc(sp.name) + '</strong><span class="v1-fan-sub">Before and after the match' +
-        (fkm !== null ? ' · about ' + Math.max(1, Math.round(fkm)) + ' km from ' + esc(venue) : '') + ' ' + K.sampleTag + '</span></p>' + K.addBtn(fid, sp.name + ' on ' + f.d) + '</div>';
+      h += '<div class="v1-md-fz"><p class="v1-fan-near">' + (near
+        ? '<strong class="v1-fan-nm">' + esc(sp.name) + '</strong><span class="v1-fan-sub">Before and after the match · ' + fwalk + ' min walk from ' + esc(venue) + ' ' + K.sampleTag + '</span>'
+        : '<span class="v1-fan-sub">Nearest fan zone: <strong class="v1-fan-nm v1-fan-inl">' + esc(sp.name) + '</strong>' + (fkm !== null ? ', ' + K.dist(fkm) + ' from ' + esc(venue) : '') + ' ' + K.sampleTag + '</span>') +
+        '</p>' + K.addBtn(fid, sp.name + ' on ' + f.d) + '</div>';
     }
     // One row of cards, with a switch
     var tab = state.tab[b.key] || 'food', cards = cardData(tab, m, f), more = !!state.more[b.key], shown = more ? cards : cards.slice(0, 2);
