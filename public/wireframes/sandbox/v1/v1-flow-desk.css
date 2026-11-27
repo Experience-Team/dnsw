@@ -3,13 +3,18 @@
    stay choices sit in the right column, whose right edge is the main column's edge, the edge the Next button also ends on.
    Below 1280px the steps stay one column, the lead first (the grid has no explicit rows there), and the phone is unchanged. */
 @media (min-width: 1280px) {
-  .pv-device #tp-phone[data-fc] #tp-pick { grid-template-columns: minmax(0, 1fr) 520px; column-gap: var(--space-7, 48px); grid-template-rows: auto auto 1fr; align-content: start; }
-  .pv-device #tp-phone[data-fc] #tp-pick > .tp-fc { grid-column: 1; grid-row: 1; align-self: start; position: sticky; top: 96px; max-width: 24rem; }
+  /* A slimmer plan rail on the questions, so the answer can sit on the screen's centre: the grid runs the full width between the page
+     margins (it reaches under the rail), with equal empty space either side of the 520px answer column */
+  .pv-device #tp-phone[data-fc] { --rail-w: 300px; --rail-span: calc(var(--rail-w) + var(--rail-gap)); }
+  .pv-device #tp-phone[data-fc] #tp-pick { grid-template-columns: minmax(0, 1fr) 520px minmax(0, 1fr); column-gap: 0; grid-template-rows: auto auto 1fr; align-content: start; margin-right: calc(-1 * var(--rail-span)); }
+  .pv-device #tp-phone[data-fc] #tp-pick > .tp-fc { grid-column: 1; grid-row: 1; align-self: start; position: sticky; top: 96px; max-width: 24rem; padding-right: var(--space-7, 48px); box-sizing: border-box; }
   .pv-device #tp-phone[data-fc] #tp-pick > #tp-util { grid-column: 1; grid-row: 2; align-self: start; margin-inline: 0; }
-  .pv-device #tp-phone[data-fc] #tp-pick > #tp-picker { grid-column: 2; grid-row: 1 / span 3; justify-self: end; width: 420px; margin-top: 0; }
+  .pv-device #tp-phone[data-fc] #tp-pick > #tp-picker { grid-column: 2; grid-row: 1 / span 3; justify-self: center; width: 420px; margin-top: 0; }
   .pv-device #tp-phone[data-fc] #tp-pick > #tp-ask { grid-column: 2; grid-row: 1 / span 3; align-self: start; margin-top: 0; }
   .pv-device #tp-phone[data-fc="days"] #tp-pick > #tp-ask { grid-column: 2; }
   .pv-device #tp-phone[data-fc] #tp-pick .v1-cal { column-gap: var(--space-5, 24px); }
+  /* Also on in NSW: its centred column sits on the same centre */
+  .pv-device #tp-phone[data-fc="days"] #v1-also { margin-right: calc(-1 * var(--rail-span)); }
 }
 /* The foot's Back, Skip and Next sit together in the middle of the screen (28 Nov 2026), on the same centre as the section tabs
    above (the page's scrollbar left out), not stretched across the column */
@@ -21,3 +26,5 @@
 
 /* Find and Grid: the Find icon starts on the same left edge as the title above it (the button's own 8px padding is taken off its margin) */
 @media (min-width: 1024px) { .pv-device #tp-phone[data-fc="teams"] #tp-util #tp-find-open { margin-left: -8px; } }
+/* Also on in NSW: the heading and its note centre on the screen with the list under them */
+#tp-phone[data-fc="days"] #v1-also .tp-sec-note { max-width: none; text-align: center; margin-inline: auto; }
