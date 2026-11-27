@@ -118,3 +118,6 @@
   .pv-device #tp-phone .v1-city-img { width: 200px; aspect-ratio: auto; min-height: 124px; }
   .pv-device #tp-phone .v1-city-b { flex: 1; min-width: 0; align-content: center; }
 }
+
+/* Show every NSW match, once on (27 Nov 2026): the state in plain words, then Undo as the link */
+.tp-rugby-link .v1-rugby-on { font-weight: var(--fw-regular, 400); text-decoration: none; margin-right: 4px; }

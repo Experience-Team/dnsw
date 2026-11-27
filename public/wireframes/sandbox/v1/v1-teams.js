@@ -895,7 +895,8 @@
       a.parentNode.hidden = a.parentNode.id === 'tp-tl-rugby' ? state.picked.length > 0 : hide;
       // Not a toggle button: the label itself says what it will do (Add or Remove), so no aria-pressed
       // Home's link keeps its own words (Figma 385:649): I'm just here for the rugby
-      a.innerHTML = r ? window.tpIcons.remove + '<span class="tp-u">Stop showing every NSW match</span>' : window.tpIcons.add + '<span class="tp-u">' + (a.hasAttribute('data-rugby-home') ? 'I\u2019m just here for the rugby' : 'Show every NSW match') + '</span>';
+      // 27 Nov 2026 (sandbox): on, it read "Stop showing every NSW match", which was hard to parse; now the state, then Undo
+      a.innerHTML = r ? window.tpIcons.remove + '<span class="v1-rugby-on">Showing every NSW match.</span> <span class="tp-u">Undo</span>' : window.tpIcons.add + '<span class="tp-u">' + (a.hasAttribute('data-rugby-home') ? 'I\u2019m just here for the rugby' : 'Show every NSW match') + '</span>';
       // The quiet line says who it is for and that it adds rather than filters; off state only
       var why = a.parentNode.querySelector('.tp-rugby-why');
       if (why) { why.hidden = r; why.textContent = (a.hasAttribute('data-rugby-home') ? '' : 'No team? ') + 'The NSW matches inside your days are listed for you to add.'; }
