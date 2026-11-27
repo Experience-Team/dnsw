@@ -15,10 +15,11 @@
 .v1-nar-addp .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
 
 /* The trip map: fixed height, one static picture zoomed to fit; it scrolls away with the page */
-.v1-tm { position: relative; height: 280px; overflow: hidden; border-radius: 12px; border: 1px solid var(--c-line); background: #e9e6df; cursor: pointer; touch-action: pan-y; margin-top: var(--space-3); }
+.v1-tm { position: relative; height: 280px; overflow: hidden; border-radius: 12px; border: 1px solid var(--c-line); background: #d6d6d6; cursor: pointer; touch-action: pan-y; margin-top: var(--space-3); }
 .v1-tm:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .v1-tm-layer { position: absolute; left: 0; top: 0; width: 2800px; height: 3602px; transform-origin: 0 0; }
-.v1-tm-img { display: block; width: 2800px; height: 3602px; max-width: none; filter: grayscale(1) contrast(.85) brightness(1.08); user-select: none; }
+.v1-tm-img { display: block; width: 2800px; height: 3602px; max-width: none; filter: grayscale(1) contrast(.85) brightness(1.08); user-select: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 220px, #000 calc(100% - 220px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 220px, #000 calc(100% - 220px), transparent 100%); }
 .v1-tm-svg, .v1-tm-pins { position: absolute; inset: 0; pointer-events: none; }
 .v1-tm-route { fill: none; stroke: var(--c-ink); stroke-width: 2; stroke-dasharray: 5 4; opacity: .75; }
 .v1-tm-route.is-maybe { opacity: .35; }

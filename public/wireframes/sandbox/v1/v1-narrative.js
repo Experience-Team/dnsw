@@ -88,11 +88,14 @@
       var x0 = Math.min.apply(null, xy.map(function (q) { return q[0]; })), x1 = Math.max.apply(null, xy.map(function (q) { return q[0]; }));
       var y0 = Math.min.apply(null, xy.map(function (q) { return q[1]; })), y1 = Math.max.apply(null, xy.map(function (q) { return q[1]; }));
       cx = (x0 + x1) / 2; cy = (y0 + y1) / 2;
-      var padX = 74, padY = 52, spanMin = 150;
+      var padX = 74, padY = 40, spanMin = 150;
       s = Math.min((W - 2 * padX) / Math.max(x1 - x0, spanMin), (H - 2 * padY) / Math.max(y1 - y0, spanMin));
     } else { var c = px(G.places['Sydney CBD'] || [-33.87, 151.21]); cx = c[0]; cy = c[1]; s = 1; }
-    var sMin = Math.max(W / IW, H / IH); s = Math.max(sMin, Math.min(.8, s)); // never closer than the city: a Sydney-only trip shows Sydney
-    cx = Math.max(W / (2 * s), Math.min(IW - W / (2 * s), cx)); cy = Math.max(H / (2 * s), Math.min(IH - H / (2 * s), cy));
+    // Never closer than the city (a Sydney-only trip shows Sydney) and as far out as the trip needs: on a wide box the picture may be
+    // narrower than the box, so its sides fade out instead of the trip being cut off
+    s = Math.max(.08, Math.min(.8, s));
+    if (IW * s > W) cx = Math.max(W / (2 * s), Math.min(IW - W / (2 * s), cx));
+    cy = Math.max(H / (2 * s), Math.min(IH - H / (2 * s), cy));
     layer.style.transform = 'translate(' + (W / 2 - cx * s) + 'px,' + (H / 2 - cy * s) + 'px) scale(' + s + ')';
     function scr(q) { return [W / 2 + (q[0] - cx) * s, H / 2 + (q[1] - cy) * s]; }
     var pts = P.map(function (p, i) { var q = scr(xy[i]); return { p: p, x: q[0], y: q[1] }; });
@@ -107,8 +110,11 @@
     });
     svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = lines;
     pins.innerHTML = pts.map(function (o, i) {
-      var near = pts.some(function (q, j) { return j < i && Math.hypot(q.x - o.x, q.y - o.y) < 18; });
-      var x = o.x + (near ? -14 : 0), y = o.y + (near ? -14 : 0), left = x > W - 120;
+      var near = pts.some(function (q, j) { return j < i && Math.hypot(q.x - o.x, q.y - o.y) < 22; });
+      // A pin on top of another (staying at the ground) moves up and to the left, and its label goes to the left, so both read
+      var x = o.x + (near ? -4 : 0), y = o.y + (near ? 16 : 0), lw = o.p.label.length * 6.3 + 16, left = near || x + 12 + lw > W - 4;
+      if (left && x - 12 - lw < 4) left = false; // no room on the left: the label goes right even if it runs on
+      if (!left && x + 12 + lw > W - 4 && x - 12 - lw >= 4) left = true;
       return '<span class="v1-tm-pin is-' + o.p.kind + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + (state.lit && state.lit !== o.p.key ? ' is-dim' : '') + (left ? ' is-l' : '') + '" data-pin="' + esc(o.p.key) + '" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px"><i></i><b>' + esc(o.p.label) + '</b></span>';
     }).join('');
     var names = P.map(function (p) { return p.label; });
@@ -231,7 +237,7 @@
   function on() { return !!(window.tpFlowC && window.tpFlowC.step() === ''); }
   function render() {
     var o = on();
-    if (o !== lastOn) { lastOn = o; phone.classList.toggle('v1-nar-on', o); if (o) { sig = ''; tp.render(true); } }
+    if (o !== lastOn) { lastOn = o; phone.classList.toggle('v1-nar-on', o); window.dispatchEvent(new Event('resize')); if (o) { sig = ''; tp.render(true); } }
     if (!o) return;
     var t = tp.state.trip || {}, s = [t.from, t.to, t.base, t.base2, tp.state.picked.join(','), tp.state.added.map(function (x) { return x.id; }).join(','), tp.state.notGoing.join(',')].join('|');
     if (s !== sig) { sig = s; drawn = ''; sentences(); }
