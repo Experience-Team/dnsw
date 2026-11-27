@@ -62,3 +62,11 @@
 }
 /* Under the left-aligned calendar, Undo and Reset line up with it, not the middle */
 #tp-phone .tp-ask-acts--links { justify-content: flex-start; }
+
+/* The open plan's answers (27 Nov 2026): no card, an Edit button with a pencil at the far right of the Your plan heading.
+   It opens the same Your answers level as the card's Change did */
+#tp-phone .tp-tl-head > .tp-fc { flex: none; margin: 0; padding: 0; border: 0; background: none; }
+#tp-phone .tp-tl-head .tp-fc-head { display: block; }
+.tp-fc-edit { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 36px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm, 6px); background: var(--v1-tint, color-mix(in srgb, var(--c-ink) 6%, transparent)); color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-semi); cursor: pointer; white-space: nowrap; }
+.tp-fc-edit:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+@media (hover: hover) { .tp-fc-edit:hover { background: color-mix(in srgb, var(--c-ink) 10%, transparent); } }

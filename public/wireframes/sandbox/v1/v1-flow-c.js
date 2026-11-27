@@ -121,7 +121,7 @@
     var inCard = !step(), mark = pickMark(), tabs = document.getElementById('tp-tabs');
     // The card: in the open plan once finished (under its title row), at the top of the planner while a step shows
     var tlHead = tlPanel && tlPanel.querySelector('.tp-tl-head');
-    if (inCard && tlHead) { if (head.previousElementSibling !== tlHead) tlHead.parentNode.insertBefore(head, tlHead.nextSibling); }
+    if (inCard && tlHead) { if (head.parentNode !== tlHead) tlHead.appendChild(head); } // an Edit button at the far right of the Your plan heading (27 Nov 2026)
     else if (head.parentNode !== pick || pick.firstChild !== head) pick.insertBefore(head, pick.firstChild);
     var teamBits = [borrowed('tp-util'), mark, borrowed('tp-picker'), borrowed('tp-fc-rugby')];
     var ask = borrowed('tp-ask');
@@ -156,6 +156,7 @@
   function stepTitle(s) {
     return { teams: 'Which teams are you following?', days: 'When are you in NSW?', stay: 'Where are you staying, or thinking of staying?' }[s];
   }
+  var PENCIL = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10.5 2.8l2.7 2.7M2.5 13.5l.6-2.9 7.4-7.4 2.3 2.3-7.4 7.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var NEXTI = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var CHEV = '<svg class="tp-fc-chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // The condensed card: the teams on one line, then days and where you're staying, each only once answered
@@ -163,10 +164,8 @@
     var t = state.trip || {}, bits = [];
     bits.push(t.from && t.to ? tp.isoRange(t.from, t.to) : 'No days set');
     if (t.base) bits.push(tp.stayLine(t, true));
-    return '<h3 class="tp-fc-ah"><button type="button" class="tp-fc-cardbtn" id="tp-fc-h" data-fc-card="open">' +
-      '<span class="tp-fc-cardt">Your answers</span><span class="tp-fc-cardact">Change' + NEXTI + '</span></button></h3>' +
-      '<p class="tp-fc-sum1">' + esc(state.picked.length ? tp.list(state.picked.slice()) : 'No team picked') + '</p>' +
-      '<p class="tp-fc-sum2">' + esc(bits.filter(Boolean).join(' · ')) + '</p>';
+    var line = (state.picked.length ? tp.list(state.picked.slice()) : 'No team picked') + '. ' + bits.filter(Boolean).join(' · ');
+    return '<button type="button" class="tp-fc-edit" id="tp-fc-h" data-fc-card="open" aria-label="Edit your answers: ' + esc(line) + '">' + PENCIL + '<span>Edit</span></button>';
   }
   function headHtml(s) {
     if (!s) return answersHtml();
