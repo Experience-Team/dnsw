@@ -11,8 +11,6 @@
 .v1-nar-b { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-weight: var(--fw-semi); color: var(--c-ink); text-align: left;
   text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; text-decoration-color: var(--c-accent); cursor: pointer; border-radius: 2px; }
 .v1-nar-b:focus-visible, .v1-nar-day:focus-visible, .v1-nc-t:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
-.v1-nar-addp { margin: 0 0 var(--space-4); font-size: var(--fs-sm); }
-.v1-nar-addp .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
 
 /* The trip map: fixed height, one static picture zoomed to fit; it scrolls away with the page */
 .v1-tm { position: relative; height: 280px; overflow: hidden; border-radius: 12px; border: 1px solid var(--c-line); background: #d6d6d6; cursor: pointer; touch-action: pan-y; margin-top: var(--space-3); }
@@ -184,3 +182,4 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 /* The map picture (27 Nov 2026): one 2000 x 1000 image for every map, shown as it is. The trip map is half as tall again on desktop. */
 .tp-map-img { width: 2000px; height: 1000px; filter: none; }
 @media (min-width: 900px) { .pv-device #tp-phone .v1-tm { height: 420px; } }
+#v1-nar-s2 { margin-bottom: 24px; } /* the map follows the sentences directly (27 Nov 2026) */

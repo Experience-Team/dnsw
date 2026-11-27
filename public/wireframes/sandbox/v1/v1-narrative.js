@@ -19,12 +19,12 @@
   var sec = document.createElement('section');
   sec.className = 'tp-sec v1-nar'; sec.id = 'v1-nar'; sec.tabIndex = -1; sec.setAttribute('aria-labelledby', 'v1-nar-title');
   sec.innerHTML = '<h2 class="visually-hidden" id="v1-nar-title">Your trip</h2>' +
-    '<p class="v1-nar-s" id="v1-nar-s1"></p><p class="v1-nar-s" id="v1-nar-s2"></p><p class="v1-nar-addp" id="v1-nar-addp" hidden></p>' +
+    '<p class="v1-nar-s" id="v1-nar-s1"></p><p class="v1-nar-s" id="v1-nar-s2"></p>' +
     '<div class="v1-tm" id="v1-tm" role="button" tabindex="0"><div class="v1-tm-layer" aria-hidden="true"><img class="v1-tm-img" alt="" draggable="false"></div>' +
     '<svg class="v1-tm-svg" aria-hidden="true" focusable="false"></svg><div class="v1-tm-pins" aria-hidden="true"></div></div>';
   pick.parentNode.insertBefore(sec, pick);
   pick.parentNode.insertBefore(third, pick); // the days follow the map
-  var s1 = sec.querySelector('#v1-nar-s1'), s2 = sec.querySelector('#v1-nar-s2'), addp = sec.querySelector('#v1-nar-addp');
+  var s1 = sec.querySelector('#v1-nar-s1'), s2 = sec.querySelector('#v1-nar-s2');
   var box = sec.querySelector('#v1-tm'), layer = box.querySelector('.v1-tm-layer'), img = box.querySelector('.v1-tm-img'), svg = box.querySelector('.v1-tm-svg'), pins = box.querySelector('.v1-tm-pins');
 
   function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
@@ -55,16 +55,13 @@
 
   function sentences() {
     var t = tp.state.trip || {};
-    if (!(t.from && t.to)) { s1.textContent = ''; s2.textContent = ''; addp.hidden = true; return; }
+    if (!(t.from && t.to)) { s1.textContent = ''; s2.textContent = ''; return; }
     var g = going(), items = g.map(function (x) { return pinBtn(x.label, x.venue); });
     var tail = items.length ? ' to see ' + list(items) : (noNswTeams().length ? ' to follow ' + esc(tp.list(noNswTeams())) : '');
     s1.innerHTML = 'It looks like you’re here between <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d1">' + esc(isoLabel(t.from)) + '</button> and <button type="button" class="v1-nar-b" data-nar-days id="v1-nar-d2">' + esc(isoLabel(t.to)) + '</button>' + tail + '.';
     if (t.base === 'outside') s2.innerHTML = 'You’re <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">staying outside NSW</button>.';
     else if (t.base) s2.innerHTML = 'You’re staying in <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">' + esc(t.base) + '</button>' + (t.base2 ? ' and <button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p2">' + esc(t.base2) + '</button>' : '') + '.';
     else s2.innerHTML = '<button type="button" class="v1-nar-b" data-go-stay id="v1-nar-p1">Add where you’re staying</button>.';
-    var canAdd = !!t.base && t.base !== 'outside' && !t.base2;
-    addp.hidden = !canAdd;
-    addp.innerHTML = canAdd ? '<button type="button" class="tp-link" data-nar-addplace id="v1-nar-addplace">+ Add another place</button>' : '';
   }
 
   /* ---------- The trip map: fixed height, zoomed to fit, one static picture ---------- */
@@ -157,7 +154,6 @@
   sec.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.hasAttribute('data-nar-days')) { tp.openDays(b); return; }
-    if (b.hasAttribute('data-nar-addplace')) { K.openStay(b, true); return; }
     if (b.dataset.narPin !== undefined) { highlight(b.dataset.narPin); return; }
   });
   third.addEventListener('click', function (e) {
