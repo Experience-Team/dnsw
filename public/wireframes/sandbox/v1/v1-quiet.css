@@ -107,3 +107,14 @@
 .v1-hm .tp-home-pin.is-on .tp-home-pin-l { font-weight: var(--fw-semi); border-color: var(--c-ink); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-surface) 70%, transparent); }
 @media (hover: hover) { .v1-hm .tp-home-pin:hover .tp-home-pin-i { transform: scale(1.2); } }
 @media (min-width: 900px) { .pv-device #tp-phone .tp-home-map.v1-hm { border: 1px solid var(--c-line); } }
+
+/* Stadium photos on Home's host cards (27 Nov 2026): on top of the copy on a phone, to its left on desktop */
+#tp-phone .tp-city.v1-city { display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; }
+.v1-city-img { display: block; flex: none; aspect-ratio: 16 / 9; background: var(--c-surface-2); overflow: hidden; }
+.v1-city-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.v1-city-b { display: grid; gap: 4px; align-content: start; padding: var(--space-4); }
+@media (min-width: 900px) {
+  .pv-device #tp-phone .tp-city.v1-city { flex-direction: row; align-items: stretch; }
+  .pv-device #tp-phone .v1-city-img { width: 200px; aspect-ratio: auto; min-height: 124px; }
+  .pv-device #tp-phone .v1-city-b { flex: 1; min-width: 0; align-content: center; }
+}
