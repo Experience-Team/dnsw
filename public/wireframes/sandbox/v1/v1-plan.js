@@ -368,6 +368,12 @@
   // glides on an even ease over a time that grows with the distance, the centre held or moved with it. Reduced motion, or
   // instant, sets it in place.
   function centreNow() { var vw = view.clientWidth, cw = parseFloat(shell.style.getPropertyValue('--cw')) || 0; return cw ? (view.scrollLeft + vw / 2 - PAD) / (NDAYS * cw) : .5; }
+  // The slider value at which your days (first to last) fill the view with a day either side; 0 when they are most of the trip
+  function fitZoom(a, z) {
+    var vw = view && view.clientWidth; if (!vw) return null;
+    var w0 = Math.max(4, (vw - 2 * PAD) / NDAYS), want = (vw - 2 * PAD) / (z - a + 1 + 2);
+    return Math.max(0, Math.min(100, 100 * Math.log(want / w0) / Math.log(W1 / w0)));
+  }
   function zoomTo(t, day, instant) {
     zTarget = Math.max(0, Math.min(100, t));
     if (rangeEl) rangeEl.value = zTarget;
@@ -479,7 +485,10 @@
     if (!M0 || !M0.n) return;
     var d = at && at.day != null ? Math.max(0, Math.min(NDAYS - 1, at.day)) : null;
     sel = d; current = d; zAnchor = undefined;
-    zoomTo(d === null ? 0 : 82, d === null ? undefined : d, true);
+    // On open the timeline fits your days, a day either side, so the first thing seen is your trip. Here for all 44 days is
+    // the widest view, the whole of it at once. Opened on a day: zoomed in on that day
+    var R = M0.range, fit = d === null && R ? fitZoom(R.a, R.z) : null;
+    if (fit) zoomTo(fit, (R.a + R.z) / 2, true); else zoomTo(d === null ? 0 : 82, d === null ? undefined : d, true);
     sumEl.innerHTML = sumHtml(M0);
     syncSel();
   }
@@ -511,8 +520,14 @@
     var dayEl = b.closest('.v1p-day');
     if (dayEl && b.classList.contains('tp-add') && tp.ideasInline) tp.ideasInline(+dayEl.dataset.d);
     if (ds.open && ds.open.indexOf('go:') === 0 && tp.goOne) { var gm = tp.match(ds.open.slice(3)); if (gm) tp.goOne(gm); }
-    if (ds.z !== undefined) { var zd = +ds.z; select(sel === zd ? null : zd, false); return; }
-    if (ds.zPage !== undefined) { pageDay(+ds.zPage); return; }
+    if (ds.z !== undefined) {
+      var zd = +ds.z, R2 = M0 && M0.range;
+      // A spare day (empty, inside your days): its ideas open in the sheet stacked over the plan, as Add ideas does on its card
+      var spare = b.classList.contains('is-empty') && R2 && zd >= R2.a && zd <= R2.z && window.tpFreeApi && (tp.freeDays ? tp.freeDays() : []).some(function (x) { return x.d === zd && !x.filled; });
+      if (spare) { window.tpFreeApi.toggle(zd, b); return; }
+      select(sel === zd ? null : zd, false); return;
+    }
+    if (ds.zPage !== undefined) { closeWide(false); pageDay(+ds.zPage); return; } // the page is behind the full width timeline: it closes first
     if (ds.v1pView) { v1view = ds.v1pView; render(); var vb = root.querySelector('[data-v1p-view="' + v1view + '"]'); if (vb) vb.focus({ preventScroll: true }); tp.say(v1view === 'map' ? 'Plan on a map.' : 'Plan as a list.'); return; }
     if (ds.v1pGo) { goTo(+ds.v1pGo, true); return; }
     if (ds.v1pFull !== undefined) { if (tp.openDaysMap) tp.openDaysMap(b); return; }
@@ -568,13 +583,75 @@
       if (f) f.focus({ preventScroll: true });
     }
   });
+
+  /* ---------- The timeline at full width (desktop, 27 Nov 2026) ----------
+     Wide screens get a button on the plan's heading that lends the timeline (and the chosen day's summary) to a modal
+     across the window: more days at once, with details. A cross top right, Escape, or a tap on the dark area closes it,
+     and focus goes back to the button. A sheet opened from it (a spare day's ideas) stacks over it. */
+  var phoneEl = document.getElementById('tp-phone'), wideMq = matchMedia('(min-width: 1024px)'), wm = null, wmHome = null, wmNext = null, wmOpener = null;
+  var EXPAND = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5L9 7M2.5 13.5L7 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  if (head && phoneEl) {
+    var ex = document.createElement('button');
+    ex.type = 'button'; ex.className = 'v1z-expand'; ex.id = 'v1z-expand';
+    ex.setAttribute('aria-label', 'Open the timeline full width'); ex.title = 'Open the timeline full width'; ex.setAttribute('aria-haspopup', 'dialog');
+    ex.innerHTML = EXPAND;
+    head.insertBefore(ex, head.children[1] || null);
+    ex.addEventListener('click', function () { openWide(ex); });
+  }
+  function wideOk() { return wideMq.matches && document.documentElement.classList.contains('pv-device'); }
+  function buildWide() {
+    wm = document.createElement('div');
+    wm.className = 'v1z-wide'; wm.id = 'v1z-wide'; wm.hidden = true;
+    wm.innerHTML = '<div class="v1z-wide-scrim" data-wide-close></div>' +
+      '<div class="v1z-wide-box" role="dialog" aria-modal="true" aria-labelledby="v1z-wide-h"><div class="v1z-wide-head"><h3 id="v1z-wide-h" tabindex="-1">Your plan</h3>' +
+      '<button type="button" class="cn-close v1z-wide-x" data-wide-close aria-label="Close the full width timeline"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>' +
+      '<div class="v1z-wide-body"></div></div>';
+    phoneEl.appendChild(wm);
+    wm.addEventListener('click', function (e) { if (e.target.closest('[data-wide-close]')) closeWide(true); });
+  }
+  // The width changed: with no day chosen, your days fill the view again; with one, the view stays where it is
+  function refit() {
+    var R = M0 && M0.range, f = R && sel === null ? fitZoom(R.a, R.z) : null;
+    if (f !== null && f !== undefined) zoomTo(f, (R.a + R.z) / 2, true); else applyZoom(zoom, true);
+  }
+  function openWide(opener) {
+    if (!wideOk() || !M0 || !M0.n) return;
+    if (!wm) buildWide();
+    if (!wm.hidden) return;
+    wmOpener = opener || null; wmHome = root.parentNode; wmNext = root.nextSibling;
+    wm.querySelector('.v1z-wide-body').appendChild(root);
+    wm.hidden = false;
+    var bd = phoneEl.querySelector('.cn-body'), tl = document.getElementById('tp-tl');
+    wm._was = [[bd, bd && bd.inert], [tl, tl && tl.inert]]; wm._was.forEach(function (p) { if (p[0]) p[0].inert = true; });
+    if (!reduce.matches && wm.animate) { wm.querySelector('.v1z-wide-box').animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.2, .8, .2, 1)' }); wm.querySelector('.v1z-wide-scrim').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' }); }
+    refit();
+    wm.querySelector('#v1z-wide-h').focus({ preventScroll: true });
+    tp.say('Your plan, full width timeline opened.');
+  }
+  function closeWide(focusBack) {
+    if (!wm || wm.hidden) return;
+    var back = wmOpener, was = wm._was || [];
+    wm.hidden = true;
+    was.forEach(function (p) { if (p[0]) p[0].inert = p[1]; });
+    if (wmHome) wmHome.insertBefore(root, wmNext && wmNext.parentNode === wmHome ? wmNext : null);
+    refit();
+    if (focusBack !== false && back && back.isConnected) back.focus({ preventScroll: true });
+    if (focusBack !== false) tp.say('Back to Your plan.');
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !wm || wm.hidden || e.defaultPrevented) return;
+    if (phoneEl.querySelector('.cn-pp.tp-pm:not([hidden]), .tp-stack.is-open')) return; // a sheet over it goes back first
+    closeWide(true);
+  });
+  wideMq.addEventListener('change', function () { if (!wideOk()) closeWide(false); });
+
   window.tpPlan = {
     render: render,
     goTo: goTo,
     openOn: openOn,
     focusCurrent: function () { var b = sel !== null && track ? track.querySelector('[data-z="' + sel + '"]') : null; if (b) b.focus({ preventScroll: true }); },
     same: function (el) {
-      var ds = el.dataset || {}, k = ['v1pIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcMrm'].filter(function (x) { return ds[x] !== undefined; })[0];
+      var ds = el.dataset || {}, k = ['v1pIdeas', 'dcOpen', 'dcMatch', 'dcMove', 'dcMrm', 'z'].filter(function (x) { return ds[x] !== undefined; })[0];
       var hit = k ? root.querySelector('[data-' + k.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }) + '="' + CSS.escape(ds[k]) + '"]') : null;
       // A day filled from its ideas sheet loses Add ideas: its card's heading stands in
       if (!hit && k === 'v1pIdeas') { var c = cardFor(+ds.v1pIdeas); hit = c && c.querySelector('.tp-dc-h'); }

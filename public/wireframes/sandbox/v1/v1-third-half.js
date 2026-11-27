@@ -1971,7 +1971,7 @@
     pmScrim.hidden = !asSheet && !wideModal(); // a full page is a modal over the dimmed page on desktop too
     // Everything behind waits; remember what was already inert so closing puts it back as it was
     pmLayerBack(true);
-    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full'), document.getElementById('v1z-wide')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });

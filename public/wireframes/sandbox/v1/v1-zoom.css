@@ -86,3 +86,26 @@
 .v1z-sum { margin-top: var(--space-5); }
 .v1z-page { margin-top: var(--space-4); }
 .v1z-one .tp-dc-card:not(.is-free):not(.is-empty) { padding: 0; border: 0; background: none; box-shadow: none; }
+
+/* The timeline at full width (desktop only, 27 Nov 2026): a button on the plan's heading, and a modal across the window that
+   borrows the timeline. It sits at the plan's own level, so a sheet opened from it (a spare day's ideas) stacks above it */
+.v1z-expand { display: none; }
+.tp-tl-head { justify-content: flex-start; }
+#tp-phone .tp-tl-head > .tp-fc { margin-left: auto; order: 3; }
+#tp-phone .tp-tl-head > .v1z-expand { order: 2; margin-left: auto; }
+.v1z-wide[hidden] { display: none; }
+.v1z-wide { position: absolute; inset: 0; z-index: 100; }
+.v1z-wide-scrim { position: absolute; inset: 0; background: var(--c-scrim-soft, rgba(0, 0, 0, .4)); }
+.v1z-wide-box { position: absolute; inset: 0; margin: auto; width: calc(100% - 64px); height: fit-content; max-height: calc(100% - 96px); overflow: auto; box-sizing: border-box; padding: var(--space-4) var(--space-4) var(--space-5); border: var(--bw-1) solid var(--c-line); border-radius: 16px; background: var(--c-surface); box-shadow: 0 24px 64px rgba(17, 17, 17, .24); }
+.v1z-wide-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.v1z-wide-head h3 { margin: 0; font-size: var(--fs-lg-2); font-weight: var(--fw-heavy); letter-spacing: -.01em; }
+.v1z-wide-head h3:focus { outline: none; }
+.v1z-wide-x { flex: none; }
+.v1z-wide-body { margin-top: var(--space-3); }
+.v1z-wide-body .v1z-sum { max-width: 44rem; }
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .v1z-expand { display: inline-grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: var(--radius-sm, 6px); background: transparent; color: var(--c-ink); cursor: pointer; }
+  .pv-device #tp-phone .tp-tl-head > .v1z-expand ~ .tp-fc { margin-left: var(--space-2); }
+  .pv-device #tp-phone .v1z-expand:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+}
+@media (min-width: 1024px) and (hover: hover) { .pv-device #tp-phone .v1z-expand:hover { background: color-mix(in srgb, var(--c-ink) 8%, transparent); } }
