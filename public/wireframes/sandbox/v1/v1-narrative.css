@@ -87,3 +87,36 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 /* The switch: labels centred, and no stray divider at the left of the second and third (it belongs to the joined control) */
 .v1-md-sw .tp-seg-btn::before { display: none; }
 .v1-md-sw .v1-md-tab { justify-content: center; text-align: center; }
+
+/* ---------- The plan page as an itinerary (27 Nov 2026) ----------
+   Squint test: the opening sentences and map, then dates down the left edge as tiles (a match day's is filled), each day's
+   things in one container, quiet marks for sample data. One soft rule per day; the tile carries the emphasis. */
+.v1-nar-blk.tp-blk, .v1-nar-blk.tp-blk--match { border-top: var(--bw-1) solid var(--c-line-soft); padding-top: var(--space-5); }
+.v1-nar-blk:first-child.tp-blk { border-top: 0; padding-top: 0; }
+.v1-nar-dh { margin: 0 0 var(--space-3); }
+.v1-nar-dh .v1-nar-day { display: flex; align-items: center; gap: var(--space-3); width: 100%; }
+.v1-dt { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; min-width: 48px; height: 48px; padding: 0 var(--space-2); border: var(--bw-2) solid var(--c-line-ink); border-radius: var(--radius-md); background: transparent; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.v1-dt b { font-size: var(--fs-xl, 1.25rem); font-weight: var(--fw-bold); line-height: 1; }
+.v1-dt i { margin-top: 3px; font-size: .625rem; font-style: normal; font-weight: var(--fw-semi); letter-spacing: .06em; text-transform: uppercase; line-height: 1; }
+.v1-dt.is-match { background: var(--c-btn, #111); border-color: var(--c-btn, #111); color: var(--c-on-dark, #fff); }
+.v1-dt.is-run { border-style: dotted; }
+.v1-dt.is-run b { font-size: var(--fs-md); }
+.v1-dk { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+.v1-dk small { font-size: var(--fs-sm); font-weight: var(--fw-regular, 400); color: var(--c-ink-2); line-height: 1.3; }
+.v1-nar-dh .tp-blk-when { font-size: var(--fs-lg-2, 1.125rem); font-weight: var(--fw-semi); line-height: 1.25; }
+/* A day's ideas are one container with hairlines between rows, not a stack of separate boxes */
+.v1-nar-blk .tp-pcs { gap: 0; margin-top: var(--space-3); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-lg, 12px); background: var(--c-surface); overflow: hidden; }
+.v1-nar-blk .tp-pcs > .tp-pc { border: 0; border-radius: 0; background: none; padding: var(--space-3); }
+.v1-nar-blk .tp-pcs > .tp-pc + .tp-pc { border-top: var(--bw-1) solid var(--c-line-soft); }
+/* Show more: a quiet full-width button under the list, not a stray underlined link */
+.v1-nar-blk .tp-blk-more { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 40px; margin-top: var(--space-2); border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-md); background: none; text-decoration: none; font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--c-ink); }
+@media (hover: hover) { .v1-nar-blk .tp-blk-more:hover { background: var(--c-surface-2); } }
+/* Sample marks sit quietly: small, one hairline, the same everywhere */
+.v1-nar-blk .v1-sample, .v1-nar-blk .provenance-gap.v1-sample { padding: 0 5px; border-width: 1px; font-size: .625rem; font-weight: var(--fw-semi); letter-spacing: .08em; line-height: 1.7; vertical-align: .1em; }
+/* A day's label inside a run of free days: quiet, so the run's heading leads */
+.v1-nar-blk .tp-grp { margin: var(--space-4) 0 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); letter-spacing: 0; text-transform: none; color: var(--c-ink-2); }
+.v1-nar-blk .tp-fday:first-child .tp-grp { margin-top: var(--space-2); }
+/* The Also on in NSW prompt uses the same container as a day's list: one hairline, the same corner */
+.v1-also-card { border: var(--bw-1) solid var(--c-line); border-radius: var(--radius-lg, 12px); }
+/* No blue wash over a whole section when something changes: on this page the Add button and its toast already say so, and a flash over thousands of pixels reads as a glitch */
+#tp-phone.v1-nar-on .tp-sec.is-changed { animation: none; background: none; }

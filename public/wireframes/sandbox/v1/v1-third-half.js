@@ -186,6 +186,22 @@
       (km !== null ? ' \u00b7 about ' + Math.max(1, Math.round(km)) + ' km from ' + esc(f.v) : '') + ' ' + SAMPLE_TAG + '</p>';
   }
   tp.fanNear = fanNearHtml;
+  /* A day's heading on the plan page (27 Nov 2026): the date as a small tile, so the days can be scanned down the page, and
+     the kind of day beside it with the full date quiet underneath. A run of free days shows its first and last date. The words
+     are the page's own (heading()); anything not in the usual shapes keeps the plain text. */
+  function narDayHead(when, kind) {
+    var m = /^(\w{3}) (\d{1,2}) (\w{3}) · (.+)$/.exec(when), r = /^(\d+) free days? · (.+)$/.exec(when);
+    if (m) {
+      return '<span class="v1-dt' + (kind === 'match' || kind === 'ko' ? ' is-match' : '') + '" aria-hidden="true"><b>' + m[2] + '</b><i>' + m[1] + '</i></span>' +
+        '<span class="v1-dk"><span class="tp-blk-when">' + esc(m[4]) + '</span><small>' + esc(m[1] + ' ' + m[2] + ' ' + m[3]) + '</small></span><span class="visually-hidden">, ' + esc(m[1] + ' ' + m[2] + ' ' + m[3]) + '</span>';
+    }
+    if (r) {
+      var nums = /(\d+)\D+(\d+)/.exec(r[2]);
+      return '<span class="v1-dt is-run" aria-hidden="true"><b>' + (nums ? nums[1] + '–' + nums[2] : '') + '</b></span>' +
+        '<span class="v1-dk"><span class="tp-blk-when">' + esc(r[1] + (r[1] === '1' ? ' free day' : ' free days')) + '</span><small>' + esc(r[2]) + '</small></span>';
+    }
+    return '<span class="tp-blk-when">' + esc(when) + '</span>';
+  }
   /* Later rounds inside their days (27 Nov 2026): an NSW match with no teams yet is not assumed to be one they go to. The
      day reads "[stage] is on, teams to be decided" with Add; once added it is one of their matches and a match day. */
   function koItem(m) {
@@ -1171,7 +1187,7 @@
         if (!body) return;
         h += '<section class="tp-blk tp-blk--' + b.kind + ' v1-nar-blk" data-blk="' + b.key + '" id="v1-blk-' + b.key + '"><h4 class="v1-nar-dh">' +
           (venue ? '<button type="button" class="v1-nar-day" data-nar-day="' + esc(venue) + '">' : '<span class="v1-nar-day">') +
-          '<span class="tp-blk-when">' + esc(hd.when) + '</span>' + (venue ? '</button>' : '</span>') + '</h4><div class="tp-blk-body">' + body + '</div></section>';
+          narDayHead(hd.when, b.kind) + (venue ? '</button>' : '</span>') + '</h4><div class="tp-blk-body">' + body + '</div></section>';
       });
       if (noNswTeams.length && !noNswDone) { var nn = tp.narNoNsw(noNswTeams); h = '<section class="tp-blk tp-blk--watch v1-nar-blk">' + (nn.indexOf('class="v1-nonsw"') > -1 ? '<h4 class="v1-nar-dh"><span class="v1-nar-day"><span class="tp-blk-when">Watching from NSW</span></span></h4>' : '') + '<div class="tp-blk-body">' + nn + '</div></section>' + h; } // none of their matches is played in NSW inside the days: the watch block leads
       thirdList.innerHTML = h;
