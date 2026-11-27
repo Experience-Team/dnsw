@@ -11,7 +11,6 @@
   var third = document.getElementById('tp-third'), pick = document.getElementById('tp-pick');
   if (!third || !pick || !pick.parentNode) return;
   var B = G.bounds, IMG = 'assets/images/map/nsw-map.webp', IW = 2000, IH = 1000, MAP_H = 280;
-  var R = (IW / (B.lon1 - B.lon0)) / (2800 / 2.05); // the new map's pixels per degree against the old one's, so the zoom limits keep their meaning
   var state = { tab: {}, more: {}, lit: '' };
   tp.narState = state;
 
@@ -67,49 +66,118 @@
   /* ---------- The trip map: fixed height, zoomed to fit, one static picture ---------- */
   function px(ll) { return [(ll[1] - B.lon0) / (B.lon1 - B.lon0) * IW, (B.lat1 - ll[0]) / (B.lat1 - B.lat0) * IH]; }
   var drawn = '';
+  /* Where the map is allowed to look: never closer than one image pixel per device pixel on a 2x screen (S_MAX, so the base
+     picture is sharp at 390 wide), never further out than the base map's own names stay readable (S_MIN). Nothing, pin or label, is
+     closer than EDGE to the map's edge. */
+  var S_MAX = .5, S_MIN = .3, EDGE = 24, NEAR_KM = 40;
+  // The other city's ground, its stops and its dotted route: drawn when it is part of the plan (they stay near it) or has just been
+  // asked for with "Show route on map"; otherwise the map frames only their own places
+  function stayNear(venue) {
+    var v = G.venues[venue];
+    return !!v && K.placesOf().some(function (n) { return G.places[n] && K.kmBetween(G.places[n], v) <= NEAR_KM; });
+  }
+  function showExtra(r) { return state.lit === r.venue || stayNear(r.venue); }
   function mapPoints() {
     var P = [];
     K.placesOf().forEach(function (n) { if (G.places[n]) P.push({ kind: 'stay', key: n, label: n, ll: G.places[n] }); });
     var seenV = {};
-    going().forEach(function (x) { if (!seenV[x.venue] && G.venues[x.venue]) { seenV[x.venue] = 1; P.push({ kind: x.maybe ? 'maybe' : 'stadium', key: x.venue, label: x.venue, ll: G.venues[x.venue] }); } });
-    if (watchTeams().length) { var fz = watchFan(); if (fz) P.push({ kind: 'fan', key: fz.name, label: fz.name, ll: fz.ll }); }
+    going().forEach(function (x) { if (!seenV[x.venue] && G.venues[x.venue]) { seenV[x.venue] = 1; P.push({ kind: x.maybe ? 'maybe' : 'stadium', key: x.venue, label: x.venue, ll: G.venues[x.venue], going: 1 }); } });
+    if (watchTeams().length) { var fz = watchFan(); if (fz) P.push({ kind: 'fan', key: fz.name, label: fz.name, ll: fz.ll, going: 1 }); }
     // Another match while you're here, in the other city: its ground, and the stops on the way (sample), joined by a dashed route
     (tp.narRoutes ? tp.narRoutes() : []).forEach(function (r) {
-      if (!G.venues[r.venue]) return;
-      if (!seenV[r.venue]) { seenV[r.venue] = 1; P.push({ kind: 'extra', key: r.venue, label: r.venue, ll: G.venues[r.venue], stops: r.stops.map(function (x) { return 'stop:' + x.name; }) }); }
-      r.stops.forEach(function (x) { P.push({ kind: 'stop', key: 'stop:' + x.name, label: x.name, ll: x.ll }); });
+      if (!G.venues[r.venue] || !showExtra(r)) return;
+      if (!seenV[r.venue]) {
+        // The stops are on the way from a place they stay that is not already there; staying only near the ground, there is no way to draw
+        var far = K.placesOf().some(function (n) { return G.places[n] && K.kmBetween(G.places[n], G.venues[r.venue]) > NEAR_KM; }), st = far ? r.stops : [];
+        seenV[r.venue] = 1; P.push({ kind: 'extra', key: r.venue, label: r.venue, ll: G.venues[r.venue], going: 1, stops: st.map(function (x) { return 'stop:' + x.name; }) });
+        st.forEach(function (x) { P.push({ kind: 'stop', key: 'stop:' + x.name, label: x.name, ll: x.ll }); });
+      }
     });
     return P;
   }
+  // A label's real size, measured once with the page's own font (and again when the fonts arrive)
+  var meas = null, sizes = {};
+  function labelSize(p) {
+    var k = (p.kind === 'stop' ? 's|' : 'n|') + p.label; if (sizes[k]) return sizes[k];
+    if (!meas) { meas = document.createElement('div'); meas.className = 'v1-tm-meas'; meas.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;pointer-events:none'; box.appendChild(meas); }
+    meas.innerHTML = '<span class="v1-tm-pin is-' + p.kind + '"><b>' + esc(p.label) + '</b></span>';
+    var b = meas.querySelector('b'); return (sizes[k] = { w: b.offsetWidth, h: b.offsetHeight });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { sizes = {}; drawn = ''; draw(); });
+  var ORDER = { stay: 0, stadium: 1, fan: 2, maybe: 3, extra: 4, stop: 5 };
+  function hit(a, b, g) { g = g || 0; return a[0] - g < b[2] && a[2] + g > b[0] && a[1] - g < b[3] && a[3] + g > b[1]; }
+  /* The pins at zoom s, as offsets from the middle of the places (so it does not depend on where the picture sits): a pin on top of
+     another moves to the nearest free spot; each label takes the first place that touches no other label or pin (right, left, then
+     below or above them, then under or over the pin); a stop whose label has no clear place goes without. Returns the box they fill. */
+  function layout(s, xy, ref) {
+    var order = P0.map(function (p, i) { return i; }).sort(function (a, b) { return ORDER[P0[a].kind] - ORDER[P0[b].kind] || a - b; });
+    var it = P0.map(function (p, i) { return { p: p, i: i, x: (xy[i][0] - ref[0]) * s, y: (xy[i][1] - ref[1]) * s, lab: null }; });
+    var NUD = [[0, 20], [0, -20], [22, 0], [-22, 0], [16, 16], [-16, 16], [16, -16], [-16, -16], [0, 40], [0, -40]], done = [];
+    order.forEach(function (i) {
+      var o = it[i], r = o.p.kind === 'stop' ? 5 : 9, x0 = o.x, y0 = o.y;
+      function free() { return done.every(function (q) { return Math.hypot(q.x - o.x, q.y - o.y) >= r + (q.p.kind === 'stop' ? 5 : 9) + 3; }); }
+      if (!free()) for (var k = 0; k < NUD.length; k++) { o.x = x0 + NUD[k][0]; o.y = y0 + NUD[k][1]; if (free()) break; if (k === NUD.length - 1) { o.x = x0; o.y = y0; } }
+      done.push(o);
+    });
+    var circ = it.map(function (o) { var r = o.p.kind === 'stop' ? 5 : 9.5; return [o.x - r, o.y - r, o.x + r, o.y + r]; }), placed = [];
+    order.forEach(function (i) {
+      var o = it[i], z = labelSize(o.p), w = z.w, h = z.h, g = o.p.kind === 'stop' ? 8 : 12, c = [];
+      c.push([g, -h / 2], [-g - w, -h / 2], [g, h / 2 - 2], [-g - w, h / 2 - 2], [g, -h / 2 - h + 2], [-g - w, -h / 2 - h + 2], [-w / 2, 12], [-w / 2, -12 - h]);
+      var best = null, bestA = 1e9;
+      for (var k = 0; k < c.length; k++) {
+        var r = [o.x + c[k][0], o.y + c[k][1], o.x + c[k][0] + w, o.y + c[k][1] + h], a = 0;
+        placed.forEach(function (q) { if (hit(r, q, 1)) a += 100; });
+        circ.forEach(function (q, j) { if (j !== i && hit(r, q, 2)) a += 100; });
+        if (hit(r, circ[i], 0)) a += 100;
+        if (a < bestA) { bestA = a; best = { dx: c[k][0], dy: c[k][1], r: r }; }
+        if (!a) break;
+      }
+      if (best && (bestA === 0 || o.p.kind !== 'stop')) { o.lab = best; placed.push(best.r); }
+    });
+    var bb = [1e9, 1e9, -1e9, -1e9];
+    circ.concat(placed).forEach(function (q) { bb[0] = Math.min(bb[0], q[0]); bb[1] = Math.min(bb[1], q[1]); bb[2] = Math.max(bb[2], q[2]); bb[3] = Math.max(bb[3], q[3]); });
+    return { it: it, bb: bb, w: bb[2] - bb[0], h: bb[3] - bb[1] };
+  }
+  var P0 = [];
   function draw() {
     var W = box.clientWidth; if (!W) return;
     var P = mapPoints(), sig = W + '|' + P.map(function (p) { return p.kind + p.key; }).join(',') + '|' + state.lit;
     if (sig === drawn) return; drawn = sig;
     if (!img.getAttribute('src')) img.src = IMG;
-    var H = box.clientHeight || MAP_H, xy = P.map(function (p) { return px(p.ll); });
-    var cx, cy, s;
-    if (xy.length) {
-      var x0 = Math.min.apply(null, xy.map(function (q) { return q[0]; })), x1 = Math.max.apply(null, xy.map(function (q) { return q[0]; }));
-      var y0 = Math.min.apply(null, xy.map(function (q) { return q[1]; })), y1 = Math.max.apply(null, xy.map(function (q) { return q[1]; }));
-      cx = (x0 + x1) / 2; cy = (y0 + y1) / 2;
-      var padX = 74, padY = 40, spanMin = 150 * R;
-      s = Math.min((W - 2 * padX) / Math.max(x1 - x0, spanMin), (H - 2 * padY) / Math.max(y1 - y0, spanMin));
-    } else { var c = px(G.places['Sydney CBD'] || [-33.87, 151.21]); cx = c[0]; cy = c[1]; s = 1; }
-    // Never closer than the city (a Sydney-only trip shows Sydney) and as far out as the trip needs: on a wide box the picture may be
-    // narrower than the box, so its sides fade out instead of the trip being cut off
-    s = Math.max(.08 / R, Math.min(2, s));
+    var H = box.clientHeight || MAP_H; P0 = P;
+    var xy = P.map(function (p) { return px(p.ll); });
+    var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    xy.forEach(function (q) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });
+    if (!xy.length) { var c0 = px(G.places['Sydney CBD'] || [-33.87, 151.21]); x0 = x1 = c0[0]; y0 = y1 = c0[1]; }
+    var ref = [(x0 + x1) / 2, (y0 + y1) / 2], pad = EDGE + 9;
+    // As close as the places need, never closer than S_MAX (a one-suburb trip keeps S_MAX and is centred), then out in steps until the
+    // pins and their labels all fit inside the 24px margin, never past S_MIN (or the least that still fills the box with picture)
+    var floor = Math.min(S_MAX, Math.max(S_MIN, W / IW, H / IH));
+    var s = Math.max(floor, Math.min(S_MAX, (W - 2 * pad) / Math.max(x1 - x0, 1), (H - 2 * pad) / Math.max(y1 - y0, 1))), L;
+    for (;;) {
+      L = layout(s, xy, ref);
+      if ((L.w <= W - 2 * EDGE && L.h <= H - 2 * EDGE) || s <= floor + 1e-6) break;
+      s = Math.max(floor, s * .94);
+    }
+    // The box's middle sits on the middle of what is drawn; the picture is kept under the whole box
+    var bcx = (L.bb[0] + L.bb[2]) / 2, bcy = (L.bb[1] + L.bb[3]) / 2, cx = ref[0] + bcx / s, cy = ref[1] + bcy / s;
     if (IW * s > W) cx = Math.max(W / (2 * s), Math.min(IW - W / (2 * s), cx));
     cy = Math.max(H / (2 * s), Math.min(IH - H / (2 * s), cy));
     layer.style.transform = 'translate(' + (W / 2 - cx * s) + 'px,' + (H / 2 - cy * s) + 'px) scale(' + s + ')';
-    function scr(q) { return [W / 2 + (q[0] - cx) * s, H / 2 + (q[1] - cy) * s]; }
-    var pts = P.map(function (p, i) { var q = scr(xy[i]); return { p: p, x: q[0], y: q[1] }; });
+    // Each pin's place on the box: the picture's own position of the place, plus any nudge the layout gave it
+    var pts = L.it.map(function (o) {
+      var q = xy[o.i], nx = o.x - (q[0] - ref[0]) * s, ny = o.y - (q[1] - ref[1]) * s;
+      return { p: o.p, x: W / 2 + (q[0] - cx) * s + nx, y: H / 2 + (q[1] - cy) * s + ny, lab: o.lab };
+    });
     // The route between: from the nearer place they stay to each stadium (or the fan zone)
     var stays = pts.filter(function (o) { return o.p.kind === 'stay'; }), lines = '';
     pts.forEach(function (o) {
       if (o.p.kind === 'stay' || o.p.kind === 'stop' || !stays.length) return;
       if (o.p.kind === 'extra') {
         // Through its stops, in order, from the nearer place they stay: a dashed line
-        var f0 = stays.slice().sort(function (a, b) { return Math.hypot(a.x - o.x, a.y - o.y) - Math.hypot(b.x - o.x, b.y - o.y); })[0], d = 'M' + f0.x.toFixed(1) + ' ' + f0.y.toFixed(1);
+        var away = stays.filter(function (z) { return K.kmBetween(z.p.ll, o.p.ll) > NEAR_KM; });
+        if (!away.length) return; // they stay by that ground: nothing to join
+        var f0 = away.sort(function (a, b) { return Math.hypot(a.x - o.x, a.y - o.y) - Math.hypot(b.x - o.x, b.y - o.y); })[0], d = 'M' + f0.x.toFixed(1) + ' ' + f0.y.toFixed(1);
         (o.p.stops || []).forEach(function (k) { var q = pts.filter(function (z) { return z.p.key === k; })[0]; if (q) d += ' L' + q.x.toFixed(1) + ' ' + q.y.toFixed(1); });
         lines += '<path class="v1-tm-route is-extra' + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + '" d="' + d + ' L' + o.x.toFixed(1) + ' ' + o.y.toFixed(1) + '"/>';
         return;
@@ -120,25 +188,21 @@
       lines += '<path class="v1-tm-route' + (o.p.kind === 'maybe' ? ' is-maybe' : '') + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + '" d="M' + from.x.toFixed(1) + ' ' + from.y.toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + o.x.toFixed(1) + ' ' + o.y.toFixed(1) + '"/>';
     });
     svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = lines;
-    var placed = [];
-    pins.innerHTML = pts.map(function (o, i) {
-      var near = pts.some(function (q, j) { return j < i && Math.hypot(q.x - o.x, q.y - o.y) < 22; });
-      // A pin on top of another (staying at the ground) moves down and to the left, and its label goes to the left, so both read
-      var x = o.x + (near ? -4 : 0), y = o.y + (near ? 20 : 0), lw = o.p.label.length * (o.p.kind === 'stop' ? 5.4 : 6.3) + 16, left = near || x + 12 + lw > W - 4;
-      if (left && x - 12 - lw < 4) left = false; // no room on the left: the label goes right even if it runs on
-      if (!left && x + 12 + lw > W - 4 && x - 12 - lw >= 4) left = true;
-      // Labels never sit on one another: try the other side, then below
-      function rect(l, dy) { return l ? [x - 12 - lw, y - 9 + dy, x - 12, y + 9 + dy] : [x + 12, y - 9 + dy, x + 12 + lw, y + 9 + dy]; }
-      function hits(r) { return placed.some(function (q) { return r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]; }); }
-      var dy = 0, r = rect(left, 0);
-      if (hits(r) && !hits(rect(!left && x - 12 - lw >= 4 || left && x + 12 + lw <= W - 4 ? !left : left, 0))) { left = !left; r = rect(left, 0); }
-      for (var k = 0; hits(r) && k < 3; k++) { dy += 18; r = rect(left, dy); }
-      placed.push(r);
-      return '<span class="v1-tm-pin is-' + o.p.kind + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + (state.lit && state.lit !== o.p.key ? ' is-dim' : '') + (left ? ' is-l' : '') + '" data-pin="' + esc(o.p.key) + '" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px"><i></i><b' + (dy ? ' style="top:' + (dy - 9) + 'px"' : '') + '>' + esc(o.p.label) + '</b></span>';
+    pins.innerHTML = pts.map(function (o) {
+      return '<span class="v1-tm-pin is-' + o.p.kind + (state.lit && state.lit === o.p.key ? ' is-lit' : '') + (state.lit && state.lit !== o.p.key ? ' is-dim' : '') + '" data-pin="' + esc(o.p.key) + '" style="left:' + o.x.toFixed(1) + 'px;top:' + o.y.toFixed(1) + 'px"><i></i>' +
+        (o.lab ? '<b style="left:' + o.lab.dx.toFixed(1) + 'px;top:' + o.lab.dy.toFixed(1) + 'px;right:auto">' + esc(o.p.label) + '</b>' : '') + '</span>';
     }).join('');
     var names = P.map(function (p) { return p.label; });
     box.setAttribute('aria-label', 'Trip map' + (names.length ? ': ' + list(names) : '') + '. Opens the full-screen map, day by day.');
   }
+  // Tapping away from a route that was asked for brings the map back to their own places (a lit stadium or day keeps its own toggle)
+  document.addEventListener('click', function (e) {
+    if (!state.lit) return;
+    var r = (tp.narRoutes ? tp.narRoutes() : []).filter(function (x) { return x.venue === state.lit; })[0];
+    if (!r || stayNear(r.venue) || going().some(function (x) { return x.venue === r.venue; })) return;
+    if (e.target.closest && e.target.closest('[data-nar-route], [data-nar-onmap], [data-nar-pin], [data-nar-day], #v1-tm')) return;
+    state.lit = ''; drawn = ''; draw();
+  });
   function highlight(key) { state.lit = state.lit === key ? '' : key; drawn = ''; draw(); }
   tp.narHighlight = function (key) { state.lit = key || ''; drawn = ''; draw(); };
   if (window.ResizeObserver) new ResizeObserver(function () { drawn = ''; draw(); }).observe(box);

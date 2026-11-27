@@ -183,3 +183,11 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 .tp-map-img { width: 2000px; height: 1000px; filter: none; }
 @media (min-width: 900px) { .pv-device #tp-phone .v1-tm { height: 420px; } }
 #v1-nar-s2 { margin-bottom: 24px; } /* the map follows the sentences directly (27 Nov 2026) */
+
+/* Map labels (27 Nov 2026): opaque chips with a soft halo, so the base map's own names never show through or sit over a label.
+   Their place is set in script, so none overlaps another or a pin and all stay inside the map */
+.v1-tm-pin b, .v1-tm-pin.is-stop b { box-sizing: border-box; border: 1px solid var(--c-line-soft); background: var(--c-surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-surface) 80%, transparent); }
+/* A pin dimmed while another is lit dims its dot, not its label chip, so the base map's names never show through a label */
+.v1-tm-pin.is-dim { opacity: 1; }
+.v1-tm-pin.is-dim i { opacity: .45; }
+.v1-tm-pin.is-dim b { color: var(--c-ink-2); }
