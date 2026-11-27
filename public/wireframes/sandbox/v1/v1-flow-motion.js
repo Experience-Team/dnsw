@@ -19,7 +19,7 @@
   if (!phone || !pick || document.documentElement.getAttribute('data-flow') !== 'sb') return;
   var body = pick.offsetParent || phone.querySelector('.cn-body');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var STEPS = ['teams', 'tickets', 'days'];
+  var STEPS = ['teams', 'days', 'stay'];
   var NAV = '[data-fc-go], [data-fc-skip], [data-fc-all]'; // Next, Back, Skip and Show every NSW match
   var PUSH = { duration: 480, easing: 'cubic-bezier(.65, 0, .35, 1)', fill: 'both' }; // an even ease in and out: nothing is front-loaded
   var running = null, pushing = false;

@@ -42,6 +42,10 @@
 <link rel="stylesheet" href="v1/v1-device.css" />
 <link rel="stylesheet" href="v1/v1-flow-motion.css" />
 <link rel="stylesheet" href="v1/v1-flow-foot.css" />
+<link rel="stylesheet" href="v1/v1-dates.css" />
+<link rel="stylesheet" href="v1/v1-fanzones.css" />
+<link rel="stylesheet" href="v1/v1-plan.css" />
+<link rel="stylesheet" href="v1/v1-picker.css" />
 <link rel="stylesheet" href="no-focus-ring.css" /><!-- TEMPORARY: hides focus rings for the video; remove before production -->
 <style>
   /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
@@ -82,7 +86,7 @@
     <div class="pv-concept-head">
       <h2 class="pv-h2">Pick your team: Version 1</h2>
     </div>
-    <p class="pv-p pv-flow-c">Version 1: the Plan tab asks the questions up front, one step at a time: your teams, tickets and your days. Your teams is required; the others can be skipped. A test from team feedback, with its own saved picks.</p>
+    <p class="pv-p pv-flow-c">Version 1: the Plan tab asks the questions up front, one step at a time: your teams, your days and where you’re staying. Your teams and where you’re staying are required; your days can be skipped. A test from team feedback, with its own saved picks.</p>
     <p class="pv-p">Phone size only. Places are real; their hours, prices, screenings and the fan zone and village sites are indicative. Pink marks data not yet confirmed.</p>
     <div class="pv-switches">
       <button type="button" class="cn-switch pv-switch" id="cn-notes-toggle" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Annotations</button>
@@ -183,7 +187,7 @@
             <!-- Shown once anything is picked: the planner, with these picks -->
             <a class="tp-home-cta" href="#tp-ask" id="tp-home-go" hidden>Plan around your matches<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
             <!-- No team: every NSW match, added in place (the same quiet link as in All matches; hidden once a team is picked) -->
-            <p class="tp-rugby-line tp-home-rugby" id="tp-home-rugby"><span class="tp-home-rugby-q">No team, or no tickets yet?</span><button type="button" class="tp-link tp-rugby-link" data-rugby data-rugby-home aria-describedby="tp-rugby-why-h"><span class="tp-u">I&rsquo;m just here for the rugby</span></button><span class="tp-rugby-why" id="tp-rugby-why-h">This adds every match played in NSW.</span></p>
+            <p class="tp-rugby-line tp-home-rugby" id="tp-home-rugby"><span class="tp-home-rugby-q">No team yet?</span><button type="button" class="tp-link tp-rugby-link" data-rugby data-rugby-home aria-describedby="tp-rugby-why-h"><span class="tp-u">I&rsquo;m just here for the rugby</span></button><span class="tp-rugby-why" id="tp-rugby-why-h">The NSW matches inside your days are listed for you to add.</span></p>
           </section>
 
           <!-- At a glance: three cards of high-level facts; See all FAQs jumps to the FAQs on this page -->
@@ -305,12 +309,7 @@
              each tile opens its photo details panel. The stadium and ocean photos first, then two more so there is
              something to swipe (hifi: the closest pictures in assets; wireframe: grey with an image icon). -->
         <section class="tp-hero" aria-labelledby="tp-hero-title">
-          <div class="tp-photos" role="group" aria-label="Photos">
-            <button type="button" class="tp-photo" data-photo="stadium" aria-label="Stadium photo, see details"><span class="ph-img tp-photo-img" data-img="hero-stadium" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
-            <button type="button" class="tp-photo" data-photo="coast" aria-label="Ocean photo, see details"><span class="ph-img tp-photo-img" data-img="hero-coast" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
-            <button type="button" class="tp-photo" data-photo="photo3" aria-label="Photo 3, see details"><span class="ph-img tp-photo-img" data-img="coast-aerial" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
-            <button type="button" class="tp-photo" data-photo="photo4" aria-label="Photo 4, see details"><span class="ph-img tp-photo-img" data-img="village" aria-hidden="true"><svg class="tp-hero-icon" width="24" height="22" viewBox="0 0 12 11" aria-hidden="true"><path fill="currentColor" d="M3.58594 2.0625C4.19531 2.0625 4.71094 2.57812 4.71094 3.1875C4.71094 3.82031 4.19531 4.3125 3.58594 4.3125C2.95312 4.3125 2.46094 3.82031 2.46094 3.1875C2.46094 2.57812 2.95312 2.0625 3.58594 2.0625ZM10.5 0C11.3438 0 12 0.679688 12 1.5V9C12 9.84375 11.3203 10.5 10.5 10.5H1.5C0.679688 10.5 0 9.84375 0 9V1.5C0 0.679688 0.679688 0 1.5 0H10.5ZM10.875 8.85938V1.5C10.875 1.3125 10.7109 1.125 10.5 1.125H1.5C1.3125 1.125 1.125 1.3125 1.125 1.5L1.14844 9L2.90625 6.79688C3 6.70312 3.11719 6.63281 3.25781 6.63281C3.39844 6.63281 3.51562 6.70312 3.60938 6.79688L4.47656 7.875L6.96094 4.5C7.05469 4.38281 7.17188 4.3125 7.33594 4.3125C7.47656 4.3125 7.59375 4.38281 7.66406 4.5L10.875 8.85938Z"/></svg></span></button>
-          </div>
+          <!-- The photos that sat above the slogan were removed from the Plan page on 26 Nov 2026 (the plan starts at the slogan) -->
           <div class="tp-hero-copy">
             <!-- The slogan, A by default; ?slogan=b shows B (set on <html> by the script in <head>) to test both -->
             <h2 class="tp-hero-title" id="tp-hero-title"><span class="tp-slogan tp-slogan--a"><span class="tp-slogan-1">The Third Half</span> <span class="tp-slogan-2">belongs in NSW.</span></span><span class="tp-slogan tp-slogan--b"><span class="tp-slogan-1">Your team&rsquo;s matches.</span> <span class="tp-slogan-2">Your days in NSW.</span></span></h2>
@@ -334,7 +333,6 @@
           <div class="tp-util" id="tp-util">
             <button type="button" class="tp-util-btn" id="tp-find-open" aria-expanded="false" aria-controls="tp-find"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 10.5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Find<span class="visually-hidden"> your team</span></button>
             <button type="button" class="tp-util-btn" id="tp-view"><svg class="tp-ico tp-ico-grid" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg><span class="tp-view-l">Grid</span><span class="visually-hidden"> view of the teams</span></button>
-            <button type="button" class="cn-switch tp-switch tp-nsw-sw" id="tp-nswmark" role="switch" aria-checked="false"><span class="cn-switch-track" aria-hidden="true"></span>Plays in NSW</button>
             <div class="tp-find" id="tp-find" hidden>
               <div class="tp-find-row">
                 <label class="visually-hidden" for="tp-find-in">Find your team</label>
@@ -409,7 +407,7 @@
           <p class="tp-all-note" id="tp-all-note">Every match of the tournament, by date. Tap one for its details.</p>
           <!-- Here for the rugby, demoted to a quiet link: with no team picked it adds every NSW match; on, it takes them off.
                Hidden while teams are picked (picking a team already replaces it). -->
-          <p class="tp-rugby-line"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-a"><svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg><span class="tp-u">Add every NSW match</span></button><span class="tp-rugby-why" id="tp-rugby-why-a">No team? This adds all the matches played in NSW.</span></p>
+          <p class="tp-rugby-line"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-a"><svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg><span class="tp-u">Show every NSW match</span></button><span class="tp-rugby-why" id="tp-rugby-why-a">No team? This adds all the matches played in NSW.</span></p>
           <!-- Columns of five matches, each a borderless card; swipe sideways (or use the arrow keys) for the next five -->
           <div class="tp-all-scroll" id="tp-all-scroll" role="group" aria-label="All matches, five to a column. Arrow keys move between matches." aria-describedby="tp-all-hint"></div>
           <p class="tp-all-empty" id="tp-all-empty" hidden><span id="tp-all-empty-text"></span> <button type="button" class="tp-link" id="tp-all-empty-clear">Show all matches</button></p>
@@ -419,6 +417,8 @@
              fixtures (cnWatchSpots, cnThirdHalf), following the picks and tickets live. Shown straight away; nothing is
              held back for dates. No venue or product is favoured: spots by type then name, products by distance then
              name. Links go out only; nothing is booked here. -->
+        <!-- Also on in NSW (26 Nov 2026): the other NSW matches inside their days, and a Newcastle card when it fits (v1/v1-third-half.js, renderAlso) -->
+        <section class="tp-sec" id="v1-also" aria-labelledby="v1-also-title" hidden></section>
         <section class="tp-sec" id="tp-watch" aria-labelledby="tp-watch-title">
           <h3 class="tp-sec-title" id="tp-watch-title" tabindex="-1">Where to watch</h3>
           <p class="tp-sec-note" id="tp-watch-note">Screenings for your matches, at pubs, the village and a fan zone.</p>
@@ -474,6 +474,8 @@
             <h3 class="tp-tl-title" id="tp-tl-title" tabindex="-1">Your plan</h3>
             <!-- 16 Nov polish: the way to add or change teams sits on the title row (it had a line of its own), opening the team sheet stacked over the plan -->
             <p class="tp-tl-teams" id="tp-tl-teams" hidden><button type="button" class="tp-link" id="tp-tl-teams-btn"><svg class="tp-ico tp-ico-fan" viewBox="0 0 36 33" aria-hidden="true" focusable="false"><path d="M31.313 0.355164L20.0081 0.482213C19.2242 0.491107 18.4682 0.721491 17.819 1.13186L12.5913 2.55355C12.5718 2.55905 12.5524 2.56498 12.5333 2.57176L10.7483 3.19176L10.7474 3.19007L10.7381 3.19515L10.5327 3.2663C10.0258 3.44247 9.56374 3.71224 9.16565 4.05697L7.62792 4.89973L6.57341 5.48713L6.55647 5.46426L6.38876 5.59004L5.87337 5.87674C5.41768 6.13084 5.0179 6.46583 4.69011 6.86138L2.0208 8.85903C2.01317 8.86453 2.0064 8.87004 1.9992 8.87596C1.12594 9.57389 0.577511 10.57 0.453849 11.68C0.331882 12.7785 0.639766 13.8593 1.32245 14.7266L12.1623 30.7315C12.1746 30.7497 12.1886 30.7679 12.2026 30.7857C13.0525 31.8491 14.3192 32.3865 15.5846 32.3535C16.4587 32.3302 17.3324 32.035 18.068 31.451L21.0723 29.2365L24.4654 28.5962L26.1967 28.2714L26.1878 28.4069L31.6632 28.5585C31.6852 28.5577 31.7064 28.5572 31.7284 28.5568C33.9988 28.4971 35.8194 26.3864 35.794 24.1139L35.5462 4.5982C35.5204 2.2914 33.6198 0.329754 31.313 0.355164ZM9.74076 6.02793C9.85637 5.81661 10.0021 5.62603 10.1706 5.46002L11.436 4.76633L12.0675 4.54696C11.7337 5.3101 11.63 6.16345 11.7854 6.99309L15.0993 26.0844L9.5811 8.05946C9.57814 8.04929 9.57475 8.03955 9.57136 8.02897C9.34225 7.37 9.40408 6.64074 9.74076 6.02793ZM15.8713 4.71339L16.0865 21.7563L13.4718 6.69452C13.4709 6.69029 13.4701 6.68605 13.4692 6.68182C13.3413 6.00295 13.5057 5.29613 13.9203 4.74219C14.2908 4.24712 14.8304 3.91086 15.4389 3.79609L15.9836 3.69361C15.9052 4.02394 15.8671 4.36528 15.8713 4.71339ZM7.74523 6.79574C7.68425 7.39075 7.74989 7.99848 7.94809 8.57528L13.4883 26.6727L5.77342 10.7775C5.76622 10.7631 5.7586 10.7487 5.75097 10.7347C5.40582 10.1147 5.34399 9.37442 5.58285 8.70402C5.66077 8.48507 5.76834 8.28052 5.90132 8.09503L7.32258 7.0312L7.74523 6.79574ZM2.6823 13.6852C2.26981 13.1698 2.08347 12.5253 2.15674 11.8697C2.22873 11.2183 2.54975 10.6339 3.05922 10.2218L3.73258 9.7183C3.76011 10.3523 3.9312 10.9782 4.24247 11.5453L11.8447 27.2084L2.72253 13.7399C2.70941 13.7212 2.69628 13.703 2.6823 13.6852ZM34.0754 23.9225C34.0903 25.2641 33.0125 26.3843 31.6721 26.4194L20.3274 26.5482C18.965 26.563 17.8444 25.467 17.8292 24.1041L17.5844 4.69349C17.578 4.1476 17.7474 3.62796 18.0731 3.19134C18.1167 3.13162 18.1616 3.07657 18.2052 3.02744C18.6647 2.5095 19.2979 2.21432 19.9882 2.19611L31.3324 2.06822C32.6948 2.05297 33.8158 3.14899 33.8307 4.51223L34.0754 23.9225Z"/></svg>Change teams</button></p>
+            <!-- Close (26 Nov 2026): a cross on the title row, top right of the plan, as on every other sheet. It closes the whole plan, drill levels and all; the bar's toggle stays -->
+            <button type="button" class="cn-close tp-tl-close" id="tp-tl-close" aria-label="Close your plan"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
           </div>
           <!-- Days set: one line that says what is set, with Change. No days yet: the date slider itself, until the plan
                closes (concepts-third-half.js, renderDaysLine) -->
@@ -482,7 +484,7 @@
             <p class="tp-tl-prompt-text"><strong>Which team are you here for?</strong> Pick one to see only their matches.</p>
             <button type="button" class="tp-tl-pick" id="tp-tl-pick"><svg class="tp-ico tp-ico-fan" viewBox="0 0 36 33" aria-hidden="true" focusable="false"><path d="M31.313 0.355164L20.0081 0.482213C19.2242 0.491107 18.4682 0.721491 17.819 1.13186L12.5913 2.55355C12.5718 2.55905 12.5524 2.56498 12.5333 2.57176L10.7483 3.19176L10.7474 3.19007L10.7381 3.19515L10.5327 3.2663C10.0258 3.44247 9.56374 3.71224 9.16565 4.05697L7.62792 4.89973L6.57341 5.48713L6.55647 5.46426L6.38876 5.59004L5.87337 5.87674C5.41768 6.13084 5.0179 6.46583 4.69011 6.86138L2.0208 8.85903C2.01317 8.86453 2.0064 8.87004 1.9992 8.87596C1.12594 9.57389 0.577511 10.57 0.453849 11.68C0.331882 12.7785 0.639766 13.8593 1.32245 14.7266L12.1623 30.7315C12.1746 30.7497 12.1886 30.7679 12.2026 30.7857C13.0525 31.8491 14.3192 32.3865 15.5846 32.3535C16.4587 32.3302 17.3324 32.035 18.068 31.451L21.0723 29.2365L24.4654 28.5962L26.1967 28.2714L26.1878 28.4069L31.6632 28.5585C31.6852 28.5577 31.7064 28.5572 31.7284 28.5568C33.9988 28.4971 35.8194 26.3864 35.794 24.1139L35.5462 4.5982C35.5204 2.2914 33.6198 0.329754 31.313 0.355164ZM9.74076 6.02793C9.85637 5.81661 10.0021 5.62603 10.1706 5.46002L11.436 4.76633L12.0675 4.54696C11.7337 5.3101 11.63 6.16345 11.7854 6.99309L15.0993 26.0844L9.5811 8.05946C9.57814 8.04929 9.57475 8.03955 9.57136 8.02897C9.34225 7.37 9.40408 6.64074 9.74076 6.02793ZM15.8713 4.71339L16.0865 21.7563L13.4718 6.69452C13.4709 6.69029 13.4701 6.68605 13.4692 6.68182C13.3413 6.00295 13.5057 5.29613 13.9203 4.74219C14.2908 4.24712 14.8304 3.91086 15.4389 3.79609L15.9836 3.69361C15.9052 4.02394 15.8671 4.36528 15.8713 4.71339ZM7.74523 6.79574C7.68425 7.39075 7.74989 7.99848 7.94809 8.57528L13.4883 26.6727L5.77342 10.7775C5.76622 10.7631 5.7586 10.7487 5.75097 10.7347C5.40582 10.1147 5.34399 9.37442 5.58285 8.70402C5.66077 8.48507 5.76834 8.28052 5.90132 8.09503L7.32258 7.0312L7.74523 6.79574ZM2.6823 13.6852C2.26981 13.1698 2.08347 12.5253 2.15674 11.8697C2.22873 11.2183 2.54975 10.6339 3.05922 10.2218L3.73258 9.7183C3.76011 10.3523 3.9312 10.9782 4.24247 11.5453L11.8447 27.2084L2.72253 13.7399C2.70941 13.7212 2.69628 13.703 2.6823 13.6852ZM34.0754 23.9225C34.0903 25.2641 33.0125 26.3843 31.6721 26.4194L20.3274 26.5482C18.965 26.563 17.8444 25.467 17.8292 24.1041L17.5844 4.69349C17.578 4.1476 17.7474 3.62796 18.0731 3.19134C18.1167 3.13162 18.1616 3.07657 18.2052 3.02744C18.6647 2.5095 19.2979 2.21432 19.9882 2.19611L31.3324 2.06822C32.6948 2.05297 33.8158 3.14899 33.8307 4.51223L34.0754 23.9225Z"/></svg>Pick your teams</button>
           </div>
-          <p class="tp-rugby-line tp-tl-rugby" id="tp-tl-rugby"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-b"><svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg><span class="tp-u">Add every NSW match</span></button><span class="tp-rugby-why" id="tp-rugby-why-b">No team? This adds all the matches played in NSW.</span></p>
+          <p class="tp-rugby-line tp-tl-rugby" id="tp-tl-rugby"><button type="button" class="tp-link tp-rugby-link" data-rugby aria-describedby="tp-rugby-why-b"><svg class="tp-ico tp-ico-circ" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7"/><path d="M8 4.75v6.5M4.75 8h6.5"/></svg><span class="tp-u">Show every NSW match</span></button><span class="tp-rugby-why" id="tp-rugby-why-b">No team? This adds all the matches played in NSW.</span></p>
           <!-- Show interstate matches too: only with Every NSW match on. Every interstate match joins the axis as the dashed
                marker, to watch in NSW; none of them is counted or exported (concepts-teams.js, tlExtra) -->
           <div class="tp-tl-inter" id="tp-tl-inter" hidden>
@@ -508,7 +510,7 @@
           </div>
           <!-- Save & share: a prominent button pinned to the foot of the plan sheet (sticky as the sheet scrolls); opens the
                Save & share sheet stacked over this one (#tp-ss). Shown once there is a plan to keep. -->
-          <div class="tp-tl-foot" id="tp-tl-foot"><p class="tp-tl-device" id="tp-tl-device">Your plan is currently saved to this device only. Your teams are only used to show their matches.</p><button type="button" class="tp-tl-share" id="tp-tl-share" aria-haspopup="dialog" aria-controls="tp-ss" aria-describedby="tp-tl-device" hidden>Save &amp; share</button></div>
+          <div class="tp-tl-foot" id="tp-tl-foot"><p class="tp-tl-device" id="tp-tl-device">Your plan is currently saved to this device only. Your teams are only used to show their matches.</p><button type="button" class="tp-tl-share" id="tp-tl-share" aria-haspopup="dialog" aria-controls="tp-ss" aria-describedby="tp-tl-device" hidden>Share and export options</button></div>
         </div>
       </section>
       <!-- Save & share: a second sheet stacked over the open plan, with the save and share options from the
@@ -545,13 +547,18 @@
       <div class="cn-sheet tp-stack tp-ss" id="tp-ss" role="dialog" aria-modal="true" aria-labelledby="tp-ss-title" tabindex="-1" inert>
         <span class="cn-grabber" aria-hidden="true"></span>
         <div class="cn-sheet-head">
-          <h3 class="cn-sheet-title" id="tp-ss-title">Save &amp; share</h3>
-          <button type="button" class="cn-close" id="tp-ss-close" data-stack-close aria-label="Close Save &amp; share"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+          <h3 class="cn-sheet-title" id="tp-ss-title">Share and export options</h3>
+          <button type="button" class="cn-close" id="tp-ss-close" data-stack-close aria-label="Close Share and export options"><svg class="cn-x" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         </div>
         <div class="cn-view">
           <div class="cn-note" role="status"><span class="cn-note-dot" aria-hidden="true"></span><span id="tp-ss-note"></span></div>
           <!-- Save & share as a list (22 Nov): two groups, the same order on every device. Each row is one button: its icon,
                its name and a caption. Email and the rows with a peek open in place under themselves (concepts-third-half.js) -->
+          <!-- Share (26 Nov 2026): the phone's own share sheet, with the plan as text. Where a browser has none, the plan is copied -->
+          <h4 class="cn-sub cn-sub--copy">Share</h4>
+          <ul class="tp-ss-list" id="tp-ss-share-list">
+            <li><button type="button" class="tp-ss-row" id="tp-ss-share"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><circle cx="12" cy="3.5" r="1.8"/><circle cx="4" cy="8" r="1.8"/><circle cx="12" cy="12.5" r="1.8"/><path d="M5.6 7.1l4.8-2.7M5.6 8.9l4.8 2.7"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Share</span><span class="tp-ss-row-cap">Opens your phone&rsquo;s own share options.</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></li>
+          </ul>
           <h4 class="cn-sub cn-sub--copy">Keep a copy</h4>
           <ul class="tp-ss-list" id="tp-ss-keep">
             <li><button type="button" class="tp-ss-row" id="tp-ss-mailrow" aria-expanded="false" aria-controls="tp-ss-mail"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M2 4l6 5 6-5"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Email</span><span class="tp-ss-row-cap">Your plan comes as a PDF attachment.</span></span><svg class="tp-ss-chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 6l4 4 4-4"/></svg></button></li>
@@ -733,15 +740,19 @@
 </script>
 <script src="concepts-destinations.js"></script>
 <script src="concepts-fixtures.js"></script>
+<script src="v1/v1-fixtures.js"></script><!-- two later-round kick-offs in UTC corrected to Sydney time (26 Nov 2026) -->
 <script src="concepts-geo.js"></script>
+<script src="v1/v1-places.js"></script><!-- Moore Park as a place to stay (26 Nov 2026) -->
 <script src="concepts-words.js"></script>
-<script src="concepts-teams.js"></script>
-<script src="concepts-third-half.js"></script>
-<script src="concepts-map.js"></script>
-<script src="concepts-plan.js"></script>
+<script src="v1/v1-fanspots.js"></script>
+<script src="v1/v1-teams.js"></script>
+<script src="v1/v1-third-half.js"></script>
+<script src="v1/v1-map.js"></script>
+<script src="v1/v1-plan.js"></script>
 <script src="concepts-articles.js"></script>
 <script src="concepts-home.js"></script>
-<script src="concepts-flow-c.js"></script>
+<script src="v1/v1-flow-c.js"></script>
+<script src="v1/v1-fanzones.js"></script>
 <script src="concepts-social.js"></script><script src="v1/v1-social.js"></script>
 <script src="v1/v1-flow-motion.js"></script>
 <script src="v1/v1-flow-foot.js"></script>
@@ -785,17 +796,6 @@
       "Test: ?slogan=b shows the alternative slogan, Your team’s matches. Your days in NSW.",
       "Open question: the colour of the second slogan line (coral #EC5A5B or orange).",
       "Design: Figma 344:42858."
-    ] },
-    { sel: ".tp-photos", title: "Photo row", points: [
-      "One row of photo tiles that runs off the right edge. Swipe or scroll sideways; there is no scrollbar.",
-      "It never moves on its own (no auto-scroll or timer).",
-      "Each tile is a button that opens that photo’s details.",
-      "Open question: how many photos, which ones, and what each panel says."
-    ] },
-    { sel: ".tp-photo", title: "Photo details", points: [
-      "Tapping a tile slides a panel up over a dimmed page: a place label, a close button, the photo, a title, a line or two and one button.",
-      "The cross, a tap on the dimmed page or Escape closes it, and focus goes back to the tile. Keyboard focus stays inside while it is open.",
-      "Not built yet: all copy is placeholder and the button is not linked."
     ] },
     { sel: ".tp-count", at: "r", title: "Countdown", points: [
       "Days to go to the opening match (Australia v Hong Kong China in Perth, Fri 1 Oct 2027, 8:45pm Sydney time). On the day it counts hours, then minutes.",
@@ -883,7 +883,7 @@
       "A pick rises out of its row, larger and above its neighbours, then settles slightly lifted, in the picked colours with a tick.",
       "The first time it comes into view, the rows rise into place one after another.",
       "Keyboard: left and right move along the hand, up and down between rows, Home and End to either end, and a letter jumps to the next team starting with it.",
-      "Grid shows the same cards upright, four to a row with full names; the button beside Find switches between Grid and the hand (Fan). Picks stay, and the cards glide between the two layouts.",
+      "The hand has six cards to a row, so all 24 teams show without scrolling down; the hand is centred in the screen. Press and move it sideways and every card slides along its own arc, and it stays where it is let go. Find and Grid are borderless buttons with their icons. Grid shows the same cards upright, four to a row with full names; the button beside Find switches between Grid and the hand (Fan). Picks stay, and the cards glide between the two layouts.",
       "Reduced motion: nothing moves; the colour and tick still change.",
       "Design: Figma 282:26254."
     ] },
@@ -912,9 +912,9 @@
     ] },
     { sel: "#tp-clear", title: "Clear all", points: [
       "Ends the caption line, and shows whenever anything is picked, Every NSW match included.",
-      "Puts every card back in the hand, turns off Every NSW match and clears the teams’ ticket marks. A ticket on a match added on its own stays.",
+      "Puts every card back in the hand, turns off Every NSW match and clears the teams. A match added on its own stays.",
       "The match tabs go, and the plan bar sinks away unless something else is in the plan.",
-      "Undo: offered for six seconds, with focus on it. It puts the teams, their tickets and the chosen tab back exactly, and focus returns to Clear all. When Undo goes, focus moves to the middle card."
+      "Undo: offered for six seconds, with focus on it. It puts the teams and the chosen tab back exactly, and focus returns to Clear all. When Undo goes, focus moves to the middle card."
     ] },
     { sel: "#tp-all [data-rugby]", title: "Every NSW match", points: [
       "For people with no team in mind: ⊕ Add every NSW match adds all 17 matches played in NSW, knockouts included.",
@@ -927,40 +927,59 @@
     ] },
     { sel: "#tp-ask", title: "Your days in NSW (on the page)", points: [
       "Appears under the team picker once there is something to plan around: a team, every NSW match or a single match. Optional.",
-      "The date slider leads (see its own note). The dates under it open First day and Last day fields, with Undo and Reset under them.",
-      "Days apply as they are set: on letting go of a handle, after a short pause on the arrow keys, or when a date field changes. No confirm button and no toast here, as the dates under the slider already show the change.",
+      "One open range calendar (see its own note). Your matches with their dates sit above it on the step. Undo and Reset follow.",
+      "Days apply as they are set: the second tap on the calendar sets the last day. No confirm button and no toast here, as the line under the calendar already shows the change.",
       "Undo steps back one change at a time. Reset clears the days and can itself be undone. Once set, the line shows your days with Change, and Remove my days clears them.",
       "The panel holds still on screen while the page below it updates.",
-      "Nothing is guessed: the slider and fields start empty.",
-      "Refine your plan (folded away): Where are you staying? (Sydney CBD, Newcastle, Bondi, Outside NSW, or search for a place in NSW; I’m a local was removed on 24 Nov, as matches are in both Sydney and Newcastle) and Who’s coming? (Solo, Couple, Friends, Family). One answer each, applied on tap; tap again to clear.",
+      "Nothing is guessed: the calendar starts with no days picked, unless the step started them from the first to the last NSW match.",
+      "Refine your plan (folded away): Where are you staying? (quick answers that follow the person’s matches, see step 3, or search for a place in NSW; a quiet Staying outside NSW link; I’m a local was removed on 24 Nov, as matches are in both Sydney and Newcastle) and Who’s coming? (Solo, Couple, Friends, Family). One answer each, applied on tap; tap again to clear.",
       "How the answers change the ideas: where you stay sets the city for free days and sorts ideas by distance. Families get attractions and free things first, and day trips before longer trips. Couples and friends get food and drink first.",
       "Until a place is given, the copy says in Sydney (or the city), never near your base.",
       "Open question: the line above the dates, Set your days to see ideas for the rest of your trip., is wording still to approve."
     ] },
-    { sel: "#tp-range", title: "Date slider", points: [
-      "The first thing in every date picker, on the page and in the days sheet. It runs from 29 Sep to 15 Nov: the tournament plus two days either side.",
-      "Two handles for your first and last day in NSW, with the days between filled. Two short marks show where the tournament starts and ends.",
-      "Handles snap to whole days and never cross. A tap on the track moves the nearer handle. While dragged, a handle lifts and shows its date above it.",
-      "The slider and the date fields update each other. A typed date past either end pins its handle there and says so.",
-      "Your teams’ matches are dotted on the track as you pick: NSW matches solid, interstate ones hollow.",
-      "Days before or after the tournament still count as days in NSW. The plan only shows tournament days.",
-      "Keyboard: arrow keys move a day, Page Up and Page Down a week, Home and End to the limit. Screen readers hear the date.",
-      "Desktop: hovering a dot or a tournament mark shows what it marks in a small label (also on the plan bar’s strip). Touch screens never see it; screen readers already hear it.",
-      "Not built yet: haptics on phones, a light tick for each day crossed and a firmer one at either end."
+    { sel: ".v1-cal", title: "Dates: the range calendar", points: [
+      "Dates are set in one range calendar, open by default, on the step, in the Your days sheet and in Your answers: the first tap sets the first day, the second the last. The old slider and the typed First day and Last day fields are gone, and so is the read-only strip of the tournament that sat above the calendar (it was noise beside it, 26 Nov 2026).",
+      "The calendar marks matches itself: your match days with an orange dot, other NSW matches with a grey dot, the later rounds with a diamond. Days outside 29 Sep to 15 Nov cannot be picked.",
+      "On the step, Your matches lists the matches of the teams picked with their dates, interstate ones too, so there is no need to go back. The ones in NSW (Sydney or Newcastle) are tinted and tagged In NSW, so those that decide the days stand out. The calendar marks two things only: your own team’s matches in NSW (an orange ring and dot) and the later rounds in NSW (a diamond); other teams’ matches are not marked. With no team (Show every NSW match) every NSW match is marked. A key between the list and the calendar says what the marks mean, and sits just above the calendar in the Your days sheet and Your answers (26 Nov 2026). Hovering a marked day on a desktop, holding it for about half a second on a phone, or focusing it with the keyboard shows what is on it: the match, its stadium and precinct and the kick-off in Sydney time. A hold does not pick the day; the tip closes when the pointer leaves, on a tap elsewhere, on scroll or Escape. With Every NSW match it says the first and last day in one line.",
+      "Once days are set, matches outside them are not shown below the team cards: Where to watch, Around your matches, the map and the plan show only matches inside the days. The team cards keep each team's whole list and counts, and a match added by hand stays."
+    ] },
+    { sel: "#tp-dc", title: "Your plan: a vertical timeline (new layout, 26 Nov 2026)", points: [
+      "A layout to try, built as the working version; the earlier plan (a strip of days, then cards) is kept in archive/. Testing said people open their plan and cannot read it, because the useful things sat in secondary sheets.",
+      "One vertical timeline, a day after another, each day a card on a rail with its date. A day with a match or things added has a solid card and a solid rail. An empty day has a dotted border and a dotted rail. Every day in the person's days is shown; runs of free days no longer fold into one card.",
+      "A free day has a dotted outline, a big plus and Suggest ideas (not Add). Suggest ideas opens the ideas on the card, up to three, with Show more for the rest, and the same Add and Added as everywhere. No ideas sheet. A day with something on it keeps a smaller Suggest ideas.",
+      "List or Map at the top. Map shows where each day is, numbered, and Open full screen, day by day opens the full-screen map where the days swipe. With no days set, Map says so and offers Set your days.",
+      "On the cards, from the sheets: getting there on a match day (Train from Central, about 36 min); for something added, how to get there, price and opening hours (a place), the suburb, transport and opening times (a pub, club or fan zone, sample data), and how long an idea takes. Tickets, Move and Remove were already on the card.",
+      "Still in a second sheet: a match's details, an added thing's full details, an idea's details, the full route there and back, Your answers (Change), Save & share and Clear plan.",
+      "Not built yet: the strip's keyboard days (the timeline is read top to bottom), and a map that shows the things added, not only each day's place."
+    ] },
+    { sel: "#v1-fz", title: "Fan zones and fan villages", points: [
+      "Added 26 Nov 2026. Every fan zone and fan village, whichever team the person follows, by city. Each card says how to get there, when it is open and what is there. The details are sample data, marked Sample on every card and in the section note.",
+      "Not filtered by the person's teams, dates or days: it is the whole list. The pubs and clubs that show a team's matches stay in Where to watch."
+    ] },
+    { sel: "#v1-fm", title: "Pubs and fan zones map", points: [
+      "Added 26 Nov 2026. Pubs, clubs, fan zones and fan villages on their own map, apart from the planner's map, which no longer carries their pins. Pins are numbered and named by suburb or venue (Newtown, Circular Quay), never by a region such as North Shore.",
+      "Three views so no two pins sit on top of each other: Sydney centre, Parramatta to Wollongong, and Newcastle. Tap a pin or a row to see its card under the map; the page does not move.",
+      "Filled orange is a fan zone or fan village; an outlined pin is a pub or club. The same card, with transport, opening times and what is there, is also in the venue's sheet from Where to watch.",
+      "Sample data (v1/v1-fanspots.js): the venue names are the invented ones already in Where to watch, the suburbs and pin places are real, and everything else is made up. Real details are still needed."
+    ] },
+    { sel: "#v1-also", title: "Also on in NSW", points: [
+      "Added 26 Nov 2026. Once days are set: the other NSW matches inside them, whoever is playing, each with Add (the same Add and Added as everywhere). The later rounds are listed by stage with teams to be decided, and have no Add.",
+      "A Newcastle card sits above the list when a Newcastle match is on inside the days and none of the person's own is there, even if they are staying in Sydney: Why not visit Newcastle, where there are other matches on, the days, and See Newcastle (the Newcastle sheet). It is not shown if they are staying in Newcastle.",
+      "Not shown with Every NSW match (those matches are already the person's) or before days are set."
     ] },
 
     // Once teams are picked: Your matches
     { sel: "#tp-fc", title: "Version 1: the questions up front", points: [
       "Built from team feedback (the Option C test, now Version 1): the Plan tab asks first. Options A and B were archived on 25 Nov (commit c7f5ce3, docs/archive-options-a-b.md); their addresses open this page.",
-      "The Plan tab asks three things in turn: your teams, the tickets you have and your days in NSW. Where you’re staying is not asked up front (24 Nov): it is an optional extra in the Your answers card. Who’s coming is left out until it changes anything.",
-      "Each step borrows the planner’s own control (the hand of cards, the days slider), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
-      "Step 1 is the one required answer: until a team or Every NSW match is picked, Next is unavailable (aria-disabled, with a line saying why) and the left button reads Show every NSW match, which picks it and goes straight to step 2. Once anything is picked the left button is Skip again. A team picked on Home counts; unpicking the last one makes Next unavailable again. A place saved before this rule that got past step 1 with nothing picked starts again at step 1.",
-      "Tickets: every match of your teams whose teams are known, NSW first, then Interstate (kick-offs in Sydney time). No tickets yet replaces any marked, marking one replaces it, and Clear all shows once one is marked. Knockouts are not listed: with no teams yet, a ticket for one cannot be recorded.",
+      "The Plan tab asks three things in turn (26 Nov 2026): your teams, your days in NSW and where you’re staying. Tickets are not asked: the matches are inferred from the teams and the days, and each can be taken off the plan with a quiet Remove. Who’s coming is left out until it changes anything.",
+      "Each step borrows the planner’s own control (the hand of cards, the days calendar), so an answer is the same wherever it is set. A team picked on Home shows as picked in step 1.",
+      "Step 1 is a required answer: until a team or Every NSW match is picked, Next is unavailable (aria-disabled, with a line saying why) and the left button reads Show every NSW match. That means no team: nothing is inferred, and the NSW matches inside your days are listed under On while you’re here, each with Add. It goes straight to step 2. Once anything is picked the left button is Skip again. A team picked on Home counts; unpicking the last one makes Next unavailable again. A place saved before this rule that got past step 1 with nothing picked starts again at step 1.",
+      "Where are you staying, or thinking of staying? (step 3, the Your days sheet’s stay panel and the Your answers card, one builder) always needs a place, as the base of the plan. The quick answers follow the person’s matches (the ones inside their dates; all of their team’s NSW matches with no dates; every NSW match inside the dates with no team): Sydney CBD if a match is in Sydney, Sydney Olympic Park for Stadium Australia, Moore Park for the Sydney Football Stadium, Newcastle if a match is there, and Sydney CBD with Newcastle if there is no NSW match. The buttons carry the same place names the plan uses. The NSW place search stays under them, and a quiet Staying outside NSW link sits under the search. With one place, a quiet + Add another place allows one more, two in total, each shown with Remove; no nights are asked. The plan always reads Staying in [place], or Staying in [place] and [place]. A stadium or fan zone measures distance, time and route from whichever place is nearer; spare-time ideas and another match measure from the first place entered. There is no Still deciding and no no-place state: a saved answer with no place goes back to this step. See your plan is unavailable until a place is chosen, and there is no Skip.",
       "Your days start from your first to last NSW match, the first time the step opens with none set.",
-      "A button bar floats at the bottom: Skip on the left moves on to the next screen without that answer, Next on the right. On Your days, the last step, Next reads See your plan and Skip finishes the flow too, taking back the days started for you if left as they were. From step 2, Back is the first button in the bar (a square with an arrow beside Skip and Next, 26 Nov 2026) and goes back one step.",
+      "A button bar floats at the bottom: Skip on the left moves on to the next screen without that answer, Next on the right. On Your days, Skip moves on to where you’re staying, taking back the days started for you if left as they were; on the last step Next reads See your plan. From step 2, Back is the first button in the bar (a square with an arrow beside Skip and Next, 26 Nov 2026) and goes back one step.",
       "Motion (26 Nov 2026): the cards deal in each time the Plan tab opens on step 1, leaving a pile below the hand and fanning out to their places. Next, Skip and Show every NSW match push: the question you leave goes out to the left as the next one comes in from the right, as one rail (Back goes the other way). Finishing the flow does not push. Reduced motion: nothing moves.",
       "The plan bar is hidden on step 1 until a team is picked; then it rises and the button bar rises with it, on the same curve. It fills as you answer, but does not open (and shows no grabber) until the flow is finished. No toasts while a step shows, as the sections they point to are hidden.",
-      "Finished: the page starts with Your matches. Your answers is a condensed card at the top of the open plan, under its title (the teams, then tickets, days and, once answered, where you’re staying), and replaces the plan’s own Your teams button and days line. Change slides across inside the plan to a Your answers level with a back arrow: the hand of cards with Find and Add every NSW match, the tickets list, Your days and Where you’re staying (optional). Back, Escape or a tap on the grabber go back to the plan; closing the plan closes both. The first change pins a Save bar to the level’s foot naming the latest change; Save closes the plan. No toasts while the level is open. Home’s Plan around your matches opens the plan on the card.",
+      "Finished: the page starts with Your matches. Your answers is a condensed card at the top of the open plan, under its title (the teams, then your days and where you’re staying), and replaces the plan’s own Your teams button and days line. Change slides across inside the plan to a Your answers level with a back arrow: the hand of cards with Find and Show every NSW match, Your days and Where you’re staying. Back, Escape or a tap on the grabber go back to the plan; closing the plan closes both. The first change pins a Save bar to the level’s foot naming the latest change; Save closes the plan. No toasts while the level is open. Home’s Plan around your matches opens the plan on the card.",
       "A reload comes back to the step you were on; Reset prototype and ?reset start again. Breaks principle 1 (reward early) on purpose, to test asking first."
     ] },
     { sel: "#tp-tabs", only: "results", title: "Your matches and All matches tabs", points: [
@@ -976,11 +995,11 @@
     ] },
     { sel: ".tc-head", only: "results", title: "A team card", points: [
       "Leads with the team: a band in its colours, a large flag, its name and one line of what is ahead (3 matches in 13 days · next: v Argentina, Sat 2 Oct), then a quiet line with its pool and how many matches are in NSW.",
-      "One row per match: date, opponent with flag, city and kick-off. The whole row opens the match sheet.",
-      "NSW rows have I have tickets (see Tickets). Interstate rows have Find the fan zones, which opens the match sheet at Where to watch it in NSW.",
-      "No form fields on the card. A chip appears only once something is set: Ticket, or Watching at [venue] once a screening is added.",
+      "One row per match inside your days (26 Nov 2026: nothing outside them shows): date, opponent with flag, city and kick-off. The whole row opens the match sheet.",
+      "Interstate rows have Find the fan zones, which opens the match sheet at Where to watch it in NSW. There are no ticket buttons any more.",
+      "No form fields on the card. A chip appears only once something is set: Watching at [venue] once a screening is added.",
       "One knockout line (see Knockouts).",
-      "One next step. A team with an NSW match: See your match day, which opens your plan on the team’s first NSW match day inside your days, at the top, with focus on its heading. A team with none: See where to watch all 3 in NSW, a sheet of each match’s screenings with Add.",
+      "One next step. A team with an NSW match: See your match day, which opens your plan on the team’s first NSW match day inside your days, at the top, with focus on its heading. A team with none inside your days: See where to watch all 3 in NSW (the count is of the matches the sheet lists, and the button is not there when there are none), a sheet of each match’s screenings with Add.",
       "Edge case: with days set and none of the team’s NSW matches inside them, the plan opens as usual and says so above the strip (Mon 4 Oct is outside your days (9 to 12 Oct)).",
       "Nothing on the card moves the page. Every sheet returns focus to what opened it, even if the card has redrawn.",
       "Screen readers: See your match day also names the match."
@@ -1006,18 +1025,15 @@
       "It is left out of the in NSW count, and offers where to watch it in NSW instead."
     ] },
     { sel: "#tp-results-sum", only: "results", title: "Summary line", points: [
-      "Teams, matches, how many are in NSW, and how many tickets are marked (tickets only once one is marked).",
+      "Teams, matches inside your days, and how many are in NSW.",
       "One counting rule across the whole page: pool matches and knockouts are counted separately (Every NSW match: 9 pool matches + 8 knockouts, all in NSW). A team’s count is pool matches only, as its knockouts are not known until the pools finish.",
       "A match between two of your teams counts once.",
       "Updates as you go, and screen readers hear it."
     ] },
-    { sel: "#tp-results-sum", at: "tl", only: "results", title: "Tickets", points: [
-      "Each NSW match row with known teams has I have tickets: a ticket icon with an orange ring. Pressed, it fills dark with a tick.",
-      "One ticket per match: the button on the row and the one in the match sheet are the same, so either changes both.",
-      "Marking a ticket also puts the match in your plan, as a ticket means you are going.",
-      "Marking or removing one shows a toast, because it changes parts of the page out of view: one line, Ticket marked for England v Wales. Its link names the first part that changed (See Where to watch), or Open your plan. No link while a sheet is open. A toast stays 4 seconds and goes when a sheet opens over the page.",
-      "Interstate rows keep Watch in NSW and show a Ticket chip once one is marked from the match sheet.",
-      "In the match sheet it is a full-width toggle, the sheet’s main action once the match is in the plan, with a line on why it is asked. Screen readers hear it as a checkbox."
+    { sel: "#tp-results-sum", at: "tl", only: "results", title: "No tickets", points: [
+      "There is no tickets step and no I have tickets button anywhere (26 Nov 2026). We assume you are going to your teams’ NSW matches that fall inside your days; each has a quiet Remove in the open plan, the same as an idea.",
+      "Taking a match off puts it under Also on in NSW with Add, so it is easy to bring back.",
+      "Knockouts are not assumed: see the knockout line."
     ] },
     { sel: "#tp-deck-hint", only: "results", title: "More cards", points: [
       "Shown only when there is more to the side: your other team cards, in the order you picked them with Every NSW match last."
@@ -1027,7 +1043,7 @@
       "The first four pool matches show, with N more pool matches to see the rest in place, then the knockout line and Plan around your match days (opens the days sheet)."
     ] },
     { sel: ".tp-rcard--added", only: "results", title: "Matches you added", points: [
-      "Single matches added from All matches that none of your teams plays in get a card of their own at the end, with their ticket marks."
+      "Single matches added from All matches that none of your teams plays in get a card of their own at the end."
     ] },
 
     // Before a team is picked: All matches
@@ -1047,9 +1063,8 @@
     { sel: ".tp-all-btn", only: "pick", title: "Match sheet", points: [
       "Opened from a row in All matches, or from a match on a team card. It slides up over a dimmed page.",
       "Shows the date, Sydney kick-off, venue, city, and In NSW or Interstate.",
-      "Add to your plan adds that one match, even if neither team is picked (for example, a ticket for a match your team is not in).",
+      "Add adds that one match, even if neither team is picked (for example, a match your team is not in).",
       "Add [team] to my teams does exactly what picking its card does. It is a toggle: pressed it reads ✓ Wales added to my teams, and pressing again takes the team off. Tapping the match row itself never adds a team.",
-      "I have a ticket shows for any match with known teams, and also adds the match to the plan (see Tickets).",
       "An interstate match leads with Where to watch it in NSW: fan zones, the village and pubs screening it, each with Add. With none listed: No NSW screenings listed for this match yet.",
       "Changes apply at once. On the first change a bar pins to the sheet’s foot with a line naming the latest change (Foreshore Park Fan Zone added to your plan on Sat 2 Oct.) and Save. Save does exactly what the cross does; it is there because on a phone the confirmation can be out of view and the cross reads as cancel.",
       "The Save bar stays while you open a venue from the match, and is gone the next time the sheet opens. The same Save bar is used on every sheet where changes apply at once; the days sheet keeps Use these dates instead.",
@@ -1064,7 +1079,7 @@
       "1. Nothing picked: the three NSW stadiums and a fan village, each with a few things nearby as small dots (food and drink, outdoors, culture, attraction), in an order that changes each day so no business is favoured.",
       "2. A team picked: its NSW matches light up on their stadiums and the other stadiums go quiet. Screening venues (fan zones, pubs, clubs) show as TV pins: strong if they show one of your matches, faint if not. A TV pin’s card names the venue and which of your matches it shows, with See screenings.",
       "A team that only plays in Newcastle opens on Newcastle. A chip in the corner points to the other city and glides there when tapped.",
-      "3. Days set: Your trip is ready to follow day by day, with Follow day by day, which opens the day-by-day map. Scrolling never turns into stepping through the map.",
+      "3. Days set: the full-screen day-by-day map opens from the plan's Map view (Open full screen, day by day). The page no longer has a Follow day by day button (26 Nov 2026).",
       "Tapping a place shows its card under the map, with its matches and things nearby, each with Add.",
       "Saved before days are set, a place goes into Saved, not placed yet. Once days are set it moves onto a day by itself: near a stadium, that stadium’s match day if it is in your days; otherwise the first free day with room, on a day it is open. If nothing fits it stays saved and says so.",
       "Full screen (the third map button) fills the phone. There one finger moves the map and place cards open over its foot. Escape or Exit full screen puts it back at the same place and zoom.",
@@ -1085,7 +1100,7 @@
       "Reduced motion: the map jumps instead of gliding."
     ] },
     { sel: "#tp-map", title: "Day-by-day map (Follow day by day)", points: [
-      "Opens only from Follow day by day, full screen with a close cross. The list of days on the page always shows as well.",
+      "Opens only from the plan's Map view, full screen with a close cross (it was Follow day by day on the page until 26 Nov 2026). The days swipe left and right.",
       "Days are stepped on purpose, never by scrolling: swipe the map, Previous and Next day on the card, a dot per day between them (Day n of N when the dots will not fit), the list of days, or the arrow keys.",
       "The map leads and the card follows: the map glides to the new day (pulling back first for a long move), then the new card slides in from the side you asked for.",
       "The card is a bottom sheet. Collapsed: the day, how to get there, a row such as 3 ideas for this day · Show, and the way to the next day. Show, dragging up or tapping a pin opens it to the ideas; Hide, dragging down or Escape closes it. The choice carries from day to day.",
@@ -1110,18 +1125,16 @@
     // Where to watch, Around your matches, ideas, trips and products
     { sel: "#tp-watch-note", title: "Where to watch", points: [
       "Every match of every picked team, interstate ones included, filtered to your days once they are set.",
-      "One card per evening: the match (or two), up to three venues in NSW each with Add, then Going? Mark your ticket on the match, which opens that match’s sheet at I have a ticket.",
+      "One card per evening: the match (or two), up to three venues in NSW each with Add.",
       "Two of your matches on one evening share a card (2 of your matches tonight). Venues showing both come first, and the rest say which match they show.",
       "With more than one evening, the cards are a carousel, one at a time with the next peeking in. Adding on a card keeps the carousel where it was.",
-      "Once a ticket is marked, that match leaves the carousel and becomes one line above it: You’re at England v Wales, Sat 16 Oct, with See your match day (opens your plan on that day). An interstate ticket reads You’re in Brisbane for Wales v Zimbabwe, with See it on your plan.",
-      "The match’s name on that line opens its sheet, where unticking I have a ticket undoes it and the card comes back.",
-      "The intro counts what is left to watch, or says you have tickets to all your matches.",
+      "The intro counts what there is to watch.",
       "Fairness, as a government site: venues rotate, starting at a different venue for each match, mixing kinds (fan zone, pub, club) and areas first, and no venue shows on more than two evenings while another would do. Where you are staying puts that city first.",
       "Data: venues are dummy data with invented names (gap), marked pink with Annotations on. Which matches each venue screens follows a simple rule, not real programming. Real venues and screenings are still needed."
     ] },
     { sel: "#tp-third-trip", title: "Setting your days (days sheet)", points: [
       "Your days, with Change, or Set your days if none are set. Both open the days sheet where you are, so the page never jumps.",
-      "The sheet: the date slider, then a calendar for October and November 2027 (tap your first day, then your last), and the dates under the slider open the First day and Last day fields.",
+      "The sheet: a calendar for October and November 2027 (tap your first day, then your last). Use these dates keeps them.",
       "Your NSW match days are marked on the calendar with a dot and a ring that stay visible inside the chosen range.",
       "A bar pinned to the foot of the sheet shows what is picked (9 to 20 Oct · 12 days, 1 of your NSW matches) with Use these dates and Remove my days. Nothing changes until Use these dates is tapped.",
       "Days picked but not confirmed are kept: closing the sheet any way keeps them, and reopening shows them with Not saved yet. Use these dates to keep them. Use these dates, Remove my days, or the days changing elsewhere drop the draft. A reload starts from the saved days.",
@@ -1134,7 +1147,7 @@
       "A match day has Before the match, After the final whistle and Near the stadium.",
       "A free stretch (4 free days · Tue 12 to Fri 15 Oct): one or two free days get day trips; three or more get longer trips first, then day trips.",
       "Your first and last day are half days (Arrival day, Last day): only things near your base, never counted as free days.",
-      "An interstate match you have a ticket for is a day away and splits the stretch. A free day when your team plays interstate (no ticket) gets its own card with where to watch it, each venue with Add.",
+      "A free day when your team plays interstate gets its own card with where to watch it, each venue with Add.",
       "Your base city (Sydney or Newcastle) comes from the matches either side. Between a Newcastle match and a Sydney match, something on the way is suggested first.",
       "Empty state: with no team, a first look at the next NSW match day.",
       "Fairness: places rotate, starting at a different place for each match, so no business always leads.",
@@ -1248,7 +1261,7 @@
     ] },
     { sel: ".tp-dc-card", title: "One card a day", points: [
       "Heading: the date and the kind of day (Arrival day, Match day, Last day, Free day; both when a day is two).",
-      "A match day shows the match, its Sydney kick-off, the stadium and I have tickets. A match to watch only, or with teams still to be decided, says so instead.",
+      "A match day shows the match, its Sydney kick-off, the stadium and a quiet Remove. A match to watch only, or with teams still to be decided, says so instead.",
       "Then everything added that day, in the order of the day where known (before the match, the match, a screening, after): picture, name (opens its details), type, and a time only where the data has one.",
       "Move lists the days an item can go to; Remove takes it off. Each says what changed. Screenings only have Remove, as a screening is for one match.",
       "A free day with nothing on it has Add ideas, which opens its ideas sheet. Two or more empty days in a row share one card, with Show each day. A longer trip shows on its first day, then night 2 and so on.",
@@ -1272,7 +1285,7 @@
     { sel: "#tp-inter", title: "Show interstate matches too", points: [
       "A switch in the open plan, off by default, shown only with Every NSW match on (a picked team’s interstate matches are already in the plan).",
       "On, every interstate match shows on its day card marked To watch in NSW, not in your plan.",
-      "They are not part of the plan: not counted, never a clash, and left out of Save & share. Adding one on its own, or marking a ticket, makes it part of the plan.",
+      "They are not part of the plan: not counted, never a clash, and left out of Save & share. Adding one on its own makes it part of the plan.",
       "Remembered with the picks; Reset prototype clears it."
     ] },
     { sel: "#tp-tl-wait", title: "Saved, not placed yet", points: [
@@ -1287,26 +1300,30 @@
     { sel: "#tp-tl-clear", title: "Clear plan", points: [
       "A quiet link at the foot of the plan, shown only once something is added.",
       "It asks first, in a small sheet stacked over the plan: Clear your plan?, listing what is taken off (counted by kind) and what stays, and You can undo this straight after. Cancel has focus.",
-      "Taken off: everything you added, and single matches added from All matches with their ticket marks.",
-      "Kept: your teams and their tickets, your trip answer and days, and the All matches filter. Teams are cleared with Clear all on the page.",
+      "Taken off: everything you added, and single matches added from All matches.",
+      "Kept: your teams, your trip answer and days, and the All matches filter. Teams are cleared with Clear all on the page.",
       "Cancel, the cross, Escape, a tap outside or dragging down keeps everything.",
       "Undo: Plan cleared: N things taken off, with Undo for six seconds and focus on it. Undo puts everything back exactly."
     ] },
     { sel: ".tp-tl-device", title: "Saved on this device", points: [
-      "Picks, tickets, what you added, your trip answer and the chosen tab are kept in this browser, so a reload puts you back where you were.",
+      "Picks, what you added, your trip answer and the chosen tab are kept in this browser, so a reload puts you back where you were.",
       "A line just above Save & share says Your plan is currently saved to this device only, so the reason to save or share is next to the button.",
       "Prototype only: Reset prototype, or ?reset on the address, clears it. Phone view keeps its own copy; ?phone&reset clears that."
     ] },
-    { sel: "#tp-tl-share", title: "Save & share", points: [
+    { sel: "#tp-tl-close", title: "Close the plan", points: [
+      "A cross on the plan’s title row, top right, as on every other sheet (26 Nov 2026). It closes the plan, drill levels and all; the Your plan toggle in the bar above stays. Focus returns to the toggle. The Your answers level has the same cross.",
+    ] },
+    { sel: "#tp-tl-share", title: "Share and export options", points: [
       "A full-width button pinned to the foot of the plan, shown once there is something to keep (a team picked or something added).",
       "Opens a second sheet stacked over the plan. The plan steps back and dims, with a strip of it showing above.",
       "Only two levels: a third sheet replaces the second.",
-      "Closing: the cross, Escape, a tap on the strip above, or dragging down past a third. The plan comes forward and focus returns to Save & share.",
+      "Closing: the cross, Escape, a tap on the strip above, or dragging down past a third. The plan comes forward and focus returns to Share and export options.",
       "Keyboard focus stays in the top sheet.",
       "Reduced motion: no slide or scale."
     ] },
-    { sel: "#tp-ss .tp-ss-list", title: "Save & share options", points: [
-      "Everything in the plan, in date order: matches (with tickets and interstate marked), days in NSW and what was added.",
+    { sel: "#tp-ss .tp-ss-list", title: "Share and export options", points: [
+      "Share (26 Nov 2026) opens the phone’s own share sheet with the plan as text. Where the browser has none, the plan is copied instead. The export choices below are unchanged.",
+      "Everything in the plan, in date order: matches (interstate marked), days in NSW and what was added.",
       "A list, the same order on every device. One option opens at a time under its row, and the same row closes it.",
       "Email: the plan as a PDF attachment. Opens an email field, Send my plan, the legal line and the opt-in. What was typed is kept if it closes. Nothing is sent in the prototype.",
       "Copy plan: three formats. Detailed (the full plan), Compact (one line per item with day, time and place) and For AI assistant (the plan with a short request).",
@@ -1855,7 +1872,7 @@
   if (window.ResizeObserver) new ResizeObserver(function () { measure(); soon(); }).observe(pick);
   if (window.MutationObserver) new MutationObserver(function () { measure(); soon(); }).observe(phone, { attributes: true, attributeFilter: ['data-fc'] });
   // Focus in the intro while it is still behind the cards: bring it fully out
-  intro.forEach(function (el) { el.addEventListener('focusin', function () { measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
+  intro.forEach(function (el) { el.addEventListener('focusin', function () { if (document.documentElement.getAttribute('data-flow') === 'sb') return; /* Option C has no peek, so focus never needs to bring the row out: tapping Find or Grid must not scroll the page */ measure(); if (body.scrollTop < D) { body.scrollTop = D; apply(); } }); });
   // The peek glides up into view once, on arrival at the top of the page
   if (!reduce.matches && body.scrollTop < 4 && picker.animate && document.documentElement.getAttribute('data-flow') !== 'sb') picker.animate([{ translate: '0 48px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 600, delay: 150, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'backwards' });
 })();

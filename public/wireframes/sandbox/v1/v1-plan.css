@@ -1,0 +1,74 @@
+/* VERSION 1's PLAN (26 Nov 2026), a new layout to try: one vertical timeline, a day after another, on a rail. Built by
+   v1/v1-plan.js. Nothing here is in a shared file. */
+.v1p-view { display: flex; gap: var(--space-2); margin: var(--space-4) 0 var(--space-4); }
+.v1p-view-b { min-height: 36px; padding: 0 var(--space-4); border: var(--bw-2) solid var(--c-line-ink); border-radius: 999px; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-semi); cursor: pointer; }
+.v1p-view-b[aria-pressed="true"] { background: var(--c-btn); color: var(--c-on-dark); }
+.v1p-view-b:focus-visible, .v1p-suggest:focus-visible, .v1p-map-row:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+
+/* The rail: a dot with the date for each day, a line down to the next. Solid where there is something on, dotted where not */
+.v1p-days { list-style: none; margin: 0; padding: 0; }
+.v1p-day { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: var(--space-3); padding-bottom: var(--space-4); }
+.v1p-day::before { content: ""; position: absolute; left: 21px; top: 46px; bottom: 2px; border-left: 2px solid var(--c-ink); }
+.v1p-day.is-open-day::before { border-left: 2px dotted var(--c-ink-3, #8a8a8a); }
+.v1p-day:last-child::before { display: none; }
+.v1p-rail { position: relative; }
+.v1p-dot { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--c-ink); background: var(--c-surface); line-height: 1; }
+.v1p-dot b { font-size: var(--fs-md); font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.v1p-dot small { margin-top: 2px; font-size: .625rem; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .03em; }
+.v1p-day.is-filled .v1p-dot { background: var(--c-fill-soft); }
+.v1p-day.is-match .v1p-dot { background: var(--c-ink); color: var(--c-on-dark); }
+.v1p-day.is-open-day .v1p-dot { border-style: dotted; }
+.v1p-day .tp-dc-card { margin: 0; min-width: 0; }
+.v1p-stay { list-style: none; padding-bottom: var(--space-4); }
+
+/* Empty days and free days: a dotted border; a free day adds a big plus and Suggest ideas */
+.v1p-day .tp-dc-card.is-free, .v1p-day .tp-dc-card.is-empty { border: 2px dotted var(--c-line-ink); background: transparent; box-shadow: none; }
+.v1p-day .tp-dc-card.is-empty .tp-dc-empty { margin: 0; color: var(--c-ink-2); }
+.v1p-free { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-2) 0 var(--space-1); text-align: center; }
+.v1p-plus { width: 56px; height: 56px; fill: none; stroke: var(--c-ink); stroke-width: 1.5; stroke-linecap: round; }
+.v1p-free-t { margin: 0; color: var(--c-ink-2); font-size: var(--fs-md); }
+.v1p-suggest { min-height: 36px; padding: 0 var(--space-4); border: var(--bw-2) solid var(--c-line-ink); border-radius: 999px; background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: var(--fs-md); font-weight: var(--fw-bold); cursor: pointer; }
+.v1p-suggest.is-big { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-on-dark); }
+.v1p-suggest[aria-expanded="true"] { background: var(--c-surface); color: var(--c-ink); border-color: var(--c-line-ink); }
+.v1p-more-acts { margin-top: var(--space-3); }
+
+/* Ideas, open on the card: up to three, then Show more */
+.v1p-ideas { margin-top: var(--space-4); text-align: left; }
+.v1p-ideas .tp-pcs { margin: 0; }
+.v1p-showmore { margin-top: var(--space-3); min-height: 36px; }
+.v1p-ideas-none { margin: var(--space-3) 0 0; color: var(--c-ink-2); font-size: var(--fs-sm); }
+
+/* What a card says without a sheet */
+.v1p-go { margin: var(--space-2) 0 var(--space-3); }
+.v1p-go .tp-go-one { margin: 0; }
+.v1p-more { list-style: none; margin: var(--space-1) 0 0; padding: 0; display: grid; gap: 2px; font-size: var(--fs-xs); line-height: 1.4; color: var(--c-ink-2); }
+
+/* The map view */
+.v1p-map { display: grid; gap: var(--space-3); }
+.v1p-map-box { position: relative; overflow: hidden; width: 100%; border-radius: 12px; border: var(--bw-1) solid var(--c-line); background: var(--c-surface-2); }
+.v1p-map-img { position: absolute; max-width: none; }
+.v1p-pin { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 8px; border-radius: 13px; white-space: nowrap; border: 2px solid var(--c-surface); background: var(--c-surface); color: var(--c-ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); font-size: var(--fs-xs); font-weight: var(--fw-bold); outline: 2px solid var(--c-ink); outline-offset: -4px; }
+.v1p-pin.is-match { background: var(--c-ink); color: var(--c-on-dark); outline-color: transparent; }
+.v1p-full { justify-self: start; }
+.v1p-map-days { list-style: none; margin: 0; padding: 0; }
+.v1p-map-days li { border-top: var(--bw-1) solid var(--c-line-soft); }
+.v1p-map-row { width: 100%; min-height: 48px; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border: 0; background: none; color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; }
+.v1p-pin-n { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--c-ink); color: var(--c-on-dark); font-size: var(--fs-xs); font-weight: var(--fw-bold); }
+.v1p-map-t { display: flex; flex-direction: column; min-width: 0; font-size: var(--fs-sm); line-height: 1.35; }
+.v1p-map-t span { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1p-mapnone { padding: var(--space-4); border: 2px dotted var(--c-line-ink); }
+.v1p-mapnone p { margin: 0 0 var(--space-3); font-size: var(--fs-md); }
+
+/* Idea cards on the card: the picture and words side by side, Add under them, so the words get the width */
+.v1p-ideas .tp-pc { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); padding: var(--space-3); }
+.v1p-ideas .tp-pc-main { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: var(--space-3); align-items: start; width: 100%; text-align: left; }
+.v1p-ideas .tp-pc-img { width: 72px; height: 72px; }
+.v1p-ideas .tp-pc .tp-add { justify-self: start; }
+
+.v1p-pin small { position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); padding: 0 5px; border-radius: 4px; background: color-mix(in srgb, var(--c-surface) 88%, transparent); color: var(--c-ink); font-size: var(--fs-2xs); font-weight: var(--fw-bold); line-height: 16px; white-space: nowrap; }
+
+/* The close cross on the plan's title row, top right (26 Nov 2026); the same on the Your answers level */
+.tp-tl-head .tp-tl-close, .tp-fc-lhead .tp-fc-lclose { flex: none; margin-left: auto; }
+
+.v1p-map-row.is-nopin .v1p-pin-n { background: transparent; color: var(--c-ink-3); border: 1px dashed var(--c-line-soft); }
+.v1p-map-row.is-nopin .v1p-map-t span { color: var(--c-ink-3); }

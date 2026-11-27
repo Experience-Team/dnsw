@@ -1,0 +1,79 @@
+/* Version 1's dates (26 Nov 2026): the one range calendar (the read-only strip above it was removed the same day). Version 1 only; nothing here is in a shared file. Built by v1/v1-third-half.js (calMonth). */
+
+/* The calendar: the later rounds a diamond (26 Nov 2026: other teams' matches are not marked) */
+.tp-cal-d.is-ko::after { content: ""; position: absolute; bottom: 2px; left: 50%; }
+.tp-cal-d.is-ko::after { width: 6px; height: 6px; margin-left: -3px; background: var(--c-accent); transform: rotate(45deg); }
+/* On the first or last day (the dark circle) the marks stay orange (26 Nov 2026); shared.css turns the match dot white there */
+.tp-cal-d.is-start.is-match::after, .tp-cal-d.is-end.is-match::after, .tp-cal-d.is-start.is-ko::after, .tp-cal-d.is-end.is-ko::after { background: var(--c-accent); }
+.v1-cal { margin-top: var(--space-3); }
+.v1-cal-key + .v1-cal { margin-top: var(--space-2); }
+/* The key to the calendar's marks, under it (26 Nov 2026): the swatches are drawn like the marks themselves */
+.v1-cal-key { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-3) 0 0; font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1-k { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.v1-k::before { content: ""; flex: none; box-sizing: border-box; width: 10px; height: 10px; }
+.v1-k-mine::before { border-radius: 50%; background: var(--c-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-accent) 30%, var(--c-surface)); }
+.v1-k-ko::before { width: 7px; height: 7px; margin: 1.5px; background: var(--c-accent); transform: rotate(45deg); }
+.v1-cal-sum { margin: var(--space-3) 0 0; font-size: var(--fs-md); font-weight: var(--fw-semi); line-height: 1.4; }
+
+/* The matches they picked, on the step */
+.v1-dm { margin: var(--space-3) 0 var(--space-2); }
+.v1-dm-h { margin: 0 0 var(--space-2); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.v1-dm-l { list-style: none; margin: 0; padding: 0; }
+.v1-dm-l li { display: grid; grid-template-columns: 5.25rem 1fr; column-gap: var(--space-3); padding: 6px 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.35; }
+.v1-dm-d { font-weight: var(--fw-bold); }
+/* NSW matches picked out: a soft tint across the row, a bolder name, and the In NSW tag */
+.v1-dm-l li.is-nsw { background: color-mix(in srgb, var(--c-accent) 12%, var(--c-surface)); margin: 0 calc(var(--space-2) * -1); padding-inline: var(--space-2); border-radius: var(--radius-sm); }
+.v1-dm-l li.is-nsw .v1-dm-n { font-weight: var(--fw-bold); }
+.v1-dm-l li.is-nsw { align-items: center; }
+.v1-dm-tag { margin-left: var(--space-1); }
+.v1-dm-w { color: var(--c-ink-2); white-space: nowrap; }
+.v1-dm-all { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.v1-dm-more { margin-top: 0; }
+.v1-dm-more summary { min-height: 36px; display: flex; align-items: center; font-size: var(--fs-sm); font-weight: var(--fw-semi); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.v1-dm-more[open] summary { margin-top: var(--space-1); }
+
+/* Also on in NSW: the other matches inside their days, and the Newcastle card */
+.v1-also-card { margin: var(--space-3) 0 var(--space-4); padding: var(--space-4); border: var(--bw-2) solid var(--c-line-ink); background: var(--c-surface); }
+.v1-also-ct { margin: 0; font-size: var(--fs-lg-2); font-weight: var(--fw-heavy); }
+.v1-also-why { margin: var(--space-1) 0 var(--space-3); font-size: var(--fs-md); line-height: 1.4; color: var(--c-ink-2); }
+.v1-also-l { list-style: none; margin: 0; padding: 0; }
+.v1-also-l li { display: grid; grid-template-columns: 5.25rem 1fr auto; align-items: center; column-gap: var(--space-3); padding: var(--space-2) 0; border-top: var(--bw-1) solid var(--c-line-soft); font-size: var(--fs-sm); line-height: 1.35; }
+.v1-also-on { margin: 0; font-size: var(--fs-sm); font-weight: var(--fw-semi); }
+.v1-also-d { font-weight: var(--fw-bold); }
+.v1-also-b { display: flex; flex-direction: column; min-width: 0; }
+.v1-also-w { font-size: var(--fs-xs); color: var(--c-ink-2); }
+.v1-also-open { align-self: flex-start; min-height: 24px; text-align: left; }
+.v1-also-go { margin-top: var(--space-3); }
+
+/* The planner's map sits above the match cards (26 Nov 2026): 48px of space before them */
+#tp-pick > .tp-ov { margin-top: var(--space-4); margin-bottom: var(--space-12, 48px); }
+
+/* What is on a marked day, on hover or a long hold (26 Nov 2026). The marked days are not selectable text, so a hold does not start a selection */
+.tp-cal { position: relative; }
+.tp-cal-d.is-match, .tp-cal-d.is-ko { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.v1-caltip { position: absolute; z-index: 60; box-sizing: border-box; width: max-content; max-width: min(260px, 100%); padding: 8px 12px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c-btn) 94%, transparent); color: var(--c-on-dark); font-size: var(--fs-xs); line-height: 1.4; pointer-events: none; box-shadow: 0 4px 16px rgba(0, 0, 0, .18); animation: v1-tip-in .12s ease-out; }
+.v1-caltip::after { content: ""; position: absolute; top: 100%; left: var(--arrow-x, 50%); width: 8px; height: 8px; margin: -4px 0 0 -4px; background: inherit; transform: rotate(45deg); }
+.v1-caltip.is-below::after { top: 0; margin-top: -4px; }
+.v1-caltip p { margin: 0; }
+.v1-caltip-d { font-weight: var(--fw-bold); }
+.v1-caltip-m { display: grid; margin-top: 6px !important; }
+.v1-caltip-m b { font-weight: var(--fw-bold); }
+.v1-caltip-m span { opacity: .86; }
+.v1-caltip-d + .v1-caltip-m { margin-top: 4px !important; }
+@keyframes v1-tip-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .v1-caltip { animation: none; } }
+
+/* Where you're staying (26 Nov 2026): the quiet way out for someone staying outside NSW sits under the search */
+.v1-stay-out { margin: var(--space-3) 0 0; font-size: var(--fs-sm); }
+.v1-stay-out .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
+.v1-stay-cur { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 6px; min-height: 28px; font-weight: var(--fw-semi); }
+.v1-stay-cur svg { flex: none; }
+.v1-stay-hint { font-weight: var(--fw-regular, 400); color: var(--c-ink-2); }
+.v1-stay-add { margin: var(--space-3) 0 0; font-size: var(--fs-sm); }
+.v1-stay-add .tp-link { min-height: 28px; display: inline-flex; align-items: center; }
+.v1-stay-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; }
+.v1-stay-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 36px; padding: var(--space-1) 0; border-top: 1px solid var(--c-line-soft, var(--c-line)); }
+.v1-stay-list li:last-child { border-bottom: 1px solid var(--c-line-soft, var(--c-line)); }
+.v1-stay-name { font-weight: var(--fw-semi); }
+.v1-stay-cur-line { margin: var(--space-3) 0 0; font-weight: var(--fw-semi); }
+.v1-stay-addq { margin: var(--space-2) 0 var(--space-3); }
