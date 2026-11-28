@@ -121,3 +121,20 @@
 
 /* Show every NSW match, once on (27 Nov 2026): the state in plain words, then Undo as the link */
 .tp-rugby-link .v1-rugby-on { font-weight: var(--fw-regular, 400); text-decoration: none; margin-right: 4px; }
+
+/* Home's Pick a team on desktop (28 Nov 2026): heading and line, then the cards as one fanned row, then the button */
+@media (min-width: 1024px) {
+  .pv-device #tp-phone .tp-home-plan { display: block; }
+  .pv-device #tp-phone .tp-home-plan > .tp-home-hand { margin: 0; }
+  /* Its heading, line, button and the no-team line are centred over and under the fan (28 Nov 2026) */
+  .pv-device #tp-phone .tp-home-plan { text-align: center; }
+  .pv-device #tp-phone .tp-home-plan > .tp-home-intro { margin-inline: auto; }
+  .pv-device #tp-phone .tp-home-plan > .tp-home-cta { display: flex; width: fit-content; margin: var(--space-5) auto 0; }
+  .pv-device #tp-phone .tp-home-plan > .tp-home-rugby { justify-content: center; }
+  .tp-fan2-wrap.is-onerow { margin-inline: 0; overflow: visible; }
+  /* Each card shows its left edge: the code, the flag, the NSW mark, then the country's name reading down the card, so nothing is cut off by the card that overlaps it */
+  .tp-fan2-wrap.is-onerow .tp-card2 { padding: 8px 8px 0; box-shadow: -2px 0 6px rgba(0, 0, 0, .08); }
+  .tp-fan2-wrap.is-onerow .tp-nsw-mark { position: static; order: 3; margin: 2px 0 0; }
+  .tp-fan2-wrap.is-onerow .tp-card2-name { order: 4; align-self: flex-start; margin: 4px 0 0 4px; writing-mode: vertical-rl; white-space: nowrap; font-size: .8125rem; line-height: 1.2; text-wrap: nowrap; }
+  .show-nsw .tp-fan2-wrap.is-onerow:not(.is-grid) .tp-card2 .tp-card-tick, .tp-fan2-wrap.is-onerow .tp-card2 .tp-card-tick { top: 33px; left: 36px; right: auto; } /* beside the flag, inside the edge that stays in view */
+}

@@ -322,7 +322,7 @@
   if (fan2) {
     fan2.innerHTML = CARDS.map(function (c, i) {
       return '<button type="button" class="tp-card2" data-i="' + i + '" tabindex="-1" aria-pressed="false" aria-label="' +
-        esc(cardLabel(c)) + '"><span class="tp-card2-code">' + esc(c.code) + '</span>' +
+        esc(cardLabel(c)) + '" data-name="' + esc(c.name) + '"><span class="tp-card2-code">' + esc(c.code) + '</span>' +
         (FLAG[c.name] ? '<span class="tp-card2-flag" aria-hidden="true">' + FLAG[c.name] + '</span>' : '') +
         // The full name, under the flag, in the hand and the grid (21 Nov); screen readers hear it in the label
         '<span class="tp-card2-name" aria-hidden="true">' + esc(c.name) + '</span>' + (c.nsw > 0 ? NSW_MARK : '') + TICK + '</button>';
@@ -347,8 +347,9 @@
     return Math.ceil(m);
   }
   function handGeo(n) {
-    var W = fan2Wrap.clientWidth || 390, key = W + '|' + document.documentElement.className + '|' + n;
+    var one = oneRow(), W = fan2Wrap.clientWidth || 390, key = W + '|' + document.documentElement.className + '|' + n + '|' + one;
     if (HG && HG_KEY === key) return HG;
+    fan2Wrap.classList.toggle('is-onerow', one);
     var avail = W - 12, PAD = 6, OVER = 6, pick = null;
     wordW(14); // makes the probe
     // Six to a row (26 Nov 2026), so all 24 teams are four rows and none need a scroll down. The name takes the largest
@@ -357,6 +358,10 @@
     for (var fs = 13; fs >= 12 && !pick; fs--) if (wordW(fs) + 12 <= avail / 6) pick = { N: 6, sp: avail / 6, fs: fs };
     if (!pick) pick = { N: 6, sp: Math.max(avail / 6, wordW(12) + 12), fs: 12 };
     var w = pick.sp + OVER, R = 900, WF = Math.max(W, Math.ceil(pick.sp * pick.N + 12));
+    /* One row, on Home on desktop (28 Nov 2026, sandbox): all the cards on a single wide arc, each overlapping the one before like a
+       hand of playing cards, so its code and flag show at its left edge. The cards keep their full width; the spacing is whatever
+       spreads them across the section, and the arc turns 36 degrees end to end. */
+    if (one) { w = 124; pick = { N: n, sp: (avail - w - 40) / Math.max(1, n - 1), fs: 13 }; WF = W; R = pick.sp / (36 / Math.max(1, n - 1) * Math.PI / 180); }
     fan2.style.setProperty('--hand-fs', pick.fs + 'px');
     // Each name's height at the card's final width, measured off to the side (the cards may be gliding to a new width),
     // under where the code and flag end; the tallest in each row gives that row its height
@@ -370,11 +375,14 @@
     var strips = rows.map(function (end) { return end + 10 + 1; }), /* 10 more: a picked card sits 10px up, and must not cover the name above it */ h = Math.max.apply(null, strips) + 8, tops = [], t = 8; // six to a row: tighter rows, so the four of them fit one screen (26 Nov 2026)
     strips.forEach(function (st) { tops.push(t); t += st; });
     var rc = R + h / 2, step = pick.sp / rc * 180 / Math.PI;
+    if (one) { h = 206; rc = R + h / 2; step = pick.sp / rc * 180 / Math.PI; }
     var sag = rc * (1 - Math.cos(((pick.N - 1) / 2) * step * Math.PI / 180));
     HG = { N: pick.N, fs: pick.fs, w: w, h: h, R: R, step: step, tops: tops, W: WF, cx: WF / 2, py: tops[0] + h / 2 + R, height: Math.ceil(tops[tops.length - 1] + h + sag + 6) };
     HG_KEY = key;
     return HG;
   }
+  // Home's hand on a desktop-wide screen is one row; everywhere else (phones, the questions) it is rows of six
+  function oneRow() { return !!(fan2 && fan2.closest('#tp-home-hand') && document.documentElement.classList.contains('pv-device') && window.matchMedia('(min-width: 1024px)').matches); }
   function slot2(k, n) {
     var g = handGeo(n), N = g.N, row = Math.floor(k / N), col = k % N, inRow = Math.min(N, n - row * N), a = (col - (inRow - 1) / 2) * g.step;
     return { left: g.cx - g.w / 2, top: g.tops[row], w: g.w, h: g.h, ox: g.w / 2, oy: g.h / 2 + g.R, a: a, z: row * 10 + col };

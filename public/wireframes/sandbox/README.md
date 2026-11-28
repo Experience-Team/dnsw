@@ -119,6 +119,14 @@ Play is Version 2's Drop goal: the two-tap game with the team screen, the practi
 - **Match sheets for a match they are not going to** have "Tickets on the official site" (rugbyworldcup.com/2027/en/tickets, new tab).
 - **Getting there and back** has "Plan this trip on Transport NSW" (transportnsw.info/trip, new tab) and real stops in place of the made-up junctions and halts (`concepts-fixtures.js`): Lidcombe and Olympic Park stations for Stadium Australia, the Moore Park light rail stop for Sydney Football Stadium, Broadmeadow station for Newcastle Stadium. Times are still sample. Someone staying in the ground's own precinct gets a walk.
 
+## Home on desktop: the team cards as one fanned row (28 Nov 2026, sandbox only)
+
+On a desktop-wide screen (1024px and up) Home's Pick a team section stacks: heading and line, the 24 cards as one row on a single arc, then the button. Each card overlaps the one before, like a hand of playing cards, and shows its code, flag, NSW mark and the country's name reading down its left edge (`oneRow` and `handGeo` in `v1/v1-teams.js`, styles in `v1/v1-quiet.css`). Phones and the first question on the Plan tab keep the rows of six.
+
+Drop goal photos (28 Nov 2026, sandbox only): five stops on the Sydney Local route show a supplied photo on their card in place of the drawn placeholder (`PHOTOS` in `drop-goal/js/game.js`, files in `drop-goal/img/`): The Rocks, Darling Harbour, Parramatta, and the Bondi to Coogee walk on both Bondi and Coogee. Every other stop keeps the placeholder. The photos are for the prototype only and are not for public use. Home's Pick a team heading, line and button are centred on desktop (`v1/v1-quiet.css`).
+
 ## Copy link (27 Nov 2026, sandbox only)
 
 Share and export options has Copy link, under Share. The link is this page's address with `?plan=` and the plan as it is now packed into it (the two saved records, `tp-pick-v1` and `tp-fc-v1`: teams, days, stay, everything added, and how far the questions had got), built by `planLink` in `v1/v1-third-half.js`. The first script in `index.html` reads it before anything else, puts that plan in this browser in place of any plan already here, and takes the code off the address. Nothing is stored on a server, so the link is a snapshot: later changes need a new link. A code that can't be read is ignored.
+
+Drop goal (Version 2's game, now the sandbox's Play tab) photos, 28 Nov 2026: Cabramatta, Bondi to Coogee walk, Parramatta and The Rocks use the supplied photos (`drop-goal-v2/places.js`, files `assets/images/dg-*.webp`), for the prototype only. The Bondi to Coogee walk no longer uses a stand-in. The earlier photos on the old game (`drop-goal/`) remain, but the sandbox no longer shows that game.
