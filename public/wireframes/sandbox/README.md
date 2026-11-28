@@ -114,3 +114,7 @@ Catch-up still owed for this change: annotations in `index.html` that describe t
 - **Place sheets** have "See more on sydney.com" (visitnsw.com outside Sydney) and "Get directions", both in a new tab. Real pages: every idea's own `url` (`concepts-destinations.js`) and three listings in `REAL_PAGE` (`v1/v1-third-half.js`); anything else goes to the site's front page and is marked Sample. Directions are a Google Maps directions link from where they stay.
 - **Match sheets for a match they are not going to** have "Tickets on the official site" (rugbyworldcup.com/2027/en/tickets, new tab).
 - **Getting there and back** has "Plan this trip on Transport NSW" (transportnsw.info/trip, new tab) and real stops in place of the made-up junctions and halts (`concepts-fixtures.js`): Lidcombe and Olympic Park stations for Stadium Australia, the Moore Park light rail stop for Sydney Football Stadium, Broadmeadow station for Newcastle Stadium. Times are still sample. Someone staying in the ground's own precinct gets a walk.
+
+## Home on desktop: the team cards as one fanned row (28 Nov 2026, sandbox only)
+
+On a desktop-wide screen (1024px and up) Home's Pick a team section stacks: heading and line, the 24 cards as one row on a single arc, then the button. Each card overlaps the one before, like a hand of playing cards, and shows its code, flag, NSW mark and the country's name reading down its left edge (`oneRow` and `handGeo` in `v1/v1-teams.js`, styles in `v1/v1-quiet.css`). Phones and the first question on the Plan tab keep the rows of six.
