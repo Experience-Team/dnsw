@@ -278,3 +278,10 @@ button.v1-nc-t { text-decoration: underline; text-underline-offset: 3px; cursor:
 /* Match sheet links (27 Nov 2026): Show on map, Remove, Tickets on the official site, as one quiet row */
 .tp-pm-links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: 0; }
 .tp-pm-links .tp-link { min-height: 36px; display: inline-flex; align-items: center; font-size: var(--fs-base); }
+
+/* Expanded, the three switches sit inside the map at its top left (28 Nov 2026); the Back link moves under them */
+.v1-tm.is-full > .v1-tm-sw { position: absolute; top: 16px; left: 16px; z-index: 3; flex-wrap: wrap; max-width: calc(100% - 84px); margin: 0; cursor: default; }
+.v1-tm.is-full > .v1-tm-sw .v1-tm-swb { background: var(--c-surface); }
+.v1-tm.is-full > .v1-tm-sw .v1-tm-swb[aria-pressed="true"] { background: color-mix(in srgb, var(--c-ink) 8%, var(--c-surface)); }
+.v1-tm.is-full .v1-tm-back { top: auto; bottom: 16px; left: 16px; }
+.v1-tm.is-full .v1-tm-more { left: auto; right: 16px; }

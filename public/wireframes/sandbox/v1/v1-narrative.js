@@ -124,6 +124,28 @@
     var dl = K.dayLabel(d), id = 'fz:' + sp.id + ':' + dl;
     return { id: id, kind: 'place', title: sp.name, kindLabel: KINDS[sp.kind] || 'Fan zone', place: sp.suburb, note: sp.opens, day: dl };
   }
+  /* What a pin opens (28 Nov 2026): the page's own sheet for that thing, the same one its card or row opens, so a place looks the
+     same wherever it is tapped. An idea, product or made-up place opens its details; something added opens its plan entry; a
+     ground opens its match (the host city when several matches are there); a fan zone or pub opens a place sheet of its own;
+     where they stay opens Where you're staying. */
+  function opens(p) {
+    if (p.kind === 'idea') return p.open || '';
+    if (p.kind === 'added') { var x = p.items[0], id = String(x.id); return x.kind === 'poi' ? 'poi:' + x.poi : id.indexOf('i:') === 0 ? 'idea:' + id : 'item:' + id; }
+    if (p.kind === 'spot' || p.kind === 'fan') return 'fs:' + (p.spot || p.fan).id;
+    if (p.kind === 'stadium' || p.kind === 'maybe' || p.kind === 'extra') {
+      var ms = nswMatches().filter(function (m) { return m.f.v === p.label; }).concat(K.koOnDays().filter(function (m) { return m.f.v === p.label; }));
+      if (p.kind === 'extra') (tp.narRoutes ? tp.narRoutes() : []).forEach(function (r) { if (r.venue === p.label && r.m) ms.push(r.m); });
+      return ms.length === 1 ? 'match:' + ms[0].key : 'city:' + p.label;
+    }
+    return '';
+  }
+  // A fan zone or pub's sheet and its Add are registered just before it opens (the page clears its registers on every redraw)
+  function ensureSheet(p) {
+    var sp = p && (p.spot || p.fan); if (!sp) return;
+    var d = spotDay(sp), it = d === null ? null : spotItem(sp, d);
+    if (it) K.registerItem(it.id, it);
+    K.registerModal('fs:' + sp.id, { type: 'fanspot', s: sp, item: it && it.id, kind: KINDS[sp.kind] || 'Fan zone' });
+  }
   function mapPoints() {
     var P = [], names = {};
     function add(p) { if (!p.ll || names[p.label]) return; names[p.label] = 1; p.w = px(p.ll); P.push(p); }
@@ -153,7 +175,7 @@
       st.items.forEach(function (i) {
         if (!i.ll || /^w:/.test(i.key) || st.kind === 'ko') return;
         var it = K.item(i.key); if (!it || isAdded(it.id)) return;
-        add({ kind: 'idea', key: 'it|' + i.title, lit: i.title, label: i.title, ll: i.ll, idea: Object.assign({}, it), type: i.type, d: st.day });
+        add({ kind: 'idea', key: 'it|' + i.title, lit: i.title, label: i.title, ll: i.ll, idea: Object.assign({}, it), type: i.type, d: st.day, open: i.open });
       });
     });
     if (sw.fans) SPOTS.forEach(function (sp) { add({ kind: 'spot', key: 'it|' + sp.name, lit: sp.name, label: sp.name, ll: sp.ll, spot: sp }); });
@@ -235,7 +257,8 @@
   /* ---- Framing: their own places, as close as FIT_MAX allows, then out in steps until pins and names sit inside the margin ---- */
   function fitSet(P) { return P.filter(function (p) { return p.own && !p.ghost; }); }
   function fitCam(P, W, H) {
-    var F = fitSet(P), aw = W - 2 * EDGE - CTL, ah = H - 2 * EDGE;
+    var top = full ? swEl.offsetHeight + 16 : 0; // expanded, the switches sit across the top left
+    var F = fitSet(P), aw = W - 2 * EDGE - CTL, ah = H - 2 * EDGE - top;
     if (!F.length) { var c0 = px(G.places['Sydney CBD'] || [-33.87, 151.21]); return clampCam({ x: c0[0], y: c0[1], s: 4 }, W, H); }
     var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
     F.forEach(function (p) { x0 = Math.min(x0, p.w[0]); x1 = Math.max(x1, p.w[0]); y0 = Math.min(y0, p.w[1]); y1 = Math.max(y1, p.w[1]); });
@@ -246,7 +269,7 @@
       s = Math.max(lo, s * .94);
     }
     // The middle of what is drawn sits in the middle of the room left of the controls
-    return clampCam({ x: (R.bb[0] + R.bb[2]) / 2 / s + CTL / 2 / s, y: (R.bb[1] + R.bb[3]) / 2 / s, s: s }, W, H);
+    return clampCam({ x: (R.bb[0] + R.bb[2]) / 2 / s + CTL / 2 / s, y: (R.bb[1] + R.bb[3]) / 2 / s - top / 2 / s, s: s }, W, H);
   }
   function minS(W, H) { return Math.max(S_MIN, H / (Y1 - Y0)); }
   function clampCam(c, W, H) {
@@ -300,6 +323,7 @@
         if (o.p.kind !== 'stop') { el.type = 'button'; el.setAttribute('aria-haspopup', 'dialog'); }
         el.dataset.pin = k; el.innerHTML = '<i></i><b></b>'; pins.appendChild(el);
       }
+      if (o.p.kind !== 'stop') { var op = opens(o.p); if (op) el.dataset.open = op; else delete el.dataset.open; if (o.p.kind === 'stay') el.setAttribute('data-go-stay', ''); }
       el.className = pinClass(o);
       if (o.p.kind !== 'stop') el.setAttribute('aria-label', pinLabel(o.p));
       el.style.left = o.u.toFixed(1) + 'px'; el.style.top = o.v.toFixed(1) + 'px';
@@ -539,8 +563,8 @@
     var z = size(), r0 = box.getBoundingClientRect(), pr = phone.getBoundingClientRect(), sr = slot.getBoundingClientRect();
     function swap(on) {
       full = on; box.classList.toggle('is-full', on);
-      if (on) { slot.style.height = r0.height + 'px'; phone.appendChild(box); behind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-cap-wrap')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; }); }
-      else { behind.forEach(function (x) { x[0].inert = x[1]; }); behind = []; slot.appendChild(box); slot.style.height = ''; }
+      if (on) { slot.style.height = r0.height + 'px'; phone.appendChild(box); box.appendChild(swEl); behind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-cap-wrap')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; }); }
+      else { behind.forEach(function (x) { x[0].inert = x[1]; }); behind = []; slot.appendChild(box); slot.parentNode.insertBefore(swEl, slot); slot.style.height = ''; }
       fullBtn.innerHTML = on ? I_X : I_EXP; fullBtn.setAttribute('aria-label', on ? 'Close the expanded map' : 'Expand the map');
       box.setAttribute('aria-label', on ? 'Trip map, expanded' : 'Trip map');
     }
@@ -573,7 +597,7 @@
   function local(e) { var r = box.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
   function later() { if (!raf) raf = requestAnimationFrame(function () { raf = 0; apply(); }); }
   box.addEventListener('pointerdown', function (e) {
-    if (busy || e.target.closest('.v1-tm-ctl, .v1-tm-card, .v1-tm-back, .v1-tm-more')) return;
+    if (busy || e.target.closest('.v1-tm-ctl, .v1-tm-card, .v1-tm-back, .v1-tm-more, .v1-tm-sw')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     ptrs[e.pointerId] = local(e); nPtr = Object.keys(ptrs).length;
     cancelAnimationFrame(anim);
@@ -603,15 +627,21 @@
   }
   window.addEventListener('pointerup', ptrEnd); window.addEventListener('pointercancel', ptrEnd);
   // A press that turned into a drag is not a tap on whatever it ended on
-  box.addEventListener('click', function (e) { if (swallow) { swallow = false; e.stopPropagation(); e.preventDefault(); } }, true);
+  box.addEventListener('click', function (e) {
+    if (swallow) { swallow = false; e.stopPropagation(); e.preventDefault(); return; }
+    // A tapped pin is ringed, and a fan zone or pub's sheet is made ready, before the page opens the sheet
+    var pb = e.target.closest('button.v1-tm-pin'); if (!pb || busy) return;
+    var p = P0.filter(function (q) { return q.key === pb.dataset.pin; })[0]; if (!p) return;
+    ensureSheet(p); state.lit = p.lit || ''; L = null; apply();
+  }, true);
   box.addEventListener('click', function (e) {
     if (busy) return;
     var zb = e.target.closest('[data-tm-zoom]');
     if (zb) { userMoved = true; glide(zoomBy(+zb.dataset.tmZoom > 0 ? 1.7 : 1 / 1.7), 240); return; }
     if (e.target.closest('[data-tm-full]')) { setFull(!full); return; }
-    if (e.target.closest('.v1-tm-card, .v1-tm-back')) return;
+    if (e.target.closest('.v1-tm-card, .v1-tm-back, .v1-tm-sw')) return;
     var pb = e.target.closest('button.v1-tm-pin');
-    if (pb) { if (card && card.key === pb.dataset.pin) cardClose(true); else { if (card) cardClose(false); cardOpen(pb.dataset.pin); } return; }
+    if (pb) return; // a pin opens the page's own sheet for it (its data-open, or Where you're staying), handled by the page
     // The map itself: an open card closes; with none open, the small map expands (the icon in its corner says so)
     if (card) { cardClose(false); return; }
     if (state.lit) { light(''); return; }
