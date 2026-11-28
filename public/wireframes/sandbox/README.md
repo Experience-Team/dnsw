@@ -118,3 +118,5 @@ Catch-up still owed for this change: annotations in `index.html` that describe t
 ## Home on desktop: the team cards as one fanned row (28 Nov 2026, sandbox only)
 
 On a desktop-wide screen (1024px and up) Home's Pick a team section stacks: heading and line, the 24 cards as one row on a single arc, then the button. Each card overlaps the one before, like a hand of playing cards, and shows its code, flag, NSW mark and the country's name reading down its left edge (`oneRow` and `handGeo` in `v1/v1-teams.js`, styles in `v1/v1-quiet.css`). Phones and the first question on the Plan tab keep the rows of six.
+
+Drop goal photos (28 Nov 2026, sandbox only): four stops on the Sydney Local route show a supplied photo on their card in place of the drawn placeholder (`PHOTOS` in `drop-goal/js/game.js`, files in `drop-goal/img/`): The Rocks, Parramatta, and the Bondi to Coogee walk on both Bondi and Coogee. Every other stop keeps the placeholder. Rights to the photos are not confirmed. Home's Pick a team heading, line and button are centred on desktop (`v1/v1-quiet.css`).
