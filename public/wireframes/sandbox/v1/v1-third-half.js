@@ -1483,6 +1483,22 @@
     h += pmActions(id, p.title + ' on ' + f.d, { title: p.title, where: p.address && p.address.suburb, outside: cityOf(f.v) === 'newcastle' }) + '</div>';
     return h;
   }
+  /* A fan zone, fan village, pub or club opened from its pin on the trip map (28 Nov 2026): the same layout as an idea or a product
+     (picture, kind, name, where, practical details, Add, links). Every detail is sample data (v1-fanspots.js). */
+  function pmFanSpot(id, x) {
+    var s = x.s, h = '';
+    h += '<div class="plan-modal-img ph-img"' + imgKey(s.name) + ' role="img" aria-label="' + esc(IMG(s.name)) + '"></div><div class="plan-modal-body">';
+    h += '<p class="tp-pm-type provenance-gap">' + esc(x.kind) + ' ' + SAMPLE_TAG + '</p>';
+    h += '<h2 class="cn-pp-title provenance-gap" id="tp-pm-title">' + esc(s.name) + '</h2>';
+    h += '<p class="cn-pp-venue provenance-gap">' + esc(s.suburb) + (s.addr ? ' \u00b7 ' + esc(s.addr) : '') + '</p>';
+    h += '<h3 class="cn-pp-h">Practical details</h3><dl class="pl-option-facts cn-pp-facts">' +
+      '<div><dt>Getting there</dt><dd><span class="provenance-gap">' + esc(s.transport) + '</span></dd></div>' +
+      '<div><dt>Open</dt><dd><span class="provenance-gap">' + esc(s.opens) + '</span></dd></div>' +
+      '<div><dt>What is there</dt><dd><span class="provenance-gap">' + esc(s.has.join(', ')) + '</span></dd></div></dl>';
+    var out = { title: s.name, where: s.suburb, outside: s.city === 'newcastle' };
+    h += (x.item && ITEMS[x.item] ? pmActions(x.item, s.name + ' on ' + ITEMS[x.item].day, out) : outLinks(out)) + '</div>';
+    return h;
+  }
   function pmSpot(id, x) {
     var sp = x.sp, f = x.m.f, h = '';
     // Summarised: what it is, where, what it shows for this match, and how many of your other matches it shows
@@ -2069,12 +2085,12 @@
     if (!swap) { pmRoot = id; saveOff(); }
     // Products, curated trips and watch spots open as sheets too (16 Nov), not full-screen pages: the page stays in view
     // above, and the cross, the scrim or Escape closes them
-    var isRoute = x.type === 'route', asSheet = isCity || isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot' || isPoi || isIdea || isItem;
+    var isRoute = x.type === 'route', asSheet = isCity || isMatch || isRoute || isDays || isKo || isWt || isIdeas || x.type === 'product' || x.type === 'trip' || x.type === 'spot' || x.type === 'fanspot' || isPoi || isIdea || isItem;
     pmOpenerEl = null;
-    pmBody.innerHTML = isCity ? pmCity(id.slice(5)) : isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : pmSpot(id, x);
+    pmBody.innerHTML = isCity ? pmCity(id.slice(5)) : isPoi ? pmPoi(poiP) : isIdea ? '<div class="plan-modal-body tp-pm-idea">' + ideaDetail(ideaI, +ideaK.slice(ideaAt + 1), true) + '</div>' : isIdeas ? '<div class="plan-modal-body tp-pm-ideas"></div>' : isKo ? pmKo(id.slice(3)) : isWt ? pmWt(id.slice(3)) : isDays ? pmDays() : isMatch ? pmMatch(id.slice(6)) : isItem ? pmItem(id.slice(5)) : x.type === 'product' ? pmProduct(id, x) : x.type === 'trip' ? pmTrip(id, x) : isRoute ? pmRoute(id, x) : x.type === 'fanspot' ? pmFanSpot(id, x) : pmSpot(id, x);
     if (isIdeas) { if (!swap) tlIdeasAdded = []; pmBody.firstChild.appendChild(tlIdeas); tlIdeas.hidden = false; tlIdeasDay = +id.slice(6); renderTlIdeas(); }
     pmBody.scrollTop = 0;
-    pmKind.textContent = isCity ? 'Host city' : isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? LR_C + ' in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your plan' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
+    pmKind.textContent = isCity ? 'Host city' : isPoi ? (poiP.near === 'village' ? 'Near the fan village' : 'Near the stadium') : isIdea ? 'Idea for a free day' : isIdeas ? 'Ideas for a free day' : isKo ? LR_C + ' in NSW' : isWt ? 'Where to watch in NSW' : isDays ? (dStay ? 'Your trip' : 'Your days') : isMatch ? 'Match' : isItem ? 'On your plan' : x.type === 'product' ? thirdName() : x.type === 'trip' ? (x.t.kind === 'day' ? 'Day trip' : 'Longer trip') : isRoute ? 'Match day' : x.type === 'fanspot' ? 'Where to watch' : (SPOT_TYPE[x.sp.type] || 'Where to watch');
     pmOpen = { id: id, opener: opener && opener.dataset.open };
     if (swap) return true; // a sheet over a sheet (pmPush, pmPop): the sheet is already open, only its content changes
     if (stacked) {
@@ -2100,11 +2116,11 @@
     pmScrim.hidden = !asSheet && !wideModal(); // a full page is a modal over the dimmed page on desktop too
     // Everything behind waits; remember what was already inert so closing puts it back as it was
     pmLayerBack(true);
-    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full'), document.getElementById('v1z-wide')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
+    pmBehind = [body, document.getElementById('tp-tl'), document.getElementById('tp-tl-scrim'), phone.querySelector('.tp-ov-map.is-full'), phone.querySelector('.v1-tm.is-full'), document.getElementById('v1z-wide')].filter(Boolean).map(function (el) { var was = el.inert; el.inert = true; return [el, was]; });
     pm.hidden = false;
     pm.classList.remove('is-open', 'is-closing'); void pm.offsetWidth; pm.classList.add('is-open');
     pm.querySelector('[data-pm-close]').focus({ preventScroll: true });
-    tp.say(isCity ? HOSTS[id.slice(5)].title + ', details opened.' : isPoi || isIdea || isItem ? (isPoi ? poiP.title : isIdea ? ideaI.title : x.it.title) + ', details opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : x.sp.name) + (asSheet ? ', details opened.' : ', page opened.'));
+    tp.say(isCity ? HOSTS[id.slice(5)].title + ', details opened.' : isPoi || isIdea || isItem ? (isPoi ? poiP.title : isIdea ? ideaI.title : x.it.title) + ', details opened.' : isKo || isWt ? pmKind.textContent + ', opened.' : isDays ? (dStay ? 'Where you\u2019re staying, opened.' : 'Your days, opened. Pick your first day, then your last.') : (isMatch ? matchName(x.m.f) + ', ' + x.m.f.d : x.type === 'product' ? x.p.title : x.type === 'trip' ? x.t.title : isRoute ? 'Getting there and back, ' + matchName(x.m.f) : (x.sp || x.s).name) + (asSheet ? ', details opened.' : ', page opened.'));
     notesRefresh();
   }
   // Desktop website (the page on its own, 1024px and wider): sheets are modals centred in the window
@@ -3559,6 +3575,7 @@
   tp.narKit = {
     registerItem: function (id, it) { ITEMS[id] = it; },
     item: function (id) { return ITEMS[id] || null; }, // the trip map's cards (27 Nov 2026)
+    registerModal: function (id, x) { MODAL[id] = x; }, // a fan zone or pub's sheet, opened from its pin (28 Nov 2026)
     registerProduct: function (p, m, o) {
       var f = m.f, id = 'p:' + p.id + ':' + f.d;
       ITEMS[id] = { id: id, kind: 'product', title: p.title, kindLabel: PTYPE[p.type] || 'Product', place: p.address && p.address.suburb, day: f.d, matchName: matchName(f) };
