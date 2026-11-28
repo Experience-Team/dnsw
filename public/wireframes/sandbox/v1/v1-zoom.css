@@ -16,7 +16,7 @@
 .v1z-mo { position: absolute; left: 0; right: 0; top: 0; height: 20px; pointer-events: none; }
 .v1z-mon { position: absolute; top: 0; height: 20px; left: calc(16px + var(--a) * var(--cw)); width: calc(var(--n) * var(--cw)); border-left: 1px solid var(--c-line-soft); }
 .v1z-mon:last-child { border-right: 1px solid var(--c-line-soft); }
-.v1z-mon b { position: sticky; left: 20px; display: inline-block; padding-left: 4px; font-size: .6875rem; font-weight: var(--fw-semi); line-height: 20px; color: var(--c-ink-2); white-space: nowrap; }
+.v1z-mon b { position: sticky; left: 20px; display: inline-block; padding-left: 4px; font-size: .75rem; font-weight: var(--fw-semi); line-height: 20px; color: var(--c-ink-2); white-space: nowrap; }
 /* Your days: a tinted band, as the bar's stay band */
 .v1z-band { position: absolute; top: 20px; bottom: 0; left: calc(16px + var(--a) * var(--cw)); width: calc(var(--n) * var(--cw)); border: var(--bw-1) solid var(--c-accent-line); border-radius: 6px; background: var(--c-accent-soft); pointer-events: none; }
 .v1z-d { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; width: var(--cw); height: 100%; margin: 0; padding: 20px 0 0; border: 0; border-radius: 6px; background: transparent; color: var(--c-ink); font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -27,7 +27,7 @@
 .v1z-lbl { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 30px; line-height: 1; opacity: var(--s1); pointer-events: none; }
 .v1z-d.is-out .v1z-lbl { opacity: calc(var(--s1) * .45); }
 .v1z-lbl b { font-size: .75rem; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
-.v1z-lbl small { margin-top: 2px; font-size: .625rem; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .02em; color: var(--c-ink-2); }
+.v1z-lbl small { margin-top: 2px; font-size: .75rem; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .02em; color: var(--c-ink-2); }
 .v1z-wd3 { display: none; }
 .v1z.is-w3 .v1z-wd1 { display: none; }
 .v1z.is-w3 .v1z-wd3 { display: inline; }
@@ -46,7 +46,7 @@
 /* Close: flags for each match, a picture for each idea or place; the marks give way to them */
 .v1z-det { position: absolute; left: 3px; right: 3px; top: 50px; bottom: 0; display: flex; flex-direction: column; gap: 5px; padding-top: 6px; overflow: hidden; opacity: var(--s2); pointer-events: none; text-align: left; }
 .v1z-t { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; min-width: 0; min-height: 28px; }
-.v1z-t small { min-width: 0; font-size: .6875rem; line-height: 1.15; color: var(--c-ink-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.v1z-t small { min-width: 0; font-size: .75rem; line-height: 1.15; color: var(--c-ink-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .v1z-t--i { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: 3px; }
 .v1z-t--i small { display: none; width: 100%; color: var(--c-ink); }
 .v1z.is-w4 .v1z-t--i small { display: block; white-space: nowrap; text-overflow: ellipsis; }
@@ -57,7 +57,7 @@
 .v1z-fl { display: inline-flex; gap: 2px; flex: none; }
 .v1z-fl svg { display: block; width: 18px; height: auto; }
 .v1z-t--away .v1z-fl, .v1z-t--watch .v1z-fl { opacity: .6; }
-.v1z-q { display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; border: 1px solid var(--c-line-strong); border-radius: 50%; font-size: .6875rem; font-weight: var(--fw-bold); }
+.v1z-q { display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; border: 1px solid var(--c-line-strong); border-radius: 50%; font-size: .75rem; font-weight: var(--fw-bold); }
 .v1z-th { flex: none; width: 36px; height: 24px; border-radius: 4px; }
 /* The wedge: narrow at the left (zoomed out), taller to the right (zoomed in). The real range input sits over it */
 .v1z-zoom { position: relative; height: 32px; margin-top: var(--space-2); }

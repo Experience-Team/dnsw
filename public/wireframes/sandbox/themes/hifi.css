@@ -86,7 +86,7 @@
   --font-label: var(--tth-font-mono);
   --fs-2xs: .8125rem;   /* 13 Caption */
   --fs-xs: .8125rem;    /* 13 Caption */
-  --fs-sm: .875rem;     /* 14 */
+  --fs-sm: 1rem;        /* 16: body copy is 16px at least (28 Nov 2026, sandbox); it was 14 */
   --fs-md: 1rem;        /* 16 Body M (16px minimum for body in product) */
   --fs-base: 1rem;      /* 16 Body M */
   --fs-lg: 1rem;        /* 16 */

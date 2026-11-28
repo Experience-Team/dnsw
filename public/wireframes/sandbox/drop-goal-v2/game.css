@@ -53,7 +53,7 @@ body { background: var(--pitch); overflow: hidden; font-family: var(--ui); color
 
 /* Nation table: under the logo on phones (the style reference puts it bottom right on a wide screen, where the foot
    has room beside it) */
-.dg-table { position: absolute; top: 84px; left: var(--pad-x); width: 172px; padding: 12px; background: var(--table); color: var(--table-ink); cursor: default; font: 700 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .04em; }
+.dg-table { position: absolute; top: 84px; left: var(--pad-x); width: 172px; padding: 12px; background: var(--table); color: var(--table-ink); cursor: default; font: 700 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .04em; }
 .dg-table-h { margin: 0 0 8px; font: inherit; font-weight: 400; letter-spacing: 0; white-space: nowrap; }
 .dg-sample { position: relative; }
 .has-notes .dg-sample { background-color: var(--sample); border-radius: var(--r-chip); }
@@ -83,7 +83,7 @@ body { background: var(--pitch); overflow: hidden; font-family: var(--ui); color
 .dg-fill { position: absolute; z-index: 1; left: 0; top: 0; bottom: 0; width: 0; box-sizing: border-box; border-radius: 2px 0 0 2px; border-right: 2px solid var(--needle); background: var(--cream); }
 html:is([data-phase="hold"], [data-phase="pass"], [data-phase="ready"]) .dg-fill { border-right-width: 0; }
 .dg-zone { position: absolute; top: -3px; bottom: -3px; border-radius: 2px; background: var(--zone); }
-.dg-zone-l { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); padding: 3px 6px 2px; border-radius: 2px 2px 0 0; background: var(--zone); color: #3a2a00; font: 700 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.dg-zone-l { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); padding: 3px 6px 2px; border-radius: 2px 2px 0 0; background: var(--zone); color: #3a2a00; font: 700 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 :root[data-theme="wireframe"] .dg-zone-l { color: #fff; }
 /* A tick where the kick was taken, shown only once it has been, so early or late can be read against the block */
 .dg-mark { position: absolute; z-index: 2; top: -5px; bottom: -5px; left: 0; width: 3px; margin-left: -2px; border-radius: 1.5px; background: var(--needle); box-shadow: 0 0 0 1px var(--cream); opacity: 0; }
@@ -117,15 +117,15 @@ html:is([data-phase="hold"], [data-phase="pass"], [data-phase="ready"]) .dg-bar 
 @media (max-height: 620px) { :root { --foot: 168px; } .dg-foot { padding-bottom: 12px; gap: 10px; } .dg-table { top: 76px; } }
 /* Narrow phones: a narrower table, so the near upright stays clear of it */
 @media (max-width: 360px) {
-  .dg-table { width: 146px; padding: 8px; font-size: 11px; letter-spacing: 0; }
+  .dg-table { width: 146px; padding: 8px; font-size: .75rem; letter-spacing: 0; }
   .dg-rows li { grid-template-columns: 12px 1fr auto; }
-  .dg-share { min-height: 28px; margin-top: 8px; padding: 0 10px; font-size: 11px; }
+  .dg-share { min-height: 28px; margin-top: 8px; padding: 0 10px; font-size: .75rem; }
 }
 
 /* The place framed between the posts */
 .dg-frame-ph { fill: var(--frame-ph); }
 .dg-frame-icon { color: var(--frame-icon); }
-.dg-frame-name { font: 700 10px/1 var(--ui); text-anchor: middle; }
+.dg-frame-name { font: 700 12px/1 var(--ui); text-anchor: middle; }
 
 /* See the places, under the call to kick */
 .dg-link { display: inline-flex; align-items: center; min-height: 24px; padding: 0; border: 0; background: none; color: inherit; font: 600 14px/1.2 var(--ui); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; transition: transform var(--t-press) ease-out; }
@@ -186,7 +186,7 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .dg-r-rows { margin: 16px 0 0; }
 .dg-r-rows div[hidden] { display: none; }
 .dg-r-rows div:not([hidden]) { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 8px 0; border-top: 1px solid var(--card-line); }
-.dg-r-rows dt { font: 400 11px/1.4 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+.dg-r-rows dt { font: 400 12px/1.4 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
 .dg-r-rows dd { margin: 0; font: 400 13px/1.4 var(--ui); }
 /* Under a watch party: one line on the later rounds */
 .dg-r-later { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--card-line); font: 400 13px/1.4 var(--ui); }
@@ -223,18 +223,18 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 @media (hover: hover) { .dg-close:hover { background: #efede6; } }
 .dg-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .dg-pl-title { margin: 4px 48px 8px 0; font: 700 22px/1.15 var(--ui); text-wrap: balance; outline: none; }
-.dg-pl-p { margin: 0; font: 400 14px/1.4 var(--ui); color: var(--ink-2); }
+.dg-pl-p { margin: 0; font: 400 16px/1.4 var(--ui); color: var(--ink-2); }
 /* The count has its own line, there from the start, so the first save never pushes the list down */
 #dg-pl-count { display: block; margin-top: 4px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 #dg-pl-count.is-none { font-weight: 400; color: var(--ink-2); }
-.dg-pl-h { margin: 24px 0 8px; font: 400 11px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); outline: none; }
+.dg-pl-h { margin: 24px 0 8px; font: 400 12px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); outline: none; }
 .dg-pl-list { margin: 0; padding: 0; list-style: none; }
 .dg-pl-row { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--card-line); }
 .dg-pl-img { width: 64px; height: 48px; }
 .dg-pl-img .dg-ph { font-size: 0; gap: 0; }
 .dg-pl-t b { display: block; font: 700 15px/1.2 var(--ui); }
 .dg-pl-t .dg-tags { margin-top: 8px; gap: 4px; }
-.dg-pl-t .dg-tags li { padding: 4px 6px; font-size: 11px; }
+.dg-pl-t .dg-tags li { padding: 4px 6px; font-size: .75rem; }
 :root[data-theme="hifi"] .dg-places .dg-tags li { background: var(--volt); }
 .dg-places .dg-save[aria-pressed="true"] { color: #fff; }
 #dg-pl-all { margin-top: 16px; }

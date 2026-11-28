@@ -14,7 +14,7 @@
 .v1p-rail { position: relative; }
 .v1p-dot { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--c-ink); background: var(--c-surface); line-height: 1; }
 .v1p-dot b { font-size: var(--fs-md); font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
-.v1p-dot small { margin-top: 2px; font-size: .625rem; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .03em; }
+.v1p-dot small { margin-top: 2px; font-size: .75rem; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .03em; }
 .v1p-day.is-filled .v1p-dot { background: var(--c-fill-soft); }
 .v1p-day.is-match .v1p-dot { background: var(--c-ink); color: var(--c-on-dark); }
 .v1p-day.is-open-day .v1p-dot { border-style: dotted; }
