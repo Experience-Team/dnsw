@@ -312,9 +312,9 @@ function updateSave() {
   const on = cardZone >= 0 && saved.has(placeName()), spans = $("btnSave").querySelectorAll("span");
   $("btnSave").setAttribute("aria-pressed", on); spans[0].innerHTML = on ? ICON_ADDED : ICON_ADD; spans[1].textContent = on ? "Added to your plan" : "Add to your plan";
 }
-/* Photos for the stops that have one (28 Nov 2026, supplied by the user; rights not confirmed). The Bondi to Coogee walk joins two
+/* Photos for the stops that have one (28 Nov 2026, supplied by the user for the prototype only, not for public use). The Bondi to Coogee walk joins two
    stops, so both show it. Every other stop keeps the drawn placeholder. */
-const PHOTOS = { "The Rocks": "the-rocks", "Parramatta": "parramatta", "Bondi": "bondi-to-coogee-walk", "Coogee": "bondi-to-coogee-walk" };
+const PHOTOS = { "The Rocks": "the-rocks", "Darling Harbour": "darling-harbour", "Parramatta": "parramatta", "Bondi": "bondi-to-coogee-walk", "Coogee": "bondi-to-coogee-walk" };
 function cardImage(i) {
   const R = ROUTES[routeKey], g = R.ground[i], photo = PHOTOS[R.zones[i][0]];
   if (photo) return `<img src="img/${photo}.webp" alt="" draggable="false">`;
