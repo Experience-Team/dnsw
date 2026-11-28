@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 <!-- Shown inside the prototype viewer (prototype-pick-your-team.html, 25 Nov 2026), which has the Version 1 and Version 2 tabs: the
      page marks itself pv-framed so its own tabs and Open Version links step aside, and phone and desktop links go through the viewer. -->
-<script>(function () { try { if (window.top !== window) document.documentElement.classList.add('pv-framed'); } catch (e) { document.documentElement.classList.add('pv-framed'); } try { if (parent.pvShellRoom) document.documentElement.style.setProperty('--pv-shell-room', parent.pvShellRoom() + 'px'); } catch (e) {} try { if (parent.pvShellScroll) ['scroll', 'scrollend'].forEach(function (t) { document.addEventListener(t, function (e) { parent.pvShellScroll(window, e.target, e.type); }, true); }); } catch (e) {} window.pvShell = 'prototype-pick-your-team.html?version=1'; })();</script>
+<script>(function () { try { if (window.top !== window) document.documentElement.classList.add('pv-framed'); } catch (e) { document.documentElement.classList.add('pv-framed'); } try { if (parent.pvShellRoom) document.documentElement.style.setProperty('--pv-shell-room', parent.pvShellRoom() + 'px'); } catch (e) {} try { if (parent.pvShellScroll) ['scroll', 'scrollend'].forEach(function (t) { document.addEventListener(t, function (e) { parent.pvShellScroll(window, e.target, e.type); }, true); }); } catch (e) {} })();</script>
+<!-- No window.pvShell here (30 Nov 2026): Version 1 sets it to its viewer page, which does not exist in this folder, so Open in desktop and the phone link 404ed. Without it pv-device.js builds both links from this page's own address. -->
 <!-- SANDBOX (26 Nov 2026): a private copy of Version 1, folder public/wireframes/sandbox/, for experimenting. It loads only files in
      this folder, files all its saved state under sb:, and sets data-flow="sb". Nothing in the real prototypes links to it, and it
      links to none of them. See README.md here. First, before anything reads storage. -->
@@ -18,6 +19,24 @@
       var o = Storage.prototype[fn];
       Storage.prototype[fn] = function (k) { var a = [].slice.call(arguments); a[0] = P + k; return o.apply(this, a); };
     });
+  } catch (e) {}
+  /* Copy link (Share and export options, 27 Nov 2026): a link ending ?plan=... carries the plan as it was when the link
+     was copied (the teams, days, stay and everything added, and where the questions had got to). Opening it puts that
+     plan in this browser, in place of any plan here, before anything reads it; the code then comes off the address,
+     so a refresh keeps later changes. A link that can't be read is ignored. Made by v1/v1-third-half.js (planLink). */
+  try {
+    var pm = /[?&]plan=([A-Za-z0-9_-]+)/.exec(location.search);
+    if (pm) {
+      try {
+        var rec = JSON.parse(decodeURIComponent(escape(atob(pm[1].replace(/-/g, '+').replace(/_/g, '/')))));
+        if (rec && rec.p && typeof rec.p === 'object') {
+          localStorage.setItem('tp-pick-v1', JSON.stringify(rec.p));
+          if (rec.f && typeof rec.f === 'object') localStorage.setItem('tp-fc-v1', JSON.stringify(rec.f)); else localStorage.removeItem('tp-fc-v1');
+        }
+      } catch (e) {}
+      var u = new URL(location.href); u.searchParams.delete('plan'); u.searchParams.delete('reset');
+      history.replaceState(history.state, '', u.pathname + u.search.replace(/=(?=&|$)/g, '') + u.hash);
+    }
   } catch (e) {}
 })();</script>
 <!-- One address, with every side control (the High fidelity switch and the test switches included). The low fidelity
@@ -50,6 +69,7 @@
 <link rel="stylesheet" href="v1/v1-flow-desk.css" /><!-- after the quiet styles: it moves the days answer into the right column (28 Nov 2026) -->
 <link rel="stylesheet" href="v1/v1-picker.css" />
 <link rel="stylesheet" href="v1/v1-narrative.css" />
+<link rel="stylesheet" href="v1/sb-play.css" /><!-- Drop goal from Version 2 (27 Nov 2026) -->
 <style>
   /* The way to Version 2, above View on your phone (this page only; shared.css is shared with Version 2) */
   .pv-v2link { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-6); border-top: 1px solid #d1d1d1; }
@@ -241,12 +261,25 @@
             <ul class="tp-home-cities" id="tp-home-cities"></ul>
           </section>
 
-          <!-- Drop goal (shown as Play on phones; the route is ?view=kick): the kick game is its own tab; Play now goes there -->
+          <!-- Drop goal (shown as Play on phones; the route is ?view=kick): Play now opens the game over the whole screen (#sb-play), brought over from Version 2 on 27 Nov 2026 -->
           <section class="tp-home-sec" id="tp-home-kick" aria-labelledby="tp-home-kick-title">
             <h3 class="tp-sec-title" id="tp-home-kick-title"><span class="tp-on-phone">Play</span><span class="tp-on-desk">Drop Goal</span></h3>
             <p class="tp-home-intro">Line up your kick and go for goal. Wherever the ball lands is your next idea for somewhere to go in Sydney or NSW. Keep kicking to find more.</p>
-            <div class="ph-img tp-home-kick-img" data-img="hero-stadium" role="img" aria-label="A still from the Drop goal game"></div>
-            <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+            <!-- How to play (24 Nov): the game playing itself in a small frame (drop-goal-v2/index.html?demo), in place of
+                 the still. It plays once each time the section comes into view, then rests; with a mouse, moving onto it plays it again. With
+                 reduced motion it stays still. The line under it says the same in words; a tap on the picture opens the
+                 game, as Play now does. Script: v1/sb-play.js. -->
+            <div class="tp-home-kick-img sb-demo" id="sb-demo" tabindex="-1">
+              <iframe class="sb-demo-frame" id="sb-demo-frame" title="Drop goal playing itself, to show how" aria-hidden="true" tabindex="-1"></iframe>
+              <span class="sb-demo-hit" id="sb-demo-hit" data-view="kick" aria-hidden="true"></span>
+            </div>
+            <p class="sb-demo-how" id="sb-demo-how"><strong>How to play:</strong> tap to drop the ball, then tap again as it bounces.</p>
+            <!-- Two ways in (24 Nov): the game, or straight to its list of places, so nobody has to play to see them.
+                 The list is the game's own See the places, opened over the whole screen without the pitch (v1/sb-play.js) -->
+            <div class="sb-kick-acts">
+              <button type="button" class="tp-home-cta" data-view="kick">Play now<svg class="tp-home-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+              <button type="button" class="sb-kick-places" id="sb-kick-places">Or see all the places</button>
+            </div>
           </section>
 
           <!-- FAQs: the six questions from Figma, with the answers the user supplied on 22 Nov (concepts-home.js) -->
@@ -455,7 +488,7 @@
             <h2 class="tp-sec-title" id="tp-kick-title"><span class="tp-on-phone">Play Drop Goal</span><span class="tp-on-desk">Drop Goal</span></h2>
             <p class="tp-kick-intro">Where it lands is your next idea.<span class="tp-kick-more"> Line up your kick, go for goal, and keep kicking to find more places in Sydney and NSW.</span></p>
           </div>
-          <iframe class="tp-kick-frame" id="tp-kick-frame" src="drop-goal/index.html" title="Drop goal: kick the ball and see where in NSW it lands"></iframe>
+          <!-- The old game's frame is gone (27 Nov 2026): the Play tab opens Version 2's game over the whole screen instead (v1/sb-play.js). This section never shows. -->
         </section>
       </div>
       <!-- Plan bar (Figma: Rugby World Cup, node 213:13100, adapted to 390px). Docked over the bottom of the phone,
@@ -563,6 +596,8 @@
           <h4 class="cn-sub cn-sub--copy">Share</h4>
           <ul class="tp-ss-list" id="tp-ss-share-list">
             <li><button type="button" class="tp-ss-row" id="tp-ss-share"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><circle cx="12" cy="3.5" r="1.8"/><circle cx="4" cy="8" r="1.8"/><circle cx="12" cy="12.5" r="1.8"/><path d="M5.6 7.1l4.8-2.7M5.6 8.9l4.8 2.7"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Share</span><span class="tp-ss-row-cap">Opens your phone&rsquo;s own share options.</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></li>
+            <!-- Copy link (27 Nov 2026, sandbox): the plan as it is now, carried in the link itself (v1/v1-third-half.js, planLink) -->
+            <li><button type="button" class="tp-ss-row" id="tp-ss-link"><span class="cn-tile-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><path d="M6.8 9.2a3 3 0 0 0 4.2 0l2.3-2.3a3 3 0 0 0-4.2-4.2l-.9.9M9.2 6.8a3 3 0 0 0-4.2 0L2.7 9.1a3 3 0 0 0 4.2 4.2l.9-.9"/></svg></span><span class="tp-ss-row-text"><span class="tp-ss-row-name">Copy link</span><span class="tp-ss-row-cap">A link that opens this plan as it is now.</span></span><svg class="cn-tile-tick" width="12" height="10" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></li>
           </ul>
           <h4 class="cn-sub cn-sub--copy">Keep a copy</h4>
           <ul class="tp-ss-list" id="tp-ss-keep">
@@ -653,6 +688,24 @@
           <button type="button" class="tp-plan-btn" data-stack-close>Cancel</button>
           <button type="button" class="tp-pill" id="tp-cc-go">Clear plan</button>
         </div>
+      </div>
+      <!-- Drop goal over the whole screen (27 Nov 2026, from Version 2): opened by Play now, the picture and the Play tab. The
+           game is the sandbox's own copy (drop-goal-v2/), in a frame. Script: v1/sb-play.js. -->
+      <div class="sb-play" id="sb-play" role="dialog" aria-modal="true" aria-label="Drop goal" hidden>
+        <iframe class="sb-game" id="sb-game" title="Drop goal: drop the ball, then kick it through the posts"></iframe>
+        <!-- The team screen (24 Nov; one tap since the practice-kick brief): over the game when no team is picked, and from
+             Change on the pitch. A tap on a card picks the kicker and opens the pitch; there is nothing else to press.
+             The rules screen that followed it is gone: the game has a practice kick instead. Script: v1/sb-play.js. -->
+        <section class="sb-ob is-pitch" id="sb-ob" aria-label="Pick your team" hidden>
+          <div class="sb-ob-panel sb-ob-panel--team" data-step="team">
+            <h2 class="sb-ob-h" tabindex="-1">Who are you kicking for?</h2>
+            <p class="sb-ob-p"><span id="sb-ob-tap">Tap</span> a team. Your kicker wears their kit, and what a goal lands on depends on where they play. <b>No team? Pick the one you&rsquo;d like to follow.</b></p>
+            <div class="sb-ob-teams" id="sb-ob-teams"></div>
+          </div>
+          <p class="sb-ob-now" id="sb-ob-now" hidden></p>
+        </section>
+        <button type="button" class="sb-play-close sb-play-how" id="sb-play-how" aria-label="How to play"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M4.6 5.2a2.4 2.4 0 1 1 3.5 2.1c-.7.4-1.1.9-1.1 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="11.6" r="1.1" fill="currentColor"/></svg></button>
+        <button type="button" class="sb-play-close sb-play-back" id="sb-play-close" aria-label="Back"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M12 7H2.5M6.5 3l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Back</span></button>
       </div>
     </div>
     <!-- Viewer tools, not part of the design: beside the phone's top left corner. Reset puts the prototype back as a
@@ -1732,7 +1785,8 @@
     if (nav && nav.type === 'reload') saved = sessionStorage.getItem(VKEY);
   } catch (e) {}
   if (!/^(event|plan|kick)$/.test(saved || '')) saved = null;
-  var view = qv ? (qv[1] === 'home' ? 'event' : qv[1]) : saved || 'event', Y = {}, touched = {};
+  if (saved === 'kick') saved = null;   // Play is no longer a tab (27 Nov 2026): it opens the game over the page (v1/sb-play.js)
+  var view = qv ? (qv[1] === 'plan' ? 'plan' : 'event') : saved || 'event', Y = {}, touched = {};
   function keepView() { try { sessionStorage.setItem(VKEY, view); } catch (e) {} }
   keepView();
   Y[view] = 0; touched[view] = true;
@@ -1842,12 +1896,14 @@
   }
   phone.addEventListener('click', function (e) {
     var b = e.target.closest('[data-view]'); if (!b || !phone.contains(b)) return;
+    // Play (27 Nov 2026): the game opens over the whole screen, where the person is; the tab showing does not change
+    if (b.dataset.view === 'kick') { if (window.sbPlay) window.sbPlay.open(b.matches('button, a') ? b : document.querySelector('#tp-home-kick button.tp-home-cta')); return; }
     pick(b.dataset.view, b);
   });
   // For the page's own jumps and toast links: the tab a section is in is shown first
   window.tpView = {
     get: function () { return view; },
-    go: function (v) { pick(v); },
+    go: function (v) { if (v === 'kick') { if (window.sbPlay) window.sbPlay.open(); return; } pick(v); },
     reveal: function (el) { var v = el && el.closest('#tp-home') ? 'event' : el && el.closest('#tp-kick') ? 'kick' : 'plan'; if (v !== view) pick(v); },
     lend: lend
   };
@@ -2005,6 +2061,7 @@
 </script>
 <script src="vendor/qrcode.js"></script>
 <script src="pv-device.js"></script>
+<script src="v1/sb-play.js"></script><!-- Drop goal from Version 2 (27 Nov 2026): after the tabs script above, which it works with -->
 <script>
 /* Marker tooltips (22 Nov), desktop only (a mouse that can hover): hovering a marker on the Your days slider, the plan
    bar's strip or the open plan's axis shows what it marks. The text is the marker's data-tip (set where it is drawn),

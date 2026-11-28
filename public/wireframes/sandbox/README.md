@@ -104,6 +104,10 @@ The trip map under the opening sentences is now the only map of the trip (`v1/v1
 
 Catch-up still owed for this change: annotations in `index.html` that describe the old maps (`#v1-fm`, Explore freely), low fidelity and reduced motion checks, unused styles (`.v1-fm-*`, `.tp-map*`) and tests.
 
+## Drop goal from Version 2 (27 Nov 2026, sandbox only)
+
+Play is Version 2's Drop goal: the two-tap game with the team screen, the practice kick, the result card, the places and Home's how-to-play picture, with Version 2's copy and motion. `drop-goal-v2/` is the sandbox's copy of `../v2/drop-goal/` (paths point inside the sandbox, state under `sb:`); `v1/sb-play.js` and `v1/sb-play.css` are Version 2's `v2-view.js` (the Play part), `v2-onboard.js` and their styles, renamed `sb-`. Differences from Version 2: the Play tab opens the game over the whole screen and no longer changes the page (`index.html`, the tabs script); Add goes into the planner's saved state through `tpPicker.addItem` (kind `kick`, Saved, not placed yet), not a simple saved list; "[n] added · Your plan" closes the game and shows the Plan tab; the team cards are lent from Home or the planner and put back (`v1/v1-flow-c.js` leaves them alone while lent). The old game (`drop-goal/`) is no longer loaded; its folder, the hidden `#tp-kick` section, its messages in `v1/v1-teams.js` and its three annotations are left for a tidy-up.
+
 ## Links (27 Nov 2026, sandbox only)
 
 - **Visit Instagram / Visit TikTok** on Home open the footer's addresses in a new tab (`concepts-social.js`, `v1/v1-social.js`). "View on Instagram" on a single sample post is still a placeholder.
@@ -120,3 +124,9 @@ Catch-up still owed for this change: annotations in `index.html` that describe t
 On a desktop-wide screen (1024px and up) Home's Pick a team section stacks: heading and line, the 24 cards as one row on a single arc, then the button. Each card overlaps the one before, like a hand of playing cards, and shows its code, flag, NSW mark and the country's name reading down its left edge (`oneRow` and `handGeo` in `v1/v1-teams.js`, styles in `v1/v1-quiet.css`). Phones and the first question on the Plan tab keep the rows of six.
 
 Drop goal photos (28 Nov 2026, sandbox only): five stops on the Sydney Local route show a supplied photo on their card in place of the drawn placeholder (`PHOTOS` in `drop-goal/js/game.js`, files in `drop-goal/img/`): The Rocks, Darling Harbour, Parramatta, and the Bondi to Coogee walk on both Bondi and Coogee. Every other stop keeps the placeholder. The photos are for the prototype only and are not for public use. Home's Pick a team heading, line and button are centred on desktop (`v1/v1-quiet.css`).
+
+## Copy link (27 Nov 2026, sandbox only)
+
+Share and export options has Copy link, under Share. The link is this page's address with `?plan=` and the plan as it is now packed into it (the two saved records, `tp-pick-v1` and `tp-fc-v1`: teams, days, stay, everything added, and how far the questions had got), built by `planLink` in `v1/v1-third-half.js`. The first script in `index.html` reads it before anything else, puts that plan in this browser in place of any plan already here, and takes the code off the address. Nothing is stored on a server, so the link is a snapshot: later changes need a new link. A code that can't be read is ignored.
+
+Drop goal (Version 2's game, now the sandbox's Play tab) photos, 28 Nov 2026: Cabramatta, Bondi to Coogee walk, Parramatta and The Rocks use the supplied photos (`drop-goal-v2/places.js`, files `assets/images/dg-*.webp`), for the prototype only. The Bondi to Coogee walk no longer uses a stand-in. The earlier photos on the old game (`drop-goal/`) remain, but the sandbox no longer shows that game.
