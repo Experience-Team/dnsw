@@ -304,7 +304,7 @@
   /* What a goal lands on, said where people look before each kick: the line above the bar, at rest (it was the rules
      screen's third tip until the practice kick replaced that screen) */
   const LANDS = !team ? 'A goal lands on somewhere to go in Sydney or NSW.'
-    : R.partiesFor(teams).length ? `A goal lands on a ${team} watch party in NSW.` : `A goal lands on a place near where ${team} play.`;
+    : R.partiesFor(teams).length ? `A goal lands on a watch party for ${team} in NSW.` : `A goal lands on a place near where ${team} play.`;
 
   /* ---------- the practice kick (first time, and from the page's ? button) ----------
      One kick with nothing timed: Tap to drop, the ball drops and stops at the bounce with the bar in the KICK zone,
@@ -314,14 +314,14 @@
   let prac = null;
   /* The second press, told apart (24 Nov): too soon is a press while the ball is still falling; too late is the ball
      left waiting past where a real kick would have gone. Both say so and why; the practice still lets the kick through */
-  let pracSoon = false, pracLate = false;
+  let pracSoon = false;
   const page = fn => { try { if (parent !== window && parent.sbPlay && parent.sbPlay[fn]) return parent.sbPlay[fn](); } catch (x) {} };
   function startPractice() {
     if (DEMO) return;
     timers = []; D.passing = false; D.prac = false; R.reset(); hideFrame(); setPose('ready'); markAt(T.release); spotAt(0, false);
     plus.classList.remove('is-on'); nowCard(false);
     prac = 'drop'; document.documentElement.classList.add('is-practice');
-    pracSoon = false; pracLate = false; page('practiceStart');   // the page puts its How to play button away until the game is ready
+    pracSoon = false; page('practiceStart');   // the page puts its How to play button away until the game is ready
     const m = `${Wd} to drop the ball. It will wait for you at the bounce.`;
     hold(m); say('Practice kick. It doesn\u2019t count. ' + m);
   }
@@ -519,13 +519,15 @@
       if (prac === 'falling' && t >= T.bounce + T.perfect) {
         dropBallAt(T.bounce + T.perfect); markAt(T.bounce + T.perfect); spotAt(T.bounce + T.perfect, true);
         prac = 'wait'; setPhase('wait'); setHead('wait');
-        const m = `The ball is at the bounce, and the mark under it is yellow. ${Wd} now to kick.`;
-        setHint(pracSoon ? `It has bounced now: ${wd} to kick.` : 'It\u2019s waiting for you. The mark is yellow: kick now.', true); say(m);
-        /* left waiting: a real kick would be gone by now */
-        after(2, () => { if (prac !== 'wait') return; pracLate = true; const l = `Too late: in the game it won\u2019t wait. ${Wd} now.`; setHint(l, true); say(l); });
+        const m = `The ball is at the bounce. ${Wd} now to kick.`;
+        setHint(pracSoon ? `It has bounced now: ${wd} to kick.` : 'It\u2019s waiting for you at the bounce. Kick now.', true); say(m);
+        /* left waiting: a nudge, never a telling-off (28 Nov 2026). The panel says the ball waits, so the practice does
+           not say Too late, and it always ends on Got it; that the game won't wait is said on the handover card */
+        after(4, () => { if (prac !== 'wait') return; const l = `Still waiting. ${Wd} to kick.`; setHint(l, true); say(l); });
         return;
       }
-      setHead(Math.abs(t - (T.bounce + T.perfect)) <= T.tol ? 'now' : 'kick');
+      /* before the window Tap to kick, in it Kick now, after it Too late: it used to flip back to Tap to kick for a moment */
+      setHead(t < T.bounce + T.perfect - T.tol ? 'kick' : t <= T.bounce + T.perfect + T.tol ? 'now' : 'late');
       if (DEMO && !D.kicked && t >= T.bounce + T.perfect) { demoTap(2); kick(T.bounce + T.perfect); return; }   /* the second tap, as it comes up */
       if (t >= T.end && !D.kicked) { D.none = true; kick(T.end); }   /* never tapped: the boot swings anyway, late */
     } else if (phase === 'swing') {
@@ -558,8 +560,8 @@
     }
     if (D.prac) {   /* the practice kick doesn't count: no points, no place, nothing used from the rotation. It has its own
                        result, not Goal, and the handover follows it (28 Nov 2026) */
-      const msg = pracLate ? `That was late. In the game, ${wd} just as it bounces.` : pracSoon ? 'That\u2019s the timing: just after the bounce.' : 'That\u2019s the timing.';
-      setHead(pracLate ? 'kicked' : 'got'); setHint(msg, true); say((pracLate ? '' : 'Got it. ') + msg);
+      const msg = pracSoon ? 'That\u2019s the timing: just after the bounce.' : 'That\u2019s the timing.';
+      setHead('got'); setHint(msg, true); say('Got it. ' + msg);
       after(reduce.matches ? 0.8 : 1.1, () => { if (phase === 'goal') handover(); });
       return;
     }
@@ -656,11 +658,23 @@
   /* The focus ring is for the keyboard: any key shows it, any press hides it (game.css, .is-keys) */
   document.addEventListener('keydown', () => document.documentElement.classList.add('is-keys'), true);
   document.addEventListener('pointerdown', () => document.documentElement.classList.remove('is-keys'), true);
+  /* A press that moves is not a tap (28 Nov 2026): people dragged along the meter, the press dropped the ball and the
+     drag ended as a miss. The kick is timed, so while the ball is falling it is still taken on the press itself. Every
+     other tap (the drop, the practice kick, the next ball, Tap to start) is taken on release, and only if the finger
+     has moved less than 10px; a drag or a cancelled press does nothing */
+  let press = null;
   if (!DEMO) stage.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     try { stage.focus({ preventScroll: true }); } catch (x) {}
-    tap();
+    if (phase === 'drop') { press = null; tap(); return; }
+    press = { id: e.pointerId, x: e.clientX, y: e.clientY };
   });
+  if (!DEMO) addEventListener('pointerup', e => {
+    const p = press; if (!p || p.id !== e.pointerId) return;
+    press = null;
+    if (Math.hypot(e.clientX - p.x, e.clientY - p.y) <= 10) tap();
+  });
+  if (!DEMO) addEventListener('pointercancel', e => { if (press && press.id === e.pointerId) press = null; });
   if (!DEMO) document.addEventListener('keydown', e => {
     if (howOpen) { if (e.key === 'Escape') { e.preventDefault(); closeHow(); } return; }
     if (R.isOpen()) return;
