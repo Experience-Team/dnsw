@@ -154,9 +154,12 @@
   let shown = null, onAgain = null, openerR = null, push = null;
   const PHONE = matchMedia('(max-width: 699px)');   /* stacked below 700px, side by side from there (game.css) */
   /* On phones the page's Back button steps aside while the card is up (the card has its own close cross) */
+  /* While a result card is up, the page's How to play steps aside: pressed there it used to throw the card away (28 Nov 2026) */
+  function pageCard(up) { try { if (parent !== window && parent.sbPlay && parent.sbPlay.card) parent.sbPlay.card(up); } catch (e) {} }
   function pageBack(show) { try { if (parent !== window && parent.sbPlay && parent.sbPlay.back) parent.sbPlay.back(show); } catch (e) {} }
   function open(p, teams, again) {
     shown = p; onAgain = again;
+    pageCard(true);
     if (PHONE.matches) pageBack(false);
     $('dg-r-frame').innerHTML = api.frameSVG(p);
     $('dg-r-photo').innerHTML = photo(p, 'dg-r-img');
@@ -193,7 +196,7 @@
   }
   function close() {
     if (res.hidden) return;
-    pageBack(true);
+    pageBack(true); pageCard(false);
     const root = document.documentElement, done = () => { res.hidden = true; root.classList.remove('is-result'); };
     stage.inert = false;
     if (push) { push.onfinish = null; push = null; }
@@ -317,7 +320,7 @@
       placesEl.hidden = true; placesEl.style.pointerEvents = ''; pageSettings(true);
       inertWas.forEach(([el, was]) => { el.inert = was; }); inertWas = []; openerP = null;
     },
-    reset() { pageBack(true); push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
+    reset() { pageBack(true); pageCard(false); push = null; res.getAnimations().concat(stage.getAnimations()).forEach(a => { a.onfinish = null; a.cancel(); }); res.hidden = true; stage.inert = false; document.documentElement.classList.remove('is-result'); shown = null; onAgain = null; }
   };
   window.DG2Result = api;
 })();

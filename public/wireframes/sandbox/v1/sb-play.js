@@ -102,7 +102,7 @@
     clearTimeout(going); going = 0;
     lendBack();
     open = false;
-    ob.hidden = true; gameFrame.inert = false; if (howBtn) howBtn.hidden = false;
+    ob.hidden = true; gameFrame.inert = false; if (window.sbPlay && window.sbPlay.syncHow) window.sbPlay.syncHow(); else if (howBtn) howBtn.hidden = false;
     phone.classList.remove('sb-onboarding');
     if (play && window.sbPlay) window.sbPlay.enter();
   }
@@ -199,6 +199,9 @@
   // The cross and Escape go back through the history entry Play made, so the phone's back button and they do the same
   function closeGame() {
     if (!isOpen) return;
+    // From Change, on the pitch: Back goes back to the pitch, not out of the game (28 Nov 2026). With no team yet, the
+    // team screen is the way in, so Back still leaves
+    if (window.sbOnboard && window.sbOnboard.isOpen() && teams()) { window.sbOnboard.close(); focusGame(); return; }
     if (history.state && history.state.sbplay) history.back(); else shut();
   }
   window.addEventListener('popstate', function () { if (isOpen) shut(); });
@@ -213,15 +216,26 @@
   // For the game (drop-goal-v2/): Escape on its kick screen closes it, and its own full-screen list hides the cross
   var howB = document.getElementById('sb-play-how');
   var crossOff = false, cardUp = false;
-  if (howB) howB.addEventListener('click', practise);
+  // How to play (28 Nov 2026): the ? opens the game's short how-to card, which offers the practice kick; it started a
+  // practice at once before, and on a result card that threw the card away
+  function howTo() { var a = null; try { a = frame.contentWindow && frame.contentWindow.__dgHow; } catch (e) {} if (a && isOpen) a.open(); else practise(); }
+  if (howB) howB.addEventListener('click', howTo);
+  var pracOn = false, cardOn = false;
+  function syncHow() { if (howB) howB.hidden = pracOn || cardOn || crossOff; }
+  // a game loaded afresh (a new kicker) starts with no practice and no card
+  if (frame) frame.addEventListener('load', function () { pracOn = false; cardOn = false; });
   var seeB = document.getElementById('sb-kick-places');
   if (seeB) seeB.addEventListener('click', function () { openPlaces(seeB); });
   window.sbPlay = { open: openGame, places: openPlaces, close: closeGame, isOpen: function () { return isOpen; }, reload: loadGame, focus: focusGame, enter: enter,
     // During the practice kick How to play is put away; it comes back, fading in, when the game is ready
-    practiceStart: function () { if (howB) howB.hidden = true; },
-    practiceDone: function () { try { localStorage.setItem(SEEN, '1'); } catch (e) {} if (howB && howB.hidden && !crossOff) { howB.hidden = false; if (!still() && howB.animate) howB.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } },
+    practiceStart: function () { pracOn = true; syncHow(); },
+    howClosed: function () { if (howB && !howB.hidden) howB.focus({ preventScroll: true }); },
+    // A result card is up: How to play steps aside until it has gone
+    card: function (up) { cardOn = !!up; syncHow(); },
+    practiceDone: function () { pracOn = false; try { localStorage.setItem(SEEN, '1'); } catch (e) {} if (howB && howB.hidden && !crossOff && !cardOn) { howB.hidden = false; if (!still() && howB.animate) howB.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } },
     changeTeam: function () { if (window.sbOnboard) window.sbOnboard.start(); },
-    cross: function (show) { crossOff = !show; if (closeBtn) closeBtn.hidden = crossOff || cardUp; var h = document.getElementById('sb-play-how'); if (h) h.hidden = !show; },
+    cross: function (show) { crossOff = !show; if (closeBtn) closeBtn.hidden = crossOff || cardUp; syncHow(); },
+    syncHow: function () { syncHow(); },
     // A result card on a phone has its own close cross: Back steps aside while the card is up (drop-goal-v2/result.js)
     back: function (show) { cardUp = !show; if (closeBtn) closeBtn.hidden = crossOff || cardUp; } };
 

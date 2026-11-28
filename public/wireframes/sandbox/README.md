@@ -122,3 +122,15 @@ Play is Version 2's Drop goal: the two-tap game with the team screen, the practi
 ## Copy link (27 Nov 2026, sandbox only)
 
 Share and export options has Copy link, under Share. The link is this page's address with `?plan=` and the plan as it is now packed into it (the two saved records, `tp-pick-v1` and `tp-fc-v1`: teams, days, stay, everything added, and how far the questions had got), built by `planLink` in `v1/v1-third-half.js`. The first script in `index.html` reads it before anything else, puts that plan in this browser in place of any plan already here, and takes the code off the address. Nothing is stored on a server, so the link is a snapshot: later changes need a new link. A code that can't be read is ignored.
+
+## Drop goal after the critique (28 Nov 2026, sandbox only)
+
+Five changes from the design critique of the game, all in `drop-goal-v2/` and `v1/sb-play.js`; Version 2's game is unchanged.
+
+- **The timing meter.** The outline pill with the ball riding it read as a slider to drag. It is now a flat track that fills from the left to a thin needle, with the KICK block named on a tab above it; at rest it is empty and dimmed. A landing mark on the pitch (a ring that closes as the ball falls and fills yellow while a kick would score) puts the timing where the ball is (`spotAt` in `game.js`).
+- **The practice kick names itself.** A yellow PRACTICE panel ("This kick doesn't count", Skip practice) sits where the nation table goes for the whole practice. Its result is "Got it", not "Goal". Then a "Now for real" card holds until a tap (not in its first half second) or six seconds, and only after it do the table, the kicker's line and How to play come in (`handover`, `startReal`).
+- **Status lines.** The headline says Kicked after the second tap (Too late if nobody tapped). Lines the next tap is timed against show at once; resting lines are still typed. The meter resets on every hold.
+- **The goal and Add.** The goal holds for 2 seconds (or a tap) while the pitch moves in on the posts, and the caption names the place. Add on the result card is the filled button; Added steps back to an outline. From the second goal the resting line counts the places found and added.
+- **Controls.** The page's ? opens a short How to play card with Try a practice kick inside it, and is away while a result card is up. Back on the team screen opened from Change returns to the pitch. Change is 24px tall. After three misses in a row the pitch offers Or see the places.
+
+Not done: photos for the five places that have none (no pictures to use), the headline's capitals (TAP To Drop, as the reference art has it), low fidelity, reduced motion, a screen reader pass and the annotations.

@@ -26,16 +26,26 @@
 </head>
 <body>
 <main class="dg" id="dg" tabindex="0" role="button"
-  aria-label="Drop goal. Press Space or Enter, or tap, to drop the ball, then again to kick it as it bounces up off the ground, about a second later. Kick in the KICK zone of the timing bar to put it through the posts.">
+  aria-label="Drop goal. Press Space or Enter, or tap, to drop the ball, then again to kick it as it bounces up off the ground, about a second later, to put it through the posts.">
   <svg class="dg-scene" id="dg-scene" viewBox="0 0 390 520" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
     <g id="dg-lines"></g>
     <g id="dg-frame"></g>
     <g id="dg-posts"></g>
+    <!-- Where the ball lands (28 Nov 2026): a ring on the ground that closes as the ball falls and fills yellow while a kick would score, so the timing is read where the ball is -->
+    <g id="dg-spot"><ellipse class="dg-spot" id="dg-spot-e" rx="0" ry="0" opacity="0"/></g>
     <g id="dg-kicker"></g>
     <g id="dg-ball"></g>
   </svg>
   <!-- Who is kicking, and the way to change it (the Version 2 page's team screen). Shown when the page shows the game -->
   <p class="dg-who" id="dg-who" hidden><span id="dg-who-t"></span><span aria-hidden="true"> &middot; </span><button type="button" class="dg-link" id="dg-change">Change<span class="dg-vh"> team</span></button></p>
+  <!-- The practice kick (28 Nov 2026): a panel where the nation table goes, up for the whole practice, so the mode is named at a size people read. The table takes its place when the game starts -->
+  <div class="dg-prac" id="dg-prac">
+    <p class="dg-prac-h">Practice</p>
+    <p class="dg-prac-p">This kick doesn&rsquo;t count. The ball waits for you.</p>
+    <button type="button" class="dg-link" id="dg-skip">Skip practice</button>
+  </div>
+  <!-- The handover (28 Nov 2026): after the practice kick, one card says the game starts now, and a tap starts it -->
+  <div class="dg-now" id="dg-now" hidden><p class="dg-now-h">Now for real</p><p class="dg-now-p" id="dg-now-p"></p></div>
   <header class="dg-top">
     <img class="dg-logo" src="../assets/images/tth-logo.webp" alt="The Third Half" width="72" height="54" />
   </header>
@@ -47,15 +57,13 @@
   </aside>
   <div class="dg-foot">
     <p class="dg-hint" id="dg-hint">Then tap again as it bounces.</p>
+    <!-- The timing meter (28 Nov 2026; it was a pill with the ball riding it, which read as a slider to drag): a flat track that
+         fills from the left to a thin needle, with the KICK block named above it. Empty and dimmed at rest -->
     <div class="dg-bar" id="dg-bar" aria-hidden="true">
-      <i class="dg-zone" id="dg-zone"></i>
-      <span class="dg-zone-l" id="dg-zone-l">Kick</span>
-      <svg class="dg-mark" id="dg-mark" viewBox="-19 -14 38 28" focusable="false"><g id="dg-mark-ball" transform="rotate(-28)"></g></svg>
+      <div class="dg-track"><i class="dg-fill" id="dg-fill"></i><i class="dg-zone" id="dg-zone"><b class="dg-zone-l" id="dg-zone-l">Kick</b></i><i class="dg-mark" id="dg-mark"></i></div>
     </div>
     <p class="dg-head" id="dg-head" aria-hidden="true">Tap to drop</p>
     <button type="button" class="dg-link dg-link--pitch" id="dg-see">See the places</button>
-    <!-- The practice kick only: past it, into the game -->
-    <button type="button" class="dg-link dg-link--pitch" id="dg-skip">Skip practice</button>
   </div>
   <!-- Demo only (?demo): where each of the two presses lands, marked and named. A ring and "Tap 1", "Tap 2" on touch
        screens; with a mouse, a pointer on the ring and "Click 1", "Click 2" -->
@@ -104,6 +112,19 @@
   <p class="dg-pl-p">No goal needed. Add any of them to your plan. <span id="dg-pl-count"></span><button type="button" class="dg-link dg-plan" id="dg-pl-plan" hidden></button></p>
   <div id="dg-pl-body"></div>
 </section>
+<!-- How to play (28 Nov 2026): the page's ? opens this, not a practice kick straight away. A tap outside, the cross or Escape closes it -->
+<div class="dg-how-wrap" id="dg-how" hidden>
+  <section class="dg-how" role="dialog" aria-modal="true" aria-labelledby="dg-how-h">
+    <button type="button" class="dg-close" id="dg-how-x" aria-label="Close how to play"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <h2 class="dg-how-h" id="dg-how-h" tabindex="-1">How to play</h2>
+    <ol class="dg-how-l">
+      <li><b><span class="dg-w">Tap</span></b> to drop the ball.</li>
+      <li><b><span class="dg-w">Tap</span> again</b> as it bounces, when the mark on the ground turns yellow.</li>
+      <li>A goal lands on a place. Add the ones you like to your plan.</li>
+    </ol>
+    <button type="button" class="dg-how-go" id="dg-how-prac">Try a practice kick</button>
+  </section>
+</div>
 <p class="dg-sr" id="dg-say" aria-live="polite"></p>
 <script src="../concepts-fixtures.js"></script>
 <script src="places.js"></script>

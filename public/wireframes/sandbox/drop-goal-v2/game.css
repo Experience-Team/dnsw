@@ -10,7 +10,7 @@
 :root {
   --pitch: #5f9c50; --line: #78ad69; --chip: rgba(0, 32, 16, .78); --track: transparent; --post: #e6e2cb; --post-edge: #d3d0b8; --pad: #31624b; --pad-top: #3f7359; --zone: #efb52c;
   --cream: #ebe8d2; --yellow: #efb52c; --on-pitch: #ffffff; --table: #002814; --table-ink: #9db3a5; --mine: #f2a72a;
-  --focus: #f6f8ee; --sample: rgba(255, 0, 128, .22);
+  --focus: #f6f8ee; --sample: rgba(255, 0, 128, .22); --track-bg: rgba(0, 32, 16, .62); --track-edge: transparent; --on-yellow: #13250f; --needle: #ffffff;
   --violet: #ac54ff; --orange: #ff4802; --green: #009953; --volt: #ecfe54; --tag: #d6e83c; --ink: #111111; --ink-2: #4d4d3a;
   --card-line: rgba(17, 17, 17, .14); --chalk: #faf7f0; --frame-ph: #2f5f45; --frame-icon: #9cc79a;
   --mono: 'IBM Plex Mono', ui-monospace, monospace; --ui: 'IBM Plex Sans Condensed', system-ui, sans-serif;
@@ -22,7 +22,7 @@
 :root[data-theme="wireframe"] {
   --pitch: #e2e2e2; --line: #f4f4f4; --chip: #1d1d1d; --track: #ffffff; --post: #ffffff; --post-edge: #8c8c8c; --pad: #9b9b9b; --pad-top: #b4b4b4;
   --zone: #6b6b6b; --cream: #5c5c5c; --yellow: #6b6b6b; --on-pitch: #1d1d1d; --table: #3b3b3b; --table-ink: #d6d6d6; --mine: #ffffff;
-  --focus: #1d1d1d; --mono: ui-monospace, monospace; --ui: system-ui, sans-serif;
+  --focus: #1d1d1d; --mono: ui-monospace, monospace; --ui: system-ui, sans-serif; --track-bg: #ffffff; --track-edge: #8c8c8c; --on-yellow: #ffffff; --needle: #1d1d1d;
   --violet: #9a9a9a; --orange: #c4c4c4; --green: #8a8a8a; --volt: #ffffff; --tag: #e8e8e8; --ink: #1d1d1d; --ink-2: #555555;
   --card-line: rgba(0, 0, 0, .14); --chalk: #ffffff; --frame-ph: #cfcfcf; --frame-icon: #8a8a8a;
 }
@@ -53,8 +53,8 @@ body { background: var(--pitch); overflow: hidden; font-family: var(--ui); color
 
 /* Nation table: under the logo on phones (the style reference puts it bottom right on a wide screen, where the foot
    has room beside it) */
-.dg-table { position: absolute; top: 84px; left: var(--pad-x); width: 172px; padding: 12px; background: var(--table); color: var(--table-ink); cursor: default; font: 700 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .04em; }
-.dg-table-h { margin: 0 0 8px; font: inherit; font-weight: 400; }
+.dg-table { position: absolute; top: 84px; left: var(--pad-x); width: 172px; padding: 12px; background: var(--table); color: var(--table-ink); cursor: default; font: 700 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .04em; }
+.dg-table-h { margin: 0 0 8px; font: inherit; font-weight: 400; letter-spacing: 0; white-space: nowrap; }
 .dg-sample { position: relative; }
 .has-notes .dg-sample { background-color: var(--sample); border-radius: var(--r-chip); }
 .has-notes .dg-sample.has-img::after { content: ''; position: absolute; inset: 0; background: var(--sample); }
@@ -69,23 +69,37 @@ body { background: var(--pitch); overflow: hidden; font-family: var(--ui); color
 @media (hover: hover) { .dg-share:hover { background: rgba(255, 255, 255, .08); } }
 
 /* The foot: the line that says what happened, the timing bar and the call to kick */
-.dg-foot { position: absolute; left: 0; right: 0; bottom: 0; height: var(--foot); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 12px; padding: 0 24px 16px; pointer-events: none; }
+.dg-foot { position: absolute; left: 0; right: 0; bottom: 0; height: var(--foot); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 12px; padding: 0 24px max(16px, env(safe-area-inset-bottom)); pointer-events: none; }
 .dg-hint { min-height: 1.3em; margin: 0 0 8px; padding: 4px 12px; border-radius: 12px; background: var(--chip); color: #fff; font: 600 14px/1.3 var(--ui); text-align: center; transition: opacity var(--t-ui) ease-out; }
 .dg-hint.is-off { opacity: 0; }
 
-/* The bar, as the reference draws it: an outline with the pitch showing through, the gold zone inside it, and the
-   ball riding along it, twice the bar's height. KICK is named inside the zone */
-.dg-bar { --bar-h: 26px; position: relative; width: min(304px, 100%); height: var(--bar-h); border: 3px solid var(--cream); border-radius: var(--r-pill); background: var(--track); }
-.dg-zone { position: absolute; top: 3px; bottom: 3px; border-radius: var(--r-pill); background: var(--zone); }
-.dg-zone-l { position: absolute; top: 50%; transform: translate(-50%, -50%); font: 700 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #3a2a00; }
+/* The timing meter (28 Nov 2026). It was the reference's outline pill with the ball riding along it, twice the bar's
+   height, and people took the ball for a handle to drag. Now it is a flat track that fills from the left to a thin
+   needle, with the KICK block standing a little proud of it and named on a tab above. Nothing on it looks like a
+   handle. At rest it is empty and dimmed, with no needle, so it reads as waiting, not as a value that was set */
+.dg-bar { position: relative; width: min(304px, 100%); padding-top: 18px; transition: opacity var(--t-ui) ease-out; }
+.dg-track { position: relative; height: 10px; border-radius: 2px; background: var(--track-bg); box-shadow: inset 0 0 0 1px var(--track-edge); }
+.dg-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 2px 0 0 2px; background: var(--cream); }
+.dg-zone { position: absolute; top: -3px; bottom: -3px; border-radius: 2px; background: var(--zone); }
+.dg-zone-l { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); padding: 3px 6px 2px; border-radius: 2px 2px 0 0; background: var(--zone); color: #3a2a00; font: 700 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 :root[data-theme="wireframe"] .dg-zone-l { color: #fff; }
-.dg-mark { position: absolute; top: 50%; left: 0; width: calc(var(--bar-h) * 2.4); height: calc(var(--bar-h) * 1.77); margin: calc(var(--bar-h) * -.885) 0 0 calc(var(--bar-h) * -1.2); overflow: visible; filter: drop-shadow(0 2px 1px rgba(0, 40, 20, .22)); }
-.dg-head { margin: 0; font: 700 clamp(30px, 10.5vw, 42px)/1 var(--mono); letter-spacing: 0; text-transform: capitalize; white-space: nowrap; }
+.dg-mark { position: absolute; top: -7px; bottom: -7px; left: 0; width: 3px; margin-left: -1.5px; border-radius: 1.5px; background: var(--needle); box-shadow: 0 0 0 1px rgba(0, 32, 16, .85); }
+html:is([data-phase="hold"], [data-phase="pass"], [data-phase="ready"]) .dg-bar { opacity: .5; }
+html:is([data-phase="hold"], [data-phase="pass"], [data-phase="ready"]) .dg-mark { opacity: 0; }
+/* The landing mark on the pitch: a ring that closes on the spot, and a filled disc while a kick would score. The
+   change is one of shape as well as colour, with a dark edge, so it does not depend on telling yellow from green */
+.dg-spot { fill: none; stroke: var(--cream); stroke-width: 2.5; }
+.dg-spot.is-now { fill: var(--zone); stroke: #13250f; stroke-width: 1.5; }
+:root[data-theme="wireframe"] .dg-spot { stroke: #1d1d1d; }
+:root[data-theme="wireframe"] .dg-spot.is-now { fill: #1d1d1d; }
+.dg-head { margin: 0; font: 700 clamp(30px, 10.5vw, 42px)/1 var(--mono); letter-spacing: 0; text-transform: capitalize; white-space: nowrap; text-shadow: 0 1px 2px rgba(0, 40, 20, .45); }
+.dg-head.is-now { text-shadow: none; }
 .dg-head b { font-weight: inherit; text-transform: uppercase; }
 /* Desktops: the bar and the call to kick at the reference's size */
 @media (min-width: 900px) and (min-height: 700px) {
   :root { --foot: 216px; }
-  .dg-bar { --bar-h: 34px; width: min(640px, 52vw); }
+  .dg-bar { width: min(640px, 52vw); padding-top: 20px; }
+  .dg-track { height: 12px; }
   .dg-zone-l { font-size: 12px; }
   .dg-head { font-size: 56px; padding-top: 12px; }
 }
@@ -100,7 +114,7 @@ body { background: var(--pitch); overflow: hidden; font-family: var(--ui); color
 @media (max-height: 620px) { :root { --foot: 168px; } .dg-foot { padding-bottom: 12px; gap: 10px; } .dg-table { top: 76px; } }
 /* Narrow phones: a narrower table, so the near upright stays clear of it */
 @media (max-width: 360px) {
-  .dg-table { width: 146px; padding: 8px; font-size: 9px; letter-spacing: .02em; }
+  .dg-table { width: 146px; padding: 8px; font-size: 11px; letter-spacing: 0; }
   .dg-rows li { grid-template-columns: 12px 1fr auto; }
   .dg-share { min-height: 28px; margin-top: 8px; padding: 0 10px; font-size: 11px; }
 }
@@ -238,10 +252,10 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
    The game plays itself in a small frame: the words, the bar and the two taps, and nothing to press */
 .dg-tap { display: none; }
 .is-demo { --foot: 104px; }
-.is-demo .dg-bar { --bar-h: 22px; }
+.is-demo .dg-bar { padding-top: 16px; }
 .is-demo .dg { cursor: default; }
 .is-demo * { pointer-events: none !important; }
-.is-demo :is(.dg-table, .dg-top, .dg-hint, #dg-see) { display: none; }
+.is-demo :is(.dg-table, .dg-top, .dg-hint, #dg-see, .dg-prac, .dg-now) { display: none; }
 .is-demo .dg-foot { padding-bottom: 12px; gap: 8px; }
 .is-demo .dg-head { font-size: clamp(22px, 9vw, 34px); }
 .is-demo .dg-tap { display: block; position: absolute; left: 50%; bottom: calc(var(--foot) + 28px); width: 44px; height: 44px; margin-left: -22px; opacity: 0; pointer-events: none; font-style: normal; }
@@ -254,29 +268,70 @@ html.is-result .dg-scene, html.is-result .dg-foot, html.is-result .dg-table { vi
 .is-click .dg-tap-cur { display: block; }
 
 /* ---------- Who is kicking, top of the pitch beside the logo ---------- */
-.dg-who { position: absolute; top: 20px; left: 84px; max-width: calc(100% - 84px - 112px); margin: 0; padding: 6px 12px; border-radius: 12px; background: var(--chip); color: #fff; font: 600 13px/1.3 var(--ui); cursor: default; }
+.dg-who { position: absolute; top: 20px; left: 84px; display: flex; align-items: center; max-width: calc(100% - 84px - 112px); margin: 0; padding: 2px 12px; white-space: pre; border-radius: 12px; background: var(--chip); color: #fff; font: 600 13px/1.3 var(--ui); cursor: default; }
 .dg-who[hidden] { display: none; }
-.dg-who .dg-link { display: inline; min-height: 0; font: inherit; color: inherit; }
+/* Change is 24px tall to press (WCAG 2.5.8): as a word inside the line it was 17px */
+.dg-who .dg-link { min-height: 24px; font: inherit; color: inherit; }
 .dg-who .dg-link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .is-demo .dg-who { display: none; }
 html.is-result .dg-who { visibility: hidden; }
 
-/* ---------- The practice kick (first time, and from ?): the ball waits at the bounce ---------- */
-#dg-skip { display: none; }
-.is-practice #dg-skip { display: inline-flex; }
-.is-practice #dg-see { display: none; }
-.is-practice .dg-head.is-now { font-size: clamp(22px, 6.6vw, 36px); }
+/* ---------- The practice kick (first time, and from How to play): the ball waits at the bounce ----------
+   28 Nov 2026: the practice names itself. A yellow panel sits where the nation table goes, for the whole practice:
+   PRACTICE, that it doesn't count, and the way past it. When the game starts the table takes its place, so the swap
+   itself says the kicks now count. */
+.dg-prac { display: none; position: absolute; top: 84px; left: var(--pad-x); width: 172px; padding: 12px; background: var(--yellow); color: var(--on-yellow); cursor: default; }
+.is-practice .dg-prac { display: block; }
+.is-handover .dg-prac { display: none; }
+.dg-prac-h { margin: 0; font: 700 22px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.dg-prac-p { margin: 8px 0 4px; font: 600 13px/1.3 var(--ui); }
+.dg-prac .dg-link { font-size: 13px; }
+.dg-prac .dg-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+/* the smaller line keeps the headline's usual height, so nothing above it moves when the ball lands */
+.is-practice .dg-head.is-now { font-size: clamp(22px, 6.6vw, 36px); line-height: clamp(30px, 10.5vw, 42px); }
+@media (min-width: 900px) and (min-height: 700px) { .is-practice .dg-head.is-now { line-height: 56px; } }
+/* The handover: one card in the middle of the pitch, the same kind as the team screen's Kicking for [team] */
+.dg-now { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); width: min(320px, calc(100% - 48px)); padding: 20px 24px; border-radius: 16px; background: rgba(0, 32, 16, .92); color: #fff; text-align: center; box-shadow: 0 8px 24px rgba(0, 0, 0, .3); pointer-events: none; }
+:root[data-theme="wireframe"] .dg-now { background: #1d1d1d; }
+.dg-now[hidden] { display: none; }
+.dg-now-h { margin: 0; font: 700 28px/1.1 var(--ui); letter-spacing: -.01em; }
+.dg-now-p { margin: 8px 0 0; font: 400 15px/1.4 var(--ui); text-wrap: pretty; }
+/* The place for See the places is kept under the call to kick whether or not it shows, so the foot never shifts */
+.is-practice #dg-see { visibility: hidden; }
 
+/* ---------- How to play (the page's ?): a short card over the pitch ---------- */
+.dg-how-wrap { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(0, 24, 12, .5); cursor: default; }
+.dg-how-wrap[hidden] { display: none; }
+.dg-how { position: relative; width: min(340px, 100%); padding: 24px; border-radius: 16px; background: var(--chalk); color: var(--ink); box-shadow: 0 8px 24px rgba(0, 0, 0, .3); }
+.dg-how-h { margin: 0 48px 0 0; font: 700 22px/1.15 var(--ui); outline: none; }
+.dg-how-l { margin: 16px 0 0; padding: 0 0 0 20px; font: 400 15px/1.4 var(--ui); }
+.dg-how-l li + li { margin-top: 8px; }
+.dg-how-go { display: inline-flex; align-items: center; min-height: 36px; margin-top: 20px; padding: 0 16px; border: 0; border-radius: var(--r-pill); background: var(--ink); color: #fff; font: 700 14px/1 var(--ui); cursor: pointer; transition: transform var(--t-press) ease-out; }
+.dg-how-go:active { transform: scale(.97); }
+.dg-how-go:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- The goal (28 Nov 2026): the pitch moves in on the posts while the place shows ---------- */
+.dg-scene { transition: transform .5s var(--ease-out); }
+html:is([data-phase="goal"], [data-phase="result"]):not(.is-practice):not(.is-demo) .dg-scene { transform: scale(1.22); }
+@media (prefers-reduced-motion: reduce) { .dg-scene, .dg-bar { transition: none; } html[data-phase] .dg-scene { transform: none !important; } }
+
+/* Add on the result card is what the game is for, so it is the filled button there (28 Nov 2026; it was a 28px
+   outline pill). Once added it steps back to an outline with its tick */
+#dg-r-save { min-height: 36px; padding: 0 16px 0 12px; border-color: var(--ink); background: var(--ink); color: var(--volt); font-size: 14px; font-weight: 700; }
+:root[data-theme="wireframe"] #dg-r-save { color: #fff; }
+#dg-r-save[aria-pressed="true"] { background: transparent; color: var(--ink); }
+@media (hover: hover) { #dg-r-save[aria-pressed="false"]:hover { background: #2b2b2b; } }
 
 /* ---------- In the Version 2 page (html.in-page): room for the page's Back button, top left ---------- */
 .in-page .dg-top { left: 108px; }
 .in-page .dg-who { top: 64px; left: var(--pad-x); max-width: calc(100% - 2 * var(--pad-x)); }
 .in-page .dg-table { top: 108px; }
+.in-page .dg-prac { top: 64px; }
 /* Phones: the card's own close cross, 16px in from the card's top right corner; Back is away while the card is up, so
    Kick again starts at the edge again */
 .dg-r-close { display: none; }
 @media (max-width: 699px) { .dg-r-card { position: relative; } .dg-r-close { display: grid; top: 16px; right: 16px; width: 36px; height: 36px; z-index: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); } }
-@media (min-width: 700px) { .in-page .dg-who { top: 20px; left: 180px; max-width: calc(100% - 180px - 64px); } .in-page .dg-table { top: 84px; } }
+@media (min-width: 700px) { .in-page .dg-who { top: 20px; left: 180px; max-width: calc(100% - 180px - 64px); } .in-page .dg-table { top: 84px; } .in-page .dg-prac { top: 84px; } }
 
 /* The result card's links: See the places, and after a save in the Version 2 page, the count and the way to Your plan */
 .dg-r-links { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin: 0; }
@@ -295,7 +350,11 @@ html.is-result .dg-who { visibility: hidden; }
 
 /* In the Version 2 page the places have their own way in on Home (Or see all the places), so the game itself does not
    offer See the places, on the pitch or on a result card (24 Nov) */
-.in-page #dg-see, .in-page #dg-r-see { display: none; }
+/* 28 Nov 2026: after three misses in a row the pitch offers them (game.js, is-struggling), so nobody has to score to
+   see the places. Its place is kept either way */
+.in-page #dg-r-see { display: none; }
+.in-page #dg-see { visibility: hidden; }
+.in-page.is-struggling:not(.is-practice) #dg-see { visibility: visible; }
 
 /* The caption being typed: the rest of the line holds its place unseen, and a caret marks where the typing is */
 .dg-hint-rest { opacity: 0; }
