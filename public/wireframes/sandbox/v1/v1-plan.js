@@ -311,12 +311,12 @@
   function buildShell() {
     root.innerHTML = '<div class="v1z-out"></div><section class="v1z" id="v1z" aria-label="Your days">' +
       '<div class="v1z-view" id="v1z-view"><div class="v1z-track" id="v1z-track" role="group" aria-label="Your days, 1 October to 13 November. Left and right arrows move between days."></div></div>' +
-      '<div class="v1z-zoom"><span class="v1z-wedge" aria-hidden="true"></span>' +
-      '<input type="range" class="v1z-range" id="v1z-range" min="0" max="100" step="1" value="0" aria-label="Zoom the timeline" aria-valuetext="' + STAGES[0] + '"></div>' +
+      '<div class="v1z-zoomrow"><div class="v1z-zoom"><span class="v1z-wedge" aria-hidden="true"></span>' +
+      '<input type="range" class="v1z-range" id="v1z-range" min="0" max="100" step="1" value="0" aria-label="Zoom the timeline" aria-valuetext="' + STAGES[0] + '"></div></div>' +
       '</section><div class="v1z-sum" id="v1z-sum"></div>';
     shell = root.querySelector('.v1z'); outEl = root.querySelector('.v1z-out'); view = root.querySelector('#v1z-view'); track = root.querySelector('#v1z-track');
     sumEl = root.querySelector('#v1z-sum'); rangeEl = root.querySelector('#v1z-range'); zoomEl = root.querySelector('.v1z-zoom');
-    rangeEl.value = zTarget; syncRange();
+    rangeEl.value = zTarget; syncRange(); placeExpand();
     view.addEventListener('scroll', edges, { passive: true });
     if (window.ResizeObserver) new ResizeObserver(function () { applyZoom(zoom, true); }).observe(view);
     // Zooming in from the whole trip, the centre is the chosen day, or the middle of your days, so there is something to look at
@@ -585,7 +585,7 @@
   });
 
   /* ---------- The timeline at full width (desktop, 27 Nov 2026) ----------
-     Wide screens get a button on the plan's heading that lends the timeline (and the chosen day's summary) to a modal
+     Wide screens get a button to the right of the zoom slider that lends the timeline (and the chosen day's summary) to a modal
      across the window: more days at once, with details. A cross top right, Escape, or a tap on the dark area closes it,
      and focus goes back to the button. A sheet opened from it (a spare day's ideas) stacks over it. */
   var phoneEl = document.getElementById('tp-phone'), wideMq = matchMedia('(min-width: 1024px)'), wm = null, wmHome = null, wmNext = null, wmOpener = null;
@@ -595,8 +595,17 @@
     ex.type = 'button'; ex.className = 'v1z-expand'; ex.id = 'v1z-expand';
     ex.setAttribute('aria-label', 'Open the timeline full width'); ex.title = 'Open the timeline full width'; ex.setAttribute('aria-haspopup', 'dialog');
     ex.innerHTML = EXPAND;
-    head.insertBefore(ex, head.children[1] || null);
+    placeExpand();
     ex.addEventListener('click', function () { openWide(ex); });
+  }
+  // The button sits to the right of the zoom slider (28 Nov 2026; it was on the plan's heading), as both change how
+  // much of the timeline shows. Until the timeline is built it waits on the heading, out of sight
+  function placeExpand() {
+    var b = document.getElementById('v1z-expand') || ex, row = zoomEl && zoomEl.parentNode;
+    if (!b) return;
+    if (row && row.classList.contains('v1z-zoomrow')) { if (b.parentNode !== row) row.appendChild(b); }
+    else if (!b.parentNode && head) { b.hidden = true; head.appendChild(b); }
+    if (b.parentNode === row) b.hidden = false;
   }
   function wideOk() { return wideMq.matches && document.documentElement.classList.contains('pv-device'); }
   function buildWide() {
