@@ -1,0 +1,7 @@
+/* Type sizes (28 Nov 2026, sandbox only): body copy is 16px at least, everything else 12px at least.
+   The size tokens carry most of it (themes/hifi.css and shared.css: --fs-sm, --fs-md and --fs-base are 1rem, nothing under
+   .75rem), and every fixed size under 12px in the sandbox's styles was raised to .75rem. This file lifts the sentence-length text
+   that was set at the caption size (13px): card details, facts, notes and hints. Labels, tags, kickers and keys stay at 13px. */
+#tp-phone :is(.tp-pc-why, .v1-nc-w, .tp-sec-note, .tp-all-note, .tp-all-hint, .tp-deck-hint, .tp-pm-note, .tp-foot-copy, .tp-tl-device, .sb-demo-how, .tp-home-rugby .tp-rugby-why, .tp-rugby-why, .tp-fc-why, .tp-go-ph, .tp-go-p, .tp-go-cap, .tp-city-ph, .tp-city-empty, .tp-city-hl-p, .tp-empty, .tp-fday-done, .tp-fday-so, .v1-fan-sub, .v1-ao-w, .v1-ao-r, .v1-sp-foot, .v1-sp-adb, .tp-idea-get, .tp-pm-why, .tp-pm-clash, .tp-pm-said) { font-size: 1rem; }
+#tp-phone :is(.pl-option-facts, .cn-pp-facts) :is(dt, dd), #tp-phone :is(.pl-option-facts, .cn-pp-facts) dd .provenance-gap, #tp-phone .v1-fz-dl dd { font-size: 1rem; }
+#tp-phone :is(.cn-pp-text, .cn-pp-venue, .tp-home-intro, .tp-faq-in p, .tp-art-body p) { font-size: 1rem; }

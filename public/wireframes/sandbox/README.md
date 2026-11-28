@@ -150,3 +150,12 @@ Drop goal (Version 2's game, now the sandbox's Play tab) photos, 28 Nov 2026: Ca
 - **Expanded**, the three switches (My plan, Ideas, Fan zones and pubs) sit inside the map at its top left; they wrap to two lines on a phone. Closed, they stay above the map.
 - **A pin opens the page's own sheet** for that thing, the same one its card or row opens (`opens` in `v1/v1-narrative.js`): an idea, product or made-up place opens its details; something added opens its plan entry; a ground opens its match (the host city when several matches are there); where they stay opens Where you're staying. A fan zone, fan village, pub or club opens a new place sheet in the same layout (`pmFanSpot` in `v1/v1-third-half.js`, sample details from `v1/v1-fanspots.js`).
 - The small card on the map is no longer opened, so "Go to this day" is gone from the map; its code (`cardFor`, `cardOpen`, `.v1-tm-card`) is still in the files and is owed a tidy.
+
+## Type sizes (28 Nov 2026, sandbox only)
+
+Body copy is 16px at least and everything else 12px at least.
+- The size tokens carry most of it: in high fidelity `--fs-sm` is 1rem (it was 14px); in low fidelity `--fs-sm`, `--fs-md` and `--fs-base` are 1rem and `--fs-2xs` is .75rem (`themes/hifi.css`, `shared.css`).
+- Every fixed size under 12px in the sandbox's styles (63 declarations, and five in the game's `font` shorthands) is now .75rem or 12px: the NSW mark on team cards, In NSW tags, day-tile weekdays, the timeline's letters and months, map pin and place names, the fan zone kind label, the game's table and tags.
+- `v1/sb-type.css` lifts sentence-length text that sat at the 13px caption size to 1rem: card details, practical details, section notes, hints and sheet notes.
+- Left below 16px on purpose, as labels rather than body copy: tags and chips, kickers above titles, calendar keys, match times inside buttons, the hero's event line (a script fits it to one line) and the game's hint pill (14px, so it stays on one line).
+- Low fidelity was not looked at after this change.

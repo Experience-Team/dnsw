@@ -67,7 +67,8 @@
   --font-body: system-ui, sans-serif;
   --font-display: var(--font-body);
   --font-label: var(--font-body);   /* short caps labels: team codes, tags, the hero kicker */
-  --fs-2xs: .6875rem; --fs-xs: .75rem; --fs-sm: .8125rem; --fs-md: .875rem; --fs-base: .9375rem;
+  /* 28 Nov 2026 (sandbox): nothing below 12px, and body copy (sm, md, base) is 16px at least */
+  --fs-2xs: .75rem; --fs-xs: .75rem; --fs-sm: 1rem; --fs-md: 1rem; --fs-base: 1rem;
   --fs-lg: 1rem; --fs-lg-2: 1.125rem; --fs-xl: 1.25rem; --fs-2xl: 1.5rem; --fs-hero: 2.25rem;
   --fw-semi: 600; --fw-bold: 700; --fw-heavy: 800;
   /* Borders and shape */
@@ -189,7 +190,7 @@ body {
 .utility-bar-dropdown-toggle:hover { color: #fff; }
 .utility-bar-dropdown.open .utility-bar-dropdown-toggle,
 .utility-bar-dropdown.current .utility-bar-dropdown-toggle { color: #fff; }
-.utility-bar-dropdown-caret { font-size: .625rem; }
+.utility-bar-dropdown-caret { font-size: .75rem; }
 .utility-bar-dropdown-menu {
   display: none;
   position: absolute;
@@ -590,7 +591,7 @@ body.nav--hidden .site-nav { transform: translateY(-100%); }
   left: .5rem;
   background: #ed4242;
   color: #fff;
-  font-size: .65rem;
+  font-size: .75rem;
   font-weight: 700;
   padding: .15rem .4rem;
   border-radius: 3px;
@@ -602,7 +603,7 @@ body.nav--hidden .site-nav { transform: translateY(-100%); }
   left: .5rem;
   background: #111;
   color: #fff;
-  font-size: .7rem;
+  font-size: .75rem;
   font-weight: 600;
   padding: .2rem .5rem;
   border-radius: 4px;
@@ -815,7 +816,7 @@ body.rwc-th-locked { overflow: hidden; }
 .m-pin.m-pin--list.is-active path { fill: #fff; stroke: #111; stroke-width: 2; }
 .m-pin.m-pin--list.is-active text { fill: #111; }
 .loc-key-pin { display: inline-block; width: .7rem; height: .7rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #111; margin-left: .5rem; }
-.rwc-map-num { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 1.25rem; height: 1.25rem; padding: 0 .25rem; border-radius: 999px; background: #111; color: #fff; font-size: .6875rem; font-weight: 700; }
+.rwc-map-num { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 1.25rem; height: 1.25rem; padding: 0 .25rem; border-radius: 999px; background: #111; color: #fff; font-size: .75rem; font-weight: 700; }
 .rwc-map-pop { position: absolute; z-index: 2; transform: translate(-50%, -100%); display: flex; align-items: flex-start; gap: .75rem; width: max-content; max-width: 15rem; padding: .5rem .625rem; background: #fff; border: 2px solid #111; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); font-size: .8125rem; }
 .rwc-map-pop.is-below { transform: translate(-50%, 0); }
 .rwc-map-pop[hidden] { display: none; }
@@ -830,7 +831,7 @@ body.rwc-th-locked { overflow: hidden; }
 .rwc-map-keys .loc-key-stadium, .rwc-map-keys .loc-key-fan { margin-left: 0; flex-shrink: 0; }
 .rwc-map-places .pl-btn-link { margin-left: auto; }
 .rwc-map--small { margin-top: 0; }
-.rwc-map--small .loc-map-key { font-size: .6875rem; }
+.rwc-map--small .loc-map-key { font-size: .75rem; }
 .rwc-map--small .m-label { display: none; }
 .rwc-map--small .m-pin-body { transform: scale(1.5); }
 .rwc-th-item > span:nth-child(2) { margin-right: auto; }
@@ -887,7 +888,7 @@ body.rwc-th-locked { overflow: hidden; }
 .loc-group-title { font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
 .loc-group-body { font-size: .9375rem; color: #444; margin-top: .25rem; }
 .loc-tile--fan { border: 2px solid #111; }
-.loc-confirmed { display: inline-flex; align-items: center; gap: .3rem; margin-left: .375rem; padding: .05rem .5rem; border-radius: 999px; background: #111; color: #fff; font-size: .6875rem; font-weight: 700; vertical-align: middle; }
+.loc-confirmed { display: inline-flex; align-items: center; gap: .3rem; margin-left: .375rem; padding: .05rem .5rem; border-radius: 999px; background: #111; color: #fff; font-size: .75rem; font-weight: 700; vertical-align: middle; }
 .loc-confirmed::before { content: ''; width: .3em; height: .6em; border-right: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(45deg) translateY(-.1em); }
 
 /* Static schematic map (placeholder vector until a real map is wired in) */
@@ -901,15 +902,15 @@ body.rwc-th-locked { overflow: hidden; }
 .m-rail { fill: none; stroke: #888; stroke-width: 2; stroke-dasharray: 6 4; }
 .m-lrail { fill: none; stroke: #888; stroke-width: 2; stroke-dasharray: 2 3; }
 .m-label { font: 500 9px system-ui, sans-serif; fill: #555; }
-.m-label--strong { font-weight: 700; font-size: 10px; fill: #111; }
+.m-label--strong { font-weight: 700; font-size: .75rem; fill: #111; }
 .m-label--water { font-style: italic; fill: #777; }
 .m-label--park { fill: #666; }
-.m-label--area { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; fill: #999; }
-.m-label--small { font-size: 8px; }
-.m-label--fan { font-size: 8px; font-weight: 700; fill: #444; }
+.m-label--area { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; fill: #999; }
+.m-label--small { font-size: .75rem; }
+.m-label--fan { font-size: .75rem; font-weight: 700; fill: #444; }
 .m-fan { fill: rgba(0, 0, 0, .04); stroke: #444; stroke-width: 1.25; stroke-dasharray: 4 3; }
 .m-fan--confirmed { fill: rgba(0, 0, 0, .1); stroke: #111; stroke-width: 2; stroke-dasharray: none; }
-.m-label--confirmed { font-size: 10px; fill: #111; }
+.m-label--confirmed { font-size: .75rem; fill: #111; }
 .m-stadium rect { fill: #111; }
 .m-stadium .m-stadium-pitch { fill: none; stroke: #fff; stroke-width: 1.5; }
 .m-stop rect { fill: #fff; stroke: #111; stroke-width: 1.5; }
@@ -920,7 +921,7 @@ body.rwc-th-locked { overflow: hidden; }
 .loc-map-toggles { display: flex; flex-wrap: wrap; gap: .375rem; }
 .loc-chip { display: inline-flex; align-items: center; gap: .375rem; font: inherit; font-size: .8125rem; color: #111; background: #fff; border: 1px solid #bbb; border-radius: 999px; padding: .25rem .625rem .25rem .3rem; cursor: pointer; }
 .loc-chip[aria-pressed="true"] { border-color: var(--color-accent); background: #eef4fa; }
-.loc-chip-pin { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; border-radius: 50%; font-size: .6875rem; font-weight: 700; color: #fff; background: #888; }
+.loc-chip-pin { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; border-radius: 50%; font-size: .75rem; font-weight: 700; color: #fff; background: #888; }
 .loc-chip[aria-pressed="true"] .loc-chip-pin { background: var(--color-accent); }
 .loc-chip-count { color: var(--color-text-muted); }
 .loc-map-key { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .375rem; font-size: .75rem; color: #444; }
@@ -928,7 +929,7 @@ body.rwc-th-locked { overflow: hidden; }
 .loc-key-stadium:first-child { margin-left: 0; }
 .loc-key-fan { display: inline-block; width: 1.1rem; height: .75rem; border-radius: 50%; border: 1px dashed #444; margin-left: .5rem; }
 .loc-key-fan--confirmed { border: 2px solid #111; background: rgba(0, 0, 0, .1); }
-.loc-key-stop { display: inline-flex; align-items: center; justify-content: center; width: .9rem; height: .9rem; border: 1.5px solid #111; border-radius: 2px; font-size: .5625rem; font-weight: 700; margin-left: .5rem; }
+.loc-key-stop { display: inline-flex; align-items: center; justify-content: center; width: .9rem; height: .9rem; border: 1.5px solid #111; border-radius: 2px; font-size: .75rem; font-weight: 700; margin-left: .5rem; }
 @media (max-width: 48rem) {
   .loc-tile { grid-template-columns: 1fr; }
   .loc-map { border-right: 0; border-bottom: 1px solid var(--color-border); }
@@ -962,7 +963,7 @@ body.rwc-th-locked { overflow: hidden; }
   padding: 1.5rem .75rem .75rem;
   color: #111;
 }
-.article-card .card-tag  { font-size: .7rem; font-weight: 700; text-transform: uppercase; margin-bottom: .25rem; opacity: .85; }
+.article-card .card-tag  { font-size: .75rem; font-weight: 700; text-transform: uppercase; margin-bottom: .25rem; opacity: .85; }
 .article-card .card-title { font-size: .95rem; font-weight: 700; line-height: 1.3; }
 .article-card.featured .card-title { font-size: 1.3rem; }
 .article-card.featured { height: 31rem; }
@@ -1130,7 +1131,7 @@ body.rwc-th-locked { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .65rem;
+  font-size: .75rem;
   color: #aaa;
 }
 .footer-acknowledgement {
@@ -1150,7 +1151,7 @@ body.rwc-th-locked { overflow: hidden; }
   padding: 1.5rem 2rem;
 }
 .footer-col h4 {
-  font-size: .7rem;
+  font-size: .75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .05em;
@@ -1212,7 +1213,7 @@ body.rwc-th-locked { overflow: hidden; }
 .hero-countdown-units { display: flex; gap: .5rem; margin: .5rem 0; }
 .hero-countdown-cell { display: flex; flex-direction: column; align-items: center; min-width: 4.5rem; padding: .5rem .25rem; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.5); }
 .hero-countdown-num { font-size: 2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.hero-countdown-unit { font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.85); }
+.hero-countdown-unit { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.85); }
 .hero-countdown-done { font-size: 1rem; margin: .5rem 0; }
 .hero-countdown-weather { margin-top: .25rem; max-width: 26rem; }
 .hero-countdown-done a { color: #fff; }
@@ -1324,7 +1325,7 @@ body.rwc-th-locked { overflow: hidden; }
   box-shadow: 0 1px 6px rgba(0,0,0,.08);
 }
 .vs-label {
-  font-size: .6rem;
+  font-size: .75rem;
   color: var(--color-text-muted);
   font-weight: 700;
   text-transform: uppercase;
@@ -1650,7 +1651,7 @@ body.rwc-th-locked { overflow: hidden; }
 .v3-badge {
   background: #111;
   color: #fff;
-  font-size: .7rem;
+  font-size: .75rem;
   border-radius: 200px;
   width: 16px; height: 16px;
   display: inline-flex; align-items: center; justify-content: center;
@@ -1704,7 +1705,7 @@ body.rwc-th-locked { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .7rem;
+  font-size: .75rem;
   color: #111;
   cursor: pointer;
   flex-shrink: 0;
@@ -2050,7 +2051,7 @@ button.area-map-pin:hover { color: #111; }
 .detail-block-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 1.25rem 2rem; }
 .detail-block-field { padding: .25rem .5rem; border-radius: 4px; }
 .detail-block-field-wide { grid-column: 1 / -1; }
-.detail-block-label { margin: 0 0 .125rem; font-size: .6875rem; color: var(--color-text-muted); }
+.detail-block-label { margin: 0 0 .125rem; font-size: .75rem; color: var(--color-text-muted); }
 .detail-block-value { margin: 0; font-size: .875rem; color: #111; }
 .detail-block-field ul, .detail-block-field ol { margin: 0; padding-left: 1.1rem; font-size: .875rem; color: #111; line-height: 1.6; }
 
@@ -2079,7 +2080,7 @@ button.area-map-pin:hover { color: #111; }
 .deals-panel-image { flex: 1 1 320px; min-height: 12rem; }
 .deals-panel-body { flex: 1 1 320px; padding: 1.5rem; }
 .deals-panel-type {
-  display: inline-block; font-size: .6875rem; text-transform: uppercase; letter-spacing: .04em;
+  display: inline-block; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em;
   background: rgba(255,255,255,.15); padding: .2rem .6rem; border-radius: 999px; margin-bottom: .75rem;
 }
 .deals-panel-label { font-size: 1.25rem; font-weight: 700; margin-bottom: .5rem; }
@@ -2170,7 +2171,7 @@ body.nav--hidden.utility-bar-body--hidden .detail-tabs { top: 0; }
 .detail-info-social { display: flex; gap: .6rem; }
 .detail-info-social a {
   width: 1.75rem; height: 1.75rem; border-radius: 50%; background: #fff; border: 1px solid var(--color-border);
-  display: flex; align-items: center; justify-content: center; font-size: .7rem; color: var(--color-text-muted); text-decoration: none;
+  display: flex; align-items: center; justify-content: center; font-size: .75rem; color: var(--color-text-muted); text-decoration: none;
 }
 .detail-info-contact { max-height: 0; overflow: hidden; transition: max-height .2s ease; font-size: .8125rem; color: #111; }
 .detail-info-contact.open { max-height: 6rem; margin-top: .5rem; }
@@ -2244,7 +2245,7 @@ body.nav--hidden.utility-bar-body--hidden .detail-tabs { top: 0; }
   width: 2.75rem; height: 2.1rem; border-radius: 4px;
   background: rgba(255,255,255,.85);
   display: flex; align-items: center; justify-content: center;
-  font-size: .55rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+  font-size: .75rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
 }
 
 /* ── Region map (interactive destination map + horizontal card carousel) ──
@@ -2325,7 +2326,7 @@ body.region-map-fullscreen-open { overflow: hidden; }
   cursor: pointer; user-select: none;
 }
 .region-map-svg .region-zone-group.active .region-label { font-weight: 700; }
-.region-map-svg .region-marker-label { font-size: 11px; fill: rgba(255,255,255,.7); pointer-events: none; }
+.region-map-svg .region-marker-label { font-size: .75rem; fill: rgba(255,255,255,.7); pointer-events: none; }
 
 /* Bleeds out of .container to the true viewport edge on both sides — fully,
    with no static padding on either edge, so a card dragged/scrolled past
@@ -3111,7 +3112,7 @@ body.cp-page code { font: inherit; }
 .cn-notes-list > li.is-active { background: #fff6d1; }
 .cn-notes-todo { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid #e0e0e0; font-size: .8125rem; color: #555; }
 .cn-notes-todo[hidden] { display: none; }
-.cn-badge, .cn-num { display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1.5px solid #1f1f1f; border-radius: 50%; background: #ffd43b; color: #1f1f1f; font-size: .6875rem; font-weight: 700; line-height: 1; }
+.cn-badge, .cn-num { display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1.5px solid #1f1f1f; border-radius: 50%; background: #ffd43b; color: #1f1f1f; font-size: .75rem; font-weight: 700; line-height: 1; }
 .cn-num { margin-top: 1px; }
 .cn-badge { position: absolute; top: -8px; right: -8px; z-index: 2; pointer-events: none; box-shadow: var(--shadow-1); animation: cn-pop var(--dur-small) var(--ease-spring); transition: transform var(--dur-micro) var(--ease-out); }
 /* Pick your team: a tap on a badge goes to its note, with a 24px target around the 20px disc (WCAG 2.2 AA, 2.5.8) */
@@ -3430,7 +3431,7 @@ body.cp-page code { font: inherit; }
 /* Open, the strip has handed over to the axis: the panel moves up into its space (same total height, so the sheet's
    travel is unchanged) */
 .tp-tl.is-open .tp-tl-panel { position: relative; z-index: 1; margin-top: -22px; height: calc(var(--tl-p) + 22px); /* the bar is 88px: its count and the close button end at 59px, so the panel starts at 66px */ }
-.tp-tl-q { font-size: 11px; font-weight: var(--fw-heavy); line-height: 1; color: var(--c-ink-3); }
+.tp-tl-q { font-size: .75rem; font-weight: var(--fw-heavy); line-height: 1; color: var(--c-ink-3); }
 .tp-tl-detail.is-empty { min-height: 0; padding: 0; border: 0; }
 .tp-tl-later { border: 0; padding: var(--space-1) 0 0; text-align: left; }
 @media (prefers-reduced-motion: reduce) { .tp-tl-strip, .tp-tl-end, .tp-tl.is-open .tp-tl-strip, .tp-tl.is-open .tp-tl-end { transition: opacity .15s linear; } }
@@ -3676,7 +3677,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-lockup { flex: none; padding: var(--space-2); border: var(--bw-1) dashed var(--c-line-strong); }
 .tp-lockup-in { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 168px; height: 44px; padding: 0 var(--space-2); border: var(--bw-2) dashed var(--c-ink-3); text-align: center; white-space: nowrap; }
 .tp-lockup-t { font-family: var(--font-label); font-size: var(--fs-2xs); font-weight: var(--fw-bold); letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
-.tp-lockup-s { font-size: .625rem; line-height: 1.3; color: var(--c-ink-2); }
+.tp-lockup-s { font-size: .75rem; line-height: 1.3; color: var(--c-ink-2); }
 /* Capsule nav (Option B2): a dark capsule under the header, 44px with 36px items (WCAG 2.2 AA sizing, not the brief's
    52/44). The light pill is one element that glides to the picked item; the items slide to their new widths (FLIP in
    the page script). Unpicked items share the spare width on top of their own label width, so the longest label
@@ -3783,7 +3784,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-gl-card { display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius-md); }
 .tp-gl-img { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 0; }
 .tp-gl-body { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); padding: var(--space-5) var(--space-5) var(--space-5); background: var(--c-surface-2); color: var(--c-ink); }
-.tp-gl-lock { align-self: flex-end; margin-bottom: calc(var(--space-1) * -1); font-family: var(--font-label); font-size: 10px; font-weight: var(--fw-bold); line-height: 1.05; text-align: right; text-transform: uppercase; }
+.tp-gl-lock { align-self: flex-end; margin-bottom: calc(var(--space-1) * -1); font-family: var(--font-label); font-size: .75rem; font-weight: var(--fw-bold); line-height: 1.05; text-align: right; text-transform: uppercase; }
 .tp-gl-h { margin: 0; font-family: var(--font-display, inherit); font-size: 1.875rem; font-weight: var(--fw-bold); line-height: 1.05; letter-spacing: -.01em; text-wrap: balance; }
 .tp-gl-p { margin: 0; font-size: var(--fs-md); line-height: 1.45; }
 .tp-gl-card .tp-home-ph { color: inherit; opacity: .75; }
@@ -4322,7 +4323,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* The trip page: stops as product cards, with a small source label; values worked out from the stops say so */
 .tp-stop { grid-template-columns: minmax(0, 1fr); }
 .tp-stop { display: flex; align-items: center; gap: var(--space-3); }
-.tp-stop-src { align-self: flex-start; padding: 0 4px; border: var(--bw-1) solid var(--c-line); border-radius: 3px; font-size: .625rem; font-weight: var(--fw-semi); letter-spacing: .02em; color: var(--c-ink-2); }
+.tp-stop-src { align-self: flex-start; padding: 0 4px; border: var(--bw-1) solid var(--c-line); border-radius: 3px; font-size: .75rem; font-weight: var(--fw-semi); letter-spacing: .02em; color: var(--c-ink-2); }
 .tp-pm-derived { font-size: var(--fs-xs); color: var(--c-ink-2); }
 /* On the timeline: a longer trip is a solid span across its nights; a clash is hatched */
 .tp-tl-span { position: absolute; top: 8px; bottom: auto; height: 24px; margin-left: 0; display: flex; align-items: center; padding: 0 6px; border-radius: 6px; background: var(--c-btn); color: var(--c-on-dark); transform: none; overflow: hidden; }
@@ -4528,7 +4529,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-kbd-k--fn { flex: 1.35 1 0; background: #ababab; font-size: 1rem; }
 .tp-kbd-k--wide { flex: 2.2 1 0; font-size: .875rem; }
 .tp-kbd-k--space { flex: 5 1 0; font-size: .875rem; }
-.tp-kbd-note { position: absolute; right: 8px; bottom: 6px; font-size: .625rem; color: #5c5c5c; }
+.tp-kbd-note { position: absolute; right: 8px; bottom: 6px; font-size: .75rem; color: #5c5c5c; }
 
 /* Pick your team: match markers with a flag pair (stacked: a day column is 40px, a pair side by side is 51px), 30px
    tall (target over 24px, AA); rows step 32px. Teams to be decided keep the neutral marker. */
@@ -4698,13 +4699,13 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-util .tp-nsw-sw { margin-left: auto; font-size: var(--fs-sm); }
 /* The NSW marker on a card, only with Plays in NSW on: small, outlined, below the flag on the hand (clear of the next
    row), beside the flag in the grid. Nothing is hidden or dimmed. */
-.tp-nsw-mark { display: none; padding: 1px 3px; border: var(--bw-1) solid currentColor; border-radius: 3px; font-family: var(--font-label); font-size: .5625rem; font-weight: var(--fw-bold); line-height: 1.1; letter-spacing: .04em; }
+.tp-nsw-mark { display: none; padding: 1px 3px; border: var(--bw-1) solid currentColor; border-radius: 3px; font-family: var(--font-label); font-size: .75rem; font-weight: var(--fw-bold); line-height: 1.1; letter-spacing: .04em; }
 .show-nsw .tp-nsw-mark { display: inline-block; }
 /* On the hand only the top of each card shows, so the marker sits in the flag row (right) and the picked tick moves up
    beside the code (the widest code ends at about 38px of the 57px card; the tick takes 42 to 53px) */
-.tp-fan2-wrap:not(.is-grid) .tp-nsw-mark { position: absolute; top: 26px; right: 10px; padding: 0 2px; font-size: .4375rem; }
+.tp-fan2-wrap:not(.is-grid) .tp-nsw-mark { position: absolute; top: 26px; right: 10px; padding: 0 2px; font-size: .75rem; }
 .show-nsw .tp-fan2-wrap:not(.is-grid) .tp-card2 .tp-card-tick { top: 7px; right: 4px; }
-.tp-fan2-wrap.is-grid .tp-nsw-mark { position: absolute; right: 8px; top: 29px; font-size: .625rem; } /* in the flag row, right; the tick takes the top right */
+.tp-fan2-wrap.is-grid .tp-nsw-mark { position: absolute; right: 8px; top: 29px; font-size: .75rem; } /* in the flag row, right; the tick takes the top right */
 
 /* Your days and Refine your plan, on the page under the team picker (they used to be in the open timeline) */
 .cn-phone > .cn-body .tp-ask, #tp-ask { margin: 0 var(--space-4) var(--space-4); padding: var(--space-4); border-radius: var(--radius-md); background: var(--c-surface-2); }
@@ -4830,7 +4831,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-tl-free.is-full .tp-tl-free-sym svg { width: 14px; height: 14px; }
 .tp-tl-free-sym { display: grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid var(--c-line-ink); border-radius: 50%; background: var(--c-surface); color: var(--c-ink); }
 .tp-tl-free-sym svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
-.tp-tl-free-l { position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); font-size: 10px; line-height: 1.15; text-align: center; white-space: nowrap; color: var(--c-ink-2); pointer-events: none; }
+.tp-tl-free-l { position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); font-size: .75rem; line-height: 1.15; text-align: center; white-space: nowrap; color: var(--c-ink-2); pointer-events: none; }
 .tp-tl-free.is-full .tp-tl-free-sym { border-style: dashed; color: var(--c-ink-2); }
 .tp-tl-free.is-open .tp-tl-free-sym { border-color: var(--c-btn); background: var(--c-btn); color: var(--c-on-dark); }
 .tp-tl-free.is-open .tp-tl-free-l { font-weight: var(--fw-semi); color: var(--c-ink); }
@@ -4964,7 +4965,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 @media (prefers-reduced-motion: reduce) { .tp-map-jump { animation: none; } }
 .tp-pcs.tp-map-pcs { flex-direction: row; margin-top: 0; }
 .tp-map-marks.is-far .tp-map-mark.is-stadium:not(.is-now) .tp-map-mark-t { display: none; } /* zoomed out: only today’s stadium is named, so labels never pile up */
-.tp-map-dn { font-size: 9px; font-weight: var(--fw-bold); line-height: 1; letter-spacing: -.02em; }
+.tp-map-dn { font-size: .75rem; font-weight: var(--fw-bold); line-height: 1; letter-spacing: -.02em; }
 .tp-map-pin.is-faint { opacity: .9; }
 
 /* Map review fixes (critique 15 Nov): the day is the card's heading; a key for what is in view; grouped stops in
@@ -4976,7 +4977,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 .tp-map.is-free .tp-map-key { right: 60px; }
 .tp-map-key span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .tp-map-key i { flex: none; font-style: normal; }
-.tp-map-key-dot { display: grid; place-items: center; width: 16px; height: 16px; border: 1.5px solid var(--c-ink); border-radius: 50%; background: var(--c-surface); font-size: 9px; font-weight: var(--fw-bold); }
+.tp-map-key-dot { display: grid; place-items: center; width: 16px; height: 16px; border: 1.5px solid var(--c-ink); border-radius: 50%; background: var(--c-surface); font-size: .75rem; font-weight: var(--fw-bold); }
 .tp-map-key-dot.is-n { background: var(--c-btn); color: var(--c-on-dark); border-color: var(--c-btn); }
 .tp-map-key-i { display: grid; place-items: center; width: 16px; height: 16px; border: 1.5px solid var(--c-ink); border-radius: 4px; background: var(--c-surface); }
 .tp-map-key-i.is-round { border-radius: 50%; }
@@ -4999,7 +5000,7 @@ body.cp-page .cn-pp .provenance-gap::after { background: rgba(255, 0, 0, 0.08); 
 /* Polish pass (15 Nov) */
 .tp-map-nav .tp-link[disabled] { opacity: .5; }
 .tp-blk-more { margin-top: var(--space-3); }
-.tp-tl-free-l { font-size: 11px; }
+.tp-tl-free-l { font-size: .75rem; }
 .tp-pm-go .cn-pp-facts dd .tp-link { min-height: 0; padding: 0; vertical-align: baseline; } /* inline in a sentence: the 2.5.8 inline exception, so no 36px box pushing the row down */
 .tp-fan2 { transition: transform 520ms cubic-bezier(.45, .05, .25, 1); } @media (prefers-reduced-motion: reduce) { .tp-fan2 { transition: none; } }
 
@@ -5207,9 +5208,9 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tc-open:hover .tc-team { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 .tc-open:focus-visible, .tc-act:focus-visible, .tc-ko:focus-visible, .tc-more:focus-visible, .tc-next:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
 .tc-date { text-align: center; line-height: 1.05; }
-.tc-date small { display: block; font-size: 11px; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .04em; color: var(--c-ink-2); }
+.tc-date small { display: block; font-size: .75rem; font-weight: var(--fw-semi); text-transform: uppercase; letter-spacing: .04em; color: var(--c-ink-2); }
 .tc-date b { display: block; font-size: 20px; font-weight: var(--fw-bold); }
-.tc-date em { display: block; font-style: normal; font-size: 11px; color: var(--c-ink-2); }
+.tc-date em { display: block; font-style: normal; font-size: .75rem; color: var(--c-ink-2); }
 .tc-who { min-width: 0; }
 .tc-opp { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; font-size: 17px; font-weight: var(--fw-bold); line-height: 1.2; }
 .tc-team { display: inline-flex; align-items: center; gap: 6px; }
@@ -5217,14 +5218,14 @@ button.tp-map-skip { background: var(--c-surface); font: inherit; font-size: var
 .tc-vs { font-weight: 400; color: var(--c-ink-2); }
 .tp-rcard--rugby .tc-opp, .tp-rcard--added .tc-opp { font-size: var(--fs-md); }
 .tc-where { display: block; margin-top: 2px; font-size: var(--fs-sm); color: var(--c-ink-2); }
-.tc-chip { display: flex; align-items: center; width: max-content; max-width: 100%; height: 20px; margin-top: 4px; padding: 0 7px; border-radius: 10px; font-size: 11px; font-weight: var(--fw-semi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tc-chip { display: flex; align-items: center; width: max-content; max-width: 100%; height: 20px; margin-top: 4px; padding: 0 7px; border-radius: 10px; font-size: .75rem; font-weight: var(--fw-semi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tc-chip.is-ticket { background: var(--c-accent); color: var(--c-on-accent); }
 .tc-chip.is-watch { background: var(--c-surface-2); color: var(--c-ink); box-shadow: inset 0 0 0 1px var(--c-line-strong); }
-.tc-go { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 64px; font-size: 11px; font-weight: var(--fw-semi); }
+.tc-go { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 64px; font-size: .75rem; font-weight: var(--fw-semi); }
 .tp-rcard--rugby .tc-go, .tp-rcard--added .tc-go { width: 36px; }
 .tc-go-dot { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--c-btn); color: var(--c-on-dark); }
 .tc-go-dot svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.tc-act { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 64px; min-height: 44px; padding: 4px 2px; border: var(--bw-1) solid var(--c-line-ink); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: 11px; font-weight: var(--fw-semi); line-height: 1.1; text-align: center; cursor: pointer; }
+.tc-act { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 64px; min-height: 44px; padding: 4px 2px; border: var(--bw-1) solid var(--c-line-ink); background: var(--c-surface); color: var(--c-ink); font: inherit; font-size: .75rem; font-weight: var(--fw-semi); line-height: 1.1; text-align: center; cursor: pointer; }
 .tc-act:hover { background: var(--c-fill-soft); }
 /* I have tickets on an NSW match row (18 Nov), in place of the In NSW flag: the same box as Watch in NSW; pressed, it
    fills dark and a tick shows inside the ticket */
